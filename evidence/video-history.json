@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
-  "as_of": "2026-09-09",
-  "recent_series_count": 15,
+  "as_of": "2026-09-10",
+  "recent_series_count": 16,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -275,6 +275,86 @@
       },
       "source_sha256": "aca6aadce7982d2c7138b182ad3e43188eec37e7c16bd1019f42afe2f7361b74",
       "own_result_report_sha256": "b787ad8c4d4744a295c378abec8ce6aa855447989f83991a93a7edaaa2574f5f"
+    },
+    {
+      "id": "L11",
+      "original": "docs/media/l11-six-directions.mp4",
+      "preview": "docs/media/l11-six-directions.gif",
+      "date": "2026-09-09",
+      "date_kind": "reported_job_end_including_evaluation",
+      "local_verification_date": "2026-09-10",
+      "kind": "LEARNED_POLICY_EVALUATION",
+      "loop": "L11",
+      "series_order": 16,
+      "saved_iteration": 499,
+      "new_training_updates": 500,
+      "cohort": "final_L11_six_directions",
+      "frames": 600,
+      "fps": 50,
+      "duration_s": 12,
+      "directional_displacement_over12s_cm_s": {
+        "forward": 42.01791683832805,
+        "backward": 12.11887498696645,
+        "left": 6.942160924275716,
+        "right": 11.509815851847332
+      },
+      "directional_heading_change_deg": {
+        "forward": 1.9514865267894077,
+        "backward": -3.7468816651097088,
+        "left": 29.551055284511303,
+        "right": -6.371718625158349,
+        "turn_left": 147.21086636584005,
+        "turn_right": -179.87987273476796
+      },
+      "turn_signed_mean_yaw_rate_rad_s": {
+        "turn_left": 0.21410952606644065,
+        "turn_right": 0.26162466977417315
+      },
+      "turn_max_planar_excursion_m": {
+        "turn_left": 0.41486792592525995,
+        "turn_right": 0.2477798631156559
+      },
+      "all_development_targets_met": false,
+      "walking_acceptance": false,
+      "result": "前進42.0179cm/s。前進・後進・右の3/6方向が全基準達成。左6.9422cm/s・向き29.551度・前右滑り17.916cmと、両旋回の位置保持が未達。最小床離隔1.953mm。",
+      "comparison_scope": "Same L11 controller, physical model, command44cm/s and recorded initial physical/drive state for parent and final. Whole500-update training bundle comparison; no attribution to an isolated reward or curriculum change. Original L10 forward32.1595cm/s used command36cm/s.",
+      "other_comparison_videos": [
+        "docs/media/l11-matched-l10-six-directions.mp4"
+      ],
+      "matched_parent_evaluation": {
+        "original": "docs/media/l11-matched-l10-six-directions.mp4",
+        "cohort": "L10_parent_with_L11_controller",
+        "new_training_updates": 0,
+        "saved_iteration": 499,
+        "frames": 600,
+        "fps": 50,
+        "duration_s": 12,
+        "directional_displacement_over12s_cm_s": {
+          "forward": 35.75550317764282,
+          "backward": 10.667274395624798,
+          "left": 8.36358368396759,
+          "right": 11.651337146759033
+        },
+        "directional_heading_change_deg": {
+          "forward": 7.95907790118696,
+          "backward": 3.0849382806962877,
+          "left": 0.05559931609533399,
+          "right": -0.2451283304064707,
+          "turn_left": 106.77754361903152,
+          "turn_right": -148.28537027642764
+        },
+        "turn_signed_mean_yaw_rate_rad_s": {
+          "turn_left": 0.15530164194533014,
+          "turn_right": 0.21567232865521635
+        },
+        "turn_max_planar_excursion_m": {
+          "turn_left": 0.28271877287589336,
+          "turn_right": 0.19218774013557102
+        },
+        "source_sha256": "8e3a4f3b88f734eec67348d385bb15cb15ee0629057d7edbf9917fc7fd1783f2"
+      },
+      "source_sha256": "63e19518b23fcb6028f800ed785e3197c35393f3571c747eaecaf9b681b5a13b",
+      "own_result_report_sha256": "df6803fdf2eab5dd2d7249f813f50151bcaf6d9d8b822455de7a75c75d0b8a12"
     }
   ]
 }

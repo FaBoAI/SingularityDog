@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.public-progress.v1",
-  "as_of": "2026-09-09",
-  "target_actual_forward_m_s": 0.3,
+  "as_of": "2026-09-10",
+  "target_actual_forward_m_s": 0.4,
   "baseline": {
     "stage_updates": 250,
     "stage_transitions": 2048000,
@@ -104,32 +104,21 @@
   },
   "next_stage": {
     "status": "NOT_STARTED",
-    "scope": "左移動速度、旋回の位置保持と左右差、前進滑り、残差飽和を検討。単一seed・12秒の開発結果で実機合格とはしない。"
+    "scope": "前進40cm/sを維持し、左移動の速度・向き・滑り、旋回の位置保持、右移動の横流れ、前進の床離隔と残差飽和を改善する。第17回は未実施。"
   },
   "provenance_scope": "Selected own observations; individually authorized result videos in the publication registry. No private sources, vendor inputs or learned weights distributed.",
   "latest_stage": {
     "schema": "singularitydog.selected-learning-evaluation.v1",
-    "id": "L10",
-    "series_order": 15,
     "status": "COMPLETED_BOUNDED_LEARNING_AND_EVALUATION",
-    "completion_time": {
-      "value_utc": "2026-09-09T10:59:32.161757Z",
-      "kind": "reported_job_end_including_evaluation",
-      "note": "Evaluation completion has no separate timestamp; this is the bounded run end including evaluation."
-    },
     "new_training_updates": 500,
     "transitions": 4096000,
     "final_iteration": 499,
     "num_training_envs": 256,
     "seed": 42,
-    "deterministic_development_cases": 10,
     "final_evaluation_cases": 6,
     "smoke_trials_excluded_from_case_count": true,
     "actor_observation_dim": 74,
     "critic_observation_dim": 89,
-    "simulation_physical_geometry_changed": false,
-    "controller_changed": true,
-    "target_actual_forward_m_s": 0.3,
     "target_other_translation_m_s": 0.1,
     "target_abs_heading_change_deg": 15.0,
     "target_met": true,
@@ -152,15 +141,55 @@
       "drive_cap_violations_allowed": 0,
       "nonfoot_contact_allowed": false
     },
+    "final_speed_exceedance_samples": 0,
+    "drive_audit_scope": {
+      "independently_checked_retained_training_rows": 48,
+      "reported_whole_run_guarded_calls": 128001,
+      "whole_run_raw_trace_published": false,
+      "scope": "Retained48 raw rows were inspected privately; whole-run maxima/failure counts are runtime aggregates. Neither raw trace is distributed here."
+    },
+    "provenance_scope": "Selected measured metrics and hashes of authored reports only. No private paths, connection data, learned weights, raw logs, source packages or vendor design material.",
+    "target_signed_mean_turn_rate_rad_s": 0.2,
+    "target_turn_max_planar_excursion_m": 0.15,
+    "turn_rate_definition": "sign(requested_yaw_rate)*unwrapped_yaw_change/observed_duration, in rad/s. Rightward target progress is positive despite negative signed yaw. Turns have no translation speed_cm_s value.",
+    "id": "L11",
+    "series_order": 16,
+    "completion_time": {
+      "value_utc": "2026-09-09T13:36:26.016736Z",
+      "kind": "reported_job_end_including_evaluation",
+      "note": "Bounded run end includes evaluation. Independent local postprocessing and native checks completed on 2026-09-10 JST."
+    },
+    "deterministic_development_cases": 15,
+    "simulation_physical_geometry_changed": false,
+    "controller_changed": true,
+    "target_actual_forward_m_s": 0.4,
+    "training_speed_failure_episodes": 4150,
+    "training_maximum_actual_speed_rad_s": 26.442363739013672,
+    "initialization": "Exact L10 final499 actor74/critic89/std retained, including all five learned heading columns; fresh optimizer; 500 new updates.",
+    "prior_cumulative_updates": 2250,
+    "cumulative_updates_after_completion": 2750,
+    "cumulative_transitions_after_completion": 22528000,
     "cases": [
       {
+        "name": "forward",
         "direction": "forward",
         "duration_s": 12.0,
         "completed_interval": true,
         "first_failure_step": null,
         "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
-        "speed_cm_s": 32.15954701105754,
-        "yaw_end_deg": -2.388183649771862,
+        "speed_cm_s": 42.01791683832805,
+        "signed_mean_yaw_rate_rad_s": null,
+        "unwrapped_heading_change_rad": 0.03405986520078369,
+        "yaw_end_deg": 1.9514865267894077,
+        "max_abs_heading_change_deg": 7.011269779413355,
+        "world_delta_xyz_m": [
+          5.042150020599365,
+          0.1044313907623291,
+          -0.038925424218177795
+        ],
+        "final_planar_displacement_m": 5.043231379344669,
+        "max_planar_excursion_m": 5.043231379344669,
+        "signed_off_axis_drift_m": 0.1044313907623291,
         "lift15_FL_FR_RL_RR": [
           20,
           19,
@@ -168,52 +197,35 @@
           20
         ],
         "slip_m_FL_FR_RL_RR": [
-          0.14028626668232244,
-          0.03419167451703309,
-          0.035212910445116194,
-          0.02040004254518185
+          0.043257153425517524,
+          0.017583004418631056,
+          0.03827602656694825,
+          0.03671131177058636
         ],
-        "max_torque_Nm": 4.895088195800781,
-        "max_actual_speed_rad_s": 9.96916389465332,
-        "actual_samples_400hz": 4800,
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 5.5,
+        "max_actual_speed_rad_s": 9.971776008605957,
         "provisional10rad_s_exceedance_samples": 0,
+        "actual_samples_400hz": 4800,
         "bound_violations": 0,
         "h_continuity_error": 0.0,
-        "max_preprojection_clip_rad": 0.0,
-        "max_final_clip_rad": 0.0,
-        "name": "forward",
-        "label": "前進",
-        "cohort": "L10_final499",
-        "requested_linear_velocity_m_s": [
-          0.36,
-          0.0
-        ],
-        "requested_yaw_rate_rad_s": 0.0,
-        "walking_acceptance": false,
-        "signed_mean_yaw_rate_rad_s": null,
-        "unwrapped_heading_change_rad": -0.04168166783081412,
-        "max_abs_heading_change_deg": 3.282577672270002,
-        "world_delta_xyz_m": [
-          3.8591456413269043,
-          -0.16490304470062256,
-          -0.04189097881317139
-        ],
-        "max_planar_excursion_m": 3.8626672255222787,
-        "signed_off_axis_drift_m": -0.16490304470062256,
-        "max_nonfoot_N": 0.0,
+        "max_projection_mm": 19.194133579730988,
+        "max_preprojection_clip_rad": 0.02960079535841942,
+        "max_final_clip_rad": 0.008572962135076523,
+        "max_abs_raw_action": 4.247641563415527,
         "raw_action_clip_fraction_per_joint": [
+          0.335,
+          0.995,
+          0.45666666666666667,
           0.0,
-          0.99,
-          0.42833333333333334,
-          0.006666666666666667,
-          0.8533333333333334,
-          0.22666666666666666,
+          0.8266666666666667,
+          0.365,
+          0.01,
+          0.4166666666666667,
+          0.6366666666666667,
           0.0,
-          0.46,
-          0.40166666666666667,
-          0.0,
-          0.8633333333333333,
-          0.6016666666666667
+          0.7783333333333333,
+          0.6883333333333334
         ],
         "initial_reset_h_matches_first_compute": true,
         "criteria": {
@@ -226,16 +238,36 @@
           "translation_speed_met": true,
           "heading_change_met": true
         },
-        "all_development_targets_met": true
+        "all_development_targets_met": true,
+        "walking_acceptance": false,
+        "cohort": "L11_final499",
+        "label": "前進",
+        "requested_linear_velocity_m_s": [
+          0.44,
+          0.0
+        ],
+        "requested_yaw_rate_rad_s": 0.0
       },
       {
+        "name": "backward",
         "direction": "backward",
         "duration_s": 12.0,
         "completed_interval": true,
         "first_failure_step": null,
         "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
-        "speed_cm_s": 10.667274395624798,
-        "yaw_end_deg": 3.0849382806962877,
+        "speed_cm_s": 12.11887498696645,
+        "signed_mean_yaw_rate_rad_s": null,
+        "unwrapped_heading_change_rad": -0.06539542173877196,
+        "yaw_end_deg": -3.7468816651097088,
+        "max_abs_heading_change_deg": 4.2335924082415195,
+        "world_delta_xyz_m": [
+          -1.4542649984359741,
+          -0.187458336353302,
+          -0.001983731985092163
+        ],
+        "final_planar_displacement_m": 1.46629714367325,
+        "max_planar_excursion_m": 1.46629714367325,
+        "signed_off_axis_drift_m": -0.187458336353302,
         "lift15_FL_FR_RL_RR": [
           20,
           19,
@@ -243,51 +275,34 @@
           19
         ],
         "slip_m_FL_FR_RL_RR": [
-          0.04176758402090966,
-          0.04747144438705575,
-          0.050599216290361654,
-          0.027670407345970042
+          0.04341995283095032,
+          0.09735271775618075,
+          0.029155942456732822,
+          0.07090702662919145
         ],
-        "max_torque_Nm": 4.959460258483887,
-        "max_actual_speed_rad_s": 9.9754638671875,
-        "actual_samples_400hz": 4800,
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.934670448303223,
+        "max_actual_speed_rad_s": 9.975399017333984,
         "provisional10rad_s_exceedance_samples": 0,
+        "actual_samples_400hz": 4800,
         "bound_violations": 0,
         "h_continuity_error": 0.0,
+        "max_projection_mm": 29.021836817264557,
         "max_preprojection_clip_rad": 0.0,
         "max_final_clip_rad": 0.0,
-        "name": "backward",
-        "label": "後進",
-        "cohort": "L10_final499",
-        "requested_linear_velocity_m_s": [
-          -0.12,
-          0.0
-        ],
-        "requested_yaw_rate_rad_s": 0.0,
-        "walking_acceptance": false,
-        "signed_mean_yaw_rate_rad_s": null,
-        "unwrapped_heading_change_rad": 0.05384233021896325,
-        "max_abs_heading_change_deg": 3.916912131490233,
-        "world_delta_xyz_m": [
-          -1.2800729274749756,
-          -0.3118015229701996,
-          -0.005711972713470459
-        ],
-        "max_planar_excursion_m": 1.3175002426492717,
-        "signed_off_axis_drift_m": -0.3118015229701996,
-        "max_nonfoot_N": 0.0,
+        "max_abs_raw_action": 4.6191630363464355,
         "raw_action_clip_fraction_per_joint": [
-          0.475,
+          0.4716666666666667,
           1.0,
-          0.48333333333333334,
-          0.5833333333333334,
-          0.7383333333333333,
+          0.62,
+          0.6466666666666666,
+          0.89,
+          0.09,
+          0.6816666666666666,
+          0.3283333333333333,
+          1.0,
           0.0,
-          0.6433333333333333,
-          0.29833333333333334,
-          0.9883333333333333,
-          0.0,
-          0.31833333333333336,
+          0.235,
           0.9983333333333333
         ],
         "initial_reset_h_matches_first_compute": true,
@@ -301,16 +316,36 @@
           "translation_speed_met": true,
           "heading_change_met": true
         },
-        "all_development_targets_met": true
+        "all_development_targets_met": true,
+        "walking_acceptance": false,
+        "cohort": "L11_final499",
+        "label": "後進",
+        "requested_linear_velocity_m_s": [
+          -0.12,
+          0.0
+        ],
+        "requested_yaw_rate_rad_s": 0.0
       },
       {
+        "name": "left",
         "direction": "left",
         "duration_s": 12.0,
         "completed_interval": true,
         "first_failure_step": null,
         "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
-        "speed_cm_s": 8.36358368396759,
-        "yaw_end_deg": 0.05559931609533399,
+        "speed_cm_s": 6.942160924275716,
+        "signed_mean_yaw_rate_rad_s": null,
+        "unwrapped_heading_change_rad": 0.5157632121535919,
+        "yaw_end_deg": 29.551055284511303,
+        "max_abs_heading_change_deg": 29.551055284511303,
+        "world_delta_xyz_m": [
+          -0.47217416763305664,
+          0.8330593109130859,
+          -0.0004903078079223633
+        ],
+        "final_planar_displacement_m": 0.9575678879739835,
+        "max_planar_excursion_m": 0.9575678879739835,
+        "signed_off_axis_drift_m": -0.47217416763305664,
         "lift15_FL_FR_RL_RR": [
           20,
           19,
@@ -318,74 +353,77 @@
           19
         ],
         "slip_m_FL_FR_RL_RR": [
-          0.033009100929048726,
-          0.054101683241834404,
-          0.017749591881336433,
-          0.016568294616446096
+          0.017546461878146492,
+          0.1791627950662628,
+          0.014967985898861134,
+          0.027852205252786873
         ],
-        "max_torque_Nm": 3.1519906520843506,
-        "max_actual_speed_rad_s": 9.9706449508667,
-        "actual_samples_400hz": 4800,
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 3.284186363220215,
+        "max_actual_speed_rad_s": 9.998638153076172,
         "provisional10rad_s_exceedance_samples": 0,
+        "actual_samples_400hz": 4800,
         "bound_violations": 0,
         "h_continuity_error": 0.0,
+        "max_projection_mm": 20.26190049946308,
         "max_preprojection_clip_rad": 0.0,
         "max_final_clip_rad": 0.0,
-        "name": "left",
-        "label": "左移動",
-        "cohort": "L10_final499",
-        "requested_linear_velocity_m_s": [
-          0.0,
-          0.12
-        ],
-        "requested_yaw_rate_rad_s": 0.0,
-        "walking_acceptance": false,
-        "signed_mean_yaw_rate_rad_s": null,
-        "unwrapped_heading_change_rad": 0.0009703911277206556,
-        "max_abs_heading_change_deg": 1.116298253637535,
-        "world_delta_xyz_m": [
-          -0.330855131149292,
-          1.0036300420761108,
-          -0.006866633892059326
-        ],
-        "max_planar_excursion_m": 1.0567584299003776,
-        "signed_off_axis_drift_m": -0.330855131149292,
-        "max_nonfoot_N": 0.0,
+        "max_abs_raw_action": 4.375302314758301,
         "raw_action_clip_fraction_per_joint": [
-          0.5216666666666666,
-          1.0,
-          0.5416666666666666,
+          0.5183333333333333,
+          0.9983333333333333,
           0.58,
-          0.555,
+          0.585,
+          0.88,
+          0.07833333333333334,
+          0.455,
+          0.31333333333333335,
+          0.98,
           0.0,
-          0.5233333333333333,
-          0.2783333333333333,
-          0.9616666666666667,
-          0.0,
-          0.155,
-          0.965
+          0.02,
+          0.9983333333333333
         ],
         "initial_reset_h_matches_first_compute": true,
         "criteria": {
           "completed_requested_interval": true,
           "every_foot_lift15_at_least18": true,
-          "every_foot_slip_at_most15cm": true,
+          "every_foot_slip_at_most15cm": false,
           "no_actual_speed_exceedance": true,
           "no_nonfoot_contact": true,
           "no_drive_cap_violation": true,
           "translation_speed_met": false,
-          "heading_change_met": true
+          "heading_change_met": false
         },
-        "all_development_targets_met": false
+        "all_development_targets_met": false,
+        "walking_acceptance": false,
+        "cohort": "L11_final499",
+        "label": "左移動",
+        "requested_linear_velocity_m_s": [
+          0.0,
+          0.12
+        ],
+        "requested_yaw_rate_rad_s": 0.0
       },
       {
+        "name": "right",
         "direction": "right",
         "duration_s": 12.0,
         "completed_interval": true,
         "first_failure_step": null,
         "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
-        "speed_cm_s": 11.651337146759033,
-        "yaw_end_deg": -0.2451283304064707,
+        "speed_cm_s": 11.509815851847332,
+        "signed_mean_yaw_rate_rad_s": null,
+        "unwrapped_heading_change_rad": -0.11120746901965958,
+        "yaw_end_deg": -6.371718625158349,
+        "max_abs_heading_change_deg": 6.802684247038286,
+        "world_delta_xyz_m": [
+          -0.5939395427703857,
+          -1.3811779022216797,
+          -0.0015370547771453857
+        ],
+        "final_planar_displacement_m": 1.5034681832522345,
+        "max_planar_excursion_m": 1.5034681832522345,
+        "signed_off_axis_drift_m": -0.5939395427703857,
         "lift15_FL_FR_RL_RR": [
           20,
           19,
@@ -393,52 +431,35 @@
           19
         ],
         "slip_m_FL_FR_RL_RR": [
-          0.08874720356543345,
-          0.03924187273538192,
-          0.04858802880995636,
-          0.03362641501964595
+          0.14343498455801976,
+          0.04848354528645876,
+          0.022219757837191094,
+          0.09625291734654573
         ],
-        "max_torque_Nm": 5.145555019378662,
-        "max_actual_speed_rad_s": 9.973875045776367,
-        "actual_samples_400hz": 4800,
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.088658809661865,
+        "max_actual_speed_rad_s": 9.959799766540527,
         "provisional10rad_s_exceedance_samples": 0,
+        "actual_samples_400hz": 4800,
         "bound_violations": 0,
         "h_continuity_error": 0.0,
+        "max_projection_mm": 26.482630521059036,
         "max_preprojection_clip_rad": 0.0,
         "max_final_clip_rad": 0.0,
-        "name": "right",
-        "label": "右移動",
-        "cohort": "L10_final499",
-        "requested_linear_velocity_m_s": [
-          0.0,
-          -0.12
-        ],
-        "requested_yaw_rate_rad_s": 0.0,
-        "walking_acceptance": false,
-        "signed_mean_yaw_rate_rad_s": null,
-        "unwrapped_heading_change_rad": -0.0042782964555094435,
-        "max_abs_heading_change_deg": 1.0321485865667521,
-        "world_delta_xyz_m": [
-          -0.31346189975738525,
-          -1.398160457611084,
-          -0.004926994442939758
-        ],
-        "max_planar_excursion_m": 1.4328681125025935,
-        "signed_off_axis_drift_m": -0.31346189975738525,
-        "max_nonfoot_N": 0.0,
+        "max_abs_raw_action": 4.4808478355407715,
         "raw_action_clip_fraction_per_joint": [
-          0.5233333333333333,
-          1.0,
-          0.495,
-          0.5416666666666666,
-          0.7016666666666667,
+          0.47833333333333333,
+          0.9983333333333333,
+          0.6366666666666667,
+          0.595,
+          0.8216666666666667,
+          0.175,
+          0.6916666666666667,
+          0.23333333333333334,
+          0.9866666666666667,
           0.0,
-          0.6583333333333333,
-          0.265,
-          0.9666666666666667,
-          0.0,
-          0.22,
-          0.96
+          0.19166666666666668,
+          0.9983333333333333
         ],
         "initial_reset_h_matches_first_compute": true,
         "criteria": {
@@ -451,16 +472,36 @@
           "translation_speed_met": true,
           "heading_change_met": true
         },
-        "all_development_targets_met": true
+        "all_development_targets_met": true,
+        "walking_acceptance": false,
+        "cohort": "L11_final499",
+        "label": "右移動",
+        "requested_linear_velocity_m_s": [
+          0.0,
+          -0.12
+        ],
+        "requested_yaw_rate_rad_s": 0.0
       },
       {
+        "name": "turn_left",
         "direction": "turn_left",
         "duration_s": 12.0,
         "completed_interval": true,
         "first_failure_step": null,
         "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
         "speed_cm_s": null,
-        "yaw_end_deg": 106.77754361903152,
+        "signed_mean_yaw_rate_rad_s": 0.21410952606644065,
+        "unwrapped_heading_change_rad": 2.569314312797288,
+        "yaw_end_deg": 147.21086636584005,
+        "max_abs_heading_change_deg": 147.21086636584005,
+        "world_delta_xyz_m": [
+          -0.03175923973321915,
+          -0.4136505126953125,
+          -0.00018668174743652344
+        ],
+        "final_planar_displacement_m": 0.41486792592525995,
+        "max_planar_excursion_m": 0.41486792592525995,
+        "signed_off_axis_drift_m": null,
         "lift15_FL_FR_RL_RR": [
           20,
           19,
@@ -468,127 +509,35 @@
           19
         ],
         "slip_m_FL_FR_RL_RR": [
-          0.018170396183619895,
-          0.0457958841303062,
-          0.02445915331540221,
-          0.017469063961860463
+          0.02357910489205849,
+          0.024648067284107397,
+          0.033110139039266386,
+          0.032525801937661886
         ],
-        "max_torque_Nm": 3.962165355682373,
-        "max_actual_speed_rad_s": 9.96906566619873,
-        "actual_samples_400hz": 4800,
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 3.896481990814209,
+        "max_actual_speed_rad_s": 9.99644947052002,
         "provisional10rad_s_exceedance_samples": 0,
+        "actual_samples_400hz": 4800,
         "bound_violations": 0,
         "h_continuity_error": 0.0,
+        "max_projection_mm": 21.99927344918251,
         "max_preprojection_clip_rad": 0.0,
         "max_final_clip_rad": 0.0,
-        "name": "turn_left",
-        "label": "左旋回",
-        "cohort": "L10_final499",
-        "requested_linear_velocity_m_s": [
-          0.0,
-          0.0
-        ],
-        "requested_yaw_rate_rad_s": 0.25,
-        "walking_acceptance": false,
-        "signed_mean_yaw_rate_rad_s": 0.15530164194533014,
-        "unwrapped_heading_change_rad": 1.8636197033439617,
-        "max_abs_heading_change_deg": 106.77754361903152,
-        "world_delta_xyz_m": [
-          -0.07984855771064758,
-          -0.27120861411094666,
-          -0.0032951384782791138
-        ],
-        "max_planar_excursion_m": 0.28271877287589336,
-        "signed_off_axis_drift_m": null,
-        "max_nonfoot_N": 0.0,
+        "max_abs_raw_action": 4.200621604919434,
         "raw_action_clip_fraction_per_joint": [
-          0.455,
+          0.39,
           1.0,
-          0.5183333333333333,
-          0.585,
-          0.675,
+          0.6033333333333334,
+          0.64,
+          0.8416666666666667,
+          0.25833333333333336,
+          0.6833333333333333,
+          0.335,
+          0.9816666666666667,
           0.0,
-          0.59,
-          0.3,
-          0.965,
-          0.0,
-          0.215,
-          0.96
-        ],
-        "initial_reset_h_matches_first_compute": true,
-        "criteria": {
-          "completed_requested_interval": true,
-          "every_foot_lift15_at_least18": true,
-          "every_foot_slip_at_most15cm": true,
-          "no_actual_speed_exceedance": true,
-          "no_nonfoot_contact": true,
-          "no_drive_cap_violation": true,
-          "signed_mean_turn_rate_met": false,
-          "maximum_planar_excursion_met": false
-        },
-        "all_development_targets_met": false
-      },
-      {
-        "direction": "turn_right",
-        "duration_s": 12.0,
-        "completed_interval": true,
-        "first_failure_step": null,
-        "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
-        "speed_cm_s": null,
-        "yaw_end_deg": -148.28537027642764,
-        "lift15_FL_FR_RL_RR": [
-          20,
-          19,
-          19,
-          19
-        ],
-        "slip_m_FL_FR_RL_RR": [
-          0.022798605258736494,
-          0.01630969852148418,
-          0.015834917012845756,
-          0.025057596108667993
-        ],
-        "max_torque_Nm": 3.4372546672821045,
-        "max_actual_speed_rad_s": 9.974587440490723,
-        "actual_samples_400hz": 4800,
-        "provisional10rad_s_exceedance_samples": 0,
-        "bound_violations": 0,
-        "h_continuity_error": 0.0,
-        "max_preprojection_clip_rad": 0.0,
-        "max_final_clip_rad": 0.0,
-        "name": "turn_right",
-        "label": "右旋回",
-        "cohort": "L10_final499",
-        "requested_linear_velocity_m_s": [
-          0.0,
-          0.0
-        ],
-        "requested_yaw_rate_rad_s": -0.25,
-        "walking_acceptance": false,
-        "signed_mean_yaw_rate_rad_s": 0.21567232865521635,
-        "unwrapped_heading_change_rad": -2.588067943862596,
-        "max_abs_heading_change_deg": 148.28537027642764,
-        "world_delta_xyz_m": [
-          -0.1909748911857605,
-          0.002130177803337574,
-          -0.002686724066734314
-        ],
-        "max_planar_excursion_m": 0.19218774013557102,
-        "signed_off_axis_drift_m": null,
-        "max_nonfoot_N": 0.0,
-        "raw_action_clip_fraction_per_joint": [
-          0.49166666666666664,
-          1.0,
-          0.48,
-          0.5683333333333334,
-          0.6633333333333333,
-          0.0,
-          0.6216666666666667,
-          0.235,
-          0.9616666666666667,
-          0.0,
-          0.21333333333333335,
-          0.965
+          0.19666666666666666,
+          0.9983333333333333
         ],
         "initial_reset_h_matches_first_compute": true,
         "criteria": {
@@ -601,72 +550,124 @@
           "signed_mean_turn_rate_met": true,
           "maximum_planar_excursion_met": false
         },
-        "all_development_targets_met": false
+        "all_development_targets_met": false,
+        "walking_acceptance": false,
+        "cohort": "L11_final499",
+        "label": "左旋回",
+        "requested_linear_velocity_m_s": [
+          0.0,
+          0.0
+        ],
+        "requested_yaw_rate_rad_s": 0.25
+      },
+      {
+        "name": "turn_right",
+        "direction": "turn_right",
+        "duration_s": 12.0,
+        "completed_interval": true,
+        "first_failure_step": null,
+        "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+        "speed_cm_s": null,
+        "signed_mean_yaw_rate_rad_s": 0.26162466977417315,
+        "unwrapped_heading_change_rad": -3.1394960372900775,
+        "yaw_end_deg": -179.87987273476796,
+        "max_abs_heading_change_deg": 179.87987273476796,
+        "world_delta_xyz_m": [
+          -0.16371038556098938,
+          0.09474755078554153,
+          -0.0007987320423126221
+        ],
+        "final_planar_displacement_m": 0.1891512324051487,
+        "max_planar_excursion_m": 0.2477798631156559,
+        "signed_off_axis_drift_m": null,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.01849765527224298,
+          0.045178578033877544,
+          0.012205317062019836,
+          0.025650827730651266
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 3.2988147735595703,
+        "max_actual_speed_rad_s": 9.984164237976074,
+        "provisional10rad_s_exceedance_samples": 0,
+        "actual_samples_400hz": 4800,
+        "bound_violations": 0,
+        "h_continuity_error": 0.0,
+        "max_projection_mm": 20.809290930628777,
+        "max_preprojection_clip_rad": 0.0,
+        "max_final_clip_rad": 0.0,
+        "max_abs_raw_action": 4.315165996551514,
+        "raw_action_clip_fraction_per_joint": [
+          0.49166666666666664,
+          0.9983333333333333,
+          0.575,
+          0.6016666666666667,
+          0.83,
+          0.006666666666666667,
+          0.605,
+          0.255,
+          0.9883333333333333,
+          0.0,
+          0.12833333333333333,
+          0.9983333333333333
+        ],
+        "initial_reset_h_matches_first_compute": true,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "signed_mean_turn_rate_met": true,
+          "maximum_planar_excursion_met": false
+        },
+        "all_development_targets_met": false,
+        "walking_acceptance": false,
+        "cohort": "L11_final499",
+        "label": "右旋回",
+        "requested_linear_velocity_m_s": [
+          0.0,
+          0.0
+        ],
+        "requested_yaw_rate_rad_s": -0.25
       }
     ],
-    "training_speed_failure_episodes": 2788,
-    "training_maximum_actual_speed_rad_s": 23.25493812561035,
-    "final_speed_exceedance_samples": 0,
-    "learning_audit": {
-      "actor_updated_tensors": 9,
-      "actor_total_tensors": 9,
-      "critic_updated_tensors": 8,
-      "critic_total_tensors": 8,
-      "std_updated_components": 12,
-      "std_total_components": 12,
-      "optimizer_state_entries": 17,
-      "optimizer_steps_per_state": 10000,
-      "optimizer_steps_basis": "500 completed updates *5 epochs *4 minibatches; fresh optimizer at stage start.",
-      "exported_mean_actor_exact_tensor_matches": 8,
-      "new_actor_input_columns_updated": 5,
-      "new_actor_input_elements_updated": 640,
-      "new_critic_input_columns_updated": 5,
-      "new_critic_input_elements_updated": 640
-    },
-    "drive_audit_scope": {
-      "independently_checked_retained_training_rows": 48,
-      "reported_whole_run_guarded_calls": 128001,
-      "whole_run_raw_trace_published": false,
-      "scope": "Retained48 raw rows were inspected privately; whole-run maxima/failure counts are runtime aggregates. Neither raw trace is distributed here."
-    },
-    "own_source_hashes": {
-      "independent_evaluation_report_sha256": "b787ad8c4d4744a295c378abec8ce6aa855447989f83991a93a7edaaa2574f5f",
-      "independent_training_audit_sha256": "58f14d32b1e58a324de7f0cb510431d443ca351a0dca6d8ea39e3dd45bf12820",
-      "authored_results_report_sha256": "5915c2b709b68fd28c09f512d5eee73a62bb83f8780e04089f3593f9dcf8ba3f"
-    },
-    "provenance_scope": "Selected measured metrics and hashes of authored reports only. No private paths, connection data, learned weights, raw logs, source packages or vendor design material.",
-    "initialization": "L09 final499 tensors transferred with first69 actor inputs retained, new5 input columns zero, critic privileged15 columns moved to74:89; fresh optimizer;500 new updates.",
-    "target_signed_mean_turn_rate_rad_s": 0.2,
-    "target_turn_max_planar_excursion_m": 0.15,
-    "turn_rate_definition": "sign(requested_yaw_rate)*unwrapped_yaw_change/observed_duration, in rad/s. Rightward target progress is positive despite negative signed yaw. Turns have no translation speed_cm_s value.",
-    "reset_protocol": {
-      "id": "nominal_target_audited_framework_reset",
-      "common_initial_state_exact_match": true,
-      "matched_cohorts": [
-        "remeasured_L09_under_L10_reset",
-        "L10_final499"
-      ],
-      "explicit_reset_compute_calls_per_case": 1,
-      "initial_exposure_zero": true,
-      "scope": "Nominal position targets and zero velocity/effort targets are set by normal framework reset. All baseline4/final6 share exactly recorded initial physical/drive state. Exposure is not reset on command changes."
-    },
     "baseline": {
-      "id": "L09_remeasured_for_L10",
-      "cohort": "remeasured_L09_under_L10_reset",
-      "original_evaluation_reference": "evidence/l09-evaluation.json",
+      "id": "L10_remeasured_for_L11",
+      "cohort": "L10_parent_with_L11_controller",
+      "original_evaluation_reference": "evidence/l10-evaluation.json",
       "new_training_updates": 0,
-      "actor_observation_dim": 69,
-      "original_L09_controller": true,
-      "scope": "Same original L09 policy/controller remeasured before L10 training with the corrected shared reset. These values do not replace the original L09 evaluation.",
+      "actor_observation_dim": 74,
+      "same_controller_as_final": true,
+      "scope": "L10 actor remeasured with the L11 controller, common audited reset and forward44cm/s command. Original L10 forward36cm/s evaluation remains separate.",
       "cases": [
         {
+          "name": "forward",
           "direction": "forward",
           "duration_s": 12.0,
           "completed_interval": true,
           "first_failure_step": null,
           "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
-          "speed_cm_s": 31.904804706573486,
-          "yaw_end_deg": 6.882198064114392,
+          "speed_cm_s": 35.75550317764282,
+          "signed_mean_yaw_rate_rad_s": null,
+          "unwrapped_heading_change_rad": 0.13891211479843235,
+          "yaw_end_deg": 7.95907790118696,
+          "max_abs_heading_change_deg": 8.745707623647512,
+          "world_delta_xyz_m": [
+            4.290660381317139,
+            0.28390899300575256,
+            -0.03682945668697357
+          ],
+          "final_planar_displacement_m": 4.300043118866841,
+          "max_planar_excursion_m": 4.300043118866841,
+          "signed_off_axis_drift_m": 0.28390899300575256,
           "lift15_FL_FR_RL_RR": [
             20,
             19,
@@ -674,52 +675,35 @@
             20
           ],
           "slip_m_FL_FR_RL_RR": [
-            0.04740909844073521,
-            0.021214544345024292,
-            0.019382293695282524,
-            0.015485346356879998
+            0.12603991654723548,
+            0.05311636282971855,
+            0.0489670480576582,
+            0.06031053298167011
           ],
-          "max_torque_Nm": 3.2990314960479736,
-          "max_actual_speed_rad_s": 9.956840515136719,
-          "actual_samples_400hz": 4800,
+          "max_nonfoot_N": 0.0,
+          "max_torque_Nm": 5.5,
+          "max_actual_speed_rad_s": 9.96261978149414,
           "provisional10rad_s_exceedance_samples": 0,
+          "actual_samples_400hz": 4800,
           "bound_violations": 0,
           "h_continuity_error": 0.0,
-          "max_preprojection_clip_rad": 0.0,
-          "max_final_clip_rad": 0.0,
-          "name": "forward",
-          "label": "前進",
-          "cohort": "remeasured_L09_under_L10_reset",
-          "requested_linear_velocity_m_s": [
-            0.36,
-            0.0
-          ],
-          "requested_yaw_rate_rad_s": 0.0,
-          "walking_acceptance": false,
-          "signed_mean_yaw_rate_rad_s": null,
-          "unwrapped_heading_change_rad": 0.12011701599317594,
-          "max_abs_heading_change_deg": 7.17238349316595,
-          "world_delta_xyz_m": [
-            3.8285765647888184,
-            0.19143345952033997,
-            -0.03571188449859619
-          ],
-          "max_planar_excursion_m": 3.8333595294302976,
-          "signed_off_axis_drift_m": 0.19143345952033997,
-          "max_nonfoot_N": 0.0,
+          "max_projection_mm": 18.722979351878166,
+          "max_preprojection_clip_rad": 0.023098282516002655,
+          "max_final_clip_rad": 2.220446049250313e-16,
+          "max_abs_raw_action": 3.010622024536133,
           "raw_action_clip_fraction_per_joint": [
-            0.0016666666666666668,
-            0.8416666666666667,
-            0.3283333333333333,
+            0.021666666666666667,
+            0.9933333333333333,
+            0.45166666666666666,
             0.0,
-            0.8333333333333334,
-            0.43333333333333335,
+            0.845,
+            0.3383333333333333,
             0.0,
-            0.44666666666666666,
-            0.21,
+            0.48,
+            0.4583333333333333,
             0.0,
-            0.6766666666666666,
-            0.36
+            0.8733333333333333,
+            0.5666666666666667
           ],
           "initial_reset_h_matches_first_compute": true,
           "criteria": {
@@ -729,19 +713,39 @@
             "no_actual_speed_exceedance": true,
             "no_nonfoot_contact": true,
             "no_drive_cap_violation": true,
-            "translation_speed_met": true,
+            "translation_speed_met": false,
             "heading_change_met": true
           },
-          "all_development_targets_met": true
+          "all_development_targets_met": false,
+          "walking_acceptance": false,
+          "cohort": "L10_parent_with_L11_controller",
+          "label": "前進",
+          "requested_linear_velocity_m_s": [
+            0.44,
+            0.0
+          ],
+          "requested_yaw_rate_rad_s": 0.0
         },
         {
+          "name": "backward",
           "direction": "backward",
           "duration_s": 12.0,
           "completed_interval": true,
           "first_failure_step": null,
           "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
-          "speed_cm_s": 10.716309150060017,
-          "yaw_end_deg": -23.587793484425593,
+          "speed_cm_s": 10.667274395624798,
+          "signed_mean_yaw_rate_rad_s": null,
+          "unwrapped_heading_change_rad": 0.05384233021896325,
+          "yaw_end_deg": 3.0849382806962877,
+          "max_abs_heading_change_deg": 3.916912131490233,
+          "world_delta_xyz_m": [
+            -1.2800729274749756,
+            -0.3118015229701996,
+            -0.005711972713470459
+          ],
+          "final_planar_displacement_m": 1.3175002426492717,
+          "max_planar_excursion_m": 1.3175002426492717,
+          "signed_off_axis_drift_m": -0.3118015229701996,
           "lift15_FL_FR_RL_RR": [
             20,
             19,
@@ -749,52 +753,35 @@
             19
           ],
           "slip_m_FL_FR_RL_RR": [
-            0.036313863938261165,
-            0.07638647309918938,
-            0.06504765250400046,
-            0.020358095346716697
+            0.04176758402090966,
+            0.04747144438705575,
+            0.050599216290361654,
+            0.027670407345970042
           ],
-          "max_torque_Nm": 5.296572208404541,
-          "max_actual_speed_rad_s": 9.97689151763916,
-          "actual_samples_400hz": 4800,
+          "max_nonfoot_N": 0.0,
+          "max_torque_Nm": 4.959460258483887,
+          "max_actual_speed_rad_s": 9.9754638671875,
           "provisional10rad_s_exceedance_samples": 0,
+          "actual_samples_400hz": 4800,
           "bound_violations": 0,
           "h_continuity_error": 0.0,
+          "max_projection_mm": 25.66836215555668,
           "max_preprojection_clip_rad": 0.0,
           "max_final_clip_rad": 0.0,
-          "name": "backward",
-          "label": "後進",
-          "cohort": "remeasured_L09_under_L10_reset",
-          "requested_linear_velocity_m_s": [
-            -0.12,
-            0.0
-          ],
-          "requested_yaw_rate_rad_s": 0.0,
-          "walking_acceptance": false,
-          "signed_mean_yaw_rate_rad_s": null,
-          "unwrapped_heading_change_rad": -0.4116846595836924,
-          "max_abs_heading_change_deg": 23.671238679680105,
-          "world_delta_xyz_m": [
-            -1.2859570980072021,
-            0.22812658548355103,
-            -0.002073824405670166
-          ],
-          "max_planar_excursion_m": 1.3060349906949236,
-          "signed_off_axis_drift_m": 0.22812658548355103,
-          "max_nonfoot_N": 0.0,
+          "max_abs_raw_action": 3.790059804916382,
           "raw_action_clip_fraction_per_joint": [
-            0.49666666666666665,
-            0.9733333333333334,
-            0.4583333333333333,
-            0.57,
-            0.61,
+            0.475,
+            1.0,
+            0.48333333333333334,
+            0.5833333333333334,
+            0.7383333333333333,
             0.0,
-            0.58,
-            0.265,
-            0.9633333333333334,
+            0.6433333333333333,
+            0.29833333333333334,
+            0.9883333333333333,
             0.0,
-            0.21,
-            0.955
+            0.31833333333333336,
+            0.9983333333333333
           ],
           "initial_reset_h_matches_first_compute": true,
           "criteria": {
@@ -805,93 +792,38 @@
             "no_nonfoot_contact": true,
             "no_drive_cap_violation": true,
             "translation_speed_met": true,
-            "heading_change_met": false
+            "heading_change_met": true
           },
-          "all_development_targets_met": false
+          "all_development_targets_met": true,
+          "walking_acceptance": false,
+          "cohort": "L10_parent_with_L11_controller",
+          "label": "後進",
+          "requested_linear_velocity_m_s": [
+            -0.12,
+            0.0
+          ],
+          "requested_yaw_rate_rad_s": 0.0
         },
         {
+          "name": "left",
           "direction": "left",
           "duration_s": 12.0,
           "completed_interval": true,
           "first_failure_step": null,
           "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
-          "speed_cm_s": 7.589259246985118,
-          "yaw_end_deg": 30.001344858843662,
-          "lift15_FL_FR_RL_RR": [
-            20,
-            19,
-            19,
-            20
-          ],
-          "slip_m_FL_FR_RL_RR": [
-            0.02344952158398003,
-            0.04002205825640361,
-            0.018504105314566137,
-            0.028667152550820203
-          ],
-          "max_torque_Nm": 3.1471853256225586,
-          "max_actual_speed_rad_s": 9.96605396270752,
-          "actual_samples_400hz": 4800,
-          "provisional10rad_s_exceedance_samples": 0,
-          "bound_violations": 0,
-          "h_continuity_error": 0.0,
-          "max_preprojection_clip_rad": 0.0,
-          "max_final_clip_rad": 0.0,
-          "name": "left",
-          "label": "左移動",
-          "cohort": "remeasured_L09_under_L10_reset",
-          "requested_linear_velocity_m_s": [
-            0.0,
-            0.12
-          ],
-          "requested_yaw_rate_rad_s": 0.0,
-          "walking_acceptance": false,
+          "speed_cm_s": 8.36358368396759,
           "signed_mean_yaw_rate_rad_s": null,
-          "unwrapped_heading_change_rad": 0.5236222478130953,
-          "max_abs_heading_change_deg": 30.001344858843662,
+          "unwrapped_heading_change_rad": 0.0009703911277206556,
+          "yaw_end_deg": 0.05559931609533399,
+          "max_abs_heading_change_deg": 1.116298253637535,
           "world_delta_xyz_m": [
-            -0.4145309031009674,
-            0.9107111096382141,
-            -0.004233896732330322
+            -0.330855131149292,
+            1.0036300420761108,
+            -0.006866633892059326
           ],
-          "max_planar_excursion_m": 1.0006151082430101,
-          "signed_off_axis_drift_m": -0.4145309031009674,
-          "max_nonfoot_N": 0.0,
-          "raw_action_clip_fraction_per_joint": [
-            0.5,
-            0.9416666666666667,
-            0.49166666666666664,
-            0.5116666666666667,
-            0.4033333333333333,
-            0.0033333333333333335,
-            0.39,
-            0.19666666666666666,
-            0.9233333333333333,
-            0.0,
-            0.008333333333333333,
-            0.8183333333333334
-          ],
-          "initial_reset_h_matches_first_compute": true,
-          "criteria": {
-            "completed_requested_interval": true,
-            "every_foot_lift15_at_least18": true,
-            "every_foot_slip_at_most15cm": true,
-            "no_actual_speed_exceedance": true,
-            "no_nonfoot_contact": true,
-            "no_drive_cap_violation": true,
-            "translation_speed_met": false,
-            "heading_change_met": false
-          },
-          "all_development_targets_met": false
-        },
-        {
-          "direction": "right",
-          "duration_s": 12.0,
-          "completed_interval": true,
-          "first_failure_step": null,
-          "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
-          "speed_cm_s": 9.245632092158,
-          "yaw_end_deg": -2.900713897389497,
+          "final_planar_displacement_m": 1.0567584299003776,
+          "max_planar_excursion_m": 1.0567584299003776,
+          "signed_off_axis_drift_m": -0.330855131149292,
           "lift15_FL_FR_RL_RR": [
             20,
             19,
@@ -899,52 +831,35 @@
             19
           ],
           "slip_m_FL_FR_RL_RR": [
-            0.025162283972242554,
-            0.05812043450524728,
-            0.009626158101078357,
-            0.029585514548839127
+            0.033009100929048726,
+            0.054101683241834404,
+            0.017749591881336433,
+            0.016568294616446096
           ],
-          "max_torque_Nm": 5.134818077087402,
-          "max_actual_speed_rad_s": 9.975940704345703,
-          "actual_samples_400hz": 4800,
+          "max_nonfoot_N": 0.0,
+          "max_torque_Nm": 3.1519906520843506,
+          "max_actual_speed_rad_s": 9.9706449508667,
           "provisional10rad_s_exceedance_samples": 0,
+          "actual_samples_400hz": 4800,
           "bound_violations": 0,
           "h_continuity_error": 0.0,
+          "max_projection_mm": 18.825707957148552,
           "max_preprojection_clip_rad": 0.0,
           "max_final_clip_rad": 0.0,
-          "name": "right",
-          "label": "右移動",
-          "cohort": "remeasured_L09_under_L10_reset",
-          "requested_linear_velocity_m_s": [
-            0.0,
-            -0.12
-          ],
-          "requested_yaw_rate_rad_s": 0.0,
-          "walking_acceptance": false,
-          "signed_mean_yaw_rate_rad_s": null,
-          "unwrapped_heading_change_rad": -0.05062700816780367,
-          "max_abs_heading_change_deg": 3.145663478231907,
-          "world_delta_xyz_m": [
-            -0.27591046690940857,
-            -1.10947585105896,
-            -0.0011973977088928223
-          ],
-          "max_planar_excursion_m": 1.1432686691382614,
-          "signed_off_axis_drift_m": -0.27591046690940857,
-          "max_nonfoot_N": 0.0,
+          "max_abs_raw_action": 3.285184383392334,
           "raw_action_clip_fraction_per_joint": [
-            0.4716666666666667,
-            0.9533333333333334,
-            0.4716666666666667,
-            0.54,
-            0.6,
+            0.5216666666666666,
+            1.0,
+            0.5416666666666666,
+            0.58,
+            0.555,
             0.0,
-            0.6033333333333334,
-            0.22666666666666666,
-            0.9416666666666667,
+            0.5233333333333333,
+            0.2783333333333333,
+            0.9616666666666667,
             0.0,
-            0.17666666666666667,
-            0.825
+            0.155,
+            0.965
           ],
           "initial_reset_h_matches_first_compute": true,
           "criteria": {
@@ -957,7 +872,489 @@
             "translation_speed_met": false,
             "heading_change_met": true
           },
-          "all_development_targets_met": false
+          "all_development_targets_met": false,
+          "walking_acceptance": false,
+          "cohort": "L10_parent_with_L11_controller",
+          "label": "左移動",
+          "requested_linear_velocity_m_s": [
+            0.0,
+            0.12
+          ],
+          "requested_yaw_rate_rad_s": 0.0
+        },
+        {
+          "name": "right",
+          "direction": "right",
+          "duration_s": 12.0,
+          "completed_interval": true,
+          "first_failure_step": null,
+          "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "speed_cm_s": 11.651337146759033,
+          "signed_mean_yaw_rate_rad_s": null,
+          "unwrapped_heading_change_rad": -0.0042782964555094435,
+          "yaw_end_deg": -0.2451283304064707,
+          "max_abs_heading_change_deg": 1.0321485865667521,
+          "world_delta_xyz_m": [
+            -0.31346189975738525,
+            -1.398160457611084,
+            -0.004926994442939758
+          ],
+          "final_planar_displacement_m": 1.4328681125025935,
+          "max_planar_excursion_m": 1.4328681125025935,
+          "signed_off_axis_drift_m": -0.31346189975738525,
+          "lift15_FL_FR_RL_RR": [
+            20,
+            19,
+            19,
+            19
+          ],
+          "slip_m_FL_FR_RL_RR": [
+            0.08874720356543345,
+            0.03924187273538192,
+            0.04858802880995636,
+            0.03362641501964595
+          ],
+          "max_nonfoot_N": 0.0,
+          "max_torque_Nm": 5.145555019378662,
+          "max_actual_speed_rad_s": 9.973875045776367,
+          "provisional10rad_s_exceedance_samples": 0,
+          "actual_samples_400hz": 4800,
+          "bound_violations": 0,
+          "h_continuity_error": 0.0,
+          "max_projection_mm": 25.462523102760315,
+          "max_preprojection_clip_rad": 0.0,
+          "max_final_clip_rad": 0.0,
+          "max_abs_raw_action": 3.165104627609253,
+          "raw_action_clip_fraction_per_joint": [
+            0.5233333333333333,
+            1.0,
+            0.495,
+            0.5416666666666666,
+            0.7016666666666667,
+            0.0,
+            0.6583333333333333,
+            0.265,
+            0.9666666666666667,
+            0.0,
+            0.22,
+            0.96
+          ],
+          "initial_reset_h_matches_first_compute": true,
+          "criteria": {
+            "completed_requested_interval": true,
+            "every_foot_lift15_at_least18": true,
+            "every_foot_slip_at_most15cm": true,
+            "no_actual_speed_exceedance": true,
+            "no_nonfoot_contact": true,
+            "no_drive_cap_violation": true,
+            "translation_speed_met": true,
+            "heading_change_met": true
+          },
+          "all_development_targets_met": true,
+          "walking_acceptance": false,
+          "cohort": "L10_parent_with_L11_controller",
+          "label": "右移動",
+          "requested_linear_velocity_m_s": [
+            0.0,
+            -0.12
+          ],
+          "requested_yaw_rate_rad_s": 0.0
+        },
+        {
+          "name": "turn_left",
+          "direction": "turn_left",
+          "duration_s": 12.0,
+          "completed_interval": true,
+          "first_failure_step": null,
+          "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "speed_cm_s": null,
+          "signed_mean_yaw_rate_rad_s": 0.15530164194533014,
+          "unwrapped_heading_change_rad": 1.8636197033439617,
+          "yaw_end_deg": 106.77754361903152,
+          "max_abs_heading_change_deg": 106.77754361903152,
+          "world_delta_xyz_m": [
+            -0.07984855771064758,
+            -0.27120861411094666,
+            -0.0032951384782791138
+          ],
+          "final_planar_displacement_m": 0.28271877287589336,
+          "max_planar_excursion_m": 0.28271877287589336,
+          "signed_off_axis_drift_m": null,
+          "lift15_FL_FR_RL_RR": [
+            20,
+            19,
+            19,
+            19
+          ],
+          "slip_m_FL_FR_RL_RR": [
+            0.018170396183619895,
+            0.0457958841303062,
+            0.02445915331540221,
+            0.017469063961860463
+          ],
+          "max_nonfoot_N": 0.0,
+          "max_torque_Nm": 3.962165355682373,
+          "max_actual_speed_rad_s": 9.96906566619873,
+          "provisional10rad_s_exceedance_samples": 0,
+          "actual_samples_400hz": 4800,
+          "bound_violations": 0,
+          "h_continuity_error": 0.0,
+          "max_projection_mm": 21.195508539676666,
+          "max_preprojection_clip_rad": 0.0,
+          "max_final_clip_rad": 0.0,
+          "max_abs_raw_action": 3.2787187099456787,
+          "raw_action_clip_fraction_per_joint": [
+            0.455,
+            1.0,
+            0.5183333333333333,
+            0.585,
+            0.675,
+            0.0,
+            0.59,
+            0.3,
+            0.965,
+            0.0,
+            0.215,
+            0.96
+          ],
+          "initial_reset_h_matches_first_compute": true,
+          "criteria": {
+            "completed_requested_interval": true,
+            "every_foot_lift15_at_least18": true,
+            "every_foot_slip_at_most15cm": true,
+            "no_actual_speed_exceedance": true,
+            "no_nonfoot_contact": true,
+            "no_drive_cap_violation": true,
+            "signed_mean_turn_rate_met": false,
+            "maximum_planar_excursion_met": false
+          },
+          "all_development_targets_met": false,
+          "walking_acceptance": false,
+          "cohort": "L10_parent_with_L11_controller",
+          "label": "左旋回",
+          "requested_linear_velocity_m_s": [
+            0.0,
+            0.0
+          ],
+          "requested_yaw_rate_rad_s": 0.25
+        },
+        {
+          "name": "turn_right",
+          "direction": "turn_right",
+          "duration_s": 12.0,
+          "completed_interval": true,
+          "first_failure_step": null,
+          "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "speed_cm_s": null,
+          "signed_mean_yaw_rate_rad_s": 0.21567232865521635,
+          "unwrapped_heading_change_rad": -2.588067943862596,
+          "yaw_end_deg": -148.28537027642764,
+          "max_abs_heading_change_deg": 148.28537027642764,
+          "world_delta_xyz_m": [
+            -0.1909748911857605,
+            0.002130177803337574,
+            -0.002686724066734314
+          ],
+          "final_planar_displacement_m": 0.1909867710625186,
+          "max_planar_excursion_m": 0.19218774013557102,
+          "signed_off_axis_drift_m": null,
+          "lift15_FL_FR_RL_RR": [
+            20,
+            19,
+            19,
+            19
+          ],
+          "slip_m_FL_FR_RL_RR": [
+            0.022798605258736494,
+            0.01630969852148418,
+            0.015834917012845756,
+            0.025057596108667993
+          ],
+          "max_nonfoot_N": 0.0,
+          "max_torque_Nm": 3.4372546672821045,
+          "max_actual_speed_rad_s": 9.974587440490723,
+          "provisional10rad_s_exceedance_samples": 0,
+          "actual_samples_400hz": 4800,
+          "bound_violations": 0,
+          "h_continuity_error": 0.0,
+          "max_projection_mm": 18.572621047496796,
+          "max_preprojection_clip_rad": 0.0,
+          "max_final_clip_rad": 0.0,
+          "max_abs_raw_action": 3.222397565841675,
+          "raw_action_clip_fraction_per_joint": [
+            0.49166666666666664,
+            1.0,
+            0.48,
+            0.5683333333333334,
+            0.6633333333333333,
+            0.0,
+            0.6216666666666667,
+            0.235,
+            0.9616666666666667,
+            0.0,
+            0.21333333333333335,
+            0.965
+          ],
+          "initial_reset_h_matches_first_compute": true,
+          "criteria": {
+            "completed_requested_interval": true,
+            "every_foot_lift15_at_least18": true,
+            "every_foot_slip_at_most15cm": true,
+            "no_actual_speed_exceedance": true,
+            "no_nonfoot_contact": true,
+            "no_drive_cap_violation": true,
+            "signed_mean_turn_rate_met": true,
+            "maximum_planar_excursion_met": false
+          },
+          "all_development_targets_met": false,
+          "walking_acceptance": false,
+          "cohort": "L10_parent_with_L11_controller",
+          "label": "右旋回",
+          "requested_linear_velocity_m_s": [
+            0.0,
+            0.0
+          ],
+          "requested_yaw_rate_rad_s": -0.25
+        }
+      ]
+    },
+    "preflight": {
+      "new_training_updates": 0,
+      "scope": "Parent actor forward command36/40/44cm/s gate, before matched baseline and training.",
+      "cases": [
+        {
+          "name": "c036",
+          "direction": "forward",
+          "duration_s": 12.0,
+          "completed_interval": true,
+          "first_failure_step": null,
+          "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "speed_cm_s": 32.15954701105754,
+          "signed_mean_yaw_rate_rad_s": null,
+          "unwrapped_heading_change_rad": -0.04168166783081412,
+          "yaw_end_deg": -2.388183649771862,
+          "max_abs_heading_change_deg": 3.282577672270002,
+          "world_delta_xyz_m": [
+            3.8591456413269043,
+            -0.16490304470062256,
+            -0.04189097881317139
+          ],
+          "final_planar_displacement_m": 3.8626672255222787,
+          "max_planar_excursion_m": 3.8626672255222787,
+          "signed_off_axis_drift_m": -0.16490304470062256,
+          "lift15_FL_FR_RL_RR": [
+            20,
+            19,
+            19,
+            20
+          ],
+          "slip_m_FL_FR_RL_RR": [
+            0.14028626668232244,
+            0.03419167451703309,
+            0.035212910445116194,
+            0.02040004254518185
+          ],
+          "max_nonfoot_N": 0.0,
+          "max_torque_Nm": 4.895088195800781,
+          "max_actual_speed_rad_s": 9.96916389465332,
+          "provisional10rad_s_exceedance_samples": 0,
+          "actual_samples_400hz": 4800,
+          "bound_violations": 0,
+          "h_continuity_error": 0.0,
+          "max_projection_mm": 18.90091970562935,
+          "max_preprojection_clip_rad": 0.0,
+          "max_final_clip_rad": 0.0,
+          "max_abs_raw_action": 2.9783732891082764,
+          "raw_action_clip_fraction_per_joint": [
+            0.0,
+            0.99,
+            0.42833333333333334,
+            0.006666666666666667,
+            0.8533333333333334,
+            0.22666666666666666,
+            0.0,
+            0.46,
+            0.40166666666666667,
+            0.0,
+            0.8633333333333333,
+            0.6016666666666667
+          ],
+          "initial_reset_h_matches_first_compute": true,
+          "criteria": {
+            "completed_requested_interval": true,
+            "every_foot_lift15_at_least18": true,
+            "every_foot_slip_at_most15cm": true,
+            "no_actual_speed_exceedance": true,
+            "no_nonfoot_contact": true,
+            "no_drive_cap_violation": true,
+            "translation_speed_met": false,
+            "heading_change_met": true
+          },
+          "all_development_targets_met": false,
+          "walking_acceptance": false,
+          "cohort": "L10_parent_forward_preflight",
+          "label": "前進",
+          "requested_linear_velocity_m_s": [
+            0.36,
+            0.0
+          ],
+          "requested_yaw_rate_rad_s": 0.0
+        },
+        {
+          "name": "c040",
+          "direction": "forward",
+          "duration_s": 12.0,
+          "completed_interval": true,
+          "first_failure_step": null,
+          "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "speed_cm_s": 33.94411404927571,
+          "signed_mean_yaw_rate_rad_s": null,
+          "unwrapped_heading_change_rad": 0.06768364088089515,
+          "yaw_end_deg": 3.8779869645544136,
+          "max_abs_heading_change_deg": 4.598399822454264,
+          "world_delta_xyz_m": [
+            4.073293685913086,
+            0.056031402200460434,
+            -0.037889912724494934
+          ],
+          "final_planar_displacement_m": 4.07367904598926,
+          "max_planar_excursion_m": 4.07367904598926,
+          "signed_off_axis_drift_m": 0.056031402200460434,
+          "lift15_FL_FR_RL_RR": [
+            20,
+            19,
+            19,
+            20
+          ],
+          "slip_m_FL_FR_RL_RR": [
+            0.04945144680386997,
+            0.03112493397594382,
+            0.04325905017818875,
+            0.0449914776428585
+          ],
+          "max_nonfoot_N": 0.0,
+          "max_torque_Nm": 5.5,
+          "max_actual_speed_rad_s": 9.958105087280273,
+          "provisional10rad_s_exceedance_samples": 0,
+          "actual_samples_400hz": 4800,
+          "bound_violations": 0,
+          "h_continuity_error": 0.0,
+          "max_projection_mm": 14.888214878737926,
+          "max_preprojection_clip_rad": 0.007717547006905079,
+          "max_final_clip_rad": 2.220446049250313e-16,
+          "max_abs_raw_action": 2.9343109130859375,
+          "raw_action_clip_fraction_per_joint": [
+            0.0,
+            0.9916666666666667,
+            0.4483333333333333,
+            0.0016666666666666668,
+            0.85,
+            0.29833333333333334,
+            0.0,
+            0.4633333333333333,
+            0.43,
+            0.0,
+            0.8666666666666667,
+            0.5933333333333334
+          ],
+          "initial_reset_h_matches_first_compute": true,
+          "criteria": {
+            "completed_requested_interval": true,
+            "every_foot_lift15_at_least18": true,
+            "every_foot_slip_at_most15cm": true,
+            "no_actual_speed_exceedance": true,
+            "no_nonfoot_contact": true,
+            "no_drive_cap_violation": true,
+            "translation_speed_met": false,
+            "heading_change_met": true
+          },
+          "all_development_targets_met": false,
+          "walking_acceptance": false,
+          "cohort": "L10_parent_forward_preflight",
+          "label": "前進",
+          "requested_linear_velocity_m_s": [
+            0.4,
+            0.0
+          ],
+          "requested_yaw_rate_rad_s": 0.0
+        },
+        {
+          "name": "c044",
+          "direction": "forward",
+          "duration_s": 12.0,
+          "completed_interval": true,
+          "first_failure_step": null,
+          "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "speed_cm_s": 35.75550317764282,
+          "signed_mean_yaw_rate_rad_s": null,
+          "unwrapped_heading_change_rad": 0.13891211479843235,
+          "yaw_end_deg": 7.95907790118696,
+          "max_abs_heading_change_deg": 8.745707623647512,
+          "world_delta_xyz_m": [
+            4.290660381317139,
+            0.28390899300575256,
+            -0.03682945668697357
+          ],
+          "final_planar_displacement_m": 4.300043118866841,
+          "max_planar_excursion_m": 4.300043118866841,
+          "signed_off_axis_drift_m": 0.28390899300575256,
+          "lift15_FL_FR_RL_RR": [
+            20,
+            19,
+            19,
+            20
+          ],
+          "slip_m_FL_FR_RL_RR": [
+            0.12603991654723548,
+            0.05311636282971855,
+            0.0489670480576582,
+            0.06031053298167011
+          ],
+          "max_nonfoot_N": 0.0,
+          "max_torque_Nm": 5.5,
+          "max_actual_speed_rad_s": 9.96261978149414,
+          "provisional10rad_s_exceedance_samples": 0,
+          "actual_samples_400hz": 4800,
+          "bound_violations": 0,
+          "h_continuity_error": 0.0,
+          "max_projection_mm": 18.722979351878166,
+          "max_preprojection_clip_rad": 0.023098282516002655,
+          "max_final_clip_rad": 2.220446049250313e-16,
+          "max_abs_raw_action": 3.010622024536133,
+          "raw_action_clip_fraction_per_joint": [
+            0.021666666666666667,
+            0.9933333333333333,
+            0.45166666666666666,
+            0.0,
+            0.845,
+            0.3383333333333333,
+            0.0,
+            0.48,
+            0.4583333333333333,
+            0.0,
+            0.8733333333333333,
+            0.5666666666666667
+          ],
+          "initial_reset_h_matches_first_compute": true,
+          "criteria": {
+            "completed_requested_interval": true,
+            "every_foot_lift15_at_least18": true,
+            "every_foot_slip_at_most15cm": true,
+            "no_actual_speed_exceedance": true,
+            "no_nonfoot_contact": true,
+            "no_drive_cap_violation": true,
+            "translation_speed_met": false,
+            "heading_change_met": true
+          },
+          "all_development_targets_met": false,
+          "walking_acceptance": false,
+          "cohort": "L10_parent_forward_preflight",
+          "label": "前進",
+          "requested_linear_velocity_m_s": [
+            0.44,
+            0.0
+          ],
+          "requested_yaw_rate_rad_s": 0.0
         }
       ]
     },
@@ -969,15 +1366,18 @@
         "equal_observed_duration": true,
         "both_completed_first12s": true,
         "supports_complete_interval_comparison": true,
-        "speed_cm_s": 0.2547423044840542,
-        "yaw_end_deg": -9.270381713886254,
-        "abs_heading_deg": -4.49401441434253,
-        "absolute_off_axis_drift_m": -0.026530414819717407,
+        "interpretation": "Matched complete first12s comparison.",
+        "speed_cm_s": 6.262413660685226,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_planar_excursion_m": 0.7431882604778277,
+        "yaw_end_deg": -6.007591374397553,
+        "abs_heading_deg": -6.007591374397553,
+        "absolute_off_axis_drift_m": -0.17947760224342346,
         "slip_m_FL_FR_RL_RR": [
-          0.09287716824158723,
-          0.012977130172008796,
-          0.01583061674983367,
-          0.004914696188301853
+          -0.08278276312171795,
+          -0.0355333584110875,
+          -0.010691021490709947,
+          -0.02359922121108375
         ]
       },
       {
@@ -987,15 +1387,18 @@
         "equal_observed_duration": true,
         "both_completed_first12s": true,
         "supports_complete_interval_comparison": true,
-        "speed_cm_s": -0.049034754435218986,
-        "yaw_end_deg": 26.67273176512188,
-        "abs_heading_deg": -20.502855203729304,
-        "absolute_off_axis_drift_m": 0.08367493748664856,
+        "interpretation": "Matched complete first12s comparison.",
+        "speed_cm_s": 1.451600591341652,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_planar_excursion_m": 0.14879690102397825,
+        "yaw_end_deg": -6.8318199458059965,
+        "abs_heading_deg": 0.661943384413421,
+        "absolute_off_axis_drift_m": -0.12434318661689758,
         "slip_m_FL_FR_RL_RR": [
-          0.005453720082648494,
-          -0.028915028712133625,
-          -0.01444843621363881,
-          0.007312311999253345
+          0.0016523688100406608,
+          0.049881273369125,
+          -0.02144327383362883,
+          0.04323661928322141
         ]
       },
       {
@@ -1005,15 +1408,18 @@
         "equal_observed_duration": true,
         "both_completed_first12s": true,
         "supports_complete_interval_comparison": true,
-        "speed_cm_s": 0.7743244369824724,
-        "yaw_end_deg": -29.945745542748327,
-        "abs_heading_deg": -29.945745542748327,
-        "absolute_off_axis_drift_m": -0.08367577195167542,
+        "interpretation": "Matched complete first12s comparison.",
+        "speed_cm_s": -1.4214227596918745,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_planar_excursion_m": -0.0991905419263941,
+        "yaw_end_deg": 29.495455968415968,
+        "abs_heading_deg": 29.495455968415968,
+        "absolute_off_axis_drift_m": 0.14131903648376465,
         "slip_m_FL_FR_RL_RR": [
-          0.009559579345068698,
-          0.014079624985430791,
-          -0.0007545134332297039,
-          -0.012098857934374107
+          -0.015462639050902234,
+          0.1250611118244284,
+          -0.0027816059824752985,
+          0.011283910636340776
         ]
       },
       {
@@ -1023,30 +1429,183 @@
         "equal_observed_duration": true,
         "both_completed_first12s": true,
         "supports_complete_interval_comparison": true,
-        "speed_cm_s": 2.4057050546010323,
-        "yaw_end_deg": 2.655585566983026,
-        "abs_heading_deg": -2.655585566983026,
-        "absolute_off_axis_drift_m": 0.037551432847976685,
+        "interpretation": "Matched complete first12s comparison.",
+        "speed_cm_s": -0.1415212949117013,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_planar_excursion_m": 0.07060007074964103,
+        "yaw_end_deg": -6.126590294751878,
+        "abs_heading_deg": 6.126590294751878,
+        "absolute_off_axis_drift_m": 0.2804776430130005,
         "slip_m_FL_FR_RL_RR": [
-          0.06358491959319089,
-          -0.01887856176986536,
-          0.038961870708878,
-          0.004040900470806824
+          0.05468778099258631,
+          0.009241672551076843,
+          -0.026368270972765263,
+          0.06262650232689979
+        ]
+      },
+      {
+        "direction": "turn_left",
+        "final_duration_s": 12.0,
+        "parent_duration_s": 12.0,
+        "equal_observed_duration": true,
+        "both_completed_first12s": true,
+        "supports_complete_interval_comparison": true,
+        "interpretation": "Matched complete first12s comparison.",
+        "speed_cm_s": null,
+        "signed_mean_yaw_rate_rad_s": 0.058807884121110515,
+        "max_planar_excursion_m": 0.13214915304936659,
+        "yaw_end_deg": 40.43332274680853,
+        "abs_heading_deg": 40.43332274680853,
+        "absolute_off_axis_drift_m": null,
+        "slip_m_FL_FR_RL_RR": [
+          0.005408708708438594,
+          -0.021147816846198802,
+          0.008650985723864177,
+          0.015056737975801423
+        ]
+      },
+      {
+        "direction": "turn_right",
+        "final_duration_s": 12.0,
+        "parent_duration_s": 12.0,
+        "equal_observed_duration": true,
+        "both_completed_first12s": true,
+        "supports_complete_interval_comparison": true,
+        "interpretation": "Matched complete first12s comparison.",
+        "speed_cm_s": null,
+        "signed_mean_yaw_rate_rad_s": 0.045952341118956797,
+        "max_planar_excursion_m": 0.05559212298008487,
+        "yaw_end_deg": -31.594502458340315,
+        "abs_heading_deg": 31.594502458340315,
+        "absolute_off_axis_drift_m": null,
+        "slip_m_FL_FR_RL_RR": [
+          -0.004300949986493514,
+          0.028868879512393364,
+          -0.0036295999508259204,
+          0.0005932316219832735
         ]
       }
     ],
-    "comparison_scope": "Combined controller/observation/reward/command-allocation and learning changes with matched recorded reset state. No attribution to an isolated reward or optimizer change.",
+    "reset_protocol": {
+      "id": "nominal_target_audited_framework_reset",
+      "common_initial_state_exact_match": true,
+      "matched_cohorts": [
+        "L10_parent_with_L11_controller",
+        "L11_final499"
+      ],
+      "explicit_reset_compute_calls_per_case": 1,
+      "initial_exposure_zero": true,
+      "scope": "All15 deterministic cases share the same recorded physical and drive initial state; reset call counters are separate bookkeeping. Targets are set through normal framework reset. Exposure is not reset on command changes."
+    },
+    "changes": {
+      "forward_command_limit_m_s": {
+        "before": 0.36,
+        "after": 0.44
+      },
+      "forward_curriculum_commands_m_s": [
+        0.36,
+        0.4,
+        0.44
+      ],
+      "forward_curriculum_common_policy_steps": [
+        0,
+        3200,
+        6400
+      ],
+      "command_selection_probabilities_F_B_L_R_TL_TR_stop": [
+        0.4,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1
+      ],
+      "command_resample_seconds": [
+        4,
+        6
+      ],
+      "raw_residual_excess_penalty_weight": {
+        "before": -0.02,
+        "after": -0.1
+      },
+      "other_reward_weights_retained": true,
+      "physical_drive_caps_retained": true
+    },
+    "learning_audit": {
+      "actor_updated_tensors": 9,
+      "actor_total_tensors": 9,
+      "actor_updated_elements": 35160,
+      "critic_updated_tensors": 8,
+      "critic_total_tensors": 8,
+      "critic_updated_elements": 36353,
+      "std_updated_components": 12,
+      "std_total_components": 12,
+      "optimizer_state_entries": 17,
+      "optimizer_steps_per_state": 10000,
+      "optimizer_steps_basis": "500 completed updates *5 epochs *4 minibatches; fresh optimizer.",
+      "exported_mean_actor_exact_tensor_matches": 8,
+      "preserved_heading_actor_elements_updated": 640,
+      "preserved_heading_critic_elements_updated": 640,
+      "actual_command_lane_steps_F_B_L_R_TL_TR_stop": [
+        1479136,
+        443807,
+        411737,
+        434004,
+        443134,
+        418018,
+        466164
+      ],
+      "actual_forward_lane_steps_36_40_44": [
+        325416,
+        312013,
+        841707
+      ],
+      "curriculum_scope": "Command resampling carries previous commands across curriculum boundaries. Selection probability40% is distinct from actual forward exposure36.1117%."
+    },
+    "own_source_hashes": {
+      "independent_evaluation_report_sha256": "df6803fdf2eab5dd2d7249f813f50151bcaf6d9d8b822455de7a75c75d0b8a12",
+      "independent_training_audit_sha256": "644d075275e20a2520c1c015f6d2734491d04c47fc7fdffd68ec4d2897877f54",
+      "authored_results_report_sha256": "4b9803d7e960c8069f9b4f5d2af567d7e2bac4cd284e9359072b6640b42c664a",
+      "independent_metrics_review_sha256": "e3acd00576a54a7e3ae9ef2af723c4db65a8273480bd37e3b75f7f7d99f03776"
+    },
+    "independent_metrics_review": {
+      "cases": 15,
+      "policy_steps": 9000,
+      "raw_actuator_calls": 72000,
+      "verified_original_files": 194,
+      "numeric_comparisons": 375,
+      "maximum_absolute_numeric_difference": 3.552713678800501e-15,
+      "scope": "Recomputed from retained local logs; no GPU rerun."
+    },
+    "geometry_check": {
+      "attained_native_poses_checked": 12,
+      "additional_interferences": 0,
+      "kernel_errors": 0,
+      "original_geometry_unchanged": true,
+      "native_audit_sha256": "d50a2c5b191cc442ec5d2bbe08f8134ee65bf0fea92e516cb8b6b49ed3265595",
+      "sampled_calf_floor_clearance_min_m": 0.0019529231835645616,
+      "minimum_case": "forward",
+      "minimum_leg": "FL",
+      "minimum_sample_index": 503,
+      "minimum_time_s": 10.06,
+      "calf_part_frames_checked": 14400,
+      "sample_hz": 50,
+      "calf_clearance_report_sha256": "0207a9b83aed6568fefb7529836e6150a76fc6686b6b4898daf3a0ca6e81a388",
+      "scope": "Twelve attained poses only; existing internal pairs excluded as declared. Calf check covers sampled poses, not continuous collision/ROM, cables, strength or hardware acceptance."
+    },
+    "comparison_scope": "Same L11 controller, physical model, command44cm/s and recorded initial physical/drive state for parent and final. Whole500-update training bundle comparison; no attribution to an isolated reward or curriculum change. Original L10 forward32.1595cm/s used command36cm/s.",
     "limitations": [
-      "Forward/backward/right met all criteria:3of6. Left speed8.3636cm/s remains below10cm/s.",
-      "Left turn0.155302rad/s is below0.20; both turns exceed0.15m maximum planar excursion:0.282719m and0.192188m.",
-      "Relative to remeasured L09, all four forward-foot slip distances increased; forward-left0.047409to0.140286m.",
-      "Absolute off-axis drift worsened for backward0.228127to0.311802m and right0.275910to0.313462m; improved final heading does not mean improved trajectory.",
-      "Training retains2788 speed-failed episodes and23.254938rad/s maximum. Final evaluation zero exceedances is a separate result.",
-      "Single seed and first12seconds; no hardware acceptance."
+      "Forward/backward/right met all criteria:3of6. Left speed6.94216cm/s, final heading29.5511deg and front-right slip0.179163m miss targets.",
+      "Both turn rates exceed0.20rad/s; maximum planar excursion0.414868m/0.247780m misses0.15m and worsens from matched parent.",
+      "Rightward off-axis drift magnitude0.593940m and front-left slip0.143435m worsened despite passing the current criteria.",
+      "Forward reaches the unchanged5.5Nm drive cap, final target clipping0.00857296rad and sampled calf clearance1.952923mm; no continuous-clearance proof.",
+      "Training4150 speed-failed episodes, maximum26.442364rad/s. Whole-run values are runtime aggregates; independent training raw audit covers48 retained rows. Final evaluation zero exceedances is a separate result.",
+      "Single seed42, first12seconds including bootstrap; no hardware acceptance."
     ],
     "videos": [
-      "docs/media/l10-six-directions.mp4",
-      "docs/media/l10-matched-l09-four-directions.mp4"
+      "docs/media/l11-six-directions.mp4",
+      "docs/media/l11-matched-l10-six-directions.mp4"
     ]
   },
   "latest_l08": {
@@ -2065,6 +2624,948 @@
       "docs/media/l09-four-directions.mp4"
     ]
   },
-  "latest_stage_id": "L10",
-  "verified_recent_series_count": 15
+  "latest_stage_id": "L11",
+  "verified_recent_series_count": 16,
+  "latest_l10": {
+    "schema": "singularitydog.selected-learning-evaluation.v1",
+    "id": "L10",
+    "series_order": 15,
+    "status": "COMPLETED_BOUNDED_LEARNING_AND_EVALUATION",
+    "completion_time": {
+      "value_utc": "2026-09-09T10:59:32.161757Z",
+      "kind": "reported_job_end_including_evaluation",
+      "note": "Evaluation completion has no separate timestamp; this is the bounded run end including evaluation."
+    },
+    "new_training_updates": 500,
+    "transitions": 4096000,
+    "final_iteration": 499,
+    "num_training_envs": 256,
+    "seed": 42,
+    "deterministic_development_cases": 10,
+    "final_evaluation_cases": 6,
+    "smoke_trials_excluded_from_case_count": true,
+    "actor_observation_dim": 74,
+    "critic_observation_dim": 89,
+    "simulation_physical_geometry_changed": false,
+    "controller_changed": true,
+    "target_actual_forward_m_s": 0.3,
+    "target_other_translation_m_s": 0.1,
+    "target_abs_heading_change_deg": 15.0,
+    "target_met": true,
+    "target_met_scope": "Complete-interval forward speed target only.",
+    "all_development_targets_met": false,
+    "development_targets_met_case_count": 3,
+    "walking_acceptance": false,
+    "case_duration_s": 12,
+    "bootstrap_included_s": 2,
+    "policy_hz": 50,
+    "actuator_logging_hz": 400,
+    "speed_definition": "Signed fixed-world requested-direction displacement divided by observed duration, including bootstrap. A truncated or failed case cannot establish the target.",
+    "slip_definition": "Integral of foot material-point velocity during confirmed contact; not measured contact-patch travel.",
+    "common_development_criteria": {
+      "complete_first_interval_s": 12,
+      "per_foot_completed_lifts_at_least": 18,
+      "lift_height_m": 0.015,
+      "per_foot_accumulated_slip_m_at_most": 0.15,
+      "actual_joint_speed_rad_s_at_most": 10.0,
+      "drive_cap_violations_allowed": 0,
+      "nonfoot_contact_allowed": false
+    },
+    "cases": [
+      {
+        "direction": "forward",
+        "duration_s": 12.0,
+        "completed_interval": true,
+        "first_failure_step": null,
+        "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+        "speed_cm_s": 32.15954701105754,
+        "yaw_end_deg": -2.388183649771862,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          20
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.14028626668232244,
+          0.03419167451703309,
+          0.035212910445116194,
+          0.02040004254518185
+        ],
+        "max_torque_Nm": 4.895088195800781,
+        "max_actual_speed_rad_s": 9.96916389465332,
+        "actual_samples_400hz": 4800,
+        "provisional10rad_s_exceedance_samples": 0,
+        "bound_violations": 0,
+        "h_continuity_error": 0.0,
+        "max_preprojection_clip_rad": 0.0,
+        "max_final_clip_rad": 0.0,
+        "name": "forward",
+        "label": "前進",
+        "cohort": "L10_final499",
+        "requested_linear_velocity_m_s": [
+          0.36,
+          0.0
+        ],
+        "requested_yaw_rate_rad_s": 0.0,
+        "walking_acceptance": false,
+        "signed_mean_yaw_rate_rad_s": null,
+        "unwrapped_heading_change_rad": -0.04168166783081412,
+        "max_abs_heading_change_deg": 3.282577672270002,
+        "world_delta_xyz_m": [
+          3.8591456413269043,
+          -0.16490304470062256,
+          -0.04189097881317139
+        ],
+        "max_planar_excursion_m": 3.8626672255222787,
+        "signed_off_axis_drift_m": -0.16490304470062256,
+        "max_nonfoot_N": 0.0,
+        "raw_action_clip_fraction_per_joint": [
+          0.0,
+          0.99,
+          0.42833333333333334,
+          0.006666666666666667,
+          0.8533333333333334,
+          0.22666666666666666,
+          0.0,
+          0.46,
+          0.40166666666666667,
+          0.0,
+          0.8633333333333333,
+          0.6016666666666667
+        ],
+        "initial_reset_h_matches_first_compute": true,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "all_development_targets_met": true
+      },
+      {
+        "direction": "backward",
+        "duration_s": 12.0,
+        "completed_interval": true,
+        "first_failure_step": null,
+        "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+        "speed_cm_s": 10.667274395624798,
+        "yaw_end_deg": 3.0849382806962877,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.04176758402090966,
+          0.04747144438705575,
+          0.050599216290361654,
+          0.027670407345970042
+        ],
+        "max_torque_Nm": 4.959460258483887,
+        "max_actual_speed_rad_s": 9.9754638671875,
+        "actual_samples_400hz": 4800,
+        "provisional10rad_s_exceedance_samples": 0,
+        "bound_violations": 0,
+        "h_continuity_error": 0.0,
+        "max_preprojection_clip_rad": 0.0,
+        "max_final_clip_rad": 0.0,
+        "name": "backward",
+        "label": "後進",
+        "cohort": "L10_final499",
+        "requested_linear_velocity_m_s": [
+          -0.12,
+          0.0
+        ],
+        "requested_yaw_rate_rad_s": 0.0,
+        "walking_acceptance": false,
+        "signed_mean_yaw_rate_rad_s": null,
+        "unwrapped_heading_change_rad": 0.05384233021896325,
+        "max_abs_heading_change_deg": 3.916912131490233,
+        "world_delta_xyz_m": [
+          -1.2800729274749756,
+          -0.3118015229701996,
+          -0.005711972713470459
+        ],
+        "max_planar_excursion_m": 1.3175002426492717,
+        "signed_off_axis_drift_m": -0.3118015229701996,
+        "max_nonfoot_N": 0.0,
+        "raw_action_clip_fraction_per_joint": [
+          0.475,
+          1.0,
+          0.48333333333333334,
+          0.5833333333333334,
+          0.7383333333333333,
+          0.0,
+          0.6433333333333333,
+          0.29833333333333334,
+          0.9883333333333333,
+          0.0,
+          0.31833333333333336,
+          0.9983333333333333
+        ],
+        "initial_reset_h_matches_first_compute": true,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "all_development_targets_met": true
+      },
+      {
+        "direction": "left",
+        "duration_s": 12.0,
+        "completed_interval": true,
+        "first_failure_step": null,
+        "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+        "speed_cm_s": 8.36358368396759,
+        "yaw_end_deg": 0.05559931609533399,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.033009100929048726,
+          0.054101683241834404,
+          0.017749591881336433,
+          0.016568294616446096
+        ],
+        "max_torque_Nm": 3.1519906520843506,
+        "max_actual_speed_rad_s": 9.9706449508667,
+        "actual_samples_400hz": 4800,
+        "provisional10rad_s_exceedance_samples": 0,
+        "bound_violations": 0,
+        "h_continuity_error": 0.0,
+        "max_preprojection_clip_rad": 0.0,
+        "max_final_clip_rad": 0.0,
+        "name": "left",
+        "label": "左移動",
+        "cohort": "L10_final499",
+        "requested_linear_velocity_m_s": [
+          0.0,
+          0.12
+        ],
+        "requested_yaw_rate_rad_s": 0.0,
+        "walking_acceptance": false,
+        "signed_mean_yaw_rate_rad_s": null,
+        "unwrapped_heading_change_rad": 0.0009703911277206556,
+        "max_abs_heading_change_deg": 1.116298253637535,
+        "world_delta_xyz_m": [
+          -0.330855131149292,
+          1.0036300420761108,
+          -0.006866633892059326
+        ],
+        "max_planar_excursion_m": 1.0567584299003776,
+        "signed_off_axis_drift_m": -0.330855131149292,
+        "max_nonfoot_N": 0.0,
+        "raw_action_clip_fraction_per_joint": [
+          0.5216666666666666,
+          1.0,
+          0.5416666666666666,
+          0.58,
+          0.555,
+          0.0,
+          0.5233333333333333,
+          0.2783333333333333,
+          0.9616666666666667,
+          0.0,
+          0.155,
+          0.965
+        ],
+        "initial_reset_h_matches_first_compute": true,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": false,
+          "heading_change_met": true
+        },
+        "all_development_targets_met": false
+      },
+      {
+        "direction": "right",
+        "duration_s": 12.0,
+        "completed_interval": true,
+        "first_failure_step": null,
+        "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+        "speed_cm_s": 11.651337146759033,
+        "yaw_end_deg": -0.2451283304064707,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.08874720356543345,
+          0.03924187273538192,
+          0.04858802880995636,
+          0.03362641501964595
+        ],
+        "max_torque_Nm": 5.145555019378662,
+        "max_actual_speed_rad_s": 9.973875045776367,
+        "actual_samples_400hz": 4800,
+        "provisional10rad_s_exceedance_samples": 0,
+        "bound_violations": 0,
+        "h_continuity_error": 0.0,
+        "max_preprojection_clip_rad": 0.0,
+        "max_final_clip_rad": 0.0,
+        "name": "right",
+        "label": "右移動",
+        "cohort": "L10_final499",
+        "requested_linear_velocity_m_s": [
+          0.0,
+          -0.12
+        ],
+        "requested_yaw_rate_rad_s": 0.0,
+        "walking_acceptance": false,
+        "signed_mean_yaw_rate_rad_s": null,
+        "unwrapped_heading_change_rad": -0.0042782964555094435,
+        "max_abs_heading_change_deg": 1.0321485865667521,
+        "world_delta_xyz_m": [
+          -0.31346189975738525,
+          -1.398160457611084,
+          -0.004926994442939758
+        ],
+        "max_planar_excursion_m": 1.4328681125025935,
+        "signed_off_axis_drift_m": -0.31346189975738525,
+        "max_nonfoot_N": 0.0,
+        "raw_action_clip_fraction_per_joint": [
+          0.5233333333333333,
+          1.0,
+          0.495,
+          0.5416666666666666,
+          0.7016666666666667,
+          0.0,
+          0.6583333333333333,
+          0.265,
+          0.9666666666666667,
+          0.0,
+          0.22,
+          0.96
+        ],
+        "initial_reset_h_matches_first_compute": true,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "all_development_targets_met": true
+      },
+      {
+        "direction": "turn_left",
+        "duration_s": 12.0,
+        "completed_interval": true,
+        "first_failure_step": null,
+        "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+        "speed_cm_s": null,
+        "yaw_end_deg": 106.77754361903152,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.018170396183619895,
+          0.0457958841303062,
+          0.02445915331540221,
+          0.017469063961860463
+        ],
+        "max_torque_Nm": 3.962165355682373,
+        "max_actual_speed_rad_s": 9.96906566619873,
+        "actual_samples_400hz": 4800,
+        "provisional10rad_s_exceedance_samples": 0,
+        "bound_violations": 0,
+        "h_continuity_error": 0.0,
+        "max_preprojection_clip_rad": 0.0,
+        "max_final_clip_rad": 0.0,
+        "name": "turn_left",
+        "label": "左旋回",
+        "cohort": "L10_final499",
+        "requested_linear_velocity_m_s": [
+          0.0,
+          0.0
+        ],
+        "requested_yaw_rate_rad_s": 0.25,
+        "walking_acceptance": false,
+        "signed_mean_yaw_rate_rad_s": 0.15530164194533014,
+        "unwrapped_heading_change_rad": 1.8636197033439617,
+        "max_abs_heading_change_deg": 106.77754361903152,
+        "world_delta_xyz_m": [
+          -0.07984855771064758,
+          -0.27120861411094666,
+          -0.0032951384782791138
+        ],
+        "max_planar_excursion_m": 0.28271877287589336,
+        "signed_off_axis_drift_m": null,
+        "max_nonfoot_N": 0.0,
+        "raw_action_clip_fraction_per_joint": [
+          0.455,
+          1.0,
+          0.5183333333333333,
+          0.585,
+          0.675,
+          0.0,
+          0.59,
+          0.3,
+          0.965,
+          0.0,
+          0.215,
+          0.96
+        ],
+        "initial_reset_h_matches_first_compute": true,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "signed_mean_turn_rate_met": false,
+          "maximum_planar_excursion_met": false
+        },
+        "all_development_targets_met": false
+      },
+      {
+        "direction": "turn_right",
+        "duration_s": 12.0,
+        "completed_interval": true,
+        "first_failure_step": null,
+        "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+        "speed_cm_s": null,
+        "yaw_end_deg": -148.28537027642764,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.022798605258736494,
+          0.01630969852148418,
+          0.015834917012845756,
+          0.025057596108667993
+        ],
+        "max_torque_Nm": 3.4372546672821045,
+        "max_actual_speed_rad_s": 9.974587440490723,
+        "actual_samples_400hz": 4800,
+        "provisional10rad_s_exceedance_samples": 0,
+        "bound_violations": 0,
+        "h_continuity_error": 0.0,
+        "max_preprojection_clip_rad": 0.0,
+        "max_final_clip_rad": 0.0,
+        "name": "turn_right",
+        "label": "右旋回",
+        "cohort": "L10_final499",
+        "requested_linear_velocity_m_s": [
+          0.0,
+          0.0
+        ],
+        "requested_yaw_rate_rad_s": -0.25,
+        "walking_acceptance": false,
+        "signed_mean_yaw_rate_rad_s": 0.21567232865521635,
+        "unwrapped_heading_change_rad": -2.588067943862596,
+        "max_abs_heading_change_deg": 148.28537027642764,
+        "world_delta_xyz_m": [
+          -0.1909748911857605,
+          0.002130177803337574,
+          -0.002686724066734314
+        ],
+        "max_planar_excursion_m": 0.19218774013557102,
+        "signed_off_axis_drift_m": null,
+        "max_nonfoot_N": 0.0,
+        "raw_action_clip_fraction_per_joint": [
+          0.49166666666666664,
+          1.0,
+          0.48,
+          0.5683333333333334,
+          0.6633333333333333,
+          0.0,
+          0.6216666666666667,
+          0.235,
+          0.9616666666666667,
+          0.0,
+          0.21333333333333335,
+          0.965
+        ],
+        "initial_reset_h_matches_first_compute": true,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "signed_mean_turn_rate_met": true,
+          "maximum_planar_excursion_met": false
+        },
+        "all_development_targets_met": false
+      }
+    ],
+    "training_speed_failure_episodes": 2788,
+    "training_maximum_actual_speed_rad_s": 23.25493812561035,
+    "final_speed_exceedance_samples": 0,
+    "learning_audit": {
+      "actor_updated_tensors": 9,
+      "actor_total_tensors": 9,
+      "critic_updated_tensors": 8,
+      "critic_total_tensors": 8,
+      "std_updated_components": 12,
+      "std_total_components": 12,
+      "optimizer_state_entries": 17,
+      "optimizer_steps_per_state": 10000,
+      "optimizer_steps_basis": "500 completed updates *5 epochs *4 minibatches; fresh optimizer at stage start.",
+      "exported_mean_actor_exact_tensor_matches": 8,
+      "new_actor_input_columns_updated": 5,
+      "new_actor_input_elements_updated": 640,
+      "new_critic_input_columns_updated": 5,
+      "new_critic_input_elements_updated": 640
+    },
+    "drive_audit_scope": {
+      "independently_checked_retained_training_rows": 48,
+      "reported_whole_run_guarded_calls": 128001,
+      "whole_run_raw_trace_published": false,
+      "scope": "Retained48 raw rows were inspected privately; whole-run maxima/failure counts are runtime aggregates. Neither raw trace is distributed here."
+    },
+    "own_source_hashes": {
+      "independent_evaluation_report_sha256": "b787ad8c4d4744a295c378abec8ce6aa855447989f83991a93a7edaaa2574f5f",
+      "independent_training_audit_sha256": "58f14d32b1e58a324de7f0cb510431d443ca351a0dca6d8ea39e3dd45bf12820",
+      "authored_results_report_sha256": "5915c2b709b68fd28c09f512d5eee73a62bb83f8780e04089f3593f9dcf8ba3f"
+    },
+    "provenance_scope": "Selected measured metrics and hashes of authored reports only. No private paths, connection data, learned weights, raw logs, source packages or vendor design material.",
+    "initialization": "L09 final499 tensors transferred with first69 actor inputs retained, new5 input columns zero, critic privileged15 columns moved to74:89; fresh optimizer;500 new updates.",
+    "target_signed_mean_turn_rate_rad_s": 0.2,
+    "target_turn_max_planar_excursion_m": 0.15,
+    "turn_rate_definition": "sign(requested_yaw_rate)*unwrapped_yaw_change/observed_duration, in rad/s. Rightward target progress is positive despite negative signed yaw. Turns have no translation speed_cm_s value.",
+    "reset_protocol": {
+      "id": "nominal_target_audited_framework_reset",
+      "common_initial_state_exact_match": true,
+      "matched_cohorts": [
+        "remeasured_L09_under_L10_reset",
+        "L10_final499"
+      ],
+      "explicit_reset_compute_calls_per_case": 1,
+      "initial_exposure_zero": true,
+      "scope": "Nominal position targets and zero velocity/effort targets are set by normal framework reset. All baseline4/final6 share exactly recorded initial physical/drive state. Exposure is not reset on command changes."
+    },
+    "baseline": {
+      "id": "L09_remeasured_for_L10",
+      "cohort": "remeasured_L09_under_L10_reset",
+      "original_evaluation_reference": "evidence/l09-evaluation.json",
+      "new_training_updates": 0,
+      "actor_observation_dim": 69,
+      "original_L09_controller": true,
+      "scope": "Same original L09 policy/controller remeasured before L10 training with the corrected shared reset. These values do not replace the original L09 evaluation.",
+      "cases": [
+        {
+          "direction": "forward",
+          "duration_s": 12.0,
+          "completed_interval": true,
+          "first_failure_step": null,
+          "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "speed_cm_s": 31.904804706573486,
+          "yaw_end_deg": 6.882198064114392,
+          "lift15_FL_FR_RL_RR": [
+            20,
+            19,
+            19,
+            20
+          ],
+          "slip_m_FL_FR_RL_RR": [
+            0.04740909844073521,
+            0.021214544345024292,
+            0.019382293695282524,
+            0.015485346356879998
+          ],
+          "max_torque_Nm": 3.2990314960479736,
+          "max_actual_speed_rad_s": 9.956840515136719,
+          "actual_samples_400hz": 4800,
+          "provisional10rad_s_exceedance_samples": 0,
+          "bound_violations": 0,
+          "h_continuity_error": 0.0,
+          "max_preprojection_clip_rad": 0.0,
+          "max_final_clip_rad": 0.0,
+          "name": "forward",
+          "label": "前進",
+          "cohort": "remeasured_L09_under_L10_reset",
+          "requested_linear_velocity_m_s": [
+            0.36,
+            0.0
+          ],
+          "requested_yaw_rate_rad_s": 0.0,
+          "walking_acceptance": false,
+          "signed_mean_yaw_rate_rad_s": null,
+          "unwrapped_heading_change_rad": 0.12011701599317594,
+          "max_abs_heading_change_deg": 7.17238349316595,
+          "world_delta_xyz_m": [
+            3.8285765647888184,
+            0.19143345952033997,
+            -0.03571188449859619
+          ],
+          "max_planar_excursion_m": 3.8333595294302976,
+          "signed_off_axis_drift_m": 0.19143345952033997,
+          "max_nonfoot_N": 0.0,
+          "raw_action_clip_fraction_per_joint": [
+            0.0016666666666666668,
+            0.8416666666666667,
+            0.3283333333333333,
+            0.0,
+            0.8333333333333334,
+            0.43333333333333335,
+            0.0,
+            0.44666666666666666,
+            0.21,
+            0.0,
+            0.6766666666666666,
+            0.36
+          ],
+          "initial_reset_h_matches_first_compute": true,
+          "criteria": {
+            "completed_requested_interval": true,
+            "every_foot_lift15_at_least18": true,
+            "every_foot_slip_at_most15cm": true,
+            "no_actual_speed_exceedance": true,
+            "no_nonfoot_contact": true,
+            "no_drive_cap_violation": true,
+            "translation_speed_met": true,
+            "heading_change_met": true
+          },
+          "all_development_targets_met": true
+        },
+        {
+          "direction": "backward",
+          "duration_s": 12.0,
+          "completed_interval": true,
+          "first_failure_step": null,
+          "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "speed_cm_s": 10.716309150060017,
+          "yaw_end_deg": -23.587793484425593,
+          "lift15_FL_FR_RL_RR": [
+            20,
+            19,
+            19,
+            19
+          ],
+          "slip_m_FL_FR_RL_RR": [
+            0.036313863938261165,
+            0.07638647309918938,
+            0.06504765250400046,
+            0.020358095346716697
+          ],
+          "max_torque_Nm": 5.296572208404541,
+          "max_actual_speed_rad_s": 9.97689151763916,
+          "actual_samples_400hz": 4800,
+          "provisional10rad_s_exceedance_samples": 0,
+          "bound_violations": 0,
+          "h_continuity_error": 0.0,
+          "max_preprojection_clip_rad": 0.0,
+          "max_final_clip_rad": 0.0,
+          "name": "backward",
+          "label": "後進",
+          "cohort": "remeasured_L09_under_L10_reset",
+          "requested_linear_velocity_m_s": [
+            -0.12,
+            0.0
+          ],
+          "requested_yaw_rate_rad_s": 0.0,
+          "walking_acceptance": false,
+          "signed_mean_yaw_rate_rad_s": null,
+          "unwrapped_heading_change_rad": -0.4116846595836924,
+          "max_abs_heading_change_deg": 23.671238679680105,
+          "world_delta_xyz_m": [
+            -1.2859570980072021,
+            0.22812658548355103,
+            -0.002073824405670166
+          ],
+          "max_planar_excursion_m": 1.3060349906949236,
+          "signed_off_axis_drift_m": 0.22812658548355103,
+          "max_nonfoot_N": 0.0,
+          "raw_action_clip_fraction_per_joint": [
+            0.49666666666666665,
+            0.9733333333333334,
+            0.4583333333333333,
+            0.57,
+            0.61,
+            0.0,
+            0.58,
+            0.265,
+            0.9633333333333334,
+            0.0,
+            0.21,
+            0.955
+          ],
+          "initial_reset_h_matches_first_compute": true,
+          "criteria": {
+            "completed_requested_interval": true,
+            "every_foot_lift15_at_least18": true,
+            "every_foot_slip_at_most15cm": true,
+            "no_actual_speed_exceedance": true,
+            "no_nonfoot_contact": true,
+            "no_drive_cap_violation": true,
+            "translation_speed_met": true,
+            "heading_change_met": false
+          },
+          "all_development_targets_met": false
+        },
+        {
+          "direction": "left",
+          "duration_s": 12.0,
+          "completed_interval": true,
+          "first_failure_step": null,
+          "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "speed_cm_s": 7.589259246985118,
+          "yaw_end_deg": 30.001344858843662,
+          "lift15_FL_FR_RL_RR": [
+            20,
+            19,
+            19,
+            20
+          ],
+          "slip_m_FL_FR_RL_RR": [
+            0.02344952158398003,
+            0.04002205825640361,
+            0.018504105314566137,
+            0.028667152550820203
+          ],
+          "max_torque_Nm": 3.1471853256225586,
+          "max_actual_speed_rad_s": 9.96605396270752,
+          "actual_samples_400hz": 4800,
+          "provisional10rad_s_exceedance_samples": 0,
+          "bound_violations": 0,
+          "h_continuity_error": 0.0,
+          "max_preprojection_clip_rad": 0.0,
+          "max_final_clip_rad": 0.0,
+          "name": "left",
+          "label": "左移動",
+          "cohort": "remeasured_L09_under_L10_reset",
+          "requested_linear_velocity_m_s": [
+            0.0,
+            0.12
+          ],
+          "requested_yaw_rate_rad_s": 0.0,
+          "walking_acceptance": false,
+          "signed_mean_yaw_rate_rad_s": null,
+          "unwrapped_heading_change_rad": 0.5236222478130953,
+          "max_abs_heading_change_deg": 30.001344858843662,
+          "world_delta_xyz_m": [
+            -0.4145309031009674,
+            0.9107111096382141,
+            -0.004233896732330322
+          ],
+          "max_planar_excursion_m": 1.0006151082430101,
+          "signed_off_axis_drift_m": -0.4145309031009674,
+          "max_nonfoot_N": 0.0,
+          "raw_action_clip_fraction_per_joint": [
+            0.5,
+            0.9416666666666667,
+            0.49166666666666664,
+            0.5116666666666667,
+            0.4033333333333333,
+            0.0033333333333333335,
+            0.39,
+            0.19666666666666666,
+            0.9233333333333333,
+            0.0,
+            0.008333333333333333,
+            0.8183333333333334
+          ],
+          "initial_reset_h_matches_first_compute": true,
+          "criteria": {
+            "completed_requested_interval": true,
+            "every_foot_lift15_at_least18": true,
+            "every_foot_slip_at_most15cm": true,
+            "no_actual_speed_exceedance": true,
+            "no_nonfoot_contact": true,
+            "no_drive_cap_violation": true,
+            "translation_speed_met": false,
+            "heading_change_met": false
+          },
+          "all_development_targets_met": false
+        },
+        {
+          "direction": "right",
+          "duration_s": 12.0,
+          "completed_interval": true,
+          "first_failure_step": null,
+          "dynamics_outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "speed_cm_s": 9.245632092158,
+          "yaw_end_deg": -2.900713897389497,
+          "lift15_FL_FR_RL_RR": [
+            20,
+            19,
+            19,
+            19
+          ],
+          "slip_m_FL_FR_RL_RR": [
+            0.025162283972242554,
+            0.05812043450524728,
+            0.009626158101078357,
+            0.029585514548839127
+          ],
+          "max_torque_Nm": 5.134818077087402,
+          "max_actual_speed_rad_s": 9.975940704345703,
+          "actual_samples_400hz": 4800,
+          "provisional10rad_s_exceedance_samples": 0,
+          "bound_violations": 0,
+          "h_continuity_error": 0.0,
+          "max_preprojection_clip_rad": 0.0,
+          "max_final_clip_rad": 0.0,
+          "name": "right",
+          "label": "右移動",
+          "cohort": "remeasured_L09_under_L10_reset",
+          "requested_linear_velocity_m_s": [
+            0.0,
+            -0.12
+          ],
+          "requested_yaw_rate_rad_s": 0.0,
+          "walking_acceptance": false,
+          "signed_mean_yaw_rate_rad_s": null,
+          "unwrapped_heading_change_rad": -0.05062700816780367,
+          "max_abs_heading_change_deg": 3.145663478231907,
+          "world_delta_xyz_m": [
+            -0.27591046690940857,
+            -1.10947585105896,
+            -0.0011973977088928223
+          ],
+          "max_planar_excursion_m": 1.1432686691382614,
+          "signed_off_axis_drift_m": -0.27591046690940857,
+          "max_nonfoot_N": 0.0,
+          "raw_action_clip_fraction_per_joint": [
+            0.4716666666666667,
+            0.9533333333333334,
+            0.4716666666666667,
+            0.54,
+            0.6,
+            0.0,
+            0.6033333333333334,
+            0.22666666666666666,
+            0.9416666666666667,
+            0.0,
+            0.17666666666666667,
+            0.825
+          ],
+          "initial_reset_h_matches_first_compute": true,
+          "criteria": {
+            "completed_requested_interval": true,
+            "every_foot_lift15_at_least18": true,
+            "every_foot_slip_at_most15cm": true,
+            "no_actual_speed_exceedance": true,
+            "no_nonfoot_contact": true,
+            "no_drive_cap_violation": true,
+            "translation_speed_met": false,
+            "heading_change_met": true
+          },
+          "all_development_targets_met": false
+        }
+      ]
+    },
+    "final_minus_matched_parent": [
+      {
+        "direction": "forward",
+        "final_duration_s": 12.0,
+        "parent_duration_s": 12.0,
+        "equal_observed_duration": true,
+        "both_completed_first12s": true,
+        "supports_complete_interval_comparison": true,
+        "speed_cm_s": 0.2547423044840542,
+        "yaw_end_deg": -9.270381713886254,
+        "abs_heading_deg": -4.49401441434253,
+        "absolute_off_axis_drift_m": -0.026530414819717407,
+        "slip_m_FL_FR_RL_RR": [
+          0.09287716824158723,
+          0.012977130172008796,
+          0.01583061674983367,
+          0.004914696188301853
+        ]
+      },
+      {
+        "direction": "backward",
+        "final_duration_s": 12.0,
+        "parent_duration_s": 12.0,
+        "equal_observed_duration": true,
+        "both_completed_first12s": true,
+        "supports_complete_interval_comparison": true,
+        "speed_cm_s": -0.049034754435218986,
+        "yaw_end_deg": 26.67273176512188,
+        "abs_heading_deg": -20.502855203729304,
+        "absolute_off_axis_drift_m": 0.08367493748664856,
+        "slip_m_FL_FR_RL_RR": [
+          0.005453720082648494,
+          -0.028915028712133625,
+          -0.01444843621363881,
+          0.007312311999253345
+        ]
+      },
+      {
+        "direction": "left",
+        "final_duration_s": 12.0,
+        "parent_duration_s": 12.0,
+        "equal_observed_duration": true,
+        "both_completed_first12s": true,
+        "supports_complete_interval_comparison": true,
+        "speed_cm_s": 0.7743244369824724,
+        "yaw_end_deg": -29.945745542748327,
+        "abs_heading_deg": -29.945745542748327,
+        "absolute_off_axis_drift_m": -0.08367577195167542,
+        "slip_m_FL_FR_RL_RR": [
+          0.009559579345068698,
+          0.014079624985430791,
+          -0.0007545134332297039,
+          -0.012098857934374107
+        ]
+      },
+      {
+        "direction": "right",
+        "final_duration_s": 12.0,
+        "parent_duration_s": 12.0,
+        "equal_observed_duration": true,
+        "both_completed_first12s": true,
+        "supports_complete_interval_comparison": true,
+        "speed_cm_s": 2.4057050546010323,
+        "yaw_end_deg": 2.655585566983026,
+        "abs_heading_deg": -2.655585566983026,
+        "absolute_off_axis_drift_m": 0.037551432847976685,
+        "slip_m_FL_FR_RL_RR": [
+          0.06358491959319089,
+          -0.01887856176986536,
+          0.038961870708878,
+          0.004040900470806824
+        ]
+      }
+    ],
+    "comparison_scope": "Combined controller/observation/reward/command-allocation and learning changes with matched recorded reset state. No attribution to an isolated reward or optimizer change.",
+    "limitations": [
+      "Forward/backward/right met all criteria:3of6. Left speed8.3636cm/s remains below10cm/s.",
+      "Left turn0.155302rad/s is below0.20; both turns exceed0.15m maximum planar excursion:0.282719m and0.192188m.",
+      "Relative to remeasured L09, all four forward-foot slip distances increased; forward-left0.047409to0.140286m.",
+      "Absolute off-axis drift worsened for backward0.228127to0.311802m and right0.275910to0.313462m; improved final heading does not mean improved trajectory.",
+      "Training retains2788 speed-failed episodes and23.254938rad/s maximum. Final evaluation zero exceedances is a separate result.",
+      "Single seed and first12seconds; no hardware acceptance."
+    ],
+    "videos": [
+      "docs/media/l10-six-directions.mp4",
+      "docs/media/l10-matched-l09-four-directions.mp4"
+    ]
+  }
 }
