@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
   "updated": "2026-09-09",
-  "numbering_scope": "L00を基準とする今回の比較系列です。L01以降は診断も含む改善ループ。過去すべての実験を通算した番号ではありません。",
+  "numbering_scope": "直近9回のうち後半のL00〜L04と、準備中のL05を表示する部分台帳。全9回の順序はlearning-history.jsonで管理。",
   "loops": [
     {
       "id": "L00",
@@ -87,5 +87,5 @@
       "video_available_privately": false
     }
   ],
-  "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。公開版に動画やメーカー由来のモデルは含めません。"
+  "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。元の録画は非公開。READMEにはメーカー形状を使わない実測データの可視化を掲載。"
 }

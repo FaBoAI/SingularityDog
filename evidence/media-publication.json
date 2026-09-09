@@ -1,0 +1,31 @@
+{
+  "schema": "singularitydog.reviewed-media.v1",
+  "vendor_geometry_used": false,
+  "representation": "MEASURED_CHART_REPLAY_NOT_SIMULATOR_FOOTAGE",
+  "measured_data": {
+    "path": "evidence/forward-motion.json",
+    "sha256": "c07344e1195e9f1c6028fb020b1628139dbc884ecbe86fe4c9af2e38e3f37e78"
+  },
+  "generator": {
+    "path": "tools/render_motion_history.py",
+    "sha256": "4684a722218233e182247e5230e974f8540e241d6d148a92d702d70125794381"
+  },
+  "review": "All four measured first intervals were compared with their own source records. Poster visually reviewed; all 600 MP4 frames decoded; GIF duration checked. No robot assets or original screenshots were used.",
+  "files": {
+    "docs/media/forward-history.mp4": {
+      "sha256": "68c193346d1a7a9f882c622a1129b7ceb51c5c142873b850d9b919e2763e1648",
+      "bytes": 601070,
+      "reviewed_as_own_measured_visualization": true
+    },
+    "docs/media/forward-history.gif": {
+      "sha256": "291b095ae3e3b9118f2b064543db6a60dce598721e92ef363ea58d216626611c",
+      "bytes": 5846036,
+      "reviewed_as_own_measured_visualization": true
+    },
+    "docs/media/forward-history.png": {
+      "sha256": "05b4efd69eb9ddbfeb8ef7da7933e1dea70760dd4f52b818d4cacaa48c5f3b96",
+      "bytes": 167508,
+      "reviewed_as_own_measured_visualization": true
+    }
+  }
+}

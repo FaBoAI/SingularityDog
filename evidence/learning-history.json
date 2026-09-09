@@ -1,0 +1,208 @@
+{
+  "schema": "singularitydog.learning-history.v1",
+  "as_of": "2026-09-09",
+  "verified_recent_series_count": 9,
+  "successful_improvements_count": null,
+  "all_development_total": null,
+  "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同variantの複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
+  "scope": "現在の機体系列の立位基準以後で確認した直近9回。全開発通算ではなく、9回の成功を意味しない。",
+  "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
+  "baseline": {
+    "counted": false,
+    "title": "初期立位基準",
+    "result": "学習後の4方向評価で全脚の完了足上げ0回。",
+    "own_report_sha256": "3baf5a6845a9682a9d6b0ce5135296e82a4fc4cd1cf937365cd480df10a24ac7",
+    "id": "B0"
+  },
+  "loops": [
+    {
+      "id": "H01",
+      "series_order": 1,
+      "title": "荷重移動で4脚を順に上げる",
+      "kind": "SCRIPTED_DIAGNOSTIC",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-08T14:51:35.061560Z",
+        "kind": "reported_execution_completion",
+        "note": "Recorded execution/evaluation end"
+      },
+      "change": "92秒の位置参照を実行し、支持を移してから各脚を上げる。",
+      "result": "31区間を完了。4脚とも約20mmを保持した。",
+      "next_decision": "周期を短くした参照運動を試す。",
+      "walking_acceptance": false,
+      "own_report_sha256": "c206a75e39bfbada1003483be54f6ec5036741ef50f8696da77948708b8845b2"
+    },
+    {
+      "id": "H02",
+      "series_order": 2,
+      "title": "周期化した参照運動を検証",
+      "kind": "SCRIPTED_DIAGNOSTIC",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-08T15:27:03.074265Z",
+        "kind": "reported_execution_completion",
+        "note": "Recorded execution/evaluation end"
+      },
+      "change": "3秒・2.4秒周期のC1参照を、補正なしと有界補正の計3条件で検証。",
+      "result": "各条件で全脚が15mm以上のスイングを3回完了。学習した歩行ではない。",
+      "next_decision": "この参照へ学習した補正を重ねる。",
+      "walking_acceptance": false,
+      "own_report_sha256": "052c13ebbc12d3c0d37716562ffce9cc3756fa0b376dc368c5fbfe1774edcd48"
+    },
+    {
+      "id": "H03",
+      "series_order": 3,
+      "title": "参照運動に残差学習を追加",
+      "kind": "LEARNED_POLICY_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-08T15:59:53.652094+00:00",
+        "kind": "reported_evaluation_completion",
+        "note": "Recorded execution/evaluation end"
+      },
+      "change": "61観測の方策を300更新し、前後左右を評価。",
+      "result": "部分的な移動を確認。前進では全脚が15mm以上を4回、左移動の後左脚は0回。右は途中で非足接触。",
+      "next_decision": "滑り・足上げ報酬と接触時の終了条件を見直す。",
+      "walking_acceptance": false,
+      "own_report_sha256": "d4f37edf41be787ef206f99e900425e3318f87bfb0f12f43704d67e8720d849e"
+    },
+    {
+      "id": "H04",
+      "series_order": 4,
+      "title": "報酬と終了条件を見直す",
+      "kind": "LEARNED_POLICY_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-08T17:32:42Z",
+        "kind": "reported_evaluation_completion",
+        "note": "Recorded execution/evaluation end"
+      },
+      "change": "学習済み重みを使い、最適化器を初期化して600更新を追加。",
+      "result": "4方向を12秒完走したが平均移動速度は全方向で退行。前進の15mm足上げは4/4/4/1回。",
+      "next_decision": "遅い逐次歩容を続けず、対角歩容へ変更する。",
+      "walking_acceptance": false,
+      "own_report_sha256": "d3f2cf637c2230d3477d3a52bc9f6043cb3ade2fd9cfcb548c83d30fcbd239a8"
+    },
+    {
+      "id": "L00",
+      "series_order": 5,
+      "title": "速い対角歩容で学習",
+      "kind": "LEARNED_POLICY_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-08T23:04:36.534334+00:00",
+        "kind": "confirmed_result_available",
+        "note": "Time result was confirmed available; not an exact execution end"
+      },
+      "change": "69観測の対角歩容と残差方策を250更新し、4方向を評価。",
+      "result": "前進の元速度記録平均10.37cm/s。後左脚の足上げ不足と方向保持の課題が残る。",
+      "next_decision": "前進20cm/sを目指す指令分布と報酬へ進む。",
+      "walking_acceptance": false,
+      "own_report_sha256": "8edaa827fd39f5439874092dace8431c9cfa267484cecea9f9fcbf85375cc2f6"
+    },
+    {
+      "id": "L01",
+      "series_order": 6,
+      "title": "前進20cm/s向けの追加学習",
+      "kind": "FAILED_TRAINING",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-08T23:31:10.722800+00:00",
+        "kind": "reported_execution_end",
+        "note": "Recorded execution/evaluation end"
+      },
+      "change": "前進の指令分布・速度カリキュラムと一部報酬を変更。",
+      "result": "約60更新で関節速度が駆動モデルの定義域を超え停止。後段の速度設定には未到達。",
+      "next_decision": "元条件を保ち、接地前後の受動記録で再現する。",
+      "walking_acceptance": false,
+      "own_report_sha256": "6b38d8280e4591275a3062070cec494aefa33df7245151814e69b355aceb7470"
+    },
+    {
+      "id": "L02",
+      "series_order": 7,
+      "title": "接地時エラーを再現して記録",
+      "kind": "DIAGNOSTIC_REPRODUCED_FAILURE",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-09T00:35:31.810081+00:00",
+        "kind": "reported_execution_end",
+        "note": "Recorded execution/evaluation end"
+      },
+      "change": "入力や状態を変えない受動リング記録を追加し、有限再現試験。",
+      "result": "同時点の後左膝で例外を再現。直前の速度・出力・接触を取得し、診断目的を達成。",
+      "next_decision": "接触計算の反復数だけを変えて比較する。",
+      "walking_acceptance": false,
+      "own_report_sha256": "f16c1d22acc36d8671b29b29d1f7148643f8dead8938df8be57ccc622664cba8"
+    },
+    {
+      "id": "L03",
+      "series_order": 8,
+      "title": "数値計算の反復数を比較",
+      "kind": "FAILED_DIAGNOSTIC_NOT_ADOPTED",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-09T00:49:37.713606+00:00",
+        "kind": "reported_execution_end",
+        "note": "Recorded execution/evaluation end"
+      },
+      "change": "速度ソルバの反復回数だけ増やして有限試験。",
+      "result": "別の学習軌道で速度定義域を再び超過。反復数の増加だけでは解決せず不採用。",
+      "next_decision": "未計上の相対回転慣性を調べる。",
+      "walking_acceptance": false,
+      "own_report_sha256": "2a0cce1eae80a371b46b45b733e0f7e7214949a082af910e9e07d8bd8488afe0"
+    },
+    {
+      "id": "L04",
+      "series_order": 9,
+      "title": "回転慣性の計上を見直す",
+      "kind": "BOUNDED_DIAGNOSTIC_COMPLETED",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-09T01:09:54.436469+00:00",
+        "kind": "confirmed_result_available",
+        "note": "Time result was confirmed available; not an exact execution end"
+      },
+      "change": "元の数値設定へ戻し、重複を整理した相対回転慣性を反映。",
+      "result": "96更新・786432遷移・24576駆動計算を完了。初期指令段階のみで、歩行速度は未評価。",
+      "next_decision": "修正モデルで500更新と新しい4方向評価を準備する。",
+      "walking_acceptance": false,
+      "own_report_sha256": "121d6eb0a40de74dde9f417463ccbdd19f055149b634b23e49afaf742eb09269"
+    }
+  ],
+  "next": {
+    "id": "L05",
+    "prospective_series_order": 10,
+    "counted": false,
+    "status": "PREPARING_NOT_STARTED",
+    "plan": "修正モデルで500更新を行い、新しい4方向の実測評価へ進む。"
+  },
+  "visualization": {
+    "stages": [
+      "B0",
+      "H03",
+      "H04",
+      "L00"
+    ],
+    "type": "SCHEMATIC_REDRAW_FROM_MEASURED_SIMULATION_TIMESERIES",
+    "not_recorded_robot_video": true,
+    "manufacturer_appearance_included": false,
+    "sample_time_s": [
+      0.02,
+      12.0
+    ],
+    "samples_per_stage": 600,
+    "display_rate_hz": 50,
+    "mp4_duration_s": 12.0,
+    "comparison": "段階間で指令速度・制御方式が異なる履歴比較。同一条件の公平なA/Bではない。",
+    "reported_latest_speed": "10.37cm/sは元速度記録の平均であり、最初と最後の位置差を12秒で割った値へ置き換えない。",
+    "observed_forward_displacement_m_B0_H03_H04_L00": [
+      0.004807,
+      0.156152,
+      0.106314,
+      1.243701
+    ],
+    "displacement_definition": "world X at12.0s minus world X at0.02s; not path length or mean speed",
+    "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
+  },
+  "provenance_scope": "自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。"
+}

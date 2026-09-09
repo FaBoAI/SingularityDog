@@ -23,3 +23,9 @@ vendor/
 *.npz
 *.zip
 *.pdf
+!docs/media/
+docs/media/*
+!docs/media/forward-history.gif
+!docs/media/forward-history.mp4
+!docs/media/forward-history.png
+!docs/media/render-receipt.json
