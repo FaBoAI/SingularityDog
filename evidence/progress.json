@@ -103,14 +103,22 @@
     "private_authored_summary_sha256": "121d6eb0a40de74dde9f417463ccbdd19f055149b634b23e49afaf742eb09269"
   },
   "next_stage": {
-    "status": "PREPARING_NOT_STARTED",
+    "status": "RUNNING",
     "planned_updates": 500,
     "planned_transitions": 4096000,
     "planned_forward_commands_m_s": [
       0.16,
       0.2,
       0.24
-    ]
+    ],
+    "started_utc": "2026-09-09T02:13:57.032577+00:00",
+    "checked_utc": "2026-09-09T02:16:33.174407+00:00",
+    "confirmed_completed_updates": 24,
+    "parallel_environments": 256,
+    "initialization": "WEIGHTS_TRANSFER_FRESH_OPTIMIZER",
+    "post_training_video_status": "WAITING_FOR_STRICT_COMPLETION",
+    "walking_acceptance": false,
+    "own_startup_receipt_sha256": "0940e5f53811d627da9827717a51d012ef78c2eb94b827ba0351b8808a434db0"
   },
   "provenance_scope": "Selected own experimental observations only; private source files, vendor inputs, learned weights and videos are not distributed."
 }

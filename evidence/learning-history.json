@@ -173,8 +173,12 @@
     "id": "L05",
     "prospective_series_order": 10,
     "counted": false,
-    "status": "PREPARING_NOT_STARTED",
-    "plan": "修正モデルで500更新を行い、新しい4方向の実測評価へ進む。"
+    "status": "RUNNING",
+    "plan": "修正モデルで500更新を実行中。正常終了後の最新重みによる4方向の録画・実測評価を待機。",
+    "started_utc": "2026-09-09T02:13:57.032577+00:00",
+    "checked_utc": "2026-09-09T02:16:33.174407+00:00",
+    "confirmed_completed_updates": 24,
+    "own_startup_receipt_sha256": "0940e5f53811d627da9827717a51d012ef78c2eb94b827ba0351b8808a434db0"
   },
   "visualization": {
     "stages": [

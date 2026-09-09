@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
   "updated": "2026-09-09",
-  "numbering_scope": "直近9回のうち後半のL00〜L04と、準備中のL05を表示する部分台帳。全9回の順序はlearning-history.jsonで管理。",
+  "numbering_scope": "直近9回のうち後半のL00〜L04と、実行中のL05を表示する部分台帳。全9回の順序はlearning-history.jsonで管理。",
   "loops": [
     {
       "id": "L00",
@@ -77,14 +77,18 @@
       "id": "L05",
       "order": 5,
       "title": "修正モデルで500更新",
-      "state": "PLANNED",
-      "change": "96更新の結果を踏まえ、本学習と4方向の同条件評価を準備。",
-      "result": "未開始。新しい動画と実測値はこれから取得する。",
+      "state": "RUNNING",
+      "change": "相対回転慣性を反映したモデルで256並列・500更新。既存の重みを移植し、最適化器を初期化。",
+      "result": "09/09 11:13 JST開始。11:16時点で24更新と重みの保存を確認。正常終了後の4方向録画を待機。",
       "comparison_scope": "前進20cm/s達成や後脚の改善はまだ主張しない。",
       "forward_speed_m_s": null,
       "lift15_counts": null,
       "video": null,
-      "video_available_privately": false
+      "video_available_privately": false,
+      "started_utc": "2026-09-09T02:13:57.032577+00:00",
+      "checked_utc": "2026-09-09T02:16:33.174407+00:00",
+      "confirmed_completed_updates": 24,
+      "own_startup_receipt_sha256": "0940e5f53811d627da9827717a51d012ef78c2eb94b827ba0351b8808a434db0"
     }
   ],
   "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。"
