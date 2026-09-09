@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
   "as_of": "2026-09-09",
-  "recent_series_count": 12,
+  "recent_series_count": 13,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -152,6 +152,28 @@
         "docs/media/l07-forward-stride-failures.mp4"
       ],
       "own_result_report_sha256": "5660e183255c1117937217b1bf0931e3cfc458e9b9e686aa67b4cfab6bb76253"
+    },
+    {
+      "id": "L08",
+      "original": "docs/media/l08-four-directions.mp4",
+      "preview": "docs/media/l08-four-directions.gif",
+      "date": "2026-09-09",
+      "kind": "LEARNED_POLICY_EVALUATION",
+      "loop": "L08",
+      "series_order": 13,
+      "saved_iteration": 499,
+      "new_training_updates": 500,
+      "directional_displacement_over12s_cm_s": {
+        "forward": 29.92759943008423,
+        "backward": 12.101989984512329,
+        "left": 9.374496340751648,
+        "right": 11.19513710339864
+      },
+      "result": "前進29.93cm/s、各方向の各脚19〜20回の15mm足上げ。30cm/sは僅かに未達。左の方向ずれ48.74度、後進の滑りが残る。",
+      "other_comparison_videos": [
+        "docs/media/l08-forward-progress.mp4"
+      ],
+      "own_result_report_sha256": "fd61cb704dbd636c1dd532a2e62a8b80abb112e893cf76587ad931fc353720c3"
     }
   ]
 }

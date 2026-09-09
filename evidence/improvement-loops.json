@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
   "updated": "2026-09-09",
-  "numbering_scope": "直近12回のうち後半L00〜L07を表示する部分台帳。全12回の順序はlearning-history.jsonで管理。L07の15条件は1回で、追加学習0更新。",
+  "numbering_scope": "直近13回のうち後半L00〜L08を表示する部分台帳。全13回の順序はlearning-history.jsonで管理。L08は500更新と14開発ケースで1回。",
   "loops": [
     {
       "id": "L00",
@@ -137,7 +137,29 @@
       "completed_utc": "2026-09-09T06:13:18.506036+00:00",
       "confirmed_completed_updates": 0,
       "own_result_sha256": "5660e183255c1117937217b1bf0931e3cfc458e9b9e686aa67b4cfab6bb76253"
+    },
+    {
+      "id": "L08",
+      "order": 8,
+      "title": "周期短縮と500更新で前進29.93cm/s",
+      "state": "EVALUATED",
+      "change": "周期を0.56秒へ短縮し、前進指令を段階的に36cm/sへ。L06の重みから新規optimizerで500更新。",
+      "result": "前進29.93cm/s、各方向の各脚19〜20回の15mm足上げ。30cm/sは僅かに未達。左の方向ずれ48.74度、後進の滑りが残る。",
+      "comparison_scope": "単一seed42。速度は固定世界方向の変位/最初の12秒。同条件の旧actor27.48cm/sとの比較あり。左移動は退行。",
+      "forward_speed_m_s": 0.2992759943008423,
+      "lift15_counts": [
+        20,
+        19,
+        19,
+        20
+      ],
+      "video": null,
+      "video_available_privately": true,
+      "completed_utc": "2026-09-09T08:23:34.939039+00:00",
+      "confirmed_completed_updates": 500,
+      "own_result_sha256": "fd61cb704dbd636c1dd532a2e62a8b80abb112e893cf76587ad931fc353720c3"
     }
   ],
-  "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。"
+  "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。",
+  "target_actual_forward_m_s": 0.3
 }

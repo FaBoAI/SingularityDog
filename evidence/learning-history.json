@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
   "as_of": "2026-09-09",
-  "verified_recent_series_count": 12,
+  "verified_recent_series_count": 13,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同variantの複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列の立位基準以後で確認した直近12回。全開発通算ではなく、12回の成功を意味しない。",
+  "scope": "現在の機体系列の立位基準以後で確認した直近13回。全開発通算ではなく、13回の成功を意味しない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -220,6 +220,26 @@
       "new_training_updates": 0,
       "walking_acceptance": false,
       "own_report_sha256": "5660e183255c1117937217b1bf0931e3cfc458e9b9e686aa67b4cfab6bb76253"
+    },
+    {
+      "id": "L08",
+      "series_order": 13,
+      "title": "周期短縮と500更新で前進29.93cm/s",
+      "kind": "LEARNING_AND_FINITE_CONTROLLER_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-09T08:23:34.939039+00:00",
+        "kind": "reported_evaluation_completion",
+        "note": "Includes two final command-envelope cases; four-direction run completed earlier. CPU-only next candidates excluded."
+      },
+      "change": "周期を0.56秒へ短縮し、前進指令を段階的に36cm/sへ。L06の重みから新規optimizerで500更新。",
+      "result": "前進29.93cm/s、各方向の各脚19〜20回の15mm足上げ。30cm/sは僅かに未達。左の方向ずれ48.74度、後進の滑りが残る。",
+      "next_decision": "指令増加だけでは速度が頭打ち。左の方向保持と後進の滑りを優先し、周期短縮候補の角度クリップはGPU前に遷移を見直す。",
+      "gpu_evaluation_cases": 14,
+      "new_training_updates": 500,
+      "transitions": 4096000,
+      "walking_acceptance": false,
+      "own_report_sha256": "fd61cb704dbd636c1dd532a2e62a8b80abb112e893cf76587ad931fc353720c3"
     }
   ],
   "visualization": {
@@ -251,5 +271,5 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": "20cm/s未達。速度超過と滑りを解決するまでは足幅追加なしの補正案を比較基準に保つ。"
+  "next": "指令増加だけでは速度が頭打ち。左の方向保持と後進の滑りを優先し、周期短縮候補の角度クリップはGPU前に遷移を見直す。"
 }
