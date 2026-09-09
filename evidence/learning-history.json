@@ -204,5 +204,5 @@
     "displacement_definition": "world X at12.0s minus world X at0.02s; not path length or mean speed",
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
-  "provenance_scope": "自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。"
+  "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。"
 }

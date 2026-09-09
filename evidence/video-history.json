@@ -1,0 +1,98 @@
+{
+  "schema": "singularitydog.video-history.v1",
+  "as_of": "2026-09-09",
+  "recent_series_count": 9,
+  "additional_loops_counted_from_media": 0,
+  "all_development_total": null,
+  "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
+  "records": [
+    {
+      "id": "CAD",
+      "original": "docs/media/cad-type00.png",
+      "date": null,
+      "kind": "DESIGN_VIEW",
+      "loop": null,
+      "result": "CAD exterior study; not a real robot photograph or a walking result."
+    },
+    {
+      "id": "ARCHIVE2197",
+      "original": "docs/media/archive-joystick2197-left.mp4",
+      "date": "2026-09-08",
+      "kind": "OLDER_MODEL_RECORDING",
+      "loop": null,
+      "saved_iteration": 2197,
+      "metrics_scope": "Separate evaluations bound to the same policy; not measurements of this exact video.",
+      "result": "Speed/posture checks passed in the earlier nine-case evaluation. A later foot diagnostic found zero completed lifts above 15 mm in every foot.",
+      "own_binding_report_sha256": "b3295a0b55ccc4d9b2daf3b9586fbe3a78932a440a8c2f09f4b61f8a99a72f63",
+      "own_gait_report_sha256": "9fd7ecea4607ed4ddb6fcb37f48ea40e79849c9a8d6a01602aac9ea0ce757236"
+    },
+    {
+      "id": "ARCHIVE250",
+      "original": "docs/media/archive-dev250-left.mp4",
+      "date": "2026-09-08",
+      "kind": "OLDER_MODEL_RECORDING",
+      "loop": null,
+      "saved_iteration": 250,
+      "metrics_scope": "Separate four-environment, twelve-second evaluation bound to the same policy; not this exact video.",
+      "left_command_cm_s": 5,
+      "mean_left_speed_cm_s_rounded": 0.16,
+      "completed_lifts_15mm": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "own_binding_report_sha256": "12126c51c4aedfcf590d6e688a4f6f7c2295ea74b067660c959cf7ffb1ca63cd",
+      "own_result_report_sha256": "c84a1b910eba0371c659c3f8413b23e3e80b74591b9c800808d24a8554eeeb21"
+    },
+    {
+      "id": "B0",
+      "original": "docs/media/baseline-left.mp4",
+      "date": "2026-09-08",
+      "kind": "BASELINE_RECORDING",
+      "loop": null,
+      "saved_iteration": 1499,
+      "completed_lifts_15mm": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "result": "Left command; predominantly standing. Existing baseline outside the recent loop count."
+    },
+    {
+      "id": "H04",
+      "original": "docs/media/h04-forward.mp4",
+      "date": "2026-09-09",
+      "kind": "EXISTING_LOOP_RECORDING",
+      "loop": "H04",
+      "series_order": 4,
+      "saved_iteration": 599,
+      "mean_world_x_speed_cm_s_rounded": 0.85,
+      "completed_lifts_15mm": [
+        4,
+        4,
+        4,
+        1
+      ],
+      "result": "Completed twelve seconds. Speed regressed from the preceding learned policy."
+    },
+    {
+      "id": "L00",
+      "original": "docs/media/l00-four-directions.mp4",
+      "date": "2026-09-09",
+      "date_kind": "result_available_confirmation",
+      "kind": "EXISTING_LOOP_RECORDING",
+      "loop": "L00",
+      "series_order": 5,
+      "saved_iteration": 249,
+      "directional_mean_cm_s_rounded": {
+        "forward": 10.37,
+        "backward": 5.9,
+        "left": 4.89,
+        "right": 7.98
+      },
+      "result": "Four twelve-second evaluations; rear-foot lift, slip and heading remain unresolved."
+    }
+  ]
+}
