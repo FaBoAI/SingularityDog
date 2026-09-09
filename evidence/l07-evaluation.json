@@ -1,0 +1,508 @@
+{
+  "schema": "singularitydog.selected-design-evaluation.v1",
+  "id": "L07",
+  "series_order": 12,
+  "status": "COMPLETED_BOUNDED_DESIGN_EVALUATION",
+  "evaluation_completed_utc": "2026-09-09T06:13:18.506036+00:00",
+  "evaluation_cases": 15,
+  "new_training_updates": 0,
+  "seed": 42,
+  "actor_source": "L06 final499 learned policy, unchanged weights",
+  "simulation_physical_geometry_changed": false,
+  "target_actual_forward_m_s": 0.2,
+  "target_met": false,
+  "walking_acceptance": false,
+  "speed_definition": "Displacement projected onto the original fixed requested world direction / observed time. Completed cases12s include2s startup. Incomplete cases never establish the12s target.",
+  "case_duration_s": 12,
+  "policy_hz": 50,
+  "actuator_logging_hz": 400,
+  "cases": [
+    {
+      "name": "height35__forward",
+      "variant": "height35",
+      "direction": "forward",
+      "duration_s": 12.0,
+      "speed_cm_s": 17.405343055725098,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        14,
+        14,
+        13,
+        14
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.04370464244387905,
+        0.06759993197425292,
+        0.05970510563416751,
+        0.03752818204899531
+      ],
+      "yaw_end_deg": 3.2779023381204415,
+      "max_torque_Nm": 2.4394540786743164,
+      "max_actual_speed_rad_s": 7.4500508308410645,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "swing"
+    },
+    {
+      "name": "height35__backward",
+      "variant": "height35",
+      "direction": "backward",
+      "duration_s": 12.0,
+      "speed_cm_s": 8.401892582575481,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        2,
+        4,
+        11,
+        12
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.1494161864539635,
+        0.04848944139044102,
+        0.07903153471083517,
+        0.09758550623660661
+      ],
+      "yaw_end_deg": 2.863260336629185,
+      "max_torque_Nm": 3.31431245803833,
+      "max_actual_speed_rad_s": 9.893020629882812,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "swing"
+    },
+    {
+      "name": "height35__left",
+      "variant": "height35",
+      "direction": "left",
+      "duration_s": 12.0,
+      "speed_cm_s": 8.329322934150696,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        14,
+        14,
+        13,
+        13
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.04646513383840071,
+        0.0872680156894654,
+        0.03345238264921526,
+        0.045014759369382866
+      ],
+      "yaw_end_deg": -27.940736366107647,
+      "max_torque_Nm": 3.125926971435547,
+      "max_actual_speed_rad_s": 9.194984436035156,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "swing"
+    },
+    {
+      "name": "height35__right",
+      "variant": "height35",
+      "direction": "right",
+      "duration_s": 12.0,
+      "speed_cm_s": 9.823212027549744,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        13,
+        13,
+        2,
+        12
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.056291097918679464,
+        0.05709190700409289,
+        0.07552898220272747,
+        0.055754039924469624
+      ],
+      "yaw_end_deg": -8.22955918093861,
+      "max_torque_Nm": 2.794170379638672,
+      "max_actual_speed_rad_s": 7.112421035766602,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "swing"
+    },
+    {
+      "name": "height35_plane__forward",
+      "variant": "height35_plane",
+      "direction": "forward",
+      "duration_s": 12.0,
+      "speed_cm_s": 17.460582653681435,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        13,
+        14,
+        14,
+        13
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.038678822602169864,
+        0.07837292359670255,
+        0.08084588761572349,
+        0.04563110200083171
+      ],
+      "yaw_end_deg": 2.849238385149972,
+      "max_torque_Nm": 2.619072675704956,
+      "max_actual_speed_rad_s": 9.944124221801758,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "swing"
+    },
+    {
+      "name": "height35_plane__backward",
+      "variant": "height35_plane",
+      "direction": "backward",
+      "duration_s": 12.0,
+      "speed_cm_s": 10.921955108642578,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        14,
+        14,
+        14,
+        13
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.2630902886527645,
+        0.09229597400362187,
+        0.06655381785110953,
+        0.08375138161650328
+      ],
+      "yaw_end_deg": 6.418919147537365,
+      "max_torque_Nm": 3.548557996749878,
+      "max_actual_speed_rad_s": 9.425188064575195,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "swing"
+    },
+    {
+      "name": "height35_plane__left",
+      "variant": "height35_plane",
+      "direction": "left",
+      "duration_s": 12.0,
+      "speed_cm_s": 9.939185778299969,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        14,
+        14,
+        14,
+        13
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.04496129482438412,
+        0.07885575515226032,
+        0.02058665586286367,
+        0.0562319472877558
+      ],
+      "yaw_end_deg": -13.90041594689549,
+      "max_torque_Nm": 2.645449161529541,
+      "max_actual_speed_rad_s": 9.944902420043945,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "swing"
+    },
+    {
+      "name": "height35_plane__right",
+      "variant": "height35_plane",
+      "direction": "right",
+      "duration_s": 12.0,
+      "speed_cm_s": 10.611177484194439,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        13,
+        14,
+        14,
+        14
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.09737235683420264,
+        0.060443562300452516,
+        0.1260850513752828,
+        0.07972946891624243
+      ],
+      "yaw_end_deg": 14.81576801738298,
+      "max_torque_Nm": 3.7311339378356934,
+      "max_actual_speed_rad_s": 9.955245971679688,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "swing"
+    },
+    {
+      "name": "plane_stride28__forward",
+      "variant": "plane_stride28",
+      "direction": "forward",
+      "duration_s": 5.14,
+      "speed_cm_s": 14.635481027313707,
+      "completed_interval": false,
+      "first_failure_step": 257,
+      "lift15_FL_FR_RL_RR": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.024109414162346347,
+        0.03371067531971618,
+        0.026041825704959484,
+        0.02869739443128776
+      ],
+      "yaw_end_deg": -3.4049957234316883,
+      "max_torque_Nm": 2.925802230834961,
+      "max_actual_speed_rad_s": 9.95556354522705,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 2056,
+      "group": "stride"
+    },
+    {
+      "name": "plane_stride30__forward",
+      "variant": "plane_stride30",
+      "direction": "forward",
+      "duration_s": 4.34,
+      "speed_cm_s": 14.830244026975148,
+      "completed_interval": false,
+      "first_failure_step": 217,
+      "lift15_FL_FR_RL_RR": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.029862213929398244,
+        0.028415939877226563,
+        0.02498005159186032,
+        0.02141512137462492
+      ],
+      "yaw_end_deg": -3.497995152283759,
+      "max_torque_Nm": 2.9917666912078857,
+      "max_actual_speed_rad_s": 9.957479476928711,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 1736,
+      "group": "stride"
+    },
+    {
+      "name": "wide20__forward",
+      "variant": "wide20",
+      "direction": "forward",
+      "duration_s": 12.0,
+      "speed_cm_s": 18.63987445831299,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        13,
+        14,
+        14,
+        14
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.03658129176585409,
+        0.03707958149414725,
+        0.0638746625023181,
+        0.0931478018937108
+      ],
+      "yaw_end_deg": -4.589477737785191,
+      "max_torque_Nm": 3.846320629119873,
+      "max_actual_speed_rad_s": 9.930680274963379,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "stance"
+    },
+    {
+      "name": "wide30__forward",
+      "variant": "wide30",
+      "direction": "forward",
+      "duration_s": 12.0,
+      "speed_cm_s": 17.944318056106567,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        13,
+        14,
+        14,
+        14
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.06936877528228967,
+        0.04594775304332522,
+        0.042653731993287355,
+        0.20758463576982852
+      ],
+      "yaw_end_deg": -6.446154526852791,
+      "max_torque_Nm": 3.936446189880371,
+      "max_actual_speed_rad_s": 9.967262268066406,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "stance"
+    },
+    {
+      "name": "wide20__backward",
+      "variant": "wide20",
+      "direction": "backward",
+      "duration_s": 12.0,
+      "speed_cm_s": 10.661168893178303,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        14,
+        14,
+        14,
+        13
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.1506572892592668,
+        0.13034663329898005,
+        0.08772126570317955,
+        0.1760978773068122
+      ],
+      "yaw_end_deg": 2.98741311205933,
+      "max_torque_Nm": 4.063680648803711,
+      "max_actual_speed_rad_s": 12.295007705688477,
+      "provisional10rad_s_exceedance_samples": 2,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "other_directions"
+    },
+    {
+      "name": "wide20__left",
+      "variant": "wide20",
+      "direction": "left",
+      "duration_s": 12.0,
+      "speed_cm_s": 9.694310029347736,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        14,
+        14,
+        13,
+        13
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.08070665302246759,
+        0.1307625295398402,
+        0.07118729539013659,
+        0.08382571099300158
+      ],
+      "yaw_end_deg": -19.018557583515662,
+      "max_torque_Nm": 4.373600959777832,
+      "max_actual_speed_rad_s": 13.223932266235352,
+      "provisional10rad_s_exceedance_samples": 3,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "other_directions"
+    },
+    {
+      "name": "wide20__right",
+      "variant": "wide20",
+      "direction": "right",
+      "duration_s": 12.0,
+      "speed_cm_s": 9.432609875996906,
+      "completed_interval": true,
+      "first_failure_step": null,
+      "lift15_FL_FR_RL_RR": [
+        13,
+        14,
+        14,
+        14
+      ],
+      "slip_m_FL_FR_RL_RR": [
+        0.07182065101771945,
+        0.08104079751635557,
+        0.2268755529297667,
+        0.3274961320505436
+      ],
+      "yaw_end_deg": -7.128731189105308,
+      "max_torque_Nm": 4.285837173461914,
+      "max_actual_speed_rad_s": 9.95926284790039,
+      "provisional10rad_s_exceedance_samples": 0,
+      "bound_violations": 0,
+      "actual_samples_400hz": 4800,
+      "group": "other_directions"
+    }
+  ],
+  "overspeed_events": [
+    {
+      "case": "wide20__backward",
+      "time_s": 7.24,
+      "joint": "RR_calf_joint",
+      "joint_velocity_rad_s": -11.314563751220703
+    },
+    {
+      "case": "wide20__backward",
+      "time_s": 8.8425,
+      "joint": "RR_calf_joint",
+      "joint_velocity_rad_s": -12.295007705688477
+    },
+    {
+      "case": "wide20__left",
+      "time_s": 4.8100000000000005,
+      "joint": "RR_calf_joint",
+      "joint_velocity_rad_s": -11.699776649475098
+    },
+    {
+      "case": "wide20__left",
+      "time_s": 10.41,
+      "joint": "RR_hip_joint",
+      "joint_velocity_rad_s": -10.720430374145508
+    },
+    {
+      "case": "wide20__left",
+      "time_s": 10.41,
+      "joint": "RR_calf_joint",
+      "joint_velocity_rad_s": -13.223932266235352
+    }
+  ],
+  "four_direction_reference": "height35_plane, no additional stance width; finite four-direction cases passed without provisional10rad/s exceedances. Not hardware accepted.",
+  "forward_candidate": "wide20__forward:18.639874cm/s; not adopted as common four-direction control because backward/left exceeded provisional joint-speed limit.",
+  "own_source_hashes": {
+    "swing_independent_audit_sha256": "8eef86656274c51cc536d51c86d90f67ae0f59b4edc32f38d49a06a70672e893",
+    "stride_independent_audit_sha256": "8154df67f63bfdfb6a9b655aeac3236e683e2e10b9e19c91c4602ac57851d906",
+    "stance_independent_audit_sha256": "bc9ce7e9659e5f9b0d0e71be67dca5e50c8fdeae76ab2768729b19482ff803b2",
+    "other_directions_independent_audit_sha256": "074a239daf1012178e45244cd0483f1636cb6382a4e69df07431a2e757f2e11d",
+    "overspeed_record_sha256": "ec93eb89158d7628a2dbbc6bd2b4986fec323634d32a966c91f00cb2cb82f916"
+  },
+  "mechanical_candidate": {
+    "change": "Own foot-pad diameter36to44mm, seat unchanged; separate candidate, not used in these15rollouts.",
+    "added_mass_g": 72.585227272727,
+    "total_mass_kg": 6.362159708614202,
+    "native_checked_poses": 10,
+    "checked_solid_bodies": 480,
+    "external_interferences": 0,
+    "kernel_errors": 0,
+    "hypothetical_body_height_offset_m": 0.004,
+    "min_nonfoot_hypothetical_floor_clearance_m": 0.003986021204505856,
+    "actual_dynamics_evaluated": false,
+    "editable_assets_published": false,
+    "scope": "Finite geometry checks retain existing motor-internal contact abstraction and sheet approximation. No strength, dynamic walking or runtime approval."
+  },
+  "limitations": [
+    "Single-seed short episodes; heading/slip and hardware performance unresolved.",
+    "28/30cm/s forward commands extend beyond original learned24cm/s range.",
+    "Torque-cap compliance does not imply joint-speed compliance. All five overspeed elements retained.",
+    "No extra training updates; modified controller with learned actor, not a newly trained policy.",
+    "Public selections and private-result hashes are not a complete reproducible simulation package."
+  ],
+  "videos": [
+    "docs/media/l07-wide20-four-directions.mp4",
+    "docs/media/l07-forward-stance-comparison.mp4",
+    "docs/media/l07-forward-stride-failures.mp4"
+  ]
+}

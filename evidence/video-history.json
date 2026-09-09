@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
   "as_of": "2026-09-09",
-  "recent_series_count": 11,
+  "recent_series_count": 12,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -129,6 +129,29 @@
       },
       "result": "前進16.54→16.99、後退6.23→6.65、左8.05→7.06、右6.54→9.08cm/s。左移動は退行、前進の後左15mm足上げは1→0回。",
       "own_result_report_sha256": "a001418f7d43fc5c13217a1811ef5224aa62824a37ab9edcfc3c8bd55a5825eb"
+    },
+    {
+      "id": "L07",
+      "original": "docs/media/l07-wide20-four-directions.mp4",
+      "date": "2026-09-09",
+      "date_kind": "reported_evaluation_completion",
+      "kind": "EXISTING_LOOP_RECORDING",
+      "loop": "L07",
+      "series_order": 12,
+      "saved_iteration": 499,
+      "new_training_updates": 0,
+      "directional_displacement_over12s_cm_s": {
+        "forward": 18.64,
+        "backward": 10.66,
+        "left": 9.69,
+        "right": 9.43
+      },
+      "result": "足幅追加なしの補正で全方向の各脚13〜14回の15mm足上げ。足幅20mmの前進18.64cm/s。ただし後退・左で仮速度上限超過、全方向共通には不採用。",
+      "other_comparison_videos": [
+        "docs/media/l07-forward-stance-comparison.mp4",
+        "docs/media/l07-forward-stride-failures.mp4"
+      ],
+      "own_result_report_sha256": "5660e183255c1117937217b1bf0931e3cfc458e9b9e686aa67b4cfab6bb76253"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
   "updated": "2026-09-09",
-  "numbering_scope": "直近11回のうち後半L00〜L06を表示する部分台帳。全11回の順序はlearning-history.jsonで管理。",
+  "numbering_scope": "直近12回のうち後半L00〜L07を表示する部分台帳。全12回の順序はlearning-history.jsonで管理。L07の15条件は1回で、追加学習0更新。",
   "loops": [
     {
       "id": "L00",
@@ -116,6 +116,27 @@
       "completed_utc": "2026-09-09T04:06:14.729695+00:00",
       "confirmed_completed_updates": 500,
       "own_result_sha256": "a001418f7d43fc5c13217a1811ef5224aa62824a37ab9edcfc3c8bd55a5825eb"
+    },
+    {
+      "id": "L07",
+      "order": 7,
+      "title": "足上げ・足幅を再設計して15ケース評価",
+      "state": "EVALUATED",
+      "change": "L06の学習済み方策を固定。足上げ35mmと補正、歩幅・足幅を比較。新しい足パッドは別の幾何候補として検査。",
+      "result": "足幅追加なしの補正で全方向の各脚13〜14回の15mm足上げ。足幅20mmの前進18.64cm/s。ただし後退・左で仮速度上限超過、全方向共通には不採用。",
+      "comparison_scope": "同じ学習済み重み・物理モデルで制御と指令を比較。18.64cm/sは足幅20mmの前進変位/12秒。後退・左の速度超過を含み、共通制御として不採用。",
+      "forward_speed_m_s": 0.18639874458312988,
+      "lift15_counts": [
+        13,
+        14,
+        14,
+        14
+      ],
+      "video": null,
+      "video_available_privately": true,
+      "completed_utc": "2026-09-09T06:13:18.506036+00:00",
+      "confirmed_completed_updates": 0,
+      "own_result_sha256": "5660e183255c1117937217b1bf0931e3cfc458e9b9e686aa67b4cfab6bb76253"
     }
   ],
   "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。"

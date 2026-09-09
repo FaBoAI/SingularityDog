@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
   "as_of": "2026-09-09",
-  "verified_recent_series_count": 11,
+  "verified_recent_series_count": 12,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同variantの複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列の立位基準以後で確認した直近11回。全開発通算ではなく、11回の成功を意味しない。",
+  "scope": "現在の機体系列の立位基準以後で確認した直近12回。全開発通算ではなく、12回の成功を意味しない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -201,6 +201,25 @@
       "next_decision": "報酬強化だけで全脚の足上げは解決せず。後脚の参照運動と荷重移動を再検討。",
       "walking_acceptance": false,
       "own_report_sha256": "a001418f7d43fc5c13217a1811ef5224aa62824a37ab9edcfc3c8bd55a5825eb"
+    },
+    {
+      "id": "L07",
+      "series_order": 12,
+      "title": "足上げ・足幅を再設計して15ケース評価",
+      "kind": "LEARNED_ACTOR_CONTROLLER_DESIGN_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-09T06:13:18.506036+00:00",
+        "kind": "reported_evaluation_completion",
+        "note": "Last of15finiteGPUcases completed; no new training updates."
+      },
+      "change": "L06の学習済み方策を固定。足上げ35mmと補正、歩幅・足幅を比較。新しい足パッドは別の幾何候補として検査。",
+      "result": "足幅追加なしの補正で全方向の各脚13〜14回の15mm足上げ。足幅20mmの前進18.64cm/s。ただし後退・左で仮速度上限超過、全方向共通には不採用。",
+      "next_decision": "20cm/s未達。速度超過と滑りを解決するまでは足幅追加なしの補正案を比較基準に保つ。",
+      "gpu_evaluation_cases": 15,
+      "new_training_updates": 0,
+      "walking_acceptance": false,
+      "own_report_sha256": "5660e183255c1117937217b1bf0931e3cfc458e9b9e686aa67b4cfab6bb76253"
     }
   ],
   "visualization": {
@@ -232,5 +251,5 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": null
+  "next": "20cm/s未達。速度超過と滑りを解決するまでは足幅追加なしの補正案を比較基準に保つ。"
 }
