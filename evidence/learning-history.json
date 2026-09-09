@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
   "as_of": "2026-09-09",
-  "verified_recent_series_count": 9,
+  "verified_recent_series_count": 10,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同variantの複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列の立位基準以後で確認した直近9回。全開発通算ではなく、9回の成功を意味しない。",
+  "scope": "現在の機体系列の立位基準以後で確認した直近10回。全開発通算ではなく、10回の成功を意味しない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -167,19 +167,25 @@
       "next_decision": "修正モデルで500更新と新しい4方向評価を準備する。",
       "walking_acceptance": false,
       "own_report_sha256": "121d6eb0a40de74dde9f417463ccbdd19f055149b634b23e49afaf742eb09269"
+    },
+    {
+      "id": "L05",
+      "series_order": 10,
+      "title": "修正モデルで500更新・4方向評価",
+      "kind": "LEARNED_POLICY_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-09T02:53:55.596386+00:00",
+        "kind": "reported_evaluation_completion",
+        "note": "Recorded evaluation completion"
+      },
+      "change": "相対回転慣性を反映したモデルで既存重みから500更新、最適化器を初期化。",
+      "result": "前進変位基準16.54cm/s。全4方向12秒完走。後左脚不足、後進の滑りと右の偏向が残り20cm/s未達。",
+      "next_decision": "後脚の荷重移動と方向保持を再検討。追加学習は未開始。",
+      "walking_acceptance": false,
+      "own_report_sha256": "7127f97fa79bf4f5e2ddf2e0a9f8967eb428c6500e436ae08f70f42a8d938724"
     }
   ],
-  "next": {
-    "id": "L05",
-    "prospective_series_order": 10,
-    "counted": false,
-    "status": "RUNNING",
-    "plan": "修正モデルで500更新を実行中。正常終了後の最新重みによる4方向の録画・実測評価を待機。",
-    "started_utc": "2026-09-09T02:13:57.032577+00:00",
-    "checked_utc": "2026-09-09T02:16:33.174407+00:00",
-    "confirmed_completed_updates": 24,
-    "own_startup_receipt_sha256": "0940e5f53811d627da9827717a51d012ef78c2eb94b827ba0351b8808a434db0"
-  },
   "visualization": {
     "stages": [
       "B0",
@@ -208,5 +214,6 @@
     "displacement_definition": "world X at12.0s minus world X at0.02s; not path length or mean speed",
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
-  "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。"
+  "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
+  "next": null
 }

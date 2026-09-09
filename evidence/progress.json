@@ -103,22 +103,127 @@
     "private_authored_summary_sha256": "121d6eb0a40de74dde9f417463ccbdd19f055149b634b23e49afaf742eb09269"
   },
   "next_stage": {
-    "status": "RUNNING",
-    "planned_updates": 500,
-    "planned_transitions": 4096000,
-    "planned_forward_commands_m_s": [
-      0.16,
-      0.2,
-      0.24
-    ],
-    "started_utc": "2026-09-09T02:13:57.032577+00:00",
-    "checked_utc": "2026-09-09T02:16:33.174407+00:00",
-    "confirmed_completed_updates": 24,
-    "parallel_environments": 256,
-    "initialization": "WEIGHTS_TRANSFER_FRESH_OPTIMIZER",
-    "post_training_video_status": "WAITING_FOR_STRICT_COMPLETION",
-    "walking_acceptance": false,
-    "own_startup_receipt_sha256": "0940e5f53811d627da9827717a51d012ef78c2eb94b827ba0351b8808a434db0"
+    "status": "NOT_STARTED",
+    "scope": "Review rear-leg load transfer and heading control before another bounded trial."
   },
-  "provenance_scope": "Selected own experimental observations only; private source files, vendor inputs, learned weights and videos are not distributed."
+  "provenance_scope": "Selected own experimental observations only; private source files, vendor inputs, learned weights and videos are not distributed.",
+  "latest_stage": {
+    "id": "L05",
+    "status": "COMPLETED_DEV_EVALUATION",
+    "stage_updates": 500,
+    "stage_transitions": 4096000,
+    "training_completed_utc": "2026-09-09T02:49:33.179500+00:00",
+    "evaluation_completed_utc": "2026-09-09T02:53:55.596386+00:00",
+    "target_met": false,
+    "walking_acceptance": false,
+    "effective_physics_changed": true,
+    "speed_definition": "Fixed requested world direction displacement from actual initial position through12.0s /12s; includes2s bootstrap. Recorded instantaneous-velocity mean stored separately.",
+    "cases": [
+      {
+        "direction": "forward",
+        "duration_s": 12,
+        "command_m_s": [
+          0.24,
+          0.0,
+          0.0
+        ],
+        "fixed_world_displacement_m": 1.9849694967269897,
+        "speed_from_displacement_m_s": 0.16541412472724915,
+        "mean_recorded_world_velocity_m_s": 0.16567659378051758,
+        "lift15_FL_FR_RL_RR": [
+          14,
+          14,
+          1,
+          13
+        ],
+        "stance_slip_distance_m_FL_FR_RL_RR": [
+          0.033414701288224935,
+          0.061861043128228634,
+          0.12367102966786661,
+          0.017910481044345943
+        ],
+        "yaw_end_deg": -6.2091474533081055,
+        "first_failure_step": null
+      },
+      {
+        "direction": "backward",
+        "duration_s": 12,
+        "command_m_s": [
+          -0.12,
+          0.0,
+          0.0
+        ],
+        "fixed_world_displacement_m": 0.7478581070899963,
+        "speed_from_displacement_m_s": 0.06232150892416636,
+        "mean_recorded_world_velocity_m_s": 0.062008172273635864,
+        "lift15_FL_FR_RL_RR": [
+          13,
+          14,
+          0,
+          0
+        ],
+        "stance_slip_distance_m_FL_FR_RL_RR": [
+          0.020744088334176923,
+          0.06562656807298481,
+          0.8037984135356965,
+          0.496178993180074
+        ],
+        "yaw_end_deg": -22.68636703491211,
+        "first_failure_step": null
+      },
+      {
+        "direction": "left",
+        "duration_s": 12,
+        "command_m_s": [
+          0.0,
+          0.12,
+          0.0
+        ],
+        "fixed_world_displacement_m": 0.9654495120048523,
+        "speed_from_displacement_m_s": 0.08045412600040436,
+        "mean_recorded_world_velocity_m_s": 0.08005417883396149,
+        "lift15_FL_FR_RL_RR": [
+          13,
+          14,
+          3,
+          13
+        ],
+        "stance_slip_distance_m_FL_FR_RL_RR": [
+          0.05714842747875082,
+          0.04737066711408261,
+          0.07114802731652162,
+          0.06182926497407607
+        ],
+        "yaw_end_deg": -12.599907875061035,
+        "first_failure_step": null
+      },
+      {
+        "direction": "right",
+        "duration_s": 12,
+        "command_m_s": [
+          0.0,
+          -0.12,
+          0.0
+        ],
+        "fixed_world_displacement_m": 0.7846176624298096,
+        "speed_from_displacement_m_s": 0.06538480520248413,
+        "mean_recorded_world_velocity_m_s": 0.06596379727125168,
+        "lift15_FL_FR_RL_RR": [
+          12,
+          14,
+          1,
+          4
+        ],
+        "stance_slip_distance_m_FL_FR_RL_RR": [
+          0.06020577284973115,
+          0.03388863343894627,
+          0.45695724185661674,
+          0.18708397788759612
+        ],
+        "yaw_end_deg": -49.66389083862305,
+        "first_failure_step": null
+      }
+    ],
+    "own_report_sha256": "7127f97fa79bf4f5e2ddf2e0a9f8967eb428c6500e436ae08f70f42a8d938724"
+  }
 }
