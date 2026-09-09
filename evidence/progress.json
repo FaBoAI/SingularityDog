@@ -104,20 +104,21 @@
   },
   "next_stage": {
     "status": "NOT_STARTED",
-    "scope": "Review rear-leg load transfer and heading control before another bounded trial."
+    "scope": "Review rear-leg reference motion and load transfer; no new trial launched."
   },
   "provenance_scope": "Selected own experimental observations only; private source files, vendor inputs, learned weights and videos are not distributed.",
   "latest_stage": {
-    "id": "L05",
-    "status": "COMPLETED_DEV_EVALUATION",
     "stage_updates": 500,
     "stage_transitions": 4096000,
-    "training_completed_utc": "2026-09-09T02:49:33.179500+00:00",
-    "evaluation_completed_utc": "2026-09-09T02:53:55.596386+00:00",
+    "training_completed_utc": "2026-09-09T04:01:52.414188+00:00",
     "target_met": false,
     "walking_acceptance": false,
-    "effective_physics_changed": true,
     "speed_definition": "Fixed requested world direction displacement from actual initial position through12.0s /12s; includes2s bootstrap. Recorded instantaneous-velocity mean stored separately.",
+    "schema": "singularitydog.selected-evaluation.v1",
+    "id": "L06",
+    "series_order": 11,
+    "status": "COMPLETED_DEV_EVALUATION",
+    "evaluation_completed_utc": "2026-09-09T04:06:14.729695+00:00",
     "cases": [
       {
         "direction": "forward",
@@ -127,22 +128,22 @@
           0.0,
           0.0
         ],
-        "fixed_world_displacement_m": 1.9849694967269897,
-        "speed_from_displacement_m_s": 0.16541412472724915,
-        "mean_recorded_world_velocity_m_s": 0.16567659378051758,
+        "fixed_world_displacement_m": 2.038895606994629,
+        "speed_from_displacement_m_s": 0.1699079672495524,
+        "mean_recorded_world_velocity_m_s": 0.17011040449142456,
         "lift15_FL_FR_RL_RR": [
           14,
           14,
-          1,
-          13
+          0,
+          12
         ],
         "stance_slip_distance_m_FL_FR_RL_RR": [
-          0.033414701288224935,
-          0.061861043128228634,
-          0.12367102966786661,
-          0.017910481044345943
+          0.02969996733840617,
+          0.05639234760212276,
+          0.12903952130549443,
+          0.025686764462880093
         ],
-        "yaw_end_deg": -6.2091474533081055,
+        "yaw_end_deg": 0.2710251212120056,
         "first_failure_step": null
       },
       {
@@ -153,9 +154,9 @@
           0.0,
           0.0
         ],
-        "fixed_world_displacement_m": 0.7478581070899963,
-        "speed_from_displacement_m_s": 0.06232150892416636,
-        "mean_recorded_world_velocity_m_s": 0.062008172273635864,
+        "fixed_world_displacement_m": 0.7974057793617249,
+        "speed_from_displacement_m_s": 0.06645048161347707,
+        "mean_recorded_world_velocity_m_s": 0.06620193272829056,
         "lift15_FL_FR_RL_RR": [
           13,
           14,
@@ -163,12 +164,12 @@
           0
         ],
         "stance_slip_distance_m_FL_FR_RL_RR": [
-          0.020744088334176923,
-          0.06562656807298481,
-          0.8037984135356965,
-          0.496178993180074
+          0.02122143689499353,
+          0.036121906293410576,
+          0.46672000747625136,
+          0.11404100667801687
         ],
-        "yaw_end_deg": -22.68636703491211,
+        "yaw_end_deg": -7.886487007141113,
         "first_failure_step": null
       },
       {
@@ -179,22 +180,22 @@
           0.12,
           0.0
         ],
-        "fixed_world_displacement_m": 0.9654495120048523,
-        "speed_from_displacement_m_s": 0.08045412600040436,
-        "mean_recorded_world_velocity_m_s": 0.08005417883396149,
+        "fixed_world_displacement_m": 0.847714900970459,
+        "speed_from_displacement_m_s": 0.07064290841420491,
+        "mean_recorded_world_velocity_m_s": 0.07024259120225906,
         "lift15_FL_FR_RL_RR": [
+          2,
+          2,
           13,
-          14,
-          3,
-          13
+          3
         ],
         "stance_slip_distance_m_FL_FR_RL_RR": [
-          0.05714842747875082,
-          0.04737066711408261,
-          0.07114802731652162,
-          0.06182926497407607
+          0.05365030225730152,
+          0.22910175171957237,
+          0.018666223341751904,
+          0.033391499545541596
         ],
-        "yaw_end_deg": -12.599907875061035,
+        "yaw_end_deg": -41.066036224365234,
         "first_failure_step": null
       },
       {
@@ -205,25 +206,40 @@
           -0.12,
           0.0
         ],
-        "fixed_world_displacement_m": 0.7846176624298096,
-        "speed_from_displacement_m_s": 0.06538480520248413,
-        "mean_recorded_world_velocity_m_s": 0.06596379727125168,
+        "fixed_world_displacement_m": 1.0892833471298218,
+        "speed_from_displacement_m_s": 0.09077361226081848,
+        "mean_recorded_world_velocity_m_s": 0.09086580574512482,
         "lift15_FL_FR_RL_RR": [
           12,
-          14,
-          1,
-          4
+          12,
+          2,
+          2
         ],
         "stance_slip_distance_m_FL_FR_RL_RR": [
-          0.06020577284973115,
-          0.03388863343894627,
-          0.45695724185661674,
-          0.18708397788759612
+          0.06083727441422525,
+          0.05357027236299473,
+          0.48935617541319515,
+          0.07394257308522356
         ],
-        "yaw_end_deg": -49.66389083862305,
+        "yaw_end_deg": -18.39789581298828,
         "first_failure_step": null
       }
     ],
-    "own_report_sha256": "7127f97fa79bf4f5e2ddf2e0a9f8967eb428c6500e436ae08f70f42a8d938724"
+    "own_report_sha256": "a001418f7d43fc5c13217a1811ef5224aa62824a37ab9edcfc3c8bd55a5825eb",
+    "independent_audit_sha256": "72cb3642c89b2669ddfc191b85837a664dc2023dcde79881cdb07b53680eeac9",
+    "change": "足上げ誤差と接地タイミングの報酬係数だけを4倍にした比較。形状・質量・駆動・参照運動・指令条件はL05と同じ。",
+    "initialization": "L05と同じ元の重みから500更新。最適化器は新規で、L05最終重みからの継続ではない。",
+    "limitations": "単一seed42・最初の12秒・2秒始動を含む。20cm/sと全脚の足上げは未達。追加学習の一般的な改善効果や実機性能を証明しない。",
+    "video": {
+      "path": "docs/media/l06-four-directions.mp4",
+      "sha256": "30f3a524cad4310ae3635feed9d4eb15bbd1b538aec683352b73c4312f6cada9",
+      "frames": 600,
+      "fps": 50,
+      "duration_s": 12,
+      "width": 1920,
+      "height": 1280,
+      "time_scale": 1
+    },
+    "comparison_to_l05": "前進16.54→16.99、後退6.23→6.65、左8.05→7.06、右6.54→9.08cm/s。左移動は退行、前進の後左15mm足上げは1→0回。"
   }
 }

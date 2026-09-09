@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
   "as_of": "2026-09-09",
-  "recent_series_count": 10,
+  "recent_series_count": 11,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -111,6 +111,24 @@
       },
       "result": "Full four-direction12s recordings. Target20cm/s unmet; rear-left lift, backward slip and right heading drift unresolved.",
       "own_result_report_sha256": "7127f97fa79bf4f5e2ddf2e0a9f8967eb428c6500e436ae08f70f42a8d938724"
+    },
+    {
+      "id": "L06",
+      "original": "docs/media/l06-four-directions.mp4",
+      "date": "2026-09-09",
+      "date_kind": "reported_evaluation_completion",
+      "kind": "EXISTING_LOOP_RECORDING",
+      "loop": "L06",
+      "series_order": 11,
+      "saved_iteration": 499,
+      "directional_displacement_over12s_cm_s": {
+        "forward": 16.99,
+        "backward": 6.65,
+        "left": 7.06,
+        "right": 9.08
+      },
+      "result": "前進16.54→16.99、後退6.23→6.65、左8.05→7.06、右6.54→9.08cm/s。左移動は退行、前進の後左15mm足上げは1→0回。",
+      "own_result_report_sha256": "a001418f7d43fc5c13217a1811ef5224aa62824a37ab9edcfc3c8bd55a5825eb"
     }
   ]
 }

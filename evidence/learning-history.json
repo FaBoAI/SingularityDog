@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
   "as_of": "2026-09-09",
-  "verified_recent_series_count": 10,
+  "verified_recent_series_count": 11,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同variantの複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列の立位基準以後で確認した直近10回。全開発通算ではなく、10回の成功を意味しない。",
+  "scope": "現在の機体系列の立位基準以後で確認した直近11回。全開発通算ではなく、11回の成功を意味しない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -184,6 +184,23 @@
       "next_decision": "後脚の荷重移動と方向保持を再検討。追加学習は未開始。",
       "walking_acceptance": false,
       "own_report_sha256": "7127f97fa79bf4f5e2ddf2e0a9f8967eb428c6500e436ae08f70f42a8d938724"
+    },
+    {
+      "id": "L06",
+      "series_order": 11,
+      "title": "足上げ・接地報酬を強化して比較",
+      "kind": "LEARNED_POLICY_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-09T04:06:14.729695+00:00",
+        "kind": "reported_evaluation_completion",
+        "note": "Recorded evaluation completion"
+      },
+      "change": "足上げ誤差と接地タイミングの報酬係数だけを4倍にした比較。形状・質量・駆動・参照運動・指令条件はL05と同じ。",
+      "result": "前進16.54→16.99、後退6.23→6.65、左8.05→7.06、右6.54→9.08cm/s。左移動は退行、前進の後左15mm足上げは1→0回。",
+      "next_decision": "報酬強化だけで全脚の足上げは解決せず。後脚の参照運動と荷重移動を再検討。",
+      "walking_acceptance": false,
+      "own_report_sha256": "a001418f7d43fc5c13217a1811ef5224aa62824a37ab9edcfc3c8bd55a5825eb"
     }
   ],
   "visualization": {
