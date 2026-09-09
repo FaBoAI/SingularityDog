@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
   "updated": "2026-09-09",
-  "numbering_scope": "直近13回のうち後半L00〜L08を表示する部分台帳。全13回の順序はlearning-history.jsonで管理。L08は500更新と14開発ケースで1回。",
+  "numbering_scope": "直近15回（H01〜H04＋L00〜L10）のうち後半L00〜L10の11件を表示する部分台帳。全15回の順序はlearning-history.jsonで管理。L09とL10は各500更新で各1回、比較評価ケースは別の改善回数に数えない。",
   "loops": [
     {
       "id": "L00",
@@ -158,8 +158,127 @@
       "completed_utc": "2026-09-09T08:23:34.939039+00:00",
       "confirmed_completed_updates": 500,
       "own_result_sha256": "fd61cb704dbd636c1dd532a2e62a8b80abb112e893cf76587ad931fc353720c3"
+    },
+    {
+      "id": "L09",
+      "order": 9,
+      "series_order": 14,
+      "title": "500更新で前進30cm/s達成、3方向は未達",
+      "state": "EVALUATED",
+      "change": "L08の重みから500更新。指令配分と旋回・滑り報酬を変更し、4方向を評価。",
+      "result": "前進31.8661cm/sで全基準達成は前進のみ。後進の向き、左の速度・向き、右の速度が未達。",
+      "comparison_scope": "第14回の元評価。後進・左右の初期曝露状態はL08と異なる。L10比較用に撮り直したL09値とは別。",
+      "forward_speed_m_s": 0.31866103410720825,
+      "lift15_counts": [
+        20,
+        19,
+        19,
+        20
+      ],
+      "video": null,
+      "video_available_privately": true,
+      "confirmed_completed_updates": 500,
+      "completed_utc": "2026-09-09T09:30:27.772398Z",
+      "completion_time_kind": "reported_job_end_including_evaluation",
+      "own_result_sha256": "e9ce997de8d9325c25191997c798748001685262298e76e7bf22f58f74b5430b"
+    },
+    {
+      "id": "L10",
+      "order": 10,
+      "series_order": 15,
+      "title": "左右旋回を追加し500更新、3/6方向の基準達成",
+      "state": "EVALUATED",
+      "change": "L09から観測と旋回・向き補正を拡張し500更新。旧4方向と新6方向を同じ初期化で比較。",
+      "result": "前進32.1595cm/s。前進・後進・右の3/6方向が全基準達成。左の速度と両旋回の位置保持は未達。前進滑りと後進・右の横流れは悪化。",
+      "comparison_scope": "旧L09の再測定4方向と新6方向で初期状態完全一致。制御と学習の総合比較。旋回速度はrad/sで別評価。",
+      "forward_speed_m_s": 0.32159547011057543,
+      "lift15_counts": [
+        20,
+        19,
+        19,
+        20
+      ],
+      "video": null,
+      "video_available_privately": true,
+      "confirmed_completed_updates": 500,
+      "completed_utc": "2026-09-09T10:59:32.161757Z",
+      "completion_time_kind": "reported_job_end_including_evaluation",
+      "own_result_sha256": "b787ad8c4d4744a295c378abec8ce6aa855447989f83991a93a7edaaa2574f5f"
     }
   ],
   "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。",
-  "target_actual_forward_m_s": 0.3
+  "target_actual_forward_m_s": 0.3,
+  "verified_recent_series_count": 15,
+  "latest_loop_id": "L10",
+  "latest_development_targets_met_case_count": 3,
+  "latest_evaluation_case_count": 6,
+  "comparison_cases": [
+    {
+      "id": "L09-matched-L10",
+      "title": "L09再測定・L10と同じ初期化",
+      "state": "EVALUATED",
+      "change": "元L09 controllerと方策を保持し、L10共通resetで4方向を再測定。追加学習0。",
+      "result": "前進31.9048cm/s。元の第14回前進31.8661cm/sとは別の評価記録。",
+      "comparison_scope": "旧L09の再測定4方向と新6方向で初期状態完全一致。制御と学習の総合比較。旋回速度はrad/sで別評価。",
+      "forward_speed_m_s": 0.31904804706573486,
+      "video_url": "media/l10-matched-l09-four-directions.mp4"
+    }
+  ],
+  "default_comparison_before": "L09-matched-L10",
+  "latest_cases": [
+    {
+      "direction": "forward",
+      "label": "前進",
+      "speed_cm_s": 32.15954701105754,
+      "signed_mean_yaw_rate_rad_s": null,
+      "yaw_end_deg": -2.388183649771862,
+      "max_planar_excursion_m": null,
+      "target_result": "全基準達成"
+    },
+    {
+      "direction": "backward",
+      "label": "後進",
+      "speed_cm_s": 10.667274395624798,
+      "signed_mean_yaw_rate_rad_s": null,
+      "yaw_end_deg": 3.0849382806962877,
+      "max_planar_excursion_m": null,
+      "target_result": "全基準達成"
+    },
+    {
+      "direction": "left",
+      "label": "左移動",
+      "speed_cm_s": 8.36358368396759,
+      "signed_mean_yaw_rate_rad_s": null,
+      "yaw_end_deg": 0.05559931609533399,
+      "max_planar_excursion_m": null,
+      "target_result": "並進速度未達"
+    },
+    {
+      "direction": "right",
+      "label": "右移動",
+      "speed_cm_s": 11.651337146759033,
+      "signed_mean_yaw_rate_rad_s": null,
+      "yaw_end_deg": -0.2451283304064707,
+      "max_planar_excursion_m": null,
+      "target_result": "全基準達成"
+    },
+    {
+      "direction": "turn_left",
+      "label": "左旋回",
+      "speed_cm_s": null,
+      "signed_mean_yaw_rate_rad_s": 0.15530164194533014,
+      "yaw_end_deg": 106.77754361903152,
+      "max_planar_excursion_m": 0.28271877287589336,
+      "target_result": "旋回速度・位置保持未達"
+    },
+    {
+      "direction": "turn_right",
+      "label": "右旋回",
+      "speed_cm_s": null,
+      "signed_mean_yaw_rate_rad_s": 0.21567232865521635,
+      "yaw_end_deg": -148.28537027642764,
+      "max_planar_excursion_m": 0.19218774013557102,
+      "target_result": "位置保持未達"
+    }
+  ]
 }

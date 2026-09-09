@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
   "as_of": "2026-09-09",
-  "verified_recent_series_count": 13,
+  "verified_recent_series_count": 15,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同variantの複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列の立位基準以後で確認した直近13回。全開発通算ではなく、13回の成功を意味しない。",
+  "scope": "現在の機体系列の立位基準以後で確認した直近15回。全開発通算ではなく、15回の成功を意味しない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -240,6 +240,48 @@
       "transitions": 4096000,
       "walking_acceptance": false,
       "own_report_sha256": "fd61cb704dbd636c1dd532a2e62a8b80abb112e893cf76587ad931fc353720c3"
+    },
+    {
+      "id": "L09",
+      "series_order": 14,
+      "title": "500更新で前進30cm/s達成、3方向は未達",
+      "kind": "LEARNING_AND_FINITE_CONTROLLER_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-09T09:30:27.772398Z",
+        "kind": "reported_job_end_including_evaluation",
+        "note": "Bounded run end includes evaluation; not a separate evaluation timestamp."
+      },
+      "change": "L08の重みから500更新。指令配分と旋回・滑り報酬を変更し、4方向を評価。",
+      "result": "前進31.8661cm/sで全基準達成は前進のみ。後進の向き、左の速度・向き、右の速度が未達。",
+      "next_decision": "初期目標と曝露状態を明示して比較を撮り直し、後進・左の向きと左右の速度を改善する。",
+      "gpu_evaluation_cases": 4,
+      "new_training_updates": 500,
+      "transitions": 4096000,
+      "walking_acceptance": false,
+      "comparison_scope": "第14回の元評価。後進・左右の初期曝露状態はL08と異なる。L10比較用に撮り直したL09値とは別。",
+      "own_report_sha256": "e9ce997de8d9325c25191997c798748001685262298e76e7bf22f58f74b5430b"
+    },
+    {
+      "id": "L10",
+      "series_order": 15,
+      "title": "左右旋回を追加し500更新、3/6方向の基準達成",
+      "kind": "LEARNING_AND_FINITE_CONTROLLER_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-09T10:59:32.161757Z",
+        "kind": "reported_job_end_including_evaluation",
+        "note": "Bounded run end includes evaluation; not a separate evaluation timestamp."
+      },
+      "change": "L09から観測と旋回・向き補正を拡張し500更新。旧4方向と新6方向を同じ初期化で比較。",
+      "result": "前進32.1595cm/s。前進・後進・右の3/6方向が全基準達成。左の速度と両旋回の位置保持は未達。前進滑りと後進・右の横流れは悪化。",
+      "next_decision": "左移動速度、旋回の位置保持と左右差、前進滑り、残差飽和を検討。単一seed・12秒の開発結果で実機合格とはしない。",
+      "gpu_evaluation_cases": 10,
+      "new_training_updates": 500,
+      "transitions": 4096000,
+      "walking_acceptance": false,
+      "comparison_scope": "旧L09の再測定4方向と新6方向で初期状態完全一致。制御と学習の総合比較。旋回速度はrad/sで別評価。",
+      "own_report_sha256": "b787ad8c4d4744a295c378abec8ce6aa855447989f83991a93a7edaaa2574f5f"
     }
   ],
   "visualization": {
@@ -271,5 +313,5 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": "指令増加だけでは速度が頭打ち。左の方向保持と後進の滑りを優先し、周期短縮候補の角度クリップはGPU前に遷移を見直す。"
+  "next": "左移動速度、旋回の位置保持と左右差、前進滑り、残差飽和を検討。単一seed・12秒の開発結果で実機合格とはしない。"
 }

@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
   "as_of": "2026-09-09",
-  "recent_series_count": 13,
+  "recent_series_count": 15,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -174,6 +174,107 @@
         "docs/media/l08-forward-progress.mp4"
       ],
       "own_result_report_sha256": "fd61cb704dbd636c1dd532a2e62a8b80abb112e893cf76587ad931fc353720c3"
+    },
+    {
+      "id": "L09",
+      "original": "docs/media/l09-four-directions.mp4",
+      "preview": "docs/media/l09-four-directions.gif",
+      "date": "2026-09-09",
+      "date_kind": "reported_evaluation_completion",
+      "kind": "LEARNED_POLICY_EVALUATION",
+      "loop": "L09",
+      "series_order": 14,
+      "saved_iteration": 499,
+      "new_training_updates": 500,
+      "cohort": "original_L09_evaluation",
+      "frames": 600,
+      "fps": 50,
+      "duration_s": 12,
+      "directional_displacement_over12s_cm_s": {
+        "forward": 31.866103410720825,
+        "backward": 10.59263249238332,
+        "left": 7.633707920710246,
+        "right": 9.226604302724201
+      },
+      "directional_heading_change_deg": {
+        "forward": 6.82606885839594,
+        "backward": -23.969797571351048,
+        "left": 29.628708336449577,
+        "right": -2.573703644833192
+      },
+      "result": "前進31.87cm/s、全4方向12秒完走。各方向の各脚19〜20回の15mm足上げ。後進の方向ずれ−23.97度、左+29.63度、左7.63・右9.23cm/sが残る。実機合格ではない。",
+      "comparison_scope": "Original L09 evaluation and reset state. This is distinct from the L09-parent cohort evaluated again with the shared L10 reset. Use the matched cohort for L10 change comparisons.",
+      "source_sha256": "0750cd612f1c430c1c1f9ac4d5957f29615a7da97edf0166d6bef52c5f433468",
+      "own_result_report_sha256": "e9ce997de8d9325c25191997c798748001685262298e76e7bf22f58f74b5430b"
+    },
+    {
+      "id": "L10",
+      "original": "docs/media/l10-six-directions.mp4",
+      "preview": "docs/media/l10-six-directions.gif",
+      "date": "2026-09-09",
+      "date_kind": "reported_evaluation_completion",
+      "kind": "LEARNED_POLICY_EVALUATION",
+      "loop": "L10",
+      "series_order": 15,
+      "saved_iteration": 499,
+      "new_training_updates": 500,
+      "cohort": "final_L10_six_directions",
+      "frames": 600,
+      "fps": 50,
+      "duration_s": 12,
+      "directional_displacement_over12s_cm_s": {
+        "forward": 32.15954701105754,
+        "backward": 10.667274395624798,
+        "left": 8.36358368396759,
+        "right": 11.651337146759033
+      },
+      "directional_heading_change_deg": {
+        "forward": -2.388183649771862,
+        "backward": 3.0849382806962877,
+        "left": 0.05559931609533399,
+        "right": -0.2451283304064707,
+        "turn_left": 106.77754361903152,
+        "turn_right": -148.28537027642764
+      },
+      "turn_signed_mean_yaw_rate_rad_s": {
+        "turn_left": 0.15530164194533014,
+        "turn_right": 0.21567232865521635
+      },
+      "turn_max_planar_excursion_m": {
+        "turn_left": 0.28271877287589336,
+        "turn_right": 0.19218774013557102
+      },
+      "all_development_targets_met": false,
+      "walking_acceptance": false,
+      "result": "前進32.16・後進10.67・左8.36・右11.65cm/s。全6方向12秒完走、左移動の10cm/s目標は未達。移動の方向ずれは約−2.39/+3.08/+0.06/−0.25度。左旋回0.155rad/sは目標0.20未達、右0.216rad/s。最大並進0.283/0.192mで両旋回の0.15m基準未達。前進の前左滑りは比較親から0.047→0.140mへ増加。",
+      "comparison_scope": "Four matched 12-second L09-parent evaluations use the original actor69 and controller with the shared audited L10 reset; the final actor74/controller uses the same common initial physical and drive state. Differences measure controller plus learned-policy changes, not isolated RL effects. Original L09 recordings remain a separate cohort.",
+      "other_comparison_videos": [
+        "docs/media/l10-matched-l09-four-directions.mp4"
+      ],
+      "matched_parent_evaluation": {
+        "original": "docs/media/l10-matched-l09-four-directions.mp4",
+        "cohort": "L09_parent_with_shared_L10_reset",
+        "new_training_updates": 0,
+        "saved_iteration": 499,
+        "frames": 600,
+        "fps": 50,
+        "duration_s": 12,
+        "directional_displacement_over12s_cm_s": {
+          "forward": 31.904804706573486,
+          "backward": 10.716309150060017,
+          "left": 7.589259246985118,
+          "right": 9.245632092158
+        },
+        "directional_heading_change_deg": {
+          "forward": 6.882198064114392,
+          "backward": -23.587793484425593,
+          "left": 30.001344858843662,
+          "right": -2.900713897389497
+        },
+        "source_sha256": "2d2b92cb1cf3db989f4d66cec3b4de3fd4832bea2c8ee900e4cda8557fdeea6c"
+      },
+      "source_sha256": "aca6aadce7982d2c7138b182ad3e43188eec37e7c16bd1019f42afe2f7361b74",
+      "own_result_report_sha256": "b787ad8c4d4744a295c378abec8ce6aa855447989f83991a93a7edaaa2574f5f"
     }
   ]
 }
