@@ -132,6 +132,12 @@ class DashboardTests(unittest.TestCase):
     def test_unmeasured_results_and_duplicate_loop_rejected(self):
         data = json.loads((ROOT / 'evidence/improvement-loops.json').read_text())
         make_dashboard.validate(data)
+        # Use an explicit unfinished fixture, independent of the latest real result.
+        data['loops'][-1]['state'] = 'RUNNING'
+        data['loops'][-1]['forward_speed_m_s'] = None
+        data['loops'][-1]['lift15_counts'] = None
+        data['loops'][-1]['video'] = None
+        make_dashboard.validate(data)
         data['loops'][-1]['forward_speed_m_s'] = .2
         with self.assertRaises(ValueError):
             make_dashboard.validate(data)

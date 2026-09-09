@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
   "as_of": "2026-09-09",
-  "recent_series_count": 9,
+  "recent_series_count": 10,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -93,6 +93,24 @@
         "right": 7.98
       },
       "result": "Four twelve-second evaluations; rear-foot lift, slip and heading remain unresolved."
+    },
+    {
+      "id": "L05",
+      "original": "docs/media/l05-four-directions.mp4",
+      "date": "2026-09-09",
+      "date_kind": "reported_evaluation_completion",
+      "kind": "EXISTING_LOOP_RECORDING",
+      "loop": "L05",
+      "series_order": 10,
+      "saved_iteration": 499,
+      "directional_displacement_over12s_cm_s": {
+        "forward": 16.54,
+        "backward": 6.23,
+        "left": 8.05,
+        "right": 6.54
+      },
+      "result": "Full four-direction12s recordings. Target20cm/s unmet; rear-left lift, backward slip and right heading drift unresolved.",
+      "own_result_report_sha256": "7127f97fa79bf4f5e2ddf2e0a9f8967eb428c6500e436ae08f70f42a8d938724"
     }
   ]
 }
