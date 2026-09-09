@@ -1,0 +1,121 @@
+{
+  "schema": "singularitydog.manifest.v1",
+  "files": {
+    ".gitignore": {
+      "sha256": "19e64c0704cb600deb5f90f5dd5c255db88c8d700de50a34fd596155ce892dc2",
+      "bytes": 187
+    },
+    "README.md": {
+      "sha256": "879ece906dceec93f48e502d774b1a7f183d1cd8db4a304e862c7c811c1298d7",
+      "bytes": 2942
+    },
+    "RELEASE_FILES.json": {
+      "sha256": "5d1b60ab82c897b48e62429472f683e910f37087f96499603bbb03de1129356f",
+      "bytes": 1096
+    },
+    "docs/current-status.md": {
+      "sha256": "f9b39b8ece33e350421fdae5a59954167b986f310b7b1fa661f6240091cd8014",
+      "bytes": 3695
+    },
+    "docs/decision-log.md": {
+      "sha256": "a1f3cc0f14458a884507393219dd693e667f4ddb2cc2cc398c166520f4b09585",
+      "bytes": 3023
+    },
+    "docs/improvement-loops.md": {
+      "sha256": "809a1a21adca302c7d593503d100969cb54882012330c82285d0391bd17f6b02",
+      "bytes": 2754
+    },
+    "docs/progress.html": {
+      "sha256": "2b7e6511096c2b07cf6e8fa16d8dbbe2342cdc7f79c6f9bb1dec78e7e325f077",
+      "bytes": 12878
+    },
+    "docs/publication-scope.md": {
+      "sha256": "72454837c21914f083af7b69350479cd2ecb8279dcac36226015c359358fbf47",
+      "bytes": 1688
+    },
+    "docs/toolkit.md": {
+      "sha256": "a2e76f7fd24de9a1ba30c34e19602bd973af3c878eaa98d269175bfd22b5ed39",
+      "bytes": 2781
+    },
+    "evidence/improvement-loops.json": {
+      "sha256": "0be9fa98b522e04f3a612326339423309b2345d608fa205077a524337ca35e3e",
+      "bytes": 3804
+    },
+    "evidence/progress.json": {
+      "sha256": "aeeb44c731ad87d0f5c4957dc10be6bf04294f053a7fa8af823cd10b9107db02",
+      "bytes": 3335
+    },
+    "examples/synthetic_robot.urdf": {
+      "sha256": "5c8d44b624f71f4a6667dbbd23da8c23c0661f8594766a7e961feed76b591a37",
+      "bytes": 641
+    },
+    "examples/synthetic_trace.json": {
+      "sha256": "cf1fcd8a68497e43c6fe9bea6aec2b29148c947d7c7c00f8b8edbd32f10635f5",
+      "bytes": 10438
+    },
+    "skills/singularitydog-design-study/SKILL.md": {
+      "sha256": "f47a5cccb7a3a6cc869fbe09caa02fbb2ceddd14f3bf1d130ba2ee74f3b7b775",
+      "bytes": 1866
+    },
+    "skills/singularitydog-design-study/references/design-review.md": {
+      "sha256": "b98b9bd19cbcec1fa89252219c0608d2ed22315bcbf7cf95e611a15c693f91d0",
+      "bytes": 2431
+    },
+    "skills/singularitydog-experiment-ops/SKILL.md": {
+      "sha256": "4827aa84bea52f0f0837a98228c1715a193396170913f08f3b94b4a95e7564b3",
+      "bytes": 2194
+    },
+    "skills/singularitydog-experiment-ops/references/operations.md": {
+      "sha256": "395ee3eb6cd77cee225cf682f2f7a41c3ba5b54194109d1a3ad932691c6a1859",
+      "bytes": 2320
+    },
+    "skills/singularitydog-gait-evaluation/SKILL.md": {
+      "sha256": "61fc8fec3f0deea38ee279bf3b5d53ebfd5f160dd6fa9cd6fb73209b52a8a48f",
+      "bytes": 1664
+    },
+    "skills/singularitydog-gait-evaluation/references/protocol.md": {
+      "sha256": "1a45f0752a6a9d8fd129f80ef998d83cb580eebcb0998131dfda8c19d2640b27",
+      "bytes": 1856
+    },
+    "skills/singularitydog-gait-evaluation/references/trace-format.md": {
+      "sha256": "e7ab2fb0b128c56b65e5a5f6e8be487883cfdb76f6d786f12254d8c382d0e3a7",
+      "bytes": 1753
+    },
+    "skills/singularitydog-rl-iteration/SKILL.md": {
+      "sha256": "4865b42084f233f7159e785f0351dee8adc3ef79ed37215a201a2391a1742937",
+      "bytes": 1832
+    },
+    "skills/singularitydog-rl-iteration/references/training-contract.md": {
+      "sha256": "c10b0a12bd8c2c1f81a03fcd756b0a5d5fcc9510415dc57c1879d68794e1e433",
+      "bytes": 3316
+    },
+    "tests/test_tools.py": {
+      "sha256": "c5febbb8313b31c2dad6f35590d672b44c8025c98539f289fbdcf829ba590d9b",
+      "bytes": 11294
+    },
+    "tools/artifact_manifest.py": {
+      "sha256": "9ff8e4af3704d3cc0f4828c1f291624ba654cf704e27f27ae88b77812d5037e5",
+      "bytes": 3145
+    },
+    "tools/audit_urdf.py": {
+      "sha256": "58a6a96bc06c498cd3f901a8477cd29f8aa6aaa4d4dcc41d6fb944f67179e0a3",
+      "bytes": 5695
+    },
+    "tools/bounded_job.py": {
+      "sha256": "79a44744186b35bdf3fdc3319ab59be0fe289882a3af0c7830e68e243c78c062",
+      "bytes": 6389
+    },
+    "tools/check_publication.py": {
+      "sha256": "2ac46752a71d18d22344240c007b527309f580db6db4e31927b15d6f5041d852",
+      "bytes": 2373
+    },
+    "tools/evaluate_trace.py": {
+      "sha256": "9235cdfcb3d39c3d14af3ea860c5cc0741d042e7e0d2bce072f04b96533f275f",
+      "bytes": 6426
+    },
+    "tools/make_dashboard.py": {
+      "sha256": "35a136f8c09b09b9e40909438e99284fc35423575968ddb9080364b4b21072f4",
+      "bytes": 13288
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "schema": "singularitydog.improvement-index.v1",
+  "updated": "2026-09-09",
+  "numbering_scope": "L00を基準とする今回の比較系列です。L01以降は診断も含む改善ループ。過去すべての実験を通算した番号ではありません。",
+  "loops": [
+    {
+      "id": "L00",
+      "order": 0,
+      "title": "動画評価の基準",
+      "state": "EVALUATED",
+      "change": "参照歩容＋残差学習を250更新。",
+      "result": "4方向を12秒ずつ完走。前進10.37cm/sだが、後左脚の足上げ不足と横移動の偏向が残る。",
+      "comparison_scope": "修正前の物理モデル。単一seed、2秒の始動を含む最初の12秒。",
+      "forward_speed_m_s": 0.1036776676774025,
+      "lift15_counts": [
+        13,
+        14,
+        1,
+        13
+      ],
+      "video": null,
+      "video_available_privately": true
+    },
+    {
+      "id": "L01",
+      "order": 1,
+      "title": "20cm/s向け追加学習",
+      "state": "FAILED",
+      "change": "前進の指令分布・速度カリキュラムと一部報酬を変更。",
+      "result": "約60更新で接地時の関節速度が駆動モデルの定義域を超え停止。",
+      "comparison_scope": "後段の20/24cm/s指令に進む前。新しい完了動画はない。",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video": null,
+      "video_available_privately": false
+    },
+    {
+      "id": "L02",
+      "order": 2,
+      "title": "接地時エラーの再現",
+      "state": "FAILED",
+      "change": "元の条件に駆動周期の受動リング記録を追加。",
+      "result": "同じ時点の後左膝で停止を再現。直前の入力・出力・接触を取得。",
+      "comparison_scope": "診断を目的とする再現。歩行速度の改善実験ではない。",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video": null,
+      "video_available_privately": false
+    },
+    {
+      "id": "L03",
+      "order": 3,
+      "title": "ソルバの反復数を増加",
+      "state": "FAILED",
+      "change": "速度ソルバの反復回数だけ増やして有限試験。",
+      "result": "別の学習軌道で再び速度の定義域超過。不採用。",
+      "comparison_scope": "停止までの時間を故障率として単純比較しない。",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video": null,
+      "video_available_privately": false
+    },
+    {
+      "id": "L04",
+      "order": 4,
+      "title": "回転慣性の見直し・96更新",
+      "state": "DIAGNOSTIC_COMPLETE",
+      "change": "元の数値設定に戻し、関節の相対回転慣性を反映。",
+      "result": "96更新・786,432遷移を完了。実際の設定値も全環境で確認。",
+      "comparison_scope": "有効物理を変更。初期0.16m/s指令のみ。実測移動速度・歩行動画は未評価。",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video": null,
+      "video_available_privately": false
+    },
+    {
+      "id": "L05",
+      "order": 5,
+      "title": "修正モデルで500更新",
+      "state": "PLANNED",
+      "change": "96更新の結果を踏まえ、本学習と4方向の同条件評価を準備。",
+      "result": "未開始。新しい動画と実測値はこれから取得する。",
+      "comparison_scope": "前進20cm/s達成や後脚の改善はまだ主張しない。",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video": null,
+      "video_available_privately": false
+    }
+  ],
+  "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。公開版に動画やメーカー由来のモデルは含めません。"
+}
