@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
   "updated": "2026-09-10",
-  "numbering_scope": "直近19回（H01〜H04＋L00〜L14）のうち後半L00〜L14の15件を表示。有限試行を1回と数え、同じ学習のcheckpoint違い・追加動画・次回準備は加算しない。",
+  "numbering_scope": "直近20回（H01〜H04＋L00〜L15）のうち後半L00〜L15の16件を表示。有限試行を1回と数え、同じ学習のcheckpoint違い・追加動画・次回準備は加算しない。",
   "loops": [
     {
       "id": "L00",
@@ -311,12 +311,43 @@
       "additional_training_updates_for_evaluation": 0,
       "completed_cycles": 2,
       "training_plan_completed": false
+    },
+    {
+      "id": "L15",
+      "order": 15,
+      "series_order": 20,
+      "title": "500更新完了、伏せ成功、2周期目の起立と位置保持は未達",
+      "state": "EVALUATED",
+      "change": "L14の行動平均の重みを継承し、新しいcritic・optimizer・更新カウンタで500更新。方位・XY維持、移行時速度、最大関節負荷、起立姿勢の報酬を追加。",
+      "result": "24秒完走。伏せは各2秒成功、2周期目の起立保持は高さ不足で1.9375秒。最大方位21.4577°・位置6.9344cm・起立傾き7.9249°。動作基準未達のため72秒評価は明示的に見送り。",
+      "comparison_scope": "Same L14 physical model and reference motion; actor input semantics preserved, critic and training objectives changed. Historical single-seed results compare the combined change and training; no isolated causal attribution.",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video": null,
+      "video_available_privately": true,
+      "video_url": "media/l15-model499-stationary-prone.mp4",
+      "confirmed_completed_updates": 500,
+      "final_iteration": 499,
+      "evaluated_checkpoint_updates": 500,
+      "parent_checkpoint_updates": 501,
+      "additional_training_updates_for_evaluation": 0,
+      "training_plan_completed": true,
+      "training_completed_utc": "2026-09-10T11:34:19.998783+00:00",
+      "evaluation_completed_utc": "2026-09-10T11:47:09.070207+00:00",
+      "completed_utc": "2026-09-10T11:47:12.825840+00:00",
+      "completion_time_kind": "reported_job_end_including_evaluation",
+      "completed_cycles": 2,
+      "motion_acceptance": false,
+      "maximum_heading_change_deg": 21.457746986102165,
+      "maximum_xy_distance_m": 0.06934374044978185,
+      "second_return_hold_s": 1.9375,
+      "long_evaluation": "SKIPPED_FINAL_STATIONARY_CRITERIA_NOT_MET"
     }
   ],
   "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。",
   "target_actual_forward_m_s": 0.4,
-  "verified_recent_series_count": 19,
-  "latest_loop_id": "L14",
+  "verified_recent_series_count": 20,
+  "latest_loop_id": "L15",
   "comparison_cases": [
     {
       "id": "L09-matched-L10",
@@ -349,7 +380,7 @@
       "video_url": "media/l12-matched-l11-six-directions.mp4"
     }
   ],
-  "default_comparison_before": "L13",
+  "default_comparison_before": "L14",
   "latest_cases": [
     {
       "direction": "forward",
@@ -419,7 +450,7 @@
     }
   ],
   "latest_locomotion_loop_id": "L13",
-  "latest_cases_scope": "L13 six-direction locomotion, separate from the latest L14 prone/stand skill",
+  "latest_cases_scope": "L13 six-direction locomotion, separate from the latest L15 stationary prone/stand skill",
   "future_training_updates": 500,
   "latest_locomotion_development_targets_met_case_count": 6,
   "latest_locomotion_evaluation_case_count": 6

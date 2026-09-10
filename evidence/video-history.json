@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
   "as_of": "2026-09-10",
-  "recent_series_count": 19,
+  "recent_series_count": 20,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -571,9 +571,59 @@
       "comparison_scope": "Selected501-update checkpoint, one deterministic seed42 rollout, two consecutive12s cycles. Holding labels are reference commands; numeric acceptance uses pre-reset400Hz records. No extra learning during evaluation.",
       "own_result_report_sha256": "59bad07c7400523561511a04bb5d0726ed96bdc4508c61c37132dbb57cb9a3e2",
       "limitations": "Initial black frame and final automatic-reset image retained. Final reset is explicitly labeled and excluded from motion-hold acceptance. Heading/position drift and load headroom remain unresolved; no repeated-trial or hardware success claim."
+    },
+    {
+      "id": "L15",
+      "original": "docs/media/l15-model499-stationary-prone.mp4",
+      "preview": null,
+      "date": "2026-09-10",
+      "date_kind": "evaluation_completed",
+      "kind": "FINAL_CHECKPOINT_STATIONARY_PRONE_EVALUATION",
+      "loop": "L15",
+      "series_order": 20,
+      "frames": 1200,
+      "fps": 50,
+      "duration_s": 24,
+      "source_sha256": "aee44bd8a401237a47880ddea4dadc05ac0026a058645bd82755b2b2c21c72a1",
+      "saved_iteration": 499,
+      "new_training_updates": 500,
+      "selected_checkpoint_training_updates": 500,
+      "selected_checkpoint_training_transitions": 4096000,
+      "additional_training_updates_for_evaluation": 0,
+      "registered_sampled_motion_criteria_passed": false,
+      "stationary_criteria_passed": false,
+      "recorded_motion_cycles": 2,
+      "prone_continuous_holds_s": [
+        2.0,
+        2.0
+      ],
+      "four_foot_return_continuous_holds_s": [
+        2.0,
+        1.9375
+      ],
+      "evaluation_forbidden_contact_samples": 0,
+      "evaluation_overspeed_joint_samples": 0,
+      "maximum_heading_change_deg": 21.457746986102165,
+      "final_heading_change_deg": 10.0097860746168,
+      "maximum_root_xy_distance_m": 0.06934374044978185,
+      "final_root_xy_distance_m": 0.06112150707649738,
+      "maximum_exposure_h": 0.9999999999998317,
+      "long_evaluation": {
+        "status": "SKIPPED_FINAL_STATIONARY_CRITERIA_NOT_MET",
+        "planned_duration_s": 72,
+        "performed": false,
+        "completed_duration_s": null,
+        "criteria_passed": null,
+        "reason": "The 24-second stationary criteria were not met."
+      },
+      "result": "500更新・最終iteration499の学習と24秒評価を完了。伏せ2秒保持は2周期とも成功。2周期目の四足起立保持は高さ不足で1.9375秒となり未達。最大方位変化21.4577度、最大XY位置ずれ6.9344cm、起立時最大傾き7.9249度で静止目標も未達。禁止接触・速度超過は評価中0。72秒評価は基準未達により見送り。",
+      "walking_acceptance": false,
+      "hardware_acceptance": false,
+      "comparison_scope": "One deterministic seed42 rollout, two consecutive 12-second cycles. Historical L14 is a combined-change comparison, not an isolated ablation.",
+      "limitations": "Initial black frame and final possible automatic-reset image retained. Numeric criteria use pre-reset 400 Hz records. New mounting and complete color specification is deferred; historical recording is not recolored."
     }
   ],
-  "count_scope": "H01-H04 and L00-L14 are19 development loops, not19 successful improvements. The videos document existing loops; checkpoint selection, GIFs and evaluation-only execution add zero loops.",
+  "count_scope": "H01-H04 and L00-L15 are 20 development loops, not 20 successful improvements. The 22 selected actual simulation/comparison recordings document existing loops; checkpoint selection, GIFs and evaluation-only execution add zero loops. The CAD image and redrawn measurement chart are separate.",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,

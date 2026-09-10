@@ -103,285 +103,233 @@
     "private_authored_summary_sha256": "121d6eb0a40de74dde9f417463ccbdd19f055149b634b23e49afaf742eb09269"
   },
   "next_stage": {
-    "status": "USER_PREFERENCES_REGISTERED_NOT_STARTED",
-    "scope": "当面500更新。伏せ・起立の方位/位置維持と負荷余裕を改善し、ジャンプ・後脚立ちは未実施として次の技能に分ける。脚PLAと取手は黄色、カーボン・ベースは黒、Displayは黒背景に目、IMU赤を保持。個別PLA重量はCAD中実換算として記録。色・新素材・物性の変更は次ループで実施する。",
+    "status": "USER_DEFERRED_CORRECTIONS_TO_NEXT_ITERATION",
+    "scope": "次回の修正では2周期目の起立高さ・傾き、全区間の方位・XY位置保持と負荷余裕を検討する。当面500更新（新規開始の最終iteration499）。中央モバイルバッテリーと裏面セパレーター、取付枠および最新配色は次回仕様として記録し、追加CAD修正・新学習は開始しない。ジャンプと後ろ足2本立ちは未学習。",
+    "materials_and_appearance": {
+      "base_plate_color": "white",
+      "carbon_color": "black",
+      "legs_material": "PLA",
+      "legs_color": "yellow",
+      "handle_color": "yellow",
+      "carbon_retaining_parts_color": "yellow",
+      "face_frame_color": "yellow",
+      "qdd_and_motors_color": "black",
+      "foot_tip_balls_color": "black",
+      "display_color": "black",
+      "display_content": "eyes",
+      "imu_color": "red",
+      "imu_location": "under the lower plate"
+    },
     "spec_document": "docs/next-loop-spec.md",
     "pla_mass_document": "docs/pla-parts-mass.md"
   },
   "provenance_scope": "Selected own observations; individually authorized result videos in the publication registry. No private sources, vendor inputs or learned weights distributed.",
   "latest_stage": {
     "schema": "singularitydog.selected-motion-evaluation.v1",
-    "id": "L14",
-    "series_order": 19,
-    "motion": "prone_hold_and_four_foot_return",
-    "status": "USER_STOPPED_MAIN_TRAINING_AND_SELECTED_CHECKPOINT_EVALUATED",
-    "future_training_policy": {
-      "default_new_updates": 500,
-      "final_zero_based_iteration_for_fresh_500_update_run": 499,
-      "effective_date": "2026-09-10",
-      "existing_frozen_1000_update_plan_rewritten": false,
-      "new_training_started_for_publication": false
+    "id": "L15",
+    "series_order": 20,
+    "motion": "stationary_prone_hold_and_four_foot_return",
+    "status": "TRAINING_AND_24S_EVALUATION_COMPLETED_CRITERIA_NOT_MET",
+    "training": {
+      "status": "COMPLETED",
+      "completed_updates": 500,
+      "final_iteration": 499,
+      "evaluated_checkpoint": "model_499.pt",
+      "new_transitions": 4096000,
+      "ended_utc": "2026-09-10T11:34:19.998783+00:00",
+      "optimizer_states": 17,
+      "optimizer_steps_per_state": 10000,
+      "parent_loop_id": "L14",
+      "parent_checkpoint_updates": 501,
+      "inheritance": "Parent action-mean MLP weights only; critic, exploration standard deviation, optimizer and update counter initialized anew.",
+      "disposable_smoke_updates": 2,
+      "smoke_updates_inherited_by_main_training": false,
+      "additional_training_updates_for_evaluation": 0
     },
-    "source_training": {
-      "status": "INTERRUPTED_BY_USER",
-      "planned_main_updates": 1000,
-      "planned_main_updates_completed": false,
-      "stop_time_utc": "2026-09-10T09:28:19.816991+00:00",
-      "last_logged_zero_based_iteration": 613,
-      "completed_updates_lower_bound_from_last_log": 614,
-      "exact_total_at_stop_confirmed": false,
-      "last_persisted_progress": {
-        "observed_utc": "2026-09-10T09:26:58.818828+00:00",
-        "completed_updates": 600,
-        "transitions": 4915200,
-        "optimizer_state_entries": 17,
-        "optimizer_step_min": 12000.0,
-        "episode_terminations": 4668,
-        "maximum_actual_joint_speed_rad_s": 10.264354705810547,
-        "overspeed_joint_samples": 1
-      },
-      "counter_scope": "600-update progress is a persisted receipt; the later iteration613 log establishes at least614 completed updates. Neither is the selected501-update checkpoint. Training aggregate failures are separate from the selected evaluation.",
-      "num_envs": 256,
-      "rollout_steps_per_update": 32,
-      "seed": 42,
-      "initialization": "Fresh skill actor with zero mean output head, fresh critic and optimizer; no walking-policy weights reused.",
-      "initial_failed_attempt_main_updates": 0,
-      "initial_failed_attempt_smoke_updates": 0,
-      "failure_summary": "Initial checkpoint save referenced the logger before initialization. Corrected in a separate runtime revision; original zero-update attempt retained.",
-      "separate_api_smoke_updates": 2,
-      "separate_api_smoke_transitions": 1024,
-      "smoke_optimizer_reused_by_main": false
-    },
-    "selected_checkpoint": {
-      "label": "model_500.pt",
-      "zero_based_iteration": 500,
-      "completed_main_training_updates": 501,
-      "training_transitions": 4104192,
-      "optimizer_state_entries": 17,
-      "optimizer_steps_each": 10020,
-      "optimizer_steps_basis": "501 updates *5epochs *4minibatches",
-      "finite": true,
-      "sha256": "a7a480695e8577a73e2b193a08b30e2b703351479dc93f5a3416d610d52c2416",
-      "latest_model_at_user_stop": false,
-      "weight_file_published": false
+    "changes": {
+      "physical_model_and_reference_motion": "unchanged from L14",
+      "actor_input_dimension": 87,
+      "actor_input_semantics_changed": false,
+      "critic_input_dimension_before": 118,
+      "critic_input_dimension_after": 120,
+      "critic_only_added_values": "two episode-relative world XY errors",
+      "reward_changes": [
+        "whole-episode heading and XY retention",
+        "horizontal and yaw velocity penalties during lowering and rising",
+        "additional penalty on maximum joint exposure",
+        "additional orientation and height rewards during standing hold"
+      ],
+      "anchor_reset": "only on an independent episode reset; never at a phase or cycle transition",
+      "comparison_scope": "Combined reward and training change; no isolated causal attribution."
     },
     "evaluation": {
-      "additional_training_updates": 0,
-      "num_envs": 1,
+      "status": "COMPLETED_REQUESTED_INTERVAL",
+      "ended_utc": "2026-09-10T11:47:09.070207+00:00",
       "seed": 42,
-      "deterministic_rollouts": 1,
-      "policy_hz": 50,
-      "physics_sample_hz": 400,
+      "environments": 1,
       "duration_s": 24.0,
       "policy_steps": 1200,
       "physics_samples": 9600,
-      "actuator_compute_calls_including_initial_reset": 9601,
-      "completed_cycles": 2,
-      "registered_sampled_motion_criteria_passed": true,
-      "gates": {
+      "physics_hz": 400,
+      "cycle_duration_s": 12,
+      "recorded_cycles": 2,
+      "base_motion_criteria_passed": false,
+      "stationary_criteria_passed": false,
+      "base_gates": {
         "requested_interval_completed": true,
         "no_forbidden_contact_samples": true,
         "actual_joint_speed_within_limit": true,
         "all_prone_holds": true,
-        "all_four_foot_return_holds": true,
+        "all_four_foot_return_holds": false,
         "exposure_continuous_between_cycles": true,
         "exposure_within_bounds": true,
         "peak_torque_within_bound": true
       },
-      "hardware_acceptance": false,
-      "thresholds": {
-        "prone_continuous_hold_s": 2.0,
-        "return_continuous_hold_s": 2.0,
-        "samples_required_per_hold": 800,
-        "prone_skid_load_fraction_min": 0.5,
-        "prone_reference_height_m": 0.095,
-        "prone_height_error_m_max": 0.02,
-        "standing_reference_height_m": 0.25556651958078513,
-        "return_height_error_m_max": 0.025,
-        "tilt_deg_max": 10.0,
-        "every_foot_vertical_force_strictly_greater_than_N": 1.0,
-        "forbidden_contact_force_N_max": 1.0,
-        "actual_joint_speed_rad_s_max": 10.0,
-        "peak_torque_Nm_max": 5.5,
-        "exposure_h_range": [
-          0,
-          1
-        ],
-        "exposure_reset_between_cycles_allowed": false,
-        "heading_or_position_threshold_registered": false,
-        "skid_contact_allowed_only_when_reference_blend_greater_than": 0.75
-      },
-      "cycles": [
-        {
-          "cycle_number": 1,
-          "prone_hold": {
-            "passed": true,
-            "continuous_qualifying_samples": 800,
-            "continuous_duration_s": 2.0,
-            "base_height_range_m": [
-              0.09500005841255188,
-              0.09500020742416382
-            ],
-            "maximum_tilt_deg": 0.00011501570092638999,
-            "skid_vertical_load_fraction_range": [
-              0.7814617151022523,
-              0.8105888525665745
-            ],
-            "minimum_foot_vertical_force_N": 1.71336030960083
-          },
-          "four_foot_return_hold": {
-            "passed": true,
-            "continuous_qualifying_samples": 800,
-            "continuous_duration_s": 2.0,
-            "base_height_range_m": [
-              0.23637361824512482,
-              0.24201396107673645
-            ],
-            "maximum_tilt_deg": 4.133555459862555,
-            "skid_vertical_load_fraction_range": [
-              0.0,
-              0.0
-            ],
-            "minimum_foot_vertical_force_N": 12.32921028137207
-          }
+      "stationary_gates": {
+        "maximum_heading_change": false,
+        "maximum_xy_distance": false,
+        "return_hold_tilt": false,
+        "return_hold_height": false
+      }
+    },
+    "hold_criteria": {
+      "required_continuous_s": 2,
+      "required_continuous_samples": 800,
+      "prone_reference_height_m": 0.095,
+      "prone_height_error_limit_m": 0.02,
+      "standing_reference_height_m": 0.25556651958078513,
+      "original_standing_height_error_limit_m": 0.025,
+      "original_hold_tilt_limit_deg": 10,
+      "duration_method": "Consecutive qualifying 400 Hz sample bins multiplied by 0.0025 s; no rounding 775 samples up to 2 seconds."
+    },
+    "stationary_targets": {
+      "maximum_heading_change_deg": 5,
+      "maximum_xy_distance_m": 0.05,
+      "return_hold_maximum_tilt_deg": 5,
+      "return_hold_maximum_height_error_m": 0.015
+    },
+    "cycles": [
+      {
+        "cycle_number": 1,
+        "prone": {
+          "passed": true,
+          "qualifying_continuous_samples": 800,
+          "qualifying_continuous_s": 2.0,
+          "height_range_m": [
+            0.09558335691690445,
+            0.09629624336957932
+          ],
+          "maximum_tilt_deg": 0.7446709721721121
         },
-        {
-          "cycle_number": 2,
-          "prone_hold": {
-            "passed": true,
-            "continuous_qualifying_samples": 800,
-            "continuous_duration_s": 2.0,
-            "base_height_range_m": [
-              0.09499998390674591,
-              0.09552256017923355
-            ],
-            "maximum_tilt_deg": 0.4294684394279414,
-            "skid_vertical_load_fraction_range": [
-              0.5935580498799969,
-              0.7891553602695164
-            ],
-            "minimum_foot_vertical_force_N": 1.4947539567947388
-          },
-          "four_foot_return_hold": {
-            "passed": true,
-            "continuous_qualifying_samples": 800,
-            "continuous_duration_s": 2.0,
-            "base_height_range_m": [
-              0.23644788563251495,
-              0.24028851091861725
-            ],
-            "maximum_tilt_deg": 7.4883690134858405,
-            "skid_vertical_load_fraction_range": [
-              0.0,
-              0.0
-            ],
-            "minimum_foot_vertical_force_N": 11.28768253326416
-          }
+        "four_foot_return": {
+          "passed_original_hold_criteria": true,
+          "qualifying_continuous_samples": 800,
+          "qualifying_continuous_s": 2.0,
+          "four_foot_support_samples": 800,
+          "height_condition_samples": 800,
+          "height_range_m": [
+            0.2384020835161209,
+            0.2407226711511612
+          ],
+          "maximum_height_error_m": 0.017164436064664224,
+          "maximum_tilt_deg": 2.072530056869232
         }
-      ],
-      "maximum_actual_joint_speed_rad_s": 5.943102836608887,
-      "maximum_forbidden_nonfoot_force_N": 0.0,
-      "forbidden_contact_samples": 0,
-      "overspeed_joint_samples": 0,
-      "maximum_applied_effort_Nm": 4.308553695678711,
-      "maximum_exposure_h": 0.9999999999995897,
-      "additional_observations_without_acceptance_thresholds": {
-        "reference": "First post-physics sample at0.0025s through final recorded sample; pre-reset physical evidence.",
-        "unwrapped_heading_change_deg": 47.06478353016368,
-        "maximum_absolute_unwrapped_heading_change_deg": 47.06478353016368,
-        "final_root_xy_displacement_m": [
-          -0.06462977733463049,
-          0.09502261492889374
-        ],
-        "final_root_xy_distance_m": 0.11491869067409678,
-        "maximum_root_xy_distance_m": 0.11491869067409678
       },
-      "measurement_scope": "Holds are consecutive qualifying400Hz sample bins,800samples for2seconds. Body contact forces are net forces and do not identify the contacted counterpart. One bounded flat-plane rollout, not a continuous-time or hardware proof."
-    },
-    "untrained_matched_preflight": {
-      "completed_policy_steps": 196,
-      "duration_s": 3.92,
-      "requested_duration_s": 24.0,
-      "outcome": "FIRST_TERMINAL_STOP",
-      "learned": false,
-      "maximum_nonfoot_contact_force_N": 184.08778381347656,
-      "maximum_actual_joint_speed_rad_s": 3.533433437347412,
-      "forbidden_contact_lane_substeps": 3,
-      "raw_record_sha256": "44b520d274e7b38ec780b7063117752adf27a1449df9dfb8cba0a7bda88c954e"
-    },
-    "design_and_controller": {
-      "simulation_physical_geometry_changed": true,
-      "change": "Rounded PLA belly skids and mounting parts as one fixed child of the previous physical model.",
-      "added_mass_kg": 0.15502737789464932,
-      "total_mass_kg": 7.78616207804705,
-      "unchanged_original_links": 17,
-      "unchanged_original_joints": 16,
-      "added_fixed_links": 1,
-      "added_collision_primitives": 38,
-      "collision_shapes": 628,
-      "pretraining_native_reference_poses_checked": 9,
-      "native_pose_scope": "Selected reference poses only; not the learned trajectory or printed-part strength.",
-      "actor_observation_dim": 87,
-      "critic_observation_dim": 118,
-      "action_dim": 12,
-      "controller": "Smooth joint reference plus learned residual correction.",
-      "phases": [
-        "standing_settle",
-        "lower",
-        "prone_hold",
-        "rise",
-        "four_foot_return_hold"
-      ],
-      "phase_durations_s": [
-        2.0,
-        3.0,
-        2.0,
-        3.0,
-        2.0
-      ],
-      "actor_sensor_assumption": "Ideal IMU fusion orientation, gyro, encoders and controller state; no actual root height, root translation, contact or torque inputs. Hardware noise and drift unvalidated.",
-      "drive_exposure_reset": "Independent episode reset only, never phase or cycle change."
-    },
-    "validation": {
-      "original_video_all_frames_decoded": 1200,
-      "labeled_video_all_frames_decoded": 1200,
-      "original_and_labeled_duration_s": 24,
-      "original_and_labeled_fps": 50,
-      "aggregation_boundary_cases_passed": 10,
-      "aggregation_boundary_scope": "Synthetic800-versus799 hold bins, contact and speed thresholds, phase and cycle assignment.",
-      "source_video_and_raw_hashes_verified": true,
-      "raw_record_not_published": true
-    },
-    "videos": [
-      "docs/media/l14-model500-prone-rise.mp4"
+      {
+        "cycle_number": 2,
+        "prone": {
+          "passed": true,
+          "qualifying_continuous_samples": 800,
+          "qualifying_continuous_s": 2.0,
+          "height_range_m": [
+            0.0950000137090683,
+            0.09500017017126083
+          ],
+          "maximum_tilt_deg": 0.00014830615932393503
+        },
+        "four_foot_return": {
+          "passed_original_hold_criteria": false,
+          "qualifying_continuous_samples": 775,
+          "qualifying_continuous_s": 1.9375,
+          "four_foot_support_samples": 800,
+          "height_condition_samples": 775,
+          "height_range_m": [
+            0.23044830560684204,
+            0.23108841478824615
+          ],
+          "maximum_height_error_m": 0.025118213973943093,
+          "maximum_tilt_deg": 7.924911307966001
+        }
+      }
     ],
-    "preview_gif": "docs/media/l14-model500-prone-rise.gif",
-    "video_provenance": {
-      "original_video_sha256": "b5e93acf96f94b6ab33e946ecd2beeaa4712519e848eb5aca88e8be1bf3b0ab0",
-      "published_labeled_video_sha256": "82fd328e70475ab5874ff74fd524e54bf970f4a87d4726fbd4211d1a94c7857b",
-      "original_frames_in_order": 1200,
-      "frame_timing_unchanged": true,
-      "labels": "Instruction phase labels placed above the source image.",
-      "retained_artifacts": "Initial black frame and final post-timeout automatic reset frame retained and explained. Motion metrics use pre-reset physical records."
+    "whole_interval_measurements": {
+      "reference": "First recorded post-physics sample at 0.0025 s, held fixed across both cycles; terminal framework reset excluded from metrics.",
+      "maximum_absolute_unwrapped_heading_change_deg": 21.457746986102165,
+      "final_unwrapped_heading_change_deg": 10.0097860746168,
+      "maximum_xy_distance_m": 0.06934374044978185,
+      "final_xy_distance_m": 0.06112150707649738,
+      "maximum_return_hold_tilt_deg": 7.924911307966001,
+      "maximum_return_hold_height_error_m": 0.025118213973943093,
+      "forbidden_contact_samples": 0,
+      "maximum_nonfoot_force_N": 0.0,
+      "overspeed_joint_samples": 0,
+      "maximum_actual_joint_speed_rad_s": 7.370505332946777,
+      "maximum_recorded_applied_effort_Nm": 4.419614791870117,
+      "maximum_exposure_h": 0.9999999999998317,
+      "exposure_interpretation": "Model indicator, not measured temperature. Reaching approximately 1 alone does not establish hardware danger or failure."
     },
-    "own_source_hashes": {
-      "authored_results_report_sha256": "b30f0f2c7ebea8215a75c05915df79c1ea52ae6dfbd8ef18bca1171d8734d137",
-      "motion_summary_sha256": "59bad07c7400523561511a04bb5d0726ed96bdc4508c61c37132dbb57cb9a3e2",
-      "labeled_video_qa_sha256": "759372d3ebb12c697c4f593992beea65fc12faf464dd6cb50b3ea726cb30f3ea",
-      "physical_derivative_sha256": "0ed2db456a6498252d895c317839aed86914112905e1d39ca1cc30f89e102d03",
-      "native_reference_pose_audit_sha256": "57d72d6e155cf702bcaee1accb86f48bf69613ebb3f09fb59a3b5b7f39efebdc",
-      "evaluation_completion_sha256": "4c612ab5b0537718d71f0e44d949a546c195a2d4a1d7361b11268dba6e1904cd",
-      "evaluation_raw_array_sha256": "b7ec0bc434179659033e088b656394dabda788a3a699c249a8e0cb86d74702ac",
-      "frozen_training_contract_sha256": "1f6c0f0a815450a3f9796583ece5069fe303939c9eb189249021b307d2de6ba8"
+    "training_observations_separate_from_evaluation": {
+      "episode_terminations": 3609,
+      "maximum_actual_joint_speed_rad_s": 10.097186088562012,
+      "overspeed_cells": 1,
+      "scope": "Training-wide aggregates; not the final evaluation measurements."
+    },
+    "long_evaluation": {
+      "status": "SKIPPED_FINAL_STATIONARY_CRITERIA_NOT_MET",
+      "planned_duration_s": 72,
+      "performed": false,
+      "completed_duration_s": null,
+      "criteria_passed": null,
+      "reason": "The 24-second stationary criteria were not met."
+    },
+    "job": {
+      "status": "COMPLETED",
+      "ended_utc": "2026-09-10T11:47:12.825840+00:00",
+      "motion_acceptance": false,
+      "automatic_retry": false
+    },
+    "video": {
+      "path": "docs/media/l15-model499-stationary-prone.mp4",
+      "bytes": 1199589,
+      "duration_s": 24,
+      "fps": 50,
+      "frames": 1200,
+      "decoded_frames": 1200,
+      "width": 960,
+      "height": 720,
+      "codec": "h264",
+      "publication_form": "unchanged original evaluation MP4",
+      "terminal_frame_note": "A framework reset occurs at the end; the final standing render is not proof of a successful return hold."
+    },
+    "next_step": {
+      "modifications": "deferred to the next experiment by user instruction",
+      "new_training_started": false,
+      "default_new_training_updates": 500,
+      "priorities": [
+        "investigate second-cycle return height and tilt",
+        "reduce whole-interval heading and XY drift",
+        "inspect correction and exposure traces before selecting changes"
+      ],
+      "jump_trained": false,
+      "hind_leg_stand_trained": false
     },
     "limitations": [
-      "Heading changes+47.0648deg and final planar displacement11.4919cm are remaining issues; neither was part of the registered acceptance thresholds.",
-      "Exposure h reaches approximately1.0. It is a load model indicator, not measured temperature or a continuous-duty rating.",
-      "Training includes failed episodes and a recorded speed exceedance; selected evaluation zero counts do not describe the full training run.",
-      "Single deterministic seed42 rollout on flat ground. No printed PLA strength, sensor drift, long-duration or hardware validation.",
-      "Jump and hind-leg standing skills have not been trained."
+      "One deterministic seed42 simulation rollout on the registered flat plane.",
+      "No 72-second test or hardware validation.",
+      "Per-body net contact force does not identify the contact counterpart.",
+      "Historical L14 and current L15 results are not an isolated reward ablation."
     ],
-    "provenance_scope": "Selected authored measurements and hashes only. No editable CAD, meshes, learned weights, third-party implementation, raw logs, connection data, private absolute paths or document identifiers."
+    "publication_scope": "Newly written report and explicitly selected experiment measurements with the designated self-produced evaluation video. No runtime source, private paths, connection data, manufacturer assets or hashes, weights, raw logs or complete source records."
   },
   "latest_l08": {
     "schema": "singularitydog.selected-learning-evaluation.v1",
@@ -1399,8 +1347,8 @@
       "docs/media/l09-four-directions.mp4"
     ]
   },
-  "latest_stage_id": "L14",
-  "verified_recent_series_count": 19,
+  "latest_stage_id": "L15",
+  "verified_recent_series_count": 20,
   "latest_l10": {
     "schema": "singularitydog.selected-learning-evaluation.v1",
     "id": "L10",
@@ -6244,5 +6192,279 @@
     "fresh_run_final_zero_based_iteration": 499,
     "retroactive_contract_changes": false,
     "new_training_started": false
+  },
+  "latest_l14": {
+    "schema": "singularitydog.selected-motion-evaluation.v1",
+    "id": "L14",
+    "series_order": 19,
+    "motion": "prone_hold_and_four_foot_return",
+    "status": "USER_STOPPED_MAIN_TRAINING_AND_SELECTED_CHECKPOINT_EVALUATED",
+    "future_training_policy": {
+      "default_new_updates": 500,
+      "final_zero_based_iteration_for_fresh_500_update_run": 499,
+      "effective_date": "2026-09-10",
+      "existing_frozen_1000_update_plan_rewritten": false,
+      "new_training_started_for_publication": false
+    },
+    "source_training": {
+      "status": "INTERRUPTED_BY_USER",
+      "planned_main_updates": 1000,
+      "planned_main_updates_completed": false,
+      "stop_time_utc": "2026-09-10T09:28:19.816991+00:00",
+      "last_logged_zero_based_iteration": 613,
+      "completed_updates_lower_bound_from_last_log": 614,
+      "exact_total_at_stop_confirmed": false,
+      "last_persisted_progress": {
+        "observed_utc": "2026-09-10T09:26:58.818828+00:00",
+        "completed_updates": 600,
+        "transitions": 4915200,
+        "optimizer_state_entries": 17,
+        "optimizer_step_min": 12000.0,
+        "episode_terminations": 4668,
+        "maximum_actual_joint_speed_rad_s": 10.264354705810547,
+        "overspeed_joint_samples": 1
+      },
+      "counter_scope": "600-update progress is a persisted receipt; the later iteration613 log establishes at least614 completed updates. Neither is the selected501-update checkpoint. Training aggregate failures are separate from the selected evaluation.",
+      "num_envs": 256,
+      "rollout_steps_per_update": 32,
+      "seed": 42,
+      "initialization": "Fresh skill actor with zero mean output head, fresh critic and optimizer; no walking-policy weights reused.",
+      "initial_failed_attempt_main_updates": 0,
+      "initial_failed_attempt_smoke_updates": 0,
+      "failure_summary": "Initial checkpoint save referenced the logger before initialization. Corrected in a separate runtime revision; original zero-update attempt retained.",
+      "separate_api_smoke_updates": 2,
+      "separate_api_smoke_transitions": 1024,
+      "smoke_optimizer_reused_by_main": false
+    },
+    "selected_checkpoint": {
+      "label": "model_500.pt",
+      "zero_based_iteration": 500,
+      "completed_main_training_updates": 501,
+      "training_transitions": 4104192,
+      "optimizer_state_entries": 17,
+      "optimizer_steps_each": 10020,
+      "optimizer_steps_basis": "501 updates *5epochs *4minibatches",
+      "finite": true,
+      "sha256": "a7a480695e8577a73e2b193a08b30e2b703351479dc93f5a3416d610d52c2416",
+      "latest_model_at_user_stop": false,
+      "weight_file_published": false
+    },
+    "evaluation": {
+      "additional_training_updates": 0,
+      "num_envs": 1,
+      "seed": 42,
+      "deterministic_rollouts": 1,
+      "policy_hz": 50,
+      "physics_sample_hz": 400,
+      "duration_s": 24.0,
+      "policy_steps": 1200,
+      "physics_samples": 9600,
+      "actuator_compute_calls_including_initial_reset": 9601,
+      "completed_cycles": 2,
+      "registered_sampled_motion_criteria_passed": true,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_prone_holds": true,
+        "all_four_foot_return_holds": true,
+        "exposure_continuous_between_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true
+      },
+      "hardware_acceptance": false,
+      "thresholds": {
+        "prone_continuous_hold_s": 2.0,
+        "return_continuous_hold_s": 2.0,
+        "samples_required_per_hold": 800,
+        "prone_skid_load_fraction_min": 0.5,
+        "prone_reference_height_m": 0.095,
+        "prone_height_error_m_max": 0.02,
+        "standing_reference_height_m": 0.25556651958078513,
+        "return_height_error_m_max": 0.025,
+        "tilt_deg_max": 10.0,
+        "every_foot_vertical_force_strictly_greater_than_N": 1.0,
+        "forbidden_contact_force_N_max": 1.0,
+        "actual_joint_speed_rad_s_max": 10.0,
+        "peak_torque_Nm_max": 5.5,
+        "exposure_h_range": [
+          0,
+          1
+        ],
+        "exposure_reset_between_cycles_allowed": false,
+        "heading_or_position_threshold_registered": false,
+        "skid_contact_allowed_only_when_reference_blend_greater_than": 0.75
+      },
+      "cycles": [
+        {
+          "cycle_number": 1,
+          "prone_hold": {
+            "passed": true,
+            "continuous_qualifying_samples": 800,
+            "continuous_duration_s": 2.0,
+            "base_height_range_m": [
+              0.09500005841255188,
+              0.09500020742416382
+            ],
+            "maximum_tilt_deg": 0.00011501570092638999,
+            "skid_vertical_load_fraction_range": [
+              0.7814617151022523,
+              0.8105888525665745
+            ],
+            "minimum_foot_vertical_force_N": 1.71336030960083
+          },
+          "four_foot_return_hold": {
+            "passed": true,
+            "continuous_qualifying_samples": 800,
+            "continuous_duration_s": 2.0,
+            "base_height_range_m": [
+              0.23637361824512482,
+              0.24201396107673645
+            ],
+            "maximum_tilt_deg": 4.133555459862555,
+            "skid_vertical_load_fraction_range": [
+              0.0,
+              0.0
+            ],
+            "minimum_foot_vertical_force_N": 12.32921028137207
+          }
+        },
+        {
+          "cycle_number": 2,
+          "prone_hold": {
+            "passed": true,
+            "continuous_qualifying_samples": 800,
+            "continuous_duration_s": 2.0,
+            "base_height_range_m": [
+              0.09499998390674591,
+              0.09552256017923355
+            ],
+            "maximum_tilt_deg": 0.4294684394279414,
+            "skid_vertical_load_fraction_range": [
+              0.5935580498799969,
+              0.7891553602695164
+            ],
+            "minimum_foot_vertical_force_N": 1.4947539567947388
+          },
+          "four_foot_return_hold": {
+            "passed": true,
+            "continuous_qualifying_samples": 800,
+            "continuous_duration_s": 2.0,
+            "base_height_range_m": [
+              0.23644788563251495,
+              0.24028851091861725
+            ],
+            "maximum_tilt_deg": 7.4883690134858405,
+            "skid_vertical_load_fraction_range": [
+              0.0,
+              0.0
+            ],
+            "minimum_foot_vertical_force_N": 11.28768253326416
+          }
+        }
+      ],
+      "maximum_actual_joint_speed_rad_s": 5.943102836608887,
+      "maximum_forbidden_nonfoot_force_N": 0.0,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "maximum_applied_effort_Nm": 4.308553695678711,
+      "maximum_exposure_h": 0.9999999999995897,
+      "additional_observations_without_acceptance_thresholds": {
+        "reference": "First post-physics sample at0.0025s through final recorded sample; pre-reset physical evidence.",
+        "unwrapped_heading_change_deg": 47.06478353016368,
+        "maximum_absolute_unwrapped_heading_change_deg": 47.06478353016368,
+        "final_root_xy_displacement_m": [
+          -0.06462977733463049,
+          0.09502261492889374
+        ],
+        "final_root_xy_distance_m": 0.11491869067409678,
+        "maximum_root_xy_distance_m": 0.11491869067409678
+      },
+      "measurement_scope": "Holds are consecutive qualifying400Hz sample bins,800samples for2seconds. Body contact forces are net forces and do not identify the contacted counterpart. One bounded flat-plane rollout, not a continuous-time or hardware proof."
+    },
+    "untrained_matched_preflight": {
+      "completed_policy_steps": 196,
+      "duration_s": 3.92,
+      "requested_duration_s": 24.0,
+      "outcome": "FIRST_TERMINAL_STOP",
+      "learned": false,
+      "maximum_nonfoot_contact_force_N": 184.08778381347656,
+      "maximum_actual_joint_speed_rad_s": 3.533433437347412,
+      "forbidden_contact_lane_substeps": 3,
+      "raw_record_sha256": "44b520d274e7b38ec780b7063117752adf27a1449df9dfb8cba0a7bda88c954e"
+    },
+    "design_and_controller": {
+      "simulation_physical_geometry_changed": true,
+      "change": "Rounded PLA belly skids and mounting parts as one fixed child of the previous physical model.",
+      "added_mass_kg": 0.15502737789464932,
+      "total_mass_kg": 7.78616207804705,
+      "unchanged_original_links": 17,
+      "unchanged_original_joints": 16,
+      "added_fixed_links": 1,
+      "added_collision_primitives": 38,
+      "collision_shapes": 628,
+      "pretraining_native_reference_poses_checked": 9,
+      "native_pose_scope": "Selected reference poses only; not the learned trajectory or printed-part strength.",
+      "actor_observation_dim": 87,
+      "critic_observation_dim": 118,
+      "action_dim": 12,
+      "controller": "Smooth joint reference plus learned residual correction.",
+      "phases": [
+        "standing_settle",
+        "lower",
+        "prone_hold",
+        "rise",
+        "four_foot_return_hold"
+      ],
+      "phase_durations_s": [
+        2.0,
+        3.0,
+        2.0,
+        3.0,
+        2.0
+      ],
+      "actor_sensor_assumption": "Ideal IMU fusion orientation, gyro, encoders and controller state; no actual root height, root translation, contact or torque inputs. Hardware noise and drift unvalidated.",
+      "drive_exposure_reset": "Independent episode reset only, never phase or cycle change."
+    },
+    "validation": {
+      "original_video_all_frames_decoded": 1200,
+      "labeled_video_all_frames_decoded": 1200,
+      "original_and_labeled_duration_s": 24,
+      "original_and_labeled_fps": 50,
+      "aggregation_boundary_cases_passed": 10,
+      "aggregation_boundary_scope": "Synthetic800-versus799 hold bins, contact and speed thresholds, phase and cycle assignment.",
+      "source_video_and_raw_hashes_verified": true,
+      "raw_record_not_published": true
+    },
+    "videos": [
+      "docs/media/l14-model500-prone-rise.mp4"
+    ],
+    "preview_gif": "docs/media/l14-model500-prone-rise.gif",
+    "video_provenance": {
+      "original_video_sha256": "b5e93acf96f94b6ab33e946ecd2beeaa4712519e848eb5aca88e8be1bf3b0ab0",
+      "published_labeled_video_sha256": "82fd328e70475ab5874ff74fd524e54bf970f4a87d4726fbd4211d1a94c7857b",
+      "original_frames_in_order": 1200,
+      "frame_timing_unchanged": true,
+      "labels": "Instruction phase labels placed above the source image.",
+      "retained_artifacts": "Initial black frame and final post-timeout automatic reset frame retained and explained. Motion metrics use pre-reset physical records."
+    },
+    "own_source_hashes": {
+      "authored_results_report_sha256": "b30f0f2c7ebea8215a75c05915df79c1ea52ae6dfbd8ef18bca1171d8734d137",
+      "motion_summary_sha256": "59bad07c7400523561511a04bb5d0726ed96bdc4508c61c37132dbb57cb9a3e2",
+      "labeled_video_qa_sha256": "759372d3ebb12c697c4f593992beea65fc12faf464dd6cb50b3ea726cb30f3ea",
+      "physical_derivative_sha256": "0ed2db456a6498252d895c317839aed86914112905e1d39ca1cc30f89e102d03",
+      "native_reference_pose_audit_sha256": "57d72d6e155cf702bcaee1accb86f48bf69613ebb3f09fb59a3b5b7f39efebdc",
+      "evaluation_completion_sha256": "4c612ab5b0537718d71f0e44d949a546c195a2d4a1d7361b11268dba6e1904cd",
+      "evaluation_raw_array_sha256": "b7ec0bc434179659033e088b656394dabda788a3a699c249a8e0cb86d74702ac",
+      "frozen_training_contract_sha256": "1f6c0f0a815450a3f9796583ece5069fe303939c9eb189249021b307d2de6ba8"
+    },
+    "limitations": [
+      "Heading changes+47.0648deg and final planar displacement11.4919cm are remaining issues; neither was part of the registered acceptance thresholds.",
+      "Exposure h reaches approximately1.0. It is a load model indicator, not measured temperature or a continuous-duty rating.",
+      "Training includes failed episodes and a recorded speed exceedance; selected evaluation zero counts do not describe the full training run.",
+      "Single deterministic seed42 rollout on flat ground. No printed PLA strength, sensor drift, long-duration or hardware validation.",
+      "Jump and hind-leg standing skills have not been trained."
+    ],
+    "provenance_scope": "Selected authored measurements and hashes only. No editable CAD, meshes, learned weights, third-party implementation, raw logs, connection data, private absolute paths or document identifiers."
   }
 }

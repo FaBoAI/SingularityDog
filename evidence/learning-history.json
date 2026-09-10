@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
   "as_of": "2026-09-10",
-  "verified_recent_series_count": 19,
+  "verified_recent_series_count": 20,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同variantの複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列の立位基準以後で確認したH01-H04とL00-L14の19回。全開発通算、学習完了19回、成功19回を意味しない。停止した学習と指定checkpoint評価はL14の同じ1回に含み、動画追加を新しいループとして数えない。",
+  "scope": "現在の機体系列の立位基準以後で確認したH01-H04とL00-L15の20回。全開発通算、学習完了20回、成功20回を意味しない。停止した学習と指定checkpoint評価はL14の同じ1回に含み、動画追加や次回準備を新しいループとして数えない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -408,6 +408,61 @@
       "comparison_scope": "One deterministic seed42 flat-plane evaluation of the selected501-update skill model with unchanged L14 physical/controller inputs. The matched untrained reference stopped at3.92s; neither additional training nor a repeated-trial success estimate.",
       "own_report_sha256": "59bad07c7400523561511a04bb5d0726ed96bdc4508c61c37132dbb57cb9a3e2",
       "selected_evidence": "evidence/l14-evaluation.json"
+    },
+    {
+      "id": "L15",
+      "series_order": 20,
+      "title": "500更新で伏せ・起立の静止性を改善する試行",
+      "kind": "TRAINING_AND_MOTION_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-10T11:47:12.825840+00:00",
+        "kind": "reported_job_end_including_evaluation"
+      },
+      "change": "L14の行動平均重みを継承。critic・探索幅・optimizer・更新カウンタを初期化し、方位・XY保持、移行時速度、最大関節負荷、起立姿勢の報酬を追加。物理形状と参照動作はL14と同一。",
+      "result": "500更新・最終iteration499の学習と24秒評価を完了。伏せ2秒保持は2周期とも成功。2周期目の四足起立保持は高さ不足で1.9375秒となり未達。最大方位変化21.4577度、最大XY位置ずれ6.9344cm、起立時最大傾き7.9249度で静止目標も未達。禁止接触・速度超過は評価中0。72秒評価は基準未達により見送り。",
+      "next_decision": "次回の修正では2周期目の起立高さ・傾き、全区間の方位・XY位置保持と負荷余裕を検討する。当面500更新（新規開始の最終iteration499）。中央モバイルバッテリーと裏面セパレーター、取付枠および最新配色は次回仕様として記録し、追加CAD修正・新学習は開始しない。ジャンプと後ろ足2本立ちは未学習。",
+      "new_training_updates": 500,
+      "training": {
+        "status": "COMPLETED",
+        "completed_updates": 500,
+        "final_iteration": 499,
+        "evaluated_checkpoint": "model_499.pt",
+        "new_transitions": 4096000,
+        "ended_utc": "2026-09-10T11:34:19.998783+00:00",
+        "optimizer_states": 17,
+        "optimizer_steps_per_state": 10000,
+        "parent_loop_id": "L14",
+        "parent_checkpoint_updates": 501,
+        "inheritance": "Parent action-mean MLP weights only; critic, exploration standard deviation, optimizer and update counter initialized anew.",
+        "disposable_smoke_updates": 2,
+        "smoke_updates_inherited_by_main_training": false,
+        "additional_training_updates_for_evaluation": 0
+      },
+      "additional_training_updates_for_evaluation": 0,
+      "separate_disposable_smoke_updates": 2,
+      "smoke_updates_inherited_by_main": false,
+      "registered_sampled_motion_criteria_passed": false,
+      "stationary_criteria_passed": false,
+      "deterministic_evaluation_rollouts": 1,
+      "evaluation_duration_s": 24,
+      "recorded_motion_cycles": 2,
+      "four_foot_return_continuous_holds_s": [
+        2.0,
+        1.9375
+      ],
+      "walking_acceptance": false,
+      "hardware_acceptance": false,
+      "long_evaluation": {
+        "status": "SKIPPED_FINAL_STATIONARY_CRITERIA_NOT_MET",
+        "planned_duration_s": 72,
+        "performed": false,
+        "completed_duration_s": null,
+        "criteria_passed": null,
+        "reason": "The 24-second stationary criteria were not met."
+      },
+      "selected_evidence": "evidence/l15-evaluation.json",
+      "comparison_scope": "One seed42 simulated rollout. Combined reward and training changes; no isolated causal attribution. Latest hardware mounting and color specification is for a future iteration."
     }
   ],
   "visualization": {
@@ -439,7 +494,7 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": "当面の新規学習は500更新（新規開始の最終iteration 499）。停止済みL14は再開せず、次のループで伏せ・起立中のyaw・XY位置保持と駆動負荷の余裕を改善する。カーボン／ベース黒、脚PLA、取手黄色、黒いDisplayと目、下板下の赤IMUを保持する仕様と個別PLA質量を整理する。次ループのCAD変更・学習は未開始。ジャンプと後ろ足2本立ちは未学習。",
+  "next": "次回の修正では2周期目の起立高さ・傾き、全区間の方位・XY位置保持と負荷余裕を検討する。当面500更新（新規開始の最終iteration499）。中央モバイルバッテリーと裏面セパレーター、取付枠および最新配色は次回仕様として記録し、追加CAD修正・新学習は開始しない。ジャンプと後ろ足2本立ちは未学習。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
@@ -448,20 +503,26 @@
     "new_training_started_for_publication": false
   },
   "next_loop_specification": {
-    "status": "SPECIFIED_NOT_STARTED",
+    "status": "USER_DEFERRED_CORRECTIONS_TO_NEXT_ITERATION",
     "counted_as_completed_loop": false,
     "training_started": false,
     "cad_changes_completed": false,
     "materials_and_appearance": {
-      "carbon_and_base_color": "black",
+      "base_plate_color": "white",
+      "carbon_color": "black",
       "legs_material": "PLA",
+      "legs_color": "yellow",
       "handle_color": "yellow",
+      "carbon_retaining_parts_color": "yellow",
+      "face_frame_color": "yellow",
+      "qdd_and_motors_color": "black",
+      "foot_tip_balls_color": "black",
       "display_color": "black",
       "display_content": "eyes",
       "imu_color": "red",
       "imu_location": "under the lower plate"
     },
-    "individual_pla_part_mass": "Document individually; do not treat prototype estimates as printed mass measurements.",
+    "individual_pla_part_mass": "Existing 79-part CAD-solid estimates retained as historical values. Newly specified mounts have no finalized part masses or measured print weights.",
     "references": [
       "docs/next-loop-spec.md",
       "docs/pla-parts-mass.md"

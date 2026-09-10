@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.user-selected-recordings.v1",
   "authorization": "user_selected_six_history_assets_and_l05_l06_l07_l08_l09_l10_l11_l12_results_2026-09-10",
-  "scope": "Six selected historical assets and explicitly requested L05/L06/L07/L08/L09/L10/L11 result montages, each individually hash-bound, plus their full-duration GIF previews. No blanket media or model publication authorization.",
+  "scope": "Individually authorized historical assets and selected L05 through L15 result recordings, each bound to an explicit file hash. Existing listed full-duration GIF previews are retained. No blanket authorization for media, models or private hardware-reference photographs.",
   "review": "Source files matched existing project media by SHA. Video metadata and one-second temporal contact sheets reviewed; all video frames decoded. The CAD image is a design view, not a built robot or walking result. L05 montage is the verified600-frame50fps12s result shown to the user, who explicitly requested GitHub publication. All frames decoded; source videos bound to actual final499. No connection data or third-party documents shown. User explicitly requested the current L06 evaluation video and GitHub commit. The real final499 four-direction recording is bound to the completed L06 run. Full-frame decode and timed visual review performed; no connection data or private documents shown. The user explicitly requested GitHub publication after the L07 redesign evaluation. Three shown montages were copied byte-for-byte, all600frames each decoded, timed contact sheets reviewed, and overspeed/failure labels retained. No connection screen, home paths or third-party documents are shown. The full12s GIF is reduced for README display. L08 publication was explicitly requested. The two600-frame50fps12s montages were copied byte-for-byte; allframes decoded, one-second/last-frame contact sheets visually reviewed, container metadata inspected. Measured29.93cm/s and leftheading48.74deg remain visible. No remote connection screen or private source documents are shown. The user requested committing the continued L09/L10 results to GitHub. The L09 original final499 four-direction, L10 final499 six-direction, and L10 matched-reset L09-parent four-direction montages were copied byte-for-byte; each600-frame50fps12s MP4 was fully decoded. One-second samples including the first and last frames were visually reviewed, along with container metadata and the first/middle/last GIF images. Simulation images and result captions contain no connection screens, home paths, host names, credentials or private documents. Full12s equal-speed GIF previews preserve the uncropped aspect ratio. Original black/ghosted/off-center startup frames and development limitations are retained. Left/right translation and rotation have distinct labels and cm/s versus rad/s units. The user explicitly prioritized committing the completed L11 result to GitHub on2026-09-10. The final499 and matchedL10-parent six-direction montages are individually selected for this result publication. Existing private QA decoded all1200 montage frames and reviewed first/middle/last frames. Source captions retain failed development criteria and initial rendering limitations. Public originals are exact SHA-bound copies; GIF is an uncropped, full12s equal-speed preview. No private connection screens, source documents or local paths are present.",
   "files": {
     "docs/media/cad-type00.png": {
@@ -4391,6 +4391,28 @@
       "visual_reviewed": true,
       "visual_review_scope": "User requested organizing results to date on GitHub after the L13 and L14 videos had been presented. Existing source QA hashes were independently verified. MP4 copied byte-for-byte; all 1800 selected MP4 frames decoded. One-second temporal samples and final frames visually inspected, with original-size first/middle/pre-final/final caption checks and first/middle/final GIF image review. Japanese and embedded small captions contain simulation measurements, phase and result labels; no connection screens, local paths, private documents or credentials appear in the reviewed images. Depicted geometry and product appearances are not claimed as independent original works.",
       "visual_limitation": "Original black startup frame retained. Final frame at 24 seconds is labeled as a post-reset rendering. Two consecutive motion cycles in one simulated evaluation do not establish a repeated-trial success rate or hardware acceptance."
+    },
+    "docs/media/l15-model499-stationary-prone.mp4": {
+      "sha256": "aee44bd8a401237a47880ddea4dadc05ac0026a058645bd82755b2b2c21c72a1",
+      "bytes": 1199589,
+      "kind": "user_selected_original",
+      "source_sha256": "aee44bd8a401237a47880ddea4dadc05ac0026a058645bd82755b2b2c21c72a1",
+      "frames": 1200,
+      "fps": 50,
+      "duration_s": 24,
+      "metadata": {
+        "width": 960,
+        "height": 720,
+        "codec": "h264",
+        "pixel_format": "yuv420p",
+        "audio": false
+      },
+      "source_kind": "L15 final model_499, 500 new updates; two consecutive 12-second stationary-prone and four-foot-return evaluation cycles.",
+      "authorization_note": "The user requested committing current results to GitHub and explicitly deferred further corrections to the next iteration. Private hardware-reference photos were explicitly excluded.",
+      "reviewed_for_publication": true,
+      "visual_reviewed": true,
+      "visual_review_scope": "Byte-identical SHA-verified original. All 1200 frames decoded and counted; one-second temporal samples plus the final frame visually reviewed, with full-size inspections of frames 400, 850 and 1199. Reviewed images show simulation and result captions, with no private photos, home paths, connection screens or credentials.",
+      "visual_limitation": "Original black startup and terminal image labeled as possibly following automatic reset are retained. Metrics exclude that reset. One simulated seed42 evaluation; motion acceptance and stationary targets are not met, and no 72-second evaluation was performed."
     }
   }
 }

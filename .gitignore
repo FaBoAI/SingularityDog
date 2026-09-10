@@ -60,3 +60,10 @@ docs/media/*
 !docs/media/l11-six-directions.mp4
 !docs/media/l11-six-directions.gif
 !docs/media/l11-matched-l10-six-directions.mp4
+
+# Individually reviewed L15 evaluation recording
+!docs/media/l15-model499-stationary-prone.mp4
+# Private camera reference photos are not publication assets
+IMG_*.[Jj][Pp][Gg]
+IMG_*.[Jj][Pp][Ee][Gg]
+IMG_*.[Hh][Ee][Ii][Cc]
