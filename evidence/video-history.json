@@ -575,7 +575,7 @@
     {
       "id": "L15",
       "original": "docs/media/l15-model499-stationary-prone.mp4",
-      "preview": null,
+      "preview": "docs/media/l15-model499-stationary-prone.gif",
       "date": "2026-09-10",
       "date_kind": "evaluation_completed",
       "kind": "FINAL_CHECKPOINT_STATIONARY_PRONE_EVALUATION",
@@ -620,7 +620,11 @@
       "walking_acceptance": false,
       "hardware_acceptance": false,
       "comparison_scope": "One deterministic seed42 rollout, two consecutive 12-second cycles. Historical L14 is a combined-change comparison, not an isolated ablation.",
-      "limitations": "Initial black frame and final possible automatic-reset image retained. Numeric criteria use pre-reset 400 Hz records. New mounting and complete color specification is deferred; historical recording is not recolored."
+      "limitations": "Initial black frame and final possible automatic-reset image retained. Numeric criteria use pre-reset 400 Hz records. New mounting and complete color specification is deferred; historical recording is not recolored.",
+      "preview_sha256": "1786c049da74909449f839623e14202e564563c6d027b78d83a340dfce4fae98",
+      "preview_frames": 241,
+      "preview_duration_ms": 24000,
+      "preview_timing": "Every fifth source frame plus final source frame; 239 delays of 100ms, then 80ms and 20ms. Full 24-second duration, no crop or speed change."
     }
   ],
   "count_scope": "H01-H04 and L00-L15 are 20 development loops, not 20 successful improvements. The 22 selected actual simulation/comparison recordings document existing loops; checkpoint selection, GIFs and evaluation-only execution add zero loops. The CAD image and redrawn measurement chart are separate.",

@@ -2,16 +2,16 @@
   "schema": "singularitydog.manifest.v1",
   "files": {
     ".gitignore": {
-      "sha256": "2027c8b3a42177d3e4aa63f0ab52595d4858ff42d6234f6046eba7e8776df7b6",
-      "bytes": 1671
+      "sha256": "18ec18024f6f932132a5bd4a81a319fc79cfcc8cf53fe5b4391f9f6ef5dfb732",
+      "bytes": 1718
     },
     "README.md": {
-      "sha256": "39f49ed7b686f2f98823a6032ae52ff22adbfba531bea5c422fbb9b6b61f0e08",
-      "bytes": 21830
+      "sha256": "7b637161d6b6a70257cb44914359db54389ffed7aa1e701e91372b700e2d01e9",
+      "bytes": 10621
     },
     "RELEASE_FILES.json": {
-      "sha256": "59bca955feff9d0ba0b91b2603c0ea9678cb926bfd3cb33de9cb73956e85ff85",
-      "bytes": 3804
+      "sha256": "05b3e33f3d9a530bcfe724128cb1626d8302870bbc3b1a0eff5922e6a0b9440a",
+      "bytes": 3854
     },
     "docs/current-status.md": {
       "sha256": "36706ec55291af4a38d908ccb4a1fc86045a075d8a1b02bbe9cdf9122edeab72",
@@ -206,16 +206,16 @@
       "bytes": 34374
     },
     "docs/publication-scope.md": {
-      "sha256": "bb6f854b95aaf32874d87c5301348ada8d11e8fdba264626d85271bf21149576",
-      "bytes": 12846
+      "sha256": "256f23fe031115e02e4e361964fe055c3d628d15faf703fa29fca731a17a7cd1",
+      "bytes": 13320
     },
     "docs/toolkit.md": {
       "sha256": "a26728aced4bd856e48259f4ffbc237cfad072e7f04b64e13be91fce65d25055",
       "bytes": 3903
     },
     "docs/video-history.md": {
-      "sha256": "6199d53d67dfd8b58c8f050f51367541f38e0db4232e385e39254fcccda7895c",
-      "bytes": 16441
+      "sha256": "be2892197d3c34658f7adcc55e9f9664a6ded74e6e77ef1b053f5d0f2e0831ef",
+      "bytes": 17388
     },
     "evidence/forward-motion.json": {
       "sha256": "c07344e1195e9f1c6028fb020b1628139dbc884ecbe86fe4c9af2e38e3f37e78",
@@ -266,12 +266,12 @@
       "bytes": 237438
     },
     "evidence/recording-publication.json": {
-      "sha256": "b60b345ec8d7a76ac380aa08a265048f16260ab3b270f51def3cdbebf8e6bc6f",
-      "bytes": 86559
+      "sha256": "559f87e6d2869e360b5dd1fb435af91cb6809b99e650d6d9a2875f8c341fbc6c",
+      "bytes": 94484
     },
     "evidence/video-history.json": {
-      "sha256": "abffebfff42b9a2ed3df1057d3bf613805e9aa33410982cafa8ecf939d6a1fa4",
-      "bytes": 28366
+      "sha256": "74705d86acd5d80d4ea2b04b931b53b9f248fc4825928d55944baca6478c61e6",
+      "bytes": 28733
     },
     "examples/synthetic_robot.urdf": {
       "sha256": "5c8d44b624f71f4a6667dbbd23da8c23c0661f8594766a7e961feed76b591a37",
@@ -408,6 +408,10 @@
     "docs/media/l15-model499-stationary-prone.mp4": {
       "sha256": "aee44bd8a401237a47880ddea4dadc05ac0026a058645bd82755b2b2c21c72a1",
       "bytes": 1199589
+    },
+    "docs/media/l15-model499-stationary-prone.gif": {
+      "sha256": "1786c049da74909449f839623e14202e564563c6d027b78d83a340dfce4fae98",
+      "bytes": 13323397
     }
   }
 }
