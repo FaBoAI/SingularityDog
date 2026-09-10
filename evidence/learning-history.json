@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
   "as_of": "2026-09-10",
-  "verified_recent_series_count": 17,
+  "verified_recent_series_count": 19,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同variantの複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列の立位基準以後で確認した直近17回。全開発通算や成功17回を意味しない。",
+  "scope": "現在の機体系列の立位基準以後で確認したH01-H04とL00-L14の19回。全開発通算、学習完了19回、成功19回を意味しない。停止した学習と指定checkpoint評価はL14の同じ1回に含み、動画追加を新しいループとして数えない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -324,6 +324,90 @@
       "walking_acceptance": false,
       "comparison_scope": "Same L12 controller/physical model/44cm/s forward command and exact initial physical/drive state. Forward final ends11.14s versus parent12s; its38.6958cm/s is observed-interval average, not12s performance. Original L11 is a separate controller condition.",
       "own_report_sha256": "6b24e4ec39f81b8e8fd8f7088d0ef18d9ac5c7bd25e02d03ddb5350caabaaaa8"
+    },
+    {
+      "id": "L13",
+      "series_order": 18,
+      "title": "1000更新で6方向の開発基準達成、前進40.2521cm/s",
+      "kind": "LEARNING_AND_FINITE_CONTROLLER_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-10T06:52:12.034778+00:00",
+        "kind": "reported_job_end_including_evaluation"
+      },
+      "change": "L11の方策からPLA補強・丸み、回収用取手、下板下の赤IMU、足パッド拡大を反映した物理モデルへ移行。関節目標の実行可能範囲、指令・報酬・探索を見直して1000更新。",
+      "result": "1000更新後の6方向すべてが最初の12秒の開発基準を通過。前進40.2521cm/s。左の横漂流23.4425cm、後進14.7335cmと、前右下腿の床離隔4.783386mm（追加5mm目標未達）が残る。実機合格ではない。",
+      "next_decision": "歩行結果を保持し、腹部支持スキッドを備えた別技能として伏せ・起立へ進む。左・後進の漂流、速度余裕と下腿床離隔は歩行側の継続課題。",
+      "new_training_updates": 1000,
+      "transitions": 8192000,
+      "final_iteration": 999,
+      "final_evaluation_cases": 6,
+      "matched_parent_evaluation_cases": 6,
+      "additional_training_updates_for_evaluation": 0,
+      "development_targets_met_case_count": 6,
+      "all_development_targets_met": true,
+      "target_met_scope": "All frozen six-direction first12s development criteria; the separate sampled calf-clearance target is not met.",
+      "walking_acceptance": false,
+      "comparison_scope": "L11 parent and final L13 share the new PLA physical model, selected L13 controller,46cm/s forward command, and exact initial physical/drive state. Only left and turn_right complete12s in both cohorts. Original L11 and L12 results use different physical/controller conditions. This compares the entire change and training bundle, not individual causal effects.",
+      "own_report_sha256": "f77ed508bcfaf9614d927d5196ea672b589aff1f96a2fb91646eac05197944e1",
+      "selected_evidence": "evidence/l13-evaluation.json"
+    },
+    {
+      "id": "L14",
+      "series_order": 19,
+      "title": "途中停止後の501更新モデルで伏せ保持・起立を2周期評価",
+      "kind": "USER_INTERRUPTED_TRAINING_AND_SELECTED_CHECKPOINT_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-10T09:34:23.514525+00:00",
+        "kind": "confirmed_evaluation_result_available",
+        "note": "Read-only completion observation after the selected-checkpoint evaluation; not the training stop timestamp."
+      },
+      "change": "腹部支持用の丸みあるPLAスキッドと固定部を追加し、滑らかな伏せ・起立参照軌道へ新規初期化したPPO残差補正を学習。1000更新計画はユーザー指定で中断し、指定のmodel_500.ptを独立評価。",
+      "result": "ユーザー指示で1000更新計画を中断。選択したmodel_500.ptは501更新後で、24秒に伏せ2秒保持・起立後四足2秒保持を2周期達成。禁止接触・速度超過は評価中0。yaw+47.0648度、XY変位11.4919cm、負荷指標h約1.0が残る。停止時ログの下限614更新と選択501更新は別。",
+      "next_decision": "当面の新規学習は500更新（新規開始の最終iteration 499）。停止済みL14は再開せず、次のループで伏せ・起立中のyaw・XY位置保持と駆動負荷の余裕を改善する。カーボン／ベース黒、脚PLA、取手黄色、黒いDisplayと目、下板下の赤IMUを保持する仕様と個別PLA質量を整理する。次ループのCAD変更・学習は未開始。ジャンプと後ろ足2本立ちは未学習。",
+      "new_training_updates": null,
+      "new_training_updates_scope": "Exact completed main-update count at user stop remains unconfirmed; use the separate source_training counters. Selected model_500.pt contains501 updates, not the entire interrupted run.",
+      "source_training": {
+        "status": "INTERRUPTED_BY_USER",
+        "planned_main_updates": 1000,
+        "planned_main_updates_completed": false,
+        "stop_time_utc": "2026-09-10T09:28:19.816991+00:00",
+        "last_logged_zero_based_iteration": 613,
+        "completed_updates_lower_bound_from_last_log": 614,
+        "exact_total_at_stop_confirmed": false,
+        "last_persisted_progress": {
+          "observed_utc": "2026-09-10T09:26:58.818828+00:00",
+          "completed_updates": 600,
+          "transitions": 4915200,
+          "optimizer_state_entries": 17,
+          "optimizer_step_min": 12000.0,
+          "episode_terminations": 4668,
+          "maximum_actual_joint_speed_rad_s": 10.264354705810547,
+          "overspeed_joint_samples": 1
+        },
+        "counter_scope": "600-update progress is a persisted receipt; the later iteration613 log establishes at least614 completed updates. Neither is the selected501-update checkpoint. Training aggregate failures are separate from the selected evaluation."
+      },
+      "selected_checkpoint": {
+        "label": "model_500.pt",
+        "zero_based_iteration": 500,
+        "completed_main_training_updates": 501,
+        "training_transitions": 4104192,
+        "latest_model_at_user_stop": false,
+        "sha256": "a7a480695e8577a73e2b193a08b30e2b703351479dc93f5a3416d610d52c2416"
+      },
+      "additional_training_updates_for_evaluation": 0,
+      "separate_disposable_smoke_updates": 2,
+      "smoke_updates_inherited_by_main": false,
+      "registered_sampled_motion_criteria_passed": true,
+      "deterministic_evaluation_rollouts": 1,
+      "evaluation_duration_s": 24,
+      "completed_motion_cycles": 2,
+      "walking_acceptance": false,
+      "hardware_acceptance": false,
+      "comparison_scope": "One deterministic seed42 flat-plane evaluation of the selected501-update skill model with unchanged L14 physical/controller inputs. The matched untrained reference stopped at3.92s; neither additional training nor a repeated-trial success estimate.",
+      "own_report_sha256": "59bad07c7400523561511a04bb5d0726ed96bdc4508c61c37132dbb57cb9a3e2",
+      "selected_evidence": "evidence/l14-evaluation.json"
     }
   ],
   "visualization": {
@@ -355,5 +439,32 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": "第18回で投影後関節余裕、長時間指令保持、探索と報酬、新形状・取手・IMU配置を検討し1000更新を準備。新しい学習は未開始。"
+  "next": "当面の新規学習は500更新（新規開始の最終iteration 499）。停止済みL14は再開せず、次のループで伏せ・起立中のyaw・XY位置保持と駆動負荷の余裕を改善する。カーボン／ベース黒、脚PLA、取手黄色、黒いDisplayと目、下板下の赤IMUを保持する仕様と個別PLA質量を整理する。次ループのCAD変更・学習は未開始。ジャンプと後ろ足2本立ちは未学習。",
+  "future_training_policy": {
+    "default_new_updates": 500,
+    "final_zero_based_iteration_for_fresh_500_update_run": 499,
+    "effective_date": "2026-09-10",
+    "existing_frozen_1000_update_plan_rewritten": false,
+    "new_training_started_for_publication": false
+  },
+  "next_loop_specification": {
+    "status": "SPECIFIED_NOT_STARTED",
+    "counted_as_completed_loop": false,
+    "training_started": false,
+    "cad_changes_completed": false,
+    "materials_and_appearance": {
+      "carbon_and_base_color": "black",
+      "legs_material": "PLA",
+      "handle_color": "yellow",
+      "display_color": "black",
+      "display_content": "eyes",
+      "imu_color": "red",
+      "imu_location": "under the lower plate"
+    },
+    "individual_pla_part_mass": "Document individually; do not treat prototype estimates as printed mass measurements.",
+    "references": [
+      "docs/next-loop-spec.md",
+      "docs/pla-parts-mass.md"
+    ]
+  }
 }

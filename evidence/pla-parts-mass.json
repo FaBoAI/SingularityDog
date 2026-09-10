@@ -1,0 +1,670 @@
+{
+  "schema": "singularitydog.selected-authored-pla-mass.v1",
+  "status": "CAD_SOLID_EQUIVALENT_MASS_ONLY",
+  "recorded_date_jst": "2026-09-10",
+  "assumed_density_kg_m3": 1240.0,
+  "assumed_density_g_cm3": 1.24,
+  "method": "CAD native solid volume times an assumed uniform PLA density. L13 rows joined by exact(link,name); only revised part specs with density1240 selected. L14 rows selected by density1240. No slicer estimates, infill reduction, supports, adhesion structures or measured weights are substituted.",
+  "total": {
+    "part_count": 79,
+    "volume_cm3": 2223.5954750432384,
+    "mass_g": 2757.2583890536157
+  },
+  "groups": [
+    {
+      "id": "L13_body",
+      "description_ja": "L13本体CADのPLA部品",
+      "part_count": 73,
+      "volume_cm3": 2114.511806839325,
+      "mass_g": 2621.9946404807633,
+      "parts": [
+        {
+          "name": "d20_floor_plate",
+          "link": "base_link",
+          "category": "frame_printed",
+          "volume_cm3": 46.5317203534542,
+          "mass_g": 57.69933323828321
+        },
+        {
+          "name": "d20_floor_plate_front",
+          "link": "base_link",
+          "category": "frame_printed",
+          "volume_cm3": 61.94161211001001,
+          "mass_g": 76.80759901641241
+        },
+        {
+          "name": "d20_jetson_shelf",
+          "link": "base_link",
+          "category": "frame_printed",
+          "volume_cm3": 33.43134157336118,
+          "mass_g": 41.454863550967865
+        },
+        {
+          "name": "shelf_pillar_0",
+          "link": "base_link",
+          "category": "frame_printed",
+          "volume_cm3": 1.1532158312797223,
+          "mass_g": 1.4299876307868558
+        },
+        {
+          "name": "shelf_pillar_1",
+          "link": "base_link",
+          "category": "frame_printed",
+          "volume_cm3": 1.1532158312797214,
+          "mass_g": 1.4299876307868546
+        },
+        {
+          "name": "shelf_pillar_2",
+          "link": "base_link",
+          "category": "frame_printed",
+          "volume_cm3": 1.1532158312797218,
+          "mass_g": 1.429987630786855
+        },
+        {
+          "name": "shelf_pillar_3",
+          "link": "base_link",
+          "category": "frame_printed",
+          "volume_cm3": 1.1532158312797218,
+          "mass_g": 1.429987630786855
+        },
+        {
+          "name": "FL_rear_base_mount",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 70.25936203360943,
+          "mass_g": 87.1216089216757
+        },
+        {
+          "name": "FL_hip_front_collar",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 9.13150323622592,
+          "mass_g": 11.32306401292014
+        },
+        {
+          "name": "FR_rear_base_mount",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 70.06657973544303,
+          "mass_g": 86.88255887194936
+        },
+        {
+          "name": "FR_hip_front_collar",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 9.13150323622591,
+          "mass_g": 11.32306401292013
+        },
+        {
+          "name": "RL_rear_base_mount",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 70.06656707093569,
+          "mass_g": 86.88254316796025
+        },
+        {
+          "name": "RL_hip_front_collar",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 9.13150329026087,
+          "mass_g": 11.323064079923478
+        },
+        {
+          "name": "RR_rear_base_mount",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 70.25925112598483,
+          "mass_g": 87.12147139622118
+        },
+        {
+          "name": "RR_hip_front_collar",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 9.131503290260879,
+          "mass_g": 11.32306407992349
+        },
+        {
+          "name": "d20_long_-1_-1_-1_lower",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470889,
+          "mass_g": 8.820522002383903
+        },
+        {
+          "name": "d20_long_-1_-1_-1_upper",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.11332419547089,
+          "mass_g": 8.820522002383903
+        },
+        {
+          "name": "d20_long_-1_-1_1_lower",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470889,
+          "mass_g": 8.820522002383903
+        },
+        {
+          "name": "d20_long_-1_-1_1_upper",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.11332419547089,
+          "mass_g": 8.820522002383903
+        },
+        {
+          "name": "d20_cross_-1_-1_lower",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470894,
+          "mass_g": 8.82052200238391
+        },
+        {
+          "name": "d20_cross_-1_-1_upper",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470887,
+          "mass_g": 8.8205220023839
+        },
+        {
+          "name": "d20_long_-1_1_-1_lower",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470895,
+          "mass_g": 8.820522002383912
+        },
+        {
+          "name": "d20_long_-1_1_-1_upper",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470888,
+          "mass_g": 8.820522002383901
+        },
+        {
+          "name": "d20_long_-1_1_1_lower",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470895,
+          "mass_g": 8.820522002383912
+        },
+        {
+          "name": "d20_long_-1_1_1_upper",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470888,
+          "mass_g": 8.820522002383901
+        },
+        {
+          "name": "d20_cross_-1_1_lower",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470894,
+          "mass_g": 8.82052200238391
+        },
+        {
+          "name": "d20_cross_-1_1_upper",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470888,
+          "mass_g": 8.820522002383901
+        },
+        {
+          "name": "d20_long_1_-1_-1_lower",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470895,
+          "mass_g": 8.820522002383912
+        },
+        {
+          "name": "d20_long_1_-1_-1_upper",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470891,
+          "mass_g": 8.820522002383905
+        },
+        {
+          "name": "d20_long_1_-1_1_lower",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470895,
+          "mass_g": 8.820522002383912
+        },
+        {
+          "name": "d20_long_1_-1_1_upper",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470891,
+          "mass_g": 8.820522002383905
+        },
+        {
+          "name": "d20_cross_1_-1_lower",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470894,
+          "mass_g": 8.82052200238391
+        },
+        {
+          "name": "d20_cross_1_-1_upper",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470889,
+          "mass_g": 8.820522002383903
+        },
+        {
+          "name": "d20_long_1_1_-1_lower",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470889,
+          "mass_g": 8.820522002383903
+        },
+        {
+          "name": "d20_long_1_1_-1_upper",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470894,
+          "mass_g": 8.82052200238391
+        },
+        {
+          "name": "d20_long_1_1_1_lower",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470889,
+          "mass_g": 8.820522002383903
+        },
+        {
+          "name": "d20_long_1_1_1_upper",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470894,
+          "mass_g": 8.82052200238391
+        },
+        {
+          "name": "d20_cross_1_1_lower",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.113324195470894,
+          "mass_g": 8.82052200238391
+        },
+        {
+          "name": "d20_cross_1_1_upper",
+          "link": "base_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 7.11332419547089,
+          "mass_g": 8.820522002383903
+        },
+        {
+          "name": "l13_floor_bridge_right",
+          "link": "base_link",
+          "category": "frame_printed",
+          "volume_cm3": 4.589743356909687,
+          "mass_g": 5.691281762568011
+        },
+        {
+          "name": "l13_floor_bridge_left",
+          "link": "base_link",
+          "category": "frame_printed",
+          "volume_cm3": 4.589743356909687,
+          "mass_g": 5.691281762568011
+        },
+        {
+          "name": "pla_U_recovery_handle",
+          "link": "base_link",
+          "category": "pla_handle",
+          "volume_cm3": 177.66929781865252,
+          "mass_g": 220.30992929512917
+        },
+        {
+          "name": "pla_fork_crossbeam_rear",
+          "link": "base_link",
+          "category": "pla_crossbeams",
+          "volume_cm3": 162.6655596753871,
+          "mass_g": 201.70529399748
+        },
+        {
+          "name": "pla_rail_clamp_rear_right_upper",
+          "link": "base_link",
+          "category": "pla_rail_clamps",
+          "volume_cm3": 29.146249473612862,
+          "mass_g": 36.14134934727995
+        },
+        {
+          "name": "pla_rail_clamp_rear_right_lower",
+          "link": "base_link",
+          "category": "pla_rail_clamps",
+          "volume_cm3": 29.146187264292546,
+          "mass_g": 36.14127220772276
+        },
+        {
+          "name": "pla_rail_clamp_rear_left_upper",
+          "link": "base_link",
+          "category": "pla_rail_clamps",
+          "volume_cm3": 29.146249473612865,
+          "mass_g": 36.14134934727995
+        },
+        {
+          "name": "pla_rail_clamp_rear_left_lower",
+          "link": "base_link",
+          "category": "pla_rail_clamps",
+          "volume_cm3": 29.146187264292546,
+          "mass_g": 36.14127220772276
+        },
+        {
+          "name": "pla_fork_crossbeam_front",
+          "link": "base_link",
+          "category": "pla_crossbeams",
+          "volume_cm3": 162.66555967538716,
+          "mass_g": 201.70529399748008
+        },
+        {
+          "name": "pla_rail_clamp_front_right_upper",
+          "link": "base_link",
+          "category": "pla_rail_clamps",
+          "volume_cm3": 29.146249473612865,
+          "mass_g": 36.14134934727995
+        },
+        {
+          "name": "pla_rail_clamp_front_right_lower",
+          "link": "base_link",
+          "category": "pla_rail_clamps",
+          "volume_cm3": 29.146187264292553,
+          "mass_g": 36.141272207722764
+        },
+        {
+          "name": "pla_rail_clamp_front_left_upper",
+          "link": "base_link",
+          "category": "pla_rail_clamps",
+          "volume_cm3": 29.146249473612862,
+          "mass_g": 36.14134934727995
+        },
+        {
+          "name": "pla_rail_clamp_front_left_lower",
+          "link": "base_link",
+          "category": "pla_rail_clamps",
+          "volume_cm3": 29.14618726429254,
+          "mass_g": 36.14127220772275
+        },
+        {
+          "name": "pla_underfloor_IMU_support",
+          "link": "base_link",
+          "category": "pla_imu_support",
+          "volume_cm3": 2.3568159301532106,
+          "mass_g": 2.922451753389981
+        },
+        {
+          "name": "FL_hip_joint_part",
+          "link": "FL_hip_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 43.62638223973269,
+          "mass_g": 54.096713977268536
+        },
+        {
+          "name": "FL_thigh_front_collar",
+          "link": "FL_hip_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 8.91360236977292,
+          "mass_g": 11.052866938518422
+        },
+        {
+          "name": "FL_thigh_joint_part",
+          "link": "FL_thigh_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 70.2404527016151,
+          "mass_g": 87.09816135000274
+        },
+        {
+          "name": "FL_calf_front_collar",
+          "link": "FL_thigh_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 8.913602369772939,
+          "mass_g": 11.052866938518443
+        },
+        {
+          "name": "FL_calf_joint_part",
+          "link": "FL_calf_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 51.4037188903321,
+          "mass_g": 63.7406114240118
+        },
+        {
+          "name": "FR_hip_joint_part",
+          "link": "FR_hip_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 43.62604275041978,
+          "mass_g": 54.09629301052053
+        },
+        {
+          "name": "FR_thigh_front_collar",
+          "link": "FR_hip_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 8.913602423807893,
+          "mass_g": 11.052867005521787
+        },
+        {
+          "name": "FR_thigh_joint_part",
+          "link": "FR_thigh_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 70.24042044820527,
+          "mass_g": 87.09812135577454
+        },
+        {
+          "name": "FR_calf_front_collar",
+          "link": "FR_thigh_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 8.913602423807852,
+          "mass_g": 11.052867005521737
+        },
+        {
+          "name": "FR_calf_joint_part",
+          "link": "FR_calf_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 51.40369788358931,
+          "mass_g": 63.74058537565075
+        },
+        {
+          "name": "RL_hip_joint_part",
+          "link": "RL_hip_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 43.62604275041986,
+          "mass_g": 54.09629301052063
+        },
+        {
+          "name": "RL_thigh_front_collar",
+          "link": "RL_hip_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 8.91360236977292,
+          "mass_g": 11.052866938518422
+        },
+        {
+          "name": "RL_thigh_joint_part",
+          "link": "RL_thigh_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 70.2404527016151,
+          "mass_g": 87.09816135000274
+        },
+        {
+          "name": "RL_calf_front_collar",
+          "link": "RL_thigh_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 8.913602369772939,
+          "mass_g": 11.052866938518443
+        },
+        {
+          "name": "RL_calf_joint_part",
+          "link": "RL_calf_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 51.4037188903321,
+          "mass_g": 63.7406114240118
+        },
+        {
+          "name": "RR_hip_joint_part",
+          "link": "RR_hip_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 43.6263822397327,
+          "mass_g": 54.09671397726855
+        },
+        {
+          "name": "RR_thigh_front_collar",
+          "link": "RR_hip_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 8.913602423807893,
+          "mass_g": 11.052867005521787
+        },
+        {
+          "name": "RR_thigh_joint_part",
+          "link": "RR_thigh_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 70.24042044820527,
+          "mass_g": 87.09812135577454
+        },
+        {
+          "name": "RR_calf_front_collar",
+          "link": "RR_thigh_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 8.913602423807852,
+          "mass_g": 11.052867005521737
+        },
+        {
+          "name": "RR_calf_joint_part",
+          "link": "RR_calf_link",
+          "category": "installed_printed_part",
+          "volume_cm3": 51.40369788358931,
+          "mass_g": 63.74058537565075
+        }
+      ]
+    },
+    {
+      "id": "L14_additional_skids",
+      "description_ja": "L14用に追加した伏せスキッド試作部品",
+      "part_count": 6,
+      "volume_cm3": 109.08366820391315,
+      "mass_g": 135.2637485728523,
+      "parts": [
+        {
+          "name": "pla_prone_skid_left",
+          "link": "prone_skid_link",
+          "category": "pla_prone_skids",
+          "volume_cm3": 45.84019659685952,
+          "mass_g": 56.84184378010581
+        },
+        {
+          "name": "pla_prone_skid_cap_left_rear",
+          "link": "prone_skid_link",
+          "category": "pla_prone_skid_caps",
+          "volume_cm3": 4.350818752548528,
+          "mass_g": 5.3950152531601745
+        },
+        {
+          "name": "pla_prone_skid_cap_left_front",
+          "link": "prone_skid_link",
+          "category": "pla_prone_skid_caps",
+          "volume_cm3": 4.350818752548531,
+          "mass_g": 5.395015253160178
+        },
+        {
+          "name": "pla_prone_skid_right",
+          "link": "prone_skid_link",
+          "category": "pla_prone_skids",
+          "volume_cm3": 45.84019659685952,
+          "mass_g": 56.84184378010581
+        },
+        {
+          "name": "pla_prone_skid_cap_right_rear",
+          "link": "prone_skid_link",
+          "category": "pla_prone_skid_caps",
+          "volume_cm3": 4.350818752548527,
+          "mass_g": 5.395015253160173
+        },
+        {
+          "name": "pla_prone_skid_cap_right_front",
+          "link": "prone_skid_link",
+          "category": "pla_prone_skid_caps",
+          "volume_cm3": 4.350818752548525,
+          "mass_g": 5.395015253160171
+        }
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "category": "frame_printed",
+      "label_ja": "床板・棚・支柱・床板ブリッジ",
+      "part_count": 9,
+      "volume_cm3": 155.69702407576366,
+      "mass_g": 193.06430985394692
+    },
+    {
+      "category": "installed_printed_part",
+      "label_ja": "関節部・カラー・フレーム取付部",
+      "part_count": 52,
+      "volume_cm3": 1220.2878027123597,
+      "mass_g": 1513.1568753633262
+    },
+    {
+      "category": "pla_handle",
+      "label_ja": "回収用取手",
+      "part_count": 1,
+      "volume_cm3": 177.66929781865252,
+      "mass_g": 220.30992929512917
+    },
+    {
+      "category": "pla_crossbeams",
+      "label_ja": "取手用クロスビーム",
+      "part_count": 2,
+      "volume_cm3": 325.33111935077426,
+      "mass_g": 403.4105879949601
+    },
+    {
+      "category": "pla_rail_clamps",
+      "label_ja": "取手用レールクランプ",
+      "part_count": 8,
+      "volume_cm3": 233.16974695162165,
+      "mass_g": 289.1304862200108
+    },
+    {
+      "category": "pla_imu_support",
+      "label_ja": "下板下のIMU支持部",
+      "part_count": 1,
+      "volume_cm3": 2.3568159301532106,
+      "mass_g": 2.922451753389981
+    },
+    {
+      "category": "pla_prone_skids",
+      "label_ja": "伏せ用スキッド",
+      "part_count": 2,
+      "volume_cm3": 91.68039319371904,
+      "mass_g": 113.68368756021162
+    },
+    {
+      "category": "pla_prone_skid_caps",
+      "label_ja": "伏せ用スキッド固定キャップ",
+      "part_count": 4,
+      "volume_cm3": 17.40327501019411,
+      "mass_g": 21.580061012640698
+    }
+  ],
+  "slicer_estimated_total_mass_g": null,
+  "measured_total_mass_g": null,
+  "slicer_estimates_by_part": null,
+  "measured_weights_by_part": null,
+  "unavailable_values_scope": "Slicer estimates and printed weights are unavailable for all79 selected parts. Null does not mean zero.",
+  "excluded_materials": [
+    "carbon",
+    "metal_fasteners",
+    "actuators",
+    "electronics",
+    "foot_pads",
+    "proposed_TPU95A_feet"
+  ],
+  "scope": "Selected authored PLA body names, owning links, categories, aggregate CAD volume and calculated mass only. Total covers79 PLA parts, not the entire robot. L14 skid prototypes are separate new parts; this record does not claim they were inserted into or saved in the original Fusion assembly.",
+  "validation": {
+    "unique_part_identities": 79,
+    "l13_selected_parts": 73,
+    "l14_selected_parts": 6,
+    "density_checks_passed": 79,
+    "maximum_absolute_mass_formula_error_kg": 2.7755575615628914e-17,
+    "source_sha256": {
+      "l13_authored_body_ledger": "58d85de3205e44c371f22e4edc74e72d8e5c71a7aa1a087a898092405fa4afd3",
+      "l14_authored_skid_mass_ledger": "c5d43e6cc3ed2a22e6c14811070be3c3ee10ea2d37293b5aa0fb268f212760b2"
+    }
+  },
+  "publication_scope": "No editable CAD, mesh, vendor part table, private path, connection details, center of mass, inertia, placement, bounding dimensions, or geometry construction data."
+}

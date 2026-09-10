@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
   "updated": "2026-09-10",
-  "numbering_scope": "直近17回（H01〜H04＋L00〜L12）のうち後半L00〜L12の13件を表示。各有限試行を1回と数え、追加の比較/動画/第18回準備は加算しない。",
+  "numbering_scope": "直近19回（H01〜H04＋L00〜L14）のうち後半L00〜L14の15件を表示。有限試行を1回と数え、同じ学習のcheckpoint違い・追加動画・次回準備は加算しない。",
   "loops": [
     {
       "id": "L00",
@@ -19,7 +19,8 @@
         13
       ],
       "video": null,
-      "video_available_privately": true
+      "video_available_privately": true,
+      "video_url": "media/l00-four-directions.mp4"
     },
     {
       "id": "L01",
@@ -94,7 +95,8 @@
       "confirmed_completed_updates": 500,
       "own_startup_receipt_sha256": "0940e5f53811d627da9827717a51d012ef78c2eb94b827ba0351b8808a434db0",
       "completed_utc": "2026-09-09T02:53:55.596386+00:00",
-      "own_result_sha256": "7127f97fa79bf4f5e2ddf2e0a9f8967eb428c6500e436ae08f70f42a8d938724"
+      "own_result_sha256": "7127f97fa79bf4f5e2ddf2e0a9f8967eb428c6500e436ae08f70f42a8d938724",
+      "video_url": "media/l05-four-directions.mp4"
     },
     {
       "id": "L06",
@@ -115,7 +117,8 @@
       "video_available_privately": true,
       "completed_utc": "2026-09-09T04:06:14.729695+00:00",
       "confirmed_completed_updates": 500,
-      "own_result_sha256": "a001418f7d43fc5c13217a1811ef5224aa62824a37ab9edcfc3c8bd55a5825eb"
+      "own_result_sha256": "a001418f7d43fc5c13217a1811ef5224aa62824a37ab9edcfc3c8bd55a5825eb",
+      "video_url": "media/l06-four-directions.mp4"
     },
     {
       "id": "L07",
@@ -136,7 +139,8 @@
       "video_available_privately": true,
       "completed_utc": "2026-09-09T06:13:18.506036+00:00",
       "confirmed_completed_updates": 0,
-      "own_result_sha256": "5660e183255c1117937217b1bf0931e3cfc458e9b9e686aa67b4cfab6bb76253"
+      "own_result_sha256": "5660e183255c1117937217b1bf0931e3cfc458e9b9e686aa67b4cfab6bb76253",
+      "video_url": "media/l07-wide20-four-directions.mp4"
     },
     {
       "id": "L08",
@@ -157,7 +161,8 @@
       "video_available_privately": true,
       "completed_utc": "2026-09-09T08:23:34.939039+00:00",
       "confirmed_completed_updates": 500,
-      "own_result_sha256": "fd61cb704dbd636c1dd532a2e62a8b80abb112e893cf76587ad931fc353720c3"
+      "own_result_sha256": "fd61cb704dbd636c1dd532a2e62a8b80abb112e893cf76587ad931fc353720c3",
+      "video_url": "media/l08-four-directions.mp4"
     },
     {
       "id": "L09",
@@ -180,7 +185,8 @@
       "confirmed_completed_updates": 500,
       "completed_utc": "2026-09-09T09:30:27.772398Z",
       "completion_time_kind": "reported_job_end_including_evaluation",
-      "own_result_sha256": "e9ce997de8d9325c25191997c798748001685262298e76e7bf22f58f74b5430b"
+      "own_result_sha256": "e9ce997de8d9325c25191997c798748001685262298e76e7bf22f58f74b5430b",
+      "video_url": "media/l09-four-directions.mp4"
     },
     {
       "id": "L10",
@@ -203,7 +209,8 @@
       "confirmed_completed_updates": 500,
       "completed_utc": "2026-09-09T10:59:32.161757Z",
       "completion_time_kind": "reported_job_end_including_evaluation",
-      "own_result_sha256": "b787ad8c4d4744a295c378abec8ce6aa855447989f83991a93a7edaaa2574f5f"
+      "own_result_sha256": "b787ad8c4d4744a295c378abec8ce6aa855447989f83991a93a7edaaa2574f5f",
+      "video_url": "media/l10-six-directions.mp4"
     },
     {
       "id": "L11",
@@ -254,14 +261,62 @@
       "completed_utc": "2026-09-09T23:35:04.782039Z",
       "completion_time_kind": "reported_job_end_including_evaluation",
       "own_result_sha256": "6b24e4ec39f81b8e8fd8f7088d0ef18d9ac5c7bd25e02d03ddb5350caabaaaa8"
+    },
+    {
+      "id": "L13",
+      "order": 13,
+      "series_order": 18,
+      "title": "1000更新で6方向達成、前進40.25cm/s",
+      "state": "EVALUATED",
+      "change": "PLA形状・回収取手・下板下面IMUと制御を更新し、L11方策から1000更新。",
+      "result": "前進40.2521cm/s、6方向すべて12秒完走・既存開発基準通過。追加床離隔5mmは最小4.783mmで未達、直角方向の漂流も残る。",
+      "comparison_scope": "L11 parent and final L13 share the new PLA physical model, selected L13 controller,46cm/s forward command, and exact initial physical/drive state. Only left and turn_right complete12s in both cohorts. Original L11 and L12 results use different physical/controller conditions. This compares the entire change and training bundle, not individual causal effects.",
+      "forward_speed_m_s": 0.40252113342285156,
+      "forward_observed_duration_s": 12,
+      "forward_completed_interval": true,
+      "lift15_counts": [
+        20,
+        19,
+        19,
+        20
+      ],
+      "video": null,
+      "video_available_privately": true,
+      "video_url": "media/l13-six-directions.mp4",
+      "confirmed_completed_updates": 1000,
+      "completed_utc": "2026-09-10T06:52:12.034778+00:00",
+      "completion_time_kind": "reported_job_end_including_evaluation",
+      "own_result_sha256": "6dc9511499c691de5e1e59cc6731dddfdece9f785444463377aa4ce677ebae30"
+    },
+    {
+      "id": "L14",
+      "order": 14,
+      "series_order": 19,
+      "title": "501更新モデルで伏せ・起立を2周期達成",
+      "state": "EVALUATED",
+      "change": "腹部支持スキッドと新しい参照運動・残差方策を追加。ユーザー指示で学習を中断し、model_500.ptを24秒評価。",
+      "result": "伏せ2秒・四足起立2秒の保持を各2回達成。向き+47.0648°、位置11.4919cmのずれと負荷h約1.0が課題。ジャンプ・後脚立ちは未学習。",
+      "comparison_scope": "L14 prone/stand is a different task and physical model from L13 locomotion; the paired videos are development history, not a matched performance A/B test. One seed42 rollout with registered sampled criteria; heading/position thresholds were not registered.",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video": null,
+      "video_available_privately": true,
+      "video_url": "media/l14-model500-prone-rise.mp4",
+      "training_status": "INTERRUPTED_BY_USER",
+      "planned_training_updates": 1000,
+      "confirmed_completed_updates": null,
+      "completed_updates_lower_bound": 614,
+      "last_persisted_progress_updates": 600,
+      "evaluated_checkpoint_updates": 501,
+      "additional_training_updates_for_evaluation": 0,
+      "completed_cycles": 2,
+      "training_plan_completed": false
     }
   ],
   "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。",
   "target_actual_forward_m_s": 0.4,
-  "verified_recent_series_count": 17,
-  "latest_loop_id": "L12",
-  "latest_development_targets_met_case_count": 1,
-  "latest_evaluation_case_count": 6,
+  "verified_recent_series_count": 19,
+  "latest_loop_id": "L14",
   "comparison_cases": [
     {
       "id": "L09-matched-L10",
@@ -294,73 +349,78 @@
       "video_url": "media/l12-matched-l11-six-directions.mp4"
     }
   ],
-  "default_comparison_before": "L11-matched-L12",
+  "default_comparison_before": "L13",
   "latest_cases": [
     {
       "direction": "forward",
-      "label": "前進",
-      "duration_s": 11.14,
-      "completed_interval": false,
-      "speed_cm_s": 38.695810513179644,
+      "duration_s": 12.0,
+      "completed_interval": true,
+      "speed_cm_s": 40.252113342285156,
       "signed_mean_yaw_rate_rad_s": null,
-      "yaw_end_deg": 3.472282801419091,
-      "max_planar_excursion_m": 4.315392062908564,
-      "target_result": "11.14秒で接触終了・速度未達"
+      "yaw_end_deg": 0.6095797699709085,
+      "max_planar_excursion_m": 4.830255205577756,
+      "label": "前進",
+      "target_result": "既存全基準達成"
     },
     {
       "direction": "backward",
-      "label": "後進",
       "duration_s": 12.0,
       "completed_interval": true,
-      "speed_cm_s": 8.367911974589031,
+      "speed_cm_s": 10.069202383359272,
       "signed_mean_yaw_rate_rad_s": null,
-      "yaw_end_deg": 8.934871813380289,
-      "max_planar_excursion_m": 1.0483332143828539,
-      "target_result": "速度未達"
+      "yaw_end_deg": -2.544481948853055,
+      "max_planar_excursion_m": 1.2172538663069012,
+      "label": "後進",
+      "target_result": "既存全基準達成"
     },
     {
       "direction": "left",
-      "label": "左移動",
       "duration_s": 12.0,
       "completed_interval": true,
-      "speed_cm_s": 6.973659992218018,
+      "speed_cm_s": 10.08711854616801,
       "signed_mean_yaw_rate_rad_s": null,
-      "yaw_end_deg": -21.33417856667965,
-      "max_planar_excursion_m": 0.8373397915865209,
-      "target_result": "速度・向き未達"
+      "yaw_end_deg": 1.7161757438640133,
+      "max_planar_excursion_m": 1.2329454269430484,
+      "label": "左移動",
+      "target_result": "既存全基準達成"
     },
     {
       "direction": "right",
-      "label": "右移動",
       "duration_s": 12.0,
       "completed_interval": true,
-      "speed_cm_s": 10.97068687280019,
+      "speed_cm_s": 11.343168218930561,
       "signed_mean_yaw_rate_rad_s": null,
-      "yaw_end_deg": -3.0594391135434753,
-      "max_planar_excursion_m": 1.3291793308880588,
-      "target_result": "全基準達成"
+      "yaw_end_deg": 0.7670056613780972,
+      "max_planar_excursion_m": 1.3627898917177534,
+      "label": "右移動",
+      "target_result": "既存全基準達成"
     },
     {
       "direction": "turn_left",
-      "label": "左旋回",
       "duration_s": 12.0,
       "completed_interval": true,
       "speed_cm_s": null,
-      "signed_mean_yaw_rate_rad_s": 0.16708559770793383,
-      "yaw_end_deg": 114.87959479302418,
-      "max_planar_excursion_m": 0.11954232320634343,
-      "target_result": "速度未達"
+      "signed_mean_yaw_rate_rad_s": 0.2386805040247314,
+      "yaw_end_deg": 164.1046263920684,
+      "max_planar_excursion_m": 0.05951977647255602,
+      "label": "左旋回",
+      "target_result": "既存全基準達成"
     },
     {
       "direction": "turn_right",
-      "label": "右旋回",
       "duration_s": 12.0,
       "completed_interval": true,
       "speed_cm_s": null,
-      "signed_mean_yaw_rate_rad_s": 0.24200582318708294,
-      "yaw_end_deg": -166.39094743450906,
-      "max_planar_excursion_m": 0.21791847449130666,
-      "target_result": "位置保持未達"
+      "signed_mean_yaw_rate_rad_s": 0.22985330318006933,
+      "yaw_end_deg": -158.03549015230698,
+      "max_planar_excursion_m": 0.08779700814659928,
+      "label": "右旋回",
+      "target_result": "既存全基準達成"
     }
-  ]
+  ],
+  "latest_locomotion_loop_id": "L13",
+  "latest_cases_scope": "L13 six-direction locomotion, separate from the latest L14 prone/stand skill",
+  "future_training_updates": 500,
+  "latest_locomotion_development_targets_met_case_count": 6,
+  "latest_locomotion_evaluation_case_count": 6
 }

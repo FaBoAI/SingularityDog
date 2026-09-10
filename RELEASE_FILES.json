@@ -86,5 +86,16 @@
   "tools/check_publication.py",
   "tools/evaluate_trace.py",
   "tools/make_dashboard.py",
-  "tools/render_motion_history.py"
+  "tools/render_motion_history.py",
+  "docs/l13-evaluation.md",
+  "docs/l14-evaluation.md",
+  "docs/next-loop-spec.md",
+  "docs/pla-parts-mass.md",
+  "evidence/l13-evaluation.json",
+  "evidence/l14-evaluation.json",
+  "evidence/pla-parts-mass.json",
+  "docs/media/l13-six-directions.mp4",
+  "docs/media/l13-six-directions.gif",
+  "docs/media/l14-model500-prone-rise.mp4",
+  "docs/media/l14-model500-prone-rise.gif"
 ]

@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
   "as_of": "2026-09-10",
-  "recent_series_count": 17,
+  "recent_series_count": 19,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -450,6 +450,135 @@
       },
       "source_sha256": "7f5a939f44a2f3d260d5a173bdcc99c94bac8c67c5057da20177d1f20b2c9be6",
       "own_result_report_sha256": "6b24e4ec39f81b8e8fd8f7088d0ef18d9ac5c7bd25e02d03ddb5350caabaaaa8"
+    },
+    {
+      "id": "L13",
+      "original": "docs/media/l13-six-directions.mp4",
+      "preview": "docs/media/l13-six-directions.gif",
+      "date": "2026-09-10",
+      "kind": "LEARNED_POLICY_EVALUATION",
+      "loop": "L13",
+      "series_order": 18,
+      "frames": 600,
+      "fps": 50,
+      "duration_s": 12,
+      "preview_frames": 121,
+      "preview_duration_ms": 12000,
+      "preview_timing": "Every fifth source frame plus final source frame; original full duration, no crop or speed change.",
+      "source_sha256": "5c1ccb1f0921d16fa188a36a08fe0a29a85ba08eadabe2ba6bbda7935e4f85b7",
+      "preview_sha256": "3482be55d3b7da788ccaf26a876279e7a3ec3a411572199f4462f76d854d2614",
+      "additional_training_updates_for_evaluation": 0,
+      "walking_acceptance": false,
+      "hardware_acceptance": false,
+      "date_kind": "reported_job_end_including_evaluation",
+      "saved_iteration": 999,
+      "new_training_updates": 1000,
+      "training_transitions": 8192000,
+      "cohort": "final_L13_six_directions",
+      "directional_displacement_over12s_cm_s": {
+        "forward": 40.252113342285156,
+        "backward": 10.069202383359272,
+        "left": 10.08711854616801,
+        "right": 11.343168218930561
+      },
+      "directional_heading_change_deg": {
+        "forward": 0.6095797699709085,
+        "backward": -2.544481948853055,
+        "left": 1.7161757438640133,
+        "right": 0.7670056613780972,
+        "turn_left": 164.1046263920684,
+        "turn_right": -158.03549015230698
+      },
+      "turn_signed_mean_yaw_rate_rad_s": {
+        "turn_left": 0.2386805040247314,
+        "turn_right": 0.22985330318006933
+      },
+      "turn_max_planar_excursion_m": {
+        "turn_left": 0.05951977647255602,
+        "turn_right": 0.08779700814659928
+      },
+      "all_development_targets_met": true,
+      "development_targets_met_case_count": 6,
+      "target_met_scope": "All frozen six-direction first12s development criteria; the separate sampled calf-clearance target is not met.",
+      "result": "1000更新後の6方向すべてが最初の12秒の開発基準を通過。前進40.2521cm/s。左の横漂流23.4425cm、後進14.7335cmと、前右下腿の床離隔4.783386mm（追加5mm目標未達）が残る。実機合格ではない。",
+      "comparison_scope": "L11 parent and final L13 share the new PLA physical model, selected L13 controller,46cm/s forward command, and exact initial physical/drive state. Only left and turn_right complete12s in both cohorts. Original L11 and L12 results use different physical/controller conditions. This compares the entire change and training bundle, not individual causal effects.",
+      "own_result_report_sha256": "f77ed508bcfaf9614d927d5196ea672b589aff1f96a2fb91646eac05197944e1",
+      "limitations": "Original black/translucent/off-center startup rendering retained. Six finite12-second cases; the separate calf-floor target is unmet, and this is not hardware acceptance."
+    },
+    {
+      "id": "L14",
+      "original": "docs/media/l14-model500-prone-rise.mp4",
+      "preview": "docs/media/l14-model500-prone-rise.gif",
+      "date": "2026-09-10",
+      "kind": "SELECTED_CHECKPOINT_MOTION_EVALUATION_AFTER_USER_STOP",
+      "loop": "L14",
+      "series_order": 19,
+      "frames": 1200,
+      "fps": 50,
+      "duration_s": 24,
+      "preview_frames": 241,
+      "preview_duration_ms": 24000,
+      "preview_timing": "Every fifth source frame plus final source frame; original full duration, no crop or speed change.",
+      "source_sha256": "82fd328e70475ab5874ff74fd524e54bf970f4a87d4726fbd4211d1a94c7857b",
+      "preview_sha256": "63824c644d5c4ff880e5b09ee84edf3134e80838d19dc4135f329095d135b2d2",
+      "additional_training_updates_for_evaluation": 0,
+      "walking_acceptance": false,
+      "hardware_acceptance": false,
+      "date_kind": "selected_checkpoint_evaluation_completed_after_user_stop",
+      "saved_iteration": 500,
+      "new_training_updates": null,
+      "new_training_updates_scope": "Exact whole-run main updates at stop unconfirmed; lower bound614. The separately selected model contains501 updates.",
+      "selected_checkpoint_training_updates": 501,
+      "selected_checkpoint_training_transitions": 4104192,
+      "source_training": {
+        "status": "INTERRUPTED_BY_USER",
+        "planned_main_updates": 1000,
+        "planned_main_updates_completed": false,
+        "stop_time_utc": "2026-09-10T09:28:19.816991+00:00",
+        "last_logged_zero_based_iteration": 613,
+        "completed_updates_lower_bound_from_last_log": 614,
+        "exact_total_at_stop_confirmed": false,
+        "last_persisted_progress": {
+          "observed_utc": "2026-09-10T09:26:58.818828+00:00",
+          "completed_updates": 600,
+          "transitions": 4915200,
+          "optimizer_state_entries": 17,
+          "optimizer_step_min": 12000.0,
+          "episode_terminations": 4668,
+          "maximum_actual_joint_speed_rad_s": 10.264354705810547,
+          "overspeed_joint_samples": 1
+        },
+        "counter_scope": "600-update progress is a persisted receipt; the later iteration613 log establishes at least614 completed updates. Neither is the selected501-update checkpoint. Training aggregate failures are separate from the selected evaluation."
+      },
+      "cohort": "L14_model500_501updates_single_24s_prone_hold_and_four_foot_return",
+      "registered_sampled_motion_criteria_passed": true,
+      "completed_motion_cycles": 2,
+      "prone_continuous_holds_s": [
+        2.0,
+        2.0
+      ],
+      "four_foot_return_continuous_holds_s": [
+        2.0,
+        2.0
+      ],
+      "evaluation_forbidden_contact_samples": 0,
+      "evaluation_overspeed_joint_samples": 0,
+      "heading_change_deg": 47.06478353016368,
+      "final_root_xy_distance_m": 0.11491869067409678,
+      "maximum_exposure_h": 0.9999999999995897,
+      "heading_or_position_threshold_registered": false,
+      "result": "ユーザー指示で1000更新計画を中断。選択したmodel_500.ptは501更新後で、24秒に伏せ2秒保持・起立後四足2秒保持を2周期達成。禁止接触・速度超過は評価中0。yaw+47.0648度、XY変位11.4919cm、負荷指標h約1.0が残る。停止時ログの下限614更新と選択501更新は別。",
+      "comparison_scope": "Selected501-update checkpoint, one deterministic seed42 rollout, two consecutive12s cycles. Holding labels are reference commands; numeric acceptance uses pre-reset400Hz records. No extra learning during evaluation.",
+      "own_result_report_sha256": "59bad07c7400523561511a04bb5d0726ed96bdc4508c61c37132dbb57cb9a3e2",
+      "limitations": "Initial black frame and final automatic-reset image retained. Final reset is explicitly labeled and excluded from motion-hold acceptance. Heading/position drift and load headroom remain unresolved; no repeated-trial or hardware success claim."
     }
-  ]
+  ],
+  "count_scope": "H01-H04 and L00-L14 are19 development loops, not19 successful improvements. The videos document existing loops; checkpoint selection, GIFs and evaluation-only execution add zero loops.",
+  "future_training_policy": {
+    "default_new_updates": 500,
+    "final_zero_based_iteration_for_fresh_500_update_run": 499,
+    "effective_date": "2026-09-10",
+    "existing_frozen_1000_update_plan_rewritten": false,
+    "new_training_started_for_publication": false
+  }
 }
