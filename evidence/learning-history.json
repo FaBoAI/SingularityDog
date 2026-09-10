@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
   "as_of": "2026-09-10",
-  "verified_recent_series_count": 20,
+  "verified_recent_series_count": 21,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同variantの複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列の立位基準以後で確認したH01-H04とL00-L15の20回。全開発通算、学習完了20回、成功20回を意味しない。停止した学習と指定checkpoint評価はL14の同じ1回に含み、動画追加や次回準備を新しいループとして数えない。",
+  "scope": "現在の機体系列の立位基準以後で確認したH01-H04とL00-L16の21回。全開発通算、学習完了21回、成功21回を意味しない。停止した学習と指定checkpoint評価はL14の同じ1回に含み、L16の色あり・色なし評価や動画追加、次回準備も別のループとして数えない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -463,6 +463,69 @@
       },
       "selected_evidence": "evidence/l15-evaluation.json",
       "comparison_scope": "One seed42 simulated rollout. Combined reward and training changes; no isolated causal attribution. Latest hardware mounting and color specification is for a future iteration."
+    },
+    {
+      "id": "L16",
+      "series_order": 21,
+      "title": "500更新、伏せと四足復帰1周期は成立、24.2秒で接触停止",
+      "kind": "TRAINING_AND_PRONE_JUMP_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-10T13:45:14.936679+00:00",
+        "kind": "colored_evaluation_completed",
+        "note": "Main training and the first evaluation completed earlier; color-only inference belongs to this same loop."
+      },
+      "change": "搭載部の配置・取付形状を更新し、伏せと低いジャンプを同じ技能周期で学習。L15方策の既存入力重みを継承し、技能入力を追加、critic・optimizer・更新カウンタを新規初期化して500更新。",
+      "result": "500更新・最終model499を評価。40秒予定の24.2秒で、第2周期の伏せへの降下中に右前脚太ももの禁止接触で停止。第1周期の伏せと四足復帰は各2秒成立したが、追加の復帰高さ目標は未達。合格する離床・着地はなく、最大方位ずれ21.2555°・位置ずれ10.5869cm。2周期を完遂せず、120秒評価は未実施。",
+      "next_decision": "第22回はジャンプを外し、前足1本を手のように振る挨拶モーションへ進む予定。朝までGPUを使用し複数trialを行うユーザー希望を記録し、現在は未開始。当面500更新を基準とし、支持と重心、接触、姿勢復帰を検証する。後ろ足2本立ちは未実施。予定や追加評価を完了済み21回へ加算しない。",
+      "new_training_updates": 500,
+      "training": {
+        "status": "COMPLETED",
+        "completed_updates": 500,
+        "final_iteration": 499,
+        "evaluated_checkpoint": "model_499.pt",
+        "new_transitions": 4096000,
+        "ended_utc": "2026-09-10T13:38:34.073950+00:00",
+        "optimizer_states": 17,
+        "optimizer_steps_per_state": 10000,
+        "parent_loop_id": "L15",
+        "parent_checkpoint_updates": 500,
+        "additional_training_updates_for_evaluation": 0
+      },
+      "transitions": 4096000,
+      "final_iteration": 499,
+      "additional_training_updates_for_evaluation": 0,
+      "deterministic_evaluation_rollouts": 2,
+      "evaluation_duration_s": 24.2,
+      "planned_evaluation_duration_s": 40,
+      "requested_motion_supercycles": 2,
+      "completed_prone_hold_cycles": 1,
+      "prone_continuous_holds_s": [
+        2.0
+      ],
+      "four_foot_return_continuous_holds_s": [
+        2.0
+      ],
+      "registered_sampled_motion_criteria_passed": false,
+      "stationary_criteria_passed": false,
+      "jump_criteria_passed": false,
+      "forbidden_contact_samples": 3,
+      "terminal_contact_body": "FR_thigh_link",
+      "terminal_contact_partner": "not_identified_by_net_force_sensor",
+      "walking_acceptance": false,
+      "hardware_acceptance": false,
+      "long_evaluation": {
+        "status": "SKIPPED_FINAL_MOTION_CRITERIA_NOT_MET",
+        "planned_duration_s": 120.0,
+        "performed": false,
+        "completed_duration_s": null,
+        "criteria_passed": null,
+        "reason": "The required40-second two-supercycle motion and stationary criteria were not met."
+      },
+      "selected_evidence": "evidence/l16-evaluation.json",
+      "comparison_scope": "L15 and L16 differ in physical geometry and motion task; no direct improvement percentage. Two L16 inference evaluations use the same model499 and identical raw400Hz measurement SHA; color-only evaluation adds zero learning updates and zero development loops.",
+      "color_evaluation_raw_measurement_sha256": "6a03fced9cc1956c8139d02611c953cdd870a1a97ada979835af183aa0b5a4cc",
+      "same_raw_measurements_before_and_after_color": true
     }
   ],
   "visualization": {
@@ -494,7 +557,7 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": "次回の修正では2周期目の起立高さ・傾き、全区間の方位・XY位置保持と負荷余裕を検討する。当面500更新（新規開始の最終iteration499）。中央モバイルバッテリーと裏面セパレーター、取付枠および最新配色は次回仕様として記録し、追加CAD修正・新学習は開始しない。ジャンプと後ろ足2本立ちは未学習。",
+  "next": "第22回はジャンプを外し、前足1本を手のように振る挨拶モーションへ進む予定。朝までGPUを使用し複数trialを行うユーザー希望を記録し、現在は未開始。当面500更新を基準とし、支持と重心、接触、姿勢復帰を検証する。後ろ足2本立ちは未実施。予定や追加評価を完了済み21回へ加算しない。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
@@ -503,7 +566,7 @@
     "new_training_started_for_publication": false
   },
   "next_loop_specification": {
-    "status": "USER_DEFERRED_CORRECTIONS_TO_NEXT_ITERATION",
+    "status": "L17_GREETING_PLANNED_NOT_STARTED",
     "counted_as_completed_loop": false,
     "training_started": false,
     "cad_changes_completed": false,
@@ -522,10 +585,17 @@
       "imu_color": "red",
       "imu_location": "under the lower plate"
     },
-    "individual_pla_part_mass": "Existing 79-part CAD-solid estimates retained as historical values. Newly specified mounts have no finalized part masses or measured print weights.",
+    "individual_pla_part_mass": "The79-part CAD-solid table remains a historical model estimate; it is not the total for the revised L16 hardware. Printed part weights remain unmeasured.",
     "references": [
       "docs/next-loop-spec.md",
       "docs/pla-parts-mass.md"
-    ]
+    ],
+    "completed_l16_scope": "Updated mounting geometry and specified colors were used by the L16 simulation. Final colored native CAD archive saving is a separate unfinished step.",
+    "planned_loop_id": "L17",
+    "planned_series_order": 22,
+    "motion": "single_foreleg_greeting_wave",
+    "jump_training_planned": false,
+    "multiple_trials_requested": true,
+    "gpu_use_authorized_until": "morning"
   }
 }

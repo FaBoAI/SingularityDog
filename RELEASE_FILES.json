@@ -101,5 +101,9 @@
   "docs/l15-evaluation.md",
   "evidence/l15-evaluation.json",
   "docs/media/l15-model499-stationary-prone.mp4",
-  "docs/media/l15-model499-stationary-prone.gif"
+  "docs/media/l15-model499-stationary-prone.gif",
+  "docs/l16-evaluation.md",
+  "evidence/l16-evaluation.json",
+  "docs/media/l16-model499-prone-jump.mp4",
+  "docs/media/l16-model499-prone-jump.gif"
 ]

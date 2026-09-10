@@ -1,0 +1,302 @@
+{
+  "schema": "singularitydog.selected-motion-evaluation.v1",
+  "id": "L16",
+  "series_order": 21,
+  "motion": "prone_hold_four_foot_return_and_low_vertical_jump",
+  "status": "TRAINING_COMPLETED_24_2S_FIRST_TERMINAL_EVALUATION_CRITERIA_NOT_MET",
+  "training": {
+    "status": "COMPLETED",
+    "completed_updates": 500,
+    "final_iteration": 499,
+    "evaluated_checkpoint": "model_499.pt",
+    "new_transitions": 4096000,
+    "ended_utc": "2026-09-10T13:38:34.073950+00:00",
+    "optimizer_states": 17,
+    "optimizer_steps_per_state": 10000,
+    "parent_loop_id": "L15",
+    "parent_checkpoint_updates": 500,
+    "parent_actor_input_dimension": 87,
+    "inheritance": "Parent action-mean first87 input columns retained;2 appended skill input columns zero initialized. Remaining mean MLP weights copied. Critic, exploration standard deviation, optimizer and update counter initialized anew.",
+    "initial_exploration_standard_deviation": 0.25,
+    "disposable_smoke_updates": 2,
+    "smoke_updates_inherited_by_main_training": false,
+    "additional_training_updates_for_evaluation": 0,
+    "skill_lane_steps": {
+      "prone": 2443327,
+      "jump": 1652673
+    },
+    "reset_skill_selection": "Equal-probability prone or jump controller-clock start; physical initial pose remains standing.",
+    "initial_preparation_failure": {
+      "main_updates": 0,
+      "reason": "Initial PD-gain revision rejected by the preserved actuator guard before training; the executed revision retained KP8/KD0.25."
+    }
+  },
+  "changes": {
+    "physical_model": "D16 revised equipment layout and self-designed mounts; component mass, center of mass and inertia updated.",
+    "physical_model_changed": true,
+    "total_model_mass_kg": 8.196540076337072,
+    "mass_assumptions": {
+      "separator_kg": 0.025,
+      "tape_kg": 0.001,
+      "measured": false,
+      "status": "USER_ACCEPTED_PROVISIONAL_BUDGET"
+    },
+    "leg_joint_structure_and_prone_skid_retained": true,
+    "actor_input_dimension": 89,
+    "first87_actor_input_semantics_preserved": true,
+    "appended_actor_inputs": "two scheduled skill identifiers",
+    "critic_input_dimension": 122,
+    "privileged_world_position_and_contact_inputs_in_actor": false,
+    "controller": "Combined12-second prone/return and8-second jump reference; position control and learned residuals.",
+    "drive_gains": {
+      "kp": 8.0,
+      "kd": 0.25,
+      "existing_guards_retained": true
+    },
+    "reward_changes": [
+      "joint prone/jump learning with measured takeoff and recovery rewards",
+      "stronger return height and tilt targets",
+      "episode heading and XY retention"
+    ],
+    "external_force_or_state_overwrite_used_to_create_jump": false,
+    "comparison_scope": "D16 physics, task, references and training changed together. Not an isolated comparison with L15."
+  },
+  "evaluation": {
+    "status": "FIRST_TERMINAL_STOP",
+    "ended_utc": "2026-09-10T13:41:35.531159+00:00",
+    "colored_evaluation_ended_utc": "2026-09-10T13:45:14.936679+00:00",
+    "seed": 42,
+    "environments": 1,
+    "planned_duration_s": 40.0,
+    "duration_s": 24.2,
+    "requested_policy_steps": 2000,
+    "policy_steps": 1210,
+    "physics_samples": 9680,
+    "physics_hz": 400,
+    "prone_skill_duration_s": 12.0,
+    "jump_skill_duration_s": 8.0,
+    "supercycle_duration_s": 20.0,
+    "planned_supercycles": 2,
+    "initial_skill": "prone",
+    "base_motion_criteria_passed": false,
+    "stationary_criteria_passed": false,
+    "skill_acceptance": false,
+    "base_gates": {
+      "requested_interval_completed": false,
+      "no_forbidden_contact_samples": false,
+      "actual_joint_speed_within_limit": true,
+      "all_prone_holds": false,
+      "all_jump_and_landings": false,
+      "exposure_continuous_between_skills": true,
+      "exposure_within_bounds": true,
+      "peak_torque_within_bound": true
+    },
+    "stationary_gates": {
+      "maximum_heading_change": false,
+      "maximum_xy_distance": false,
+      "return_hold_tilt": true,
+      "return_hold_height": false
+    }
+  },
+  "hold_criteria": {
+    "required_continuous_s": 2.0,
+    "required_continuous_samples": 800,
+    "prone_support_vertical_load_fraction_min": 0.5,
+    "prone_height_error_limit_m": 0.02,
+    "original_standing_height_error_limit_m": 0.025,
+    "original_hold_tilt_limit_deg": 10.0,
+    "duration_method": "Consecutive qualifying400Hz sample bins multiplied by0.0025s; no rounding to the target."
+  },
+  "stationary_targets": {
+    "maximum_heading_change_deg": 5.0,
+    "maximum_xy_distance_m": 0.05,
+    "return_hold_maximum_tilt_deg": 5.0,
+    "return_hold_maximum_height_error_m": 0.015
+  },
+  "cycles": [
+    {
+      "cycle_number": 1,
+      "prone": {
+        "passed": true,
+        "qualifying_continuous_samples": 800,
+        "qualifying_continuous_s": 2.0
+      },
+      "four_foot_return": {
+        "passed_original_hold_criteria": true,
+        "qualifying_continuous_samples": 800,
+        "qualifying_continuous_s": 2.0,
+        "passed_additional_height_target": false,
+        "passed_additional_tilt_target": true
+      }
+    }
+  ],
+  "second_prone_occurrence": {
+    "status": "TERMINATED_DURING_LOWERING_BEFORE_HOLD",
+    "return_improvement_verified": false
+  },
+  "jump_criteria": {
+    "prelaunch_four_foot_support_s": 0.1,
+    "all_feet_unloaded_force_max_N": 0.5,
+    "minimum_all_feet_clearance_m": 0.005,
+    "minimum_continuous_airtime_s": 0.04,
+    "minimum_base_rise_m": 0.02,
+    "minimum_whole_com_rise_m": 0.02,
+    "minimum_upward_com_speed_m_s": 0.1,
+    "stable_four_foot_recovery_s": 2.0,
+    "recovery_height_error_limit_m": 0.025,
+    "recovery_tilt_limit_deg": 10.0,
+    "recovery_linear_speed_limit_m_s": 0.1,
+    "recovery_angular_speed_limit_rad_s": 0.35
+  },
+  "jump_cycles": [
+    {
+      "attempt_number": 1,
+      "prelaunch_support_baseline_valid": true,
+      "qualified_flight": false,
+      "qualifying_flight_intervals": 0,
+      "landing_after_qualified_flight_verified": false,
+      "qualifying_recovery_continuous_s": 0.0,
+      "passed": false,
+      "thrust_and_flight_command_samples": 400,
+      "all_four_feet_unloaded_samples": 0,
+      "all_four_feet_clearance_at_least5mm_samples": 0,
+      "maximum_of_minimum_foot_clearance_m": 1.085922122001648e-06
+    }
+  ],
+  "whole_interval_measurements": {
+    "reference": "First recorded post-physics sample, fixed throughout the episode. Terminal framework reset excluded from measurements.",
+    "maximum_absolute_unwrapped_heading_change_deg": 21.255468059243658,
+    "final_unwrapped_heading_change_deg": -21.255468059243658,
+    "maximum_xy_distance_m": 0.10586887838608593,
+    "final_xy_distance_m": 0.10586887838608593,
+    "forbidden_contact_samples": 3,
+    "maximum_nonfoot_force_N": 28.48412132263209,
+    "overspeed_joint_samples": 0,
+    "maximum_actual_joint_speed_rad_s": 9.218592643737793,
+    "maximum_recorded_applied_effort_Nm": 5.5,
+    "maximum_exposure_h": 0.9999999999991521,
+    "exposure_interpretation": "Model indicator, not measured motor temperature."
+  },
+  "terminal_contact": {
+    "body": "FR_thigh_link",
+    "description": "right-front thigh",
+    "occurrence": "second prone lowering",
+    "counterpart": null,
+    "counterpart_verified": false,
+    "floor_contact_proven": false,
+    "samples": [
+      {
+        "zero_based_sample": 9675,
+        "time_s": 24.190000534057617,
+        "body_force_N": 19.286075592041016
+      },
+      {
+        "zero_based_sample": 9676,
+        "time_s": 24.192501068115234,
+        "body_force_N": 28.484121322631836
+      },
+      {
+        "zero_based_sample": 9679,
+        "time_s": 24.200000762939453,
+        "body_force_N": 12.798140525817871
+      }
+    ],
+    "interpretation": "Per-body net contact forces identify the right-front thigh, not the contacted object. Three samples are not claimed to be a continuous interval."
+  },
+  "training_observations_separate_from_evaluation": {
+    "episode_terminations": 2667,
+    "maximum_actual_joint_speed_rad_s": 11.100275039672852,
+    "overspeed_joint_samples": 25,
+    "scope": "Training-wide aggregates, separate from the final one-environment evaluation."
+  },
+  "long_evaluation": {
+    "status": "SKIPPED_FINAL_MOTION_CRITERIA_NOT_MET",
+    "planned_duration_s": 120.0,
+    "performed": false,
+    "completed_duration_s": null,
+    "criteria_passed": null,
+    "reason": "The required40-second two-supercycle motion and stationary criteria were not met."
+  },
+  "job": {
+    "status": "COMPLETED",
+    "ended_utc": "2026-09-10T13:41:38.589445+00:00",
+    "motion_acceptance": false,
+    "automatic_retry": false
+  },
+  "appearance_evaluation": {
+    "status": "PASS_ALL_D16_VISUAL_COLORS_AND_PHYSICAL_INVARIANCE",
+    "additional_training_updates": 0,
+    "visual_count": 660,
+    "existing_eye_visuals": 2,
+    "new_robot_prims": 0,
+    "all_nonmaterial_properties_unchanged": true,
+    "all_material_purposes_resolved": true,
+    "protected_signature_before": "a98f76e3134eac3c69493c8f287ef3e51ee6322ef25cd087747114e8000f8602",
+    "protected_signature_after": "a98f76e3134eac3c69493c8f287ef3e51ee6322ef25cd087747114e8000f8602",
+    "plain_and_colored_measurement_arrays_identical_sha256": true,
+    "palette": "yellow legs/handle/clamps/faceframe; white floor; black carbon/motors/footballs; red IMU placeholder; black face with existing white eyes",
+    "scope": "Explicit material binding for evaluation; not a performance change or final CAD archive."
+  },
+  "video": {
+    "path": "docs/media/l16-model499-prone-jump.mp4",
+    "gif_path": "docs/media/l16-model499-prone-jump.gif",
+    "bytes": 1225281,
+    "sha256": "e491fdfa1c60427773060884714ea552d98991d71e47afc8e42b87fe5a73a135",
+    "duration_s": 24.2,
+    "fps": 50,
+    "frames": 1210,
+    "width": 960,
+    "height": 720,
+    "publication_form": "unchanged original colored evaluation MP4",
+    "terminal_frame_note": "The final frame may show the automatic reset; post-reset standing is not evidence of a successful return."
+  },
+  "design_status": {
+    "final_colored_fusion_archive_saved": false,
+    "final_colored_step_saved": false,
+    "printed_part_strength_verified": false,
+    "recovery_handle_load_validated": false,
+    "hardware_motion_validated": false,
+    "scope": "Simulation model completion and material binding do not establish print or hardware readiness."
+  },
+  "next_step": {
+    "default_new_training_updates": 500,
+    "new_training_started": false,
+    "priorities": [
+      "identify the right-front thigh contact counterpart and lowering trajectory",
+      "validate stable three-foot support during one-front-paw greeting and four-foot recovery",
+      "retain prone/return height, heading, position and drive-bound checks"
+    ],
+    "unconfirmed_hypothesis": "Exposure accumulated during prone/return may reduce takeoff torque margin; not established as the cause.",
+    "hind_leg_stand_trained": false,
+    "planned_loop_id": "L17",
+    "planned_series_order": 22,
+    "planned_motion": "single_front_paw_greeting_wave_replacing_jump",
+    "plan_status": "NOT_STARTED",
+    "commit_current_results_before_new_training": true,
+    "overnight_gpu_use_and_multiple_trials_requested": true,
+    "deferred_jump_diagnostics": [
+      "per-joint exposure and requested/applied torque clipping around takeoff",
+      "four-foot takeoff timing, posture and possible load-recovery interval"
+    ]
+  },
+  "provenance": {
+    "parent_checkpoint_sha256": "5c74a1ad419052b958b909c8239f5467b1c1ebd64b7c8591ae2949ac400e0889",
+    "evaluated_checkpoint_sha256": "ce2b3e2a4fcf0c426456b4e171487f66ec37784e0027186f1632e0edebc2617b",
+    "training_completion_sha256": "1343a539e8fa2cec54928fe2157adefc24d8994ed55a65ab436a057d8a537160",
+    "plain_evaluation_summary_sha256": "fe68b39af42050fc45c68440562bfc27aa6b21b86f392eb7c3f593d893e4aac1",
+    "colored_evaluation_summary_sha256": "7c5064541b386bf38ecf1f6d74ecaa10f88d0ac547485557eadb3b3056e733ff",
+    "actual_measurement_array_sha256": "6a03fced9cc1956c8139d02611c953cdd870a1a97ada979835af183aa0b5a4cc",
+    "summary_implementation_sha256": "e6d8fef417d0ae1cfb245843e960ec531058397b0eb0f031bdbafff708dcd0cb",
+    "selected_terminal_contact_analysis_sha256": "12c7e8c2adbd780a7a2d3c8daea716697c84a16b65166845dc2fe161c2c50fb1",
+    "visual_style_audit_sha256": "5c60ba6aab41d72d3f40cb732c5d3ff21d4aae1a53e375c6f5b2799a21af8b83"
+  },
+  "limitations": [
+    "One deterministic seed42 simulation episode; planned40seconds stopped at24.2seconds.",
+    "Second prone hold and second return were not reached. No120-second test or hardware validation.",
+    "L15 and L16 use different physical models and motion tasks; no isolated improvement rate or causal attribution.",
+    "Per-body net contact force does not identify the contact counterpart.",
+    "Separator and tape masses are provisional, not measured. Final Fusion color archives and strength validation remain incomplete.",
+    "Provenance hashes are traceability handles; private experiment inputs are not included and the public package is not a complete reproduction bundle."
+  ],
+  "publication_scope": "Newly written report and explicitly selected self-produced measurements and designated evaluation media. No private paths, user identifiers, connection data, raw logs, weights, editable CAD, manufacturer files, supplied photographs or photograph derivatives."
+}

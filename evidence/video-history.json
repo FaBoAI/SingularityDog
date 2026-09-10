@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
   "as_of": "2026-09-10",
-  "recent_series_count": 20,
+  "recent_series_count": 21,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -625,14 +625,78 @@
       "preview_frames": 241,
       "preview_duration_ms": 24000,
       "preview_timing": "Every fifth source frame plus final source frame; 239 delays of 100ms, then 80ms and 20ms. Full 24-second duration, no crop or speed change."
+    },
+    {
+      "id": "L16",
+      "original": "docs/media/l16-model499-prone-jump.mp4",
+      "preview": "docs/media/l16-model499-prone-jump.gif",
+      "date": "2026-09-10",
+      "date_kind": "colored_evaluation_completed",
+      "kind": "FINAL_CHECKPOINT_PRONE_JUMP_COLORED_EVALUATION",
+      "loop": "L16",
+      "series_order": 21,
+      "frames": 1210,
+      "fps": 50,
+      "duration_s": 24.2,
+      "planned_duration_s": 40,
+      "source_sha256": "e491fdfa1c60427773060884714ea552d98991d71e47afc8e42b87fe5a73a135",
+      "saved_iteration": 499,
+      "new_training_updates": 500,
+      "selected_checkpoint_training_updates": 500,
+      "selected_checkpoint_training_transitions": 4096000,
+      "additional_training_updates_for_evaluation": 0,
+      "registered_sampled_motion_criteria_passed": false,
+      "stationary_criteria_passed": false,
+      "jump_criteria_passed": false,
+      "completed_prone_hold_cycles": 1,
+      "prone_continuous_holds_s": [
+        2.0
+      ],
+      "four_foot_return_continuous_holds_s": [
+        2.0
+      ],
+      "evaluation_forbidden_contact_samples": 3,
+      "evaluation_overspeed_joint_samples": 0,
+      "maximum_heading_change_deg": 21.255468059243658,
+      "final_heading_change_deg": -21.255468059243658,
+      "maximum_root_xy_distance_m": 0.10586887838608593,
+      "final_root_xy_distance_m": 0.10586887838608593,
+      "maximum_exposure_h": 0.9999999999991521,
+      "long_evaluation": {
+        "status": "SKIPPED_FINAL_MOTION_CRITERIA_NOT_MET",
+        "planned_duration_s": 120.0,
+        "performed": false,
+        "completed_duration_s": null,
+        "criteria_passed": null,
+        "reason": "The required40-second two-supercycle motion and stationary criteria were not met."
+      },
+      "result": "500更新・最終model499を評価。40秒予定の24.2秒で、第2周期の伏せへの降下中に右前脚太ももの禁止接触で停止。第1周期の伏せと四足復帰は各2秒成立したが、追加の復帰高さ目標は未達。合格する離床・着地はなく、最大方位ずれ21.2555°・位置ずれ10.5869cm。2周期を完遂せず、120秒評価は未実施。",
+      "walking_acceptance": false,
+      "hardware_acceptance": false,
+      "comparison_scope": "L15 and L16 differ in physical geometry and motion task; no direct improvement percentage. Two L16 inference evaluations use the same model499 and identical raw400Hz measurement SHA; color-only evaluation adds zero learning updates and zero development loops.",
+      "same_raw_measurements_before_and_after_color": true,
+      "raw_measurement_sha256": "6a03fced9cc1956c8139d02611c953cdd870a1a97ada979835af183aa0b5a4cc",
+      "limitations": "One24.2s observed interval, interrupted during the second prone descent. Net-force sensor does not identify the contact partner. Numeric criteria use pre-reset400Hz records; the final frame may show an automatic reset. Final native CAD color archive saving is a separate step."
     }
   ],
-  "count_scope": "H01-H04 and L00-L15 are 20 development loops, not 20 successful improvements. The 22 selected actual simulation/comparison recordings document existing loops; checkpoint selection, GIFs and evaluation-only execution add zero loops. The CAD image and redrawn measurement chart are separate.",
+  "count_scope": "H01-H04 and L00-L16 are21 development loops, not21 successful improvements. The23 selected actual simulation/comparison recordings document existing loops; color-only evaluations, checkpoint selection and GIFs add zero loops. The CAD image and redrawn measurement chart are separate.",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
     "effective_date": "2026-09-10",
     "existing_frozen_1000_update_plan_rewritten": false,
     "new_training_started_for_publication": false
+  },
+  "next_motion_plan": {
+    "id": "L17",
+    "series_order": 22,
+    "status": "PLANNED_NOT_STARTED",
+    "motion": "single_foreleg_greeting_wave",
+    "jump_training_planned": false,
+    "multiple_trials_requested": true,
+    "gpu_use_authorized_until": "morning",
+    "training_started": false,
+    "counted_as_completed_loop": false,
+    "default_new_training_updates": 500
   }
 }

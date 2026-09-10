@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
   "updated": "2026-09-10",
-  "numbering_scope": "直近20回（H01〜H04＋L00〜L15）のうち後半L00〜L15の16件を表示。有限試行を1回と数え、同じ学習のcheckpoint違い・追加動画・次回準備は加算しない。",
+  "numbering_scope": "直近21回（H01〜H04＋L00〜L16）のうち後半L00〜L16の17件を表示。有限試行を1回と数え、同じ学習のcheckpoint違い・配色評価・追加動画・次回準備は加算しない。",
   "loops": [
     {
       "id": "L00",
@@ -342,12 +342,50 @@
       "maximum_xy_distance_m": 0.06934374044978185,
       "second_return_hold_s": 1.9375,
       "long_evaluation": "SKIPPED_FINAL_STATIONARY_CRITERIA_NOT_MET"
+    },
+    {
+      "id": "L16",
+      "order": 16,
+      "series_order": 21,
+      "title": "500更新、伏せと四足復帰1周期は成立、24.2秒で接触停止",
+      "state": "EVALUATED",
+      "change": "搭載部の配置・取付形状を更新し、伏せと低いジャンプを同じ技能周期で学習。L15方策の既存入力重みを継承し、技能入力を追加、critic・optimizer・更新カウンタを新規初期化して500更新。",
+      "result": "500更新・最終model499を評価。40秒予定の24.2秒で、第2周期の伏せへの降下中に右前脚太ももの禁止接触で停止。第1周期の伏せと四足復帰は各2秒成立したが、追加の復帰高さ目標は未達。合格する離床・着地はなく、最大方位ずれ21.2555°・位置ずれ10.5869cm。2周期を完遂せず、120秒評価は未実施。",
+      "comparison_scope": "L15 and L16 differ in physical geometry and motion task; no direct improvement percentage. Two L16 inference evaluations use the same model499 and identical raw400Hz measurement SHA; color-only evaluation adds zero learning updates and zero development loops.",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video": null,
+      "video_available_privately": true,
+      "video_url": "media/l16-model499-prone-jump.mp4",
+      "confirmed_completed_updates": 500,
+      "final_iteration": 499,
+      "evaluated_checkpoint_updates": 500,
+      "parent_checkpoint_updates": 500,
+      "additional_training_updates_for_evaluation": 0,
+      "training_plan_completed": true,
+      "training_completed_utc": "2026-09-10T13:38:34.073950+00:00",
+      "evaluation_completed_utc": "2026-09-10T13:45:14.936679+00:00",
+      "original_evaluation_completed_utc": "2026-09-10T13:41:35.531159+00:00",
+      "completed_utc": "2026-09-10T13:45:14.936679+00:00",
+      "completion_time_kind": "colored_evaluation_completed",
+      "completed_prone_hold_cycles": 1,
+      "planned_duration_s": 40,
+      "recorded_duration_s": 24.2,
+      "requested_interval_completed": false,
+      "motion_acceptance": false,
+      "jump_acceptance": false,
+      "maximum_heading_change_deg": 21.255468059243658,
+      "maximum_xy_distance_m": 0.10586887838608593,
+      "terminal_contact_body": "FR_thigh_link",
+      "forbidden_contact_sample_count": 3,
+      "long_evaluation": "SKIPPED_FINAL_MOTION_CRITERIA_NOT_MET",
+      "planned_long_evaluation_duration_s": 120
     }
   ],
   "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。",
   "target_actual_forward_m_s": 0.4,
-  "verified_recent_series_count": 20,
-  "latest_loop_id": "L15",
+  "verified_recent_series_count": 21,
+  "latest_loop_id": "L16",
   "comparison_cases": [
     {
       "id": "L09-matched-L10",
@@ -380,7 +418,7 @@
       "video_url": "media/l12-matched-l11-six-directions.mp4"
     }
   ],
-  "default_comparison_before": "L14",
+  "default_comparison_before": "L15",
   "latest_cases": [
     {
       "direction": "forward",
@@ -450,8 +488,20 @@
     }
   ],
   "latest_locomotion_loop_id": "L13",
-  "latest_cases_scope": "L13 six-direction locomotion, separate from the latest L15 stationary prone/stand skill",
+  "latest_cases_scope": "L13 six-direction locomotion, separate from the latest L16 prone/jump skill",
   "future_training_updates": 500,
   "latest_locomotion_development_targets_met_case_count": 6,
-  "latest_locomotion_evaluation_case_count": 6
+  "latest_locomotion_evaluation_case_count": 6,
+  "next_loop": {
+    "id": "L17",
+    "series_order": 22,
+    "status": "PLANNED_NOT_STARTED",
+    "motion": "single_foreleg_greeting_wave",
+    "jump_training_planned": false,
+    "multiple_trials_requested": true,
+    "gpu_use_authorized_until": "morning",
+    "training_started": false,
+    "counted_as_completed_loop": false,
+    "default_new_training_updates": 500
+  }
 }
