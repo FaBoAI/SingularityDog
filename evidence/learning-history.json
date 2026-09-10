@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
   "as_of": "2026-09-10",
-  "verified_recent_series_count": 16,
+  "verified_recent_series_count": 17,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同variantの複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列の立位基準以後で確認した直近16回。全開発通算ではなく、16回の成功を意味しない。",
+  "scope": "現在の機体系列の立位基準以後で確認した直近17回。全開発通算や成功17回を意味しない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -303,6 +303,27 @@
       "walking_acceptance": false,
       "comparison_scope": "Same L11 controller, physical model, command44cm/s and recorded initial physical/drive state for parent and final. Whole500-update training bundle comparison; no attribution to an isolated reward or curriculum change. Original L10 forward32.1595cm/s used command36cm/s.",
       "own_report_sha256": "df6803fdf2eab5dd2d7249f813f50151bcaf6d9d8b822455de7a75c75d0b8a12"
+    },
+    {
+      "id": "L12",
+      "series_order": 17,
+      "title": "500更新、前進は11.14秒で接触終了、1/6方向達成",
+      "kind": "LEARNING_AND_FINITE_CONTROLLER_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-09T23:35:04.782039Z",
+        "kind": "reported_job_end_including_evaluation",
+        "note": "Bounded run end includes evaluation. Local media/metric checks performed on2026-09-10 JST."
+      },
+      "change": "hip残差縮小とIMU方位基準の速度報酬・旋回位置保持報酬、指令配分を変更して500更新。",
+      "result": "前進38.70cm/sは11.14秒の平均、非足接触で終了。ほか5方向は12秒完走、右移動のみ全基準達成。左の漂流・滑りと左旋回位置は改善したが速度未達。",
+      "next_decision": "第18回で投影後関節余裕、長時間指令保持、探索と報酬、新形状・取手・IMU配置を検討し1000更新を準備。新しい学習は未開始。",
+      "gpu_evaluation_cases": 15,
+      "new_training_updates": 500,
+      "transitions": 4096000,
+      "walking_acceptance": false,
+      "comparison_scope": "Same L12 controller/physical model/44cm/s forward command and exact initial physical/drive state. Forward final ends11.14s versus parent12s; its38.6958cm/s is observed-interval average, not12s performance. Original L11 is a separate controller condition.",
+      "own_report_sha256": "6b24e4ec39f81b8e8fd8f7088d0ef18d9ac5c7bd25e02d03ddb5350caabaaaa8"
     }
   ],
   "visualization": {
@@ -334,5 +355,5 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": "前進40cm/sを維持し、左移動の速度・向き・滑り、旋回の位置保持、右移動の横流れ、前進の床離隔と残差飽和を改善する。第17回は未実施。"
+  "next": "第18回で投影後関節余裕、長時間指令保持、探索と報酬、新形状・取手・IMU配置を検討し1000更新を準備。新しい学習は未開始。"
 }

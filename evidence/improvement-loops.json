@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
   "updated": "2026-09-10",
-  "numbering_scope": "直近16回（H01〜H04＋L00〜L11）のうち後半L00〜L11の12件を表示する部分台帳。全16回の順序はlearning-history.jsonで管理。各有限学習・評価を1回とし、比較・preflight評価ケースを別の改善回数に数えない。",
+  "numbering_scope": "直近17回（H01〜H04＋L00〜L12）のうち後半L00〜L12の13件を表示。各有限試行を1回と数え、追加の比較/動画/第18回準備は加算しない。",
   "loops": [
     {
       "id": "L00",
@@ -228,13 +228,39 @@
       "completed_utc": "2026-09-09T13:36:26.016736Z",
       "completion_time_kind": "reported_job_end_including_evaluation",
       "own_result_sha256": "df6803fdf2eab5dd2d7249f813f50151bcaf6d9d8b822455de7a75c75d0b8a12"
+    },
+    {
+      "id": "L12",
+      "order": 12,
+      "series_order": 17,
+      "title": "500更新、前進は11.14秒で接触終了、1/6方向達成",
+      "state": "EVALUATED",
+      "change": "hip残差縮小とIMU方位基準の速度報酬・旋回位置保持報酬、指令配分を変更して500更新。",
+      "result": "前進38.70cm/sは11.14秒の平均、非足接触で終了。ほか5方向は12秒完走、右移動のみ全基準達成。左の漂流・滑りと左旋回位置は改善したが速度未達。",
+      "comparison_scope": "Same L12 controller/physical model/44cm/s forward command and exact initial physical/drive state. Forward final ends11.14s versus parent12s; its38.6958cm/s is observed-interval average, not12s performance. Original L11 is a separate controller condition.",
+      "forward_speed_m_s": 0.38695810513179646,
+      "forward_observed_duration_s": 11.14,
+      "forward_completed_interval": false,
+      "lift15_counts": [
+        18,
+        18,
+        18,
+        18
+      ],
+      "video": null,
+      "video_available_privately": true,
+      "video_url": "media/l12-six-directions.mp4",
+      "confirmed_completed_updates": 500,
+      "completed_utc": "2026-09-09T23:35:04.782039Z",
+      "completion_time_kind": "reported_job_end_including_evaluation",
+      "own_result_sha256": "6b24e4ec39f81b8e8fd8f7088d0ef18d9ac5c7bd25e02d03ddb5350caabaaaa8"
     }
   ],
   "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。",
   "target_actual_forward_m_s": 0.4,
-  "verified_recent_series_count": 16,
-  "latest_loop_id": "L11",
-  "latest_development_targets_met_case_count": 3,
+  "verified_recent_series_count": 17,
+  "latest_loop_id": "L12",
+  "latest_development_targets_met_case_count": 1,
   "latest_evaluation_case_count": 6,
   "comparison_cases": [
     {
@@ -256,62 +282,84 @@
       "comparison_scope": "Same L11 controller, physical model, command44cm/s and recorded initial physical/drive state for parent and final. Whole500-update training bundle comparison; no attribution to an isolated reward or curriculum change. Original L10 forward32.1595cm/s used command36cm/s.",
       "forward_speed_m_s": 0.3575550317764282,
       "video_url": "media/l11-matched-l10-six-directions.mp4"
+    },
+    {
+      "id": "L11-matched-L12",
+      "title": "L11親・L12と同じ制御/初期化",
+      "state": "EVALUATED",
+      "change": "L11方策をL12 hip0.27制御で6方向評価。新学習0。",
+      "result": "前進41.6901cm/s・12秒完走。今回の前進11.14秒とは区間長が異なる。",
+      "comparison_scope": "Same L12 controller/physical model/44cm/s forward command and exact initial physical/drive state. Forward final ends11.14s versus parent12s; its38.6958cm/s is observed-interval average, not12s performance. Original L11 is a separate controller condition.",
+      "forward_speed_m_s": 0.4169007937113445,
+      "video_url": "media/l12-matched-l11-six-directions.mp4"
     }
   ],
-  "default_comparison_before": "L10-matched-L11",
+  "default_comparison_before": "L11-matched-L12",
   "latest_cases": [
     {
       "direction": "forward",
       "label": "前進",
-      "speed_cm_s": 42.01791683832805,
+      "duration_s": 11.14,
+      "completed_interval": false,
+      "speed_cm_s": 38.695810513179644,
       "signed_mean_yaw_rate_rad_s": null,
-      "yaw_end_deg": 1.9514865267894077,
-      "max_planar_excursion_m": 5.043231379344669,
-      "target_result": "全基準達成"
+      "yaw_end_deg": 3.472282801419091,
+      "max_planar_excursion_m": 4.315392062908564,
+      "target_result": "11.14秒で接触終了・速度未達"
     },
     {
       "direction": "backward",
       "label": "後進",
-      "speed_cm_s": 12.11887498696645,
+      "duration_s": 12.0,
+      "completed_interval": true,
+      "speed_cm_s": 8.367911974589031,
       "signed_mean_yaw_rate_rad_s": null,
-      "yaw_end_deg": -3.7468816651097088,
-      "max_planar_excursion_m": 1.46629714367325,
-      "target_result": "全基準達成"
+      "yaw_end_deg": 8.934871813380289,
+      "max_planar_excursion_m": 1.0483332143828539,
+      "target_result": "速度未達"
     },
     {
       "direction": "left",
       "label": "左移動",
-      "speed_cm_s": 6.942160924275716,
+      "duration_s": 12.0,
+      "completed_interval": true,
+      "speed_cm_s": 6.973659992218018,
       "signed_mean_yaw_rate_rad_s": null,
-      "yaw_end_deg": 29.551055284511303,
-      "max_planar_excursion_m": 0.9575678879739835,
-      "target_result": "速度・向き・滑り未達"
+      "yaw_end_deg": -21.33417856667965,
+      "max_planar_excursion_m": 0.8373397915865209,
+      "target_result": "速度・向き未達"
     },
     {
       "direction": "right",
       "label": "右移動",
-      "speed_cm_s": 11.509815851847332,
+      "duration_s": 12.0,
+      "completed_interval": true,
+      "speed_cm_s": 10.97068687280019,
       "signed_mean_yaw_rate_rad_s": null,
-      "yaw_end_deg": -6.371718625158349,
-      "max_planar_excursion_m": 1.5034681832522345,
+      "yaw_end_deg": -3.0594391135434753,
+      "max_planar_excursion_m": 1.3291793308880588,
       "target_result": "全基準達成"
     },
     {
       "direction": "turn_left",
       "label": "左旋回",
+      "duration_s": 12.0,
+      "completed_interval": true,
       "speed_cm_s": null,
-      "signed_mean_yaw_rate_rad_s": 0.21410952606644065,
-      "yaw_end_deg": 147.21086636584005,
-      "max_planar_excursion_m": 0.41486792592525995,
-      "target_result": "位置保持未達"
+      "signed_mean_yaw_rate_rad_s": 0.16708559770793383,
+      "yaw_end_deg": 114.87959479302418,
+      "max_planar_excursion_m": 0.11954232320634343,
+      "target_result": "速度未達"
     },
     {
       "direction": "turn_right",
       "label": "右旋回",
+      "duration_s": 12.0,
+      "completed_interval": true,
       "speed_cm_s": null,
-      "signed_mean_yaw_rate_rad_s": 0.26162466977417315,
-      "yaw_end_deg": -179.87987273476796,
-      "max_planar_excursion_m": 0.2477798631156559,
+      "signed_mean_yaw_rate_rad_s": 0.24200582318708294,
+      "yaw_end_deg": -166.39094743450906,
+      "max_planar_excursion_m": 0.21791847449130666,
       "target_result": "位置保持未達"
     }
   ]

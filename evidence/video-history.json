@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
   "as_of": "2026-09-10",
-  "recent_series_count": 16,
+  "recent_series_count": 17,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -355,6 +355,101 @@
       },
       "source_sha256": "63e19518b23fcb6028f800ed785e3197c35393f3571c747eaecaf9b681b5a13b",
       "own_result_report_sha256": "df6803fdf2eab5dd2d7249f813f50151bcaf6d9d8b822455de7a75c75d0b8a12"
+    },
+    {
+      "id": "L12",
+      "original": "docs/media/l12-six-directions.mp4",
+      "preview": "docs/media/l12-six-directions.gif",
+      "date": "2026-09-10",
+      "date_kind": "reported_job_end_including_evaluation",
+      "kind": "LEARNED_POLICY_EVALUATION",
+      "loop": "L12",
+      "series_order": 17,
+      "saved_iteration": 499,
+      "new_training_updates": 500,
+      "cohort": "final_L12_six_directions",
+      "frames": 600,
+      "fps": 50,
+      "duration_s": 12,
+      "observed_duration_s": {
+        "forward": 11.14,
+        "backward": 12.0,
+        "left": 12.0,
+        "right": 12.0,
+        "turn_left": 12.0,
+        "turn_right": 12.0
+      },
+      "directional_displacement_over_observed_interval_cm_s": {
+        "forward": 38.695810513179644,
+        "backward": 8.367911974589031,
+        "left": 6.973659992218018,
+        "right": 10.97068687280019
+      },
+      "directional_heading_change_deg": {
+        "forward": 3.472282801419091,
+        "backward": 8.934871813380289,
+        "left": -21.33417856667965,
+        "right": -3.0594391135434753,
+        "turn_left": 114.87959479302418,
+        "turn_right": -166.39094743450906
+      },
+      "turn_signed_mean_yaw_rate_rad_s": {
+        "turn_left": 0.16708559770793383,
+        "turn_right": 0.24200582318708294
+      },
+      "turn_max_planar_excursion_m": {
+        "turn_left": 0.11954232320634343,
+        "turn_right": 0.21791847449130666
+      },
+      "all_development_targets_met": false,
+      "walking_acceptance": false,
+      "result": "前進38.70cm/sは11.14秒の平均、非足接触で終了。ほか5方向は12秒完走、右移動のみ全基準達成。左の漂流・滑りと左旋回位置は改善したが速度未達。",
+      "comparison_scope": "Same L12 controller/physical model/44cm/s forward command and exact initial physical/drive state. Forward final ends11.14s versus parent12s; its38.6958cm/s is observed-interval average, not12s performance. Original L11 is a separate controller condition.",
+      "other_comparison_videos": [
+        "docs/media/l12-matched-l11-six-directions.mp4"
+      ],
+      "matched_parent_evaluation": {
+        "original": "docs/media/l12-matched-l11-six-directions.mp4",
+        "cohort": "L11_parent_with_L12_controller",
+        "new_training_updates": 0,
+        "saved_iteration": 499,
+        "frames": 600,
+        "fps": 50,
+        "duration_s": 12,
+        "observed_duration_s": {
+          "forward": 12.0,
+          "backward": 12.0,
+          "left": 12.0,
+          "right": 12.0,
+          "turn_left": 12.0,
+          "turn_right": 12.0
+        },
+        "directional_displacement_over_observed_interval_cm_s": {
+          "forward": 41.690079371134445,
+          "backward": 12.000127633412678,
+          "left": 7.7558899919192,
+          "right": 10.90708275636037
+        },
+        "directional_heading_change_deg": {
+          "forward": -0.2712466479576201,
+          "backward": -4.822473433653301,
+          "left": 21.253994360507168,
+          "right": -7.834563950623809,
+          "turn_left": 148.39471943776147,
+          "turn_right": -187.5941933618195
+        },
+        "turn_signed_mean_yaw_rate_rad_s": {
+          "turn_left": 0.21583137056351384,
+          "turn_right": 0.27284469431555336
+        },
+        "turn_max_planar_excursion_m": {
+          "turn_left": 0.3894589022580571,
+          "turn_right": 0.18531994199526647
+        },
+        "source_sha256": "0ab197872d4e48bb2cc1a70ba4a1152f9110ffb8c5483daf4732570a8b2235c7"
+      },
+      "source_sha256": "7f5a939f44a2f3d260d5a173bdcc99c94bac8c67c5057da20177d1f20b2c9be6",
+      "own_result_report_sha256": "6b24e4ec39f81b8e8fd8f7088d0ef18d9ac5c7bd25e02d03ddb5350caabaaaa8"
     }
   ]
 }

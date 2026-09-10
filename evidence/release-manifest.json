@@ -6,24 +6,24 @@
       "bytes": 1449
     },
     "README.md": {
-      "sha256": "b5d82ceda7e19d0cce71055ae196bfd85f93cbbe017680132a8d8940f8bf189f",
-      "bytes": 17880
+      "sha256": "446068b28a29afd5718420a3d950c1fcc48a61abd69e946191bf34c04f3518e7",
+      "bytes": 18407
     },
     "RELEASE_FILES.json": {
-      "sha256": "e9984bd2555cdafb2d339ba9f4deed7e4e4e78faa84c96e45bede84374d8c23b",
-      "bytes": 3121
+      "sha256": "0a9bf0ce23114eecda09b9665f9aefc49e65d30d9dbbb6c9f881391c71caae96",
+      "bytes": 3312
     },
     "docs/current-status.md": {
-      "sha256": "5bbc77c89fee18589e37922fb6ff2358e6612e22bf5b9872188078e514113c59",
-      "bytes": 13275
+      "sha256": "47f1ec3fedc3b651eaf3fc58c994afcb99a970aeed3f398ed7fa1a7296c3b1b0",
+      "bytes": 14162
     },
     "docs/decision-log.md": {
-      "sha256": "ca36eae6524cde431bc2bde20098f993aec933ce1b8ccd267bfb51445d0e4184",
-      "bytes": 11288
+      "sha256": "8e4827ed88dbe64c52e53c3d1ddef9ca7721c23868cf856ad22d5f5ba29e9570",
+      "bytes": 11912
     },
     "docs/improvement-loops.md": {
-      "sha256": "02356c52562719e0eba16c4f3a54a4f1d3857225f95fa8e1837a5c7d1fbf9b26",
-      "bytes": 8703
+      "sha256": "92e0740f6e0548a562f02001483f35dc65fedcdd5c41e8f78693c83ee2d17686",
+      "bytes": 8837
     },
     "docs/l06-evaluation.md": {
       "sha256": "6ff41f911bfa24f1e24b99426d1c7e1849b18a0d3d7d41535f2fb76bc88b2f60",
@@ -48,6 +48,10 @@
     "docs/l11-evaluation.md": {
       "sha256": "5cba37f4fe5caf05b40b30ec6274b786dcc0255700247f276067ea071ca12a15",
       "bytes": 9736
+    },
+    "docs/l12-evaluation.md": {
+      "sha256": "042f6ca24a4c4a9cbdb7b6a8b936bfb04e0467f15cfb97b1a035e059308d6d2e",
+      "bytes": 5271
     },
     "docs/media/archive-dev250-left.gif": {
       "sha256": "7f86fedef091ea506bcd0aeb6b5a9f2bc2192343bbef2c5f088d827a62275766",
@@ -181,33 +185,45 @@
       "sha256": "63e19518b23fcb6028f800ed785e3197c35393f3571c747eaecaf9b681b5a13b",
       "bytes": 18202167
     },
+    "docs/media/l12-matched-l11-six-directions.mp4": {
+      "sha256": "0ab197872d4e48bb2cc1a70ba4a1152f9110ffb8c5483daf4732570a8b2235c7",
+      "bytes": 18121782
+    },
+    "docs/media/l12-six-directions.gif": {
+      "sha256": "952c712764ec16f01db5231f3cf591c573969d8299aa0ec0aa30e9acdb764179",
+      "bytes": 19641844
+    },
+    "docs/media/l12-six-directions.mp4": {
+      "sha256": "7f5a939f44a2f3d260d5a173bdcc99c94bac8c67c5057da20177d1f20b2c9be6",
+      "bytes": 17821517
+    },
     "docs/media/render-receipt.json": {
       "sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7",
       "bytes": 3029
     },
     "docs/progress.html": {
-      "sha256": "b40da4eff0ddb893b62af819c119a31541546a24ee422aac766cc6daabb85f78",
-      "bytes": 23785
+      "sha256": "6c00e525c64851fba7ba49c84c6bac704986a75e5f0b44b8eed5be7e068e6505",
+      "bytes": 26032
     },
     "docs/publication-scope.md": {
-      "sha256": "256f010f74533dd2856e1a8b9eccdf76a1f41778dbd1a7bd668258584940d524",
-      "bytes": 7538
+      "sha256": "d8661f46b580d9fd807beabf3391d3a6e3b33e90542fea7f57d7127b4aebfe40",
+      "bytes": 8528
     },
     "docs/toolkit.md": {
       "sha256": "a26728aced4bd856e48259f4ffbc237cfad072e7f04b64e13be91fce65d25055",
       "bytes": 3903
     },
     "docs/video-history.md": {
-      "sha256": "ad84fbe5198048cbda59eb7ddba1c0a01706cf3210f24bb4e87a5c775507dd8d",
-      "bytes": 11145
+      "sha256": "1272e05d21dc44f04df81a956a34bfdf442b968eab3f172171ef96d072c0a716",
+      "bytes": 11883
     },
     "evidence/forward-motion.json": {
       "sha256": "c07344e1195e9f1c6028fb020b1628139dbc884ecbe86fe4c9af2e38e3f37e78",
       "bytes": 119546
     },
     "evidence/improvement-loops.json": {
-      "sha256": "e0fe043c8d51056ebba9437f5a19f1b9bda5e0cb7b952de75d7c41e86fb1bd0f",
-      "bytes": 14659
+      "sha256": "aa9c6a51cdf61b42ba537f53dff65415deab3838d578bbd5018ec9454a82ae90",
+      "bytes": 17059
     },
     "evidence/l06-evaluation.json": {
       "sha256": "2ac7c4714786aefe14e63373b6edd7e80fe5a64d8b9d9ca34956c0c6ffaf572d",
@@ -233,25 +249,29 @@
       "sha256": "3fe0c8cba8024f129f758ab42408a360bfee0c82ebb032c4ad05e536f0b1a57f",
       "bytes": 50940
     },
+    "evidence/l12-evaluation.json": {
+      "sha256": "f1109608d44f330827d50098e6e1376365f4f26db6f47fdedff4b0736096349b",
+      "bytes": 51391
+    },
     "evidence/learning-history.json": {
-      "sha256": "0e0181027ea39d6a87e0fecc1868de196cd19412413e9b080c8e32f26f1c37b1",
-      "bytes": 18164
+      "sha256": "0f8ee68c4c7ed4c24279bd1782fd07ea19879f028493cd785f68f0e08c65c631",
+      "bytes": 19668
     },
     "evidence/media-publication.json": {
       "sha256": "dca1559a4de85e3d1cabd7ade1bf9aecb618140d7c78d32ed16f8cc9fae6d86d",
       "bytes": 1311
     },
     "evidence/progress.json": {
-      "sha256": "bbc64047b63a47e567042d2278d87b466bfda892c83bbf4257e402759f49cf7b",
-      "bytes": 126615
+      "sha256": "277c68aeefffef4883cc9e7b6d60d123b1410b0dc89d7c743c1d10c10d59165f",
+      "bytes": 181036
     },
     "evidence/recording-publication.json": {
-      "sha256": "8d0ad9050a0bcf72e22ac5b57a0b46feefe613fc76a7074cb498edaac90e6d57",
-      "bytes": 61416
+      "sha256": "9e61f18588234615d7767f9da4acac42ce522a90528dba98def670d99953178d",
+      "bytes": 67921
     },
     "evidence/video-history.json": {
-      "sha256": "dac010099593d8a8cc764c9208e05ada383cee9551190be3c62056b6efc3409e",
-      "bytes": 14618
+      "sha256": "edfe622a5a9d5723143e39b450a56c7e148e04ae2601654dd76f95ea2a991fd5",
+      "bytes": 18362
     },
     "examples/synthetic_robot.urdf": {
       "sha256": "5c8d44b624f71f4a6667dbbd23da8c23c0661f8594766a7e961feed76b591a37",
@@ -318,8 +338,8 @@
       "bytes": 6389
     },
     "tools/check_publication.py": {
-      "sha256": "5a6db8ec92365819291fd6efd192ec51b6190fc6c8263eddfb791038145a15ba",
-      "bytes": 6913
+      "sha256": "b42ec58134f511203a07f446569c944aab2cee0cc167985b1ded44db7e5ce8c6",
+      "bytes": 6917
     },
     "tools/evaluate_trace.py": {
       "sha256": "9235cdfcb3d39c3d14af3ea860c5cc0741d042e7e0d2bce072f04b96533f275f",
