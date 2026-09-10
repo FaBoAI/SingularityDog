@@ -1483,7 +1483,7 @@
     "scope": "Independent raw recomputation of all final6 and matchedparent6; three preflight cases separately verified by the main evaluator. No GPU rerun."
   },
   "geometry_check": {
-    "native_status": "PENDING_MEASURED_CHECK",
+    "native_status": "VERIFIED_NATIVE_MEASURED12_COMPLETED",
     "sampled_calf_floor_clearance_min_m": 4.720539307986882e-06,
     "minimum_case": "forward",
     "minimum_leg": "FL",
@@ -1492,7 +1492,15 @@
     "calf_part_frames_checked": 14228,
     "sample_hz": 50,
     "calf_clearance_report_sha256": "c8685389a868c1a3d122c2ac02e234f10dc2a791451de04f9c13bc2977b112d3",
-    "scope": "Four selected calf meshes at recorded50Hz poses; link-wide contact does not identify the exact contacting shape. No continuous-time, fullROM, strength or hardware claim."
+    "scope": "Four selected calf meshes at recorded50Hz poses; link-wide contact does not identify the exact contacting shape. No continuous-time, fullROM, strength or hardware claim.",
+    "attained_native_poses_checked": 12,
+    "native_physical_shapes": 480,
+    "external_native_interferences": 0,
+    "kernel_errors": 0,
+    "original590_unchanged": true,
+    "native_audit_sha256": "2e6a9dbd68e7fdec21a4d58140cfb62739e87dcc4b62f771ad06dd20445b9b11",
+    "native_independent_verification_sha256": "59fee3b3145b9c316a26d7f3edca5b1aaeed74ad07ec3846941721bc9ec5b9a4",
+    "native_scope": "Twelve measured extrema of six first episodes; forward extrema are not the exact terminal pose. Original590 bodies and placements unchanged. Existing factory-internal pairs/sheet approximation retained. No floor, continuous-ROM, cable, strength or hardware proof."
   },
   "comparison_scope": "Same L12 controller/physical model/44cm/s forward command and exact initial physical/drive state. Forward final ends11.14s versus parent12s; its38.6958cm/s is observed-interval average, not12s performance. Original L11 is a separate controller condition.",
   "limitations": [

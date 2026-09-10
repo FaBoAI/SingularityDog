@@ -50,8 +50,8 @@
       "bytes": 9736
     },
     "docs/l12-evaluation.md": {
-      "sha256": "042f6ca24a4c4a9cbdb7b6a8b936bfb04e0467f15cfb97b1a035e059308d6d2e",
-      "bytes": 5271
+      "sha256": "d813d0f40341b9f4a60ec3ce0e683c70602b841fc094c17f0ee69ffe9dc6590f",
+      "bytes": 5475
     },
     "docs/media/archive-dev250-left.gif": {
       "sha256": "7f86fedef091ea506bcd0aeb6b5a9f2bc2192343bbef2c5f088d827a62275766",
@@ -250,8 +250,8 @@
       "bytes": 50940
     },
     "evidence/l12-evaluation.json": {
-      "sha256": "f1109608d44f330827d50098e6e1376365f4f26db6f47fdedff4b0736096349b",
-      "bytes": 51391
+      "sha256": "fbb6990030a6d1349e7bc07a0510e6bf853d4fd7151a39867844fb1cd8353316",
+      "bytes": 52076
     },
     "evidence/learning-history.json": {
       "sha256": "0f8ee68c4c7ed4c24279bd1782fd07ea19879f028493cd785f68f0e08c65c631",
@@ -262,8 +262,8 @@
       "bytes": 1311
     },
     "evidence/progress.json": {
-      "sha256": "277c68aeefffef4883cc9e7b6d60d123b1410b0dc89d7c743c1d10c10d59165f",
-      "bytes": 181036
+      "sha256": "6274786c794797dda07df2b353f94b7b7b689155bc12707d616f4d4ef436a0f9",
+      "bytes": 181737
     },
     "evidence/recording-publication.json": {
       "sha256": "9e61f18588234615d7767f9da4acac42ce522a90528dba98def670d99953178d",
