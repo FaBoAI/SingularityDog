@@ -6,8 +6,8 @@
       "bytes": 1718
     },
     "README.md": {
-      "sha256": "7b637161d6b6a70257cb44914359db54389ffed7aa1e701e91372b700e2d01e9",
-      "bytes": 10621
+      "sha256": "d1bd79e3e49f552f7c191811f715eab80a210466a0a5308a63f78dd48bd8f3c2",
+      "bytes": 11328
     },
     "RELEASE_FILES.json": {
       "sha256": "05b3e33f3d9a530bcfe724128cb1626d8302870bbc3b1a0eff5922e6a0b9440a",
@@ -206,16 +206,16 @@
       "bytes": 34374
     },
     "docs/publication-scope.md": {
-      "sha256": "256f23fe031115e02e4e361964fe055c3d628d15faf703fa29fca731a17a7cd1",
-      "bytes": 13320
+      "sha256": "fcfd48169de5eec0548484047c1649a312f93d5526609fefcd5ba26cb66b99c1",
+      "bytes": 13344
     },
     "docs/toolkit.md": {
       "sha256": "a26728aced4bd856e48259f4ffbc237cfad072e7f04b64e13be91fce65d25055",
       "bytes": 3903
     },
     "docs/video-history.md": {
-      "sha256": "be2892197d3c34658f7adcc55e9f9664a6ded74e6e77ef1b053f5d0f2e0831ef",
-      "bytes": 17388
+      "sha256": "aa1af2cdd2c106a41cf1ce2c9925a0f8526ad3b05efaf84d5efc14b4661b298e",
+      "bytes": 17516
     },
     "evidence/forward-motion.json": {
       "sha256": "c07344e1195e9f1c6028fb020b1628139dbc884ecbe86fe4c9af2e38e3f37e78",
