@@ -636,7 +636,7 @@
           "visual_inspection": "ROOT_REPRESENTATIVE_FRAMES_INSPECTED",
           "review_receipt_sha256": "1f4c589f81590a8c21465c1948df1fc536066ef06d42ad651778e634e2168b62",
           "visual_review_scope": "Representative frames inspected; all frames decoded separately.",
-          "visual_review_receipt_sha256": "14d624339b79ef7c266ff52631c367e2b05a94a9c920be7daf827643868649f4"
+          "visual_review_receipt_sha256": "194e37e8781b7f7f7c362ab28fef1c8118663be96ffb7f552458e61efb60c2ad"
         }
       },
       {
@@ -854,7 +854,7 @@
           "visual_inspection": "ROOT_REPRESENTATIVE_FRAMES_INSPECTED",
           "review_receipt_sha256": "c404f76bd93adef89069a6a4a7b94460512f03bee8007a85eda91d1417dfe48a",
           "visual_review_scope": "Representative frames inspected; all frames decoded separately.",
-          "visual_review_receipt_sha256": "14d624339b79ef7c266ff52631c367e2b05a94a9c920be7daf827643868649f4"
+          "visual_review_receipt_sha256": "194e37e8781b7f7f7c362ab28fef1c8118663be96ffb7f552458e61efb60c2ad"
         }
       },
       {
@@ -1077,7 +1077,7 @@
           "visual_inspection": "ROOT_REPRESENTATIVE_FRAMES_INSPECTED",
           "review_receipt_sha256": "f5916207e2644d63dfcff189776c73b1c62e02f74105ff1b4f65ce7564b0ba6a",
           "visual_review_scope": "Representative frames inspected; all frames decoded separately.",
-          "visual_review_receipt_sha256": "14d624339b79ef7c266ff52631c367e2b05a94a9c920be7daf827643868649f4"
+          "visual_review_receipt_sha256": "194e37e8781b7f7f7c362ab28fef1c8118663be96ffb7f552458e61efb60c2ad"
         }
       },
       {
@@ -1298,7 +1298,7 @@
           "visual_inspection": "ROOT_REPRESENTATIVE_FRAMES_INSPECTED",
           "review_receipt_sha256": "c15890df6a3b29361689f38c4931f6c474eb8e616d07f3fb8c1926236f2cf26e",
           "visual_review_scope": "Representative frames inspected; all frames decoded separately.",
-          "visual_review_receipt_sha256": "14d624339b79ef7c266ff52631c367e2b05a94a9c920be7daf827643868649f4"
+          "visual_review_receipt_sha256": "194e37e8781b7f7f7c362ab28fef1c8118663be96ffb7f552458e61efb60c2ad"
         }
       },
       {
@@ -1519,7 +1519,7 @@
           "visual_inspection": "ROOT_REPRESENTATIVE_FRAMES_INSPECTED",
           "review_receipt_sha256": "9873b35fe4acbea14fa23f58c38d4d0a35b551ea1abc19c63fe14769a94be20a",
           "visual_review_scope": "Representative frames inspected; all frames decoded separately.",
-          "visual_review_receipt_sha256": "14d624339b79ef7c266ff52631c367e2b05a94a9c920be7daf827643868649f4"
+          "visual_review_receipt_sha256": "194e37e8781b7f7f7c362ab28fef1c8118663be96ffb7f552458e61efb60c2ad"
         }
       },
       {
@@ -1740,7 +1740,7 @@
           "visual_inspection": "ROOT_REPRESENTATIVE_FRAMES_INSPECTED",
           "review_receipt_sha256": "463f295cfbef480faaeaaa117dff5000d930e1ddca364d97aff347091737492c",
           "visual_review_scope": "Representative frames inspected; all frames decoded separately.",
-          "visual_review_receipt_sha256": "14d624339b79ef7c266ff52631c367e2b05a94a9c920be7daf827643868649f4"
+          "visual_review_receipt_sha256": "194e37e8781b7f7f7c362ab28fef1c8118663be96ffb7f552458e61efb60c2ad"
         }
       },
       {
@@ -2055,7 +2055,7 @@
           "visual_inspection": "ROOT_REPRESENTATIVE_FRAMES_INSPECTED",
           "review_receipt_sha256": "4a4f49968abc1c3274a613efd951afcdf7b8e999f20582c57129465f684cc060",
           "visual_review_scope": "Representative frames inspected; all frames decoded separately.",
-          "visual_review_receipt_sha256": "14d624339b79ef7c266ff52631c367e2b05a94a9c920be7daf827643868649f4"
+          "visual_review_receipt_sha256": "194e37e8781b7f7f7c362ab28fef1c8118663be96ffb7f552458e61efb60c2ad"
         }
       },
       {
@@ -2333,7 +2333,7 @@
           "visual_inspection": "ROOT_REPRESENTATIVE_FRAMES_INSPECTED",
           "review_receipt_sha256": "96c7bb994bdedf38a6955bbed8dc80e68ce8706f6ab5b6e81210059e72dbc2cf",
           "visual_review_scope": "Representative frames inspected; all frames decoded separately.",
-          "visual_review_receipt_sha256": "14d624339b79ef7c266ff52631c367e2b05a94a9c920be7daf827643868649f4"
+          "visual_review_receipt_sha256": "194e37e8781b7f7f7c362ab28fef1c8118663be96ffb7f552458e61efb60c2ad"
         }
       },
       {
@@ -2737,7 +2737,7 @@
           "visual_inspection": "ROOT_REPRESENTATIVE_FRAMES_INSPECTED",
           "review_receipt_sha256": "70856e60d94a318c0b2efe089935e5ae4c82a822a8f0470d533655f66f3975d5",
           "visual_review_scope": "Representative frames inspected; all frames decoded separately.",
-          "visual_review_receipt_sha256": "14d624339b79ef7c266ff52631c367e2b05a94a9c920be7daf827643868649f4"
+          "visual_review_receipt_sha256": "194e37e8781b7f7f7c362ab28fef1c8118663be96ffb7f552458e61efb60c2ad"
         }
       }
     ],
@@ -2798,7 +2798,7 @@
         "wave": "docs/media/l20-wave.mp4",
         "sit": "docs/media/l20-sit.mp4"
       },
-      "duration_s": 36,
+      "duration_s": 18,
       "layout": "three_by_three",
       "selected_mp4_count": 10,
       "selected_gif_count": 1,
@@ -2815,10 +2815,133 @@
         "docs/media/l20-prone.mp4": "0560da03bd9687afd22786ca264e08135b3a2d1db17e6588560c7a18c2a09ac2",
         "docs/media/l20-wave.mp4": "5c1162ac088a205f208abf891071e6874f9f26f07b8f75b38e8fd40702523ac6",
         "docs/media/l20-sit.mp4": "49b8b1135f9da269016bd41c2d6c91e9c50e9338c9112b5b64a3ad1ef7c20e00",
-        "docs/media/l20-nine-motions.mp4": "274183522cb666811aea8533a4c221bb0213a480f01c1de8d38aa2e95b217833",
-        "docs/media/l20-nine-motions.gif": "94d69f26adce234f6d43eadfb0a4a078fec8011ca3a3f1abf2a27d87545a7c89"
+        "docs/media/l20-nine-motions.mp4": "35cd3cd0ecb48c47e3c3a1ec7f58301aabb00f0199a45f1c76ce5a25b0aedb76",
+        "docs/media/l20-nine-motions.gif": "2aa226c18cfb7f4b5663dbddfb9cff762897114b4110d58d76d5b54cb0b75dda"
       },
-      "handling_after_case_end": "Black panel with actual end time; no looping or frozen-success extension."
+      "handling_after_case_end": "After each displayed interval, hold its last selected frame in grayscale with the interval end time and STILL label. This is display-only, not additional motion or measured hold time; no loop or interpolation.",
+      "presentation_revision": "first_cycle_gray_end_v2",
+      "comparison_excerpt_scope": "Locomotion: complete 12-second recordings. Prone/wave/sit: first complete action cycle only (12/18/16 seconds). PASS/NOT MET remains the full 12/24/36/32-second evaluation result; individual originals are unchanged.",
+      "comparison_excerpts": [
+        {
+          "motion_id": "forward",
+          "source_path": "docs/media/l20-forward.mp4",
+          "full_source_frames": 600,
+          "full_evaluation_duration_s": 12.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "grayscale_hold_frames": 300,
+          "grayscale_hold_duration_s": 6.0,
+          "final_displayed_source_frame": 599,
+          "acceptance_scope": "full_evaluation"
+        },
+        {
+          "motion_id": "backward",
+          "source_path": "docs/media/l20-backward.mp4",
+          "full_source_frames": 600,
+          "full_evaluation_duration_s": 12.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "grayscale_hold_frames": 300,
+          "grayscale_hold_duration_s": 6.0,
+          "final_displayed_source_frame": 599,
+          "acceptance_scope": "full_evaluation"
+        },
+        {
+          "motion_id": "left",
+          "source_path": "docs/media/l20-left.mp4",
+          "full_source_frames": 600,
+          "full_evaluation_duration_s": 12.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "grayscale_hold_frames": 300,
+          "grayscale_hold_duration_s": 6.0,
+          "final_displayed_source_frame": 599,
+          "acceptance_scope": "full_evaluation"
+        },
+        {
+          "motion_id": "right",
+          "source_path": "docs/media/l20-right.mp4",
+          "full_source_frames": 600,
+          "full_evaluation_duration_s": 12.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "grayscale_hold_frames": 300,
+          "grayscale_hold_duration_s": 6.0,
+          "final_displayed_source_frame": 599,
+          "acceptance_scope": "full_evaluation"
+        },
+        {
+          "motion_id": "turn_left",
+          "source_path": "docs/media/l20-turn-left.mp4",
+          "full_source_frames": 600,
+          "full_evaluation_duration_s": 12.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "grayscale_hold_frames": 300,
+          "grayscale_hold_duration_s": 6.0,
+          "final_displayed_source_frame": 599,
+          "acceptance_scope": "full_evaluation"
+        },
+        {
+          "motion_id": "turn_right",
+          "source_path": "docs/media/l20-turn-right.mp4",
+          "full_source_frames": 600,
+          "full_evaluation_duration_s": 12.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "grayscale_hold_frames": 300,
+          "grayscale_hold_duration_s": 6.0,
+          "final_displayed_source_frame": 599,
+          "acceptance_scope": "full_evaluation"
+        },
+        {
+          "motion_id": "prone",
+          "source_path": "docs/media/l20-prone.mp4",
+          "full_source_frames": 1200,
+          "full_evaluation_duration_s": 24.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "grayscale_hold_frames": 300,
+          "grayscale_hold_duration_s": 6.0,
+          "final_displayed_source_frame": 599,
+          "acceptance_scope": "full_evaluation"
+        },
+        {
+          "motion_id": "wave",
+          "source_path": "docs/media/l20-wave.mp4",
+          "full_source_frames": 1800,
+          "full_evaluation_duration_s": 36.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 900,
+          "displayed_duration_s": 18.0,
+          "grayscale_hold_frames": 0,
+          "grayscale_hold_duration_s": 0.0,
+          "final_displayed_source_frame": 899,
+          "acceptance_scope": "full_evaluation"
+        },
+        {
+          "motion_id": "sit",
+          "source_path": "docs/media/l20-sit.mp4",
+          "full_source_frames": 1600,
+          "full_evaluation_duration_s": 32.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 800,
+          "displayed_duration_s": 16.0,
+          "grayscale_hold_frames": 100,
+          "grayscale_hold_duration_s": 2.0,
+          "final_displayed_source_frame": 799,
+          "acceptance_scope": "full_evaluation"
+        }
+      ],
+      "media_verification_sha256": "dd6e97901229cb9b754970fe0fe28471b676b96f44f306d10d8d64d379f17c64",
+      "visual_review_receipt_sha256": "194e37e8781b7f7f7c362ab28fef1c8118663be96ffb7f552458e61efb60c2ad"
     },
     "limitations": [
       "Four separately trained action-mean policies, not one unified9skill actor.",
