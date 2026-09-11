@@ -1,0 +1,328 @@
+{
+  "schema": "singularitydog.selected-motion-evaluation.v1",
+  "id": "L19",
+  "series_order": 24,
+  "motion": "pitched_sit_and_four_foot_stand_return",
+  "status": "TRAINING_AND_32S_EVALUATION_COMPLETED_ALL_REGISTERED_CRITERIA_PASSED",
+  "training": {
+    "status": "COMPLETED",
+    "completed_updates": 500,
+    "final_iteration": 499,
+    "evaluated_checkpoint": "model_499.pt",
+    "new_transitions": 4096000,
+    "ended_utc": "2026-09-11T02:34:17.017560+00:00",
+    "optimizer_states": 17,
+    "optimizer_steps_per_state": 10000,
+    "parent_loop_id": "L18",
+    "parent_checkpoint_updates": 500,
+    "inheritance": "Retain the first81 sensor/controller input columns of the parent action-mean network; zero8 repurposed task columns (five phases, phase progress and2 scheduled sit commands). Copy remaining mean MLP weights. Initialize critic, exploration, optimizer and update counter anew.",
+    "actor_input_dimension": 89,
+    "critic_input_dimension": 122,
+    "initial_exploration_standard_deviation": 0.25,
+    "disposable_smoke_updates": 2,
+    "smoke_updates_inherited_by_main_training": false,
+    "additional_training_updates_for_evaluation": 0
+  },
+  "changes": {
+    "physical_model": "D16 retained",
+    "physical_model_changed": false,
+    "planned_nose_up_deg": 12.0,
+    "planned_rear_hip_drop_m": 0.06,
+    "planned_base_shift_x_m": 0.0075,
+    "actor_new_scheduled_commands": "planned nose-up angle and planned base-height drop",
+    "privileged_world_position_and_contact_inputs_in_actor": false,
+    "reference": "A four-foot supported shallow sit; no root-state overwrite or external force.",
+    "phase_specific_orientation_targets": true,
+    "foot_position_retention_reward": true,
+    "comparison_scope": "Different task/reference from high greeting; no cross-task performance improvement rate."
+  },
+  "evaluation": {
+    "status": "COMPLETED_REQUESTED_INTERVAL",
+    "ended_utc": "2026-09-11T02:38:02.484734+00:00",
+    "seed": 42,
+    "environments": 1,
+    "duration_s": 32.0,
+    "policy_steps": 1600,
+    "physics_samples": 12800,
+    "physics_hz": 400,
+    "phase_durations_s": [
+      2.0,
+      4.0,
+      3.0,
+      4.0,
+      3.0
+    ],
+    "cycle_duration_s": 16.0,
+    "recorded_cycles": 2,
+    "skill_acceptance": true,
+    "gates": {
+      "requested_interval_completed": true,
+      "no_reset_between_cycles": true,
+      "no_forbidden_contact_samples": true,
+      "actual_joint_speed_within_limit": true,
+      "all_sit_and_return_cycles": true,
+      "maximum_heading_change": true,
+      "maximum_xy_distance": true,
+      "phase_specific_orientation_envelope": true,
+      "exposure_continuous_between_phases_and_cycles": true,
+      "exposure_within_bounds": true,
+      "peak_torque_within_bound": true,
+      "torque_within_actual_limiter_caps": true
+    }
+  },
+  "hold_criteria": {
+    "hold_window_s": 3.0,
+    "required_continuous_hold_s": 2.0,
+    "required_continuous_samples": 800,
+    "registered_before_training": true,
+    "scope": "Same rule for sitting and standing return: a full3s window must contain at least2s of consecutive qualifying400Hz bins. Short initial settling is allowed; totals and trailing holds remain reported.",
+    "sit_targets": {
+      "nose_up_target_rad": 0.20943951023931956,
+      "nose_up_tolerance_rad": 0.05235987755982989,
+      "maximum_hold_roll_rad": 0.08726646259971647,
+      "rear_hip_drop_min_m": 0.045,
+      "front_rear_hip_height_difference_min_m": 0.04849468416247157,
+      "root_height_target_m": 0.22779283165753783,
+      "root_height_error_m": 0.015,
+      "front_calf_flexion_max_rad": 0.7424415576505314,
+      "rear_calf_flexion_min_rad": 1.487113995210846
+    },
+    "standing_tilt_deg_max": 10.0,
+    "standing_height_error_m_max": 0.025,
+    "transition_nose_up_deg_range": [
+      -5.0,
+      25.0
+    ],
+    "transition_roll_deg_max": 10.0,
+    "maximum_hold_linear_speed_m_s": 0.1,
+    "maximum_hold_angular_speed_rad_s": 0.35,
+    "all_four_foot_vertical_force_N_min_exclusive": 1.0,
+    "actual_foot_floor_clearance_m_range": [
+      -0.002,
+      0.005
+    ],
+    "nose_up_convention": "Positive world vertical component of body-forward axis; not unsigned tilt.",
+    "rear_hip_reference": "Registered standing hip height, never reset between cycles."
+  },
+  "stationary_targets": {
+    "maximum_heading_change_deg": 5.0,
+    "maximum_xy_distance_m": 0.05
+  },
+  "cycles": [
+    {
+      "cycle_number": 1,
+      "passed": true,
+      "sit_hold": {
+        "qualifying_samples": 1200,
+        "longest_samples": 1200,
+        "longest_continuous_s": 3.0,
+        "trailing_samples": 1200,
+        "trailing_continuous_s": 3.0,
+        "total_window_samples": 1200,
+        "window_s": 3.0
+      },
+      "four_foot_return_hold": {
+        "qualifying_samples": 1200,
+        "longest_samples": 1200,
+        "longest_continuous_s": 3.0,
+        "trailing_samples": 1200,
+        "trailing_continuous_s": 3.0,
+        "total_window_samples": 1200,
+        "window_s": 3.0
+      },
+      "sit_measurements": {
+        "nose_up_deg_range": [
+          12.09527106065104,
+          12.575159648745958
+        ],
+        "roll_deg_range": [
+          0.9113904149878257,
+          1.0763081603730278
+        ],
+        "rear_hip_drop_m_range": [
+          0.05673268892616401,
+          0.06099977799505363
+        ],
+        "front_rear_hip_height_difference_m_range": [
+          0.06495671719312668,
+          0.0674932450056076
+        ],
+        "front_hip_height_m_range": [
+          0.26204730570316315,
+          0.264193058013916
+        ],
+        "rear_hip_height_m_range": [
+          0.1945667415857315,
+          0.19883383065462112
+        ],
+        "root_height_m_range": [
+          0.22831173241138458,
+          0.23151342570781708
+        ],
+        "front_calf_max_flexion_rad_range": [
+          0.5906844139099121,
+          0.6521010398864746
+        ],
+        "rear_calf_min_flexion_rad_range": [
+          1.6070938110351562,
+          1.6681410074234009
+        ]
+      },
+      "all_sit_conditions_qualifying_samples": 1200
+    },
+    {
+      "cycle_number": 2,
+      "passed": true,
+      "sit_hold": {
+        "qualifying_samples": 1200,
+        "longest_samples": 1200,
+        "longest_continuous_s": 3.0,
+        "trailing_samples": 1200,
+        "trailing_continuous_s": 3.0,
+        "total_window_samples": 1200,
+        "window_s": 3.0
+      },
+      "four_foot_return_hold": {
+        "qualifying_samples": 1200,
+        "longest_samples": 1200,
+        "longest_continuous_s": 3.0,
+        "trailing_samples": 1200,
+        "trailing_continuous_s": 3.0,
+        "total_window_samples": 1200,
+        "window_s": 3.0
+      },
+      "sit_measurements": {
+        "nose_up_deg_range": [
+          12.088314899613556,
+          12.570650395279904
+        ],
+        "roll_deg_range": [
+          0.9132212498116584,
+          1.081011345958984
+        ],
+        "rear_hip_drop_m_range": [
+          0.05670614995807777,
+          0.06099094905704627
+        ],
+        "front_rear_hip_height_difference_m_range": [
+          0.06491990387439728,
+          0.06746941804885864
+        ],
+        "front_hip_height_m_range": [
+          0.2620310038328171,
+          0.26416996121406555
+        ],
+        "rear_hip_height_m_range": [
+          0.19457557052373886,
+          0.19886036962270737
+        ],
+        "root_height_m_range": [
+          0.2283085584640503,
+          0.23151513934135437
+        ],
+        "front_calf_max_flexion_rad_range": [
+          0.5915732383728027,
+          0.652534544467926
+        ],
+        "rear_calf_min_flexion_rad_range": [
+          1.6064832210540771,
+          1.6679394245147705
+        ]
+      },
+      "all_sit_conditions_qualifying_samples": 1200
+    }
+  ],
+  "whole_interval_measurements": {
+    "reference": "Original post-reset episode position and heading, fixed throughout both cycles; final framework reset excluded.",
+    "maximum_absolute_unwrapped_heading_change_deg": 1.5358613620688664,
+    "final_unwrapped_heading_change_deg": -0.5413073782670547,
+    "maximum_xy_distance_m": 0.033577118274265925,
+    "final_xy_distance_m": 0.003214074128803505,
+    "maximum_tilt_deg": 12.646922441012885,
+    "forbidden_contact_samples": 0,
+    "maximum_nonfoot_force_N": 0.0,
+    "overspeed_joint_samples": 0,
+    "precompute_overspeed_joint_samples": 0,
+    "maximum_actual_joint_speed_rad_s": 3.030134916305542,
+    "maximum_recorded_applied_effort_Nm": 1.9105044603347778,
+    "maximum_exposure_h": 0.08026147480764691,
+    "exposure_interpretation": "Simulated limiter load-budget state, not measured motor temperature."
+  },
+  "training_observations_separate_from_evaluation": {
+    "episode_terminations": 2734,
+    "maximum_actual_joint_speed_rad_s": 5.66069221496582,
+    "overspeed_joint_samples": 0,
+    "illegal_contact_lane_substeps": 1896,
+    "maximum_recorded_applied_effort_Nm": 5.5,
+    "maximum_exposure_h": 0.2618649227770747,
+    "scope": "Training-wide exploratory aggregates. Contact lane-substeps are not episode counts; these values are separate from final evaluation."
+  },
+  "preflight_comparison": {
+    "new_trial_updates": 0,
+    "maximum_heading_change_deg": 5.694586061019939,
+    "maximum_xy_distance_m": 0.046975938940291444,
+    "skill_acceptance": false,
+    "sit_continuous_s_per_cycle": [
+      3.0,
+      3.0
+    ],
+    "four_foot_return_continuous_s_per_cycle": [
+      3.0,
+      3.0
+    ],
+    "failed_gates": [
+      "maximum_heading_change"
+    ]
+  },
+  "video": {
+    "path": "docs/media/l19-model499-sit.mp4",
+    "gif_path": "docs/media/l19-model499-sit.gif",
+    "sha256": "a68843c69c5f7f4cf643df4a710777001cbcf645bcc17b65ffef582ca2842acf",
+    "bytes": 1270075,
+    "duration_s": 32.0,
+    "fps": 50,
+    "frames": 1600,
+    "decoded_frames": 1600,
+    "width": 960,
+    "height": 720,
+    "publication_form": "Unchanged original final evaluation MP4; first black frame and final reset warning retained.",
+    "gif": {
+      "sha256": "302a5d7d119335a92451df8b8b1b77a697930e3e43e952bd03348f3e2d3255da",
+      "bytes": 17624935,
+      "width": 480,
+      "height": 360,
+      "frames": 321,
+      "duration_ms": 32000,
+      "conversion": "Every5th source frame plus last, original elapsed time, one global256-color palette; no cropping, interpolation, speed change or success-interval selection."
+    },
+    "review_scope": "All MP4/GIF frames decoded; selected chronological images including first/last inspected. Not all frames visually inspected.",
+    "terminal_frame_note": "Final standing render may be after automatic reset; pre-reset400Hz samples establish hold success."
+  },
+  "next_step": {
+    "planned_loop_id": "L20",
+    "planned_series_order": 25,
+    "planned_work": "Foundation for9motions; its training and results are reported separately, not claimed by this result."
+  },
+  "verification": {
+    "selected_files_remote_local_sha_match": true,
+    "local_registered_numpy_recomputation": "PASS_ALL206_COMPARISON_NODES",
+    "float_tolerance": 1e-12,
+    "independent_second_algorithm": false
+  },
+  "limitations": [
+    "One deterministic seed42 flat-plane simulation; external disturbances and sensor noise not tested.",
+    "This is a shallow12degree sitting motion, not hind-leg-only standing or a deeper seat.",
+    "The two-second-in-three-second hold rule was registered for the new sitting task before learning; it does not retroactively change previous experiments.",
+    "No hardware, print strength or endurance validation.",
+    "Summary SHA handles identify private evidence; this public selection is not a complete reproduction bundle."
+  ],
+  "publication_scope": "Newly written report, selected self-produced measurements and individually designated simulation media only. No editable CAD, meshes, weights, raw traces/logs, supplied photographs, manufacturer materials, account/connection information or private paths.",
+  "provenance": {
+    "parent_checkpoint_sha256": "5786d61dad7e421f6a628ceb1deaca678f65230e4d571c4ee07b51d210716f47",
+    "evaluated_checkpoint_sha256": "8b9c49765e5d3bbcbe7b430563e3bd72c59e14a8383dd2a7ec3571bfbf4ee058",
+    "evaluation_summary_sha256": "eca4cca950f8e58533e0d038e4d879a0700eaabab53de403617ecba3283607f0",
+    "actual_measurement_array_sha256": "ba1b29720d4a424de8289236f09c7ba638ab1cd0309035d063162817dd6d5dc2",
+    "summary_implementation_sha256": "6f35f41200a3e2a48ffb4fedb080a52715fc1bb522adfff580d239948c7c824c",
+    "local_recomputation_receipt_sha256": "35e807d85ab3703bf07956fcf8bd1758f87b14d05cd912234ed17820eb8271b3"
+  }
+}

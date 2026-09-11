@@ -6,19 +6,19 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 system-ui,sans-serif}main{max-width:1300px;margin:auto;padding:34px 28px 70px}
 header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.eyebrow{font-size:12px;letter-spacing:.14em;color:var(--green);font-weight:750}h1{font-size:clamp(28px,4vw,46px);letter-spacing:-.04em;margin:8px 0}h2{font-size:20px;margin:0 0 14px}p{margin:8px 0}.muted{color:var(--muted)}.pill{border-radius:30px;padding:5px 12px;display:inline-block;font-size:12px;background:#e3ebe3;white-space:nowrap}.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px 0}.kpi,.panel,.card{border:1px solid var(--line);background:#fff;border-radius:16px;padding:20px}.kpi strong{display:block;font-size:30px}.kpi small{color:var(--muted)}.target{background:#153d32;color:white}.target small{color:#c6dacd}.split{display:grid;grid-template-columns:1.15fr 1fr;gap:20px}.panel{min-width:0}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:18px}.video{aspect-ratio:16/9;background:#172520;border-radius:12px;display:grid;place-items:center;text-align:center;color:#d0ddd2;overflow:hidden;margin:14px 0}video{width:100%;height:100%;background:#10201b}.video p{max-width:80%;font-size:14px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 12px}select,button{font:inherit;border:1px solid #bfd0c3;background:white;color:var(--ink);padding:8px 12px;border-radius:9px}button{cursor:pointer}button:hover{border-color:var(--green)}button:focus-visible,select:focus-visible{outline:3px solid #67b6a0}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{display:flex;flex-direction:column;gap:10px}.card h3{margin:0;font-size:18px}.card p{font-size:14px}.card button{margin-top:auto}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.FAILED{background:#ffe9df;color:#9d3e19}.EVALUATED{background:#d7f0df;color:#1d6438}.DIAGNOSTIC_COMPLETE{background:#e0ecfc;color:#275891}.PLANNED{background:#edeae5;color:#685c4d}.RUNNING{background:#fcf1c9;color:#7a6221}.meter{height:12px;border-radius:8px;background:#e7eee6;overflow:hidden}.meter span{display:block;height:100%;background:#319275}.numbers{font-variant-numeric:tabular-nums;font-weight:700}.foot{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}.foot div{background:#eff5ee;border-radius:8px;padding:10px;text-align:center}.foot strong{display:block;font-size:23px}.foot small{font-size:12px;color:var(--muted)}table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:10px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.notice{border-left:4px solid #85aa83;padding:8px 16px;margin:18px 0;background:#eaf0e6}.note{font-size:12px;color:var(--muted)}.section{margin-top:30px}footer{margin-top:30px;border-top:1px solid var(--line);padding-top:18px;font-size:12px;color:var(--muted)}@media(max-width:900px){.cards{grid-template-columns:1fr 1fr}.split{grid-template-columns:1fr}}@media(max-width:600px){main{padding:20px 14px}.kpis,.cards,.comparison{grid-template-columns:1fr}header{display:block}.kpi strong{font-size:26px}}
 </style><main><header><div><div class="eyebrow">SINGULARITYDOG / EXPERIMENT NOTEBOOK</div><h1>一歩ずつ、改善を確かめる。</h1><p class="muted">変更・測定・動画を、同じループ番号でたどる。</p></div><span class="pill" id="updated"></span></header>
-<div class="kpis"><div class="kpi"><small>最新歩行L13・前進平均</small><strong id="baselineSpeed"></strong><small>始動を含む最初の12秒</small></div><div class="kpi target"><small>前進の開発基準・実測平均</small><strong>40.0 <span style="font-size:17px">cm/s</span></strong><small>指令速度と達成速度を区別</small></div><div class="kpi"><small>最新の評価段階</small><strong style="font-size:22px" id="latest"></strong><small>L17・3条件各500更新、挨拶成立と総合未達を区別</small></div></div>
-<div class="notice" id="scope"></div>
-<div class="split"><section class="panel"><h2>改善ループと実測</h2><div style="overflow:auto"><table><thead><tr><th>ループ</th><th>状態</th><th>前進平均</th><th>動画</th></tr></thead><tbody id="summary"></tbody></table></div><p class="note">未測定は「—」。異なる物理・指令条件は単純な改善率に換算しません。</p></section><section class="panel"><h2>最新歩行L13の足上げ・前進</h2><div class="foot" id="feet"></div><p>完了した離床→着地のうち、最高クリアランスが15mm以上の回数。</p><p class="muted">6方向で既存の開発基準を通過。追加の床離隔5mm目標と直線精度は課題です。</p><div class="meter"><span id="progress"></span></div><p class="note">L13の実測40.2521cm/sは始動を含む12秒平均。指令は46cm/s。</p></section></div>
-<section class="panel section"><h2>第18回 L13：6方向の開発評価</h2><p>6方向すべて12秒完走。始動込み。並進cm/sと旋回rad/sは別の指標です。</p><div style="overflow:auto"><table><thead><tr><th>方向</th><th>記録 秒</th><th>並進 cm/s</th><th>指令方向の旋回 rad/s</th><th>向き変化 °</th><th>旋回の最大XY距離 cm</th><th>判定</th></tr></thead><tbody id="latestCases"></tbody></table></div><p class="note">同じL13形状・制御で親L11は0/6、学習後6/6。親の4方向は早期終了しており、12秒との平均値の差だけを改善量にしません。<a href="l13-evaluation.md">第18回の測定値と限界</a></p></section>
+<div class="kpis"><div class="kpi"><small>最新L20・前進平均</small><strong id="baselineSpeed"></strong><small>始動を含む実測12.00秒</small></div><div class="kpi target"><small>前進の開発基準・実測平均</small><strong>40.0 <span style="font-size:17px">cm/s</span></strong><small>指令速度と達成速度を区別</small></div><div class="kpi"><small>最新の評価段階</small><strong style="font-size:22px" id="latest"></strong><small>実行500・保持488更新分</small></div></div>
+<div class="notice" id="scope"></div><section class="panel section" id="latestNine"><h2>第25回 L20：9動作の最終評価</h2><p>本学習の実行累計はR2の163＋R3歩行157＋R4の180＝500更新です。500更新の予算に到達しました。保存モデルに残った第25回の方策系列は計488更新分で、R2で実行した12更新は未保存です。 9評価の登録基準合格2/9、未達7。</p><video controls playsinline preload="metadata" style="height:auto" src="media/l20-nine-motions.mp4"></video><table><thead><tr><th>動作</th><th>登録基準</th><th>実測区間</th><th>動画</th></tr></thead><tbody><tr><th>前進</th><td>未達</td><td>12.00秒</td><td><a href="media/l20-forward.mp4">個別MP4</a></td></tr><tr><th>後進</th><td>合格</td><td>12.00秒</td><td><a href="media/l20-backward.mp4">個別MP4</a></td></tr><tr><th>左移動</th><td>未達</td><td>12.00秒</td><td><a href="media/l20-left.mp4">個別MP4</a></td></tr><tr><th>右移動</th><td>未達</td><td>12.00秒</td><td><a href="media/l20-right.mp4">個別MP4</a></td></tr><tr><th>左旋回</th><td>未達</td><td>12.00秒</td><td><a href="media/l20-turn-left.mp4">個別MP4</a></td></tr><tr><th>右旋回</th><td>未達</td><td>12.00秒</td><td><a href="media/l20-turn-right.mp4">個別MP4</a></td></tr><tr><th>伏せ・四足復帰</th><td>未達</td><td>24.00秒</td><td><a href="media/l20-prone.mp4">個別MP4</a></td></tr><tr><th>高い挨拶・四足復帰</th><td>未達</td><td>36.00秒</td><td><a href="media/l20-wave.mp4">個別MP4</a></td></tr><tr><th>浅いお座り・四足復帰</th><td>合格</td><td>32.00秒</td><td><a href="media/l20-sit.mp4">個別MP4</a></td></tr></tbody></table><p>元の親+0と同D16の最終評価。歩行baselineはL13、R3学習親はR2保存151。4方策は別エピソードで、単一方策の連続切替ではない。</p><p>短い記録の終了後は黒いパネルへ切替。基準合格と実機・連続切替は別です。<a href="l20-evaluation.md">全結果と復旧会計</a> · <a href="media/l20-nine-motions.gif">全36秒GIF</a></p></section>
+<div class="split"><section class="panel"><h2>改善ループと実測</h2><div style="overflow:auto"><table><thead><tr><th>ループ</th><th>状態</th><th>前進平均</th><th>動画</th></tr></thead><tbody id="summary"></tbody></table></div><p class="note">未測定は「—」。異なる物理・指令条件は単純な改善率に換算しません。</p></section><section class="panel"><h2>L20の足上げ・前進</h2><div class="foot" id="feet"></div><p>完了した離床→着地のうち、最高クリアランスが15mm以上の回数。</p><p class="muted">D16の6方向で登録基準合格1/6。未達と早期終了は結果に残しています。</p><div class="meter"><span id="progress"></span></div><p class="note">L20の実測区間と登録基準で判定。旧D13のL13結果は下の履歴表に保持します。</p></section></div>
+<section class="panel section"><h2>過去の第18回 L13・旧D13：6方向の開発評価</h2><p>6方向すべて12秒完走。始動込み。並進cm/sと旋回rad/sは別の指標です。</p><div style="overflow:auto"><table><thead><tr><th>方向</th><th>記録 秒</th><th>並進 cm/s</th><th>指令方向の旋回 rad/s</th><th>向き変化 °</th><th>旋回の最大XY距離 cm</th><th>判定</th></tr></thead><tbody id="latestCases"></tbody></table></div><p class="note">同じL13形状・制御で親L11は0/6、学習後6/6。親の4方向は早期終了しており、12秒との平均値の差だけを改善量にしません。<a href="l13-evaluation.md">第18回の測定値と限界</a></p></section>
 <section class="panel section"><h2>第20回 L15：伏せと起立・500更新</h2><p>500更新を完了し、最終model_499.ptを24秒評価しました。伏せ2秒を2回達成した一方、2回目の起立高さは1.9375秒／2秒で未達。最大の向きずれ21.4577°・位置ずれ6.9344cm・起立時の傾き7.9249°も基準を超えました。72秒評価は実施していません。</p><p><a href="l15-evaluation.md">第20回の評価と課題</a> · <a href="media/l15-model499-stationary-prone.mp4">24秒の評価動画</a> · <a href="l14-evaluation.md">前回L14の評価</a> · <a href="next-loop-spec.md">当面500更新・次回の修正方針</a> · <a href="pla-parts-mass.md">PLA部品別重量</a></p></section>
 <section class="panel section"><h2>第21回 L16：伏せとジャンプ・500更新</h2><p>最終model499を40秒予定で評価し、第2周期の伏せへの降下中、24.2秒で右前脚太ももの禁止接触により停止しました。第1周期の伏せと四足復帰は各2秒成立。ジャンプ、2周期完遂、位置保持は未達です。最大方位21.2555°・位置10.5869cm。120秒評価は未実施です。</p><p>配色前後の生計測SHAは同一で、色の評価による追加学習・追加ループは0。接触相手は特定できていません。</p><p><a href="l16-evaluation.md">第21回の評価と課題</a> · <a href="media/l16-model499-prone-jump.mp4">24.2秒の配色評価動画</a></p></section>
-<section class="panel section"><h2>第22回 L17：左前足の挨拶・3条件各500更新</h2><p><b>大条件は挨拶2往復と四足復帰2秒を2周期達成。総合判定は未達です。</b> 最大方位ずれ5.827°とXY7.757cmが5°・5cmの基準を超えました。最後の位置2.888cmだけで合格にはしません。</p><table><thead><tr><th>条件</th><th>往復／4</th><th>動作周期／2</th><th>四足保持 秒</th><th>最大方位</th><th>最大XY</th><th>総合</th></tr></thead><tbody><tr><th>小</th><td>0</td><td>0</td><td>2.000 / 2.000</td><td>10.874°</td><td>6.100cm</td><td>未達</td></tr><tr><th>中</th><td>4</td><td>0</td><td>1.985 / 1.980</td><td>3.664°</td><td>7.112cm</td><td>未達</td></tr><tr><th>大</th><td>4</td><td>2</td><td>2.000 / 2.000</td><td>5.827°</td><td>7.757cm</td><td>未達</td></tr></tbody></table><p>同じ親から条件ごとに500更新。全3条件で28秒完走・評価中の禁止接触と速度超過0。大条件のseed42/43/44は同じ生計測で、独立した頑健性試験3例ではありません。伏せ・ジャンプは今回は未実行です。</p><p><a href="l17-evaluation.md">第22回の評価と課題</a> · <a href="media/l17-greeting-comparison.mp4">3条件の同期比較</a> · <a href="video-history.md">全27本の映像履歴</a></p></section><p class="notice">第23回L18は未開始。復帰中の向き・位置と支持荷重の修正候補を検討します。当面は各試行500更新、5°・5cm・四足保持2秒の基準を維持します。</p>
-<section class="section"><h2>動画で比較</h2><div class="comparison"><section class="panel"><label for="before">比較元</label><select id="before"></select><div id="beforeView"></div></section><section class="panel"><label for="after">比較先</label><select id="after"></select><div id="afterView"></div></section></div><p class="note">動画は記録した速度のまま再生。初期表示は第22回L17の小条件と大条件。同じ親から各500更新した比較です。支持移動・挙上・振幅を同時に変えており、単一変更の効果とは言えません。過去の伏せ・歩行は課題が異なる履歴です。</p></section>
+<section class="panel section"><h2>第22回 L17：左前足の挨拶・3条件各500更新</h2><p><b>大条件は挨拶2往復と四足復帰2秒を2周期達成。総合判定は未達です。</b> 最大方位ずれ5.827°とXY7.757cmが5°・5cmの基準を超えました。最後の位置2.888cmだけで合格にはしません。</p><table><thead><tr><th>条件</th><th>往復／4</th><th>動作周期／2</th><th>四足保持 秒</th><th>最大方位</th><th>最大XY</th><th>総合</th></tr></thead><tbody><tr><th>小</th><td>0</td><td>0</td><td>2.000 / 2.000</td><td>10.874°</td><td>6.100cm</td><td>未達</td></tr><tr><th>中</th><td>4</td><td>0</td><td>1.985 / 1.980</td><td>3.664°</td><td>7.112cm</td><td>未達</td></tr><tr><th>大</th><td>4</td><td>2</td><td>2.000 / 2.000</td><td>5.827°</td><td>7.757cm</td><td>未達</td></tr></tbody></table><p>同じ親から条件ごとに500更新。全3条件で28秒完走・評価中の禁止接触と速度超過0。大条件のseed42/43/44は同じ生計測で、独立した頑健性試験3例ではありません。伏せ・ジャンプは今回は未実行です。</p><p><a href="l17-evaluation.md">第22回の評価と課題</a> · <a href="media/l17-greeting-comparison.mp4">3条件の同期比較</a> · <a href="video-history.md">全39本の映像履歴</a></p></section><section class="panel section"><h2>第23回 L18：高い挨拶2周期を達成、最大位置ずれは未達</h2><p>36秒・2周期で計4往復。最大XY6.5507cmは5cmを超え、総合未達。方位4.6227°。</p><a href="l18-evaluation.md">結果</a> · <a href="media/l18-model499-high-wave.mp4">評価動画</a></section><section class="panel section"><h2>第24回 L19：浅いお座りと四足復帰、2周期の全登録基準達成</h2><p>32秒・2周期、座位と復帰の全4保持窓で3秒を達成。最大XY3.3577cm、方位1.5359°。総合合格。</p><a href="l19-evaluation.md">結果</a> · <a href="media/l19-model499-sit.mp4">評価動画</a></section>
+<section class="section"><h2>動画で比較</h2><div class="comparison"><section class="panel"><label for="before">比較元</label><select id="before"></select><div id="beforeView"></div></section><section class="panel"><label for="after">比較先</label><select id="after"></select><div id="afterView"></div></section></div><p class="note">動画は記録時の速度で再生。初期表示は第24回と第25回のお座りです。物理・制御・学習条件の差を詳細記録で確認し、単一変更の効果とは扱いません。3×3比較の終了後パネルを実動作区間へ含めません。</p></section>
 <section class="section"><div class="row"><h2>ループの記録</h2><select id="filter" aria-label="ループの状態で絞り込む"><option value="ALL">すべて</option><option value="EVALUATED">動画評価済み</option><option value="FAILED">停止・不採用</option><option value="DIAGNOSTIC_COMPLETE">診断完了</option><option value="PLANNED">準備中</option><option value="RUNNING">実行中</option></select></div><div class="cards" id="cards"></div></section><footer id="footer"></footer></main>
 <script id="dataset" type="application/json">{
   "schema": "singularitydog.improvement-index.v1",
   "updated": "2026-09-11",
-  "numbering_scope": "直近22回（H01〜H04＋L00〜L17）のうち後半L00〜L17の18件を表示。同じ比較計画の3条件、checkpoint違い、追加seed評価、動画やGIFは別の実験回数に加えない。成功22回という意味ではない。",
+  "numbering_scope": "直近25回（H01〜H04＋L00〜L20）のうち後半L00〜L20の21件を表示。4専門方策、r1/r2/r3/r4復旧、追加評価、動画とGIFは第25回内の作業で、成功25回という意味ではない。",
   "loops": [
     {
       "id": "L00",
@@ -435,12 +435,276 @@ header{display:flex;justify-content:space-between;gap:20px;align-items:flex-star
       "large_seed_raw_measurements_identical": true,
       "report_url": "l17-evaluation.md",
       "greeting_cycle_acceptance": true
+    },
+    {
+      "id": "L18",
+      "order": 18,
+      "series_order": 23,
+      "title": "高い挨拶2周期を達成、最大位置ずれは未達",
+      "state": "EVALUATED",
+      "change": "左前足の高い挨拶へ500更新。前足の床離隔150mm以上、2往復と四足復帰を独立評価。",
+      "result": "36秒・2周期で計4往復。最大XY6.5507cmは5cmを超え、総合未達。方位4.6227°。",
+      "comparison_scope": "固定D16・単一seedの有限評価。動作課題が異なる過去試行とは合格数や改善率を直接比較しない。",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video": null,
+      "video_available_privately": true,
+      "video_url": "media/l18-model499-high-wave.mp4",
+      "report_url": "l18-evaluation.md",
+      "confirmed_completed_updates": 500,
+      "final_iteration": 499,
+      "completed_utc": "2026-09-11T01:28:31.706568+00:00",
+      "recorded_duration_s": 36.0,
+      "requested_interval_completed": true,
+      "skill_acceptance": false,
+      "motion_acceptance": false
+    },
+    {
+      "id": "L19",
+      "order": 19,
+      "series_order": 24,
+      "title": "浅いお座りと四足復帰、2周期の全登録基準達成",
+      "state": "EVALUATED",
+      "change": "鼻上げ約12°の浅い座位へ500更新。座位と四足復帰は各3秒窓の連続2秒以上を事前登録。",
+      "result": "32秒・2周期、座位と復帰の全4保持窓で3秒を達成。最大XY3.3577cm、方位1.5359°。総合合格。",
+      "comparison_scope": "固定D16・単一seedの有限評価。動作課題が異なる過去試行とは合格数や改善率を直接比較しない。",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video": null,
+      "video_available_privately": true,
+      "video_url": "media/l19-model499-sit.mp4",
+      "report_url": "l19-evaluation.md",
+      "confirmed_completed_updates": 500,
+      "final_iteration": 499,
+      "completed_utc": "2026-09-11T02:38:02.484734+00:00",
+      "recorded_duration_s": 32.0,
+      "requested_interval_completed": true,
+      "skill_acceptance": true,
+      "motion_acceptance": true
+    },
+    {
+      "id": "L20",
+      "order": 20,
+      "series_order": 25,
+      "title": "9動作2/9合格・実行500/保持488更新",
+      "state": "EVALUATED",
+      "change": "4専門方策をD16で再評価。R2実行163・保存151、R3歩行157完了後、静止3方策をR4へ分離。未保存12は別計上。",
+      "result": "本学習の実行累計はR2の163＋R3歩行157＋R4の180＝500更新です。500更新の予算に到達しました。保存モデルに残った第25回の方策系列は計488更新分で、R2で実行した12更新は未保存です。 9評価の登録基準合格2/9、未達7。",
+      "comparison_scope": "元の親+0と同D16の最終評価。歩行baselineはL13、R3学習親はR2保存151。4方策は別エピソードで、単一方策の連続切替ではない。",
+      "forward_speed_m_s": 0.3934681018193562,
+      "lift15_counts": [
+        20,
+        19,
+        19,
+        20
+      ],
+      "forward_completed_interval": true,
+      "forward_duration_s": 12.0,
+      "video": null,
+      "video_available_privately": true,
+      "video_url": "media/l20-nine-motions.mp4",
+      "report_url": "l20-evaluation.md",
+      "recorded_duration_s": 36,
+      "confirmed_completed_updates": 500,
+      "retained_trial25_lineage_updates": 488,
+      "main_update_budget_completed": true,
+      "training_by_expert": [
+        {
+          "expert_id": "locomotion",
+          "runtime_revision": "r3",
+          "runtime_source_manifest_sha256": "c542e89887b5da4d055bfc1cde55df5adea54554bff017e2c1f84d164f249c70",
+          "common_contract_sha256": "9f75486c03bf1795b2fc1ca3b4f391bc6a115332d510da1846b39c19be8b6c4b",
+          "status": "COMPLETED",
+          "source_status": "L20_TRAINING_COMPLETED",
+          "planned_new_updates": 157,
+          "completed_new_updates": 157,
+          "new_updates_in_evaluated_checkpoint": 157,
+          "new_completed_updates_absent_from_checkpoint": 0,
+          "inherited_trial25_checkpoint_updates": 151,
+          "retained_trial25_lineage_updates": 308,
+          "expert_planned_update_budget_completed": true,
+          "domain_early_stop": false,
+          "final_iteration": 156,
+          "new_transitions": 1286144,
+          "ended_utc": "2026-09-11T04:22:23.350922+00:00",
+          "first_update_confirmed_utc": "2026-09-11T04:05:56.700996+00:00",
+          "parent_loop_id": "L20_r2",
+          "historical_baseline_loop_id": "L13",
+          "parent_completed_updates": 151,
+          "parent_checkpoint_sha256": "a71d342584b6c95b187b361678aab04357941bc95dd3494bcd770f6bac797e70",
+          "historical_baseline_parent_checkpoint_sha256": "95e237587b224570140b9e83305ad11c858775ed3dc7884530f3f06ea4657aef",
+          "evaluated_checkpoint_sha256": "2063c14fbb94ab8d86c55c0368f9ef36d9e7ca0e2aee4fdfede821f5e4712d1a",
+          "actor_input_dimension": 74,
+          "critic_input_dimension": 89,
+          "actor_mean_all_input_columns_preserved": true,
+          "critic_optimizer_and_counter_initialized_fresh": true,
+          "exploration_std_initial": 0.1,
+          "recovery_learning_rate": 5e-05,
+          "disposable_smoke_updates": 2,
+          "smoke_inherited_by_main": false,
+          "training_exploration": {
+            "episode_terminations": 1542,
+            "max_actual_speed_rad_s": 19.098709106445312,
+            "overspeed_cells": 314,
+            "postphysics_overspeed_cells": 357,
+            "illegal_contact_lane_substeps": 2290,
+            "max_nonfoot_force_N": 894.9391479492188,
+            "max_effort_Nm": 5.5,
+            "max_exposure_h": 0.9999999999999979
+          },
+          "training_exploration_scope": "Training aggregates are distinct from final evaluation and from the finite saved ring buffer.",
+          "interrupted_unretained_rollout": null,
+          "completion_sha256": "4379f8e0b88c27e573763fed9ff777791130a790edeb24cf5ebf82da4c396f35"
+        },
+        {
+          "expert_id": "prone",
+          "runtime_revision": "r4",
+          "runtime_source_manifest_sha256": "75a1874b183704991f8ef867e5b14137fbe617abb44ef801360988d24456ea7e",
+          "common_contract_sha256": "8bd66347b71cb159cb0a30e06ec1743113a5525585def1813303e83806868757",
+          "status": "COMPLETED",
+          "source_status": "L20_TRAINING_COMPLETED",
+          "planned_new_updates": 60,
+          "completed_new_updates": 60,
+          "new_updates_in_evaluated_checkpoint": 60,
+          "new_completed_updates_absent_from_checkpoint": 0,
+          "inherited_trial25_checkpoint_updates": 0,
+          "retained_trial25_lineage_updates": 60,
+          "expert_planned_update_budget_completed": true,
+          "domain_early_stop": false,
+          "final_iteration": 59,
+          "new_transitions": 491520,
+          "ended_utc": "2026-09-11T04:54:17.448352+00:00",
+          "first_update_confirmed_utc": "2026-09-11T04:49:21.329518+00:00",
+          "parent_loop_id": "L16",
+          "historical_baseline_loop_id": "L16",
+          "parent_completed_updates": 500,
+          "parent_checkpoint_sha256": "ce2b3e2a4fcf0c426456b4e171487f66ec37784e0027186f1632e0edebc2617b",
+          "historical_baseline_parent_checkpoint_sha256": "ce2b3e2a4fcf0c426456b4e171487f66ec37784e0027186f1632e0edebc2617b",
+          "evaluated_checkpoint_sha256": "4ebc99b6dc36279918939b36147ea12ad41f612c5f7bc1993167e33ed23ae6b5",
+          "actor_input_dimension": 89,
+          "critic_input_dimension": 122,
+          "actor_mean_all_input_columns_preserved": true,
+          "critic_optimizer_and_counter_initialized_fresh": true,
+          "exploration_std_initial": 0.25,
+          "recovery_learning_rate": null,
+          "disposable_smoke_updates": 2,
+          "smoke_inherited_by_main": false,
+          "training_exploration": {
+            "episode_terminations": 256,
+            "max_actual_speed_rad_s": 7.887214660644531,
+            "overspeed_cells": 0,
+            "illegal_contact_lane_substeps": 0,
+            "max_nonfoot_force_N": 0.9037953615188599,
+            "max_effort_Nm": 5.5,
+            "max_exposure_h": 1.0
+          },
+          "training_exploration_scope": "Training aggregates are distinct from final evaluation and from the finite saved ring buffer.",
+          "interrupted_unretained_rollout": null,
+          "completion_sha256": "e78d6223ddf2b13d2b7f107002d7c1d1ae350ab75c89e0b080eacedecf04767e"
+        },
+        {
+          "expert_id": "wave",
+          "runtime_revision": "r4",
+          "runtime_source_manifest_sha256": "75a1874b183704991f8ef867e5b14137fbe617abb44ef801360988d24456ea7e",
+          "common_contract_sha256": "8bd66347b71cb159cb0a30e06ec1743113a5525585def1813303e83806868757",
+          "status": "COMPLETED",
+          "source_status": "L20_TRAINING_COMPLETED",
+          "planned_new_updates": 60,
+          "completed_new_updates": 60,
+          "new_updates_in_evaluated_checkpoint": 60,
+          "new_completed_updates_absent_from_checkpoint": 0,
+          "inherited_trial25_checkpoint_updates": 0,
+          "retained_trial25_lineage_updates": 60,
+          "expert_planned_update_budget_completed": true,
+          "domain_early_stop": false,
+          "final_iteration": 59,
+          "new_transitions": 491520,
+          "ended_utc": "2026-09-11T05:08:38.486721+00:00",
+          "first_update_confirmed_utc": "2026-09-11T05:03:59.898609+00:00",
+          "parent_loop_id": "L18",
+          "historical_baseline_loop_id": "L18",
+          "parent_completed_updates": 500,
+          "parent_checkpoint_sha256": "5786d61dad7e421f6a628ceb1deaca678f65230e4d571c4ee07b51d210716f47",
+          "historical_baseline_parent_checkpoint_sha256": "5786d61dad7e421f6a628ceb1deaca678f65230e4d571c4ee07b51d210716f47",
+          "evaluated_checkpoint_sha256": "55632a00c0db6ee43fba83e234420a78212a7ec0251f2429b5fa5b63084d9136",
+          "actor_input_dimension": 89,
+          "critic_input_dimension": 122,
+          "actor_mean_all_input_columns_preserved": true,
+          "critic_optimizer_and_counter_initialized_fresh": true,
+          "exploration_std_initial": 0.25,
+          "recovery_learning_rate": null,
+          "disposable_smoke_updates": 2,
+          "smoke_inherited_by_main": false,
+          "training_exploration": {
+            "episode_terminations": 256,
+            "max_actual_speed_rad_s": 8.146610260009766,
+            "overspeed_cells": 0,
+            "illegal_contact_lane_substeps": 37,
+            "max_nonfoot_force_N": 53.88195037841797,
+            "max_effort_Nm": 5.5,
+            "max_exposure_h": 0.9999999999994359
+          },
+          "training_exploration_scope": "Training aggregates are distinct from final evaluation and from the finite saved ring buffer.",
+          "interrupted_unretained_rollout": null,
+          "completion_sha256": "a1ed79cf383f993480c4f897fef14400feeee5f06716fa323cd38e158f810644"
+        },
+        {
+          "expert_id": "sit",
+          "runtime_revision": "r4",
+          "runtime_source_manifest_sha256": "75a1874b183704991f8ef867e5b14137fbe617abb44ef801360988d24456ea7e",
+          "common_contract_sha256": "8bd66347b71cb159cb0a30e06ec1743113a5525585def1813303e83806868757",
+          "status": "COMPLETED",
+          "source_status": "L20_TRAINING_COMPLETED",
+          "planned_new_updates": 60,
+          "completed_new_updates": 60,
+          "new_updates_in_evaluated_checkpoint": 60,
+          "new_completed_updates_absent_from_checkpoint": 0,
+          "inherited_trial25_checkpoint_updates": 0,
+          "retained_trial25_lineage_updates": 60,
+          "expert_planned_update_budget_completed": true,
+          "domain_early_stop": false,
+          "final_iteration": 59,
+          "new_transitions": 491520,
+          "ended_utc": "2026-09-11T05:23:05.739723+00:00",
+          "first_update_confirmed_utc": "2026-09-11T05:18:39.037666+00:00",
+          "parent_loop_id": "L19",
+          "historical_baseline_loop_id": "L19",
+          "parent_completed_updates": 500,
+          "parent_checkpoint_sha256": "8b9c49765e5d3bbcbe7b430563e3bd72c59e14a8383dd2a7ec3571bfbf4ee058",
+          "historical_baseline_parent_checkpoint_sha256": "8b9c49765e5d3bbcbe7b430563e3bd72c59e14a8383dd2a7ec3571bfbf4ee058",
+          "evaluated_checkpoint_sha256": "7b0c7753154fcda06d4b781e2c73e0d117f0cda31c61c94670e0563eeb7d84f5",
+          "actor_input_dimension": 89,
+          "critic_input_dimension": 122,
+          "actor_mean_all_input_columns_preserved": true,
+          "critic_optimizer_and_counter_initialized_fresh": true,
+          "exploration_std_initial": 0.25,
+          "recovery_learning_rate": null,
+          "disposable_smoke_updates": 2,
+          "smoke_inherited_by_main": false,
+          "training_exploration": {
+            "episode_terminations": 256,
+            "max_actual_speed_rad_s": 4.4993085861206055,
+            "overspeed_cells": 0,
+            "illegal_contact_lane_substeps": 0,
+            "max_nonfoot_force_N": 0.0,
+            "max_effort_Nm": 5.5,
+            "max_exposure_h": 0.08948709485278465
+          },
+          "training_exploration_scope": "Training aggregates are distinct from final evaluation and from the finite saved ring buffer.",
+          "interrupted_unretained_rollout": null,
+          "completion_sha256": "11b9f518c2d5ea08c12366a438d79cfc9684e5e5c3f79f4226d16266e475115b"
+        }
+      ],
+      "completed_utc": "2026-09-11T05:26:56.804238+00:00",
+      "skill_acceptance": false,
+      "qualified_motion_count": 2,
+      "own_result_sha256": "aa333df0b53dfcbb3946d0a54ec960911fb79d5f7bf649f0c4bd9ff2b9f4046b"
     }
   ],
   "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。",
   "target_actual_forward_m_s": 0.4,
-  "verified_recent_series_count": 22,
-  "latest_loop_id": "L17",
+  "verified_recent_series_count": 25,
+  "latest_loop_id": "L20",
   "comparison_cases": [
     {
       "id": "L09-matched-L10",
@@ -491,10 +755,200 @@ header{display:flex;justify-content:space-between;gap:20px;align-items:flex-star
       "comparison_scope": "L17 variants share the fixed model, parent and evaluation criteria; each is a separate500-update training, not sequential1500 updates. Support shift, lift and wave amplitude change together, so this is not a single-factor causal comparison. L16 used prone/jump and is a different task. Large seed42/43/44 raw arrays are byte-identical, not three independent robustness conditions.",
       "forward_speed_m_s": null,
       "video_url": "media/l17-medium-greeting.mp4"
+    },
+    {
+      "id": "L20-forward",
+      "title": "第25回・前進",
+      "state": "EVALUATED",
+      "change": "R3追加157更新、保持された第25回系列308更新分。",
+      "result": "12.00秒、登録基準未達。",
+      "comparison_scope": "元の親+0と同D16の最終評価。歩行baselineはL13、R3学習親はR2保存151。4方策は別エピソードで、単一方策の連続切替ではない。",
+      "forward_speed_m_s": 0.3934681018193562,
+      "video_url": "media/l20-forward.mp4",
+      "report_url": "l20-evaluation.md",
+      "recorded_duration_s": 12.0
+    },
+    {
+      "id": "L20-backward",
+      "title": "第25回・後進",
+      "state": "EVALUATED",
+      "change": "R3追加157更新、保持された第25回系列308更新分。",
+      "result": "12.00秒、登録基準合格。",
+      "comparison_scope": "元の親+0と同D16の最終評価。歩行baselineはL13、R3学習親はR2保存151。4方策は別エピソードで、単一方策の連続切替ではない。",
+      "forward_speed_m_s": null,
+      "video_url": "media/l20-backward.mp4",
+      "report_url": "l20-evaluation.md",
+      "recorded_duration_s": 12.0
+    },
+    {
+      "id": "L20-left",
+      "title": "第25回・左移動",
+      "state": "EVALUATED",
+      "change": "R3追加157更新、保持された第25回系列308更新分。",
+      "result": "12.00秒、登録基準未達。",
+      "comparison_scope": "元の親+0と同D16の最終評価。歩行baselineはL13、R3学習親はR2保存151。4方策は別エピソードで、単一方策の連続切替ではない。",
+      "forward_speed_m_s": null,
+      "video_url": "media/l20-left.mp4",
+      "report_url": "l20-evaluation.md",
+      "recorded_duration_s": 12.0
+    },
+    {
+      "id": "L20-right",
+      "title": "第25回・右移動",
+      "state": "EVALUATED",
+      "change": "R3追加157更新、保持された第25回系列308更新分。",
+      "result": "12.00秒、登録基準未達。",
+      "comparison_scope": "元の親+0と同D16の最終評価。歩行baselineはL13、R3学習親はR2保存151。4方策は別エピソードで、単一方策の連続切替ではない。",
+      "forward_speed_m_s": null,
+      "video_url": "media/l20-right.mp4",
+      "report_url": "l20-evaluation.md",
+      "recorded_duration_s": 12.0
+    },
+    {
+      "id": "L20-turn-left",
+      "title": "第25回・左旋回",
+      "state": "EVALUATED",
+      "change": "R3追加157更新、保持された第25回系列308更新分。",
+      "result": "12.00秒、登録基準未達。",
+      "comparison_scope": "元の親+0と同D16の最終評価。歩行baselineはL13、R3学習親はR2保存151。4方策は別エピソードで、単一方策の連続切替ではない。",
+      "forward_speed_m_s": null,
+      "video_url": "media/l20-turn-left.mp4",
+      "report_url": "l20-evaluation.md",
+      "recorded_duration_s": 12.0
+    },
+    {
+      "id": "L20-turn-right",
+      "title": "第25回・右旋回",
+      "state": "EVALUATED",
+      "change": "R3追加157更新、保持された第25回系列308更新分。",
+      "result": "12.00秒、登録基準未達。",
+      "comparison_scope": "元の親+0と同D16の最終評価。歩行baselineはL13、R3学習親はR2保存151。4方策は別エピソードで、単一方策の連続切替ではない。",
+      "forward_speed_m_s": null,
+      "video_url": "media/l20-turn-right.mp4",
+      "report_url": "l20-evaluation.md",
+      "recorded_duration_s": 12.0
+    },
+    {
+      "id": "L20-prone",
+      "title": "第25回・伏せ・四足復帰",
+      "state": "EVALUATED",
+      "change": "R4追加60更新、保持された第25回系列60更新分。",
+      "result": "24.00秒、登録基準未達。",
+      "comparison_scope": "元の親+0と同D16の最終評価。歩行baselineはL13、R3学習親はR2保存151。4方策は別エピソードで、単一方策の連続切替ではない。",
+      "forward_speed_m_s": null,
+      "video_url": "media/l20-prone.mp4",
+      "report_url": "l20-evaluation.md",
+      "recorded_duration_s": 24.0
+    },
+    {
+      "id": "L20-wave",
+      "title": "第25回・高い挨拶・四足復帰",
+      "state": "EVALUATED",
+      "change": "R4追加60更新、保持された第25回系列60更新分。",
+      "result": "36.00秒、登録基準未達。",
+      "comparison_scope": "元の親+0と同D16の最終評価。歩行baselineはL13、R3学習親はR2保存151。4方策は別エピソードで、単一方策の連続切替ではない。",
+      "forward_speed_m_s": null,
+      "video_url": "media/l20-wave.mp4",
+      "report_url": "l20-evaluation.md",
+      "recorded_duration_s": 36.0
+    },
+    {
+      "id": "L20-sit",
+      "title": "第25回・浅いお座り・四足復帰",
+      "state": "EVALUATED",
+      "change": "R4追加60更新、保持された第25回系列60更新分。",
+      "result": "32.00秒、登録基準合格。",
+      "comparison_scope": "元の親+0と同D16の最終評価。歩行baselineはL13、R3学習親はR2保存151。4方策は別エピソードで、単一方策の連続切替ではない。",
+      "forward_speed_m_s": null,
+      "video_url": "media/l20-sit.mp4",
+      "report_url": "l20-evaluation.md",
+      "recorded_duration_s": 32.0
     }
   ],
-  "default_comparison_before": "L17-small",
+  "default_comparison_before": "L19",
   "latest_cases": [
+    {
+      "direction": "forward",
+      "label": "前進",
+      "duration_s": 12.0,
+      "completed_interval": true,
+      "speed_cm_s": 39.34681018193562,
+      "signed_mean_yaw_rate_rad_s": null,
+      "yaw_end_deg": -21.0529419737357,
+      "max_planar_excursion_m": 4.908489336791267,
+      "target_result": "未達"
+    },
+    {
+      "direction": "backward",
+      "label": "後進",
+      "duration_s": 12.0,
+      "completed_interval": true,
+      "speed_cm_s": 11.871400475502014,
+      "signed_mean_yaw_rate_rad_s": null,
+      "yaw_end_deg": -9.134435890824506,
+      "max_planar_excursion_m": 1.4533238079440463,
+      "target_result": "登録基準合格"
+    },
+    {
+      "direction": "left",
+      "label": "左移動",
+      "duration_s": 12.0,
+      "completed_interval": true,
+      "speed_cm_s": 9.047122796376545,
+      "signed_mean_yaw_rate_rad_s": null,
+      "yaw_end_deg": -11.438201356690769,
+      "max_planar_excursion_m": 1.1266272328958493,
+      "target_result": "未達"
+    },
+    {
+      "direction": "right",
+      "label": "右移動",
+      "duration_s": 12.0,
+      "completed_interval": true,
+      "speed_cm_s": 8.814539511998493,
+      "signed_mean_yaw_rate_rad_s": null,
+      "yaw_end_deg": -19.265320969385602,
+      "max_planar_excursion_m": 1.1106875961316394,
+      "target_result": "未達"
+    },
+    {
+      "direction": "turn_left",
+      "label": "左旋回",
+      "duration_s": 12.0,
+      "completed_interval": true,
+      "speed_cm_s": null,
+      "signed_mean_yaw_rate_rad_s": 0.2127871282528224,
+      "yaw_end_deg": 146.30165260314817,
+      "max_planar_excursion_m": 0.22002197044392874,
+      "target_result": "未達"
+    },
+    {
+      "direction": "turn_right",
+      "label": "右旋回",
+      "duration_s": 12.0,
+      "completed_interval": true,
+      "speed_cm_s": null,
+      "signed_mean_yaw_rate_rad_s": 0.26390626764783437,
+      "yaw_end_deg": -181.4485838792497,
+      "max_planar_excursion_m": 0.26711722816129435,
+      "target_result": "未達"
+    }
+  ],
+  "latest_locomotion_loop_id": "L20",
+  "latest_cases_scope": "L20のD16・元L13親+0と最終方策の6方向評価。旧D13のL13結果はhistorical_l13_casesに保持。",
+  "future_training_updates": 500,
+  "latest_locomotion_development_targets_met_case_count": 1,
+  "latest_locomotion_evaluation_case_count": 6,
+  "next_loop": {
+    "id": null,
+    "series_order": null,
+    "status": "NOT_STARTED_UNSPECIFIED",
+    "training_started": false,
+    "counted_as_completed_loop": false,
+    "default_new_training_updates": 500,
+    "scope": "第25回の未達・親比較から次の有限試行を決める。次回の学習は未開始。個別合格と連続切替・外乱・実機は別に検証する。"
+  },
+  "historical_l13_cases": [
     {
       "direction": "forward",
       "duration_s": 12.0,
@@ -562,21 +1016,89 @@ header{display:flex;justify-content:space-between;gap:20px;align-items:flex-star
       "target_result": "既存全基準達成"
     }
   ],
-  "latest_locomotion_loop_id": "L13",
-  "latest_cases_scope": "L13 six-direction locomotion, separate from the latest L17 greeting skill",
-  "future_training_updates": 500,
-  "latest_locomotion_development_targets_met_case_count": 6,
-  "latest_locomotion_evaluation_case_count": 6,
-  "next_loop": {
-    "id": "L18",
-    "series_order": 23,
-    "status": "NOT_STARTED",
-    "training_started": false,
-    "counted_as_completed_loop": false,
-    "default_new_training_updates": 500,
-    "scope": "第23回L18は未開始。largeの振幅・挙上を基に、足下ろし・支持移行・四足保持中の方位と位置ずれを修正する案を検討する。5°・5cm・四足保持2秒の基準は維持し、条件差のある頑健性評価を別に設計する。当面は各試行500更新。ジャンプ・伏せの課題解消や実機での成立は今回確認していない。"
-  }
-}</script><script>
+  "historical_l13_cases_scope": "Historical L13 six-direction locomotion on D13; separate from the current L20 nine-motion evaluation on D16.",
+  "historical_l13_case_count": 6,
+  "historical_l13_development_targets_met_case_count": 6,
+  "latest_locomotion_stage_id": "L20",
+  "selected_actual_recording_count": 39,
+  "separate_measured_chart_mp4_count": 1,
+  "default_comparison_after": "L20-sit",
+  "latest_motion_cases": [
+    {
+      "motion_id": "forward",
+      "label": "前進",
+      "expert_id": "locomotion",
+      "skill_acceptance": false,
+      "duration_s": 12.0,
+      "video_url": "media/l20-forward.mp4"
+    },
+    {
+      "motion_id": "backward",
+      "label": "後進",
+      "expert_id": "locomotion",
+      "skill_acceptance": true,
+      "duration_s": 12.0,
+      "video_url": "media/l20-backward.mp4"
+    },
+    {
+      "motion_id": "left",
+      "label": "左移動",
+      "expert_id": "locomotion",
+      "skill_acceptance": false,
+      "duration_s": 12.0,
+      "video_url": "media/l20-left.mp4"
+    },
+    {
+      "motion_id": "right",
+      "label": "右移動",
+      "expert_id": "locomotion",
+      "skill_acceptance": false,
+      "duration_s": 12.0,
+      "video_url": "media/l20-right.mp4"
+    },
+    {
+      "motion_id": "turn_left",
+      "label": "左旋回",
+      "expert_id": "locomotion",
+      "skill_acceptance": false,
+      "duration_s": 12.0,
+      "video_url": "media/l20-turn-left.mp4"
+    },
+    {
+      "motion_id": "turn_right",
+      "label": "右旋回",
+      "expert_id": "locomotion",
+      "skill_acceptance": false,
+      "duration_s": 12.0,
+      "video_url": "media/l20-turn-right.mp4"
+    },
+    {
+      "motion_id": "prone",
+      "label": "伏せ・四足復帰",
+      "expert_id": "prone",
+      "skill_acceptance": false,
+      "duration_s": 24.0,
+      "video_url": "media/l20-prone.mp4"
+    },
+    {
+      "motion_id": "wave",
+      "label": "高い挨拶・四足復帰",
+      "expert_id": "wave",
+      "skill_acceptance": false,
+      "duration_s": 36.0,
+      "video_url": "media/l20-wave.mp4"
+    },
+    {
+      "motion_id": "sit",
+      "label": "浅いお座り・四足復帰",
+      "expert_id": "sit",
+      "skill_acceptance": true,
+      "duration_s": 32.0,
+      "video_url": "media/l20-sit.mp4"
+    }
+  ]
+}
+</script><script>
 const data=JSON.parse(document.getElementById('dataset').textContent),loops=[...data.loops].sort((a,b)=>a.order-b.order);
 const labels={EVALUATED:'動画評価済み',FAILED:'停止・不採用',DIAGNOSTIC_COMPLETE:'診断完了',PLANNED:'準備中',RUNNING:'実行中'};
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -586,14 +1108,14 @@ document.getElementById('updated').textContent='更新 '+data.updated;
 document.getElementById('baselineSpeed').textContent=speed(baseline?.forward_speed_m_s);
 document.getElementById('latest').textContent=[...loops].reverse().find(x=>['EVALUATED','DIAGNOSTIC_COMPLETE'].includes(x.state))?.title??'未完了';
 document.getElementById('scope').textContent=data.numbering_scope;
-document.getElementById('summary').innerHTML=loops.map(x=>`<tr><td class="numbers">${esc(x.id)}</td><td><span class="pill ${x.state}">${labels[x.state]}</span></td><td class="numbers">${speed(x.forward_speed_m_s)}${x.forward_completed_interval===false?'（11.14秒で終了）':''}</td><td>${x.video_url?'再生可':x.video_available_privately?'ローカルのみ':'なし'}</td></tr>`).join('');
+document.getElementById('summary').innerHTML=loops.map(x=>`<tr><td class="numbers">${esc(x.id)}</td><td><span class="pill ${x.state}">${labels[x.state]}</span></td><td class="numbers">${speed(x.forward_speed_m_s)}${x.forward_completed_interval===false?'（'+Number(x.forward_duration_s??x.recorded_duration_s??11.14).toFixed(2)+'秒で終了）':''}</td><td>${x.video_url?'再生可':x.video_available_privately?'ローカルのみ':'なし'}</td></tr>`).join('');
 document.getElementById('feet').innerHTML=['前左','前右','後左','後右'].map((n,i)=>`<div><small>${n}</small><strong>${baseline?.lift15_counts?.[i]??'—'}</strong></div>`).join('');
 document.getElementById('progress').style.width=(baseline?.forward_completed_interval===false?0:Math.min(100,Math.max(0,(baseline?.forward_speed_m_s??0)/data.target_actual_forward_m_s*100)))+'%';
-function view(key){const x=comparisonCases.find(l=>l.id===document.getElementById(key).value);let v=x.video_url?`<video controls preload="metadata" playsinline src="${esc(x.video_url)}"></video>`:`<p>${(x.video||x.video_available_privately)?'この比較画面には動画を組み込んでいません。':'このループの記録動画はありません。'}<br>${esc(labels[x.state])}</p>`;document.getElementById(key+'View').innerHTML=`<h3>${esc(x.id+' · '+x.title)}</h3><div class="video">${v}</div><p><b>変更：</b>${esc(x.change)}</p><p><b>結果：</b>${esc(x.result)}</p><p class="numbers">前進平均 ${speed(x.forward_speed_m_s)}${x.forward_completed_interval===false?' / 11.14秒で接触終了':''}</p><p class="note">${esc(x.comparison_scope)}</p>`;}
-for(const key of ['before','after']){const s=document.getElementById(key);s.innerHTML=comparisonCases.map(x=>`<option value="${x.id}">${esc(x.id+' '+x.title)}</option>`).join('');s.value=key==='before'?(data.default_comparison_before??loops[0].id):data.latest_loop_id;s.onchange=()=>view(key);view(key);}
+function view(key){const x=comparisonCases.find(l=>l.id===document.getElementById(key).value);let v=x.video_url?`<video controls preload="metadata" playsinline src="${esc(x.video_url)}"></video>`:`<p>${(x.video||x.video_available_privately)?'この比較画面には動画を組み込んでいません。':'このループの記録動画はありません。'}<br>${esc(labels[x.state])}</p>`;document.getElementById(key+'View').innerHTML=`<h3>${esc(x.id+' · '+x.title)}</h3><div class="video">${v}</div><p><b>変更：</b>${esc(x.change)}</p><p><b>結果：</b>${esc(x.result)}</p><p class="numbers">前進平均 ${speed(x.forward_speed_m_s)}${x.forward_completed_interval===false?' / '+Number(x.forward_duration_s??x.recorded_duration_s??11.14).toFixed(2)+'秒で終了':''}</p><p class="note">${esc(x.comparison_scope)}</p>`;}
+for(const key of ['before','after']){const s=document.getElementById(key);s.innerHTML=comparisonCases.map(x=>`<option value="${x.id}">${esc(x.id+' '+x.title)}</option>`).join('');s.value=key==='before'?(data.default_comparison_before??loops[0].id):(data.default_comparison_after??data.latest_loop_id);s.onchange=()=>view(key);view(key);}
 function cards(){const f=document.getElementById('filter').value;document.getElementById('cards').innerHTML=loops.filter(x=>f==='ALL'||x.state===f).map(x=>`<article class="card"><div class="row"><b>${esc(x.id)}</b><span class="pill ${x.state}">${labels[x.state]}</span></div><h3>${esc(x.title)}</h3><p><b>変更</b><br>${esc(x.change)}</p><p><b>結果</b><br>${esc(x.result)}</p><p class="note">${esc(x.comparison_scope)}</p><button data-loop="${x.id}">比較先に表示</button></article>`).join('');document.querySelectorAll('[data-loop]').forEach(b=>b.onclick=()=>{document.getElementById('after').value=b.dataset.loop;view('after');document.getElementById('after').scrollIntoView({behavior:'smooth',block:'center'});});}
 
 const metric=(x,n)=>x==null?'—':x.toFixed(n);
-document.getElementById('latestCases').innerHTML=data.latest_cases.map(x=>`<tr><th>${esc(x.label)}</th><td>${metric(x.duration_s,2)}</td><td>${metric(x.speed_cm_s,4)}</td><td>${metric(x.signed_mean_yaw_rate_rad_s,6)}</td><td>${metric(x.yaw_end_deg,4)}</td><td>${metric(x.signed_mean_yaw_rate_rad_s==null?null:x.max_planar_excursion_m*100,4)}</td><td>${esc(x.target_result)}</td></tr>`).join('');
+document.getElementById('latestCases').innerHTML=data.historical_l13_cases.map(x=>`<tr><th>${esc(x.label)}</th><td>${metric(x.duration_s,2)}</td><td>${metric(x.speed_cm_s,4)}</td><td>${metric(x.signed_mean_yaw_rate_rad_s,6)}</td><td>${metric(x.yaw_end_deg,4)}</td><td>${metric(x.signed_mean_yaw_rate_rad_s==null?null:x.max_planar_excursion_m*100,4)}</td><td>${esc(x.target_result)}</td></tr>`).join('');
 document.getElementById('filter').onchange=cards;cards();document.getElementById('footer').textContent=data.notes;
 </script></html>
