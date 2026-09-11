@@ -105,5 +105,12 @@
   "docs/l16-evaluation.md",
   "evidence/l16-evaluation.json",
   "docs/media/l16-model499-prone-jump.mp4",
-  "docs/media/l16-model499-prone-jump.gif"
+  "docs/media/l16-model499-prone-jump.gif",
+  "docs/l17-evaluation.md",
+  "docs/media/l17-greeting-comparison.mp4",
+  "docs/media/l17-large-greeting.gif",
+  "docs/media/l17-large-greeting.mp4",
+  "docs/media/l17-medium-greeting.mp4",
+  "docs/media/l17-small-greeting.mp4",
+  "evidence/l17-evaluation.json"
 ]

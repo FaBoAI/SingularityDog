@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
-  "as_of": "2026-09-10",
-  "verified_recent_series_count": 21,
+  "as_of": "2026-09-11",
+  "verified_recent_series_count": 22,
   "successful_improvements_count": null,
   "all_development_total": null,
-  "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同variantの複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列の立位基準以後で確認したH01-H04とL00-L16の21回。全開発通算、学習完了21回、成功21回を意味しない。停止した学習と指定checkpoint評価はL14の同じ1回に含み、L16の色あり・色なし評価や動画追加、次回準備も別のループとして数えない。",
+  "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同じ比較計画の複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
+  "scope": "現在の機体系列の立位基準以後で確認したH01-H04とL00-L17の22回。全開発通算、学習完了22回、成功22回を意味しない。L17の3条件各500更新・追加seed評価・動画4本は一組の比較実験として数える。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -526,6 +526,131 @@
       "comparison_scope": "L15 and L16 differ in physical geometry and motion task; no direct improvement percentage. Two L16 inference evaluations use the same model499 and identical raw400Hz measurement SHA; color-only evaluation adds zero learning updates and zero development loops.",
       "color_evaluation_raw_measurement_sha256": "6a03fced9cc1956c8139d02611c953cdd870a1a97ada979835af183aa0b5a4cc",
       "same_raw_measurements_before_and_after_color": true
+    },
+    {
+      "id": "L17",
+      "series_order": 22,
+      "title": "3条件各500更新、大条件は挨拶2周期成立・方位と位置は未達",
+      "kind": "TRAINING_AND_GREETING_VARIANT_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "value_utc": "2026-09-11T00:00:03.955039+00:00",
+        "kind": "fixed_trial_plan_completed_including_seed_evaluations",
+        "note": "Three separate500-update main trainings and five inference rollouts belong to the same greeting comparison loop."
+      },
+      "change": "固定した機体形状・質量で、ジャンプを外し左前足1本の挨拶に集中。支持移動・挙上・振幅を小中大で変え、同じL16親の行動平均を基に各500更新。critic・optimizer・探索幅・更新カウンタは条件ごとに新規初期化。",
+      "result": "3条件各500更新・各model499を28秒評価。largeは1周期2往復と四足復帰2秒を2周期達成したが、最大方位ずれ5.827°・XY7.757cmで総合未達。smallは0往復、mediumは4往復だが四足復帰1.985/1.980秒。全3条件で評価中の禁止接触・速度超過0。",
+      "next_decision": "第23回L18は未開始。largeの振幅・挙上を基に、足下ろし・支持移行・四足保持中の方位と位置ずれを修正する案を検討する。5°・5cm・四足保持2秒の基準は維持し、条件差のある頑健性評価を別に設計する。当面は各試行500更新。ジャンプ・伏せの課題解消や実機での成立は今回確認していない。",
+      "new_training_updates_per_variant": 500,
+      "total_main_training_updates": 1500,
+      "training_variant_count": 3,
+      "parent_loop_id": "L16",
+      "parent_checkpoint_updates": 500,
+      "all_variants_start_from_same_parent": true,
+      "single_1500_update_model": false,
+      "final_iteration_per_variant": 499,
+      "additional_training_updates_for_evaluation": 0,
+      "deterministic_evaluation_rollouts": 5,
+      "unique_main_evaluation_conditions": 3,
+      "best_observed_variant": "large",
+      "variants": [
+        {
+          "id": "small",
+          "new_training_updates": 500,
+          "final_iteration": 499,
+          "transitions": 4096000,
+          "training_completed_utc": "2026-09-10T22:14:36.821996+00:00",
+          "evaluation_completed_utc": "2026-09-10T22:18:05.658095+00:00",
+          "seed": 42,
+          "evaluation_duration_s": 28.0,
+          "policy_steps": 1400,
+          "physics_samples": 11200,
+          "completed_round_trips": 0,
+          "passed_motion_cycle_count": 0,
+          "four_foot_return_continuous_holds_s": [
+            2.0,
+            2.0
+          ],
+          "motion_criteria_passed": false,
+          "skill_acceptance": false,
+          "maximum_heading_change_deg": 10.873957699700401,
+          "maximum_xy_distance_m": 0.060999270950437,
+          "maximum_tilt_deg": 1.7392515018881025,
+          "final_xy_distance_m": 0.030871264921882118,
+          "forbidden_contact_samples": 0,
+          "overspeed_joint_samples": 0,
+          "checkpoint_sha256": "2c80e106ada88f8d56a223cdb77db095317967ab03d6914ec0de52ea1259e2da",
+          "video_sha256": "d44aca75c7eb7a82aaeb2eb80cd69103c53b9e2d83649031824933bea141e062"
+        },
+        {
+          "id": "medium",
+          "new_training_updates": 500,
+          "final_iteration": 499,
+          "transitions": 4096000,
+          "training_completed_utc": "2026-09-10T23:01:56.812780+00:00",
+          "evaluation_completed_utc": "2026-09-10T23:05:26.953479+00:00",
+          "seed": 42,
+          "evaluation_duration_s": 28.0,
+          "policy_steps": 1400,
+          "physics_samples": 11200,
+          "completed_round_trips": 4,
+          "passed_motion_cycle_count": 0,
+          "four_foot_return_continuous_holds_s": [
+            1.985,
+            1.98
+          ],
+          "motion_criteria_passed": false,
+          "skill_acceptance": false,
+          "maximum_heading_change_deg": 3.6643275325829117,
+          "maximum_xy_distance_m": 0.0711191744201756,
+          "maximum_tilt_deg": 2.2302044614189525,
+          "final_xy_distance_m": 0.03367575120633325,
+          "forbidden_contact_samples": 0,
+          "overspeed_joint_samples": 0,
+          "checkpoint_sha256": "6ee68e4c9c280aef407c0b147b13d7a348931c734afa9c729a4c68a4d9a048af",
+          "video_sha256": "f8cf7a8be273cd3d4a7c0abff00ce9dd442677fe83821cdf6ac7b6f5c6c32eaa"
+        },
+        {
+          "id": "large",
+          "new_training_updates": 500,
+          "final_iteration": 499,
+          "transitions": 4096000,
+          "training_completed_utc": "2026-09-10T23:49:28.666903+00:00",
+          "evaluation_completed_utc": "2026-09-10T23:52:58.587023+00:00",
+          "seed": 42,
+          "evaluation_duration_s": 28.0,
+          "policy_steps": 1400,
+          "physics_samples": 11200,
+          "completed_round_trips": 4,
+          "passed_motion_cycle_count": 2,
+          "four_foot_return_continuous_holds_s": [
+            2.0,
+            2.0
+          ],
+          "motion_criteria_passed": false,
+          "skill_acceptance": false,
+          "maximum_heading_change_deg": 5.827306862268117,
+          "maximum_xy_distance_m": 0.07757291219637766,
+          "maximum_tilt_deg": 3.032303417763827,
+          "final_xy_distance_m": 0.02887508857072548,
+          "forbidden_contact_samples": 0,
+          "overspeed_joint_samples": 0,
+          "checkpoint_sha256": "4a9006ba4de2e1726b06911952fdd8fa99e00318119b5513d8543b41e65e54b2",
+          "video_sha256": "13f6906333801ae11c66c082b3df15855e58451c74de6eeaac7e29bada7a56ab"
+        }
+      ],
+      "evaluation_duration_s_per_rollout": 28.0,
+      "registered_sampled_motion_criteria_passed_best_variant": false,
+      "stationary_criteria_passed": false,
+      "skill_acceptance": false,
+      "walking_acceptance": false,
+      "hardware_acceptance": false,
+      "large_seed_42_43_44_raw_measurements_identical": true,
+      "seed_scope": "Same deterministic scenario repeated; not three independent initial-state or disturbance robustness trials.",
+      "selected_evidence": "evidence/l17-evaluation.json",
+      "comparison_scope": "L17 variants share the fixed model, parent and evaluation criteria; each is a separate500-update training, not sequential1500 updates. Support shift, lift and wave amplitude change together, so this is not a single-factor causal comparison. L16 used prone/jump and is a different task. Large seed42/43/44 raw arrays are byte-identical, not three independent robustness conditions.",
+      "own_numeric_review_sha256": "f55f5571389872cedaa495981b1c91f1e20a822096eacd81df92a49bb10643d4",
+      "greeting_cycle_criteria_passed_best_variant": true
     }
   ],
   "visualization": {
@@ -557,7 +682,7 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": "第22回はジャンプを外し、前足1本を手のように振る挨拶モーションへ進む予定。朝までGPUを使用し複数trialを行うユーザー希望を記録し、現在は未開始。当面500更新を基準とし、支持と重心、接触、姿勢復帰を検証する。後ろ足2本立ちは未実施。予定や追加評価を完了済み21回へ加算しない。",
+  "next": "第23回L18は未開始。largeの振幅・挙上を基に、足下ろし・支持移行・四足保持中の方位と位置ずれを修正する案を検討する。5°・5cm・四足保持2秒の基準は維持し、条件差のある頑健性評価を別に設計する。当面は各試行500更新。ジャンプ・伏せの課題解消や実機での成立は今回確認していない。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
@@ -566,24 +691,25 @@
     "new_training_started_for_publication": false
   },
   "next_loop_specification": {
-    "status": "L17_GREETING_PLANNED_NOT_STARTED",
+    "status": "L18_NOT_STARTED",
     "counted_as_completed_loop": false,
     "training_started": false,
     "cad_changes_completed": false,
     "materials_and_appearance": {
-      "base_plate_color": "white",
+      "base_plate_color": "black",
       "carbon_color": "black",
       "legs_material": "PLA",
       "legs_color": "yellow",
       "handle_color": "yellow",
-      "carbon_retaining_parts_color": "yellow",
-      "face_frame_color": "yellow",
+      "carbon_retaining_parts_color": "black",
+      "face_frame_color": "black",
       "qdd_and_motors_color": "black",
       "foot_tip_balls_color": "black",
       "display_color": "black",
       "display_content": "eyes",
       "imu_color": "red",
-      "imu_location": "under the lower plate"
+      "imu_location": "under the lower plate",
+      "body_color": "black"
     },
     "individual_pla_part_mass": "The79-part CAD-solid table remains a historical model estimate; it is not the total for the revised L16 hardware. Printed part weights remain unmeasured.",
     "references": [
@@ -591,11 +717,11 @@
       "docs/pla-parts-mass.md"
     ],
     "completed_l16_scope": "Updated mounting geometry and specified colors were used by the L16 simulation. Final colored native CAD archive saving is a separate unfinished step.",
-    "planned_loop_id": "L17",
-    "planned_series_order": 22,
-    "motion": "single_foreleg_greeting_wave",
+    "planned_loop_id": "L18",
+    "planned_series_order": 23,
+    "motion": "single_foreleg_greeting_recovery_improvement_candidates",
     "jump_training_planned": false,
-    "multiple_trials_requested": true,
-    "gpu_use_authorized_until": "morning"
+    "completed_l17_scope": "Fixed physical geometry and mass from L16; legs and handle yellow, body/base plate/retainers/face frame black and IMU red in the evaluated simulation. No new printed-strength validation.",
+    "scope": "第23回L18は未開始。largeの振幅・挙上を基に、足下ろし・支持移行・四足保持中の方位と位置ずれを修正する案を検討する。5°・5cm・四足保持2秒の基準は維持し、条件差のある頑健性評価を別に設計する。当面は各試行500更新。ジャンプ・伏せの課題解消や実機での成立は今回確認していない。"
   }
 }

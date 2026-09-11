@@ -1,0 +1,607 @@
+{
+  "schema": "singularitydog.selected-motion-evaluation.v1",
+  "id": "L17",
+  "series_order": 22,
+  "motion": "single_left_front_paw_greeting_wave_and_four_foot_return",
+  "status": "THREE_500_UPDATE_MODELS_COMPLETED_LARGE_GREETING_PASSED_STATIONARY_CRITERIA_NOT_MET",
+  "training": {
+    "status": "COMPLETED",
+    "variants": 3,
+    "completed_updates_per_variant": 500,
+    "total_main_updates_across_separate_models": 1500,
+    "final_iteration_per_variant": 499,
+    "evaluated_checkpoint_per_variant": "model_499.pt",
+    "new_transitions_per_variant": 4096000,
+    "total_new_transitions": 12288000,
+    "parent_loop_id": "L16",
+    "parent_checkpoint_updates": 500,
+    "same_parent_for_all_variants": true,
+    "main_training_independent_between_variants": true,
+    "inheritance": "Copy the parent action-mean network, retaining its first87 input columns. The first81 sensor/controller formulas remain unchanged; five phase indicators and phase fraction are repurposed for greeting. The last2 old skill columns are discarded and2 scheduled greeting command columns are zero initialized. Critic, exploration, optimizer and update counter are initialized anew.",
+    "initial_exploration_standard_deviation": 0.25,
+    "disposable_smoke_updates_per_variant": 2,
+    "smoke_updates_inherited_by_main_training": false,
+    "additional_training_updates_for_evaluation": 0,
+    "interpretation": "Three distinct500-update models, not one1500-update model. All three variants belong to the same22nd improvement loop."
+  },
+  "changes": {
+    "physical_model_changed": false,
+    "physical_model": "D16 retained",
+    "actor_input_dimension": 89,
+    "critic_input_dimension": 122,
+    "scheduled_actor_commands": [
+      "planned_paw_forward_offset",
+      "planned_paw_lift"
+    ],
+    "privileged_world_position_and_contact_inputs_in_actor": false,
+    "prone_or_jump_training_in_this_loop": false,
+    "controller": "Scheduled standing, support shift/lift, two fore-aft waving round trips, lowering/return, four-foot hold; joint references plus learned residuals.",
+    "drive_gains": {
+      "kp": 8.0,
+      "kd": 0.25
+    },
+    "hardware_motion_validated": false
+  },
+  "evaluation": {
+    "status": "ALL5_REQUESTED_28S_INTERVALS_COMPLETED",
+    "best_variant": "large",
+    "skill_acceptance": false,
+    "primary_evaluations": 3,
+    "additional_seed_evaluations": 2,
+    "duration_s_per_evaluation": 28.0,
+    "policy_steps_per_evaluation": 1400,
+    "physics_samples_per_evaluation": 11200,
+    "physics_hz": 400,
+    "video_fps": 50,
+    "video_frames_per_evaluation": 1400,
+    "environments": 1,
+    "phase_durations_s": [
+      2.0,
+      4.0,
+      4.0,
+      2.0,
+      2.0
+    ],
+    "phase_names": [
+      "four_foot_stand",
+      "support_shift_and_lift",
+      "wave",
+      "lower_and_return",
+      "four_foot_hold"
+    ],
+    "complete_cycles_required": 2,
+    "reference": "Original post-reset episode position and heading anchor, fixed across cycles. Final framework-reset rendering is not used to judge support.",
+    "comparison_scope": "Same physical model and parent, separately trained greeting variants. L16 used a different motion task and is not an isolated performance baseline."
+  },
+  "greeting_criteria": {
+    "round_trips_per_cycle": 2,
+    "minimum_each_half_trip_distance_m": 0.02,
+    "minimum_each_half_trip_duration_s": 0.25,
+    "reversal_deadband_m": 0.002,
+    "coordinates": "Same actual endpoints must travel20mm in both current-body X and episode-initial-heading fixed-world X, with matching directions.",
+    "waving_paw_force_norm_max_N": 0.5,
+    "contact_confirmation_samples": 2,
+    "minimum_waving_paw_clearance_m": 0.02,
+    "other_feet_vertical_support_N_exclusive": 1.0,
+    "entire_wave_phase_must_qualify": true,
+    "four_foot_return_hold_s": 2.0,
+    "four_foot_return_hold_samples": 800,
+    "return_height_error_limit_m": 0.025,
+    "maximum_tilt_deg": 10.0
+  },
+  "stationary_targets": {
+    "maximum_heading_change_deg": 5.0,
+    "maximum_xy_distance_m": 0.05
+  },
+  "drive_limits": {
+    "peak_torque_Nm": 5.5,
+    "maximum_joint_speed_rad_s": 10.0,
+    "exposure_h_range": [
+      0.0,
+      1.0
+    ],
+    "exposure_interpretation": "Simulated limiter load-budget state, not measured motor temperature."
+  },
+  "variants": [
+    {
+      "variant_id": "small",
+      "commanded_paw_peak_to_peak_m": 0.022,
+      "commanded_paw_lift_m": 0.035,
+      "training": {
+        "status": "COMPLETED",
+        "completed_updates": 500,
+        "final_iteration": 499,
+        "evaluated_checkpoint": "model_499.pt",
+        "new_transitions": 4096000,
+        "optimizer_states": 17,
+        "optimizer_steps_per_state": 10000,
+        "seed": 42,
+        "ended_utc": "2026-09-10T22:14:36.821996+00:00"
+      },
+      "evaluation": {
+        "status": "COMPLETED_REQUESTED_INTERVAL",
+        "seed": 42,
+        "ended_utc": "2026-09-10T22:18:05.658095+00:00",
+        "duration_s": 28.0,
+        "policy_steps": 1400,
+        "physics_samples": 11200,
+        "greeting_sequence_criteria_passed": false,
+        "passed_greeting_cycles": 0,
+        "complete_round_trips_total": 0,
+        "skill_acceptance": false,
+        "gates": {
+          "requested_interval_completed": true,
+          "no_reset_between_cycles": true,
+          "no_forbidden_contact_samples": true,
+          "actual_joint_speed_within_limit": true,
+          "all_greeting_cycles": false,
+          "maximum_heading_change": false,
+          "maximum_xy_distance": false,
+          "maximum_tilt": true,
+          "exposure_continuous_between_phases_and_cycles": true,
+          "exposure_within_bounds": true,
+          "peak_torque_within_bound": true,
+          "torque_within_actual_limiter_caps": true
+        }
+      },
+      "cycles": [
+        {
+          "cycle_number": 1,
+          "greeting_sequence_passed": false,
+          "complete_round_trips": 0,
+          "prelift_four_foot_support_s": 1.955,
+          "wave_phase_samples": 1600,
+          "qualifying_wave_support_samples": 1600,
+          "four_foot_return_hold_s": 2.0,
+          "four_foot_return_hold_samples": 800,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "two_measured_round_trips": false,
+            "four_foot_return_hold": true
+          },
+          "return_support_missing_samples": 0,
+          "return_support_missing_foot": null,
+          "return_height_or_tilt_failure_samples": 0,
+          "minimum_qualified_half_trip_body_distance_m": 0.02006978608967619,
+          "minimum_qualified_half_trip_fixed_world_distance_m": 0.030203014612197876
+        },
+        {
+          "cycle_number": 2,
+          "greeting_sequence_passed": false,
+          "complete_round_trips": 0,
+          "prelift_four_foot_support_s": 2.0,
+          "wave_phase_samples": 1600,
+          "qualifying_wave_support_samples": 1600,
+          "four_foot_return_hold_s": 2.0,
+          "four_foot_return_hold_samples": 800,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "two_measured_round_trips": false,
+            "four_foot_return_hold": true
+          },
+          "return_support_missing_samples": 0,
+          "return_support_missing_foot": null,
+          "return_height_or_tilt_failure_samples": 0,
+          "minimum_qualified_half_trip_body_distance_m": 0.02010389583142491,
+          "minimum_qualified_half_trip_fixed_world_distance_m": 0.03071834146976471
+        }
+      ],
+      "whole_interval_measurements": {
+        "maximum_absolute_unwrapped_heading_change_deg": 10.873957699700401,
+        "final_unwrapped_heading_change_deg": -9.703812537133507,
+        "maximum_xy_distance_m": 0.060999270950437,
+        "final_xy_distance_m": 0.030871264921882118,
+        "maximum_tilt_deg": 1.7392515018881023,
+        "maximum_actual_joint_speed_rad_s": 3.872748613357544,
+        "overspeed_joint_samples": 0,
+        "precompute_overspeed_joint_samples": 0,
+        "forbidden_contact_samples": 0,
+        "maximum_forbidden_contact_force_N": 0.0,
+        "maximum_recorded_applied_effort_Nm": 2.4513840675354004,
+        "maximum_exposure_h": 0.24228565412788375,
+        "exposure_continuous": true,
+        "minimum_waving_paw_clearance_m": 0.03181326761841774,
+        "maximum_waving_paw_force_norm_N": 0.0,
+        "minimum_other_three_feet_vertical_force_N": 12.749902725219727
+      },
+      "selected_diagnostics": {
+        "maximum_xy_time_s": 4.125,
+        "maximum_xy_phase": 1,
+        "maximum_xy_phase_name": "support_shift_and_lift",
+        "maximum_heading_time_s": 12.012499809265137
+      },
+      "training_observations_separate_from_evaluation": {
+        "episode_terminations": 4913,
+        "max_actual_speed_rad_s": 9.291513442993164,
+        "overspeed_cells": 0,
+        "illegal_contact_lane_substeps": 18461,
+        "max_effort_Nm": 5.5,
+        "max_exposure_h": 0.7418370840009535,
+        "contact_count_unit": "environment-lane physics substeps, not terminated episodes"
+      },
+      "video": {
+        "path": "docs/media/l17-small-greeting.mp4",
+        "duration_s": 28.0,
+        "fps": 50,
+        "frames": 1400,
+        "gif_path": null
+      },
+      "provenance": {
+        "evaluated_checkpoint_sha256": "2c80e106ada88f8d56a223cdb77db095317967ab03d6914ec0de52ea1259e2da",
+        "training_completion_sha256": "3856064f8f1d6418727bb927d0af7d4ff43922dd9068d538e01cc0bb0ae11e6d",
+        "evaluation_completion_sha256": "4bbc18e25635c322564406cf661b1eab0f387d2eceb7f0a8b446aef38e87a543",
+        "evaluation_summary_sha256": "9e1679c66a22ef50fb249e9d04334a582d89cef18081ef5e6dba78f54ad3561b",
+        "actual_measurement_array_sha256": "9978f80e6389a4f0012efa9b0e2c434139785b184e949c27d3c0f1d1eb532e41"
+      }
+    },
+    {
+      "variant_id": "medium",
+      "commanded_paw_peak_to_peak_m": 0.028,
+      "commanded_paw_lift_m": 0.04,
+      "training": {
+        "status": "COMPLETED",
+        "completed_updates": 500,
+        "final_iteration": 499,
+        "evaluated_checkpoint": "model_499.pt",
+        "new_transitions": 4096000,
+        "optimizer_states": 17,
+        "optimizer_steps_per_state": 10000,
+        "seed": 42,
+        "ended_utc": "2026-09-10T23:01:56.812780+00:00"
+      },
+      "evaluation": {
+        "status": "COMPLETED_REQUESTED_INTERVAL",
+        "seed": 42,
+        "ended_utc": "2026-09-10T23:05:26.953479+00:00",
+        "duration_s": 28.0,
+        "policy_steps": 1400,
+        "physics_samples": 11200,
+        "greeting_sequence_criteria_passed": false,
+        "passed_greeting_cycles": 0,
+        "complete_round_trips_total": 4,
+        "skill_acceptance": false,
+        "gates": {
+          "requested_interval_completed": true,
+          "no_reset_between_cycles": true,
+          "no_forbidden_contact_samples": true,
+          "actual_joint_speed_within_limit": true,
+          "all_greeting_cycles": false,
+          "maximum_heading_change": true,
+          "maximum_xy_distance": false,
+          "maximum_tilt": true,
+          "exposure_continuous_between_phases_and_cycles": true,
+          "exposure_within_bounds": true,
+          "peak_torque_within_bound": true,
+          "torque_within_actual_limiter_caps": true
+        }
+      },
+      "cycles": [
+        {
+          "cycle_number": 1,
+          "greeting_sequence_passed": false,
+          "complete_round_trips": 2,
+          "prelift_four_foot_support_s": 1.96,
+          "wave_phase_samples": 1600,
+          "qualifying_wave_support_samples": 1600,
+          "four_foot_return_hold_s": 1.985,
+          "four_foot_return_hold_samples": 794,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": false
+          },
+          "return_support_missing_samples": 6,
+          "return_support_missing_foot": "RL_foot",
+          "return_height_or_tilt_failure_samples": 0,
+          "minimum_qualified_half_trip_body_distance_m": 0.0229089055933564,
+          "minimum_qualified_half_trip_fixed_world_distance_m": 0.02008882164955139
+        },
+        {
+          "cycle_number": 2,
+          "greeting_sequence_passed": false,
+          "complete_round_trips": 2,
+          "prelift_four_foot_support_s": 2.0,
+          "wave_phase_samples": 1600,
+          "qualifying_wave_support_samples": 1600,
+          "four_foot_return_hold_s": 1.98,
+          "four_foot_return_hold_samples": 792,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": false
+          },
+          "return_support_missing_samples": 8,
+          "return_support_missing_foot": "RL_foot",
+          "return_height_or_tilt_failure_samples": 0,
+          "minimum_qualified_half_trip_body_distance_m": 0.023087058960196027,
+          "minimum_qualified_half_trip_fixed_world_distance_m": 0.020002275705337524
+        }
+      ],
+      "whole_interval_measurements": {
+        "maximum_absolute_unwrapped_heading_change_deg": 3.664327532582911,
+        "final_unwrapped_heading_change_deg": -0.37532034923732566,
+        "maximum_xy_distance_m": 0.0711191744201756,
+        "final_xy_distance_m": 0.03367575120633325,
+        "maximum_tilt_deg": 2.2302044614189525,
+        "maximum_actual_joint_speed_rad_s": 3.852689027786255,
+        "overspeed_joint_samples": 0,
+        "precompute_overspeed_joint_samples": 0,
+        "forbidden_contact_samples": 0,
+        "maximum_forbidden_contact_force_N": 0.0,
+        "maximum_recorded_applied_effort_Nm": 2.058534860610962,
+        "maximum_exposure_h": 0.23937876108742265,
+        "exposure_continuous": true,
+        "minimum_waving_paw_clearance_m": 0.03862042352557182,
+        "maximum_waving_paw_force_norm_N": 0.0,
+        "minimum_other_three_feet_vertical_force_N": 12.679126739501953
+      },
+      "selected_diagnostics": {
+        "maximum_xy_time_s": 25.747499465942383,
+        "maximum_xy_phase": 3,
+        "maximum_xy_phase_name": "lower_and_return",
+        "maximum_heading_time_s": 12.147499084472656
+      },
+      "training_observations_separate_from_evaluation": {
+        "episode_terminations": 4414,
+        "max_actual_speed_rad_s": 9.918153762817383,
+        "overspeed_cells": 0,
+        "illegal_contact_lane_substeps": 13631,
+        "max_effort_Nm": 5.5,
+        "max_exposure_h": 0.7300141038651445,
+        "contact_count_unit": "environment-lane physics substeps, not terminated episodes"
+      },
+      "video": {
+        "path": "docs/media/l17-medium-greeting.mp4",
+        "duration_s": 28.0,
+        "fps": 50,
+        "frames": 1400,
+        "gif_path": null
+      },
+      "provenance": {
+        "evaluated_checkpoint_sha256": "6ee68e4c9c280aef407c0b147b13d7a348931c734afa9c729a4c68a4d9a048af",
+        "training_completion_sha256": "9d0ec08b313f66ec61f6393446b1940860abfc2fb27589de2f479c4fd58183c9",
+        "evaluation_completion_sha256": "5da43a547e774f7083d66dcdfd106b8bd16583982087b37606280a7c84f6da3d",
+        "evaluation_summary_sha256": "d46759248d08421abcdb2dd55abede38db90dd6203c38d7f14d3a46648804ff4",
+        "actual_measurement_array_sha256": "07c4198aa42132e1a5a3d1fcc457b0bf262b8cd542e09ea9a97809cb3a53ee31"
+      }
+    },
+    {
+      "variant_id": "large",
+      "commanded_paw_peak_to_peak_m": 0.034,
+      "commanded_paw_lift_m": 0.045,
+      "training": {
+        "status": "COMPLETED",
+        "completed_updates": 500,
+        "final_iteration": 499,
+        "evaluated_checkpoint": "model_499.pt",
+        "new_transitions": 4096000,
+        "optimizer_states": 17,
+        "optimizer_steps_per_state": 10000,
+        "seed": 42,
+        "ended_utc": "2026-09-10T23:49:28.666903+00:00"
+      },
+      "evaluation": {
+        "status": "COMPLETED_REQUESTED_INTERVAL",
+        "seed": 42,
+        "ended_utc": "2026-09-10T23:52:58.587023+00:00",
+        "duration_s": 28.0,
+        "policy_steps": 1400,
+        "physics_samples": 11200,
+        "greeting_sequence_criteria_passed": true,
+        "passed_greeting_cycles": 2,
+        "complete_round_trips_total": 4,
+        "skill_acceptance": false,
+        "gates": {
+          "requested_interval_completed": true,
+          "no_reset_between_cycles": true,
+          "no_forbidden_contact_samples": true,
+          "actual_joint_speed_within_limit": true,
+          "all_greeting_cycles": true,
+          "maximum_heading_change": false,
+          "maximum_xy_distance": false,
+          "maximum_tilt": true,
+          "exposure_continuous_between_phases_and_cycles": true,
+          "exposure_within_bounds": true,
+          "peak_torque_within_bound": true,
+          "torque_within_actual_limiter_caps": true
+        }
+      },
+      "cycles": [
+        {
+          "cycle_number": 1,
+          "greeting_sequence_passed": true,
+          "complete_round_trips": 2,
+          "prelift_four_foot_support_s": 1.955,
+          "wave_phase_samples": 1600,
+          "qualifying_wave_support_samples": 1600,
+          "four_foot_return_hold_s": 2.0,
+          "four_foot_return_hold_samples": 800,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          },
+          "return_support_missing_samples": 0,
+          "return_support_missing_foot": null,
+          "return_height_or_tilt_failure_samples": 0,
+          "minimum_qualified_half_trip_body_distance_m": 0.027089798540861493,
+          "minimum_qualified_half_trip_fixed_world_distance_m": 0.020648226141929626
+        },
+        {
+          "cycle_number": 2,
+          "greeting_sequence_passed": true,
+          "complete_round_trips": 2,
+          "prelift_four_foot_support_s": 2.0,
+          "wave_phase_samples": 1600,
+          "qualifying_wave_support_samples": 1600,
+          "four_foot_return_hold_s": 2.0,
+          "four_foot_return_hold_samples": 800,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          },
+          "return_support_missing_samples": 0,
+          "return_support_missing_foot": null,
+          "return_height_or_tilt_failure_samples": 0,
+          "minimum_qualified_half_trip_body_distance_m": 0.02719812393992399,
+          "minimum_qualified_half_trip_fixed_world_distance_m": 0.0208575576543808
+        }
+      ],
+      "whole_interval_measurements": {
+        "maximum_absolute_unwrapped_heading_change_deg": 5.827306862268117,
+        "final_unwrapped_heading_change_deg": -5.827306862268117,
+        "maximum_xy_distance_m": 0.07757291219637766,
+        "final_xy_distance_m": 0.02887508857072548,
+        "maximum_tilt_deg": 3.032303417763827,
+        "maximum_actual_joint_speed_rad_s": 3.9886739253997803,
+        "overspeed_joint_samples": 0,
+        "precompute_overspeed_joint_samples": 0,
+        "forbidden_contact_samples": 0,
+        "maximum_forbidden_contact_force_N": 0.0,
+        "maximum_recorded_applied_effort_Nm": 2.458178997039795,
+        "maximum_exposure_h": 0.2911749912426524,
+        "exposure_continuous": true,
+        "minimum_waving_paw_clearance_m": 0.04401401802897453,
+        "maximum_waving_paw_force_norm_N": 0.0,
+        "minimum_other_three_feet_vertical_force_N": 12.192131996154785
+      },
+      "selected_diagnostics": {
+        "maximum_xy_time_s": 24.899999618530273,
+        "maximum_xy_phase": 3,
+        "maximum_xy_phase_name": "lower_and_return",
+        "maximum_heading_time_s": 28.0
+      },
+      "training_observations_separate_from_evaluation": {
+        "episode_terminations": 4561,
+        "max_actual_speed_rad_s": 9.116039276123047,
+        "overspeed_cells": 0,
+        "illegal_contact_lane_substeps": 16047,
+        "max_effort_Nm": 5.5,
+        "max_exposure_h": 0.8264622406461676,
+        "contact_count_unit": "environment-lane physics substeps, not terminated episodes"
+      },
+      "video": {
+        "path": "docs/media/l17-large-greeting.mp4",
+        "duration_s": 28.0,
+        "fps": 50,
+        "frames": 1400,
+        "gif_path": "docs/media/l17-large-greeting.gif"
+      },
+      "provenance": {
+        "evaluated_checkpoint_sha256": "4a9006ba4de2e1726b06911952fdd8fa99e00318119b5513d8543b41e65e54b2",
+        "training_completion_sha256": "83811f2eec4d259f5c2f993690a7ab7819ee5a45c635de9fe322bc975d253e86",
+        "evaluation_completion_sha256": "9f81178e7841c2a397357fa2cb5f01cb3400a109c410da62c474e76ad01985f7",
+        "evaluation_summary_sha256": "1c0b22818067ef70282024142d53433e024f6060edbab2a19d6a877893da9793",
+        "actual_measurement_array_sha256": "217b389ead7bfafae9547498f9245e04d1038859203c8b5794f7a23dc81137d4"
+      }
+    }
+  ],
+  "additional_seed_evaluation": {
+    "variant_id": "large",
+    "runs": [
+      {
+        "seed": 42,
+        "duration_s": 28.0,
+        "greeting_cycles_passed": 2,
+        "complete_round_trips": 4,
+        "skill_acceptance": false,
+        "ended_utc": "2026-09-10T23:52:58.587023+00:00",
+        "actual_measurement_array_sha256": "217b389ead7bfafae9547498f9245e04d1038859203c8b5794f7a23dc81137d4",
+        "evaluation_summary_sha256": "1c0b22818067ef70282024142d53433e024f6060edbab2a19d6a877893da9793"
+      },
+      {
+        "seed": 43,
+        "duration_s": 28.0,
+        "greeting_cycles_passed": 2,
+        "complete_round_trips": 4,
+        "skill_acceptance": false,
+        "ended_utc": "2026-09-10T23:56:29.896830+00:00",
+        "actual_measurement_array_sha256": "217b389ead7bfafae9547498f9245e04d1038859203c8b5794f7a23dc81137d4",
+        "evaluation_summary_sha256": "6c1356d72c55a311ea82f012ece14f10205eae1b731ca53a3da64025089a7bc6"
+      },
+      {
+        "seed": 44,
+        "duration_s": 28.0,
+        "greeting_cycles_passed": 2,
+        "complete_round_trips": 4,
+        "skill_acceptance": false,
+        "ended_utc": "2026-09-11T00:00:00.874412+00:00",
+        "actual_measurement_array_sha256": "217b389ead7bfafae9547498f9245e04d1038859203c8b5794f7a23dc81137d4",
+        "evaluation_summary_sha256": "6373e7889e327166a2768ae8c751719376f30042c4b49b57a8dbfbbd73effcc3"
+      }
+    ],
+    "actual_npz_byte_identical": true,
+    "numeric_and_gate_results_identical": true,
+    "remote_files_hashed_individually": true,
+    "different_initial_states_or_disturbances_verified": false,
+    "interpretation": "Deterministic repeatability of one scenario. These are not three independent robustness trials."
+  },
+  "independent_recalculation": {
+    "all_three_main_raw_arrays_remote_local_sha256_match": true,
+    "frozen_evaluator_rerun_locally": true,
+    "all_summary_fields_match": true,
+    "numeric_absolute_tolerance": 1e-12,
+    "numeric_relative_tolerance": 1e-12,
+    "separate_phase_diagnostics_performed": true,
+    "separate_acceptance_algorithm_implementation": false,
+    "raw_arrays_published": false
+  },
+  "videos": {
+    "comparison_path": "docs/media/l17-greeting-comparison.mp4",
+    "large_preview_path": "docs/media/l17-large-greeting.gif",
+    "new_mp4_count": 4,
+    "new_gif_count": 1,
+    "recorded_and_comparison_videos_after_publication": 27,
+    "completed_improvement_loops": 22,
+    "terminal_note": "The final rendered frame may follow the automatic framework reset; success is assessed from the pre-reset400Hz samples."
+  },
+  "job": {
+    "status": "COMPLETED_FIXED_TRIAL_PLAN",
+    "ended_utc": "2026-09-11T00:00:03.955039+00:00",
+    "automatic_retry": false,
+    "motion_acceptance": false
+  },
+  "next_step": {
+    "planned_loop_id": "L18",
+    "planned_series_order": 23,
+    "plan_status": "NOT_STARTED",
+    "new_training_started": false,
+    "default_new_training_updates": 500,
+    "candidates": [
+      "Retain the large wave/lift while isolating heading and XY correction during support transfer, lowering and final hold.",
+      "Improve four-foot reloading before the required2s hold, especially the left-rear foot; test a short settling allowance without relaxing the hold threshold.",
+      "Evaluate genuinely different initial conditions or declared disturbances instead of changing only the seed."
+    ],
+    "cause_not_established": "Residual bias or support-transfer tracking may contribute to drift; phase association alone does not establish causation.",
+    "current_actor_sensor_boundary_retained": true,
+    "cad_or_torque_limit_change_required_by_results": false
+  },
+  "provenance": {
+    "parent_checkpoint_sha256": "ce2b3e2a4fcf0c426456b4e171487f66ec37784e0027186f1632e0edebc2617b",
+    "outer_completion_sha256": "b24f16257ca27dcf36a0833a14f0085f16ce4255680542731153cf11caae5392",
+    "summary_implementation_sha256": "6d8adf8671cf4ee7061ee5238c565f2d3d15618f477ea85dbb36513a962fd3d6",
+    "criteria_sha256": "7574b439123579b8e992a4346852cbc25401285dbdae2bdbaf05a00809bda158",
+    "selected_numeric_review_sha256": "f55f5571389872cedaa495981b1c91f1e20a822096eacd81df92a49bb10643d4"
+  },
+  "limitations": [
+    "Selected self-produced measurements only; no complete reproduction bundle.",
+    "All three primary final evaluations complete28seconds, but none passes the whole-interval stationary criteria.",
+    "Medium has almost no world-displacement margin above20mm; successful waves are not a robustness guarantee.",
+    "Model load indicator h is not measured temperature; simulated support does not validate printed-part strength or real hardware behavior.",
+    "Publication traceability hashes do not grant access to private artifacts."
+  ],
+  "publication_scope": "Newly written selected results and designated evaluation media only. No private paths, connection data, raw logs or arrays, weights, editable CAD, meshes, manufacturer materials, supplied photographs or identifiers."
+}
