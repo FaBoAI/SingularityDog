@@ -1096,7 +1096,7 @@
       "continuous_switching_evaluated": false,
       "unified_nine_skill_actor": false,
       "selected_evidence": "evidence/l20-evaluation.json",
-      "own_report_sha256": "b9a044e53d021615c67736c3ab9ba7733d010ba21ec1610ab4d2757ac4a050f7",
+      "own_report_sha256": "554d4155f9cb164bfad0dd7e72dfce0670b161b13c2c843929123a82e263e671",
       "comparison_scope": "Historical parent+0 and final use common D16 protocols. Locomotion baseline stays original L13, while R3 training starts from the retained151-update R2 actor; historical D13 success remains separate.",
       "evaluation_scope": "Separate first-terminal episodes at seed42 on a plane. No disturbance, continuous switching, hardware or PLA strength acceptance."
     }
