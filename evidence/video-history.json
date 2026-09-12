@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
   "as_of": "2026-09-12",
-  "recent_series_count": 27,
+  "recent_series_count": 28,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -1200,7 +1200,7 @@
       "presentation_scope": "First14seconds at original speed. Six directions retain complete12s (Bforward first terminal8.92s), prone first12s cycle; wave/sit partial first18/16s cycles. Last selected color frame is held after shorter intervals. FULL EVAL uses original full recorded intervals, not the14s excerpt; no continuous switching claim."
     }
   ],
-  "count_scope": "27試行、選択した実録画・比較MP4は41本。第26回は新動画0本、第27回はA/B比較2本で1試行。GIF、CAD画像、実測チャート再描画MP4の1本は別枠。",
+  "count_scope": "28試行、選択した実録画・比較MP4は41本。第26回と第28回の新規掲載動画は0本。最新掲載は第27回A/Bの比較2本。GIF、CAD画像、実測チャート再描画MP4の1本は別枠。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
@@ -1215,8 +1215,67 @@
     "training_started": false,
     "counted_as_completed_loop": false,
     "default_new_training_updates": 500,
-    "scope": "第27回A/Bの未達を比較し、次の有限試行の条件を決める。次の学習は未起動。形状変更の影響と報酬の影響を分け、連続切替・外乱・実機・印刷強度は別に検証する。"
+    "scope": "第28回Aの伏せ・挨拶の未達を整理して次の有限試行の条件を決める。次の学習は未起動。D17形状・物性とSTLは第28回で変更せず、連続切替・外乱・実機・印刷強度は別に検証する。"
   },
   "selected_actual_recording_count": 41,
-  "separate_measured_chart_mp4_count": 1
+  "separate_measured_chart_mp4_count": 1,
+  "latest_published_video_series_order": 27,
+  "latest_evaluation_without_new_published_media": {
+    "loop": "L23",
+    "series_order": 28,
+    "date": "2026-09-12",
+    "condition": "A",
+    "status": "COMPLETED_500_NEW_UPDATES_NINE_EVALUATIONS",
+    "completed_at_jst": "2026-09-12T16:03:51+09:00",
+    "main_updates_executed": 500,
+    "expert_new_updates": {
+      "locomotion": 150,
+      "prone": 250,
+      "wave": 100,
+      "sit": 0
+    },
+    "final_iterations": {
+      "locomotion": 149,
+      "prone": 249,
+      "wave": 99,
+      "sit": 59
+    },
+    "sit_iteration_scope": "Untrained retained parent; zero new updates in this trial",
+    "evaluated_motion_count": 9,
+    "qualified_motion_count": 7,
+    "skill_acceptance": false,
+    "passed_motions": [
+      "forward",
+      "backward",
+      "left",
+      "right",
+      "turn_left",
+      "turn_right",
+      "sit"
+    ],
+    "unmet_motions": [
+      "prone",
+      "wave"
+    ],
+    "physical_revision": "D17",
+    "physical_or_stl_changed": false,
+    "separate_experts": 4,
+    "condition_B": {
+      "status": "SKIPPED_INSUFFICIENT_REMAINING_TIME",
+      "minimum_remaining_time_to_start_s": 7200,
+      "training_started": false,
+      "main_updates_executed": 0
+    },
+    "original_recording_count": 9,
+    "original_recordings_locally_retrieved": 0,
+    "new_published_recording_count": 0,
+    "recording_metadata_and_sha_checked": true,
+    "original_full_decode_verified": false,
+    "digest_status": "CPU_EDIT_STARTED_COMPLETION_UNVERIFIED",
+    "digest_locally_retrieved": false,
+    "visual_review_completed": false,
+    "evaluation_document": "docs/l23-evaluation.md",
+    "evaluation_evidence": "evidence/l23-evaluation.json",
+    "scope": "数値結果を追加。第28回の新MP4/GIFは掲載しない。最新掲載は第27回A/Bの14秒比較で、第28回映像へ流用しない。合成の完成・全復号・目視確認と取得は未完了。次の学習は未開始。"
+  }
 }

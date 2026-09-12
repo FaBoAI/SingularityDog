@@ -6,24 +6,24 @@
       "bytes": 5576
     },
     "README.md": {
-      "sha256": "aa33665f1ac76e8e31bd1535a68e6d6d281bef17ebdfed96d183445d5c435c01",
-      "bytes": 13360
+      "sha256": "2d18ddc4cdbaae2c317265a6c8e4cb86469d7dd98977a592d112590389225a41",
+      "bytes": 13829
     },
     "RELEASE_FILES.json": {
-      "sha256": "45007a24083458359d72e33cd97d37a17347ec3c2dc837ccaf1c9eb1e66ebee8",
-      "bytes": 9597
+      "sha256": "302c82e4400545310032113abeead418cc95f35ecf612eef6f4bc59768ea99b2",
+      "bytes": 9659
     },
     "docs/current-status.md": {
-      "sha256": "fc4a7eac6ca52a97c09dd0db5753218acfd1cd5854fd6f029e13c59473f338fd",
-      "bytes": 29738
+      "sha256": "77ca8d7ec4584919b70e9b3e498f7153b77ff19b0dacbd5db2d413f68e1a9bfe",
+      "bytes": 32037
     },
     "docs/decision-log.md": {
-      "sha256": "ab4176e517c68eb119c7b876079c705746eb11091b3dc84986632cc5e8b4161d",
-      "bytes": 24903
+      "sha256": "71d184ad6673f7135c727e6d3f63a067547698e508e2284b43c2f84d456aed88",
+      "bytes": 27103
     },
     "docs/improvement-loops.md": {
-      "sha256": "567c85078639492f0454980732e89c0a14ab972ad0ec8877d2508e7ae5d33720",
-      "bytes": 17934
+      "sha256": "3117111c8dab427b448acd3f4708989d827a979c4b6536923379067c55823424",
+      "bytes": 19570
     },
     "docs/l06-evaluation.md": {
       "sha256": "6ff41f911bfa24f1e24b99426d1c7e1849b18a0d3d7d41535f2fb76bc88b2f60",
@@ -92,6 +92,10 @@
     "docs/l22-evaluation.md": {
       "sha256": "b109d47c887cccdf6faa41fbd6cea3770a7cf9841cd1bdcd5a088dc99a889b27",
       "bytes": 8130
+    },
+    "docs/l23-evaluation.md": {
+      "sha256": "c94b54f859f5035443dcb7e42b9d47b0bcd354490336fed8346b66cfd85124ea",
+      "bytes": 7399
     },
     "docs/media/archive-dev250-left.gif": {
       "sha256": "7f86fedef091ea506bcd0aeb6b5a9f2bc2192343bbef2c5f088d827a62275766",
@@ -370,8 +374,8 @@
       "bytes": 3029
     },
     "docs/next-loop-spec.md": {
-      "sha256": "903f436834426417e5d5a472f4d08a595a796f797e885d8cf641a84f4a43d7e2",
-      "bytes": 13161
+      "sha256": "b192da45f42d78e3c9198170e4261b27b6895abc57e90c87f3f375c23cd1613b",
+      "bytes": 14437
     },
     "docs/pla-parts-mass.md": {
       "sha256": "0a1251bd1cbc2cd85383920eb9a78f4fa04a183a399eab3097b1bcd4e48674db",
@@ -622,16 +626,16 @@
       "bytes": 63984
     },
     "docs/publication-scope.md": {
-      "sha256": "6aed96adf381523d2d1507f4ceb950a1a95daebb08e6944c96e1dccb99e025d4",
-      "bytes": 24512
+      "sha256": "107de12f290b6d0f0a7a5684aa4d667371915e7787ec9330ba5db9e3bbe8f010",
+      "bytes": 25731
     },
     "docs/toolkit.md": {
       "sha256": "a26728aced4bd856e48259f4ffbc237cfad072e7f04b64e13be91fce65d25055",
       "bytes": 3903
     },
     "docs/video-history.md": {
-      "sha256": "832fa830ad31b2ff19c61bfe01011b42df8dd012c9d4f01eaea7540ba029c6b7",
-      "bytes": 31318
+      "sha256": "2f8660faaa829f863a4c705bed9d082be74c11efb4aa8b5f22df14583eeccc87",
+      "bytes": 32644
     },
     "evidence/forward-motion.json": {
       "sha256": "c07344e1195e9f1c6028fb020b1628139dbc884ecbe86fe4c9af2e38e3f37e78",
@@ -709,9 +713,13 @@
       "sha256": "51217741955f7da75b93b98720341b9206dc5bc605a0ad681d13f41df2c9b8f5",
       "bytes": 64340
     },
+    "evidence/l23-evaluation.json": {
+      "sha256": "5766088616a7aca04d6c616800c19872b24872c8be48493d374f50476f6ca7a1",
+      "bytes": 61443
+    },
     "evidence/learning-history.json": {
-      "sha256": "ee610bf67f2cbbb3b1d7ea73b22177803d8540500de4cbe59c40546fac25e162",
-      "bytes": 77861
+      "sha256": "656541de99aeef5668dc7ad0089b128bca33c80c372145cd0a443cbdbdf3c540",
+      "bytes": 87697
     },
     "evidence/media-publication.json": {
       "sha256": "dca1559a4de85e3d1cabd7ade1bf9aecb618140d7c78d32ed16f8cc9fae6d86d",
@@ -734,8 +742,8 @@
       "bytes": 189020
     },
     "evidence/video-history.json": {
-      "sha256": "dc72c76d1332c696fe11a1ffd5a69d99430271a5c7f2025298ea2c3bb3efd0c2",
-      "bytes": 56499
+      "sha256": "810f85d4e35c7c685c3c4ae18b068f433af6bc85555457f32a915b00e1f30c1f",
+      "bytes": 58519
     },
     "examples/synthetic_robot.urdf": {
       "sha256": "5c8d44b624f71f4a6667dbbd23da8c23c0661f8594766a7e961feed76b591a37",
