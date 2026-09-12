@@ -1,0 +1,11 @@
+﻿id,part_ja,color,quantity,plate,x_mm,y_mm,z_mm,solid_PLA_g_NOT_slicer_mass,file
+B1_FL_base_mount,左前 Body側モーターマウント,black,1,B,162.0,88.9802,73.0,87.0837,individual_parts/black/B1_FL_base_mount_mm.stl
+B2_FL_hip_collar,左前 股関節カラー,black,1,B,56.0,67.9611,6.0,11.3086,individual_parts/black/B2_FL_hip_collar_mm.stl
+A1_FL_hip,左前 股リンク,yellow,1,A,55.9941,102.0,78.0,54.0751,individual_parts/yellow/A1_FL_hip_mm.stl
+A2_FL_thigh_collar,左前 腿側カラー,yellow,1,A,56.0,67.9611,6.0,11.0425,individual_parts/yellow/A2_FL_thigh_collar_mm.stl
+A3_FL_thigh,左前 腿リンク,yellow,1,A,66.0,163.9802,75.0,87.0706,individual_parts/yellow/A3_FL_thigh_mm.stl
+A4_FL_calf_collar,左前 脛側カラー,yellow,1,A,56.0,67.9611,6.0,11.0425,individual_parts/yellow/A4_FL_calf_collar_mm.stl
+A5_FL_calf,左前 脛リンク,yellow,1,A,31.999,122.0,53.0,63.7332,individual_parts/yellow/A5_FL_calf_mm.stl
+C1_face_support,顔の背面支持台,black,1,C,104.0,103.9605,79.0,92.5891,individual_parts/black/C1_face_support_mm.stl
+B3_face_upper_clamp,顔支持の上クランプ,black,1,B,48.0,76.0,18.0,65.7587,individual_parts/black/B3_face_upper_clamp_mm.stl
+D1_recovery_handle,回収取手,yellow,1,D,187.9602,85.5,24.0,220.076,individual_parts/yellow/D1_recovery_handle_mm.stl

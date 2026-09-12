@@ -1,0 +1,934 @@
+{
+  "schema": "singularitydog.selected-ten-print-parts.v1",
+  "status": "VERIFIED_PRINT_GEOMETRY_FIRST_FIT_NOT_QUALIFIED",
+  "authorization": "user_selected_next_ten_print_parts_2026-09-12",
+  "units": "mm",
+  "parts": [
+    {
+      "id": "B1_FL_base_mount",
+      "label_ja": "左前 Body側モーターマウント",
+      "identity": [
+        "base_link",
+        "FL_rear_base_mount"
+      ],
+      "group": "B",
+      "quantity": 1,
+      "color": "black",
+      "material": "PLA",
+      "role": "body",
+      "file": "individual_parts/black/B1_FL_base_mount_mm.stl",
+      "sha256": "ec3012c6fe3a4922beae0eb5a0968f211eade392f4c2942792785534bf4df55b",
+      "units": "mm",
+      "dimensions_mm": [
+        162.0,
+        88.98018646240234,
+        73.0
+      ],
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        172.0,
+        98.98018646240234,
+        73.0
+      ],
+      "triangles": 2824,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 1,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -24
+      },
+      "mesh_solid_PLA_mass_g": 87.08371671124014,
+      "first_layer_screen": {
+        "plane_tolerance_mm": 0.001,
+        "flat_surface_area_mm2": 544.0,
+        "not_slicer_extrusion_area": true
+      },
+      "provenance": {
+        "selected_print_source_sha256": "ec3012c6fe3a4922beae0eb5a0968f211eade392f4c2942792785534bf4df55b",
+        "native_geometry_sha256": "667ee3b0c05cd61af282d6255e9cb55e76cf1a417197d89903e5f04eeb541701",
+        "native_geometry_units": "m",
+        "print_source_units": "mm",
+        "geometry_change_in_publication": false
+      },
+      "physical_fit_verified": false,
+      "structural_load_test_performed": false
+    },
+    {
+      "id": "B2_FL_hip_collar",
+      "label_ja": "左前 股関節カラー",
+      "identity": [
+        "base_link",
+        "FL_hip_front_collar"
+      ],
+      "group": "B",
+      "quantity": 1,
+      "color": "black",
+      "material": "PLA",
+      "role": "small_collar",
+      "file": "individual_parts/black/B2_FL_hip_collar_mm.stl",
+      "sha256": "bdf516e7491d14d5bd0d83081431fa3b7e9a42e626592f23994ee2d99177084f",
+      "units": "mm",
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "bbox_min_mm": [
+        10.0,
+        110.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        66.0,
+        177.96109008789062,
+        6.0
+      ],
+      "triangles": 3080,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 1,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -12
+      },
+      "mesh_solid_PLA_mass_g": 11.30864311696336,
+      "first_layer_screen": {
+        "plane_tolerance_mm": 0.001,
+        "flat_surface_area_mm2": 1271.4983481575982,
+        "not_slicer_extrusion_area": true
+      },
+      "provenance": {
+        "selected_print_source_sha256": "bdf516e7491d14d5bd0d83081431fa3b7e9a42e626592f23994ee2d99177084f",
+        "native_geometry_sha256": "5c4ab96aaa301a8ecbab87fc0be13f39611b3137c7e8798623bec72a973f891e",
+        "native_geometry_units": "m",
+        "print_source_units": "mm",
+        "geometry_change_in_publication": false
+      },
+      "physical_fit_verified": false,
+      "structural_load_test_performed": false
+    },
+    {
+      "id": "A1_FL_hip",
+      "label_ja": "左前 股リンク",
+      "identity": [
+        "FL_hip_link",
+        "FL_hip_joint_part"
+      ],
+      "group": "A",
+      "quantity": 1,
+      "color": "yellow",
+      "material": "PLA",
+      "role": "leg",
+      "file": "individual_parts/yellow/A1_FL_hip_mm.stl",
+      "sha256": "553f523a02c61896b6ab6e724aa97458306fe29ff7632674149aceee490a6bf1",
+      "units": "mm",
+      "dimensions_mm": [
+        55.99413299560547,
+        102.0,
+        78.0
+      ],
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        65.99413299560547,
+        112.0,
+        78.0
+      ],
+      "triangles": 4530,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 1,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -24
+      },
+      "mesh_solid_PLA_mass_g": 54.07510255964319,
+      "first_layer_screen": {
+        "plane_tolerance_mm": 0.001,
+        "flat_surface_area_mm2": 179.9999828338623,
+        "not_slicer_extrusion_area": true
+      },
+      "provenance": {
+        "selected_print_source_sha256": "553f523a02c61896b6ab6e724aa97458306fe29ff7632674149aceee490a6bf1",
+        "native_geometry_sha256": "e55daa063db2c3a61b2019ba5f09f0062c5dcc1e5de232e78030016b3cf23f81",
+        "native_geometry_units": "m",
+        "print_source_units": "mm",
+        "geometry_change_in_publication": false
+      },
+      "physical_fit_verified": false,
+      "structural_load_test_performed": false
+    },
+    {
+      "id": "A2_FL_thigh_collar",
+      "label_ja": "左前 腿側カラー",
+      "identity": [
+        "FL_hip_link",
+        "FL_thigh_front_collar"
+      ],
+      "group": "A",
+      "quantity": 1,
+      "color": "yellow",
+      "material": "PLA",
+      "role": "small_collar",
+      "file": "individual_parts/yellow/A2_FL_thigh_collar_mm.stl",
+      "sha256": "996650cdcf7c39af38ff0261d03bf3aba386e09bdbfca33f87f7d0ca8a65b144",
+      "units": "mm",
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "bbox_min_mm": [
+        10.0,
+        122.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        66.0,
+        189.96109008789062,
+        6.0
+      ],
+      "triangles": 3432,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 1,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -20
+      },
+      "mesh_solid_PLA_mass_g": 11.042459557226087,
+      "first_layer_screen": {
+        "plane_tolerance_mm": 0.001,
+        "flat_surface_area_mm2": 1235.7210684527017,
+        "not_slicer_extrusion_area": true
+      },
+      "provenance": {
+        "selected_print_source_sha256": "996650cdcf7c39af38ff0261d03bf3aba386e09bdbfca33f87f7d0ca8a65b144",
+        "native_geometry_sha256": "1c30573502815a192963057834b0547fbb434cd47b46b3e67c4f45da54b0aadb",
+        "native_geometry_units": "m",
+        "print_source_units": "mm",
+        "geometry_change_in_publication": false
+      },
+      "physical_fit_verified": false,
+      "structural_load_test_performed": false
+    },
+    {
+      "id": "A3_FL_thigh",
+      "label_ja": "左前 腿リンク",
+      "identity": [
+        "FL_thigh_link",
+        "FL_thigh_joint_part"
+      ],
+      "group": "A",
+      "quantity": 1,
+      "color": "yellow",
+      "material": "PLA",
+      "role": "leg",
+      "file": "individual_parts/yellow/A3_FL_thigh_mm.stl",
+      "sha256": "c2ca40f31f1446fd402729d3acf8392c92a6febdd15e79bf43952bc07575b130",
+      "units": "mm",
+      "dimensions_mm": [
+        66.0,
+        163.9801788330078,
+        75.0
+      ],
+      "bbox_min_mm": [
+        76.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        142.0,
+        173.9801788330078,
+        75.0
+      ],
+      "triangles": 5882,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 1,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -24
+      },
+      "mesh_solid_PLA_mass_g": 87.0706479958535,
+      "first_layer_screen": {
+        "plane_tolerance_mm": 0.001,
+        "flat_surface_area_mm2": 332.03766876348527,
+        "not_slicer_extrusion_area": true
+      },
+      "provenance": {
+        "selected_print_source_sha256": "c2ca40f31f1446fd402729d3acf8392c92a6febdd15e79bf43952bc07575b130",
+        "native_geometry_sha256": "2641db01c721de0c72befcfb135cfed66163554ae7706a563813bd1c1b3cab71",
+        "native_geometry_units": "m",
+        "print_source_units": "mm",
+        "geometry_change_in_publication": false
+      },
+      "physical_fit_verified": false,
+      "structural_load_test_performed": false
+    },
+    {
+      "id": "A4_FL_calf_collar",
+      "label_ja": "左前 脛側カラー",
+      "identity": [
+        "FL_thigh_link",
+        "FL_calf_front_collar"
+      ],
+      "group": "A",
+      "quantity": 1,
+      "color": "yellow",
+      "material": "PLA",
+      "role": "small_collar",
+      "file": "individual_parts/yellow/A4_FL_calf_collar_mm.stl",
+      "sha256": "646c77313dba842dcf953092c7ff35dcf10d0b60c8e32e736c6ad09ccdaabe74",
+      "units": "mm",
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "bbox_min_mm": [
+        152.0,
+        142.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        208.0,
+        209.96109008789062,
+        6.0
+      ],
+      "triangles": 3432,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 1,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -20
+      },
+      "mesh_solid_PLA_mass_g": 11.042458589661116,
+      "first_layer_screen": {
+        "plane_tolerance_mm": 0.001,
+        "flat_surface_area_mm2": 1235.7209240548545,
+        "not_slicer_extrusion_area": true
+      },
+      "provenance": {
+        "selected_print_source_sha256": "646c77313dba842dcf953092c7ff35dcf10d0b60c8e32e736c6ad09ccdaabe74",
+        "native_geometry_sha256": "578358e69c320e75107f974d42fad18f3468c3dfa15c6a0c1aa198366a7be160",
+        "native_geometry_units": "m",
+        "print_source_units": "mm",
+        "geometry_change_in_publication": false
+      },
+      "physical_fit_verified": false,
+      "structural_load_test_performed": false
+    },
+    {
+      "id": "A5_FL_calf",
+      "label_ja": "左前 脛リンク",
+      "identity": [
+        "FL_calf_link",
+        "FL_calf_joint_part"
+      ],
+      "group": "A",
+      "quantity": 1,
+      "color": "yellow",
+      "material": "PLA",
+      "role": "leg",
+      "file": "individual_parts/yellow/A5_FL_calf_mm.stl",
+      "sha256": "3c967f41aaf3ff75dbc73ea093883fc5dd2ed0a7f1212f8862f2a60fcab8d7e2",
+      "units": "mm",
+      "dimensions_mm": [
+        31.999038696289062,
+        122.0,
+        53.0
+      ],
+      "bbox_min_mm": [
+        152.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        183.99903869628906,
+        132.0,
+        53.0
+      ],
+      "triangles": 2518,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 1,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -14
+      },
+      "mesh_solid_PLA_mass_g": 63.733166801208114,
+      "first_layer_screen": {
+        "plane_tolerance_mm": 0.001,
+        "flat_surface_area_mm2": 160.0,
+        "not_slicer_extrusion_area": true
+      },
+      "provenance": {
+        "selected_print_source_sha256": "3c967f41aaf3ff75dbc73ea093883fc5dd2ed0a7f1212f8862f2a60fcab8d7e2",
+        "native_geometry_sha256": "5e7e1e8a1c096d77d0566c744901c5fdaac7a9ae6c83304c9c9579781151915d",
+        "native_geometry_units": "m",
+        "print_source_units": "mm",
+        "geometry_change_in_publication": false
+      },
+      "physical_fit_verified": false,
+      "structural_load_test_performed": false
+    },
+    {
+      "id": "C1_face_support",
+      "label_ja": "顔の背面支持台",
+      "identity": [
+        "base_link",
+        "display_crossrail_support"
+      ],
+      "group": "C",
+      "quantity": 1,
+      "color": "black",
+      "material": "PLA",
+      "role": "face_support",
+      "file": "individual_parts/black/C1_face_support_mm.stl",
+      "sha256": "3ff61e607525f7ceb3f2cf2a9425d0a3005b3f8d795364035b77b5f8e8063f7c",
+      "units": "mm",
+      "dimensions_mm": [
+        103.99999237060547,
+        103.96051025390625,
+        79.0
+      ],
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        113.99999237060547,
+        113.96051025390625,
+        79.0
+      ],
+      "triangles": 2200,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 1,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -10
+      },
+      "mesh_solid_PLA_mass_g": 92.5890982363478,
+      "first_layer_screen": {
+        "plane_tolerance_mm": 0.001,
+        "flat_surface_area_mm2": 2658.2617833097647,
+        "not_slicer_extrusion_area": true
+      },
+      "provenance": {
+        "selected_print_source_sha256": "3ff61e607525f7ceb3f2cf2a9425d0a3005b3f8d795364035b77b5f8e8063f7c",
+        "native_geometry_sha256": "76f49852b95ee426b9414d0ab8e7337cfb15f60164967753bdd4af482ae6f364",
+        "native_geometry_units": "m",
+        "print_source_units": "mm",
+        "geometry_change_in_publication": false
+      },
+      "physical_fit_verified": false,
+      "structural_load_test_performed": false
+    },
+    {
+      "id": "B3_face_upper_clamp",
+      "label_ja": "顔支持の上クランプ",
+      "identity": [
+        "base_link",
+        "display_crossrail_upper_clamp"
+      ],
+      "group": "B",
+      "quantity": 1,
+      "color": "black",
+      "material": "PLA",
+      "role": "face_clamp",
+      "file": "individual_parts/black/B3_face_upper_clamp_mm.stl",
+      "sha256": "0c08efad3ead7c5d164b0e5e40d6fcbd77831d27878349cc9db0b8ea8ba91f5a",
+      "units": "mm",
+      "dimensions_mm": [
+        48.0,
+        76.0,
+        18.000001907348633
+      ],
+      "bbox_min_mm": [
+        80.0,
+        110.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        128.0,
+        186.0,
+        18.000001907348633
+      ],
+      "triangles": 564,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 1,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -6
+      },
+      "mesh_solid_PLA_mass_g": 65.75868814203864,
+      "first_layer_screen": {
+        "plane_tolerance_mm": 0.001,
+        "flat_surface_area_mm2": 3608.6458837907994,
+        "not_slicer_extrusion_area": true
+      },
+      "provenance": {
+        "selected_print_source_sha256": "0c08efad3ead7c5d164b0e5e40d6fcbd77831d27878349cc9db0b8ea8ba91f5a",
+        "native_geometry_sha256": "59b2b0f7b740a5d5abba9af851b4b51fe5de4823db1229532ab1a708b88785cc",
+        "native_geometry_units": "m",
+        "print_source_units": "mm",
+        "geometry_change_in_publication": false
+      },
+      "physical_fit_verified": false,
+      "structural_load_test_performed": false
+    },
+    {
+      "id": "D1_recovery_handle",
+      "label_ja": "回収取手",
+      "identity": [
+        "base_link",
+        "pla_U_recovery_handle"
+      ],
+      "group": "D",
+      "quantity": 1,
+      "color": "yellow",
+      "material": "PLA",
+      "role": "handle",
+      "file": "individual_parts/yellow/D1_recovery_handle_mm.stl",
+      "sha256": "7bbc98a63c3e2f5ffb7a45d6452b1362c81c4f69fd96472baafd4b9043242317",
+      "units": "mm",
+      "dimensions_mm": [
+        187.96018981933594,
+        85.50001525878906,
+        24.0
+      ],
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        197.96018981933594,
+        95.50001525878906,
+        24.0
+      ],
+      "triangles": 7644,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 1,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -6
+      },
+      "mesh_solid_PLA_mass_g": 220.07595668548424,
+      "first_layer_screen": {
+        "plane_tolerance_mm": 0.001,
+        "flat_surface_area_mm2": 4830.221267659735,
+        "not_slicer_extrusion_area": true
+      },
+      "provenance": {
+        "selected_print_source_sha256": "7bbc98a63c3e2f5ffb7a45d6452b1362c81c4f69fd96472baafd4b9043242317",
+        "native_geometry_sha256": "1eb28161f19fe8ffcf2123f56edca7d46a70b3050b560d27358c05da4fb522b8",
+        "native_geometry_units": "m",
+        "print_source_units": "mm",
+        "geometry_change_in_publication": false
+      },
+      "physical_fit_verified": false,
+      "structural_load_test_performed": false
+    }
+  ],
+  "plates": [
+    {
+      "group": "A",
+      "file": "PLATE_A_yellow_FL_leg_5parts_mm.stl",
+      "sha256": "410d1f070d51b46c6021578f4086cd750d46b74daa9a855ebbc0acc781ddcd5c",
+      "color": "yellow",
+      "part_count": 5,
+      "part_ids": [
+        "A1_FL_hip",
+        "A2_FL_thigh_collar",
+        "A3_FL_thigh",
+        "A4_FL_calf_collar",
+        "A5_FL_calf"
+      ],
+      "dimensions_mm": [
+        198.0,
+        199.96109008789062,
+        78.0
+      ],
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        208.0,
+        209.96109008789062,
+        78.0
+      ],
+      "solid_PLA_mass_g": 226.963835503592,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 5,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -102
+      },
+      "pairwise_bbox_gaps": [
+        {
+          "a": "A1_FL_hip",
+          "b": "A2_FL_thigh_collar",
+          "xy_bbox_separation_mm": 10.0
+        },
+        {
+          "a": "A1_FL_hip",
+          "b": "A3_FL_thigh",
+          "xy_bbox_separation_mm": 10.005867004394531
+        },
+        {
+          "a": "A1_FL_hip",
+          "b": "A4_FL_calf_collar",
+          "xy_bbox_separation_mm": 86.00586700439453
+        },
+        {
+          "a": "A1_FL_hip",
+          "b": "A5_FL_calf",
+          "xy_bbox_separation_mm": 86.00586700439453
+        },
+        {
+          "a": "A2_FL_thigh_collar",
+          "b": "A3_FL_thigh",
+          "xy_bbox_separation_mm": 10.0
+        },
+        {
+          "a": "A2_FL_thigh_collar",
+          "b": "A4_FL_calf_collar",
+          "xy_bbox_separation_mm": 86.0
+        },
+        {
+          "a": "A2_FL_thigh_collar",
+          "b": "A5_FL_calf",
+          "xy_bbox_separation_mm": 86.0
+        },
+        {
+          "a": "A3_FL_thigh",
+          "b": "A4_FL_calf_collar",
+          "xy_bbox_separation_mm": 10.0
+        },
+        {
+          "a": "A3_FL_thigh",
+          "b": "A5_FL_calf",
+          "xy_bbox_separation_mm": 10.0
+        },
+        {
+          "a": "A4_FL_calf_collar",
+          "b": "A5_FL_calf",
+          "xy_bbox_separation_mm": 10.0
+        }
+      ],
+      "bounding_boxes_do_not_overlap": true,
+      "min_pairwise_gap_mm": 10.0,
+      "support_and_brim_not_in_STL": true
+    },
+    {
+      "group": "B",
+      "file": "PLATE_B_black_FL_base_and_face_clamp_3parts_mm.stl",
+      "sha256": "12a8ac994d69dcb99e3effe07a53437f3d12d0733a03c04f6604f07e227d41dc",
+      "color": "black",
+      "part_count": 3,
+      "part_ids": [
+        "B1_FL_base_mount",
+        "B2_FL_hip_collar",
+        "B3_face_upper_clamp"
+      ],
+      "dimensions_mm": [
+        162.0,
+        176.0,
+        73.0
+      ],
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        172.0,
+        186.0,
+        73.0
+      ],
+      "solid_PLA_mass_g": 164.15104797024213,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 3,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -42
+      },
+      "pairwise_bbox_gaps": [
+        {
+          "a": "B1_FL_base_mount",
+          "b": "B2_FL_hip_collar",
+          "xy_bbox_separation_mm": 11.019813537597656
+        },
+        {
+          "a": "B1_FL_base_mount",
+          "b": "B3_face_upper_clamp",
+          "xy_bbox_separation_mm": 11.019813537597656
+        },
+        {
+          "a": "B2_FL_hip_collar",
+          "b": "B3_face_upper_clamp",
+          "xy_bbox_separation_mm": 14.0
+        }
+      ],
+      "bounding_boxes_do_not_overlap": true,
+      "min_pairwise_gap_mm": 11.019813537597656,
+      "support_and_brim_not_in_STL": true
+    },
+    {
+      "group": "C",
+      "file": "PLATE_C_black_face_support_1part_mm.stl",
+      "sha256": "8f112dc57a57a99cf056bf28b72e736307a252351890733f16fe2fff20394b49",
+      "color": "black",
+      "part_count": 1,
+      "part_ids": [
+        "C1_face_support"
+      ],
+      "dimensions_mm": [
+        103.99999237060547,
+        103.96051025390625,
+        79.0
+      ],
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        113.99999237060547,
+        113.96051025390625,
+        79.0
+      ],
+      "solid_PLA_mass_g": 92.5890982363478,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 1,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -10
+      },
+      "pairwise_bbox_gaps": [],
+      "bounding_boxes_do_not_overlap": true,
+      "min_pairwise_gap_mm": null,
+      "support_and_brim_not_in_STL": true
+    },
+    {
+      "group": "D",
+      "file": "PLATE_D_yellow_handle_1part_mm.stl",
+      "sha256": "83dce95832f75458d8087b97cfdd1bcb5a5358ca364f5993f88a55cce55bc498",
+      "color": "yellow",
+      "part_count": 1,
+      "part_ids": [
+        "D1_recovery_handle"
+      ],
+      "dimensions_mm": [
+        187.96018981933594,
+        85.50001525878906,
+        24.0
+      ],
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        197.96018981933594,
+        95.50001525878906,
+        24.0
+      ],
+      "solid_PLA_mass_g": 220.07595668548424,
+      "topology": {
+        "closed_by_exact_edge_incidence": true,
+        "consistent_edge_winding": true,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0,
+        "connected_surface_components": 1,
+        "vertices_shared_by_disconnected_surface_components": 0,
+        "euler_characteristic": -6
+      },
+      "pairwise_bbox_gaps": [],
+      "bounding_boxes_do_not_overlap": true,
+      "min_pairwise_gap_mm": null,
+      "support_and_brim_not_in_STL": true
+    }
+  ],
+  "individual_parts": 10,
+  "arranged_plate_files": 4,
+  "physical_parts_total": 10,
+  "previous_nine_part_mount_pack_not_repeated": true,
+  "printer": "Creality K1",
+  "nominal_build_volume_mm": [
+    220,
+    220,
+    250
+  ],
+  "minimum_per_part_xy_margin_mm": 5,
+  "minimum_interpart_bbox_gap_mm": 10,
+  "density_for_solid_equivalent_g_cm3": 1.24,
+  "total_solid_PLA_equivalent_mass_g": 703.7799383956661,
+  "sliced_filament_mass_g": null,
+  "print_duration": null,
+  "slicing_performed": false,
+  "physical_fit_verified": false,
+  "structural_load_test_performed": false,
+  "source_geometry_changed_for_publication": false,
+  "selected_STL_bytes_unchanged": true,
+  "source_validation": {
+    "native_metres_to_print_mm_and_selected_outputs_checked": true,
+    "maximum_D17_to_print_vertex_deviation_mm": 2.0612041993995617e-05,
+    "exact_edge_closure_winding_and_connectedness_passed": true,
+    "triangle_self_intersections_tested": false,
+    "proper_rotations_only": true,
+    "no_reflections": true,
+    "source_transforms_preserve_volume": true,
+    "source_review_sha256": "3d0a5e60263565d084ce6e040cc9cb92fafa1c208d7025c70a31f2c69e49797f"
+  },
+  "initial_print_order": [
+    "B2_FL_hip_collar",
+    "A2_FL_thigh_collar",
+    "A4_FL_calf_collar"
+  ],
+  "staged_print_policy": "Check the three individual collars first, then the left front leg. The other three legs are not included.",
+  "support_notes": {
+    "leg_seven": "Collars flat. A1 is Rx(pi) from the old export: prior flat bed area 0 mm2, now 180 mm2; other six use existing orientations. Supports ON for elevated link interiors; inspect first layer, nut/bolt recesses and adhesion. Whole-part strength and layer loading are unverified.",
+    "face_support": "Ry(+pi/2) puts the front annular face on the bed, instead of standing on the narrow circular rim. Support required beneath elevated clamp body and connecting-arm overhangs; protect fit surfaces.",
+    "face_upper_clamp": "Rx(pi) places broad original top face on the bed, with the half-tube channel upward and fastener holes vertical.",
+    "handle": "Retain existing side-flat 24 mm build height; layer plane follows handle outline. Bolt recesses/arches need slicer inspection. Existing microscopic seam closure only; no rated recovery load."
+  },
+  "handle_history": {
+    "existing_seam_closed_derivative": true,
+    "new_repair_performed": false,
+    "prior_weld_tolerance_mm": 1e-07,
+    "prior_max_inverse_vertex_deviation_mm": 8.481883921139913e-06,
+    "hole_fill_performed": false,
+    "shape_smoothing_performed": false,
+    "prior_mm_export_was_already_closed": true,
+    "scope": "Only coincident mesh seam vertices were unified in the earlier derivative; this publication copies the verified print STL unchanged. Native CAD tessellation error is separate."
+  },
+  "remaining_part_groups": [
+    {
+      "group": "other_three_legs",
+      "quantity": 21,
+      "note": "Body-side six plus movable-link fifteen; first-fit results pending."
+    },
+    {
+      "group": "D20_carbon_clamp_halves",
+      "quantity": 24,
+      "previous_small_fit_examples": 2
+    },
+    {
+      "group": "fork_crossbeams",
+      "quantity": 2
+    },
+    {
+      "group": "rail_clamp_halves",
+      "quantity": 8
+    },
+    {
+      "group": "floor_plates",
+      "quantity": 2
+    },
+    {
+      "group": "floor_bridges",
+      "quantity": 2,
+      "previous_small_fit_examples": 1
+    },
+    {
+      "group": "prone_skid_printed_parts",
+      "quantity": 6
+    },
+    {
+      "group": "provisional_IMU_support",
+      "quantity": 1
+    }
+  ],
+  "remaining_inventory_count": 66,
+  "remaining_groups_not_included_in_this_archive": true,
+  "preview_files": {
+    "print_plate_preview.png": "a7b7e5c9659984b4464877255c03f3605b59b542acfb5e97139607765235a1c5",
+    "individual_parts_preview.png": "0d087de3131f2662ca1ff672671a79a13d4e4c33b41f35013b503a8395b00761"
+  },
+  "private_photos_or_derivatives_included": false,
+  "editable_CAD_included": false,
+  "manufacturer_equipment_geometry_included": false,
+  "training_weights_or_raw_logs_included": false,
+  "limitations": [
+    "STL closure and finite vertices do not certify print quality, self-intersection absence, strength or load capacity.",
+    "Support and brim footprints must be checked in the actual slicer. They are not embedded in these STL files.",
+    "The face backing diameter, liner, fastener lengths and dropout retention remain provisional.",
+    "The handle has no validated recovery load rating.",
+    "SHA references provide traceability, not a complete public copy of the private CAD and validation system."
+  ]
+}

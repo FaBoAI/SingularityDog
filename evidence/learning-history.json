@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
-  "as_of": "2026-09-11",
-  "verified_recent_series_count": 25,
+  "as_of": "2026-09-12",
+  "verified_recent_series_count": 27,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同じ比較計画の複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列の立位基準以後で確認したH01-H04とL00-L20の25回。全開発通算、学習完了25回、成功25回を意味しない。L17の3条件と追加seed評価は一組。L20の4専門方策、学習前後の個別評価、動画作成、r1準備・r2停止・r3歩行完了後の集計失敗・r4静止動作への復旧も第25回の一組に含む。",
+  "scope": "現在の機体系列で確認したH01–H04とL00–L22の27回。診断・失敗・途中終了を含み、成功27回や全開発通算を意味しない。同じ計画の複数条件は1回で、L22のA/B、各専門方策、追加評価、映像作成、準備段階のrevision変更を重複計上しない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -1099,6 +1099,175 @@
       "own_report_sha256": "554d4155f9cb164bfad0dd7e72dfce0670b161b13c2c843929123a82e263e671",
       "comparison_scope": "Historical parent+0 and final use common D16 protocols. Locomotion baseline stays original L13, while R3 training starts from the retained151-update R2 actor; historical D13 success remains separate.",
       "evaluation_scope": "Separate first-terminal episodes at seed42 on a plane. No disturbance, continuous switching, hardware or PLA strength acceptance."
+    },
+    {
+      "id": "L21",
+      "series_order": 26,
+      "title": "500更新、9動作中6件が全基準達成",
+      "kind": "MULTI_EXPERT_TRAINING_AND_NINE_MOTION_EVALUATION",
+      "counted": true,
+      "change": "物理D16・参照を維持し、6方向指令の均等化、伏せ負荷、挨拶の固定初期位置からのずれの費用を追加。",
+      "result": "500新更新（歩行300・伏せ120・挨拶80・座位0）を完了し、同D16の親3/9から最終6/9。前進は1.52秒で速度超過終了、伏せ保持と復帰、挨拶の最大XYが未達。",
+      "next_decision": "第27回A/Bの未達を比較し、次の有限試行の条件を決める。次の学習は未起動。形状変更の影響と報酬の影響を分け、連続切替・外乱・実機・印刷強度は別に検証する。",
+      "outcome_time": {
+        "kind": "bounded_job_including_final_evaluation_completed",
+        "note": "Evaluation and finite processing completion; not media download time.",
+        "value_utc": "2026-09-11T08:03:13.718303+00:00"
+      },
+      "new_training_updates": 500,
+      "transitions": 4096000,
+      "final_iteration": null,
+      "final_iteration_by_expert": {
+        "locomotion": 299,
+        "prone": 119,
+        "wave": 79,
+        "sit": 59
+      },
+      "sit_iteration_is_retained_parent_not_new_training": true,
+      "training": {
+        "completed_total_main_updates": 500,
+        "main_update_budget_completed": true,
+        "optimized_main_training_transitions": 4096000,
+        "experts": [
+          {
+            "expert_id": "locomotion",
+            "completed_new_updates": 300,
+            "transitions": 2457600,
+            "final_iteration": 299,
+            "retained_without_training": false,
+            "parent_checkpoint_sha256": "95e237587b224570140b9e83305ad11c858775ed3dc7884530f3f06ea4657aef",
+            "final_checkpoint_sha256": "31e82cc3361c781c6106875f79c6ac45f0b544dc570b3b14edd37d55028a3625",
+            "actor_input_dimensions": 74,
+            "critic_input_dimensions": 89,
+            "critic_and_optimizer_fresh_for_training": true,
+            "optimizer_steps_per_parameter": 6000,
+            "training_ended_utc": "2026-09-11T07:12:25.249634+00:00"
+          },
+          {
+            "expert_id": "prone",
+            "completed_new_updates": 120,
+            "transitions": 983040,
+            "final_iteration": 119,
+            "retained_without_training": false,
+            "parent_checkpoint_sha256": "4ebc99b6dc36279918939b36147ea12ad41f612c5f7bc1993167e33ed23ae6b5",
+            "final_checkpoint_sha256": "c3a28863ad31870bcf9e16401a47752044291c36b59820589f7937d22db6c08c",
+            "actor_input_dimensions": 89,
+            "critic_input_dimensions": 122,
+            "critic_and_optimizer_fresh_for_training": true,
+            "optimizer_steps_per_parameter": 2400,
+            "training_ended_utc": "2026-09-11T07:35:28.050307+00:00"
+          },
+          {
+            "expert_id": "wave",
+            "completed_new_updates": 80,
+            "transitions": 655360,
+            "final_iteration": 79,
+            "retained_without_training": false,
+            "parent_checkpoint_sha256": "55632a00c0db6ee43fba83e234420a78212a7ec0251f2429b5fa5b63084d9136",
+            "final_checkpoint_sha256": "0fa65f296ddb1c12bf7fb9babd0b80df347be78bcb350326ad8cfc2c1816f82e",
+            "actor_input_dimensions": 89,
+            "critic_input_dimensions": 122,
+            "critic_and_optimizer_fresh_for_training": true,
+            "optimizer_steps_per_parameter": 1600,
+            "training_ended_utc": "2026-09-11T07:51:25.728056+00:00"
+          },
+          {
+            "expert_id": "sit",
+            "completed_new_updates": 0,
+            "transitions": 0,
+            "final_iteration": 59,
+            "retained_without_training": true,
+            "parent_checkpoint_sha256": "7b0c7753154fcda06d4b781e2c73e0d117f0cda31c61c94670e0563eeb7d84f5",
+            "final_checkpoint_sha256": "7b0c7753154fcda06d4b781e2c73e0d117f0cda31c61c94670e0563eeb7d84f5",
+            "actor_input_dimensions": 89,
+            "critic_input_dimensions": 122,
+            "critic_and_optimizer_fresh_for_training": false,
+            "optimizer_steps_per_parameter": null,
+            "training_ended_utc": null
+          }
+        ],
+        "four_separate_experts": true,
+        "single_unified_actor": false,
+        "additional_learning_for_evaluation": 0
+      },
+      "main_update_budget_completed": true,
+      "trial_execution_completed": true,
+      "additional_training_updates_for_evaluation": 0,
+      "deterministic_final_evaluation_rollouts": 9,
+      "deterministic_baseline_evaluation_rollouts": 9,
+      "qualified_motion_count": 6,
+      "qualified_motion_count_by_condition": null,
+      "skill_acceptance": false,
+      "registered_six_direction_criteria_passed": false,
+      "walking_acceptance": false,
+      "hardware_acceptance": false,
+      "continuous_switching_evaluated": false,
+      "unified_nine_skill_actor": false,
+      "selected_evidence": "evidence/l21-evaluation.json",
+      "own_report_sha256": "5ab07e5c502ed434616a2ff70b9d8f682b7c9fdb2158df9d5cb5a9f6c7a713a4",
+      "comparison_scope": "SameD16 baseline and final protocols; four separate expert episodes."
+    },
+    {
+      "id": "L22",
+      "series_order": 27,
+      "title": "独立A/B各500更新、各6/9合格",
+      "kind": "MULTI_CONDITION_MULTI_EXPERT_TRAINING_AND_EVALUATION",
+      "counted": true,
+      "change": "D17の更新した搭載物形状・質量でA/Bの報酬差を比較。同親・同seed42、BはAを継承しない。",
+      "result": "同じ親から独立にA/B各500新更新、計1000更新。各条件6/9合格。A前進40.1600cm/sは合格、左移動・伏せ・挨拶は未達。Bは前進8.92秒で速度超過終了、伏せ・挨拶は未達。両条件の合格を合成して単一方策の合格とはしない。",
+      "next_decision": "第27回A/Bの未達を比較し、次の有限試行の条件を決める。次の学習は未起動。形状変更の影響と報酬の影響を分け、連続切替・外乱・実機・印刷強度は別に検証する。",
+      "outcome_time": {
+        "kind": "bounded_job_including_final_evaluation_completed",
+        "note": "Evaluation and finite processing completion; not media download time.",
+        "value_utc": "2026-09-11T18:06:30.011084+00:00"
+      },
+      "new_training_updates": 1000,
+      "transitions": 8192000,
+      "final_iteration": null,
+      "final_iteration_by_expert": {
+        "locomotion": 299,
+        "prone": 119,
+        "wave": 79,
+        "sit": 59
+      },
+      "sit_iteration_is_retained_parent_not_new_training": true,
+      "training": {
+        "conditions": 2,
+        "completed_main_updates_per_condition": 500,
+        "completed_total_main_updates_across_separate_conditions": 1000,
+        "expert_updates_per_condition": {
+          "locomotion": 300,
+          "prone": 120,
+          "wave": 80,
+          "sit": 0
+        },
+        "same_initial_parents_and_seed": true,
+        "second_condition_did_not_inherit_first": true,
+        "independent_experts_per_condition": 4,
+        "single_unified_actor": false,
+        "saved_checkpoint_cpu_checks": 6,
+        "all_saved_tensors_finite": true,
+        "saved_checkpoint_local_backup_complete": false
+      },
+      "main_update_budget_completed": true,
+      "trial_execution_completed": true,
+      "additional_training_updates_for_evaluation": 0,
+      "deterministic_final_evaluation_rollouts": 18,
+      "deterministic_baseline_evaluation_rollouts": 18,
+      "qualified_motion_count": null,
+      "qualified_motion_count_by_condition": {
+        "A": 6,
+        "B": 6
+      },
+      "skill_acceptance": false,
+      "registered_six_direction_criteria_passed": false,
+      "walking_acceptance": false,
+      "hardware_acceptance": false,
+      "continuous_switching_evaluated": false,
+      "unified_nine_skill_actor": false,
+      "selected_evidence": "evidence/l22-evaluation.json",
+      "own_report_sha256": "51217741955f7da75b93b98720341b9206dc5bc605a0ad681d13f41df2c9b8f5",
+      "comparison_scope": "D17 A/B share parents and seed; D16 Trial26 is a historical comparison with changed hardware physics."
     }
   ],
   "visualization": {
@@ -1130,26 +1299,27 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": "第25回L20は9モーション基盤の準備中。歩行6方向・伏せ・挨拶・お座りを4専門方策で扱い、新規PPO更新は計500（歩行320、伏せ60、挨拶60、お座り60）を予定する。9動作を個別に全区間評価し、成立数と未達を記録する。単一方策・連続切替・全9動作達成とはまだ扱わない。",
+  "next": "第27回A/Bの未達を比較し、次の有限試行の条件を決める。次の学習は未起動。形状変更の影響と報酬の影響を分け、連続切替・外乱・実機・印刷強度は別に検証する。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
     "effective_date": "2026-09-10",
     "existing_frozen_1000_update_plan_rewritten": false,
     "new_training_started_for_publication": false,
-    "default_scope": "Total new main updates per bounded trial; the planned L20 divides500 across4experts, not500per expert.",
+    "default_scope": "Total new main updates per bounded trial, divided among separately trained experts. Trial27 had an explicitly authorized comparison exception: two independent conditions500 each, not one1000-update actor.",
     "l20_planned_updates_by_expert": {
       "locomotion": 320,
       "prone": 60,
       "wave": 60,
       "sit": 60
-    }
+    },
+    "l20_planned_updates_scope": "Historical initial Trial25 plan only. Actual revision recovery accounting and500executed/488retained appear in L20; this is not the current next trial plan."
   },
   "next_loop_specification": {
-    "status": "L20_PREPARING_NOT_COUNTED",
+    "status": "FOLLOW_UP_NOT_STARTED",
     "counted_as_completed_loop": false,
     "training_started": false,
-    "cad_changes_completed": false,
+    "cad_changes_completed": true,
     "materials_and_appearance": {
       "base_plate_color": "black",
       "carbon_color": "black",
@@ -1175,14 +1345,16 @@
       "docs/pla-parts-mass.md"
     ],
     "completed_l16_scope": "Updated mounting geometry and specified colors were used by the L16 simulation. Final colored native CAD archive saving is a separate unfinished step.",
-    "planned_loop_id": "L20",
-    "planned_series_order": 25,
-    "motion": "nine_motion_foundation_with_four_separate_experts",
+    "planned_loop_id": null,
+    "planned_series_order": null,
+    "motion": "not_yet_selected",
     "jump_training_planned": false,
     "completed_l17_scope": "Fixed physical geometry and mass from L16; legs and handle yellow, body/base plate/retainers/face frame black and IMU red in the evaluated simulation. No new printed-strength validation.",
-    "scope": "第25回L20は9モーション基盤の準備中。歩行6方向・伏せ・挨拶・お座りを4専門方策で扱い、新規PPO更新は計500（歩行320、伏せ60、挨拶60、お座り60）を予定する。9動作を個別に全区間評価し、成立数と未達を記録する。単一方策・連続切替・全9動作達成とはまだ扱わない。",
+    "scope": "第27回A/Bの未達を比較し、次の有限試行の条件を決める。次の学習は未起動。形状変更の影響と報酬の影響を分け、連続切替・外乱・実機・印刷強度は別に検証する。",
     "appearance_scope": "Latest display specification for the next trial. Historical evaluation media retain their recorded colors; appearance changes do not change density or verify native CAD saving/printed strength.",
     "completed_l18_scope": "D16 fixed physical model; high greeting2cycles and all8s above150mm passed, whole-interval XY5cm failed.",
-    "completed_l19_scope": "D16 fixed physical model; shallow12degree sit and return2cycles passed all registered32second criteria, not nine-motion or hardware acceptance."
+    "completed_l19_scope": "D16 fixed physical model; shallow12degree sit and return2cycles passed all registered32second criteria, not nine-motion or hardware acceptance.",
+    "completed_l22_scope": "D17 three-part hardware replacement and specified colors were used by both completed500-update conditions. No physical robot or printed-strength validation.",
+    "cad_completion_scope": "SelectedD17 three-part source geometry and simulation derivation only; not whole-assembly manufacturing acceptance."
   }
 }

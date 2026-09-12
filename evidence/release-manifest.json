@@ -2,28 +2,28 @@
   "schema": "singularitydog.manifest.v1",
   "files": {
     ".gitignore": {
-      "sha256": "18ec18024f6f932132a5bd4a81a319fc79cfcc8cf53fe5b4391f9f6ef5dfb732",
-      "bytes": 1718
+      "sha256": "05380853dbcec804b6dace82ed993ac582ef2232e92f236f0bb4594699255d35",
+      "bytes": 5576
     },
     "README.md": {
-      "sha256": "0e68a0810f2b86a2dda1b5ad52b91c8812c18e99a752cdc390123488130a1604",
-      "bytes": 12309
+      "sha256": "aa33665f1ac76e8e31bd1535a68e6d6d281bef17ebdfed96d183445d5c435c01",
+      "bytes": 13360
     },
     "RELEASE_FILES.json": {
-      "sha256": "8d63b210a94f22beafc51d5663c1e6c70fcd00a636ea929eb1de9c8c63735dac",
-      "bytes": 4967
+      "sha256": "45007a24083458359d72e33cd97d37a17347ec3c2dc837ccaf1c9eb1e66ebee8",
+      "bytes": 9597
     },
     "docs/current-status.md": {
-      "sha256": "f65c6278f80f3392be81095105f63155e0e4118b4e49c31bca1c01f0a0454a8d",
-      "bytes": 27670
+      "sha256": "fc4a7eac6ca52a97c09dd0db5753218acfd1cd5854fd6f029e13c59473f338fd",
+      "bytes": 29738
     },
     "docs/decision-log.md": {
-      "sha256": "a733ca05827f5e2e76f18773214b2892712175cc6227f850e3157eed64ac85c5",
-      "bytes": 24827
+      "sha256": "ab4176e517c68eb119c7b876079c705746eb11091b3dc84986632cc5e8b4161d",
+      "bytes": 24903
     },
     "docs/improvement-loops.md": {
-      "sha256": "cbe4b09a4f18b4f3cf962e37a534c1404c8ef58052d0fed891b2ff4fe5f03839",
-      "bytes": 16707
+      "sha256": "567c85078639492f0454980732e89c0a14ab972ad0ec8877d2508e7ae5d33720",
+      "bytes": 17934
     },
     "docs/l06-evaluation.md": {
       "sha256": "6ff41f911bfa24f1e24b99426d1c7e1849b18a0d3d7d41535f2fb76bc88b2f60",
@@ -52,6 +52,46 @@
     "docs/l12-evaluation.md": {
       "sha256": "d813d0f40341b9f4a60ec3ce0e683c70602b841fc094c17f0ee69ffe9dc6590f",
       "bytes": 5475
+    },
+    "docs/l13-evaluation.md": {
+      "sha256": "1ff30aa8725f443f81f68aeb1ae0f43618e61bbd0f11f208e47cea4487c3cf9b",
+      "bytes": 7836
+    },
+    "docs/l14-evaluation.md": {
+      "sha256": "1ae5483028d1a77c80e97117c33b9c4e85c4187c015351ee726494fd1bc10d41",
+      "bytes": 6420
+    },
+    "docs/l15-evaluation.md": {
+      "sha256": "92286f2e1bf59c33112e62e195c62bb87a2504449cd7a65e1bb63e668a76d771",
+      "bytes": 6427
+    },
+    "docs/l16-evaluation.md": {
+      "sha256": "34d572b0902bbb96eb34dbd392c0427eaf061e3b333c8ff87b134a2009638454",
+      "bytes": 7760
+    },
+    "docs/l17-evaluation.md": {
+      "sha256": "9869153b0026a6f7a54eb654c4031d510c6150abd338524f43898c9459db92c2",
+      "bytes": 7916
+    },
+    "docs/l18-evaluation.md": {
+      "sha256": "486ff043cf9a8ff9e9bfc39131d39dbec18926e39f66d491d271668018ed16a8",
+      "bytes": 4693
+    },
+    "docs/l19-evaluation.md": {
+      "sha256": "e96fdc6941f148b50573364b6421aacb61490bfc81981c617f57f81b54db8305",
+      "bytes": 5077
+    },
+    "docs/l20-evaluation.md": {
+      "sha256": "4a206c1abc2435ab96165a728dd902242477a5a43c9bae9bd84e48334eb04412",
+      "bytes": 9123
+    },
+    "docs/l21-evaluation.md": {
+      "sha256": "2aa1b74603626da5d6f084f746d4219ad82e09c685e54a5ef54b2d297f900cff",
+      "bytes": 3050
+    },
+    "docs/l22-evaluation.md": {
+      "sha256": "b109d47c887cccdf6faa41fbd6cea3770a7cf9841cd1bdcd5a088dc99a889b27",
+      "bytes": 8130
     },
     "docs/media/archive-dev250-left.gif": {
       "sha256": "7f86fedef091ea506bcd0aeb6b5a9f2bc2192343bbef2c5f088d827a62275766",
@@ -197,33 +237,409 @@
       "sha256": "7f5a939f44a2f3d260d5a173bdcc99c94bac8c67c5057da20177d1f20b2c9be6",
       "bytes": 17821517
     },
+    "docs/media/l13-six-directions.gif": {
+      "sha256": "3482be55d3b7da788ccaf26a876279e7a3ec3a411572199f4462f76d854d2614",
+      "bytes": 23792181
+    },
+    "docs/media/l13-six-directions.mp4": {
+      "sha256": "5c1ccb1f0921d16fa188a36a08fe0a29a85ba08eadabe2ba6bbda7935e4f85b7",
+      "bytes": 18750724
+    },
+    "docs/media/l14-model500-prone-rise.gif": {
+      "sha256": "63824c644d5c4ff880e5b09ee84edf3134e80838d19dc4135f329095d135b2d2",
+      "bytes": 15132641
+    },
+    "docs/media/l14-model500-prone-rise.mp4": {
+      "sha256": "82fd328e70475ab5874ff74fd524e54bf970f4a87d4726fbd4211d1a94c7857b",
+      "bytes": 3610270
+    },
+    "docs/media/l15-model499-stationary-prone.gif": {
+      "sha256": "1786c049da74909449f839623e14202e564563c6d027b78d83a340dfce4fae98",
+      "bytes": 13323397
+    },
+    "docs/media/l15-model499-stationary-prone.mp4": {
+      "sha256": "aee44bd8a401237a47880ddea4dadc05ac0026a058645bd82755b2b2c21c72a1",
+      "bytes": 1199589
+    },
+    "docs/media/l16-model499-prone-jump.gif": {
+      "sha256": "319606fb1b7606b7373cfed9dcee31fc2822987b36917bab77c861cf639e43a9",
+      "bytes": 7525478
+    },
+    "docs/media/l16-model499-prone-jump.mp4": {
+      "sha256": "e491fdfa1c60427773060884714ea552d98991d71e47afc8e42b87fe5a73a135",
+      "bytes": 1225281
+    },
+    "docs/media/l17-greeting-comparison.mp4": {
+      "sha256": "8dc6ff96fb432b8b36f50c9dc468ec45e5cc7bfec98fe60e69b15f191befbc10",
+      "bytes": 2927199
+    },
+    "docs/media/l17-large-greeting.gif": {
+      "sha256": "079394b64c73e6e1dfdc0e56bc30c57898fad04494190f863fa23edd2871a55a",
+      "bytes": 8628565
+    },
+    "docs/media/l17-large-greeting.mp4": {
+      "sha256": "13f6906333801ae11c66c082b3df15855e58451c74de6eeaac7e29bada7a56ab",
+      "bytes": 1261058
+    },
+    "docs/media/l17-medium-greeting.mp4": {
+      "sha256": "f8cf7a8be273cd3d4a7c0abff00ce9dd442677fe83821cdf6ac7b6f5c6c32eaa",
+      "bytes": 1208639
+    },
+    "docs/media/l17-small-greeting.mp4": {
+      "sha256": "d44aca75c7eb7a82aaeb2eb80cd69103c53b9e2d83649031824933bea141e062",
+      "bytes": 1178031
+    },
+    "docs/media/l18-model499-high-wave.gif": {
+      "sha256": "1d6a48b76c27d97e2d6691c87ebbc7556bd6f69b59d3130372ce486ea10eb8b8",
+      "bytes": 19537645
+    },
+    "docs/media/l18-model499-high-wave.mp4": {
+      "sha256": "37437f7fe6a0ff833b3abe8e0fd45b504f8f70b357373e0c5c0fd2ed3a9d67b9",
+      "bytes": 1552812
+    },
+    "docs/media/l19-model499-sit.gif": {
+      "sha256": "302a5d7d119335a92451df8b8b1b77a697930e3e43e952bd03348f3e2d3255da",
+      "bytes": 17624935
+    },
+    "docs/media/l19-model499-sit.mp4": {
+      "sha256": "a68843c69c5f7f4cf643df4a710777001cbcf645bcc17b65ffef582ca2842acf",
+      "bytes": 1270075
+    },
+    "docs/media/l20-backward.mp4": {
+      "sha256": "c2ee90d6991986ed8bf2dcb16a0b48a9acb56ffe30ce226419b2a67c544e66e0",
+      "bytes": 1478008
+    },
+    "docs/media/l20-forward.mp4": {
+      "sha256": "761c6a1e764ee45ef5a594420855f4af67dcdd18866ff3756d16a0b0610bdf46",
+      "bytes": 1864627
+    },
+    "docs/media/l20-left.mp4": {
+      "sha256": "33b19b9c3d6955d98ff197a3e5b6fd3d0bd9d87d4658262b16ead08d11076e05",
+      "bytes": 1518540
+    },
+    "docs/media/l20-nine-motions.gif": {
+      "sha256": "03e51c6f1e0f82417406db21058e4cc26af79e2424c9cc3ba126c0dcb447dd24",
+      "bytes": 17305230
+    },
+    "docs/media/l20-nine-motions.mp4": {
+      "sha256": "246d4d00b17edf9acf185140897fdea0649dd1cd7d45d099084bce3cd0ad4db8",
+      "bytes": 4958954
+    },
+    "docs/media/l20-prone.mp4": {
+      "sha256": "0560da03bd9687afd22786ca264e08135b3a2d1db17e6588560c7a18c2a09ac2",
+      "bytes": 1077976
+    },
+    "docs/media/l20-right.mp4": {
+      "sha256": "851fc1f85f15e2d2adcc92844990986163a79e3022b49a85d338ab08baaf213c",
+      "bytes": 1434846
+    },
+    "docs/media/l20-sit.mp4": {
+      "sha256": "49b8b1135f9da269016bd41c2d6c91e9c50e9338c9112b5b64a3ad1ef7c20e00",
+      "bytes": 1207883
+    },
+    "docs/media/l20-turn-left.mp4": {
+      "sha256": "a743e25a166521b3aefe3388a9cff348c2aa64277d6001e9fd8b913bd13d14a7",
+      "bytes": 1394075
+    },
+    "docs/media/l20-turn-right.mp4": {
+      "sha256": "0511dfa96a578107503404979e60e56a5be6addcdc670b50ff59d4b086b9f2ea",
+      "bytes": 1436867
+    },
+    "docs/media/l20-wave.mp4": {
+      "sha256": "5c1162ac088a205f208abf891071e6874f9f26f07b8f75b38e8fd40702523ac6",
+      "bytes": 1476808
+    },
+    "docs/media/l22-a-nine-motions.gif": {
+      "sha256": "3f5fbb91a59e9b5d68d5531ed5e4b6f86514654712559501e42ab8c9787bf58c",
+      "bytes": 19786614
+    },
+    "docs/media/l22-a-nine-motions.mp4": {
+      "sha256": "11ece73ef9afc7746400755e93adc71c17a2df6a4e49dfcfae68873459d3d191",
+      "bytes": 1016973
+    },
+    "docs/media/l22-b-nine-motions.gif": {
+      "sha256": "457e6b6e50cb9a9d8349ccfca132cb672a89c2511ada3c3c18a29d7279088396",
+      "bytes": 19344372
+    },
+    "docs/media/l22-b-nine-motions.mp4": {
+      "sha256": "824725681ab52c813c22817658402d13e922f546de5937059bed901a34799814",
+      "bytes": 969494
+    },
     "docs/media/render-receipt.json": {
       "sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7",
       "bytes": 3029
     },
+    "docs/next-loop-spec.md": {
+      "sha256": "903f436834426417e5d5a472f4d08a595a796f797e885d8cf641a84f4a43d7e2",
+      "bytes": 13161
+    },
+    "docs/pla-parts-mass.md": {
+      "sha256": "0a1251bd1cbc2cd85383920eb9a78f4fa04a183a399eab3097b1bcd4e48674db",
+      "bytes": 11666
+    },
+    "docs/printing-next-10-parts.md": {
+      "sha256": "4c7056017c59fc7615169c2ad2d3dc8fcefb92cf78c36cac3594c9ea6c50533e",
+      "bytes": 2409
+    },
+    "docs/printing-yellow-dense.md": {
+      "sha256": "31226273d7464d2335c331ee96254fcb940f301e9798b058e902c705cedc1e48",
+      "bytes": 2165
+    },
+    "docs/printing/next-10-parts/FaBoRobotDog_K1_Next_STL_10parts.zip": {
+      "sha256": "130ffaad7a2507c28ee1d99366e4c3be51d14479b33e18bdd0ea734be422aef9",
+      "bytes": 2481417
+    },
+    "docs/printing/next-10-parts/PLATE_A_yellow_FL_leg_5parts_mm.stl": {
+      "sha256": "410d1f070d51b46c6021578f4086cd750d46b74daa9a855ebbc0acc781ddcd5c",
+      "bytes": 989784
+    },
+    "docs/printing/next-10-parts/PLATE_B_black_FL_base_and_face_clamp_3parts_mm.stl": {
+      "sha256": "12a8ac994d69dcb99e3effe07a53437f3d12d0733a03c04f6604f07e227d41dc",
+      "bytes": 323484
+    },
+    "docs/printing/next-10-parts/PLATE_C_black_face_support_1part_mm.stl": {
+      "sha256": "8f112dc57a57a99cf056bf28b72e736307a252351890733f16fe2fff20394b49",
+      "bytes": 110084
+    },
+    "docs/printing/next-10-parts/PLATE_D_yellow_handle_1part_mm.stl": {
+      "sha256": "83dce95832f75458d8087b97cfdd1bcb5a5358ca364f5993f88a55cce55bc498",
+      "bytes": 382284
+    },
+    "docs/printing/next-10-parts/README_追加10部品の印刷.md": {
+      "sha256": "d243e846a779bc2c059a98b6864719bace4888ad2ec504a3a748ff3868601d98",
+      "bytes": 5552
+    },
+    "docs/printing/next-10-parts/individual_parts/black/B1_FL_base_mount_mm.stl": {
+      "sha256": "ec3012c6fe3a4922beae0eb5a0968f211eade392f4c2942792785534bf4df55b",
+      "bytes": 141284
+    },
+    "docs/printing/next-10-parts/individual_parts/black/B2_FL_hip_collar_mm.stl": {
+      "sha256": "bdf516e7491d14d5bd0d83081431fa3b7e9a42e626592f23994ee2d99177084f",
+      "bytes": 154084
+    },
+    "docs/printing/next-10-parts/individual_parts/black/B3_face_upper_clamp_mm.stl": {
+      "sha256": "0c08efad3ead7c5d164b0e5e40d6fcbd77831d27878349cc9db0b8ea8ba91f5a",
+      "bytes": 28284
+    },
+    "docs/printing/next-10-parts/individual_parts/black/C1_face_support_mm.stl": {
+      "sha256": "3ff61e607525f7ceb3f2cf2a9425d0a3005b3f8d795364035b77b5f8e8063f7c",
+      "bytes": 110084
+    },
+    "docs/printing/next-10-parts/individual_parts/yellow/A1_FL_hip_mm.stl": {
+      "sha256": "553f523a02c61896b6ab6e724aa97458306fe29ff7632674149aceee490a6bf1",
+      "bytes": 226584
+    },
+    "docs/printing/next-10-parts/individual_parts/yellow/A2_FL_thigh_collar_mm.stl": {
+      "sha256": "996650cdcf7c39af38ff0261d03bf3aba386e09bdbfca33f87f7d0ca8a65b144",
+      "bytes": 171684
+    },
+    "docs/printing/next-10-parts/individual_parts/yellow/A3_FL_thigh_mm.stl": {
+      "sha256": "c2ca40f31f1446fd402729d3acf8392c92a6febdd15e79bf43952bc07575b130",
+      "bytes": 294184
+    },
+    "docs/printing/next-10-parts/individual_parts/yellow/A4_FL_calf_collar_mm.stl": {
+      "sha256": "646c77313dba842dcf953092c7ff35dcf10d0b60c8e32e736c6ad09ccdaabe74",
+      "bytes": 171684
+    },
+    "docs/printing/next-10-parts/individual_parts/yellow/A5_FL_calf_mm.stl": {
+      "sha256": "3c967f41aaf3ff75dbc73ea093883fc5dd2ed0a7f1212f8862f2a60fcab8d7e2",
+      "bytes": 125984
+    },
+    "docs/printing/next-10-parts/individual_parts/yellow/D1_recovery_handle_mm.stl": {
+      "sha256": "7bbc98a63c3e2f5ffb7a45d6452b1362c81c4f69fd96472baafd4b9043242317",
+      "bytes": 382284
+    },
+    "docs/printing/next-10-parts/individual_parts_preview.png": {
+      "sha256": "0d087de3131f2662ca1ff672671a79a13d4e4c33b41f35013b503a8395b00761",
+      "bytes": 397523
+    },
+    "docs/printing/next-10-parts/manifest.json": {
+      "sha256": "f4022bf8792912587af523a3c17a00da6c6084c6497d9a35e7276683c3ffda23",
+      "bytes": 29169
+    },
+    "docs/printing/next-10-parts/parts_and_solid_PLA_mass.csv": {
+      "sha256": "623cfccaaa4dce1085dce70af2165cd93d1cd9fdb58347f39aebadaf4d15483f",
+      "bytes": 1318
+    },
+    "docs/printing/next-10-parts/print_plate_preview.png": {
+      "sha256": "a7b7e5c9659984b4464877255c03f3605b59b542acfb5e97139607765235a1c5",
+      "bytes": 1040146
+    },
+    "docs/printing/yellow-dense/FaBoRobotDog_K1_Yellow_Dense_28parts.zip": {
+      "sha256": "086c50b26df796495ecd4141a6a36e455eeb0d08bfa96220ca913d7512b87835",
+      "bytes": 4776118
+    },
+    "docs/printing/yellow-dense/PLATE_01_yellow_7parts_mm.stl": {
+      "sha256": "72659a55e13a08400f348c2bb9dfa270de4c356feee0d2851b9408321736a892",
+      "bytes": 1138784
+    },
+    "docs/printing/yellow-dense/PLATE_02_yellow_6parts_mm.stl": {
+      "sha256": "cda2f15970666f978d225123779ecb6405f12600b46922bb6e08c802cb9ff936",
+      "bytes": 1013984
+    },
+    "docs/printing/yellow-dense/PLATE_03_yellow_8parts_mm.stl": {
+      "sha256": "c8d0e5ba311a0560cfac2efe04affe72a1b6303ea05efd5265f9db2b69f1f21f",
+      "bytes": 1084284
+    },
+    "docs/printing/yellow-dense/PLATE_04_yellow_7parts_mm.stl": {
+      "sha256": "01e8bbe6ab58bf104d2cac93ae4b72c778c2037ddee8ce551a55cf2109e86444",
+      "bytes": 915684
+    },
+    "docs/printing/yellow-dense/README_黄色28部品の印刷.md": {
+      "sha256": "d5e13c2caedd504d1db7d13b6f27f69528100c5640120c127ad98db155401ad3",
+      "bytes": 5034
+    },
+    "docs/printing/yellow-dense/individual_parts/FL_calf_front_collar_mm.stl": {
+      "sha256": "646c77313dba842dcf953092c7ff35dcf10d0b60c8e32e736c6ad09ccdaabe74",
+      "bytes": 171684
+    },
+    "docs/printing/yellow-dense/individual_parts/FL_calf_joint_part_mm.stl": {
+      "sha256": "3c967f41aaf3ff75dbc73ea093883fc5dd2ed0a7f1212f8862f2a60fcab8d7e2",
+      "bytes": 125984
+    },
+    "docs/printing/yellow-dense/individual_parts/FL_hip_joint_part_mm.stl": {
+      "sha256": "553f523a02c61896b6ab6e724aa97458306fe29ff7632674149aceee490a6bf1",
+      "bytes": 226584
+    },
+    "docs/printing/yellow-dense/individual_parts/FL_thigh_front_collar_mm.stl": {
+      "sha256": "996650cdcf7c39af38ff0261d03bf3aba386e09bdbfca33f87f7d0ca8a65b144",
+      "bytes": 171684
+    },
+    "docs/printing/yellow-dense/individual_parts/FL_thigh_joint_part_mm.stl": {
+      "sha256": "c2ca40f31f1446fd402729d3acf8392c92a6febdd15e79bf43952bc07575b130",
+      "bytes": 294184
+    },
+    "docs/printing/yellow-dense/individual_parts/FR_calf_front_collar_mm.stl": {
+      "sha256": "54bfbf419bffdc667c76e12d9d93cb27c349f0c335709ffffa1fd6459b9881cb",
+      "bytes": 171684
+    },
+    "docs/printing/yellow-dense/individual_parts/FR_calf_joint_part_mm.stl": {
+      "sha256": "228d069883214e83714f57e743555ceba267a3e03a4efe8ce85d66f2776c73df",
+      "bytes": 125984
+    },
+    "docs/printing/yellow-dense/individual_parts/FR_hip_joint_part_mm.stl": {
+      "sha256": "2798e69b1df88a1a6aa69d3100c2fa76c66432211bf39ec0cd35398e84a98eb2",
+      "bytes": 226584
+    },
+    "docs/printing/yellow-dense/individual_parts/FR_thigh_front_collar_mm.stl": {
+      "sha256": "7424906bba27ce33b5226d649d4f3d01fef013c065085cecb8968022b31cece1",
+      "bytes": 171684
+    },
+    "docs/printing/yellow-dense/individual_parts/FR_thigh_joint_part_mm.stl": {
+      "sha256": "fc55e86cec0bd21a11a3074b9ec82d97940ab98bf163af3283c9b24caf1becad",
+      "bytes": 294184
+    },
+    "docs/printing/yellow-dense/individual_parts/RL_calf_front_collar_mm.stl": {
+      "sha256": "8979ac0125ba66f44b0c491205ed4137752192b31029a3a48e05e758a31753e2",
+      "bytes": 171684
+    },
+    "docs/printing/yellow-dense/individual_parts/RL_calf_joint_part_mm.stl": {
+      "sha256": "5f862de95cdf1dafb07dc3089f83bbadd6aabb2f872c91b3db06856fd7192134",
+      "bytes": 125984
+    },
+    "docs/printing/yellow-dense/individual_parts/RL_hip_joint_part_mm.stl": {
+      "sha256": "97e0381884c9da8b0b109d4ddea61fc7b836cb5962f9118fb6602371263e79cd",
+      "bytes": 226584
+    },
+    "docs/printing/yellow-dense/individual_parts/RL_thigh_front_collar_mm.stl": {
+      "sha256": "c78387f453ec878ff572ecf8e70d8656b56f9d5e84d1764e924fea127667ad73",
+      "bytes": 171684
+    },
+    "docs/printing/yellow-dense/individual_parts/RL_thigh_joint_part_mm.stl": {
+      "sha256": "fbbfe0e784f515a86b4f822220d8f6f997a0a8667c81ac06f5d611536cb72070",
+      "bytes": 294184
+    },
+    "docs/printing/yellow-dense/individual_parts/RR_calf_front_collar_mm.stl": {
+      "sha256": "fd50e7e09713205d673018b741b6b65b0430fc4c105d8aa3501936c2aae934cc",
+      "bytes": 171684
+    },
+    "docs/printing/yellow-dense/individual_parts/RR_calf_joint_part_mm.stl": {
+      "sha256": "3ddbdadf5d8d35fbcf4a83fb23dec14dac03679508e008ba86284929f8f56a0f",
+      "bytes": 125984
+    },
+    "docs/printing/yellow-dense/individual_parts/RR_hip_joint_part_mm.stl": {
+      "sha256": "bbeb0303f9fd072890e240ff5ab25c94f434b843d008f22b26fb543a23908a7e",
+      "bytes": 226584
+    },
+    "docs/printing/yellow-dense/individual_parts/RR_thigh_front_collar_mm.stl": {
+      "sha256": "e6badf3badd1d408ce6fc11195eaa18b35f62b5822b5c3f68e2bd78f9e38d60f",
+      "bytes": 171684
+    },
+    "docs/printing/yellow-dense/individual_parts/RR_thigh_joint_part_mm.stl": {
+      "sha256": "62b4ecaa9ca8367164657818d8d5227b8012151eb829ccd24b7c781ece0a1298",
+      "bytes": 294184
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_-1_-1_1_lower_mm.stl": {
+      "sha256": "d43113a43400991a4c4b7e0cc483d0a41f4dfbc84089f665758e6d6c2740991a",
+      "bytes": 24284
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_-1_-1_1_upper_mm.stl": {
+      "sha256": "937fbecf06e74c07703abed1a85dd4d038c04d3085ee075eddc14845f1b4ba7b",
+      "bytes": 24284
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_-1_1_1_lower_mm.stl": {
+      "sha256": "13ce5e8a6783647645546bc765f7f2bdfa01203d02c85afb78e4e0c2b49e3054",
+      "bytes": 24284
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_-1_1_1_upper_mm.stl": {
+      "sha256": "896cc2c9f09caf1e6ae59eaced949c96cca1da9a790a4aaf2a62883ebf81cc53",
+      "bytes": 24284
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_1_-1_1_lower_mm.stl": {
+      "sha256": "74a82cb95dff911276dc3c731a652f7175d2571dca53fd70acec366013ca05c2",
+      "bytes": 24284
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_1_-1_1_upper_mm.stl": {
+      "sha256": "ef50123c43ed81eefb616e8c3b9e7720a3a640f4db415069b4bca1a0e9a52eec",
+      "bytes": 24284
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_1_1_1_lower_mm.stl": {
+      "sha256": "0d60f33affcf944b037e2db26fa2f144c5d922f424a7c333a147a4981146fe97",
+      "bytes": 24284
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_1_1_1_upper_mm.stl": {
+      "sha256": "2736ea8e81f6f89b0735bfad35404e756fb6e9a6622808ca9cf32e81a299867b",
+      "bytes": 24284
+    },
+    "docs/printing/yellow-dense/manifest.json": {
+      "sha256": "7d09c6e531d3ee79cb00686c50ce7411ff8ae00bf9c74efe5fbb5bd901a3e97b",
+      "bytes": 85967
+    },
+    "docs/printing/yellow-dense/parts_and_solid_PLA_mass.csv": {
+      "sha256": "5bf1b729ea69e18f9801d6484de9f8be71f5a68b7a29c49328eb870dfe8b8fbd",
+      "bytes": 3725
+    },
+    "docs/printing/yellow-dense/print_plate_preview.png": {
+      "sha256": "642152613d2257e02ab85d62bea444dddb8beb0412c4e86b086698a14055e318",
+      "bytes": 1566292
+    },
+    "docs/printing/yellow-dense/print_plate_top_view.png": {
+      "sha256": "dffc85133fb95e561ab29748e13048167563a07801c4fec0164ac5adcbe86b71",
+      "bytes": 832032
+    },
     "docs/progress.html": {
-      "sha256": "c7c461a1b65299c8181b69b278ee723f4e398e2d28b05bc4135e338d78b4ff55",
-      "bytes": 70753
+      "sha256": "07e0e92cab718584d2d5c90b2df7c32a6645fa467347c4c4472709e1a5dadd62",
+      "bytes": 63984
     },
     "docs/publication-scope.md": {
-      "sha256": "b7a00d1b1732f905f27c1af5409d75c0c6baf392cca6a1454ba716566fa39dc5",
-      "bytes": 21266
+      "sha256": "6aed96adf381523d2d1507f4ceb950a1a95daebb08e6944c96e1dccb99e025d4",
+      "bytes": 24512
     },
     "docs/toolkit.md": {
       "sha256": "a26728aced4bd856e48259f4ffbc237cfad072e7f04b64e13be91fce65d25055",
       "bytes": 3903
     },
     "docs/video-history.md": {
-      "sha256": "07946643facfb58f9ce071785ba565baf2c14c2a06a7e93f21af517b29a982d7",
-      "bytes": 29403
+      "sha256": "832fa830ad31b2ff19c61bfe01011b42df8dd012c9d4f01eaea7540ba029c6b7",
+      "bytes": 31318
     },
     "evidence/forward-motion.json": {
       "sha256": "c07344e1195e9f1c6028fb020b1628139dbc884ecbe86fe4c9af2e38e3f37e78",
       "bytes": 119546
     },
     "evidence/improvement-loops.json": {
-      "sha256": "be5b2b2b21d2bbb00bc80786abdd4d3cf18998646bacc78dcaf99d220d261f70",
-      "bytes": 52943
+      "sha256": "4489c5bb791ff28ce0ff036909deafb171c1e71c27905f6b182a9914130f797d",
+      "bytes": 55276
     },
     "evidence/l06-evaluation.json": {
       "sha256": "2ac7c4714786aefe14e63373b6edd7e80fe5a64d8b9d9ca34956c0c6ffaf572d",
@@ -253,25 +669,73 @@
       "sha256": "fbb6990030a6d1349e7bc07a0510e6bf853d4fd7151a39867844fb1cd8353316",
       "bytes": 52076
     },
+    "evidence/l13-evaluation.json": {
+      "sha256": "51eba0cb76baa24c90ca3e9903677fd9922e70a4c781907204e890444b501ed0",
+      "bytes": 32038
+    },
+    "evidence/l14-evaluation.json": {
+      "sha256": "ddea5ec1dbe0f898c677d012439a6f02722b0279c01cad8a1069cf258f645fcb",
+      "bytes": 11881
+    },
+    "evidence/l15-evaluation.json": {
+      "sha256": "eee967c5c534785c2fc3bc72e45579adff7e17bb46c31c745ed512994f6d51af",
+      "bytes": 7950
+    },
+    "evidence/l16-evaluation.json": {
+      "sha256": "b69e8aca9faf9ccb8f698149cc18bd5859435dc11ff255bd46a5348cc00a38ad",
+      "bytes": 13341
+    },
+    "evidence/l17-evaluation.json": {
+      "sha256": "328907c3175624a45927b2fee225a1a9ae881ee90fe49db8fe0a6ac116f36985",
+      "bytes": 26390
+    },
+    "evidence/l18-evaluation.json": {
+      "sha256": "f1f707e6729f93e14757c48ad536c278c4b2f14a4e1fe525fd5ef6528e2426a1",
+      "bytes": 9186
+    },
+    "evidence/l19-evaluation.json": {
+      "sha256": "df53d2a1b353b8f23444948c2bc549e950951630accfc056b660d1c662a7787b",
+      "bytes": 12562
+    },
+    "evidence/l20-evaluation.json": {
+      "sha256": "554d4155f9cb164bfad0dd7e72dfce0670b161b13c2c843929123a82e263e671",
+      "bytes": 130117
+    },
+    "evidence/l21-evaluation.json": {
+      "sha256": "5ab07e5c502ed434616a2ff70b9d8f682b7c9fdb2158df9d5cb5a9f6c7a713a4",
+      "bytes": 42596
+    },
+    "evidence/l22-evaluation.json": {
+      "sha256": "51217741955f7da75b93b98720341b9206dc5bc605a0ad681d13f41df2c9b8f5",
+      "bytes": 64340
+    },
     "evidence/learning-history.json": {
-      "sha256": "c9a51b438df858742bc5fb50d3317c701934d3fa9d9bfbb1a43549e14fa17858",
-      "bytes": 69285
+      "sha256": "ee610bf67f2cbbb3b1d7ea73b22177803d8540500de4cbe59c40546fac25e162",
+      "bytes": 77861
     },
     "evidence/media-publication.json": {
       "sha256": "dca1559a4de85e3d1cabd7ade1bf9aecb618140d7c78d32ed16f8cc9fae6d86d",
       "bytes": 1311
     },
+    "evidence/pla-parts-mass.json": {
+      "sha256": "4b7592ac69103ac10020e5398fb735c7dcb79fee421d12a43ea6d4d6e5334729",
+      "bytes": 21736
+    },
+    "evidence/print-publication.json": {
+      "sha256": "701d9d847dcd2ea52b8140d32ff26844ff1e9cbf8050b33a2175d73885f4fd19",
+      "bytes": 65844
+    },
     "evidence/progress.json": {
-      "sha256": "b99eba104ebab1d9fb2163cb561f05877455cf58baa71843b5fb34e9946f5fdf",
-      "bytes": 438334
+      "sha256": "76b2931be85a70f1d29d71d0a34f26b9d51a69fbf031dbe25f690fcd7cfa7518",
+      "bytes": 551069
     },
     "evidence/recording-publication.json": {
-      "sha256": "24fbf14be19bfa6f64f9e58afcb8f5f0980e46a7d37ffdc57a5b81168616d8d3",
-      "bytes": 165354
+      "sha256": "1c501ccf37c21ddc55df2dada6ffaf69756abc394c3ae1314816b30398bf0a3a",
+      "bytes": 189020
     },
     "evidence/video-history.json": {
-      "sha256": "10bf508e9d0ad5a2038e6ee71262e82d7beddf279448ee5723849fcdd955e737",
-      "bytes": 53187
+      "sha256": "dc72c76d1332c696fe11a1ffd5a69d99430271a5c7f2025298ea2c3bb3efd0c2",
+      "bytes": 56499
     },
     "examples/synthetic_robot.urdf": {
       "sha256": "5c8d44b624f71f4a6667dbbd23da8c23c0661f8594766a7e961feed76b591a37",
@@ -321,6 +785,10 @@
       "sha256": "e52aa7e5531ffaca3f0c9a6eeed1452a5378df0087a89a88376a3d77a8276e69",
       "bytes": 8636
     },
+    "tests/test_print_publication.py": {
+      "sha256": "99b2796dc4edf022f483823637ae630e14b9ff04454fbcb44efbc2d5b86e21eb",
+      "bytes": 6458
+    },
     "tests/test_tools.py": {
       "sha256": "567e5d02a3d467c1ffc865a898fa7fe3b57abadb2f1799e94b6d38f9d43989fe",
       "bytes": 11610
@@ -338,8 +806,8 @@
       "bytes": 6389
     },
     "tools/check_publication.py": {
-      "sha256": "b42ec58134f511203a07f446569c944aab2cee0cc167985b1ded44db7e5ce8c6",
-      "bytes": 6917
+      "sha256": "988e27c989535a5d3c786bf225eb21dc573409ee61014bd1d1260251a755941b",
+      "bytes": 12650
     },
     "tools/evaluate_trace.py": {
       "sha256": "9235cdfcb3d39c3d14af3ea860c5cc0741d042e7e0d2bce072f04b96533f275f",
@@ -352,194 +820,6 @@
     "tools/render_motion_history.py": {
       "sha256": "4684a722218233e182247e5230e974f8540e241d6d148a92d702d70125794381",
       "bytes": 9682
-    },
-    "docs/l13-evaluation.md": {
-      "sha256": "1ff30aa8725f443f81f68aeb1ae0f43618e61bbd0f11f208e47cea4487c3cf9b",
-      "bytes": 7836
-    },
-    "docs/l14-evaluation.md": {
-      "sha256": "1ae5483028d1a77c80e97117c33b9c4e85c4187c015351ee726494fd1bc10d41",
-      "bytes": 6420
-    },
-    "docs/next-loop-spec.md": {
-      "sha256": "295aee5e74bc4ce5411f2fd4bd526935e340293d81f41bdd795ade30ef3cac88",
-      "bytes": 11982
-    },
-    "docs/pla-parts-mass.md": {
-      "sha256": "0a1251bd1cbc2cd85383920eb9a78f4fa04a183a399eab3097b1bcd4e48674db",
-      "bytes": 11666
-    },
-    "evidence/l13-evaluation.json": {
-      "sha256": "51eba0cb76baa24c90ca3e9903677fd9922e70a4c781907204e890444b501ed0",
-      "bytes": 32038
-    },
-    "evidence/l14-evaluation.json": {
-      "sha256": "ddea5ec1dbe0f898c677d012439a6f02722b0279c01cad8a1069cf258f645fcb",
-      "bytes": 11881
-    },
-    "evidence/pla-parts-mass.json": {
-      "sha256": "4b7592ac69103ac10020e5398fb735c7dcb79fee421d12a43ea6d4d6e5334729",
-      "bytes": 21736
-    },
-    "docs/media/l13-six-directions.mp4": {
-      "sha256": "5c1ccb1f0921d16fa188a36a08fe0a29a85ba08eadabe2ba6bbda7935e4f85b7",
-      "bytes": 18750724
-    },
-    "docs/media/l13-six-directions.gif": {
-      "sha256": "3482be55d3b7da788ccaf26a876279e7a3ec3a411572199f4462f76d854d2614",
-      "bytes": 23792181
-    },
-    "docs/media/l14-model500-prone-rise.mp4": {
-      "sha256": "82fd328e70475ab5874ff74fd524e54bf970f4a87d4726fbd4211d1a94c7857b",
-      "bytes": 3610270
-    },
-    "docs/media/l14-model500-prone-rise.gif": {
-      "sha256": "63824c644d5c4ff880e5b09ee84edf3134e80838d19dc4135f329095d135b2d2",
-      "bytes": 15132641
-    },
-    "docs/l15-evaluation.md": {
-      "sha256": "92286f2e1bf59c33112e62e195c62bb87a2504449cd7a65e1bb63e668a76d771",
-      "bytes": 6427
-    },
-    "evidence/l15-evaluation.json": {
-      "sha256": "eee967c5c534785c2fc3bc72e45579adff7e17bb46c31c745ed512994f6d51af",
-      "bytes": 7950
-    },
-    "docs/media/l15-model499-stationary-prone.mp4": {
-      "sha256": "aee44bd8a401237a47880ddea4dadc05ac0026a058645bd82755b2b2c21c72a1",
-      "bytes": 1199589
-    },
-    "docs/media/l15-model499-stationary-prone.gif": {
-      "sha256": "1786c049da74909449f839623e14202e564563c6d027b78d83a340dfce4fae98",
-      "bytes": 13323397
-    },
-    "docs/l16-evaluation.md": {
-      "sha256": "34d572b0902bbb96eb34dbd392c0427eaf061e3b333c8ff87b134a2009638454",
-      "bytes": 7760
-    },
-    "evidence/l16-evaluation.json": {
-      "sha256": "b69e8aca9faf9ccb8f698149cc18bd5859435dc11ff255bd46a5348cc00a38ad",
-      "bytes": 13341
-    },
-    "docs/media/l16-model499-prone-jump.mp4": {
-      "sha256": "e491fdfa1c60427773060884714ea552d98991d71e47afc8e42b87fe5a73a135",
-      "bytes": 1225281
-    },
-    "docs/media/l16-model499-prone-jump.gif": {
-      "sha256": "319606fb1b7606b7373cfed9dcee31fc2822987b36917bab77c861cf639e43a9",
-      "bytes": 7525478
-    },
-    "docs/l17-evaluation.md": {
-      "sha256": "9869153b0026a6f7a54eb654c4031d510c6150abd338524f43898c9459db92c2",
-      "bytes": 7916
-    },
-    "docs/media/l17-greeting-comparison.mp4": {
-      "sha256": "8dc6ff96fb432b8b36f50c9dc468ec45e5cc7bfec98fe60e69b15f191befbc10",
-      "bytes": 2927199
-    },
-    "docs/media/l17-large-greeting.gif": {
-      "sha256": "079394b64c73e6e1dfdc0e56bc30c57898fad04494190f863fa23edd2871a55a",
-      "bytes": 8628565
-    },
-    "docs/media/l17-large-greeting.mp4": {
-      "sha256": "13f6906333801ae11c66c082b3df15855e58451c74de6eeaac7e29bada7a56ab",
-      "bytes": 1261058
-    },
-    "docs/media/l17-medium-greeting.mp4": {
-      "sha256": "f8cf7a8be273cd3d4a7c0abff00ce9dd442677fe83821cdf6ac7b6f5c6c32eaa",
-      "bytes": 1208639
-    },
-    "docs/media/l17-small-greeting.mp4": {
-      "sha256": "d44aca75c7eb7a82aaeb2eb80cd69103c53b9e2d83649031824933bea141e062",
-      "bytes": 1178031
-    },
-    "evidence/l17-evaluation.json": {
-      "sha256": "328907c3175624a45927b2fee225a1a9ae881ee90fe49db8fe0a6ac116f36985",
-      "bytes": 26390
-    },
-    "docs/l18-evaluation.md": {
-      "sha256": "486ff043cf9a8ff9e9bfc39131d39dbec18926e39f66d491d271668018ed16a8",
-      "bytes": 4693
-    },
-    "docs/l19-evaluation.md": {
-      "sha256": "e96fdc6941f148b50573364b6421aacb61490bfc81981c617f57f81b54db8305",
-      "bytes": 5077
-    },
-    "evidence/l18-evaluation.json": {
-      "sha256": "f1f707e6729f93e14757c48ad536c278c4b2f14a4e1fe525fd5ef6528e2426a1",
-      "bytes": 9186
-    },
-    "evidence/l19-evaluation.json": {
-      "sha256": "df53d2a1b353b8f23444948c2bc549e950951630accfc056b660d1c662a7787b",
-      "bytes": 12562
-    },
-    "docs/media/l18-model499-high-wave.mp4": {
-      "sha256": "37437f7fe6a0ff833b3abe8e0fd45b504f8f70b357373e0c5c0fd2ed3a9d67b9",
-      "bytes": 1552812
-    },
-    "docs/media/l18-model499-high-wave.gif": {
-      "sha256": "1d6a48b76c27d97e2d6691c87ebbc7556bd6f69b59d3130372ce486ea10eb8b8",
-      "bytes": 19537645
-    },
-    "docs/media/l19-model499-sit.mp4": {
-      "sha256": "a68843c69c5f7f4cf643df4a710777001cbcf645bcc17b65ffef582ca2842acf",
-      "bytes": 1270075
-    },
-    "docs/media/l19-model499-sit.gif": {
-      "sha256": "302a5d7d119335a92451df8b8b1b77a697930e3e43e952bd03348f3e2d3255da",
-      "bytes": 17624935
-    },
-    "docs/media/l20-forward.mp4": {
-      "sha256": "761c6a1e764ee45ef5a594420855f4af67dcdd18866ff3756d16a0b0610bdf46",
-      "bytes": 1864627
-    },
-    "docs/media/l20-backward.mp4": {
-      "sha256": "c2ee90d6991986ed8bf2dcb16a0b48a9acb56ffe30ce226419b2a67c544e66e0",
-      "bytes": 1478008
-    },
-    "docs/media/l20-left.mp4": {
-      "sha256": "33b19b9c3d6955d98ff197a3e5b6fd3d0bd9d87d4658262b16ead08d11076e05",
-      "bytes": 1518540
-    },
-    "docs/media/l20-right.mp4": {
-      "sha256": "851fc1f85f15e2d2adcc92844990986163a79e3022b49a85d338ab08baaf213c",
-      "bytes": 1434846
-    },
-    "docs/media/l20-turn-left.mp4": {
-      "sha256": "a743e25a166521b3aefe3388a9cff348c2aa64277d6001e9fd8b913bd13d14a7",
-      "bytes": 1394075
-    },
-    "docs/media/l20-turn-right.mp4": {
-      "sha256": "0511dfa96a578107503404979e60e56a5be6addcdc670b50ff59d4b086b9f2ea",
-      "bytes": 1436867
-    },
-    "docs/media/l20-prone.mp4": {
-      "sha256": "0560da03bd9687afd22786ca264e08135b3a2d1db17e6588560c7a18c2a09ac2",
-      "bytes": 1077976
-    },
-    "docs/media/l20-wave.mp4": {
-      "sha256": "5c1162ac088a205f208abf891071e6874f9f26f07b8f75b38e8fd40702523ac6",
-      "bytes": 1476808
-    },
-    "docs/media/l20-sit.mp4": {
-      "sha256": "49b8b1135f9da269016bd41c2d6c91e9c50e9338c9112b5b64a3ad1ef7c20e00",
-      "bytes": 1207883
-    },
-    "docs/media/l20-nine-motions.mp4": {
-      "sha256": "246d4d00b17edf9acf185140897fdea0649dd1cd7d45d099084bce3cd0ad4db8",
-      "bytes": 4958954
-    },
-    "docs/media/l20-nine-motions.gif": {
-      "sha256": "03e51c6f1e0f82417406db21058e4cc26af79e2424c9cc3ba126c0dcb447dd24",
-      "bytes": 17305230
-    },
-    "docs/l20-evaluation.md": {
-      "sha256": "4a206c1abc2435ab96165a728dd902242477a5a43c9bae9bd84e48334eb04412",
-      "bytes": 9123
-    },
-    "evidence/l20-evaluation.json": {
-      "sha256": "554d4155f9cb164bfad0dd7e72dfce0670b161b13c2c843929123a82e263e671",
-      "bytes": 130117
     }
   }
 }

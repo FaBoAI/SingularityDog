@@ -1,0 +1,1903 @@
+{
+  "schema": "singularitydog.user-selected-print-files.v1",
+  "authorization": "user_selected_next_ten_print_parts_2026-09-12",
+  "scope": "Only the individually registered next-ten-part and yellow-dense kits, arranged plates, technical mesh previews, selected print metadata and public archives.",
+  "individual_part_count": 38,
+  "arranged_plate_count": 8,
+  "STL_file_count": 46,
+  "preview_PNG_count": 4,
+  "archive_member_count": 56,
+  "files": {
+    "docs/printing/next-10-parts/individual_parts/black/B1_FL_base_mount_mm.stl": {
+      "kind": "stl",
+      "sha256": "ec3012c6fe3a4922beae0eb5a0968f211eade392f4c2942792785534bf4df55b",
+      "bytes": 141284,
+      "reviewed_for_publication": true,
+      "source_sha256": "ec3012c6fe3a4922beae0eb5a0968f211eade392f4c2942792785534bf4df55b",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 2824,
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        172.0,
+        98.98018646240234,
+        73.0
+      ],
+      "dimensions_mm": [
+        162.0,
+        88.98018646240234,
+        73.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B1_FL_base_mount"
+      ]
+    },
+    "docs/printing/next-10-parts/individual_parts/black/B2_FL_hip_collar_mm.stl": {
+      "kind": "stl",
+      "sha256": "bdf516e7491d14d5bd0d83081431fa3b7e9a42e626592f23994ee2d99177084f",
+      "bytes": 154084,
+      "reviewed_for_publication": true,
+      "source_sha256": "bdf516e7491d14d5bd0d83081431fa3b7e9a42e626592f23994ee2d99177084f",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 3080,
+      "bbox_min_mm": [
+        10.0,
+        110.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        66.0,
+        177.96109008789062,
+        6.0
+      ],
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B2_FL_hip_collar"
+      ]
+    },
+    "docs/printing/next-10-parts/individual_parts/yellow/A1_FL_hip_mm.stl": {
+      "kind": "stl",
+      "sha256": "553f523a02c61896b6ab6e724aa97458306fe29ff7632674149aceee490a6bf1",
+      "bytes": 226584,
+      "reviewed_for_publication": true,
+      "source_sha256": "553f523a02c61896b6ab6e724aa97458306fe29ff7632674149aceee490a6bf1",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 4530,
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        65.99413299560547,
+        112.0,
+        78.0
+      ],
+      "dimensions_mm": [
+        55.99413299560547,
+        102.0,
+        78.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "A1_FL_hip"
+      ]
+    },
+    "docs/printing/next-10-parts/individual_parts/yellow/A2_FL_thigh_collar_mm.stl": {
+      "kind": "stl",
+      "sha256": "996650cdcf7c39af38ff0261d03bf3aba386e09bdbfca33f87f7d0ca8a65b144",
+      "bytes": 171684,
+      "reviewed_for_publication": true,
+      "source_sha256": "996650cdcf7c39af38ff0261d03bf3aba386e09bdbfca33f87f7d0ca8a65b144",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 3432,
+      "bbox_min_mm": [
+        10.0,
+        122.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        66.0,
+        189.96109008789062,
+        6.0
+      ],
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "A2_FL_thigh_collar"
+      ]
+    },
+    "docs/printing/next-10-parts/individual_parts/yellow/A3_FL_thigh_mm.stl": {
+      "kind": "stl",
+      "sha256": "c2ca40f31f1446fd402729d3acf8392c92a6febdd15e79bf43952bc07575b130",
+      "bytes": 294184,
+      "reviewed_for_publication": true,
+      "source_sha256": "c2ca40f31f1446fd402729d3acf8392c92a6febdd15e79bf43952bc07575b130",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 5882,
+      "bbox_min_mm": [
+        76.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        142.0,
+        173.9801788330078,
+        75.0
+      ],
+      "dimensions_mm": [
+        66.0,
+        163.9801788330078,
+        75.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "A3_FL_thigh"
+      ]
+    },
+    "docs/printing/next-10-parts/individual_parts/yellow/A4_FL_calf_collar_mm.stl": {
+      "kind": "stl",
+      "sha256": "646c77313dba842dcf953092c7ff35dcf10d0b60c8e32e736c6ad09ccdaabe74",
+      "bytes": 171684,
+      "reviewed_for_publication": true,
+      "source_sha256": "646c77313dba842dcf953092c7ff35dcf10d0b60c8e32e736c6ad09ccdaabe74",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 3432,
+      "bbox_min_mm": [
+        152.0,
+        142.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        208.0,
+        209.96109008789062,
+        6.0
+      ],
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "A4_FL_calf_collar"
+      ]
+    },
+    "docs/printing/next-10-parts/individual_parts/yellow/A5_FL_calf_mm.stl": {
+      "kind": "stl",
+      "sha256": "3c967f41aaf3ff75dbc73ea093883fc5dd2ed0a7f1212f8862f2a60fcab8d7e2",
+      "bytes": 125984,
+      "reviewed_for_publication": true,
+      "source_sha256": "3c967f41aaf3ff75dbc73ea093883fc5dd2ed0a7f1212f8862f2a60fcab8d7e2",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 2518,
+      "bbox_min_mm": [
+        152.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        183.99903869628906,
+        132.0,
+        53.0
+      ],
+      "dimensions_mm": [
+        31.999038696289062,
+        122.0,
+        53.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "A5_FL_calf"
+      ]
+    },
+    "docs/printing/next-10-parts/individual_parts/black/C1_face_support_mm.stl": {
+      "kind": "stl",
+      "sha256": "3ff61e607525f7ceb3f2cf2a9425d0a3005b3f8d795364035b77b5f8e8063f7c",
+      "bytes": 110084,
+      "reviewed_for_publication": true,
+      "source_sha256": "3ff61e607525f7ceb3f2cf2a9425d0a3005b3f8d795364035b77b5f8e8063f7c",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 2200,
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        113.99999237060547,
+        113.96051025390625,
+        79.0
+      ],
+      "dimensions_mm": [
+        103.99999237060547,
+        103.96051025390625,
+        79.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "C1_face_support"
+      ]
+    },
+    "docs/printing/next-10-parts/individual_parts/black/B3_face_upper_clamp_mm.stl": {
+      "kind": "stl",
+      "sha256": "0c08efad3ead7c5d164b0e5e40d6fcbd77831d27878349cc9db0b8ea8ba91f5a",
+      "bytes": 28284,
+      "reviewed_for_publication": true,
+      "source_sha256": "0c08efad3ead7c5d164b0e5e40d6fcbd77831d27878349cc9db0b8ea8ba91f5a",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 564,
+      "bbox_min_mm": [
+        80.0,
+        110.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        128.0,
+        186.0,
+        18.000001907348633
+      ],
+      "dimensions_mm": [
+        48.0,
+        76.0,
+        18.000001907348633
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B3_face_upper_clamp"
+      ]
+    },
+    "docs/printing/next-10-parts/individual_parts/yellow/D1_recovery_handle_mm.stl": {
+      "kind": "stl",
+      "sha256": "7bbc98a63c3e2f5ffb7a45d6452b1362c81c4f69fd96472baafd4b9043242317",
+      "bytes": 382284,
+      "reviewed_for_publication": true,
+      "source_sha256": "7bbc98a63c3e2f5ffb7a45d6452b1362c81c4f69fd96472baafd4b9043242317",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 7644,
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        197.96018981933594,
+        95.50001525878906,
+        24.0
+      ],
+      "dimensions_mm": [
+        187.96018981933594,
+        85.50001525878906,
+        24.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "D1_recovery_handle"
+      ]
+    },
+    "docs/printing/next-10-parts/PLATE_A_yellow_FL_leg_5parts_mm.stl": {
+      "kind": "stl",
+      "sha256": "410d1f070d51b46c6021578f4086cd750d46b74daa9a855ebbc0acc781ddcd5c",
+      "bytes": 989784,
+      "reviewed_for_publication": true,
+      "source_sha256": "410d1f070d51b46c6021578f4086cd750d46b74daa9a855ebbc0acc781ddcd5c",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 19794,
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        208.0,
+        209.96109008789062,
+        78.0
+      ],
+      "dimensions_mm": [
+        198.0,
+        199.96109008789062,
+        78.0
+      ],
+      "closed_surface_components": 5,
+      "role": "arranged_plate",
+      "part_ids": [
+        "A1_FL_hip",
+        "A2_FL_thigh_collar",
+        "A3_FL_thigh",
+        "A4_FL_calf_collar",
+        "A5_FL_calf"
+      ]
+    },
+    "docs/printing/next-10-parts/PLATE_B_black_FL_base_and_face_clamp_3parts_mm.stl": {
+      "kind": "stl",
+      "sha256": "12a8ac994d69dcb99e3effe07a53437f3d12d0733a03c04f6604f07e227d41dc",
+      "bytes": 323484,
+      "reviewed_for_publication": true,
+      "source_sha256": "12a8ac994d69dcb99e3effe07a53437f3d12d0733a03c04f6604f07e227d41dc",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 6468,
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        172.0,
+        186.0,
+        73.0
+      ],
+      "dimensions_mm": [
+        162.0,
+        176.0,
+        73.0
+      ],
+      "closed_surface_components": 3,
+      "role": "arranged_plate",
+      "part_ids": [
+        "B1_FL_base_mount",
+        "B2_FL_hip_collar",
+        "B3_face_upper_clamp"
+      ]
+    },
+    "docs/printing/next-10-parts/PLATE_C_black_face_support_1part_mm.stl": {
+      "kind": "stl",
+      "sha256": "8f112dc57a57a99cf056bf28b72e736307a252351890733f16fe2fff20394b49",
+      "bytes": 110084,
+      "reviewed_for_publication": true,
+      "source_sha256": "8f112dc57a57a99cf056bf28b72e736307a252351890733f16fe2fff20394b49",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 2200,
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        113.99999237060547,
+        113.96051025390625,
+        79.0
+      ],
+      "dimensions_mm": [
+        103.99999237060547,
+        103.96051025390625,
+        79.0
+      ],
+      "closed_surface_components": 1,
+      "role": "arranged_plate",
+      "part_ids": [
+        "C1_face_support"
+      ]
+    },
+    "docs/printing/next-10-parts/PLATE_D_yellow_handle_1part_mm.stl": {
+      "kind": "stl",
+      "sha256": "83dce95832f75458d8087b97cfdd1bcb5a5358ca364f5993f88a55cce55bc498",
+      "bytes": 382284,
+      "reviewed_for_publication": true,
+      "source_sha256": "83dce95832f75458d8087b97cfdd1bcb5a5358ca364f5993f88a55cce55bc498",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 7644,
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        197.96018981933594,
+        95.50001525878906,
+        24.0
+      ],
+      "dimensions_mm": [
+        187.96018981933594,
+        85.50001525878906,
+        24.0
+      ],
+      "closed_surface_components": 1,
+      "role": "arranged_plate",
+      "part_ids": [
+        "D1_recovery_handle"
+      ]
+    },
+    "docs/printing/next-10-parts/print_plate_preview.png": {
+      "kind": "preview_png",
+      "sha256": "a7b7e5c9659984b4464877255c03f3605b59b542acfb5e97139607765235a1c5",
+      "bytes": 1040146,
+      "reviewed_for_publication": true,
+      "source_sha256": "a7b7e5c9659984b4464877255c03f3605b59b542acfb5e97139607765235a1c5",
+      "width": 2175,
+      "height": 1740,
+      "origin": "New technical preview drawn from the selected STL triangles; no photographs.",
+      "visual_reviewed": true
+    },
+    "docs/printing/next-10-parts/individual_parts_preview.png": {
+      "kind": "preview_png",
+      "sha256": "0d087de3131f2662ca1ff672671a79a13d4e4c33b41f35013b503a8395b00761",
+      "bytes": 397523,
+      "reviewed_for_publication": true,
+      "source_sha256": "0d087de3131f2662ca1ff672671a79a13d4e4c33b41f35013b503a8395b00761",
+      "width": 2380,
+      "height": 1260,
+      "origin": "New technical preview drawn from the selected STL triangles; no photographs.",
+      "visual_reviewed": true
+    },
+    "docs/printing/next-10-parts/parts_and_solid_PLA_mass.csv": {
+      "kind": "csv",
+      "sha256": "623cfccaaa4dce1085dce70af2165cd93d1cd9fdb58347f39aebadaf4d15483f",
+      "bytes": 1318,
+      "reviewed_for_publication": true,
+      "source_sha256": "623cfccaaa4dce1085dce70af2165cd93d1cd9fdb58347f39aebadaf4d15483f",
+      "encoding": "utf-8-sig"
+    },
+    "docs/printing/next-10-parts/manifest.json": {
+      "kind": "manifest_json",
+      "sha256": "f4022bf8792912587af523a3c17a00da6c6084c6497d9a35e7276683c3ffda23",
+      "bytes": 29169,
+      "reviewed_for_publication": true,
+      "schema": "singularitydog.selected-ten-print-parts.v1"
+    },
+    "docs/printing/next-10-parts/README_追加10部品の印刷.md": {
+      "kind": "readme_md",
+      "sha256": "d243e846a779bc2c059a98b6864719bace4888ad2ec504a3a748ff3868601d98",
+      "bytes": 5552,
+      "reviewed_for_publication": true
+    },
+    "docs/printing/next-10-parts/FaBoRobotDog_K1_Next_STL_10parts.zip": {
+      "kind": "zip",
+      "sha256": "130ffaad7a2507c28ee1d99366e4c3be51d14479b33e18bdd0ea734be422aef9",
+      "bytes": 2481417,
+      "reviewed_for_publication": true,
+      "archive_root": "FaBoRobotDog_K1_Next_STL_10parts/",
+      "member_count": 19,
+      "members": {
+        "FaBoRobotDog_K1_Next_STL_10parts/individual_parts/black/B1_FL_base_mount_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/individual_parts/black/B1_FL_base_mount_mm.stl",
+          "sha256": "ec3012c6fe3a4922beae0eb5a0968f211eade392f4c2942792785534bf4df55b",
+          "bytes": 141284
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/individual_parts/black/B2_FL_hip_collar_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/individual_parts/black/B2_FL_hip_collar_mm.stl",
+          "sha256": "bdf516e7491d14d5bd0d83081431fa3b7e9a42e626592f23994ee2d99177084f",
+          "bytes": 154084
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/individual_parts/yellow/A1_FL_hip_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/individual_parts/yellow/A1_FL_hip_mm.stl",
+          "sha256": "553f523a02c61896b6ab6e724aa97458306fe29ff7632674149aceee490a6bf1",
+          "bytes": 226584
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/individual_parts/yellow/A2_FL_thigh_collar_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/individual_parts/yellow/A2_FL_thigh_collar_mm.stl",
+          "sha256": "996650cdcf7c39af38ff0261d03bf3aba386e09bdbfca33f87f7d0ca8a65b144",
+          "bytes": 171684
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/individual_parts/yellow/A3_FL_thigh_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/individual_parts/yellow/A3_FL_thigh_mm.stl",
+          "sha256": "c2ca40f31f1446fd402729d3acf8392c92a6febdd15e79bf43952bc07575b130",
+          "bytes": 294184
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/individual_parts/yellow/A4_FL_calf_collar_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/individual_parts/yellow/A4_FL_calf_collar_mm.stl",
+          "sha256": "646c77313dba842dcf953092c7ff35dcf10d0b60c8e32e736c6ad09ccdaabe74",
+          "bytes": 171684
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/individual_parts/yellow/A5_FL_calf_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/individual_parts/yellow/A5_FL_calf_mm.stl",
+          "sha256": "3c967f41aaf3ff75dbc73ea093883fc5dd2ed0a7f1212f8862f2a60fcab8d7e2",
+          "bytes": 125984
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/individual_parts/black/C1_face_support_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/individual_parts/black/C1_face_support_mm.stl",
+          "sha256": "3ff61e607525f7ceb3f2cf2a9425d0a3005b3f8d795364035b77b5f8e8063f7c",
+          "bytes": 110084
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/individual_parts/black/B3_face_upper_clamp_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/individual_parts/black/B3_face_upper_clamp_mm.stl",
+          "sha256": "0c08efad3ead7c5d164b0e5e40d6fcbd77831d27878349cc9db0b8ea8ba91f5a",
+          "bytes": 28284
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/individual_parts/yellow/D1_recovery_handle_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/individual_parts/yellow/D1_recovery_handle_mm.stl",
+          "sha256": "7bbc98a63c3e2f5ffb7a45d6452b1362c81c4f69fd96472baafd4b9043242317",
+          "bytes": 382284
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/PLATE_A_yellow_FL_leg_5parts_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/PLATE_A_yellow_FL_leg_5parts_mm.stl",
+          "sha256": "410d1f070d51b46c6021578f4086cd750d46b74daa9a855ebbc0acc781ddcd5c",
+          "bytes": 989784
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/PLATE_B_black_FL_base_and_face_clamp_3parts_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/PLATE_B_black_FL_base_and_face_clamp_3parts_mm.stl",
+          "sha256": "12a8ac994d69dcb99e3effe07a53437f3d12d0733a03c04f6604f07e227d41dc",
+          "bytes": 323484
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/PLATE_C_black_face_support_1part_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/PLATE_C_black_face_support_1part_mm.stl",
+          "sha256": "8f112dc57a57a99cf056bf28b72e736307a252351890733f16fe2fff20394b49",
+          "bytes": 110084
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/PLATE_D_yellow_handle_1part_mm.stl": {
+          "public_path": "docs/printing/next-10-parts/PLATE_D_yellow_handle_1part_mm.stl",
+          "sha256": "83dce95832f75458d8087b97cfdd1bcb5a5358ca364f5993f88a55cce55bc498",
+          "bytes": 382284
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/manifest.json": {
+          "public_path": "docs/printing/next-10-parts/manifest.json",
+          "sha256": "f4022bf8792912587af523a3c17a00da6c6084c6497d9a35e7276683c3ffda23",
+          "bytes": 29169
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/parts_and_solid_PLA_mass.csv": {
+          "public_path": "docs/printing/next-10-parts/parts_and_solid_PLA_mass.csv",
+          "sha256": "623cfccaaa4dce1085dce70af2165cd93d1cd9fdb58347f39aebadaf4d15483f",
+          "bytes": 1318
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/README_追加10部品の印刷.md": {
+          "public_path": "docs/printing/next-10-parts/README_追加10部品の印刷.md",
+          "sha256": "d243e846a779bc2c059a98b6864719bace4888ad2ec504a3a748ff3868601d98",
+          "bytes": 5552
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/print_plate_preview.png": {
+          "public_path": "docs/printing/next-10-parts/print_plate_preview.png",
+          "sha256": "a7b7e5c9659984b4464877255c03f3605b59b542acfb5e97139607765235a1c5",
+          "bytes": 1040146
+        },
+        "FaBoRobotDog_K1_Next_STL_10parts/individual_parts_preview.png": {
+          "public_path": "docs/printing/next-10-parts/individual_parts_preview.png",
+          "sha256": "0d087de3131f2662ca1ff672671a79a13d4e4c33b41f35013b503a8395b00761",
+          "bytes": 397523
+        }
+      },
+      "rebuilt_from_public_counterparts_only": true
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_-1_-1_1_lower_mm.stl": {
+      "kind": "stl",
+      "sha256": "d43113a43400991a4c4b7e0cc483d0a41f4dfbc84089f665758e6d6c2740991a",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "d43113a43400991a4c4b7e0cc483d0a41f4dfbc84089f665758e6d6c2740991a",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        45.96116638183594,
+        27.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "d20_long_-1_-1_1_lower"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_-1_-1_1_upper_mm.stl": {
+      "kind": "stl",
+      "sha256": "937fbecf06e74c07703abed1a85dd4d038c04d3085ee075eddc14845f1b4ba7b",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "937fbecf06e74c07703abed1a85dd4d038c04d3085ee075eddc14845f1b4ba7b",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        45.96116638183594,
+        27.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "d20_long_-1_-1_1_upper"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_-1_1_1_lower_mm.stl": {
+      "kind": "stl",
+      "sha256": "13ce5e8a6783647645546bc765f7f2bdfa01203d02c85afb78e4e0c2b49e3054",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "13ce5e8a6783647645546bc765f7f2bdfa01203d02c85afb78e4e0c2b49e3054",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        45.96116638183594,
+        27.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "d20_long_-1_1_1_lower"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_-1_1_1_upper_mm.stl": {
+      "kind": "stl",
+      "sha256": "896cc2c9f09caf1e6ae59eaced949c96cca1da9a790a4aaf2a62883ebf81cc53",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "896cc2c9f09caf1e6ae59eaced949c96cca1da9a790a4aaf2a62883ebf81cc53",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        45.96116638183594,
+        27.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "d20_long_-1_1_1_upper"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_1_-1_1_lower_mm.stl": {
+      "kind": "stl",
+      "sha256": "74a82cb95dff911276dc3c731a652f7175d2571dca53fd70acec366013ca05c2",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "74a82cb95dff911276dc3c731a652f7175d2571dca53fd70acec366013ca05c2",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        45.96116638183594,
+        27.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "d20_long_1_-1_1_lower"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_1_-1_1_upper_mm.stl": {
+      "kind": "stl",
+      "sha256": "ef50123c43ed81eefb616e8c3b9e7720a3a640f4db415069b4bca1a0e9a52eec",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "ef50123c43ed81eefb616e8c3b9e7720a3a640f4db415069b4bca1a0e9a52eec",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        45.96116638183594,
+        27.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "d20_long_1_-1_1_upper"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_1_1_1_lower_mm.stl": {
+      "kind": "stl",
+      "sha256": "0d60f33affcf944b037e2db26fa2f144c5d922f424a7c333a147a4981146fe97",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "0d60f33affcf944b037e2db26fa2f144c5d922f424a7c333a147a4981146fe97",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        45.96116638183594,
+        27.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "d20_long_1_1_1_lower"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/d20_long_1_1_1_upper_mm.stl": {
+      "kind": "stl",
+      "sha256": "2736ea8e81f6f89b0735bfad35404e756fb6e9a6622808ca9cf32e81a299867b",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "2736ea8e81f6f89b0735bfad35404e756fb6e9a6622808ca9cf32e81a299867b",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        45.96116638183594,
+        27.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "d20_long_1_1_1_upper"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/FL_hip_joint_part_mm.stl": {
+      "kind": "stl",
+      "sha256": "553f523a02c61896b6ab6e724aa97458306fe29ff7632674149aceee490a6bf1",
+      "bytes": 226584,
+      "reviewed_for_publication": true,
+      "source_sha256": "553f523a02c61896b6ab6e724aa97458306fe29ff7632674149aceee490a6bf1",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 4530,
+      "bbox_min_mm": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        65.99413299560547,
+        112.0,
+        78.0
+      ],
+      "dimensions_mm": [
+        55.99413299560547,
+        102.0,
+        78.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "FL_hip_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/FL_thigh_front_collar_mm.stl": {
+      "kind": "stl",
+      "sha256": "996650cdcf7c39af38ff0261d03bf3aba386e09bdbfca33f87f7d0ca8a65b144",
+      "bytes": 171684,
+      "reviewed_for_publication": true,
+      "source_sha256": "996650cdcf7c39af38ff0261d03bf3aba386e09bdbfca33f87f7d0ca8a65b144",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 3432,
+      "bbox_min_mm": [
+        10.0,
+        122.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        66.0,
+        189.96109008789062,
+        6.0
+      ],
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "FL_thigh_front_collar"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/FL_thigh_joint_part_mm.stl": {
+      "kind": "stl",
+      "sha256": "c2ca40f31f1446fd402729d3acf8392c92a6febdd15e79bf43952bc07575b130",
+      "bytes": 294184,
+      "reviewed_for_publication": true,
+      "source_sha256": "c2ca40f31f1446fd402729d3acf8392c92a6febdd15e79bf43952bc07575b130",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 5882,
+      "bbox_min_mm": [
+        76.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        142.0,
+        173.9801788330078,
+        75.0
+      ],
+      "dimensions_mm": [
+        66.0,
+        163.9801788330078,
+        75.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "FL_thigh_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/FL_calf_front_collar_mm.stl": {
+      "kind": "stl",
+      "sha256": "646c77313dba842dcf953092c7ff35dcf10d0b60c8e32e736c6ad09ccdaabe74",
+      "bytes": 171684,
+      "reviewed_for_publication": true,
+      "source_sha256": "646c77313dba842dcf953092c7ff35dcf10d0b60c8e32e736c6ad09ccdaabe74",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 3432,
+      "bbox_min_mm": [
+        152.0,
+        142.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        208.0,
+        209.96109008789062,
+        6.0
+      ],
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "FL_calf_front_collar"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/FL_calf_joint_part_mm.stl": {
+      "kind": "stl",
+      "sha256": "3c967f41aaf3ff75dbc73ea093883fc5dd2ed0a7f1212f8862f2a60fcab8d7e2",
+      "bytes": 125984,
+      "reviewed_for_publication": true,
+      "source_sha256": "3c967f41aaf3ff75dbc73ea093883fc5dd2ed0a7f1212f8862f2a60fcab8d7e2",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 2518,
+      "bbox_min_mm": [
+        152.0,
+        10.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        183.99903869628906,
+        132.0,
+        53.0
+      ],
+      "dimensions_mm": [
+        31.999038696289062,
+        122.0,
+        53.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "FL_calf_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/FR_hip_joint_part_mm.stl": {
+      "kind": "stl",
+      "sha256": "2798e69b1df88a1a6aa69d3100c2fa76c66432211bf39ec0cd35398e84a98eb2",
+      "bytes": 226584,
+      "reviewed_for_publication": true,
+      "source_sha256": "2798e69b1df88a1a6aa69d3100c2fa76c66432211bf39ec0cd35398e84a98eb2",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 4530,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        60.9941291809082,
+        107.0,
+        78.0
+      ],
+      "dimensions_mm": [
+        55.9941291809082,
+        102.0,
+        78.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "FR_hip_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/FR_thigh_front_collar_mm.stl": {
+      "kind": "stl",
+      "sha256": "7424906bba27ce33b5226d649d4f3d01fef013c065085cecb8968022b31cece1",
+      "bytes": 171684,
+      "reviewed_for_publication": true,
+      "source_sha256": "7424906bba27ce33b5226d649d4f3d01fef013c065085cecb8968022b31cece1",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 3432,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        61.0,
+        72.96109008789062,
+        6.0
+      ],
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "FR_thigh_front_collar"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/FR_thigh_joint_part_mm.stl": {
+      "kind": "stl",
+      "sha256": "fc55e86cec0bd21a11a3074b9ec82d97940ab98bf163af3283c9b24caf1becad",
+      "bytes": 294184,
+      "reviewed_for_publication": true,
+      "source_sha256": "fc55e86cec0bd21a11a3074b9ec82d97940ab98bf163af3283c9b24caf1becad",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 5882,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        71.0,
+        168.9801788330078,
+        75.0
+      ],
+      "dimensions_mm": [
+        66.0,
+        163.9801788330078,
+        75.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "FR_thigh_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/FR_calf_front_collar_mm.stl": {
+      "kind": "stl",
+      "sha256": "54bfbf419bffdc667c76e12d9d93cb27c349f0c335709ffffa1fd6459b9881cb",
+      "bytes": 171684,
+      "reviewed_for_publication": true,
+      "source_sha256": "54bfbf419bffdc667c76e12d9d93cb27c349f0c335709ffffa1fd6459b9881cb",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 3432,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        61.0,
+        72.96109008789062,
+        6.0
+      ],
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "FR_calf_front_collar"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/FR_calf_joint_part_mm.stl": {
+      "kind": "stl",
+      "sha256": "228d069883214e83714f57e743555ceba267a3e03a4efe8ce85d66f2776c73df",
+      "bytes": 125984,
+      "reviewed_for_publication": true,
+      "source_sha256": "228d069883214e83714f57e743555ceba267a3e03a4efe8ce85d66f2776c73df",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 2518,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        36.99904251098633,
+        127.0,
+        53.0
+      ],
+      "dimensions_mm": [
+        31.999042510986328,
+        122.0,
+        53.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "FR_calf_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/RL_hip_joint_part_mm.stl": {
+      "kind": "stl",
+      "sha256": "97e0381884c9da8b0b109d4ddea61fc7b836cb5962f9118fb6602371263e79cd",
+      "bytes": 226584,
+      "reviewed_for_publication": true,
+      "source_sha256": "97e0381884c9da8b0b109d4ddea61fc7b836cb5962f9118fb6602371263e79cd",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 4530,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        60.9941291809082,
+        107.0,
+        78.0
+      ],
+      "dimensions_mm": [
+        55.9941291809082,
+        102.0,
+        78.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "RL_hip_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/RL_thigh_front_collar_mm.stl": {
+      "kind": "stl",
+      "sha256": "c78387f453ec878ff572ecf8e70d8656b56f9d5e84d1764e924fea127667ad73",
+      "bytes": 171684,
+      "reviewed_for_publication": true,
+      "source_sha256": "c78387f453ec878ff572ecf8e70d8656b56f9d5e84d1764e924fea127667ad73",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 3432,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        61.0,
+        72.96109008789062,
+        6.0
+      ],
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "RL_thigh_front_collar"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/RL_thigh_joint_part_mm.stl": {
+      "kind": "stl",
+      "sha256": "fbbfe0e784f515a86b4f822220d8f6f997a0a8667c81ac06f5d611536cb72070",
+      "bytes": 294184,
+      "reviewed_for_publication": true,
+      "source_sha256": "fbbfe0e784f515a86b4f822220d8f6f997a0a8667c81ac06f5d611536cb72070",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 5882,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        71.0,
+        168.9801788330078,
+        75.0
+      ],
+      "dimensions_mm": [
+        66.0,
+        163.9801788330078,
+        75.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "RL_thigh_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/RL_calf_front_collar_mm.stl": {
+      "kind": "stl",
+      "sha256": "8979ac0125ba66f44b0c491205ed4137752192b31029a3a48e05e758a31753e2",
+      "bytes": 171684,
+      "reviewed_for_publication": true,
+      "source_sha256": "8979ac0125ba66f44b0c491205ed4137752192b31029a3a48e05e758a31753e2",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 3432,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        61.0,
+        72.96109008789062,
+        6.0
+      ],
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "RL_calf_front_collar"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/RL_calf_joint_part_mm.stl": {
+      "kind": "stl",
+      "sha256": "5f862de95cdf1dafb07dc3089f83bbadd6aabb2f872c91b3db06856fd7192134",
+      "bytes": 125984,
+      "reviewed_for_publication": true,
+      "source_sha256": "5f862de95cdf1dafb07dc3089f83bbadd6aabb2f872c91b3db06856fd7192134",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 2518,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        36.99904251098633,
+        127.0,
+        53.0
+      ],
+      "dimensions_mm": [
+        31.999042510986328,
+        122.0,
+        53.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "RL_calf_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/RR_hip_joint_part_mm.stl": {
+      "kind": "stl",
+      "sha256": "bbeb0303f9fd072890e240ff5ab25c94f434b843d008f22b26fb543a23908a7e",
+      "bytes": 226584,
+      "reviewed_for_publication": true,
+      "source_sha256": "bbeb0303f9fd072890e240ff5ab25c94f434b843d008f22b26fb543a23908a7e",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 4530,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        60.9941291809082,
+        107.0,
+        78.0
+      ],
+      "dimensions_mm": [
+        55.9941291809082,
+        102.0,
+        78.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "RR_hip_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/RR_thigh_front_collar_mm.stl": {
+      "kind": "stl",
+      "sha256": "e6badf3badd1d408ce6fc11195eaa18b35f62b5822b5c3f68e2bd78f9e38d60f",
+      "bytes": 171684,
+      "reviewed_for_publication": true,
+      "source_sha256": "e6badf3badd1d408ce6fc11195eaa18b35f62b5822b5c3f68e2bd78f9e38d60f",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 3432,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        61.0,
+        72.96109008789062,
+        6.0
+      ],
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "RR_thigh_front_collar"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/RR_thigh_joint_part_mm.stl": {
+      "kind": "stl",
+      "sha256": "62b4ecaa9ca8367164657818d8d5227b8012151eb829ccd24b7c781ece0a1298",
+      "bytes": 294184,
+      "reviewed_for_publication": true,
+      "source_sha256": "62b4ecaa9ca8367164657818d8d5227b8012151eb829ccd24b7c781ece0a1298",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 5882,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        71.0,
+        168.9801788330078,
+        75.0
+      ],
+      "dimensions_mm": [
+        66.0,
+        163.9801788330078,
+        75.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "RR_thigh_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/RR_calf_front_collar_mm.stl": {
+      "kind": "stl",
+      "sha256": "fd50e7e09713205d673018b741b6b65b0430fc4c105d8aa3501936c2aae934cc",
+      "bytes": 171684,
+      "reviewed_for_publication": true,
+      "source_sha256": "fd50e7e09713205d673018b741b6b65b0430fc4c105d8aa3501936c2aae934cc",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 3432,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        61.0,
+        72.96109008789062,
+        6.0
+      ],
+      "dimensions_mm": [
+        56.0,
+        67.96109008789062,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "RR_calf_front_collar"
+      ]
+    },
+    "docs/printing/yellow-dense/individual_parts/RR_calf_joint_part_mm.stl": {
+      "kind": "stl",
+      "sha256": "3ddbdadf5d8d35fbcf4a83fb23dec14dac03679508e008ba86284929f8f56a0f",
+      "bytes": 125984,
+      "reviewed_for_publication": true,
+      "source_sha256": "3ddbdadf5d8d35fbcf4a83fb23dec14dac03679508e008ba86284929f8f56a0f",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 2518,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        36.99904251098633,
+        127.0,
+        53.0
+      ],
+      "dimensions_mm": [
+        31.999042510986328,
+        122.0,
+        53.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "RR_calf_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/PLATE_01_yellow_7parts_mm.stl": {
+      "kind": "stl",
+      "sha256": "72659a55e13a08400f348c2bb9dfa270de4c356feee0d2851b9408321736a892",
+      "bytes": 1138784,
+      "reviewed_for_publication": true,
+      "source_sha256": "72659a55e13a08400f348c2bb9dfa270de4c356feee0d2851b9408321736a892",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 22774,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        205.39999389648438,
+        210.58999633789062,
+        78.0
+      ],
+      "dimensions_mm": [
+        200.39999389648438,
+        205.58999633789062,
+        78.0
+      ],
+      "closed_surface_components": 7,
+      "role": "arranged_plate",
+      "part_ids": [
+        "d20_long_-1_-1_1_lower",
+        "d20_long_1_1_1_upper",
+        "FL_hip_joint_part",
+        "FR_hip_joint_part",
+        "FR_thigh_joint_part",
+        "RL_thigh_front_collar",
+        "RR_thigh_front_collar"
+      ]
+    },
+    "docs/printing/yellow-dense/PLATE_02_yellow_6parts_mm.stl": {
+      "kind": "stl",
+      "sha256": "cda2f15970666f978d225123779ecb6405f12600b46922bb6e08c802cb9ff936",
+      "bytes": 1013984,
+      "reviewed_for_publication": true,
+      "source_sha256": "cda2f15970666f978d225123779ecb6405f12600b46922bb6e08c802cb9ff936",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 20278,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        205.36199951171875,
+        207.36199951171875,
+        78.0
+      ],
+      "dimensions_mm": [
+        200.36199951171875,
+        202.36199951171875,
+        78.0
+      ],
+      "closed_surface_components": 6,
+      "role": "arranged_plate",
+      "part_ids": [
+        "d20_long_-1_-1_1_upper",
+        "FL_thigh_front_collar",
+        "RL_calf_joint_part",
+        "RR_hip_joint_part",
+        "RR_thigh_joint_part",
+        "RR_calf_front_collar"
+      ]
+    },
+    "docs/printing/yellow-dense/PLATE_03_yellow_8parts_mm.stl": {
+      "kind": "stl",
+      "sha256": "c8d0e5ba311a0560cfac2efe04affe72a1b6303ea05efd5265f9db2b69f1f21f",
+      "bytes": 1084284,
+      "reviewed_for_publication": true,
+      "source_sha256": "c8d0e5ba311a0560cfac2efe04affe72a1b6303ea05efd5265f9db2b69f1f21f",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 21684,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        206.60000610351562,
+        211.44715881347656,
+        75.0
+      ],
+      "dimensions_mm": [
+        201.60000610351562,
+        206.44715881347656,
+        75.0
+      ],
+      "closed_surface_components": 8,
+      "role": "arranged_plate",
+      "part_ids": [
+        "d20_long_1_-1_1_lower",
+        "d20_long_1_-1_1_upper",
+        "d20_long_1_1_1_lower",
+        "FL_thigh_joint_part",
+        "FL_calf_joint_part",
+        "FR_thigh_front_collar",
+        "FR_calf_joint_part",
+        "RL_thigh_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/PLATE_04_yellow_7parts_mm.stl": {
+      "kind": "stl",
+      "sha256": "01e8bbe6ab58bf104d2cac93ae4b72c778c2037ddee8ce551a55cf2109e86444",
+      "bytes": 915684,
+      "reviewed_for_publication": true,
+      "source_sha256": "01e8bbe6ab58bf104d2cac93ae4b72c778c2037ddee8ce551a55cf2109e86444",
+      "source_kind": "user_selected_verified_print_package_same_bytes",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 18312,
+      "bbox_min_mm": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        171.35609436035156,
+        207.36199951171875,
+        78.0
+      ],
+      "dimensions_mm": [
+        166.35609436035156,
+        202.36199951171875,
+        78.0
+      ],
+      "closed_surface_components": 7,
+      "role": "arranged_plate",
+      "part_ids": [
+        "d20_long_-1_1_1_lower",
+        "d20_long_-1_1_1_upper",
+        "FL_calf_front_collar",
+        "FR_calf_front_collar",
+        "RL_hip_joint_part",
+        "RL_calf_front_collar",
+        "RR_calf_joint_part"
+      ]
+    },
+    "docs/printing/yellow-dense/print_plate_preview.png": {
+      "kind": "preview_png",
+      "sha256": "642152613d2257e02ab85d62bea444dddb8beb0412c4e86b086698a14055e318",
+      "bytes": 1566292,
+      "reviewed_for_publication": true,
+      "source_sha256": "642152613d2257e02ab85d62bea444dddb8beb0412c4e86b086698a14055e318",
+      "width": 2175,
+      "height": 1885,
+      "origin": "Technical diagram drawn from actual selected STL triangles; no photographs.",
+      "visual_reviewed": true
+    },
+    "docs/printing/yellow-dense/print_plate_top_view.png": {
+      "kind": "preview_png",
+      "sha256": "dffc85133fb95e561ab29748e13048167563a07801c4fec0164ac5adcbe86b71",
+      "bytes": 832032,
+      "reviewed_for_publication": true,
+      "source_sha256": "dffc85133fb95e561ab29748e13048167563a07801c4fec0164ac5adcbe86b71",
+      "width": 2175,
+      "height": 1885,
+      "origin": "Technical diagram drawn from actual selected STL triangles; no photographs.",
+      "visual_reviewed": true
+    },
+    "docs/printing/yellow-dense/parts_and_solid_PLA_mass.csv": {
+      "kind": "csv",
+      "sha256": "5bf1b729ea69e18f9801d6484de9f8be71f5a68b7a29c49328eb870dfe8b8fbd",
+      "bytes": 3725,
+      "reviewed_for_publication": true,
+      "source_sha256": "5bf1b729ea69e18f9801d6484de9f8be71f5a68b7a29c49328eb870dfe8b8fbd"
+    },
+    "docs/printing/yellow-dense/README_黄色28部品の印刷.md": {
+      "kind": "readme_md",
+      "sha256": "d5e13c2caedd504d1db7d13b6f27f69528100c5640120c127ad98db155401ad3",
+      "bytes": 5034,
+      "reviewed_for_publication": true,
+      "source_sha256": "d5e13c2caedd504d1db7d13b6f27f69528100c5640120c127ad98db155401ad3"
+    },
+    "docs/printing/yellow-dense/manifest.json": {
+      "kind": "manifest_json",
+      "sha256": "7d09c6e531d3ee79cb00686c50ce7411ff8ae00bf9c74efe5fbb5bd901a3e97b",
+      "bytes": 85967,
+      "reviewed_for_publication": true,
+      "schema": "singularitydog.yellow-dense-print-parts.v1"
+    },
+    "docs/printing/yellow-dense/FaBoRobotDog_K1_Yellow_Dense_28parts.zip": {
+      "kind": "zip",
+      "sha256": "086c50b26df796495ecd4141a6a36e455eeb0d08bfa96220ca913d7512b87835",
+      "bytes": 4776118,
+      "reviewed_for_publication": true,
+      "archive_root": "FaBoRobotDog_K1_Yellow_Dense_28parts/",
+      "member_count": 37,
+      "members": {
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/d20_long_-1_-1_1_lower_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/d20_long_-1_-1_1_lower_mm.stl",
+          "sha256": "d43113a43400991a4c4b7e0cc483d0a41f4dfbc84089f665758e6d6c2740991a",
+          "bytes": 24284
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/d20_long_-1_-1_1_upper_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/d20_long_-1_-1_1_upper_mm.stl",
+          "sha256": "937fbecf06e74c07703abed1a85dd4d038c04d3085ee075eddc14845f1b4ba7b",
+          "bytes": 24284
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/d20_long_-1_1_1_lower_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/d20_long_-1_1_1_lower_mm.stl",
+          "sha256": "13ce5e8a6783647645546bc765f7f2bdfa01203d02c85afb78e4e0c2b49e3054",
+          "bytes": 24284
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/d20_long_-1_1_1_upper_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/d20_long_-1_1_1_upper_mm.stl",
+          "sha256": "896cc2c9f09caf1e6ae59eaced949c96cca1da9a790a4aaf2a62883ebf81cc53",
+          "bytes": 24284
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/d20_long_1_-1_1_lower_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/d20_long_1_-1_1_lower_mm.stl",
+          "sha256": "74a82cb95dff911276dc3c731a652f7175d2571dca53fd70acec366013ca05c2",
+          "bytes": 24284
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/d20_long_1_-1_1_upper_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/d20_long_1_-1_1_upper_mm.stl",
+          "sha256": "ef50123c43ed81eefb616e8c3b9e7720a3a640f4db415069b4bca1a0e9a52eec",
+          "bytes": 24284
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/d20_long_1_1_1_lower_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/d20_long_1_1_1_lower_mm.stl",
+          "sha256": "0d60f33affcf944b037e2db26fa2f144c5d922f424a7c333a147a4981146fe97",
+          "bytes": 24284
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/d20_long_1_1_1_upper_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/d20_long_1_1_1_upper_mm.stl",
+          "sha256": "2736ea8e81f6f89b0735bfad35404e756fb6e9a6622808ca9cf32e81a299867b",
+          "bytes": 24284
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/FL_hip_joint_part_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/FL_hip_joint_part_mm.stl",
+          "sha256": "553f523a02c61896b6ab6e724aa97458306fe29ff7632674149aceee490a6bf1",
+          "bytes": 226584
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/FL_thigh_front_collar_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/FL_thigh_front_collar_mm.stl",
+          "sha256": "996650cdcf7c39af38ff0261d03bf3aba386e09bdbfca33f87f7d0ca8a65b144",
+          "bytes": 171684
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/FL_thigh_joint_part_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/FL_thigh_joint_part_mm.stl",
+          "sha256": "c2ca40f31f1446fd402729d3acf8392c92a6febdd15e79bf43952bc07575b130",
+          "bytes": 294184
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/FL_calf_front_collar_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/FL_calf_front_collar_mm.stl",
+          "sha256": "646c77313dba842dcf953092c7ff35dcf10d0b60c8e32e736c6ad09ccdaabe74",
+          "bytes": 171684
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/FL_calf_joint_part_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/FL_calf_joint_part_mm.stl",
+          "sha256": "3c967f41aaf3ff75dbc73ea093883fc5dd2ed0a7f1212f8862f2a60fcab8d7e2",
+          "bytes": 125984
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/FR_hip_joint_part_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/FR_hip_joint_part_mm.stl",
+          "sha256": "2798e69b1df88a1a6aa69d3100c2fa76c66432211bf39ec0cd35398e84a98eb2",
+          "bytes": 226584
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/FR_thigh_front_collar_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/FR_thigh_front_collar_mm.stl",
+          "sha256": "7424906bba27ce33b5226d649d4f3d01fef013c065085cecb8968022b31cece1",
+          "bytes": 171684
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/FR_thigh_joint_part_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/FR_thigh_joint_part_mm.stl",
+          "sha256": "fc55e86cec0bd21a11a3074b9ec82d97940ab98bf163af3283c9b24caf1becad",
+          "bytes": 294184
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/FR_calf_front_collar_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/FR_calf_front_collar_mm.stl",
+          "sha256": "54bfbf419bffdc667c76e12d9d93cb27c349f0c335709ffffa1fd6459b9881cb",
+          "bytes": 171684
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/FR_calf_joint_part_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/FR_calf_joint_part_mm.stl",
+          "sha256": "228d069883214e83714f57e743555ceba267a3e03a4efe8ce85d66f2776c73df",
+          "bytes": 125984
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/RL_hip_joint_part_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/RL_hip_joint_part_mm.stl",
+          "sha256": "97e0381884c9da8b0b109d4ddea61fc7b836cb5962f9118fb6602371263e79cd",
+          "bytes": 226584
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/RL_thigh_front_collar_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/RL_thigh_front_collar_mm.stl",
+          "sha256": "c78387f453ec878ff572ecf8e70d8656b56f9d5e84d1764e924fea127667ad73",
+          "bytes": 171684
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/RL_thigh_joint_part_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/RL_thigh_joint_part_mm.stl",
+          "sha256": "fbbfe0e784f515a86b4f822220d8f6f997a0a8667c81ac06f5d611536cb72070",
+          "bytes": 294184
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/RL_calf_front_collar_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/RL_calf_front_collar_mm.stl",
+          "sha256": "8979ac0125ba66f44b0c491205ed4137752192b31029a3a48e05e758a31753e2",
+          "bytes": 171684
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/RL_calf_joint_part_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/RL_calf_joint_part_mm.stl",
+          "sha256": "5f862de95cdf1dafb07dc3089f83bbadd6aabb2f872c91b3db06856fd7192134",
+          "bytes": 125984
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/RR_hip_joint_part_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/RR_hip_joint_part_mm.stl",
+          "sha256": "bbeb0303f9fd072890e240ff5ab25c94f434b843d008f22b26fb543a23908a7e",
+          "bytes": 226584
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/RR_thigh_front_collar_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/RR_thigh_front_collar_mm.stl",
+          "sha256": "e6badf3badd1d408ce6fc11195eaa18b35f62b5822b5c3f68e2bd78f9e38d60f",
+          "bytes": 171684
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/RR_thigh_joint_part_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/RR_thigh_joint_part_mm.stl",
+          "sha256": "62b4ecaa9ca8367164657818d8d5227b8012151eb829ccd24b7c781ece0a1298",
+          "bytes": 294184
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/RR_calf_front_collar_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/RR_calf_front_collar_mm.stl",
+          "sha256": "fd50e7e09713205d673018b741b6b65b0430fc4c105d8aa3501936c2aae934cc",
+          "bytes": 171684
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/individual_parts/RR_calf_joint_part_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/individual_parts/RR_calf_joint_part_mm.stl",
+          "sha256": "3ddbdadf5d8d35fbcf4a83fb23dec14dac03679508e008ba86284929f8f56a0f",
+          "bytes": 125984
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/PLATE_01_yellow_7parts_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/PLATE_01_yellow_7parts_mm.stl",
+          "sha256": "72659a55e13a08400f348c2bb9dfa270de4c356feee0d2851b9408321736a892",
+          "bytes": 1138784
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/PLATE_02_yellow_6parts_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/PLATE_02_yellow_6parts_mm.stl",
+          "sha256": "cda2f15970666f978d225123779ecb6405f12600b46922bb6e08c802cb9ff936",
+          "bytes": 1013984
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/PLATE_03_yellow_8parts_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/PLATE_03_yellow_8parts_mm.stl",
+          "sha256": "c8d0e5ba311a0560cfac2efe04affe72a1b6303ea05efd5265f9db2b69f1f21f",
+          "bytes": 1084284
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/PLATE_04_yellow_7parts_mm.stl": {
+          "public_path": "docs/printing/yellow-dense/PLATE_04_yellow_7parts_mm.stl",
+          "sha256": "01e8bbe6ab58bf104d2cac93ae4b72c778c2037ddee8ce551a55cf2109e86444",
+          "bytes": 915684
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/manifest.json": {
+          "public_path": "docs/printing/yellow-dense/manifest.json",
+          "sha256": "7d09c6e531d3ee79cb00686c50ce7411ff8ae00bf9c74efe5fbb5bd901a3e97b",
+          "bytes": 85967
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/parts_and_solid_PLA_mass.csv": {
+          "public_path": "docs/printing/yellow-dense/parts_and_solid_PLA_mass.csv",
+          "sha256": "5bf1b729ea69e18f9801d6484de9f8be71f5a68b7a29c49328eb870dfe8b8fbd",
+          "bytes": 3725
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/README_黄色28部品の印刷.md": {
+          "public_path": "docs/printing/yellow-dense/README_黄色28部品の印刷.md",
+          "sha256": "d5e13c2caedd504d1db7d13b6f27f69528100c5640120c127ad98db155401ad3",
+          "bytes": 5034
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/print_plate_preview.png": {
+          "public_path": "docs/printing/yellow-dense/print_plate_preview.png",
+          "sha256": "642152613d2257e02ab85d62bea444dddb8beb0412c4e86b086698a14055e318",
+          "bytes": 1566292
+        },
+        "FaBoRobotDog_K1_Yellow_Dense_28parts/print_plate_top_view.png": {
+          "public_path": "docs/printing/yellow-dense/print_plate_top_view.png",
+          "sha256": "dffc85133fb95e561ab29748e13048167563a07801c4fec0164ac5adcbe86b71",
+          "bytes": 832032
+        }
+      },
+      "rebuilt_from_public_counterparts_only": true
+    }
+  },
+  "selected_original_print_package_sha256": "ef1d545589f4d4fbc8be5e9f667e62b1bcb774285cd0174859ccd7bf8cc2dcae",
+  "public_archive_is_new_sanitized_package": true,
+  "no_private_photographs_or_derivatives": true,
+  "no_editable_CAD": true,
+  "no_equipment_models": true,
+  "no_training_artifacts": true,
+  "no_private_source_paths": true,
+  "physical_fit_verified": false,
+  "structural_load_test_performed": false,
+  "slicing_performed": false,
+  "checker_contract": {
+    "stl_byte_count": "84 + 50 * uint32_le_triangle_count_at_offset80",
+    "stl_vertices": "9 float32 little-endian values at record+12; all finite",
+    "bbox_tolerance_mm": 0.0001,
+    "units": "mm",
+    "path_scope": "Every file must be exactly registered within one of the two explicit expected_directories.",
+    "archive": "Unique exact registered member names, no absolute or traversal paths, no directories/symlinks, CRC and SHA/byte equality with public counterparts.",
+    "metadata": "Text scan also applies to all MD, CSV and JSON including text inside the archive."
+  },
+  "authorization_addendum": "On 2026-09-12 the user additionally requested denser yellow printing plates: four-leg movable parts and fitting upper clamps. Original authorization string and prior selected files are preserved.",
+  "expected_directories": [
+    "docs/printing/next-10-parts",
+    "docs/printing/yellow-dense"
+  ],
+  "individual_part_count_scope": "Individual STL entries across both kits; five FL identities occur in both.",
+  "unique_selected_part_identities": 33,
+  "archive_count": 2,
+  "archive_member_count_scope": "Sum of the 19-entry and 37-entry archives, not one archive.",
+  "solid_PLA_equivalent_mass_g_by_package": {
+    "next-10-parts": 703.7799383956661,
+    "yellow-dense": 978.4682029120671
+  },
+  "packages": {
+    "next-10-parts": {
+      "manifest": "docs/printing/next-10-parts/manifest.json",
+      "individual_parts": 10,
+      "plates": 4,
+      "archive_members": 19
+    },
+    "yellow-dense": {
+      "manifest": "docs/printing/yellow-dense/manifest.json",
+      "individual_parts": 28,
+      "plates": 4,
+      "archive_members": 37,
+      "repeats_five_FL_parts_from_first_kit": true
+    }
+  }
+}

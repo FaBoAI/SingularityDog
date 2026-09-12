@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
-  "updated": "2026-09-11",
-  "numbering_scope": "直近25回（H01〜H04＋L00〜L20）のうち後半L00〜L20の21件を表示。4専門方策、r1/r2/r3/r4復旧、追加評価、動画とGIFは第25回内の作業で、成功25回という意味ではない。",
+  "updated": "2026-09-12",
+  "numbering_scope": "直近27回（H01〜H04＋L00〜L22）のうち後半L00〜L22の23件を表示。L22のA/Bは同じ1試行に数える。成功27回という意味ではない。",
   "loops": [
     {
       "id": "L00",
@@ -682,12 +682,40 @@
       "skill_acceptance": false,
       "qualified_motion_count": 2,
       "own_result_sha256": "554d4155f9cb164bfad0dd7e72dfce0670b161b13c2c843929123a82e263e671"
+    },
+    {
+      "id": "L21",
+      "order": 21,
+      "state": "EVALUATED",
+      "title": "500更新、9動作中6件が全基準達成",
+      "change": "物理D16・参照を維持し、6方向指令の均等化、伏せ負荷、挨拶の固定初期位置からのずれの費用を追加。",
+      "result": "500新更新（歩行300・伏せ120・挨拶80・座位0）を完了し、同D16の親3/9から最終6/9。前進は1.52秒で速度超過終了、伏せ保持と復帰、挨拶の最大XYが未達。",
+      "comparison_scope": "4独立方策の個別評価。L21はD16、L22はD17でA/B各500更新。A/Bの合格動作を単一方策へ合算しない。",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video_url": null,
+      "report_url": "l21-evaluation.md",
+      "new_training_updates": 500
+    },
+    {
+      "id": "L22",
+      "order": 22,
+      "state": "EVALUATED",
+      "title": "独立A/B各500更新、各6/9合格",
+      "change": "D17の更新した搭載物形状・質量でA/Bの報酬差を比較。同親・同seed42、BはAを継承しない。",
+      "result": "同じ親から独立にA/B各500新更新、計1000更新。各条件6/9合格。A前進40.1600cm/sは合格、左移動・伏せ・挨拶は未達。Bは前進8.92秒で速度超過終了、伏せ・挨拶は未達。両条件の合格を合成して単一方策の合格とはしない。",
+      "comparison_scope": "4独立方策の個別評価。L21はD16、L22はD17でA/B各500更新。A/Bの合格動作を単一方策へ合算しない。",
+      "forward_speed_m_s": 0.4015998442967732,
+      "lift15_counts": null,
+      "video_url": "media/l22-a-nine-motions.mp4",
+      "report_url": "l22-evaluation.md",
+      "new_training_updates": 1000
     }
   ],
   "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。",
   "target_actual_forward_m_s": 0.4,
-  "verified_recent_series_count": 25,
-  "latest_loop_id": "L20",
+  "verified_recent_series_count": 27,
+  "latest_loop_id": "L22",
   "comparison_cases": [
     {
       "id": "L09-matched-L10",
@@ -846,9 +874,20 @@
       "video_url": "media/l20-sit.mp4",
       "report_url": "l20-evaluation.md",
       "recorded_duration_s": 32.0
+    },
+    {
+      "id": "L22-B",
+      "title": "第27回・条件B",
+      "state": "EVALUATED",
+      "change": "同じD17・親・seedで追加報酬重み4、旋回指数2を用い独立500更新。",
+      "result": "6/9合格。前進は8.92秒で速度超過終了、左移動は合格、伏せ・挨拶は未達。",
+      "comparison_scope": "A/B別条件・4独立方策。表示14秒、FULL EVALは元全長評価。未完前進を12秒性能とは扱わない。",
+      "forward_speed_m_s": null,
+      "video_url": "media/l22-b-nine-motions.mp4",
+      "report_url": "l22-evaluation.md"
     }
   ],
-  "default_comparison_before": "L19",
+  "default_comparison_before": "L22",
   "latest_cases": [
     {
       "direction": "forward",
@@ -917,7 +956,7 @@
       "target_result": "未達"
     }
   ],
-  "latest_locomotion_loop_id": "L20",
+  "latest_locomotion_loop_id": "L22",
   "latest_cases_scope": "L20のD16・元L13親+0と最終方策の6方向評価。旧D13のL13結果はhistorical_l13_casesに保持。",
   "future_training_updates": 500,
   "latest_locomotion_development_targets_met_case_count": 1,
@@ -1005,7 +1044,7 @@
   "latest_locomotion_stage_id": "L20",
   "selected_actual_recording_count": 39,
   "separate_measured_chart_mp4_count": 1,
-  "default_comparison_after": "L20-sit",
+  "default_comparison_after": "L22-B",
   "latest_motion_cases": [
     {
       "motion_id": "forward",
