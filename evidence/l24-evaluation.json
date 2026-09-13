@@ -1,0 +1,1155 @@
+{
+  "schema": "singularitydog.abc-nine-motion-evaluation.v1",
+  "id": "L24",
+  "series_order": 29,
+  "status": "COMPLETED_ABC_NUMERIC_RESULTS_PUBLISHED",
+  "counted_as_completed_loop": true,
+  "trial_execution_completed": true,
+  "started_jst": "2026-09-12T21:21:41.725342+09:00",
+  "ended_jst": "2026-09-13T01:44:09.073226+09:00",
+  "training": {
+    "executed_conditions": 3,
+    "completed_main_updates_per_condition": 500,
+    "completed_total_main_updates_across_separate_conditions": 1500,
+    "expert_updates_per_condition": {
+      "locomotion": 0,
+      "prone": 250,
+      "wave": 250,
+      "sit": 0
+    },
+    "main_transitions_per_condition": 4096000,
+    "independent_experts_per_condition": 4,
+    "single_unified_actor": false,
+    "seed": 42,
+    "final_iteration_each_new_expert": 249,
+    "new_final_checkpoint_count": 6,
+    "saved_model_cpu_checks_passed": 6,
+    "saved_tensors_finite": true,
+    "all_new_checkpoint_local_backups_confirmed": false,
+    "parent_motion_result_id": "L23",
+    "comparison_scope": "Same selected actor parents, but each preflight uses its own changed path or timing."
+  },
+  "evaluation": {
+    "motion_count_per_condition": 9,
+    "recorded_final_cases": 27,
+    "recorded_parent_and_final_cases": 54,
+    "all_requested_intervals_completed": true,
+    "final_pass_count_by_condition": {
+      "A": 7,
+      "B": 7,
+      "C": 7
+    },
+    "baseline_pass_count_by_condition": {
+      "A": 7,
+      "B": 7,
+      "C": 7
+    },
+    "passing_motion_ids": [
+      "forward",
+      "backward",
+      "left",
+      "right",
+      "turn_left",
+      "turn_right",
+      "sit"
+    ],
+    "failing_motion_ids": [
+      "prone",
+      "wave"
+    ],
+    "all_nine_pass": false,
+    "skill_acceptance": false,
+    "hardware_deployment_allowed": false
+  },
+  "registered_stationary_criteria": {
+    "maximum_xy_m": 0.05,
+    "maximum_heading_deg": 5.0,
+    "required_prone_hold_s": 2.0,
+    "minimum_skid_load_fraction": 0.5,
+    "required_four_foot_return_s": 2.0,
+    "standing_reference_height_m": 0.25556651958078513,
+    "basic_prone_return_height_tolerance_m": 0.025,
+    "basic_prone_return_tilt_deg": 10.0,
+    "additional_prone_return_height_tolerance_m": 0.015,
+    "additional_prone_return_tilt_deg": 5.0,
+    "wave_minimum_paw_clearance_m": 0.15,
+    "wave_required_continuous_high_paw_s_per_cycle": 4.0,
+    "wave_required_round_trips_per_cycle": 2,
+    "complete_cycles": 2,
+    "note": "Stationary XY and heading thresholds do not replace the established direction-specific locomotion criteria."
+  },
+  "physical_model": {
+    "id": "D17",
+    "registered_total_mass_kg": 8.139600480211335,
+    "unchanged_shape_mass_and_drive_limits": true,
+    "new_print_reinforcement_applied": false,
+    "hardware_strength_or_fit_verified": false
+  },
+  "conditions": [
+    {
+      "condition": "A",
+      "completed_new_updates": 500,
+      "pass_count": 7,
+      "prone_hip_return_lead_s": 0.0,
+      "prone_following_leg_return_s": 3.0,
+      "wave_cycle_s": 18.0,
+      "wave_evaluation_s": 36.0,
+      "wave_support_shift_and_return_s": 2,
+      "wave_predictive_braking_added": false,
+      "prone": {
+        "matched_parent": {
+          "passed": false,
+          "duration_s": 24.0,
+          "completed_steps": 1200,
+          "full_interval_completed": true,
+          "measurements": {
+            "maximum_heading_change_deg": 11.305683402557833,
+            "maximum_xy_distance_m": 0.10143212137152674,
+            "maximum_actual_joint_speed_rad_s": 4.1839165687561035,
+            "maximum_exposure_h": 0.9999999999994107,
+            "maximum_applied_effort_Nm": 4.881216049194336,
+            "forbidden_contact_sample_count": 0,
+            "overspeed_joint_sample_count": 0
+          },
+          "failed_gates": [
+            "all_prone_holds",
+            "all_four_foot_return_holds",
+            "maximum_heading_change",
+            "maximum_xy_distance",
+            "return_hold_tilt",
+            "return_hold_height"
+          ],
+          "cycles": [
+            {
+              "cycle": 1,
+              "prone_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.09499984979629517,
+                  0.09651442617177963
+                ],
+                "maximum_tilt_deg": 1.0965824266233453,
+                "condition_satisfied_samples": {
+                  "skid_load": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800,
+                "skid_load_fraction_range": [
+                  0.5085050800038498,
+                  2.3243108762536946
+                ]
+              },
+              "four_foot_return_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.23317255079746246,
+                  0.23546390235424042
+                ],
+                "maximum_tilt_deg": 1.7710199000830444,
+                "condition_satisfied_samples": {
+                  "four_foot_support": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800
+              }
+            },
+            {
+              "cycle": 2,
+              "prone_hold": {
+                "continuous_samples": 752,
+                "continuous_s": 1.8800000000000001,
+                "passed": false,
+                "height_range_m": [
+                  0.0949999988079071,
+                  0.09785755723714828
+                ],
+                "maximum_tilt_deg": 1.9704200639341756,
+                "condition_satisfied_samples": {
+                  "skid_load": 783,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800,
+                "skid_load_fraction_range": [
+                  0.44884488103234005,
+                  1.0479235975662111
+                ]
+              },
+              "four_foot_return_hold": {
+                "continuous_samples": 35,
+                "continuous_s": 0.08750000000000001,
+                "passed": false,
+                "height_range_m": [
+                  0.22992488741874695,
+                  0.2313729226589203
+                ],
+                "maximum_tilt_deg": 8.388326407755345,
+                "condition_satisfied_samples": {
+                  "four_foot_support": 800,
+                  "height": 35,
+                  "tilt": 800
+                },
+                "available_samples": 800
+              }
+            }
+          ],
+          "provenance": {
+            "summary_sha256": "386fb1ca6c8268a1f485039a8ee88f05ef04b23f84bd30e80c043562e8d96e5b",
+            "completion_sha256": "e29ae1d0d5f206ac045e524438944501dfa117328b81aa7d3501c9f1f53d9bdc",
+            "checkpoint_sha256": "e5271276625d5146cede49a5cbd3a7215448bdf4b3cb7724ce3953340a821516",
+            "recorded_array_sha256": "4df6bb72f80f7b02a2375b250d935a0170bce5ab4e2988bc6e11f595a0a51803"
+          }
+        },
+        "final": {
+          "passed": false,
+          "duration_s": 24.0,
+          "completed_steps": 1200,
+          "full_interval_completed": true,
+          "measurements": {
+            "maximum_heading_change_deg": 17.684001393429483,
+            "maximum_xy_distance_m": 0.06083172650329296,
+            "maximum_actual_joint_speed_rad_s": 4.5077362060546875,
+            "maximum_exposure_h": 0.999999999999788,
+            "maximum_applied_effort_Nm": 4.979461193084717,
+            "forbidden_contact_sample_count": 0,
+            "overspeed_joint_sample_count": 0
+          },
+          "failed_gates": [
+            "all_four_foot_return_holds",
+            "maximum_heading_change",
+            "maximum_xy_distance",
+            "return_hold_tilt",
+            "return_hold_height"
+          ],
+          "cycles": [
+            {
+              "cycle": 1,
+              "prone_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.09499994665384293,
+                  0.09511663019657135
+                ],
+                "maximum_tilt_deg": 0.07693045669202352,
+                "condition_satisfied_samples": {
+                  "skid_load": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800,
+                "skid_load_fraction_range": [
+                  0.5751682201141208,
+                  0.8924223403185546
+                ]
+              },
+              "four_foot_return_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.23087099194526672,
+                  0.23290884494781494
+                ],
+                "maximum_tilt_deg": 3.2976691314038,
+                "condition_satisfied_samples": {
+                  "four_foot_support": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800
+              }
+            },
+            {
+              "cycle": 2,
+              "prone_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.09499984979629517,
+                  0.09589560329914093
+                ],
+                "maximum_tilt_deg": 0.48841331265382315,
+                "condition_satisfied_samples": {
+                  "skid_load": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800,
+                "skid_load_fraction_range": [
+                  0.5442259750739488,
+                  1.5168097432651366
+                ]
+              },
+              "four_foot_return_hold": {
+                "continuous_samples": 0,
+                "continuous_s": 0.0,
+                "passed": false,
+                "height_range_m": [
+                  0.22797763347625732,
+                  0.22932025790214539
+                ],
+                "maximum_tilt_deg": 7.627126807984678,
+                "condition_satisfied_samples": {
+                  "four_foot_support": 800,
+                  "height": 0,
+                  "tilt": 800
+                },
+                "available_samples": 800
+              }
+            }
+          ],
+          "provenance": {
+            "summary_sha256": "f8956ca8fe9bca03debbcf24f9d951d8da7ba1e2dfbc73917aaea9fb9e1dec6d",
+            "completion_sha256": "e91ade92ad9b9c9f077a964426e7426b24276d87ad897bb46164bee67d6e7e1c",
+            "checkpoint_sha256": "1c443d3e599e8c9220d46203a48e20ac2805537ec0cf0d0c0c20580f19b94a96",
+            "recorded_array_sha256": "e4d4331612abca2f8ff9fca06c3d51cbd9de7d9a7fceeb3a781a97eb595e85f1"
+          }
+        }
+      },
+      "wave": {
+        "matched_parent": {
+          "passed": false,
+          "duration_s": 36.0,
+          "completed_steps": 1800,
+          "full_interval_completed": true,
+          "measurements": {
+            "maximum_heading_change_deg": 4.345148513286429,
+            "final_heading_change_deg": 1.9944694738055984,
+            "maximum_xy_distance_m": 0.06302761289019544,
+            "final_xy_distance_m": 0.004224766530427883,
+            "maximum_actual_joint_speed_rad_s": 3.890928268432617,
+            "maximum_exposure_h": 0.5012908455755372,
+            "maximum_applied_effort_Nm": 2.022087812423706,
+            "maximum_tilt_deg": 2.5268797669790657,
+            "forbidden_contact_sample_count": 0,
+            "overspeed_joint_sample_count": 0
+          },
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "cycles": [
+            {
+              "cycle": 1,
+              "passed": true,
+              "minimum_paw_clearance_m": 0.15185085332393647,
+              "wave_phase_samples": 1600,
+              "valid_support_samples": 1600,
+              "high_paw_qualifying_samples": 1600,
+              "high_paw_longest_continuous_s": 4.0,
+              "four_foot_return_hold_s": 2.0,
+              "two_measured_round_trips_passed": true
+            },
+            {
+              "cycle": 2,
+              "passed": true,
+              "minimum_paw_clearance_m": 0.1535290220975876,
+              "wave_phase_samples": 1600,
+              "valid_support_samples": 1600,
+              "high_paw_qualifying_samples": 1600,
+              "high_paw_longest_continuous_s": 4.0,
+              "four_foot_return_hold_s": 2.0,
+              "two_measured_round_trips_passed": true
+            }
+          ],
+          "measured_round_trips_total": 4,
+          "high_paw_total_qualifying_s": 8.0,
+          "provenance": {
+            "summary_sha256": "074f9baa02a1e9dd22fd8a21dd18ba1a14b81a6f082e63a8b4a3f72eebaefe08",
+            "completion_sha256": "1aae5956618085e25cb13f96c2543cdfeda6c439f2dbddde70618b9ea0b029b1",
+            "checkpoint_sha256": "ff6a3b7b05a2318b1803ae7906ceba9690c9b5c3bd7e4e7182363d8065b21e43",
+            "recorded_array_sha256": "800ced8cd590056b4c0e421ffddc65d99d17835bea8be8a06163884dbb122567"
+          }
+        },
+        "final": {
+          "passed": false,
+          "duration_s": 36.0,
+          "completed_steps": 1800,
+          "full_interval_completed": true,
+          "measurements": {
+            "maximum_heading_change_deg": 5.4011016562360625,
+            "final_heading_change_deg": 1.7026368317866742,
+            "maximum_xy_distance_m": 0.060632286105128504,
+            "final_xy_distance_m": 0.006808747758815849,
+            "maximum_actual_joint_speed_rad_s": 5.141190528869629,
+            "maximum_exposure_h": 0.5548505608941392,
+            "maximum_applied_effort_Nm": 2.0619559288024902,
+            "maximum_tilt_deg": 2.7623054651929686,
+            "forbidden_contact_sample_count": 0,
+            "overspeed_joint_sample_count": 0
+          },
+          "failed_gates": [
+            "maximum_heading_change",
+            "maximum_xy_distance"
+          ],
+          "cycles": [
+            {
+              "cycle": 1,
+              "passed": true,
+              "minimum_paw_clearance_m": 0.15086919462680817,
+              "wave_phase_samples": 1600,
+              "valid_support_samples": 1600,
+              "high_paw_qualifying_samples": 1600,
+              "high_paw_longest_continuous_s": 4.0,
+              "four_foot_return_hold_s": 2.0,
+              "two_measured_round_trips_passed": true
+            },
+            {
+              "cycle": 2,
+              "passed": true,
+              "minimum_paw_clearance_m": 0.15138955807685853,
+              "wave_phase_samples": 1600,
+              "valid_support_samples": 1600,
+              "high_paw_qualifying_samples": 1600,
+              "high_paw_longest_continuous_s": 4.0,
+              "four_foot_return_hold_s": 2.0,
+              "two_measured_round_trips_passed": true
+            }
+          ],
+          "measured_round_trips_total": 4,
+          "high_paw_total_qualifying_s": 8.0,
+          "provenance": {
+            "summary_sha256": "881f2be55153fb27694d1eaafe8484b5493be1e021b407f4c4bf9f5a040b12fd",
+            "completion_sha256": "70294ce2142356caac7f392913ac93d64f03f2a674af6ba86040484c931f1b5d",
+            "checkpoint_sha256": "61eb02530620c7a9d2a9509bc9bc09529e314505a4f268f1a0c61106805754f4",
+            "recorded_array_sha256": "600ec2d0a7a9e558ab387628229bcf36afa4b977e42bb5a49e9d64cef1078cfe"
+          }
+        }
+      },
+      "regressed_registered_gates": [
+        "wave:gates:maximum_heading_change"
+      ],
+      "lost_previously_passing_motions": [],
+      "provenance": {
+        "runtime_manifest_sha256": "ffc6cebf94c6323bb6358b274447c1045839656266c015c30351f597fed418e9",
+        "common_contract_sha256": "6c232df2031ce851d919aae8dc77c071c9bb311c82b8c7c3f244a023a0798749"
+      }
+    },
+    {
+      "condition": "B",
+      "completed_new_updates": 500,
+      "pass_count": 7,
+      "prone_hip_return_lead_s": 1.0,
+      "prone_following_leg_return_s": 2.0,
+      "wave_cycle_s": 20.0,
+      "wave_evaluation_s": 40.0,
+      "wave_support_shift_and_return_s": 3,
+      "wave_predictive_braking_added": false,
+      "prone": {
+        "matched_parent": {
+          "passed": false,
+          "duration_s": 24.0,
+          "completed_steps": 1200,
+          "full_interval_completed": true,
+          "measurements": {
+            "maximum_heading_change_deg": 9.759391429119859,
+            "maximum_xy_distance_m": 0.10143212137152674,
+            "maximum_actual_joint_speed_rad_s": 4.1839165687561035,
+            "maximum_exposure_h": 0.7712718178748101,
+            "maximum_applied_effort_Nm": 4.026332378387451,
+            "forbidden_contact_sample_count": 0,
+            "overspeed_joint_sample_count": 0
+          },
+          "failed_gates": [
+            "all_prone_holds",
+            "maximum_heading_change",
+            "maximum_xy_distance"
+          ],
+          "cycles": [
+            {
+              "cycle": 1,
+              "prone_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.09499984979629517,
+                  0.09651442617177963
+                ],
+                "maximum_tilt_deg": 1.0965824266233453,
+                "condition_satisfied_samples": {
+                  "skid_load": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800,
+                "skid_load_fraction_range": [
+                  0.5085050800038498,
+                  2.3243108762536946
+                ]
+              },
+              "four_foot_return_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.24131709337234497,
+                  0.24421730637550354
+                ],
+                "maximum_tilt_deg": 4.1563859550144215,
+                "condition_satisfied_samples": {
+                  "four_foot_support": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800
+              }
+            },
+            {
+              "cycle": 2,
+              "prone_hold": {
+                "continuous_samples": 799,
+                "continuous_s": 1.9975,
+                "passed": false,
+                "height_range_m": [
+                  0.09499980509281158,
+                  0.09726554900407791
+                ],
+                "maximum_tilt_deg": 1.6490850754400166,
+                "condition_satisfied_samples": {
+                  "skid_load": 799,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800,
+                "skid_load_fraction_range": [
+                  0.49226067008426744,
+                  1.7751191219530296
+                ]
+              },
+              "four_foot_return_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.2518433928489685,
+                  0.2529754042625427
+                ],
+                "maximum_tilt_deg": 0.7944812841380722,
+                "condition_satisfied_samples": {
+                  "four_foot_support": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800
+              }
+            }
+          ],
+          "provenance": {
+            "summary_sha256": "990dd8623d2584764fd20f952724b709d673cb5313c096d1b1631232fc7e3937",
+            "completion_sha256": "1da101b6c4b88e7fc616dae36b118823a8c65ffc98f967865570e1c235b0860a",
+            "checkpoint_sha256": "e5271276625d5146cede49a5cbd3a7215448bdf4b3cb7724ce3953340a821516",
+            "recorded_array_sha256": "068cea5786199cfaa8a31ec4e58c064979b6bce3c217e403c4b5aa2f5ef332d4"
+          }
+        },
+        "final": {
+          "passed": false,
+          "duration_s": 24.0,
+          "completed_steps": 1200,
+          "full_interval_completed": true,
+          "measurements": {
+            "maximum_heading_change_deg": 15.083652003815715,
+            "maximum_xy_distance_m": 0.0361696651624388,
+            "maximum_actual_joint_speed_rad_s": 4.044129848480225,
+            "maximum_exposure_h": 0.8153276491479458,
+            "maximum_applied_effort_Nm": 3.84982967376709,
+            "forbidden_contact_sample_count": 0,
+            "overspeed_joint_sample_count": 0
+          },
+          "failed_gates": [
+            "all_prone_holds",
+            "maximum_heading_change"
+          ],
+          "cycles": [
+            {
+              "cycle": 1,
+              "prone_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.09499988704919815,
+                  0.0950000137090683
+                ],
+                "maximum_tilt_deg": 9.117407154856333e-05,
+                "condition_satisfied_samples": {
+                  "skid_load": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800,
+                "skid_load_fraction_range": [
+                  0.7950266812783755,
+                  0.8511853141333017
+                ]
+              },
+              "four_foot_return_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.2481985092163086,
+                  0.25096186995506287
+                ],
+                "maximum_tilt_deg": 1.9375754073330698,
+                "condition_satisfied_samples": {
+                  "four_foot_support": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800
+              }
+            },
+            {
+              "cycle": 2,
+              "prone_hold": {
+                "continuous_samples": 773,
+                "continuous_s": 1.9325,
+                "passed": false,
+                "height_range_m": [
+                  0.09520821273326874,
+                  0.09594761580228806
+                ],
+                "maximum_tilt_deg": 0.6831807952822319,
+                "condition_satisfied_samples": {
+                  "skid_load": 796,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800,
+                "skid_load_fraction_range": [
+                  0.448796868562906,
+                  0.6207443791961734
+                ]
+              },
+              "four_foot_return_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.25044524669647217,
+                  0.2517891228199005
+                ],
+                "maximum_tilt_deg": 1.255657766852574,
+                "condition_satisfied_samples": {
+                  "four_foot_support": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800
+              }
+            }
+          ],
+          "provenance": {
+            "summary_sha256": "68b488beafe0e899c93053e19611c76287882f0a1bf7b079be40df1ecfeaf909",
+            "completion_sha256": "c89c719560f0e91832239b67e0031d6a8dd713277abc25028702a08db53567e4",
+            "checkpoint_sha256": "041169546a77e59deacaf67aea0e7c00ae8afaff78b8078db2f468ecc2833250",
+            "recorded_array_sha256": "3d0017430a4ef1f0940ac9f1895cd62c6d301c7c5700689c7d68a9a25d94107a"
+          }
+        }
+      },
+      "wave": {
+        "matched_parent": {
+          "passed": false,
+          "duration_s": 40.0,
+          "completed_steps": 2000,
+          "full_interval_completed": true,
+          "measurements": {
+            "maximum_heading_change_deg": 4.379212232651263,
+            "final_heading_change_deg": 1.4063810767815288,
+            "maximum_xy_distance_m": 0.06153632292225473,
+            "final_xy_distance_m": 0.003960818052374079,
+            "maximum_actual_joint_speed_rad_s": 3.890928268432617,
+            "maximum_exposure_h": 0.5025526143719283,
+            "maximum_applied_effort_Nm": 2.010101079940796,
+            "maximum_tilt_deg": 2.678287447103484,
+            "forbidden_contact_sample_count": 0,
+            "overspeed_joint_sample_count": 0
+          },
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "cycles": [
+            {
+              "cycle": 1,
+              "passed": true,
+              "minimum_paw_clearance_m": 0.15121385848522187,
+              "wave_phase_samples": 1600,
+              "valid_support_samples": 1600,
+              "high_paw_qualifying_samples": 1600,
+              "high_paw_longest_continuous_s": 4.0,
+              "four_foot_return_hold_s": 2.0,
+              "two_measured_round_trips_passed": true
+            },
+            {
+              "cycle": 2,
+              "passed": true,
+              "minimum_paw_clearance_m": 0.15244311487674714,
+              "wave_phase_samples": 1600,
+              "valid_support_samples": 1600,
+              "high_paw_qualifying_samples": 1600,
+              "high_paw_longest_continuous_s": 4.0,
+              "four_foot_return_hold_s": 2.0,
+              "two_measured_round_trips_passed": true
+            }
+          ],
+          "measured_round_trips_total": 4,
+          "high_paw_total_qualifying_s": 8.0,
+          "provenance": {
+            "summary_sha256": "b4ca9658b5dc8604bcbe6b138ccb5e1f09f6f4abaf89fe2f55c7e70dd2018273",
+            "completion_sha256": "3837cba63ba20be1119beeaaa4a7d2f7fc93e0646614f3254314e394a92f80bf",
+            "checkpoint_sha256": "ff6a3b7b05a2318b1803ae7906ceba9690c9b5c3bd7e4e7182363d8065b21e43",
+            "recorded_array_sha256": "2cae344e02811616376467aa189f17f07130d161e099e795c40fd5a899421b22"
+          }
+        },
+        "final": {
+          "passed": false,
+          "duration_s": 40.0,
+          "completed_steps": 2000,
+          "full_interval_completed": true,
+          "measurements": {
+            "maximum_heading_change_deg": 6.171382044126404,
+            "final_heading_change_deg": 2.4587342136626553,
+            "maximum_xy_distance_m": 0.06302365361076724,
+            "final_xy_distance_m": 0.014477445488345024,
+            "maximum_actual_joint_speed_rad_s": 3.857970714569092,
+            "maximum_exposure_h": 0.5987014320997096,
+            "maximum_applied_effort_Nm": 2.182624578475952,
+            "maximum_tilt_deg": 3.108016521989924,
+            "forbidden_contact_sample_count": 0,
+            "overspeed_joint_sample_count": 0
+          },
+          "failed_gates": [
+            "all_greeting_cycles",
+            "all_high_paw_attainments",
+            "maximum_heading_change",
+            "maximum_xy_distance"
+          ],
+          "cycles": [
+            {
+              "cycle": 1,
+              "passed": false,
+              "minimum_paw_clearance_m": 0.14704977369308472,
+              "wave_phase_samples": 1600,
+              "valid_support_samples": 1600,
+              "high_paw_qualifying_samples": 42,
+              "high_paw_longest_continuous_s": 0.105,
+              "four_foot_return_hold_s": 2.0,
+              "two_measured_round_trips_passed": true
+            },
+            {
+              "cycle": 2,
+              "passed": false,
+              "minimum_paw_clearance_m": 0.14807087576389313,
+              "wave_phase_samples": 1600,
+              "valid_support_samples": 1600,
+              "high_paw_qualifying_samples": 51,
+              "high_paw_longest_continuous_s": 0.1275,
+              "four_foot_return_hold_s": 2.0,
+              "two_measured_round_trips_passed": true
+            }
+          ],
+          "measured_round_trips_total": 4,
+          "high_paw_total_qualifying_s": 0.2325,
+          "provenance": {
+            "summary_sha256": "b59e4bd3a584400d901d31da133fc764b8ad56fbe3e5a1cf083cc566d787263c",
+            "completion_sha256": "1a3a63c1f527f98ea2b5c4e2b63a7426628499b9bb77bddc1ab5422422244ccf",
+            "checkpoint_sha256": "8d7659e9035c9c652ebe6d7aaa2cb3a5d7e35ba200942e16b8cf9db8b43933ad",
+            "recorded_array_sha256": "ae6b54aaa9390615f6012af1133d0e2e79f8f9a2992138ad4045975b10c59035"
+          }
+        }
+      },
+      "regressed_registered_gates": [
+        "wave:gates:all_greeting_cycles",
+        "wave:gates:all_high_paw_attainments",
+        "wave:gates:maximum_heading_change"
+      ],
+      "lost_previously_passing_motions": [],
+      "provenance": {
+        "runtime_manifest_sha256": "15bc043ef7f001f7c07aea39dc4747694b3bc7eb578336268057349f64e0ca19",
+        "common_contract_sha256": "bdf94ef24bcef99371a62e684cd96c6057b65f60f22b35f40a2fe8a107d5be76"
+      }
+    },
+    {
+      "condition": "C",
+      "completed_new_updates": 500,
+      "pass_count": 7,
+      "prone_hip_return_lead_s": 0.75,
+      "prone_following_leg_return_s": 2.25,
+      "wave_cycle_s": 20.0,
+      "wave_evaluation_s": 40.0,
+      "wave_support_shift_and_return_s": 3,
+      "wave_predictive_braking_added": true,
+      "prone": {
+        "matched_parent": {
+          "passed": false,
+          "duration_s": 24.0,
+          "completed_steps": 1200,
+          "full_interval_completed": true,
+          "measurements": {
+            "maximum_heading_change_deg": 12.353917180289681,
+            "maximum_xy_distance_m": 0.10143212137152674,
+            "maximum_actual_joint_speed_rad_s": 4.1839165687561035,
+            "maximum_exposure_h": 0.7165394749905315,
+            "maximum_applied_effort_Nm": 4.068138599395752,
+            "forbidden_contact_sample_count": 0,
+            "overspeed_joint_sample_count": 0
+          },
+          "failed_gates": [
+            "all_prone_holds",
+            "maximum_heading_change",
+            "maximum_xy_distance",
+            "return_hold_tilt",
+            "return_hold_height"
+          ],
+          "cycles": [
+            {
+              "cycle": 1,
+              "prone_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.09499984979629517,
+                  0.09651442617177963
+                ],
+                "maximum_tilt_deg": 1.0965824266233453,
+                "condition_satisfied_samples": {
+                  "skid_load": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800,
+                "skid_load_fraction_range": [
+                  0.5085050800038498,
+                  2.3243108762536946
+                ]
+              },
+              "four_foot_return_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.2357434630393982,
+                  0.24005118012428284
+                ],
+                "maximum_tilt_deg": 6.02164286064651,
+                "condition_satisfied_samples": {
+                  "four_foot_support": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800
+              }
+            },
+            {
+              "cycle": 2,
+              "prone_hold": {
+                "continuous_samples": 793,
+                "continuous_s": 1.9825000000000002,
+                "passed": false,
+                "height_range_m": [
+                  0.09499987214803696,
+                  0.09709123522043228
+                ],
+                "maximum_tilt_deg": 1.4865969746950576,
+                "condition_satisfied_samples": {
+                  "skid_load": 793,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800,
+                "skid_load_fraction_range": [
+                  0.4571356073711645,
+                  1.8053112736771981
+                ]
+              },
+              "four_foot_return_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.2517920732498169,
+                  0.2530466318130493
+                ],
+                "maximum_tilt_deg": 0.7718712239024408,
+                "condition_satisfied_samples": {
+                  "four_foot_support": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800
+              }
+            }
+          ],
+          "provenance": {
+            "summary_sha256": "8ad4a94d4705566b3f9c622b151e94655e7f27caadee72b712448604322e2d9e",
+            "completion_sha256": "1d082561b00da4f2982463c325740690163d09b998a7be1568434211d6b61fe0",
+            "checkpoint_sha256": "e5271276625d5146cede49a5cbd3a7215448bdf4b3cb7724ce3953340a821516",
+            "recorded_array_sha256": "a59cc1cf8936138b00adfb12721a74a5b74d1f7a6308bc1527597c1535ff9613"
+          }
+        },
+        "final": {
+          "passed": false,
+          "duration_s": 24.0,
+          "completed_steps": 1200,
+          "full_interval_completed": true,
+          "measurements": {
+            "maximum_heading_change_deg": 13.050829776866571,
+            "maximum_xy_distance_m": 0.05177432337795135,
+            "maximum_actual_joint_speed_rad_s": 4.113413333892822,
+            "maximum_exposure_h": 0.7373983395392174,
+            "maximum_applied_effort_Nm": 3.945037603378296,
+            "forbidden_contact_sample_count": 0,
+            "overspeed_joint_sample_count": 0
+          },
+          "failed_gates": [
+            "all_prone_holds",
+            "maximum_heading_change",
+            "maximum_xy_distance"
+          ],
+          "cycles": [
+            {
+              "cycle": 1,
+              "prone_hold": {
+                "continuous_samples": 776,
+                "continuous_s": 1.94,
+                "passed": false,
+                "height_range_m": [
+                  0.0950000137090683,
+                  0.0958734080195427
+                ],
+                "maximum_tilt_deg": 0.629250044017177,
+                "condition_satisfied_samples": {
+                  "skid_load": 796,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800,
+                "skid_load_fraction_range": [
+                  0.2808300932685338,
+                  0.8654150635071108
+                ]
+              },
+              "four_foot_return_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.24979737401008606,
+                  0.25121214985847473
+                ],
+                "maximum_tilt_deg": 1.7128565026230331,
+                "condition_satisfied_samples": {
+                  "four_foot_support": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800
+              }
+            },
+            {
+              "cycle": 2,
+              "prone_hold": {
+                "continuous_samples": 761,
+                "continuous_s": 1.9025,
+                "passed": false,
+                "height_range_m": [
+                  0.09533964842557907,
+                  0.09653986990451813
+                ],
+                "maximum_tilt_deg": 1.115243802937974,
+                "condition_satisfied_samples": {
+                  "skid_load": 786,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800,
+                "skid_load_fraction_range": [
+                  0.36336128286634617,
+                  0.7903442472817223
+                ]
+              },
+              "four_foot_return_hold": {
+                "continuous_samples": 800,
+                "continuous_s": 2.0,
+                "passed": true,
+                "height_range_m": [
+                  0.2514697015285492,
+                  0.2524782717227936
+                ],
+                "maximum_tilt_deg": 1.108316188145268,
+                "condition_satisfied_samples": {
+                  "four_foot_support": 800,
+                  "height": 800,
+                  "tilt": 800
+                },
+                "available_samples": 800
+              }
+            }
+          ],
+          "provenance": {
+            "summary_sha256": "4e083213de3ee9afd539c9e5d194818a590c4a957c94c2f2dc1584d86f3f2bcd",
+            "completion_sha256": "5e1e11c4a26bf3f726796424378bb7b018b2722eb5f2aac32c08d38dec28f42d",
+            "checkpoint_sha256": "d0291d2f893b910716c83e3ea9bf0e21d6a6f4ba2daf868924d1a352a0dbcacb",
+            "recorded_array_sha256": "3dd2520e5e70066996b543837c9772bba7a2a53dffa5c0d5a224ed76df6ef432"
+          }
+        }
+      },
+      "wave": {
+        "matched_parent": {
+          "passed": false,
+          "duration_s": 40.0,
+          "completed_steps": 2000,
+          "full_interval_completed": true,
+          "measurements": {
+            "maximum_heading_change_deg": 4.379212232651263,
+            "final_heading_change_deg": 1.4063810767815288,
+            "maximum_xy_distance_m": 0.06153632292225473,
+            "final_xy_distance_m": 0.003960818052374079,
+            "maximum_actual_joint_speed_rad_s": 3.890928268432617,
+            "maximum_exposure_h": 0.5025526143719283,
+            "maximum_applied_effort_Nm": 2.010101079940796,
+            "maximum_tilt_deg": 2.678287447103484,
+            "forbidden_contact_sample_count": 0,
+            "overspeed_joint_sample_count": 0
+          },
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "cycles": [
+            {
+              "cycle": 1,
+              "passed": true,
+              "minimum_paw_clearance_m": 0.15121385848522187,
+              "wave_phase_samples": 1600,
+              "valid_support_samples": 1600,
+              "high_paw_qualifying_samples": 1600,
+              "high_paw_longest_continuous_s": 4.0,
+              "four_foot_return_hold_s": 2.0,
+              "two_measured_round_trips_passed": true
+            },
+            {
+              "cycle": 2,
+              "passed": true,
+              "minimum_paw_clearance_m": 0.15244311487674714,
+              "wave_phase_samples": 1600,
+              "valid_support_samples": 1600,
+              "high_paw_qualifying_samples": 1600,
+              "high_paw_longest_continuous_s": 4.0,
+              "four_foot_return_hold_s": 2.0,
+              "two_measured_round_trips_passed": true
+            }
+          ],
+          "measured_round_trips_total": 4,
+          "high_paw_total_qualifying_s": 8.0,
+          "provenance": {
+            "summary_sha256": "01610292d6f87b2635435dc07da4928db2e992f99ff86b0381ab44b9676803b2",
+            "completion_sha256": "5bdcf0974113ed2b18be7d801e8ec05394ad68bdde100a65ce5e6995e0f09c49",
+            "checkpoint_sha256": "ff6a3b7b05a2318b1803ae7906ceba9690c9b5c3bd7e4e7182363d8065b21e43",
+            "recorded_array_sha256": "2cae344e02811616376467aa189f17f07130d161e099e795c40fd5a899421b22"
+          }
+        },
+        "final": {
+          "passed": false,
+          "duration_s": 40.0,
+          "completed_steps": 2000,
+          "full_interval_completed": true,
+          "measurements": {
+            "maximum_heading_change_deg": 6.6096750156281505,
+            "final_heading_change_deg": 2.7419389431979617,
+            "maximum_xy_distance_m": 0.06315670541651948,
+            "final_xy_distance_m": 0.011459182561402464,
+            "maximum_actual_joint_speed_rad_s": 3.659740447998047,
+            "maximum_exposure_h": 0.6189896938389005,
+            "maximum_applied_effort_Nm": 2.333935499191284,
+            "maximum_tilt_deg": 3.107974517862915,
+            "forbidden_contact_sample_count": 0,
+            "overspeed_joint_sample_count": 0
+          },
+          "failed_gates": [
+            "all_greeting_cycles",
+            "all_high_paw_attainments",
+            "maximum_heading_change",
+            "maximum_xy_distance"
+          ],
+          "cycles": [
+            {
+              "cycle": 1,
+              "passed": false,
+              "minimum_paw_clearance_m": 0.147830952167511,
+              "wave_phase_samples": 1600,
+              "valid_support_samples": 1600,
+              "high_paw_qualifying_samples": 32,
+              "high_paw_longest_continuous_s": 0.08,
+              "four_foot_return_hold_s": 2.0,
+              "two_measured_round_trips_passed": true
+            },
+            {
+              "cycle": 2,
+              "passed": false,
+              "minimum_paw_clearance_m": 0.1482356230020523,
+              "wave_phase_samples": 1600,
+              "valid_support_samples": 1600,
+              "high_paw_qualifying_samples": 210,
+              "high_paw_longest_continuous_s": 0.3375,
+              "four_foot_return_hold_s": 2.0,
+              "two_measured_round_trips_passed": true
+            }
+          ],
+          "measured_round_trips_total": 4,
+          "high_paw_total_qualifying_s": 0.605,
+          "provenance": {
+            "summary_sha256": "7a032761f2b5ae6f35ae48b0a80c69f7c9df8885c380cca2899414244e5790ba",
+            "completion_sha256": "e8f5a9e4a93c4ce43a781eaa0779f5a6c9f44308741a73ab5f857bf8ce49e2d9",
+            "checkpoint_sha256": "1c98d42e04c4d31322de86a7f03baf23197f2d23c5c6d7e0bac3d682bb9c265c",
+            "recorded_array_sha256": "fc4a505b04ec7872dafd15fd867ae71a9156297ec8fcb963eaabafaed9a2bed0"
+          }
+        }
+      },
+      "regressed_registered_gates": [
+        "wave:gates:all_greeting_cycles",
+        "wave:gates:all_high_paw_attainments",
+        "wave:gates:maximum_heading_change"
+      ],
+      "lost_previously_passing_motions": [],
+      "provenance": {
+        "runtime_manifest_sha256": "bc4fdfbe67233b23736f63eea6e953a9ace9c68de93b8f3f4d875a1f5152574a",
+        "common_contract_sha256": "246ca59de5de2a9e8d25cc199af90e07aaf1834052c4bad7e4ced335d35f6aa1"
+      }
+    }
+  ],
+  "video_status": "NOT_PUBLISHED",
+  "videos": [],
+  "publication_scope": "Newly written selected measurements, bounded verification results and source hashes only.",
+  "limitations": [
+    "Four independent expert policies; no single nine-skill actor or switching validation.",
+    "One seed per independent condition; no multi-seed robustness or isolated causal guarantee.",
+    "Recorded motion metadata and source hashes checked; motion arrays not independently recalculated for this publication.",
+    "Exposure h is a simulated load-budget state, not measured temperature.",
+    "Source hashes identify private evidence; the public selection does not reproduce the complete experiment.",
+    "No new video or GIF, private images, raw measurements, model weights, logs, training implementation or connection information is included."
+  ],
+  "elapsed_s": 15747.347884,
+  "followup_parent_selection": {
+    "prone": "Trial29 B selected for further training, not full skill acceptance.",
+    "wave": "Trial28 A retained; Trial29 wave variants were not selected as improved parents.",
+    "subsequent_result_id": "L25"
+  },
+  "provenance": {
+    "selected_overall_result_sha256": "b558a338a7c711313ca5cebf7d5be4c16689989baab4577e980a1540c2963575",
+    "prone_selected_result_sha256": "b383a8471630d4a3a0b2c074bfce3acffecdd7dc49963c88810d30efd0a02a4c",
+    "wave_selected_result_sha256": "95c3e4578c279be214ff5d1ef3df761742ad6c441b90dc0af2ea4fe5e516e9a4",
+    "six_model_cpu_verification_sha256": "eae973315ef3014beabb78f9ed5420ad50e0041637545117846248f5904ea105",
+    "prone_metadata_transfer_sha256": "66e6681f3449c386a58b0cabf30c4e485fcc00f15031ea83b174c83d85f8aaa8",
+    "wave_metadata_transfer_sha256": "3532cd59c931a35687b3928d2c964112336b91c843a54c8ef9aa268cd4865645"
+  }
+}

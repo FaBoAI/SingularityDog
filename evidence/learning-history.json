@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
-  "as_of": "2026-09-12",
-  "verified_recent_series_count": 28,
+  "as_of": "2026-09-13",
+  "verified_recent_series_count": 30,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同じ比較計画の複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列で確認したH01–H04とL00–L23の28回。診断・失敗・途中終了を含み、成功28回や全開発通算を意味しない。同じ計画の複数条件は1回で、専門方策・追加評価・映像・準備revision・未実施Bを重複計上しない。",
+  "scope": "現在の機体系列で確認したH01–H04とL00–L25の30回。診断・失敗・途中終了を含み、成功30回や全開発通算を意味しない。同じ計画の複数条件は1回で、専門方策・追加評価・映像・準備revision・未実施条件を重複計上しない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -1459,6 +1459,520 @@
         "status": "NOT_PUBLISHED_RETRIEVAL_AND_VISUAL_QA_INCOMPLETE"
       },
       "evaluation_scope": "Separate deterministic full episodes on a plane, seed42; no robustness or hardware acceptance."
+    },
+    {
+      "id": "L24",
+      "series_order": 29,
+      "kind": "MULTI_CONDITION_MULTI_EXPERT_TRAINING_AND_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "kind": "three_conditions_including_final_evaluations_completed",
+        "value_utc": "2026-09-12T16:44:09.073226+00:00",
+        "note": "All three condition runs completed; not collection or publication time."
+      },
+      "new_training_updates": 1500,
+      "transitions": 12288000,
+      "final_iteration": null,
+      "final_iteration_by_expert": {
+        "locomotion": 149,
+        "prone": 249,
+        "wave": 249,
+        "sit": 59
+      },
+      "retained_iterations_not_new_training": [
+        "locomotion",
+        "sit"
+      ],
+      "training": {
+        "conditions": 3,
+        "executed_conditions": [
+          "A",
+          "B",
+          "C"
+        ],
+        "completed_main_updates_per_condition": 500,
+        "completed_total_main_updates_across_separate_conditions": 1500,
+        "expert_updates_per_condition": {
+          "locomotion": 0,
+          "prone": 250,
+          "wave": 250,
+          "sit": 0
+        },
+        "same_initial_parents_and_seed": true,
+        "condition_seed": 42,
+        "conditions_do_not_inherit_each_other": true,
+        "independent_experts_per_condition": 4,
+        "single_unified_actor": false,
+        "trained_final_checkpoint_count": 6,
+        "final_iteration_each_trained_checkpoint": 249,
+        "transitions_each_trained_checkpoint": 2048000,
+        "optimizer_states_each": 17,
+        "optimizer_steps_per_parameter_each": 5000,
+        "additional_learning_for_evaluation": 0,
+        "smoke_updates_excluded_from_main_budget": true
+      },
+      "main_update_budget_completed": true,
+      "trial_execution_completed": true,
+      "additional_training_updates_for_evaluation": 0,
+      "deterministic_final_evaluation_rollouts": 27,
+      "deterministic_baseline_evaluation_rollouts": 27,
+      "baseline_qualified_motion_count_by_condition": {
+        "A": 7,
+        "B": 7,
+        "C": 7
+      },
+      "qualified_motion_count": null,
+      "qualified_motion_count_by_condition": {
+        "A": 7,
+        "B": 7,
+        "C": 7
+      },
+      "qualified_motions_in_each_condition": [
+        "forward",
+        "backward",
+        "left",
+        "right",
+        "turn_left",
+        "turn_right",
+        "sit"
+      ],
+      "unqualified_motions_in_each_condition": [
+        "prone",
+        "wave"
+      ],
+      "skill_acceptance": false,
+      "registered_six_direction_criteria_passed": true,
+      "walking_acceptance": true,
+      "walking_acceptance_scope": "Retained locomotion expert passed the registered short six-direction plane evaluations; no new locomotion updates in this trial.",
+      "hardware_acceptance": false,
+      "continuous_switching_evaluated": false,
+      "unified_nine_skill_actor": false,
+      "all_final_requested_intervals_completed": true,
+      "candidate_release_eligible_by_condition": {
+        "A": false,
+        "B": false,
+        "C": false
+      },
+      "selected_evidence": "evidence/l24-evaluation.json",
+      "own_report_sha256": "504c9df9bbbcdbdaaa40ef0b673917dd8f34d202630d171e754d16dcd034eb74",
+      "selected_results_sha256": "b558a338a7c711313ca5cebf7d5be4c16689989baab4577e980a1540c2963575",
+      "media": {
+        "new_public_videos": 0,
+        "selected_actual_recording_count": 41,
+        "status": "NOT_PUBLISHED",
+        "video_urls": []
+      },
+      "evaluation_scope": "Independent seed42 deterministic complete episodes, with paired parent evaluations. Full new raw400Hz replay, multiple-seed robustness and hardware validation were not performed.",
+      "title": "独立A/B/C各500更新、各7/9合格、復帰経路と挨拶時間を比較",
+      "change": "伏せは従来経路Aと股1秒先行B・0.75秒先行Cを比較。挨拶は18秒周期Aと20秒周期B/C、Cの予測制動を比較。同じ第28回親から独立に伏せ250・挨拶250更新、歩行と座位は保持。",
+      "result": "3条件とも各500更新・最終9件を完了し、全6方向と座位の7/9合格。伏せB/Cは復帰各2秒を2周期達成したが、方位と伏せ支持保持が未達。挨拶Aは最大XY60.632mm・方位5.401°、B/Cは150mm挙上維持も未達。全条件を総合改善として採用しない。",
+      "next_decision": "第29回終了時点では、伏せは復帰とXYが成立したBを次の比較候補とし、挨拶は第28回の親を保持する方針とした。第30回の実施結果は次の履歴に記録する。",
+      "comparison_scope": "D17 and unchanged acceptance gates. Each condition is compared with its own parent evaluation using the same return path and time allocation; wave A36s differs from B/C40s. B/C prone return improvements already present in parent evaluations must not be attributed solely to new PPO.",
+      "evaluation_duration_s_by_expert_and_condition": {
+        "locomotion": {
+          "A": 12,
+          "B": 12,
+          "C": 12
+        },
+        "prone": {
+          "A": 24,
+          "B": 24,
+          "C": 24
+        },
+        "wave": {
+          "A": 36,
+          "B": 40,
+          "C": 40
+        },
+        "sit": {
+          "A": 32,
+          "B": 32,
+          "C": 32
+        }
+      },
+      "regressed_gates_by_condition": {
+        "A": [
+          "wave:gates:maximum_heading_change"
+        ],
+        "B": [
+          "wave:gates:all_greeting_cycles",
+          "wave:gates:all_high_paw_attainments",
+          "wave:gates:maximum_heading_change"
+        ],
+        "C": [
+          "wave:gates:all_greeting_cycles",
+          "wave:gates:all_high_paw_attainments",
+          "wave:gates:maximum_heading_change"
+        ]
+      },
+      "verification": {
+        "saved_checkpoint_cpu_checks": 6,
+        "all_saved_tensors_finite": true,
+        "full_new_raw_400hz_recalculation": false
+      },
+      "source_registry": {
+        "A": {
+          "source_manifest_sha256": "ffc6cebf94c6323bb6358b274447c1045839656266c015c30351f597fed418e9",
+          "contract_sha256": "6c232df2031ce851d919aae8dc77c071c9bb311c82b8c7c3f244a023a0798749"
+        },
+        "B": {
+          "source_manifest_sha256": "15bc043ef7f001f7c07aea39dc4747694b3bc7eb578336268057349f64e0ca19",
+          "contract_sha256": "bdf94ef24bcef99371a62e684cd96c6057b65f60f22b35f40a2fe8a107d5be76"
+        },
+        "C": {
+          "source_manifest_sha256": "bc4fdfbe67233b23736f63eea6e953a9ace9c68de93b8f3f4d875a1f5152574a",
+          "contract_sha256": "246ca59de5de2a9e8d25cc199af90e07aaf1834052c4bad7e4ced335d35f6aa1"
+        }
+      },
+      "selected_prone_results_by_condition": {
+        "A": {
+          "hip_return_lead_s": 0.0,
+          "maximum_heading_change_deg": 17.684001393429483,
+          "maximum_xy_distance_m": 0.06083172650329296,
+          "failed_gates": [
+            "all_four_foot_return_holds",
+            "maximum_heading_change",
+            "maximum_xy_distance",
+            "return_hold_tilt",
+            "return_hold_height"
+          ]
+        },
+        "B": {
+          "hip_return_lead_s": 1.0,
+          "maximum_heading_change_deg": 15.083652003815715,
+          "maximum_xy_distance_m": 0.0361696651624388,
+          "failed_gates": [
+            "all_prone_holds",
+            "maximum_heading_change"
+          ]
+        },
+        "C": {
+          "hip_return_lead_s": 0.75,
+          "maximum_heading_change_deg": 13.050829776866571,
+          "maximum_xy_distance_m": 0.05177432337795135,
+          "failed_gates": [
+            "all_prone_holds",
+            "maximum_heading_change",
+            "maximum_xy_distance"
+          ]
+        }
+      },
+      "selected_wave_results_by_condition": {
+        "A": {
+          "evaluation_duration_s": 36.0,
+          "maximum_heading_change_deg": 5.4011016562360625,
+          "maximum_xy_distance_m": 0.060632286105128504,
+          "failed_gates": [
+            "maximum_heading_change",
+            "maximum_xy_distance"
+          ]
+        },
+        "B": {
+          "evaluation_duration_s": 40.0,
+          "maximum_heading_change_deg": 6.171382044126404,
+          "maximum_xy_distance_m": 0.06302365361076724,
+          "failed_gates": [
+            "all_greeting_cycles",
+            "all_high_paw_attainments",
+            "maximum_heading_change",
+            "maximum_xy_distance"
+          ]
+        },
+        "C": {
+          "evaluation_duration_s": 40.0,
+          "maximum_heading_change_deg": 6.6096750156281505,
+          "maximum_xy_distance_m": 0.06315670541651948,
+          "failed_gates": [
+            "all_greeting_cycles",
+            "all_high_paw_attainments",
+            "maximum_heading_change",
+            "maximum_xy_distance"
+          ]
+        }
+      },
+      "selected_public_evidence_sha256": "d90ca6baba3d2516f46a886ded8f08b33a486c4fac553c7c256cafc53252b30b"
+    },
+    {
+      "id": "L25",
+      "series_order": 30,
+      "kind": "MULTI_CONDITION_MULTI_EXPERT_TRAINING_AND_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "kind": "three_conditions_including_final_evaluations_completed",
+        "value_utc": "2026-09-13T06:01:52.593074+00:00",
+        "note": "All three condition runs completed; not collection or publication time."
+      },
+      "new_training_updates": 1500,
+      "transitions": 12288000,
+      "final_iteration": null,
+      "final_iteration_by_expert": {
+        "locomotion": 149,
+        "prone": 249,
+        "wave": 249,
+        "sit": 59
+      },
+      "retained_iterations_not_new_training": [
+        "locomotion",
+        "sit"
+      ],
+      "training": {
+        "conditions": 3,
+        "executed_conditions": [
+          "A",
+          "B",
+          "C"
+        ],
+        "completed_main_updates_per_condition": 500,
+        "completed_total_main_updates_across_separate_conditions": 1500,
+        "expert_updates_per_condition": {
+          "locomotion": 0,
+          "prone": 250,
+          "wave": 250,
+          "sit": 0
+        },
+        "same_initial_parents_and_seed": true,
+        "condition_seed": 42,
+        "conditions_do_not_inherit_each_other": true,
+        "independent_experts_per_condition": 4,
+        "single_unified_actor": false,
+        "trained_final_checkpoint_count": 6,
+        "final_iteration_each_trained_checkpoint": 249,
+        "transitions_each_trained_checkpoint": 2048000,
+        "optimizer_states_each": 17,
+        "optimizer_steps_per_parameter_each": 5000,
+        "additional_learning_for_evaluation": 0,
+        "smoke_updates_excluded_from_main_budget": true,
+        "smoke_updates_excluded": 12
+      },
+      "main_update_budget_completed": true,
+      "trial_execution_completed": true,
+      "additional_training_updates_for_evaluation": 0,
+      "deterministic_final_evaluation_rollouts": 27,
+      "deterministic_baseline_evaluation_rollouts": 27,
+      "baseline_qualified_motion_count_by_condition": {
+        "A": 7,
+        "B": 7,
+        "C": 7
+      },
+      "qualified_motion_count": null,
+      "qualified_motion_count_by_condition": {
+        "A": 7,
+        "B": 7,
+        "C": 7
+      },
+      "qualified_motions_in_each_condition": [
+        "forward",
+        "backward",
+        "left",
+        "right",
+        "turn_left",
+        "turn_right",
+        "sit"
+      ],
+      "unqualified_motions_in_each_condition": [
+        "prone",
+        "wave"
+      ],
+      "skill_acceptance": false,
+      "registered_six_direction_criteria_passed": true,
+      "walking_acceptance": true,
+      "walking_acceptance_scope": "Retained locomotion expert passed the registered short six-direction plane evaluations; no new locomotion updates in this trial.",
+      "hardware_acceptance": false,
+      "continuous_switching_evaluated": false,
+      "unified_nine_skill_actor": false,
+      "all_final_requested_intervals_completed": true,
+      "candidate_release_eligible_by_condition": {
+        "A": false,
+        "B": false,
+        "C": false
+      },
+      "selected_evidence": "evidence/l25-evaluation.json",
+      "own_report_sha256": "d0878e43f6c010f20856181bdc9582e5bafc0e69b5ab03b2f61b773a9334a706",
+      "selected_results_sha256": "ee0ef40f51c77f7772d5e8813ecc2fe49df015777e3b2c9ccd1efa98b2dc7904",
+      "media": {
+        "new_public_videos": 0,
+        "selected_actual_recording_count": 41,
+        "status": "NOT_PUBLISHED",
+        "video_urls": []
+      },
+      "evaluation_scope": "Independent seed42 deterministic complete episodes, with paired parent evaluations. Full new raw400Hz replay, multiple-seed robustness and hardware validation were not performed.",
+      "title": "独立A/B/C各500更新、保持と挙上は改善、位置・方位が残り各7/9",
+      "change": "伏せは第29回B、挨拶は第28回Aの同じ親から3条件を独立学習。挨拶は元18秒周期を維持し、探索幅と学習率を抑えて高さ・方位保護、追加XY報酬を段階比較。伏せも支持保持と定置の報酬差を比較。各条件で伏せ250・挨拶250、歩行と座位0更新。",
+      "result": "15:01:52 JSTに全3条件・1500主更新・27最終評価を完了。各7/9合格。伏せB/Cは伏せ保持・四足復帰を各2秒×2周期達成したが、最大XY61.443/57.519mm・方位21.750/21.380°で未達。Aも第2伏せ1.9500秒とXY51.201mmで未達。挨拶は全条件で150mm挙上8秒・4往復・復帰各2秒を維持したが、最大XY62.390/63.010/63.015mmで未達。",
+      "next_decision": "伏せの連続支持と四足復帰を保ちながら、全区間の位置50mm・方位5°を同時に満たす条件を検討する。挨拶は150mm挙上と方位成功を保ち、400Hz時系列で支持移動中の最大位置ずれを確認する。次の学習は未開始。補強PLAの形状・質量は固定D17へ未反映で、専門方策間の切替、外乱、実機、印刷強度は別に検証する。",
+      "comparison_scope": "All three conditions use the same selected parents and seed42, paired with byte-identical parent raw evaluations. Same D17 and unchanged gates; four separate experts, not one actor or an ensemble union of successful cases.",
+      "evaluation_duration_s_by_expert_and_condition": {
+        "locomotion": {
+          "A": 12,
+          "B": 12,
+          "C": 12
+        },
+        "prone": {
+          "A": 24,
+          "B": 24,
+          "C": 24
+        },
+        "wave": {
+          "A": 36,
+          "B": 36,
+          "C": 36
+        },
+        "sit": {
+          "A": 32,
+          "B": 32,
+          "C": 32
+        }
+      },
+      "regressed_gates_by_condition": {
+        "A": [
+          "prone:stationary_target_gates:maximum_xy_distance"
+        ],
+        "B": [
+          "prone:stationary_target_gates:maximum_xy_distance"
+        ],
+        "C": [
+          "prone:stationary_target_gates:maximum_xy_distance"
+        ]
+      },
+      "continuous_metric_regressions_present": true,
+      "continuous_metric_regressions": [
+        "All prone conditions lost the parent XY50mm gate; prone B/C heading, speed and exposure increased despite longer support holds.",
+        "Wave C has lower exposure than A/B, but smaller minimum paw-height margin and a larger final XY error."
+      ],
+      "reinforcement_geometry_applied_to_evaluated_physics": false,
+      "source_registry": {
+        "A": {
+          "source_manifest_sha256": "6f63946b9ccb0503abde92604f4ab19c4f29eeca9283330f17e2039b17e09d7d",
+          "contract_sha256": "c66db4bc82f76e3bf577f86d605d72bfff90a5d82fd747b5ab69df8fc74dfc27"
+        },
+        "B": {
+          "source_manifest_sha256": "03ee92a254f790a76ec75c5ac6d175e087bd43e5198ea45609dd1cd3e6939b8e",
+          "contract_sha256": "dac0c8bb041420854b54680f23dd29ee790e58da7026a50918078fd2fbaddf04"
+        },
+        "C": {
+          "source_manifest_sha256": "e2c297887dffbffc0f5bd4bee4a1b1a7d680ae0a5b19985f00534e5ddf1a6bfb",
+          "contract_sha256": "a1e4a1418ad01b598a82996972e36950713c9a1d95ffc78317a62677e766201e"
+        }
+      },
+      "verification": {
+        "saved_checkpoint_cpu_checks": 6,
+        "all_saved_tensors_finite": true,
+        "saved_checkpoint_local_backup_complete": true,
+        "local_saved_checkpoint_count": 6,
+        "full_new_raw_400hz_recalculation": false,
+        "report_sha256_by_condition": {
+          "A": "dad45b2022d3bae5c64657d6f60b7f095831aa5f3ba1a6cf25e1875bf0576eb5",
+          "B": "2054b2e97ba3c538af682317b35f31270f6c9b57da95b7bbb89c1f2a76b3af99",
+          "C": "e162e5548d810c86c4a1c27b43fd13bf18be947e3b256862e36ef56de98dea29"
+        },
+        "backup_sha256_by_condition": {
+          "A": "1f9d973c097a22eb1e316e97945fdb380673a972b9e16f788fc745348f54320c",
+          "B": "ee91cd1ff541b076b40f4816ad6519825eef90f50a06f5d523efbe7feec03045",
+          "C": "30ab104d7368e296b15141c99cb4491ffd74ade263236dd799c6d922c1033361"
+        }
+      },
+      "selected_prone_results_by_condition": {
+        "A": {
+          "maximum_heading_change_deg": 13.233067928005548,
+          "maximum_xy_distance_m": 0.05120131370813329,
+          "prone_continuous_holds_s": [
+            2.0,
+            1.95
+          ],
+          "four_foot_return_continuous_holds_s": [
+            2.0,
+            2.0
+          ],
+          "failed_gates": [
+            "gates:all_prone_holds",
+            "stationary_target_gates:maximum_heading_change",
+            "stationary_target_gates:maximum_xy_distance"
+          ]
+        },
+        "B": {
+          "maximum_heading_change_deg": 21.74950928780355,
+          "maximum_xy_distance_m": 0.061443332752682794,
+          "prone_continuous_holds_s": [
+            2.0,
+            2.0
+          ],
+          "four_foot_return_continuous_holds_s": [
+            2.0,
+            2.0
+          ],
+          "failed_gates": [
+            "stationary_target_gates:maximum_heading_change",
+            "stationary_target_gates:maximum_xy_distance"
+          ]
+        },
+        "C": {
+          "maximum_heading_change_deg": 21.38010519030432,
+          "maximum_xy_distance_m": 0.05751858508331434,
+          "prone_continuous_holds_s": [
+            2.0,
+            2.0
+          ],
+          "four_foot_return_continuous_holds_s": [
+            2.0,
+            2.0
+          ],
+          "failed_gates": [
+            "stationary_target_gates:maximum_heading_change",
+            "stationary_target_gates:maximum_xy_distance"
+          ]
+        }
+      },
+      "selected_wave_results_by_condition": {
+        "A": {
+          "maximum_heading_change_deg": 4.677385144510562,
+          "maximum_xy_distance_m": 0.0623897381269785,
+          "high_paw_continuous_durations_s": [
+            4.0,
+            4.0
+          ],
+          "complete_round_trips": 4,
+          "four_foot_return_continuous_holds_s": [
+            2.0,
+            2.0
+          ],
+          "failed_gates": [
+            "gates:maximum_xy_distance"
+          ]
+        },
+        "B": {
+          "maximum_heading_change_deg": 4.278434012609113,
+          "maximum_xy_distance_m": 0.06300992314579874,
+          "high_paw_continuous_durations_s": [
+            4.0,
+            4.0
+          ],
+          "complete_round_trips": 4,
+          "four_foot_return_continuous_holds_s": [
+            2.0,
+            2.0
+          ],
+          "failed_gates": [
+            "gates:maximum_xy_distance"
+          ]
+        },
+        "C": {
+          "maximum_heading_change_deg": 4.337757681073675,
+          "maximum_xy_distance_m": 0.06301542749569018,
+          "high_paw_continuous_durations_s": [
+            4.0,
+            4.0
+          ],
+          "complete_round_trips": 4,
+          "four_foot_return_continuous_holds_s": [
+            2.0,
+            2.0
+          ],
+          "failed_gates": [
+            "gates:maximum_xy_distance"
+          ]
+        }
+      },
+      "selected_public_evidence_sha256": "73da0da84db9eb5032c9c80a9a987cdf2af8f0b2443c0a6b7a2a5d56a36aacd4"
     }
   ],
   "visualization": {
@@ -1490,14 +2004,14 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": "第28回Aの6方向合格を保持し、伏せ第2周期の支持・復帰高さと、挨拶の途中最大XYを優先して検討する。前進の関節速度余裕・旋回の位置ずれ等の連続値も監視する。次の学習は未開始。未実施Bの股先行案の効果は未検証で、全動作の連続切替・外乱・実機・印刷強度は別に評価する。",
+  "next": "伏せの連続支持と四足復帰を保ちながら、全区間の位置50mm・方位5°を同時に満たす条件を検討する。挨拶は150mm挙上と方位成功を保ち、400Hz時系列で支持移動中の最大位置ずれを確認する。次の学習は未開始。補強PLAの形状・質量は固定D17へ未反映で、専門方策間の切替、外乱、実機、印刷強度は別に検証する。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
     "effective_date": "2026-09-10",
     "existing_frozen_1000_update_plan_rewritten": false,
     "new_training_started_for_publication": false,
-    "default_scope": "Total new main updates per bounded trial, divided among experts. Explicitly authorized comparison exceptions: Trial27 completed two independent500-update conditions; Trial28 planned two but executed only A500 and skipped B. These exceptions do not increase the default budget for future trials.",
+    "default_scope": "Default total new main updates per bounded trial, divided among experts. Explicit comparison exceptions: Trial27 completed two independent500-update conditions; Trial28 executed A500 and skipped B; Trial29 and Trial30 each completed three independent500-update conditions. These completed comparisons do not increase the default budget or authorize future learning.",
     "l20_planned_updates_by_expert": {
       "locomotion": 320,
       "prone": 60,
@@ -1541,12 +2055,14 @@
     "motion": "not_yet_selected",
     "jump_training_planned": false,
     "completed_l17_scope": "Fixed physical geometry and mass from L16; legs and handle yellow, body/base plate/retainers/face frame black and IMU red in the evaluated simulation. No new printed-strength validation.",
-    "scope": "第28回Aの6方向合格を保持し、伏せ第2周期の支持・復帰高さと、挨拶の途中最大XYを優先して検討する。前進の関節速度余裕・旋回の位置ずれ等の連続値も監視する。次の学習は未開始。未実施Bの股先行案の効果は未検証で、全動作の連続切替・外乱・実機・印刷強度は別に評価する。",
+    "scope": "伏せの連続支持と四足復帰を保ちながら、全区間の位置50mm・方位5°を同時に満たす条件を検討する。挨拶は150mm挙上と方位成功を保ち、400Hz時系列で支持移動中の最大位置ずれを確認する。次の学習は未開始。補強PLAの形状・質量は固定D17へ未反映で、専門方策間の切替、外乱、実機、印刷強度は別に検証する。",
     "appearance_scope": "Latest display specification for the next trial. Historical evaluation media retain their recorded colors; appearance changes do not change density or verify native CAD saving/printed strength.",
     "completed_l18_scope": "D16 fixed physical model; high greeting2cycles and all8s above150mm passed, whole-interval XY5cm failed.",
     "completed_l19_scope": "D16 fixed physical model; shallow12degree sit and return2cycles passed all registered32second criteria, not nine-motion or hardware acceptance.",
     "completed_l22_scope": "D17 three-part hardware replacement and specified colors were used by both completed500-update conditions. No physical robot or printed-strength validation.",
     "cad_completion_scope": "SelectedD17 three-part source geometry and simulation derivation only; not whole-assembly manufacturing acceptance.",
-    "completed_l23_scope": "SameD17; A500 and nine full evaluations finished, six directions plus sit qualified. B not started. No video publication or hardware/printed-strength acceptance."
+    "completed_l23_scope": "SameD17; A500 and nine full evaluations finished, six directions plus sit qualified. B not started. No video publication or hardware/printed-strength acceptance.",
+    "completed_l24_scope": "SameD17; three independent500-update conditions and all27 final episodes completed, each7/9. Prone return and wave time changes were paired against matched parent conditions. No hardware acceptance.",
+    "completed_l25_scope": "SameD17; three independent500-update conditions and all27 final episodes completed, each7/9. Six trained final checkpoints were CPU-verified and backed up. Reinforced PLA geometry/mass was not applied to this physics; no new video publication or hardware acceptance."
   }
 }
