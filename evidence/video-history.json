@@ -1224,7 +1224,7 @@
       "qualified_motion_count": 7,
       "main_updates_executed_in_condition": 500,
       "separate_experts": 4,
-      "result": "第30回ABC各500更新、各7/9合格。A/Bの表示用比較のみ掲載。歩行6方向・座位合格、伏せ・挨拶は総合未達。全条件の数値はL25評価JSONに保持。",
+      "result": "第30回ABC各500更新、各7/9合格。A/B/Cの表示用比較を掲載。歩行6方向・座位合格、伏せ・挨拶は総合未達。全条件の数値はL25評価JSONに保持。",
       "presentation_scope": "14seconds at original speed. Six directions complete12seconds; prone first12second cycle; wave/sit partial first18/16second cycles. Short selections hold last labeled color frame. Full-evaluation outcomes use original full intervals, not excerpts."
     },
     {
@@ -1252,11 +1252,39 @@
       "qualified_motion_count": 7,
       "main_updates_executed_in_condition": 500,
       "separate_experts": 4,
-      "result": "第30回ABC各500更新、各7/9合格。A/Bの表示用比較のみ掲載。歩行6方向・座位合格、伏せ・挨拶は総合未達。全条件の数値はL25評価JSONに保持。",
+      "result": "第30回ABC各500更新、各7/9合格。A/B/Cの表示用比較を掲載。歩行6方向・座位合格、伏せ・挨拶は総合未達。全条件の数値はL25評価JSONに保持。",
+      "presentation_scope": "14seconds at original speed. Six directions complete12seconds; prone first12second cycle; wave/sit partial first18/16second cycles. Short selections hold last labeled color frame. Full-evaluation outcomes use original full intervals, not excerpts."
+    },
+    {
+      "id": "L25-c-comparison",
+      "loop": "L25",
+      "series_order": 30,
+      "condition": "C",
+      "original": "docs/media/l25-c-nine-motions.mp4",
+      "preview": "docs/media/l25-c-nine-motions.gif",
+      "date": "2026-09-13",
+      "date_kind": "JST evaluation completion date, not media processing time",
+      "kind": "SELECTED_FINAL_SIMULATION_COMPARISON",
+      "frames": 700,
+      "fps": 50,
+      "duration_s": 14,
+      "width": 960,
+      "height": 800,
+      "source_sha256": "87bbb338bc5889c485a48c031be4a890d617474173cbd0d5dfc301c745ec0b9b",
+      "preview_sha256": "c16be0f834b96505b98a0324cf7e911322e107da20c43080650326431e3483ac",
+      "bytes": 2536315,
+      "additional_training_updates_for_evaluation": 0,
+      "additional_loops_counted": 0,
+      "hardware_acceptance": false,
+      "skill_acceptance": false,
+      "qualified_motion_count": 7,
+      "main_updates_executed_in_condition": 500,
+      "separate_experts": 4,
+      "result": "第30回ABC各500更新、各7/9合格。A/B/Cの表示用比較を掲載。歩行6方向・座位合格、伏せ・挨拶は総合未達。全条件の数値はL25評価JSONに保持。",
       "presentation_scope": "14seconds at original speed. Six directions complete12seconds; prone first12second cycle; wave/sit partial first18/16second cycles. Short selections hold last labeled color frame. Full-evaluation outcomes use original full intervals, not excerpts."
     }
   ],
-  "count_scope": "30試行、選択した実録画・比較MP4は43本。最新掲載は第30回A/B比較2本。第30回C・第26/28/29回の新規掲載動画はなし。GIF、CAD画像、実測チャート再描画MP4の1本は別枠。",
+  "count_scope": "30試行、選択した実録画・比較MP4は44本。最新掲載は第30回A/B/C比較3本。第26/28/29回の新規掲載動画はなし。GIF、CAD画像、実測チャート再描画MP4の1本は別枠。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
@@ -1273,7 +1301,7 @@
     "default_new_training_updates": 500,
     "scope": "第30回の伏せ・挨拶の位置ずれを全長時系列で切り分け、次の有限試行の条件を決める。次の学習は未起動。補強PLAは固定D17へ未反映、連続切替・外乱・実機強度は別検証。"
   },
-  "selected_actual_recording_count": 43,
+  "selected_actual_recording_count": 44,
   "separate_measured_chart_mp4_count": 1,
   "latest_published_video_series_order": 30,
   "historical_evaluations_without_published_media": [
@@ -1338,9 +1366,8 @@
   ],
   "latest_published_video_conditions": [
     "A",
-    "B"
-  ],
-  "latest_unpublished_video_conditions": [
+    "B",
     "C"
-  ]
+  ],
+  "latest_unpublished_video_conditions": []
 }

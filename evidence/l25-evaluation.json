@@ -2,7 +2,7 @@
   "schema": "singularitydog.abc-nine-motion-evaluation.v1",
   "id": "L25",
   "series_order": 30,
-  "status": "COMPLETED_ABC_RESULTS_WITH_AB_VIDEO_COMPARISONS_PUBLISHED",
+  "status": "COMPLETED_ABC_RESULTS_WITH_ABC_VIDEO_COMPARISONS_PUBLISHED",
   "counted_as_completed_loop": true,
   "trial_execution_completed": true,
   "started_jst": "2026-09-13T10:47:57.210588+09:00",
@@ -1173,7 +1173,7 @@
       }
     }
   ],
-  "video_status": "AB_COMPARISONS_PUBLISHED_C_NOT_PUBLISHED",
+  "video_status": "ABC_COMPARISONS_PUBLISHED",
   "videos": [
     {
       "condition": "A",
@@ -1478,9 +1478,161 @@
           "displayed_complete_action_cycle": false
         }
       ]
+    },
+    {
+      "condition": "C",
+      "mp4": "docs/media/l25-c-nine-motions.mp4",
+      "gif": "docs/media/l25-c-nine-motions.gif",
+      "mp4_sha256": "87bbb338bc5889c485a48c031be4a890d617474173cbd0d5dfc301c745ec0b9b",
+      "gif_sha256": "c16be0f834b96505b98a0324cf7e911322e107da20c43080650326431e3483ac",
+      "mp4_bytes": 2536315,
+      "gif_bytes": 18330566,
+      "frames": 700,
+      "fps": 50,
+      "duration_s": 14,
+      "width": 960,
+      "height": 800,
+      "source_comparison_receipt_sha256": "85799e4658078a97cd4e365c0eb0cfcd954a227a2cbb49eb0c8fd6bb2e203946",
+      "excerpts": [
+        {
+          "motion_id": "forward",
+          "original_video_sha256": "674420f6625d3958351f202115ad11a5464ae624b4cacffbf68fa346dbe1c88e",
+          "original_completion_sha256": "4c43b1082d2a9e35a2057455365e397d07fde419a6751fbc4ed4ebbd01c2ae2e",
+          "original_summary_sha256": "af6aa64d22a293ae668cd0d8c7c5c6796ba661270acc51195a5047775a9af7dd",
+          "full_source_frames": 600,
+          "full_evaluation_duration_s": 12.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "color_hold_frames": 100,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "full_evaluation_passed": true,
+          "displayed_complete_action_cycle": null
+        },
+        {
+          "motion_id": "backward",
+          "original_video_sha256": "a9466061da853a91dee589b6a28a59c16a240a98c7b80ae8628f88df24f3bd79",
+          "original_completion_sha256": "a2e8e1deac174cdcb9505f38e1ef3c24438e0c445892aed04e2e9718ee167ff1",
+          "original_summary_sha256": "57195b39dff150e6351fa25cf5f2aad1b57806725498f2a213ac5a1854d08133",
+          "full_source_frames": 600,
+          "full_evaluation_duration_s": 12.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "color_hold_frames": 100,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "full_evaluation_passed": true,
+          "displayed_complete_action_cycle": null
+        },
+        {
+          "motion_id": "left",
+          "original_video_sha256": "61999a47dbcef50f5fc8a997aee25c041035341dd9e001694e3f594adb8a2f7c",
+          "original_completion_sha256": "1166e94dda10c65f8d9c384ff96b2d347d2afca3fe8c8f5df1c3759040c17bf8",
+          "original_summary_sha256": "9e758cc8afc72a1b4c96d2f420ac8b282aa79694bdb138b3e21c26d1e23ca7a1",
+          "full_source_frames": 600,
+          "full_evaluation_duration_s": 12.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "color_hold_frames": 100,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "full_evaluation_passed": true,
+          "displayed_complete_action_cycle": null
+        },
+        {
+          "motion_id": "right",
+          "original_video_sha256": "29538e52534e3d9767717b1bb0a85eea4a89bd4eefcb05f0a6f7c2303057f7ea",
+          "original_completion_sha256": "80889962a1f5f76d69c4e17ed6717ad2bb6b8a8ae3ccc8157ca64fca0a7a39b1",
+          "original_summary_sha256": "6fd7197346b6f1803c173d4c503dafef6fb2736d6d3a49e8d2652dd0f11e82e8",
+          "full_source_frames": 600,
+          "full_evaluation_duration_s": 12.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "color_hold_frames": 100,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "full_evaluation_passed": true,
+          "displayed_complete_action_cycle": null
+        },
+        {
+          "motion_id": "turn_left",
+          "original_video_sha256": "abda72ca977556ec24d1d263d957a4126b5e82f93bb64b47cd7f3af0fccb3095",
+          "original_completion_sha256": "ac46a4ede9db44fa4c8f963dfee99f5c04da8cbef8210b29337584bba66b5e29",
+          "original_summary_sha256": "0cc92a1f925bf04443c7489aa7a4f8d7e331c1282429b2ecd1864456b78c4f5d",
+          "full_source_frames": 600,
+          "full_evaluation_duration_s": 12.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "color_hold_frames": 100,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "full_evaluation_passed": true,
+          "displayed_complete_action_cycle": null
+        },
+        {
+          "motion_id": "turn_right",
+          "original_video_sha256": "85304256bbc0f7ef812476f7cde461792a3638ee516f1e7f02bae75f68c708d6",
+          "original_completion_sha256": "336894f795a0df55e676441645322d20e4c8538598b96df615682b146e5e6f38",
+          "original_summary_sha256": "e242a04452812f298f9d861eca78781d5afb6809fba0910ec674cb8b0108b383",
+          "full_source_frames": 600,
+          "full_evaluation_duration_s": 12.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "color_hold_frames": 100,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "full_evaluation_passed": true,
+          "displayed_complete_action_cycle": null
+        },
+        {
+          "motion_id": "prone",
+          "original_video_sha256": "ce809905fff9aa933f88fd47949b1ff26503bf4949adaab1da0886faf6cf9e65",
+          "original_completion_sha256": "14408f455df4fdeb5b7b052a91faadc669da4370abbe094f6181118b0092701d",
+          "original_summary_sha256": "ee87e4e4afe77456183ea83c36aaf476805df195b3cd1d5135a5f7faa58a1c14",
+          "full_source_frames": 1200,
+          "full_evaluation_duration_s": 24.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 600,
+          "displayed_duration_s": 12.0,
+          "color_hold_frames": 100,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "full_evaluation_passed": false,
+          "displayed_complete_action_cycle": true
+        },
+        {
+          "motion_id": "wave",
+          "original_video_sha256": "dcaa382d035842a1ae4815c53a556d7ddcdbad5053bdac913ef43283dad5d2ef",
+          "original_completion_sha256": "20d9f0caf5be6b84086ba8ff6168225a2fcb5c0b019a0ce3b79b53dead02ca10",
+          "original_summary_sha256": "68fe8d5ec6fe330b62e680ba54a35e6ae03396b469cfb0f657393d9d184b9f3b",
+          "full_source_frames": 1800,
+          "full_evaluation_duration_s": 36.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 700,
+          "displayed_duration_s": 14.0,
+          "color_hold_frames": 0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "full_evaluation_passed": false,
+          "displayed_complete_action_cycle": false
+        },
+        {
+          "motion_id": "sit",
+          "original_video_sha256": "a8d5859ecb6b3fc4bd53ebd814ccb59b1bbfa129e152430e32188d628e408bf6",
+          "original_completion_sha256": "42344d8eaa0f155b5906e5a71a4225ddfa86653b3ec285fa886577cc161560da",
+          "original_summary_sha256": "d9fc4f2a770259eaf0fd0741d8e06e89952bdc0f2f9eaf981abdb55235d1d1cf",
+          "full_source_frames": 1600,
+          "full_evaluation_duration_s": 32.0,
+          "displayed_start_frame": 0,
+          "displayed_frames": 700,
+          "displayed_duration_s": 14.0,
+          "color_hold_frames": 0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "full_evaluation_passed": true,
+          "displayed_complete_action_cycle": false
+        }
+      ]
     }
   ],
-  "publication_scope": "Selected measurements, bounded verification results and source hashes, with user-selected A/B14second3x3 comparisons and their GIF previews. No raw original recordings, weights or private photographs.",
+  "publication_scope": "Selected measurements, bounded verification results and source hashes, with user-selected A/B/C14second3x3 comparisons and their GIF previews. No raw original recordings, weights or private photographs.",
   "limitations": [
     "Four independent expert policies; no single nine-skill actor or switching validation.",
     "One seed per independent condition; no multi-seed robustness or isolated causal guarantee.",
@@ -1495,7 +1647,5 @@
     "main_update_accounting_sha256": "94f21bb46a3f78f2aaa8d09a878ad976748d32161f597696c51a9f2e5bce79c6",
     "day_completion_sha256": "dd43ceda279c300f71900e4842fe5d0e5a4984dcc35f377615e7cdc9d48b6cf4"
   },
-  "unpublished_video_conditions": [
-    "C"
-  ]
+  "unpublished_video_conditions": []
 }

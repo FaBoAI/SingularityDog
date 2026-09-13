@@ -1790,12 +1790,13 @@
       "own_report_sha256": "d0878e43f6c010f20856181bdc9582e5bafc0e69b5ab03b2f61b773a9334a706",
       "selected_results_sha256": "ee0ef40f51c77f7772d5e8813ecc2fe49df015777e3b2c9ccd1efa98b2dc7904",
       "media": {
-        "new_public_videos": 2,
-        "selected_actual_recording_count": 43,
-        "status": "PUBLISHED_TRIAL30_AB_COMPARISON_MEDIA",
+        "new_public_videos": 3,
+        "selected_actual_recording_count": 44,
+        "status": "PUBLISHED_TRIAL30_ABC_COMPARISON_MEDIA",
         "video_urls": [
           "docs/media/l25-a-nine-motions.mp4",
-          "docs/media/l25-b-nine-motions.mp4"
+          "docs/media/l25-b-nine-motions.mp4",
+          "docs/media/l25-c-nine-motions.mp4"
         ],
         "prior_publication_media": {
           "new_public_videos": 0,
@@ -1827,11 +1828,25 @@
         "original_trial27_videos_retained": true,
         "readme_historical_digest_count": 7,
         "publication_complete": true,
-        "condition_C_video_publication_status": "NOT_PUBLISHED_PRIVATE_RECOVERY_AND_GENERATION_IN_PROGRESS",
+        "condition_C_video_publication_status": "PUBLISHED",
         "gif_urls": [
           "docs/media/l25-a-nine-motions.gif",
-          "docs/media/l25-b-nine-motions.gif"
-        ]
+          "docs/media/l25-b-nine-motions.gif",
+          "docs/media/l25-c-nine-motions.gif"
+        ],
+        "preceding_AB_publication": {
+          "new_public_videos": 2,
+          "selected_actual_recording_count": 43,
+          "status": "PUBLISHED_TRIAL30_AB_COMPARISON_MEDIA",
+          "video_urls": [
+            "docs/media/l25-a-nine-motions.mp4",
+            "docs/media/l25-b-nine-motions.mp4"
+          ],
+          "gif_urls": [
+            "docs/media/l25-a-nine-motions.gif",
+            "docs/media/l25-b-nine-motions.gif"
+          ]
+        }
       },
       "evaluation_scope": "Independent seed42 deterministic complete episodes, with paired parent evaluations. Full new raw400Hz replay, multiple-seed robustness and hardware validation were not performed.",
       "title": "独立A/B/C各500更新、保持と挙上は改善、位置・方位が残り各7/9",
@@ -2010,7 +2025,7 @@
           ]
         }
       },
-      "selected_public_evidence_sha256": "fe2cefd7aeea26d2b49b21cbec9437583692a55e6ec2c15651be4ad82ec3cbae"
+      "selected_public_evidence_sha256": "1f49badb3482e930743fa144e16f167ef900c0af8dd41e974daaad03352b7523"
     }
   ],
   "visualization": {
@@ -2101,6 +2116,6 @@
     "cad_completion_scope": "SelectedD17 three-part source geometry and simulation derivation only; not whole-assembly manufacturing acceptance.",
     "completed_l23_scope": "SameD17; A500 and nine full evaluations finished, six directions plus sit qualified. B not started. No video publication or hardware/printed-strength acceptance.",
     "completed_l24_scope": "SameD17; three independent500-update conditions and all27 final episodes completed, each7/9. Prone return and wave time changes were paired against matched parent conditions. No hardware acceptance.",
-    "completed_l25_scope": "SameD17; three independent500-update conditions and all27 final episodes completed, each7/9. Six trained final checkpoints were CPU-verified and backed up. Reinforced PLA geometry/mass was not applied to this physics; initial result publication had no new video; two comparison MP4s and GIFs for A/B are published; C video remains unpublished during private recovery. No hardware acceptance."
+    "completed_l25_scope": "SameD17; three independent500-update conditions and all27 final episodes completed, each7/9. Six trained final checkpoints were CPU-verified and backed up. Reinforced PLA geometry/mass was not applied to this physics; initial result publication had no new video; A/B comparison media were published first; all three A/B/C comparison MP4s and GIFs are now published. No hardware acceptance."
   }
 }
