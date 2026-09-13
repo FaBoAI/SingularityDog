@@ -1790,10 +1790,48 @@
       "own_report_sha256": "d0878e43f6c010f20856181bdc9582e5bafc0e69b5ab03b2f61b773a9334a706",
       "selected_results_sha256": "ee0ef40f51c77f7772d5e8813ecc2fe49df015777e3b2c9ccd1efa98b2dc7904",
       "media": {
-        "new_public_videos": 0,
-        "selected_actual_recording_count": 41,
-        "status": "NOT_PUBLISHED",
-        "video_urls": []
+        "new_public_videos": 2,
+        "selected_actual_recording_count": 43,
+        "status": "PUBLISHED_TRIAL30_AB_COMPARISON_MEDIA",
+        "video_urls": [
+          "docs/media/l25-a-nine-motions.mp4",
+          "docs/media/l25-b-nine-motions.mp4"
+        ],
+        "prior_publication_media": {
+          "new_public_videos": 0,
+          "selected_actual_recording_count": 41,
+          "status": "NOT_PUBLISHED",
+          "video_urls": []
+        },
+        "comparison_duration_s": 14.0,
+        "full_evaluation_duration_s_by_motion": {
+          "locomotion": 12,
+          "prone": 24,
+          "wave": 36,
+          "sit": 32
+        },
+        "displayed_duration_s_by_motion": {
+          "locomotion": 12,
+          "prone": 12,
+          "wave": 14,
+          "sit": 14
+        },
+        "displayed_complete_first_cycle_by_static_motion": {
+          "prone": true,
+          "wave": false,
+          "sit": false
+        },
+        "end_presentation": "Last displayed source frame held in color; STILL is presentation only and not scored hold time.",
+        "label_presentation": "Cyan English motion names with black outline at the top-left of each simulation preview below the original black caption.",
+        "acceptance_scope": "FULL EVAL refers to the unchanged complete original episode, not the14second excerpt.",
+        "original_trial27_videos_retained": true,
+        "readme_historical_digest_count": 7,
+        "publication_complete": true,
+        "condition_C_video_publication_status": "NOT_PUBLISHED_PRIVATE_RECOVERY_AND_GENERATION_IN_PROGRESS",
+        "gif_urls": [
+          "docs/media/l25-a-nine-motions.gif",
+          "docs/media/l25-b-nine-motions.gif"
+        ]
       },
       "evaluation_scope": "Independent seed42 deterministic complete episodes, with paired parent evaluations. Full new raw400Hz replay, multiple-seed robustness and hardware validation were not performed.",
       "title": "独立A/B/C各500更新、保持と挙上は改善、位置・方位が残り各7/9",
@@ -1972,7 +2010,7 @@
           ]
         }
       },
-      "selected_public_evidence_sha256": "73da0da84db9eb5032c9c80a9a987cdf2af8f0b2443c0a6b7a2a5d56a36aacd4"
+      "selected_public_evidence_sha256": "fe2cefd7aeea26d2b49b21cbec9437583692a55e6ec2c15651be4ad82ec3cbae"
     }
   ],
   "visualization": {
@@ -2063,6 +2101,6 @@
     "cad_completion_scope": "SelectedD17 three-part source geometry and simulation derivation only; not whole-assembly manufacturing acceptance.",
     "completed_l23_scope": "SameD17; A500 and nine full evaluations finished, six directions plus sit qualified. B not started. No video publication or hardware/printed-strength acceptance.",
     "completed_l24_scope": "SameD17; three independent500-update conditions and all27 final episodes completed, each7/9. Prone return and wave time changes were paired against matched parent conditions. No hardware acceptance.",
-    "completed_l25_scope": "SameD17; three independent500-update conditions and all27 final episodes completed, each7/9. Six trained final checkpoints were CPU-verified and backed up. Reinforced PLA geometry/mass was not applied to this physics; no new video publication or hardware acceptance."
+    "completed_l25_scope": "SameD17; three independent500-update conditions and all27 final episodes completed, each7/9. Six trained final checkpoints were CPU-verified and backed up. Reinforced PLA geometry/mass was not applied to this physics; initial result publication had no new video; two comparison MP4s and GIFs for A/B are published; C video remains unpublished during private recovery. No hardware acceptance."
   }
 }

@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
-  "as_of": "2026-09-12",
-  "recent_series_count": 28,
+  "as_of": "2026-09-13",
+  "recent_series_count": 30,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -1198,9 +1198,65 @@
       "separate_experts": 4,
       "result": "同じ親から独立にA/B各500新更新、計1000更新。各条件6/9合格。A前進40.1600cm/sは合格、左移動・伏せ・挨拶は未達。Bは前進8.92秒で速度超過終了、伏せ・挨拶は未達。両条件の合格を合成して単一方策の合格とはしない。",
       "presentation_scope": "First14seconds at original speed. Six directions retain complete12s (Bforward first terminal8.92s), prone first12s cycle; wave/sit partial first18/16s cycles. Last selected color frame is held after shorter intervals. FULL EVAL uses original full recorded intervals, not the14s excerpt; no continuous switching claim."
+    },
+    {
+      "id": "L25-a-comparison",
+      "loop": "L25",
+      "series_order": 30,
+      "condition": "A",
+      "original": "docs/media/l25-a-nine-motions.mp4",
+      "preview": "docs/media/l25-a-nine-motions.gif",
+      "date": "2026-09-13",
+      "date_kind": "JST evaluation completion date, not media processing time",
+      "kind": "SELECTED_FINAL_SIMULATION_COMPARISON",
+      "frames": 700,
+      "fps": 50,
+      "duration_s": 14,
+      "width": 960,
+      "height": 800,
+      "source_sha256": "043e2804aff01101975fc0d4d71a1b4fd4c03bb1aa613d498c27220351f5a9cf",
+      "preview_sha256": "5df9e867471ec6be2c2bad42e332056d1d163601e46d0f1c62cd5f316a7a3aef",
+      "bytes": 2533130,
+      "additional_training_updates_for_evaluation": 0,
+      "additional_loops_counted": 0,
+      "hardware_acceptance": false,
+      "skill_acceptance": false,
+      "qualified_motion_count": 7,
+      "main_updates_executed_in_condition": 500,
+      "separate_experts": 4,
+      "result": "第30回ABC各500更新、各7/9合格。A/Bの表示用比較のみ掲載。歩行6方向・座位合格、伏せ・挨拶は総合未達。全条件の数値はL25評価JSONに保持。",
+      "presentation_scope": "14seconds at original speed. Six directions complete12seconds; prone first12second cycle; wave/sit partial first18/16second cycles. Short selections hold last labeled color frame. Full-evaluation outcomes use original full intervals, not excerpts."
+    },
+    {
+      "id": "L25-b-comparison",
+      "loop": "L25",
+      "series_order": 30,
+      "condition": "B",
+      "original": "docs/media/l25-b-nine-motions.mp4",
+      "preview": "docs/media/l25-b-nine-motions.gif",
+      "date": "2026-09-13",
+      "date_kind": "JST evaluation completion date, not media processing time",
+      "kind": "SELECTED_FINAL_SIMULATION_COMPARISON",
+      "frames": 700,
+      "fps": 50,
+      "duration_s": 14,
+      "width": 960,
+      "height": 800,
+      "source_sha256": "60670f569404345b8de807d8bd5e765c87d5dca1274d7faff4c19b0cc1054aef",
+      "preview_sha256": "61515873a8fd077575e724820980ee447f25d61f728faf764978ae889e6b6303",
+      "bytes": 2542812,
+      "additional_training_updates_for_evaluation": 0,
+      "additional_loops_counted": 0,
+      "hardware_acceptance": false,
+      "skill_acceptance": false,
+      "qualified_motion_count": 7,
+      "main_updates_executed_in_condition": 500,
+      "separate_experts": 4,
+      "result": "第30回ABC各500更新、各7/9合格。A/Bの表示用比較のみ掲載。歩行6方向・座位合格、伏せ・挨拶は総合未達。全条件の数値はL25評価JSONに保持。",
+      "presentation_scope": "14seconds at original speed. Six directions complete12seconds; prone first12second cycle; wave/sit partial first18/16second cycles. Short selections hold last labeled color frame. Full-evaluation outcomes use original full intervals, not excerpts."
     }
   ],
-  "count_scope": "28試行、選択した実録画・比較MP4は41本。第26回と第28回の新規掲載動画は0本。最新掲載は第27回A/Bの比較2本。GIF、CAD画像、実測チャート再描画MP4の1本は別枠。",
+  "count_scope": "30試行、選択した実録画・比較MP4は43本。最新掲載は第30回A/B比較2本。第30回C・第26/28/29回の新規掲載動画はなし。GIF、CAD画像、実測チャート再描画MP4の1本は別枠。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
@@ -1215,67 +1271,76 @@
     "training_started": false,
     "counted_as_completed_loop": false,
     "default_new_training_updates": 500,
-    "scope": "第28回Aの伏せ・挨拶の未達を整理して次の有限試行の条件を決める。次の学習は未起動。D17形状・物性とSTLは第28回で変更せず、連続切替・外乱・実機・印刷強度は別に検証する。"
+    "scope": "第30回の伏せ・挨拶の位置ずれを全長時系列で切り分け、次の有限試行の条件を決める。次の学習は未起動。補強PLAは固定D17へ未反映、連続切替・外乱・実機強度は別検証。"
   },
-  "selected_actual_recording_count": 41,
+  "selected_actual_recording_count": 43,
   "separate_measured_chart_mp4_count": 1,
-  "latest_published_video_series_order": 27,
-  "latest_evaluation_without_new_published_media": {
-    "loop": "L23",
-    "series_order": 28,
-    "date": "2026-09-12",
-    "condition": "A",
-    "status": "COMPLETED_500_NEW_UPDATES_NINE_EVALUATIONS",
-    "completed_at_jst": "2026-09-12T16:03:51+09:00",
-    "main_updates_executed": 500,
-    "expert_new_updates": {
-      "locomotion": 150,
-      "prone": 250,
-      "wave": 100,
-      "sit": 0
-    },
-    "final_iterations": {
-      "locomotion": 149,
-      "prone": 249,
-      "wave": 99,
-      "sit": 59
-    },
-    "sit_iteration_scope": "Untrained retained parent; zero new updates in this trial",
-    "evaluated_motion_count": 9,
-    "qualified_motion_count": 7,
-    "skill_acceptance": false,
-    "passed_motions": [
-      "forward",
-      "backward",
-      "left",
-      "right",
-      "turn_left",
-      "turn_right",
-      "sit"
-    ],
-    "unmet_motions": [
-      "prone",
-      "wave"
-    ],
-    "physical_revision": "D17",
-    "physical_or_stl_changed": false,
-    "separate_experts": 4,
-    "condition_B": {
-      "status": "SKIPPED_INSUFFICIENT_REMAINING_TIME",
-      "minimum_remaining_time_to_start_s": 7200,
-      "training_started": false,
-      "main_updates_executed": 0
-    },
-    "original_recording_count": 9,
-    "original_recordings_locally_retrieved": 0,
-    "new_published_recording_count": 0,
-    "recording_metadata_and_sha_checked": true,
-    "original_full_decode_verified": false,
-    "digest_status": "CPU_EDIT_STARTED_COMPLETION_UNVERIFIED",
-    "digest_locally_retrieved": false,
-    "visual_review_completed": false,
-    "evaluation_document": "docs/l23-evaluation.md",
-    "evaluation_evidence": "evidence/l23-evaluation.json",
-    "scope": "数値結果を追加。第28回の新MP4/GIFは掲載しない。最新掲載は第27回A/Bの14秒比較で、第28回映像へ流用しない。合成の完成・全復号・目視確認と取得は未完了。次の学習は未開始。"
-  }
+  "latest_published_video_series_order": 30,
+  "historical_evaluations_without_published_media": [
+    {
+      "loop": "L23",
+      "series_order": 28,
+      "date": "2026-09-12",
+      "condition": "A",
+      "status": "COMPLETED_500_NEW_UPDATES_NINE_EVALUATIONS",
+      "completed_at_jst": "2026-09-12T16:03:51+09:00",
+      "main_updates_executed": 500,
+      "expert_new_updates": {
+        "locomotion": 150,
+        "prone": 250,
+        "wave": 100,
+        "sit": 0
+      },
+      "final_iterations": {
+        "locomotion": 149,
+        "prone": 249,
+        "wave": 99,
+        "sit": 59
+      },
+      "sit_iteration_scope": "Untrained retained parent; zero new updates in this trial",
+      "evaluated_motion_count": 9,
+      "qualified_motion_count": 7,
+      "skill_acceptance": false,
+      "passed_motions": [
+        "forward",
+        "backward",
+        "left",
+        "right",
+        "turn_left",
+        "turn_right",
+        "sit"
+      ],
+      "unmet_motions": [
+        "prone",
+        "wave"
+      ],
+      "physical_revision": "D17",
+      "physical_or_stl_changed": false,
+      "separate_experts": 4,
+      "condition_B": {
+        "status": "SKIPPED_INSUFFICIENT_REMAINING_TIME",
+        "minimum_remaining_time_to_start_s": 7200,
+        "training_started": false,
+        "main_updates_executed": 0
+      },
+      "original_recording_count": 9,
+      "original_recordings_locally_retrieved": 0,
+      "new_published_recording_count": 0,
+      "recording_metadata_and_sha_checked": true,
+      "original_full_decode_verified": false,
+      "digest_status": "CPU_EDIT_STARTED_COMPLETION_UNVERIFIED",
+      "digest_locally_retrieved": false,
+      "visual_review_completed": false,
+      "evaluation_document": "docs/l23-evaluation.md",
+      "evaluation_evidence": "evidence/l23-evaluation.json",
+      "scope": "Historical publication state at Trial28 numeric publication. Its original recording and CPU digest delivery were not completed then; later Trial30A/B media does not replace or relabel Trial28."
+    }
+  ],
+  "latest_published_video_conditions": [
+    "A",
+    "B"
+  ],
+  "latest_unpublished_video_conditions": [
+    "C"
+  ]
 }
