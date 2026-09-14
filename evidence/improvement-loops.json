@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
   "updated": "2026-09-14",
-  "numbering_scope": "直近31回（H01〜H04＋L00〜L26）のうちL00〜L26の27件を表示。第31回ABCは同じ1試行で、成功31回という意味ではない。",
+  "numbering_scope": "直近32回（H01〜H04＋L00〜L27）のうちL00〜L27の28件を表示。第32回A/Bは同じ1試行で、成功32回という意味ではない。",
   "loops": [
     {
       "id": "L00",
@@ -766,12 +766,26 @@
       "video_url": "media/l26-a-nine-motions.mp4",
       "report_url": "l26-evaluation.md",
       "new_training_updates": 1500
+    },
+    {
+      "id": "L27",
+      "order": 27,
+      "state": "EVALUATED",
+      "title": "独立A/B各500更新、各7/9維持・保存モデル12評価は未達",
+      "change": "第30回Cの伏せ・第30回Aの挨拶を共通親とし、独立A/B各500更新。両条件で親方策の出力保持を追加し、Bでは伏せ下降中のずれと挨拶の支持移動中の速度を抑える項を比較。歩行・座位は0更新、D17と合否基準を維持。",
+      "result": "計1000主更新を完了、A/B各7/9合格・新規合格0。最終伏せは11.74/9.94秒で禁止接触終了。挨拶は両条件36秒完走、最大XY62.078/62.247mmで50mm未達。100・200更新時点も250更新後に評価し、全12保存モデル評価が未達。",
+      "comparison_scope": "Independent A/B from identical Trial30 C prone and Trial30 A wave parents and seed42, not continuation of Trial31. Fixed D17 and gates. Separate experts; no union of passing cases. Checkpoints100/200 evaluated after250 with0 additional PPO updates; no Trial32 video published.",
+      "forward_speed_m_s": 0.41076370080312086,
+      "lift15_counts": null,
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "new_training_updates": 1000
     }
   ],
   "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。",
   "target_actual_forward_m_s": 0.4,
-  "verified_recent_series_count": 31,
-  "latest_loop_id": "L26",
+  "verified_recent_series_count": 32,
+  "latest_loop_id": "L27",
   "comparison_cases": [
     {
       "id": "L09-matched-L10",
@@ -1007,97 +1021,134 @@
       "forward_speed_m_s": null,
       "video_url": "media/l26-c-nine-motions.mp4",
       "report_url": "l26-evaluation.md"
+    },
+    {
+      "id": "L27-B",
+      "state": "EVALUATED",
+      "title": "第32回条件B：下降・支持移動の追加報酬を比較",
+      "change": "条件Aと同じ親・seed42から独立に伏せ250＋挨拶250更新。親方策の出力保持に加え、下降時のずれと支持移動中の速度を抑える追加項を比較。",
+      "result": "7/9合格を維持、新規合格0。最終伏せは9.94/24秒で禁止接触終了。挨拶は36秒を完走し最大XY62.247mmで未達。100・200・250更新の伏せ・挨拶6評価は総合未達。",
+      "comparison_scope": "Independent A/B from identical Trial30 C prone and Trial30 A wave parents and seed42, not continuation of Trial31. Fixed D17 and gates. Separate experts; no union of passing cases. Checkpoints100/200 evaluated after250 with0 additional PPO updates; no Trial32 video published.",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "new_training_updates": 500
     }
   ],
   "default_comparison_before": "L26",
   "latest_cases": [
     {
       "direction": "forward",
-      "label": "前進",
       "duration_s": 12.0,
       "completed_interval": true,
       "speed_cm_s": 41.07637008031209,
       "signed_mean_yaw_rate_rad_s": null,
-      "max_planar_excursion_m": null,
-      "yaw_end_deg": null,
+      "max_planar_excursion_m": 4.930950485223817,
+      "yaw_end_deg": -4.422207140464083,
+      "label": "前進",
       "target_result": "既存全基準達成",
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "scope": "Retained model, no new learning in Trial31."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "scope": "Retained L23 A locomotion, zero new training in Trial32. A/B original summaries verified; no local raw replay or published Trial32 video.",
+      "summary_sha256_by_condition": {
+        "A": "dfef64661b4f991c57d3954785c0c56d3c4d3bdefe2e40c877d46be4ee2b84a5",
+        "B": "6e205d771b108aa4a78d0ed0baadda895363a75f1ec6b3e8ccb53349bda96ff8"
+      }
     },
     {
       "direction": "backward",
-      "label": "後退",
       "duration_s": 12.0,
       "completed_interval": true,
       "speed_cm_s": 10.860345760981243,
       "signed_mean_yaw_rate_rad_s": null,
-      "max_planar_excursion_m": null,
-      "yaw_end_deg": null,
+      "max_planar_excursion_m": 1.3200479458037695,
+      "yaw_end_deg": -6.3391628601582255,
+      "label": "後進",
       "target_result": "既存全基準達成",
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "scope": "Retained model, no new learning in Trial31."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "scope": "Retained L23 A locomotion, zero new training in Trial32. A/B original summaries verified; no local raw replay or published Trial32 video.",
+      "summary_sha256_by_condition": {
+        "A": "89d5b9acc92acc5f4838789d5cd249447c11fbd8725cedee12afcf203a0990bf",
+        "B": "7c3e7f87c8703703e7638887dfafbbeb929d46daeb0d8a13f2bf8ed363843ad5"
+      }
     },
     {
       "direction": "left",
-      "label": "左移動",
       "duration_s": 12.0,
       "completed_interval": true,
       "speed_cm_s": 10.160939892133076,
       "signed_mean_yaw_rate_rad_s": null,
-      "max_planar_excursion_m": null,
-      "yaw_end_deg": null,
+      "max_planar_excursion_m": 1.228436312603744,
+      "yaw_end_deg": -6.6623902168498805,
+      "label": "左移動",
       "target_result": "既存全基準達成",
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "scope": "Retained model, no new learning in Trial31."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "scope": "Retained L23 A locomotion, zero new training in Trial32. A/B original summaries verified; no local raw replay or published Trial32 video.",
+      "summary_sha256_by_condition": {
+        "A": "6462d988f19e54a0d87a743caf9e7f3414d5dec128784d1a046f890ea4682792",
+        "B": "ebc00dff1b8567e35847fb2e7db2d70746145dc04888f3cb5942a788a6d963de"
+      }
     },
     {
       "direction": "right",
-      "label": "右移動",
       "duration_s": 12.0,
       "completed_interval": true,
       "speed_cm_s": 11.273395021756489,
       "signed_mean_yaw_rate_rad_s": null,
-      "max_planar_excursion_m": null,
-      "yaw_end_deg": null,
+      "max_planar_excursion_m": 1.3529067614902595,
+      "yaw_end_deg": -5.398408343645602,
+      "label": "右移動",
       "target_result": "既存全基準達成",
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "scope": "Retained model, no new learning in Trial31."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "scope": "Retained L23 A locomotion, zero new training in Trial32. A/B original summaries verified; no local raw replay or published Trial32 video.",
+      "summary_sha256_by_condition": {
+        "A": "0f280c3db89b86c1628f870315da96e8bd5786c8584fca7359b0a44a6acd8491",
+        "B": "c27dc541133d8057ac2ca81a089718004d9acfbb3b0c2b9f5948811781f8c6b1"
+      }
     },
     {
       "direction": "turn_left",
-      "label": "左旋回",
       "duration_s": 12.0,
       "completed_interval": true,
       "speed_cm_s": null,
       "signed_mean_yaw_rate_rad_s": 0.2243958121536879,
-      "max_planar_excursion_m": null,
-      "yaw_end_deg": null,
+      "max_planar_excursion_m": 0.11559900910414318,
+      "yaw_end_deg": 154.2831957218009,
+      "label": "左旋回",
       "target_result": "既存全基準達成",
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "scope": "Retained model, no new learning in Trial31."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "scope": "Retained L23 A locomotion, zero new training in Trial32. A/B original summaries verified; no local raw replay or published Trial32 video.",
+      "summary_sha256_by_condition": {
+        "A": "60e05982715e22166f1bbbaa6b0719f018dd50f04557310c5279b0e39d37af53",
+        "B": "ec4dea4ed9b8742e73b434fae44afca15eaa1a22d201e2a7224c1a653e33fb15"
+      }
     },
     {
       "direction": "turn_right",
-      "label": "右旋回",
       "duration_s": 12.0,
       "completed_interval": true,
       "speed_cm_s": null,
       "signed_mean_yaw_rate_rad_s": 0.24707792826763164,
-      "max_planar_excursion_m": null,
-      "yaw_end_deg": null,
+      "max_planar_excursion_m": 0.12594312926974732,
+      "yaw_end_deg": -169.87827000685672,
+      "label": "右旋回",
       "target_result": "既存全基準達成",
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "scope": "Retained model, no new learning in Trial31."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "scope": "Retained L23 A locomotion, zero new training in Trial32. A/B original summaries verified; no local raw replay or published Trial32 video.",
+      "summary_sha256_by_condition": {
+        "A": "5d6772383828383d220f0aff560487c710cc8c582558c8b068690d0dad4222e9",
+        "B": "e04afc58dc3dfca358a015fc2f55e626ed5ea22d0a0dd1889baee2ee505a8a49"
+      }
     }
   ],
-  "latest_locomotion_loop_id": "L26",
-  "latest_cases_scope": "Trial31 re-evaluation of the retained Trial28 A locomotion model, D17 and zero new updates. A/B/C same recorded raw SHA. Historical cases remain separate.",
+  "latest_locomotion_loop_id": "L27",
+  "latest_cases_scope": "第32回のA/B保持歩行。固定D17、追加学習0、6方向の元summaryを直接照合。前進41.07637008031209cm/sは今回の12秒記録に基づく。保持歩行の原時系列再計算・第32回動画公開は未実施。",
   "future_training_updates": 500,
   "latest_locomotion_development_targets_met_case_count": 6,
   "latest_locomotion_evaluation_case_count": 6,
@@ -1108,7 +1159,7 @@
     "training_started": false,
     "counted_as_completed_loop": false,
     "default_new_training_updates": 500,
-    "scope": "第31回の伏せ下降時の位置ずれと、挨拶の挙上前の支持移動を分けて検証する。B/Cの一律左右差抑制・支持移動縮小は現状採用せず、保持・復帰を守る比較を検討。次の学習は未開始。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。"
+    "scope": "第32回の伏せA100など完走・復帰を維持した保存時点を比較基準に、下降中の位置ずれと復帰後の崩れを分けて検証する。挨拶は挙上前後の支持移動による位置ずれを優先する。次の学習・実機採用は未実施。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。"
   },
   "historical_l13_cases": [
     {
@@ -1181,7 +1232,7 @@
   "historical_l13_cases_scope": "Historical L13 six-direction locomotion on D13; separate from the current L20 nine-motion evaluation on D16.",
   "historical_l13_case_count": 6,
   "historical_l13_development_targets_met_case_count": 6,
-  "latest_locomotion_stage_id": "L26",
+  "latest_locomotion_stage_id": "L27",
   "selected_actual_recording_count": 47,
   "separate_measured_chart_mp4_count": 1,
   "default_comparison_after": "L26-B",
@@ -1190,100 +1241,109 @@
       "motion_id": "forward",
       "label": "前進",
       "expert_id": "locomotion",
+      "condition": "A",
       "skill_acceptance": true,
       "duration_s": 12.0,
       "requested_duration_s": 12.0,
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "video_scope": "Trial32 numerical evaluation only; no Trial32 video published."
     },
     {
       "motion_id": "backward",
-      "label": "後退",
+      "label": "後進",
       "expert_id": "locomotion",
+      "condition": "A",
       "skill_acceptance": true,
       "duration_s": 12.0,
       "requested_duration_s": 12.0,
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "video_scope": "Trial32 numerical evaluation only; no Trial32 video published."
     },
     {
       "motion_id": "left",
       "label": "左移動",
       "expert_id": "locomotion",
+      "condition": "A",
       "skill_acceptance": true,
       "duration_s": 12.0,
       "requested_duration_s": 12.0,
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "video_scope": "Trial32 numerical evaluation only; no Trial32 video published."
     },
     {
       "motion_id": "right",
       "label": "右移動",
       "expert_id": "locomotion",
+      "condition": "A",
       "skill_acceptance": true,
       "duration_s": 12.0,
       "requested_duration_s": 12.0,
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "video_scope": "Trial32 numerical evaluation only; no Trial32 video published."
     },
     {
       "motion_id": "turn_left",
       "label": "左旋回",
       "expert_id": "locomotion",
+      "condition": "A",
       "skill_acceptance": true,
       "duration_s": 12.0,
       "requested_duration_s": 12.0,
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "video_scope": "Trial32 numerical evaluation only; no Trial32 video published."
     },
     {
       "motion_id": "turn_right",
       "label": "右旋回",
       "expert_id": "locomotion",
+      "condition": "A",
       "skill_acceptance": true,
       "duration_s": 12.0,
       "requested_duration_s": 12.0,
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "video_scope": "Trial32 numerical evaluation only; no Trial32 video published."
     },
     {
       "motion_id": "prone",
       "label": "伏せ・四足復帰",
       "expert_id": "prone",
+      "condition": "A",
       "skill_acceptance": false,
-      "duration_s": 24.0,
+      "duration_s": 11.74,
       "requested_duration_s": 24.0,
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "video_scope": "Trial32 numerical evaluation through recorded terminal; no Trial32 video published."
     },
     {
       "motion_id": "wave",
       "label": "高い挨拶・四足復帰",
       "expert_id": "wave",
+      "condition": "A",
       "skill_acceptance": false,
       "duration_s": 36.0,
       "requested_duration_s": 36.0,
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "video_scope": "Trial32 numerical evaluation through recorded terminal; no Trial32 video published."
     },
     {
       "motion_id": "sit",
       "label": "お座り・四足復帰",
       "expert_id": "sit",
+      "condition": "A",
       "skill_acceptance": true,
       "duration_s": 32.0,
       "requested_duration_s": 32.0,
-      "video_url": "media/l26-a-nine-motions.mp4",
-      "report_url": "l26-evaluation.md",
-      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
+      "video_url": null,
+      "report_url": "l27-evaluation.md",
+      "video_scope": "Retained model, zero new updates; Trial32 numerical evaluation only, no published video."
     }
   ]
 }

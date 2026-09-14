@@ -26,6 +26,7 @@
   "docs/l24-evaluation.md",
   "docs/l25-evaluation.md",
   "docs/l26-evaluation.md",
+  "docs/l27-evaluation.md",
   "docs/media/archive-dev250-left.gif",
   "docs/media/archive-dev250-left.mp4",
   "docs/media/archive-joystick2197-left.gif",
@@ -106,6 +107,7 @@
   "docs/media/l26-b-nine-motions.mp4",
   "docs/media/l26-c-nine-motions.gif",
   "docs/media/l26-c-nine-motions.mp4",
+  "docs/media/l27-checkpoint-comparison.png",
   "docs/media/render-receipt.json",
   "docs/next-loop-spec.md",
   "docs/pla-parts-mass.md",
@@ -198,6 +200,7 @@
   "evidence/l25-video-publication.json",
   "evidence/l26-evaluation.json",
   "evidence/l26-video-publication.json",
+  "evidence/l27-evaluation.json",
   "evidence/learning-history.json",
   "evidence/media-publication.json",
   "evidence/pla-parts-mass.json",
@@ -225,5 +228,6 @@
   "tools/check_publication.py",
   "tools/evaluate_trace.py",
   "tools/make_dashboard.py",
+  "tools/render_checkpoint_comparison.py",
   "tools/render_motion_history.py"
 ]

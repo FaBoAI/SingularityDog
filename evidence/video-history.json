@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
   "as_of": "2026-09-14",
-  "recent_series_count": 31,
+  "recent_series_count": 32,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -1368,7 +1368,7 @@
       "presentation_scope": "14seconds at original speed. Six directions12s; prone up to12s or earlier terminal; wave/sit first14s. Finished cells hold last color frame. Full evaluation outcomes include B/C prone early termination and C wave23.18s, which is beyond the displayed excerpt."
     }
   ],
-  "count_scope": "31試行、選択した実録画・比較MP4は47本。最新掲載は第31回A/B/C比較3本。GIF、CAD画像、実測チャート再描画MP4の1本は別枠。過去の動画・履歴は維持。",
+  "count_scope": "32試行、選択した実録画・比較MP4は47本。最新掲載は第31回A/B/C比較3本。第32回は数値・比較図のみで動画未掲載。GIF、CAD画像、実測チャート再描画MP4の1本は別枠。過去の動画・履歴は維持。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
@@ -1383,7 +1383,7 @@
     "training_started": false,
     "counted_as_completed_loop": false,
     "default_new_training_updates": 500,
-    "scope": "第31回の伏せ下降時の位置ずれと、挨拶の挙上前の支持移動を分けて検証する。B/Cの一律左右差抑制・支持移動縮小は現状採用せず、保持・復帰を守る比較を検討。次の学習は未開始。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。"
+    "scope": "第32回の保存モデル比較を踏まえ、伏せの下降・起立と挨拶の挙上前後の支持移動を分けて検討し、完走・復帰を守る。次の学習は未開始。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。"
   },
   "selected_actual_recording_count": 47,
   "separate_measured_chart_mp4_count": 1,
@@ -1453,5 +1453,25 @@
     "B",
     "C"
   ],
-  "latest_unpublished_video_conditions": []
+  "latest_unpublished_video_conditions": [
+    "A",
+    "B"
+  ],
+  "latest_numerical_evaluation": {
+    "loop": "L27",
+    "series_order": 32,
+    "conditions": [
+      "A",
+      "B"
+    ],
+    "status": "COMPLETED",
+    "new_main_updates": 1000,
+    "final_skill_pass_count_per_condition": 7,
+    "evaluated_motion_count_per_condition": 9,
+    "video_files_retrieved": 0,
+    "new_published_recording_count": 0,
+    "video_visual_review_completed": false,
+    "evaluation_document": "docs/l27-evaluation.md",
+    "evaluation_evidence": "evidence/l27-evaluation.json"
+  }
 }

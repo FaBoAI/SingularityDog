@@ -14,6 +14,32 @@ from render_motion_history import validate
 
 
 class MotionPublicationTests(unittest.TestCase):
+    def distinct_measured_media_fixture(self, root):
+        (root / 'docs/media').mkdir(parents=True)
+        (root / 'evidence').mkdir()
+        (root / 'tools').mkdir()
+        bindings = []
+        for stem in ('legacy', 'new'):
+            data = root / 'evidence' / (stem + '.json')
+            generator = root / 'tools' / (stem + '.py')
+            data.write_text(json.dumps({'series': stem}))
+            generator.write_text('# synthetic ' + stem + ' generator\n')
+            bindings.append({'measured_data': {'path': data.relative_to(root).as_posix(), 'sha256': digest(data)},
+                             'generator': {'path': generator.relative_to(root).as_posix(), 'sha256': digest(generator)}})
+        files = {}
+        for index, stem in enumerate(('legacy', 'new')):
+            media = root / 'docs/media' / (stem + '.png')
+            media.write_bytes(b'\x89PNG\r\n\x1a\n' + ('synthetic-' + stem).encode())
+            files[media.relative_to(root).as_posix()] = {
+                'sha256': digest(media), 'bytes': media.stat().st_size,
+                'reviewed_as_own_measured_visualization': True,
+                **(bindings[index] if index else {})}
+        registry = {'schema': 'singularitydog.reviewed-media.v1', 'vendor_geometry_used': False,
+                    **bindings[0], 'files': files}
+        path = root / 'evidence/media-publication.json'
+        path.write_text(json.dumps(registry))
+        return path, registry
+
     def recording_fixture(self, root):
         (root / 'docs/media').mkdir(parents=True)
         (root / 'evidence').mkdir()
@@ -93,6 +119,40 @@ class MotionPublicationTests(unittest.TestCase):
             (root / 'docs/media/selected.mp4').write_bytes(b'\x00\x00\x00\x18ftypchanged')
             with self.assertRaisesRegex(ValueError, 'changed after approval'):
                 check(root, ['docs/media/preview.gif'])
+
+    def test_distinct_measured_media_sources_preserve_global_defaults(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            _, registry = self.distinct_measured_media_fixture(root)
+            self.assertEqual(check(root, list(registry['files'])), [])
+            self.assertNotIn('measured_data', registry['files']['docs/media/legacy.png'])
+            self.assertNotEqual(registry['measured_data'], registry['files']['docs/media/new.png']['measured_data'])
+
+    def test_per_file_measured_media_source_or_generator_tampering_rejected(self):
+        for key in ('measured_data', 'generator'):
+            with self.subTest(binding=key), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _, registry = self.distinct_measured_media_fixture(root)
+                binding = registry['files']['docs/media/new.png'][key]
+                (root / binding['path']).write_text('changed after review\n')
+                with self.assertRaisesRegex(ValueError, 'Per-file media source or generator changed'):
+                    check(root, ['docs/media/new.png'])
+
+    def test_per_file_measured_media_requires_complete_safe_pair(self):
+        for variant in ('measured_data', 'generator', 'parent_path', 'absolute_path', 'noncanonical_path', 'backslash_path'):
+            with self.subTest(variant=variant), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                path, registry = self.distinct_measured_media_fixture(root)
+                entry = registry['files']['docs/media/new.png']
+                if variant in ('measured_data', 'generator'):
+                    del entry[variant]
+                else:
+                    entry['measured_data']['path'] = {
+                        'parent_path': '../new.json', 'absolute_path': str(root / 'evidence/new.json'),
+                        'noncanonical_path': 'evidence/./new.json', 'backslash_path': 'evidence\\new.json'}[variant]
+                path.write_text(json.dumps(registry))
+                with self.assertRaises(ValueError):
+                    check(root, ['docs/media/new.png'])
 
     def test_selected_recording_scope_and_source_tampering_rejected(self):
         for variant in ('authorization', 'approval', 'source_hash', 'original_hash', 'source_kind',

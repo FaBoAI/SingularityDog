@@ -26,6 +26,22 @@
       "sha256": "05b4efd69eb9ddbfeb8ef7da7933e1dea70760dd4f52b818d4cacaa48c5f3b96",
       "bytes": 167508,
       "reviewed_as_own_measured_visualization": true
+    },
+    "docs/media/l27-checkpoint-comparison.png": {
+      "sha256": "86375cb5bcbe4ddbf24c8dc6ce40ec4939e274ba9085478f338320d8da0934cf",
+      "bytes": 175608,
+      "reviewed_as_own_measured_visualization": true,
+      "measured_data": {
+        "path": "evidence/l27-evaluation.json",
+        "sha256": "0c8da3d5e79b38a4fd0e68ce38852d636a1f7f4e29f2a3ef0941610517ccaa10"
+      },
+      "generator": {
+        "path": "tools/render_checkpoint_comparison.py",
+        "sha256": "39d406f9966fe584e5e8c2bcd647e85e78d38f18051482db420c04f50d1ae1bb"
+      },
+      "representation": "STATIC_MEASURED_CHECKPOINT_CHART_NOT_SIMULATOR_FOOTAGE",
+      "review": "16 source-bound checkpoint rows; compared A/B XY values and early-stop durations. PNG visually checked for legible axes, different scales, target line and duration annotations. No source recording, photo or robot asset used."
     }
-  }
+  },
+  "default_bindings_scope": "Root measured_data and generator apply to the three forward-history assets; Trial32 chart has explicit per-file bindings."
 }

@@ -1,0 +1,3893 @@
+{
+  "schema": "singularitydog.l27-evaluation.v1",
+  "loop_id": "L27",
+  "trial_number": 32,
+  "as_of": "2026-09-14",
+  "completed_at_jst": "2026-09-14T15:11:45+09:00",
+  "execution_status": "COMPLETED",
+  "summary": "A/B both 7 of 9 registered skill evaluations pass. No new passing skill; prone and wave remain below stationary targets.",
+  "training": {
+    "conditions": [
+      "A",
+      "B"
+    ],
+    "new_updates_per_condition": 500,
+    "new_updates_by_expert_per_condition": {
+      "prone": 250,
+      "wave": 250,
+      "locomotion": 0,
+      "sit": 0
+    },
+    "total_new_main_updates": 1000,
+    "separate_smoke_updates_excluded": 8,
+    "total_main_transitions": 8192000,
+    "seed": 42,
+    "parallel_environments": 256,
+    "steps_per_update": 32,
+    "independent_experts_per_condition": 4,
+    "single_unified_actor": false,
+    "parents": {
+      "prone": "Trial30 C / L25 C",
+      "wave": "Trial30 A / L25 A",
+      "locomotion": "Trial28 A / L23 A retained",
+      "sit": "Earlier retained policy"
+    },
+    "same_parent_models_and_seed": true,
+    "continued_from_trial31_learned_model": false,
+    "initialization": "Actor mean inherited; fresh critic, optimizer and registered exploration."
+  },
+  "conditions": {
+    "A": {
+      "common_change": "Reward cost for distance from the frozen parent actor on the same policy observation",
+      "additional_cost": "None"
+    },
+    "B": {
+      "common_change": "Same parent-actor reward cost as A",
+      "additional_cost": "Prone descent XY/yaw cost; wave support-shift XY-velocity cost"
+    }
+  },
+  "evaluation": {
+    "motion_count_per_condition": 9,
+    "recorded_final_cases": 18,
+    "recorded_parent_and_final_cases": 36,
+    "post_training_intermediate_cases": 8,
+    "checkpoint_comparison_rows": 16,
+    "trained_checkpoint_evaluations": 12,
+    "final_pass_count_by_condition": {
+      "A": 7,
+      "B": 7
+    },
+    "baseline_pass_count_by_condition": {
+      "A": 7,
+      "B": 7
+    },
+    "new_passing_motion_count": 0,
+    "passing_motion_ids": [
+      "forward",
+      "backward",
+      "left",
+      "right",
+      "turn_left",
+      "turn_right",
+      "sit"
+    ],
+    "failing_motion_ids": [
+      "prone",
+      "wave"
+    ],
+    "all_requested_intervals_completed": false,
+    "all_nine_pass": false,
+    "skill_acceptance": false,
+    "hardware_deployment_allowed": false,
+    "acceptance_field": "skill_acceptance from the registered current evaluator, not legacy walking_acceptance",
+    "legacy_walking_acceptance_note": "The legacy evaluator assigns walking_acceptance=false unconditionally. Current skill_acceptance is all_development_targets_met AND all additional_400hz_gates; the legacy field is not an acceptance test."
+  },
+  "checkpoint_evaluation_protocol": {
+    "checkpoint_updates": [
+      100,
+      200,
+      250
+    ],
+    "evaluated_after_all_training250": true,
+    "additional_ppo_updates": 0,
+    "requested_duration_s": {
+      "prone": 24,
+      "wave": 36
+    },
+    "stationary_xy_limit_m": 0.05,
+    "stationary_heading_limit_deg": 5,
+    "all_12_trained_checkpoint_skill_acceptance": false,
+    "single_seed_comparison": true
+  },
+  "physical_model": {
+    "id": "D17",
+    "registered_total_mass_kg": 8.139600480211335,
+    "new_print_reinforcement_applied": false,
+    "drive_hz": 400,
+    "policy_hz": 50
+  },
+  "checkpoint_comparison": [
+    {
+      "id": "T32_A_prone_preflight",
+      "branch": "A",
+      "expert": "prone",
+      "stage": "preflight",
+      "duration_s": 24.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1200,
+      "requested_policy_steps": 1200,
+      "checkpoint_updates": 0,
+      "checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4",
+      "parent_checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4",
+      "maximum_xy_distance_m": 0.05751858508331434,
+      "maximum_heading_change_deg": 21.38010519030432,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 5.676032066345215,
+      "maximum_applied_effort_Nm": 3.864065647125244,
+      "maximum_exposure_h": 0.908998134389988,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_prone_holds": true,
+        "all_four_foot_return_holds": true,
+        "exposure_continuous_between_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "no_reset_between_cycles": true,
+        "precompute_joint_speed_within_limit": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {
+        "maximum_heading_change": false,
+        "maximum_xy_distance": false,
+        "return_hold_tilt": true,
+        "return_hold_height": true
+      },
+      "failed_gates": [],
+      "failed_stationary_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance"
+      ],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "longest_original_qualified_hold_s": 2.0,
+          "height_range_m": [
+            0.2443920224905014,
+            0.24840526282787323
+          ],
+          "maximum_tilt_deg": 3.432896102947404
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "longest_original_qualified_hold_s": 2.0,
+          "height_range_m": [
+            0.24997559189796448,
+            0.25158265233039856
+          ],
+          "maximum_tilt_deg": 1.62780182104562
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 5.0,
+          "return_hold_height_error_m": 0.015,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "first post-physics sample; actual fixed episode anchor separately logged"
+        },
+        "success_criteria": {
+          "prone_support_continuous_s": 2.0,
+          "skid_vertical_load_fraction_min": 0.5,
+          "prone_height_error_m_max": 0.02,
+          "tilt_rad_max": 0.17453292519943295,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "complete_cycles": 2,
+          "exposure_continuous_between_cycles": true
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          3.0,
+          2.0,
+          3.0,
+          2.0
+        ],
+        "differential_gain": 1.0,
+        "support_shift_vector_m": null
+      },
+      "own_summary_sha256": "4e2684f365c6e8683ab49185454681f8f09543ddeede1b12d832ac4e44d9da3f",
+      "own_raw_trace_sha256": "dbd43b1a2fa8a927d2fcb6ad11277401fcdc29b9912442441de7f6342e1aa35b",
+      "raw_recalculated": false
+    },
+    {
+      "id": "T32_A_prone_intermediate_100",
+      "branch": "A",
+      "expert": "prone",
+      "stage": "intermediate_100",
+      "duration_s": 24.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1200,
+      "requested_policy_steps": 1200,
+      "checkpoint_updates": 100,
+      "checkpoint_sha256": "73788273a06b7c129da32aaf170455cf5b5f7c10c125e1913c5335fa7beefe8f",
+      "parent_checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4",
+      "maximum_xy_distance_m": 0.1021396990406205,
+      "maximum_heading_change_deg": 4.22673679045129,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.466153144836426,
+      "maximum_applied_effort_Nm": 3.884631395339966,
+      "maximum_exposure_h": 0.8846111569169576,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_prone_holds": true,
+        "all_four_foot_return_holds": true,
+        "exposure_continuous_between_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "no_reset_between_cycles": true,
+        "precompute_joint_speed_within_limit": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "return_hold_tilt": true,
+        "return_hold_height": true
+      },
+      "failed_gates": [],
+      "failed_stationary_gates": [
+        "maximum_xy_distance"
+      ],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.2446291148662567,
+            0.24845996499061584
+          ],
+          "maximum_tilt_deg": 3.3878082946985058,
+          "longest_original_qualified_hold_s": 2.0
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.2497940957546234,
+            0.2513418197631836
+          ],
+          "maximum_tilt_deg": 1.6464750023277122,
+          "longest_original_qualified_hold_s": 2.0
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 5.0,
+          "return_hold_height_error_m": 0.015,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "first post-physics sample; actual fixed episode anchor separately logged"
+        },
+        "success_criteria": {
+          "prone_support_continuous_s": 2.0,
+          "skid_vertical_load_fraction_min": 0.5,
+          "prone_height_error_m_max": 0.02,
+          "tilt_rad_max": 0.17453292519943295,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "complete_cycles": 2,
+          "exposure_continuous_between_cycles": true
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          3.0,
+          2.0,
+          3.0,
+          2.0
+        ],
+        "differential_gain": 1.0,
+        "support_shift_vector_m": null
+      },
+      "own_summary_sha256": "9cf36f1d40fab9ae12cd63e3616b582fe77b88cec1c847683dd0dc4de5da6f74",
+      "own_raw_trace_sha256": "76f29b65c8f1e8480b2f03e9a07546df96574eb2e2187bf2db40bd4d1a0945f3",
+      "raw_recalculated": true
+    },
+    {
+      "id": "T32_A_prone_intermediate_200",
+      "branch": "A",
+      "expert": "prone",
+      "stage": "intermediate_200",
+      "duration_s": 24.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1200,
+      "requested_policy_steps": 1200,
+      "checkpoint_updates": 200,
+      "checkpoint_sha256": "e1649e6b9f18f3ce2e3646e6690f57a0383e0afbd20793468477b7a949a6a7af",
+      "parent_checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4",
+      "maximum_xy_distance_m": 0.08023814331420806,
+      "maximum_heading_change_deg": 20.066858074332803,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 5.605112552642822,
+      "maximum_applied_effort_Nm": 3.9010703563690186,
+      "maximum_exposure_h": 0.9180039850833027,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_prone_holds": true,
+        "all_four_foot_return_holds": true,
+        "exposure_continuous_between_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "no_reset_between_cycles": true,
+        "precompute_joint_speed_within_limit": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {
+        "maximum_heading_change": false,
+        "maximum_xy_distance": false,
+        "return_hold_tilt": false,
+        "return_hold_height": false
+      },
+      "failed_gates": [],
+      "failed_stationary_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "return_hold_tilt",
+        "return_hold_height"
+      ],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.2396659255027771,
+            0.24544695019721985
+          ],
+          "maximum_tilt_deg": 5.069713662120089,
+          "longest_original_qualified_hold_s": 2.0
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.2502101957798004,
+            0.25115445256233215
+          ],
+          "maximum_tilt_deg": 1.5683845342651688,
+          "longest_original_qualified_hold_s": 2.0
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 5.0,
+          "return_hold_height_error_m": 0.015,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "first post-physics sample; actual fixed episode anchor separately logged"
+        },
+        "success_criteria": {
+          "prone_support_continuous_s": 2.0,
+          "skid_vertical_load_fraction_min": 0.5,
+          "prone_height_error_m_max": 0.02,
+          "tilt_rad_max": 0.17453292519943295,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "complete_cycles": 2,
+          "exposure_continuous_between_cycles": true
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          3.0,
+          2.0,
+          3.0,
+          2.0
+        ],
+        "differential_gain": 1.0,
+        "support_shift_vector_m": null
+      },
+      "own_summary_sha256": "cd994b1a09b4b3687339fadb009cda1d1658b9f077a1e4a8b77c0b5d18425e1b",
+      "own_raw_trace_sha256": "7643da6aef4b69e080d72f5d52237f7b4dc9c7c8445cb9ce02a969b2da494a5c",
+      "raw_recalculated": true
+    },
+    {
+      "id": "T32_A_prone_evaluate",
+      "branch": "A",
+      "expert": "prone",
+      "stage": "evaluate",
+      "duration_s": 11.74,
+      "outcome": "FIRST_TERMINAL_STOP",
+      "completed_policy_steps": 587,
+      "requested_policy_steps": 1200,
+      "checkpoint_updates": 250,
+      "checkpoint_sha256": "9337e7ee04c7d09e5ba421cdf55a9cf2f73fee0c04308c706aab91f67b8ef780",
+      "parent_checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4",
+      "maximum_xy_distance_m": 0.14639345077413463,
+      "maximum_heading_change_deg": 11.465209693515085,
+      "forbidden_contact_sample_count": 4,
+      "maximum_actual_joint_speed_rad_s": 3.5477514266967773,
+      "maximum_applied_effort_Nm": 3.9109878540039062,
+      "maximum_exposure_h": 0.4209342267460803,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": false,
+        "no_forbidden_contact_samples": false,
+        "actual_joint_speed_within_limit": true,
+        "all_prone_holds": false,
+        "all_four_foot_return_holds": false,
+        "exposure_continuous_between_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "no_reset_between_cycles": true,
+        "precompute_joint_speed_within_limit": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {
+        "maximum_heading_change": false,
+        "maximum_xy_distance": false,
+        "return_hold_tilt": false,
+        "return_hold_height": false
+      },
+      "failed_gates": [
+        "requested_interval_completed",
+        "no_forbidden_contact_samples",
+        "all_prone_holds",
+        "all_four_foot_return_holds"
+      ],
+      "failed_stationary_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "return_hold_tilt",
+        "return_hold_height"
+      ],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "available_duration_s": 1.76,
+          "height_range_m": [
+            0.21405160427093506,
+            0.24094176292419434
+          ],
+          "maximum_tilt_deg": 14.081377392461418,
+          "longest_original_qualified_hold_s": 1.2075
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "available_duration_s": 0.0,
+          "height_range_m": null,
+          "maximum_tilt_deg": null,
+          "longest_original_qualified_hold_s": 0.0
+        }
+      ],
+      "first_forbidden_contact": {
+        "sample_index_zero_based": 4692,
+        "time_s": 11.7325,
+        "policy_step": 587,
+        "substep": 5,
+        "cycle_index_zero_based": 0,
+        "phase": 4,
+        "bodies_in_sensor_order": [
+          {
+            "sensor_index": 3,
+            "body": "FL_calf_link",
+            "force_norm_N": 17.72449302673356
+          }
+        ],
+        "first_body_in_sensor_order": "FL_calf_link"
+      },
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": 0.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 5.0,
+          "return_hold_height_error_m": 0.015,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "first post-physics sample; actual fixed episode anchor separately logged"
+        },
+        "success_criteria": {
+          "prone_support_continuous_s": 2.0,
+          "skid_vertical_load_fraction_min": 0.5,
+          "prone_height_error_m_max": 0.02,
+          "tilt_rad_max": 0.17453292519943295,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "complete_cycles": 2,
+          "exposure_continuous_between_cycles": true
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          3.0,
+          2.0,
+          3.0,
+          2.0
+        ],
+        "differential_gain": 1.0,
+        "support_shift_vector_m": null
+      },
+      "own_summary_sha256": "45a8a02eecd6a20553192f2dbdb709ed62dfd9fecc2857bc34dc206be0d98f12",
+      "own_raw_trace_sha256": "c11c55ccbf4eeb9e6cdf55b211bb9d31bba00f319bf635f81219a548ff34c024",
+      "raw_recalculated": true
+    },
+    {
+      "id": "T32_A_wave_preflight",
+      "branch": "A",
+      "expert": "wave",
+      "stage": "preflight",
+      "duration_s": 36.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1800,
+      "requested_policy_steps": 1800,
+      "checkpoint_updates": 0,
+      "checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b",
+      "parent_checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b",
+      "maximum_xy_distance_m": 0.0623897381269785,
+      "maximum_heading_change_deg": 4.677385144510562,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.1172072887420654,
+      "maximum_applied_effort_Nm": 2.0026955604553223,
+      "maximum_exposure_h": 0.4835393741851319,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {},
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "failed_stationary_gates": [],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "longest_original_qualified_hold_s": 2.0,
+          "height_range_m": null,
+          "maximum_tilt_deg": null
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "longest_original_qualified_hold_s": 2.0,
+          "height_range_m": null,
+          "maximum_tilt_deg": null
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15332493579387665,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.1545031706094742,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 10.0,
+          "return_hold_height_error_m": 0.025,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "fixed original episode anchor, including first physics interval motion"
+        },
+        "success_criteria": {
+          "complete_cycles": 2,
+          "wave_phase_s": 4.0,
+          "wave_round_trips_per_cycle": 2,
+          "wave_excursion_m_min": 0.02,
+          "waving_paw_clearance_m_min": 0.02,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "tilt_rad_max": 0.17453292519943295,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "exposure_continuous_between_cycles": true,
+          "waving_paw_high_clearance_m_min": 0.15
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          5.0,
+          4.0,
+          5.0,
+          2.0
+        ],
+        "differential_gain": null,
+        "support_shift_vector_m": [
+          -0.022499999999999996,
+          -0.03897114317029974
+        ]
+      },
+      "own_summary_sha256": "7ba0dc2475528ce765f94bdafb60603b242038a0df63ab8c49c5eabe95d2ac31",
+      "own_raw_trace_sha256": "3e51981c5b6d2cd407f1bb03c73d03ed6b4330bb4c56a559850fd27c718f93a0",
+      "raw_recalculated": false
+    },
+    {
+      "id": "T32_A_wave_intermediate_100",
+      "branch": "A",
+      "expert": "wave",
+      "stage": "intermediate_100",
+      "duration_s": 36.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1800,
+      "requested_policy_steps": 1800,
+      "checkpoint_updates": 100,
+      "checkpoint_sha256": "bec2a648c285409203525b6673fadb56badcc357233477e97bd3728ec935c1bf",
+      "parent_checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b",
+      "maximum_xy_distance_m": 0.062249535448033855,
+      "maximum_heading_change_deg": 4.622282316947523,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.121204137802124,
+      "maximum_applied_effort_Nm": 2.014505624771118,
+      "maximum_exposure_h": 0.4926843085296242,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {},
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "failed_stationary_gates": [],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.25524842739105225,
+            0.258146196603775
+          ],
+          "maximum_tilt_deg": 2.1374094723813197,
+          "longest_original_qualified_hold_s": 2.0
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.25506138801574707,
+            0.2582109272480011
+          ],
+          "maximum_tilt_deg": 2.3072074243737677,
+          "longest_original_qualified_hold_s": 2.0
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15315615034103394,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15425914919376374,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 10.0,
+          "return_hold_height_error_m": 0.025,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "fixed original episode anchor, including first physics interval motion"
+        },
+        "success_criteria": {
+          "complete_cycles": 2,
+          "wave_phase_s": 4.0,
+          "wave_round_trips_per_cycle": 2,
+          "wave_excursion_m_min": 0.02,
+          "waving_paw_clearance_m_min": 0.02,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "tilt_rad_max": 0.17453292519943295,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "exposure_continuous_between_cycles": true,
+          "waving_paw_high_clearance_m_min": 0.15
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          5.0,
+          4.0,
+          5.0,
+          2.0
+        ],
+        "differential_gain": null,
+        "support_shift_vector_m": [
+          -0.022499999999999996,
+          -0.03897114317029974
+        ]
+      },
+      "own_summary_sha256": "1a2d37d0f96aef9b22d5f062c2a1888115a6e18157849b0935b9ee2c1a130785",
+      "own_raw_trace_sha256": "bb04cfca41fed92e7c83dd75ecb0c77a583d7fb1dcf9ec6e1e761b2fc6f7bba9",
+      "raw_recalculated": true
+    },
+    {
+      "id": "T32_A_wave_intermediate_200",
+      "branch": "A",
+      "expert": "wave",
+      "stage": "intermediate_200",
+      "duration_s": 36.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1800,
+      "requested_policy_steps": 1800,
+      "checkpoint_updates": 200,
+      "checkpoint_sha256": "dab539338fd9c90e5ed5799b55ab37becdee5448b8887e72301fd64d60093b22",
+      "parent_checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b",
+      "maximum_xy_distance_m": 0.06220702594163975,
+      "maximum_heading_change_deg": 4.550134626393051,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.101454257965088,
+      "maximum_applied_effort_Nm": 1.9892137050628662,
+      "maximum_exposure_h": 0.46527789297405514,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {},
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "failed_stationary_gates": [],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.2551959156990051,
+            0.25793713331222534
+          ],
+          "maximum_tilt_deg": 2.248929899959322,
+          "longest_original_qualified_hold_s": 2.0
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.2549738883972168,
+            0.2579994201660156
+          ],
+          "maximum_tilt_deg": 2.4244766464126037,
+          "longest_original_qualified_hold_s": 2.0
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15315425789356232,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15408085680007935,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 10.0,
+          "return_hold_height_error_m": 0.025,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "fixed original episode anchor, including first physics interval motion"
+        },
+        "success_criteria": {
+          "complete_cycles": 2,
+          "wave_phase_s": 4.0,
+          "wave_round_trips_per_cycle": 2,
+          "wave_excursion_m_min": 0.02,
+          "waving_paw_clearance_m_min": 0.02,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "tilt_rad_max": 0.17453292519943295,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "exposure_continuous_between_cycles": true,
+          "waving_paw_high_clearance_m_min": 0.15
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          5.0,
+          4.0,
+          5.0,
+          2.0
+        ],
+        "differential_gain": null,
+        "support_shift_vector_m": [
+          -0.022499999999999996,
+          -0.03897114317029974
+        ]
+      },
+      "own_summary_sha256": "a968fa5f1490e80cc779cdb17585c336f80793d6955981de14015ad47e8de972",
+      "own_raw_trace_sha256": "ebd2a762b4798987f841991a12ca292be5427b4eb6cb2bbcdffa8e0b8776b58f",
+      "raw_recalculated": true
+    },
+    {
+      "id": "T32_A_wave_evaluate",
+      "branch": "A",
+      "expert": "wave",
+      "stage": "evaluate",
+      "duration_s": 36.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1800,
+      "requested_policy_steps": 1800,
+      "checkpoint_updates": 250,
+      "checkpoint_sha256": "8c5ba1f92863373b9c8d1c886f2028f7b735b605927f80d06ca825bd8a84e7ec",
+      "parent_checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b",
+      "maximum_xy_distance_m": 0.062078284446020114,
+      "maximum_heading_change_deg": 4.737489087083342,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.0576014518737793,
+      "maximum_applied_effort_Nm": 1.9936619997024536,
+      "maximum_exposure_h": 0.47126241045767897,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {},
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "failed_stationary_gates": [],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.25514861941337585,
+            0.25786805152893066
+          ],
+          "maximum_tilt_deg": 2.272544311900653,
+          "longest_original_qualified_hold_s": 2.0
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.2549208104610443,
+            0.25792112946510315
+          ],
+          "maximum_tilt_deg": 2.435209013447409,
+          "longest_original_qualified_hold_s": 2.0
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15288857018947602,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15373166298866273,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 10.0,
+          "return_hold_height_error_m": 0.025,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "fixed original episode anchor, including first physics interval motion"
+        },
+        "success_criteria": {
+          "complete_cycles": 2,
+          "wave_phase_s": 4.0,
+          "wave_round_trips_per_cycle": 2,
+          "wave_excursion_m_min": 0.02,
+          "waving_paw_clearance_m_min": 0.02,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "tilt_rad_max": 0.17453292519943295,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "exposure_continuous_between_cycles": true,
+          "waving_paw_high_clearance_m_min": 0.15
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          5.0,
+          4.0,
+          5.0,
+          2.0
+        ],
+        "differential_gain": null,
+        "support_shift_vector_m": [
+          -0.022499999999999996,
+          -0.03897114317029974
+        ]
+      },
+      "own_summary_sha256": "12f9906e56469039512fd5fa3b02edea0d0294316519aff9703b32f039422117",
+      "own_raw_trace_sha256": "4d0da4afbe0bb4b644507e71e6adba07615437249513b32d0a5d7c540e60de07",
+      "raw_recalculated": true
+    },
+    {
+      "id": "T32_B_prone_preflight",
+      "branch": "B",
+      "expert": "prone",
+      "stage": "preflight",
+      "duration_s": 24.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1200,
+      "requested_policy_steps": 1200,
+      "checkpoint_updates": 0,
+      "checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4",
+      "parent_checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4",
+      "maximum_xy_distance_m": 0.05751858508331434,
+      "maximum_heading_change_deg": 21.38010519030432,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 5.676032066345215,
+      "maximum_applied_effort_Nm": 3.864065647125244,
+      "maximum_exposure_h": 0.908998134389988,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_prone_holds": true,
+        "all_four_foot_return_holds": true,
+        "exposure_continuous_between_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "no_reset_between_cycles": true,
+        "precompute_joint_speed_within_limit": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {
+        "maximum_heading_change": false,
+        "maximum_xy_distance": false,
+        "return_hold_tilt": true,
+        "return_hold_height": true
+      },
+      "failed_gates": [],
+      "failed_stationary_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance"
+      ],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "longest_original_qualified_hold_s": 2.0,
+          "height_range_m": [
+            0.2443920224905014,
+            0.24840526282787323
+          ],
+          "maximum_tilt_deg": 3.432896102947404
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "longest_original_qualified_hold_s": 2.0,
+          "height_range_m": [
+            0.24997559189796448,
+            0.25158265233039856
+          ],
+          "maximum_tilt_deg": 1.62780182104562
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 5.0,
+          "return_hold_height_error_m": 0.015,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "first post-physics sample; actual fixed episode anchor separately logged"
+        },
+        "success_criteria": {
+          "prone_support_continuous_s": 2.0,
+          "skid_vertical_load_fraction_min": 0.5,
+          "prone_height_error_m_max": 0.02,
+          "tilt_rad_max": 0.17453292519943295,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "complete_cycles": 2,
+          "exposure_continuous_between_cycles": true
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          3.0,
+          2.0,
+          3.0,
+          2.0
+        ],
+        "differential_gain": 1.0,
+        "support_shift_vector_m": null
+      },
+      "own_summary_sha256": "7d35d1901438b2714d0ed919666aebe86c3f5cb66cc63bbc4ffe912c7e1c6351",
+      "own_raw_trace_sha256": "dbd43b1a2fa8a927d2fcb6ad11277401fcdc29b9912442441de7f6342e1aa35b",
+      "raw_recalculated": false
+    },
+    {
+      "id": "T32_B_prone_intermediate_100",
+      "branch": "B",
+      "expert": "prone",
+      "stage": "intermediate_100",
+      "duration_s": 24.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1200,
+      "requested_policy_steps": 1200,
+      "checkpoint_updates": 100,
+      "checkpoint_sha256": "9677ea789d588d0ce909efbab98370e349bd380525d9bad7e0d162a6cd952fea",
+      "parent_checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4",
+      "maximum_xy_distance_m": 0.06952929337949688,
+      "maximum_heading_change_deg": 14.658563014932863,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 4.305714130401611,
+      "maximum_applied_effort_Nm": 3.8533661365509033,
+      "maximum_exposure_h": 0.9136089855230288,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_prone_holds": true,
+        "all_four_foot_return_holds": true,
+        "exposure_continuous_between_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "no_reset_between_cycles": true,
+        "precompute_joint_speed_within_limit": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {
+        "maximum_heading_change": false,
+        "maximum_xy_distance": false,
+        "return_hold_tilt": false,
+        "return_hold_height": false
+      },
+      "failed_gates": [],
+      "failed_stationary_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "return_hold_tilt",
+        "return_hold_height"
+      ],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.23874008655548096,
+            0.24522434175014496
+          ],
+          "maximum_tilt_deg": 5.201684201420081,
+          "longest_original_qualified_hold_s": 2.0
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.25003623962402344,
+            0.25162631273269653
+          ],
+          "maximum_tilt_deg": 1.6864809842385777,
+          "longest_original_qualified_hold_s": 2.0
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 5.0,
+          "return_hold_height_error_m": 0.015,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "first post-physics sample; actual fixed episode anchor separately logged"
+        },
+        "success_criteria": {
+          "prone_support_continuous_s": 2.0,
+          "skid_vertical_load_fraction_min": 0.5,
+          "prone_height_error_m_max": 0.02,
+          "tilt_rad_max": 0.17453292519943295,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "complete_cycles": 2,
+          "exposure_continuous_between_cycles": true
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          3.0,
+          2.0,
+          3.0,
+          2.0
+        ],
+        "differential_gain": 1.0,
+        "support_shift_vector_m": null
+      },
+      "own_summary_sha256": "b9842bb2c4a532aca6ef78ebc896c09f350c659053c9e6d0e60ff461d02a0f33",
+      "own_raw_trace_sha256": "bcf477da03ed8c8809f8a679f559fedcc234b5adc1e873c6ca64704c60f49d27",
+      "raw_recalculated": true
+    },
+    {
+      "id": "T32_B_prone_intermediate_200",
+      "branch": "B",
+      "expert": "prone",
+      "stage": "intermediate_200",
+      "duration_s": 10.64,
+      "outcome": "FIRST_TERMINAL_STOP",
+      "completed_policy_steps": 532,
+      "requested_policy_steps": 1200,
+      "checkpoint_updates": 200,
+      "checkpoint_sha256": "22879bdbb66e54484a378ece90724de6f58c5c1bc85dc1d52c4935260087c64b",
+      "parent_checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4",
+      "maximum_xy_distance_m": 0.16443252349676846,
+      "maximum_heading_change_deg": 14.533430635690216,
+      "forbidden_contact_sample_count": 3,
+      "maximum_actual_joint_speed_rad_s": 4.044541835784912,
+      "maximum_applied_effort_Nm": 3.869753360748291,
+      "maximum_exposure_h": 0.3856767274314344,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": false,
+        "no_forbidden_contact_samples": false,
+        "actual_joint_speed_within_limit": true,
+        "all_prone_holds": false,
+        "all_four_foot_return_holds": false,
+        "exposure_continuous_between_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "no_reset_between_cycles": true,
+        "precompute_joint_speed_within_limit": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {
+        "maximum_heading_change": false,
+        "maximum_xy_distance": false,
+        "return_hold_tilt": false,
+        "return_hold_height": false
+      },
+      "failed_gates": [
+        "requested_interval_completed",
+        "no_forbidden_contact_samples",
+        "all_prone_holds",
+        "all_four_foot_return_holds"
+      ],
+      "failed_stationary_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "return_hold_tilt",
+        "return_hold_height"
+      ],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "available_duration_s": 0.66,
+          "height_range_m": [
+            0.20728178322315216,
+            0.2366296797990799
+          ],
+          "maximum_tilt_deg": 16.102226536795953,
+          "longest_original_qualified_hold_s": 0.2175
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "available_duration_s": 0.0,
+          "height_range_m": null,
+          "maximum_tilt_deg": null,
+          "longest_original_qualified_hold_s": 0.0
+        }
+      ],
+      "first_forbidden_contact": {
+        "sample_index_zero_based": 4253,
+        "time_s": 10.635,
+        "policy_step": 532,
+        "substep": 6,
+        "cycle_index_zero_based": 0,
+        "phase": 4,
+        "bodies_in_sensor_order": [
+          {
+            "sensor_index": 3,
+            "body": "FL_calf_link",
+            "force_norm_N": 16.001636505127095
+          }
+        ],
+        "first_body_in_sensor_order": "FL_calf_link"
+      },
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": 0.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 5.0,
+          "return_hold_height_error_m": 0.015,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "first post-physics sample; actual fixed episode anchor separately logged"
+        },
+        "success_criteria": {
+          "prone_support_continuous_s": 2.0,
+          "skid_vertical_load_fraction_min": 0.5,
+          "prone_height_error_m_max": 0.02,
+          "tilt_rad_max": 0.17453292519943295,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "complete_cycles": 2,
+          "exposure_continuous_between_cycles": true
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          3.0,
+          2.0,
+          3.0,
+          2.0
+        ],
+        "differential_gain": 1.0,
+        "support_shift_vector_m": null
+      },
+      "own_summary_sha256": "7e66b6c942b57a085bc03b9cb7f0ce68875a5e823c2f6b4ebb30cad31bb7e721",
+      "own_raw_trace_sha256": "6dc0d50f765faaa1d720bcf9802c01f23b03145db636c7a3a1aa93ee37b415ba",
+      "raw_recalculated": true
+    },
+    {
+      "id": "T32_B_prone_evaluate",
+      "branch": "B",
+      "expert": "prone",
+      "stage": "evaluate",
+      "duration_s": 9.94,
+      "outcome": "FIRST_TERMINAL_STOP",
+      "completed_policy_steps": 497,
+      "requested_policy_steps": 1200,
+      "checkpoint_updates": 250,
+      "checkpoint_sha256": "cc4036801cdba6113e38a3283716d8cc188e51cb2947ee196c992294a2ffbc10",
+      "parent_checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4",
+      "maximum_xy_distance_m": 0.1859203075284304,
+      "maximum_heading_change_deg": 10.121136311848717,
+      "forbidden_contact_sample_count": 6,
+      "maximum_actual_joint_speed_rad_s": 3.5618627071380615,
+      "maximum_applied_effort_Nm": 3.887753963470459,
+      "maximum_exposure_h": 0.35659956651652375,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": false,
+        "no_forbidden_contact_samples": false,
+        "actual_joint_speed_within_limit": true,
+        "all_prone_holds": false,
+        "all_four_foot_return_holds": false,
+        "exposure_continuous_between_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "no_reset_between_cycles": true,
+        "precompute_joint_speed_within_limit": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {
+        "maximum_heading_change": false,
+        "maximum_xy_distance": false,
+        "return_hold_tilt": false,
+        "return_hold_height": false
+      },
+      "failed_gates": [
+        "requested_interval_completed",
+        "no_forbidden_contact_samples",
+        "all_prone_holds",
+        "all_four_foot_return_holds"
+      ],
+      "failed_stationary_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "return_hold_tilt",
+        "return_hold_height"
+      ],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "available_duration_s": 0.0,
+          "height_range_m": null,
+          "maximum_tilt_deg": null,
+          "longest_original_qualified_hold_s": 0.0
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "available_duration_s": 0.0,
+          "height_range_m": null,
+          "maximum_tilt_deg": null,
+          "longest_original_qualified_hold_s": 0.0
+        }
+      ],
+      "first_forbidden_contact": {
+        "sample_index_zero_based": 3970,
+        "time_s": 9.9275,
+        "policy_step": 497,
+        "substep": 3,
+        "cycle_index_zero_based": 0,
+        "phase": 3,
+        "bodies_in_sensor_order": [
+          {
+            "sensor_index": 10,
+            "body": "RL_thigh_link",
+            "force_norm_N": 242.9584045410178
+          }
+        ],
+        "first_body_in_sensor_order": "RL_thigh_link"
+      },
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": 2.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": 0.0,
+          "measured_round_trips": null,
+          "minimum_waving_paw_clearance_m": null,
+          "gates": null
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 5.0,
+          "return_hold_height_error_m": 0.015,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "first post-physics sample; actual fixed episode anchor separately logged"
+        },
+        "success_criteria": {
+          "prone_support_continuous_s": 2.0,
+          "skid_vertical_load_fraction_min": 0.5,
+          "prone_height_error_m_max": 0.02,
+          "tilt_rad_max": 0.17453292519943295,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "complete_cycles": 2,
+          "exposure_continuous_between_cycles": true
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          3.0,
+          2.0,
+          3.0,
+          2.0
+        ],
+        "differential_gain": 1.0,
+        "support_shift_vector_m": null
+      },
+      "own_summary_sha256": "6c89268739854e072fba9722ab830e8fff980ec8fc74adf6dc9a7705c9925f9a",
+      "own_raw_trace_sha256": "c4247f62e1e2ed54bc5c980b53c33788dfcdb55bb196242413573e25cad394c3",
+      "raw_recalculated": true
+    },
+    {
+      "id": "T32_B_wave_preflight",
+      "branch": "B",
+      "expert": "wave",
+      "stage": "preflight",
+      "duration_s": 36.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1800,
+      "requested_policy_steps": 1800,
+      "checkpoint_updates": 0,
+      "checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b",
+      "parent_checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b",
+      "maximum_xy_distance_m": 0.0623897381269785,
+      "maximum_heading_change_deg": 4.677385144510562,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.1172072887420654,
+      "maximum_applied_effort_Nm": 2.0026955604553223,
+      "maximum_exposure_h": 0.4835393741851319,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {},
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "failed_stationary_gates": [],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "longest_original_qualified_hold_s": 2.0,
+          "height_range_m": null,
+          "maximum_tilt_deg": null
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "longest_original_qualified_hold_s": 2.0,
+          "height_range_m": null,
+          "maximum_tilt_deg": null
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15332493579387665,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.1545031706094742,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 10.0,
+          "return_hold_height_error_m": 0.025,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "fixed original episode anchor, including first physics interval motion"
+        },
+        "success_criteria": {
+          "complete_cycles": 2,
+          "wave_phase_s": 4.0,
+          "wave_round_trips_per_cycle": 2,
+          "wave_excursion_m_min": 0.02,
+          "waving_paw_clearance_m_min": 0.02,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "tilt_rad_max": 0.17453292519943295,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "exposure_continuous_between_cycles": true,
+          "waving_paw_high_clearance_m_min": 0.15
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          5.0,
+          4.0,
+          5.0,
+          2.0
+        ],
+        "differential_gain": null,
+        "support_shift_vector_m": [
+          -0.022499999999999996,
+          -0.03897114317029974
+        ]
+      },
+      "own_summary_sha256": "2452139e8f5c4dbd1bc790ca025866a2ac9ae705cb2ab3fb3511c5d8efefb0a7",
+      "own_raw_trace_sha256": "3e51981c5b6d2cd407f1bb03c73d03ed6b4330bb4c56a559850fd27c718f93a0",
+      "raw_recalculated": false
+    },
+    {
+      "id": "T32_B_wave_intermediate_100",
+      "branch": "B",
+      "expert": "wave",
+      "stage": "intermediate_100",
+      "duration_s": 36.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1800,
+      "requested_policy_steps": 1800,
+      "checkpoint_updates": 100,
+      "checkpoint_sha256": "8c679f790b042fa5565b9b2ff88ebe8627b3ab7dd3c5eefb0ccc0442610c2ce7",
+      "parent_checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b",
+      "maximum_xy_distance_m": 0.062227128899999984,
+      "maximum_heading_change_deg": 4.673099237018555,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.715198516845703,
+      "maximum_applied_effort_Nm": 1.999668836593628,
+      "maximum_exposure_h": 0.4793210860997371,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {},
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "failed_stationary_gates": [],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.2553677558898926,
+            0.258240282535553
+          ],
+          "maximum_tilt_deg": 2.124058309038152,
+          "longest_original_qualified_hold_s": 2.0
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.2551950514316559,
+            0.2583111524581909
+          ],
+          "maximum_tilt_deg": 2.2952023490645934,
+          "longest_original_qualified_hold_s": 2.0
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15352577364444733,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15466957187652589,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 10.0,
+          "return_hold_height_error_m": 0.025,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "fixed original episode anchor, including first physics interval motion"
+        },
+        "success_criteria": {
+          "complete_cycles": 2,
+          "wave_phase_s": 4.0,
+          "wave_round_trips_per_cycle": 2,
+          "wave_excursion_m_min": 0.02,
+          "waving_paw_clearance_m_min": 0.02,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "tilt_rad_max": 0.17453292519943295,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "exposure_continuous_between_cycles": true,
+          "waving_paw_high_clearance_m_min": 0.15
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          5.0,
+          4.0,
+          5.0,
+          2.0
+        ],
+        "differential_gain": null,
+        "support_shift_vector_m": [
+          -0.022499999999999996,
+          -0.03897114317029974
+        ]
+      },
+      "own_summary_sha256": "62539918bd9f44eeae4c715a7f4eea96c5768e70cd8a5491498175af6cbe92d1",
+      "own_raw_trace_sha256": "7bdadadf38a7d6a10664934b0c2af60b0e90c6ea614b34048f9e5f2b65066f3a",
+      "raw_recalculated": true
+    },
+    {
+      "id": "T32_B_wave_intermediate_200",
+      "branch": "B",
+      "expert": "wave",
+      "stage": "intermediate_200",
+      "duration_s": 36.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1800,
+      "requested_policy_steps": 1800,
+      "checkpoint_updates": 200,
+      "checkpoint_sha256": "346ba259b2aaf06ca93153b72614f48ad7b9fc171bb1e91d9792985038b64f3c",
+      "parent_checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b",
+      "maximum_xy_distance_m": 0.06240761442693018,
+      "maximum_heading_change_deg": 4.713417577920754,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.0292575359344482,
+      "maximum_applied_effort_Nm": 1.9842135906219482,
+      "maximum_exposure_h": 0.4686445376781118,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {},
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "failed_stationary_gates": [],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.25544095039367676,
+            0.2581475079059601
+          ],
+          "maximum_tilt_deg": 2.120830358690091,
+          "longest_original_qualified_hold_s": 2.0
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.2552342712879181,
+            0.2582073211669922
+          ],
+          "maximum_tilt_deg": 2.287786799833222,
+          "longest_original_qualified_hold_s": 2.0
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15404260551929475,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15508135056495667,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 10.0,
+          "return_hold_height_error_m": 0.025,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "fixed original episode anchor, including first physics interval motion"
+        },
+        "success_criteria": {
+          "complete_cycles": 2,
+          "wave_phase_s": 4.0,
+          "wave_round_trips_per_cycle": 2,
+          "wave_excursion_m_min": 0.02,
+          "waving_paw_clearance_m_min": 0.02,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "tilt_rad_max": 0.17453292519943295,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "exposure_continuous_between_cycles": true,
+          "waving_paw_high_clearance_m_min": 0.15
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          5.0,
+          4.0,
+          5.0,
+          2.0
+        ],
+        "differential_gain": null,
+        "support_shift_vector_m": [
+          -0.022499999999999996,
+          -0.03897114317029974
+        ]
+      },
+      "own_summary_sha256": "c07d49937f4a33b6e8512919cb7d7cdf15deafce21d4a6a2ce16271ef4938e30",
+      "own_raw_trace_sha256": "763a0248c857f8bb697d9ae7d641d8b26cbb0332f1c37d6395417d80bd73ef50",
+      "raw_recalculated": true
+    },
+    {
+      "id": "T32_B_wave_evaluate",
+      "branch": "B",
+      "expert": "wave",
+      "stage": "evaluate",
+      "duration_s": 36.0,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "completed_policy_steps": 1800,
+      "requested_policy_steps": 1800,
+      "checkpoint_updates": 250,
+      "checkpoint_sha256": "51ccf2dee522cbf5369e181794ca55652a761b2a8a2095f844f82ac3b8628f78",
+      "parent_checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b",
+      "maximum_xy_distance_m": 0.06224695120622181,
+      "maximum_heading_change_deg": 4.808328468558239,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.053438186645508,
+      "maximum_applied_effort_Nm": 1.9864777326583862,
+      "maximum_exposure_h": 0.4726936327562817,
+      "skill_acceptance": false,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "stationary_target_gates": {},
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "failed_stationary_gates": [],
+      "return_phases": [
+        {
+          "cycle_index_zero_based": 0,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.25544026494026184,
+            0.25810831785202026
+          ],
+          "maximum_tilt_deg": 2.1441459614368883,
+          "longest_original_qualified_hold_s": 2.0
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "available_duration_s": 2.0,
+          "height_range_m": [
+            0.25520166754722595,
+            0.25816747546195984
+          ],
+          "maximum_tilt_deg": 2.315843528502215,
+          "longest_original_qualified_hold_s": 2.0
+        }
+      ],
+      "first_forbidden_contact": null,
+      "cycles_summary": [
+        {
+          "cycle_index_zero_based": 0,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15419085717201234,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        },
+        {
+          "cycle_index_zero_based": 1,
+          "prone_hold_s": null,
+          "measured_round_trips": 2,
+          "minimum_waving_paw_clearance_m": 0.15515463447570801,
+          "gates": {
+            "prelift_four_foot_support": true,
+            "complete_wave_phase": true,
+            "raised_paw_and_three_support_feet_for_entire_wave": true,
+            "high_paw_attained_for_entire_wave": true,
+            "two_measured_round_trips": true,
+            "four_foot_return_hold": true
+          }
+        }
+      ],
+      "criteria": {
+        "stationary_targets": {
+          "maximum_unwrapped_heading_change_deg": 5.0,
+          "maximum_xy_distance_m": 0.05,
+          "return_hold_maximum_tilt_deg": 10.0,
+          "return_hold_height_error_m": 0.025,
+          "reference": "first post-reset episode state; never reset at cycle transition",
+          "evaluation_reference": "fixed original episode anchor, including first physics interval motion"
+        },
+        "success_criteria": {
+          "complete_cycles": 2,
+          "wave_phase_s": 4.0,
+          "wave_round_trips_per_cycle": 2,
+          "wave_excursion_m_min": 0.02,
+          "waving_paw_clearance_m_min": 0.02,
+          "four_foot_return_hold_s": 2.0,
+          "return_height_error_m_max": 0.025,
+          "tilt_rad_max": 0.17453292519943295,
+          "forbidden_contact_force_N_max": 1.0,
+          "actual_joint_speed_rad_s_max": 10.0,
+          "exposure_continuous_between_cycles": true,
+          "waving_paw_high_clearance_m_min": 0.15
+        },
+        "standing_reference_height_m": 0.25556651958078513
+      },
+      "controller_comparison": {
+        "phase_durations_s": [
+          2.0,
+          5.0,
+          4.0,
+          5.0,
+          2.0
+        ],
+        "differential_gain": null,
+        "support_shift_vector_m": [
+          -0.022499999999999996,
+          -0.03897114317029974
+        ]
+      },
+      "own_summary_sha256": "683b5ec7d022efc5dd4f54d20ba5aa30823776a57a6ee9fe7830ac8a97e1fbc6",
+      "own_raw_trace_sha256": "ef01c9152360022bc54273a7d5d227972a168884737b2d730a1b606ac0e31467",
+      "raw_recalculated": true
+    }
+  ],
+  "parent_and_final_cases": [
+    {
+      "condition": "A",
+      "stage": "preflight",
+      "motion": "forward",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "448cae3842307b9c72882668227db2122d48f7bd8cca42f783eac628fe393149",
+      "own_raw_trace_sha256": "4c19ac76393033ae60c5de52883d085e2b3cc5e794844b806d9e13d576fd25dd",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 41.07637008031209,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 5.846860407989898,
+        "max_planar_excursion_m": 4.930950485223817,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          20
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.03762160267499639,
+          0.03448139372439503,
+          0.03294651303171824,
+          0.049384838497943805
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 5.5,
+        "maximum_postphysics_joint_speed_rad_s": 9.970502853393555,
+        "maximum_exposure_h": 0.6876565364399183,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "preflight",
+      "motion": "backward",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "cdb419a6b4aa49d4aa397b976d60e490dda09773e153d270d0a441cd01c1b725",
+      "own_raw_trace_sha256": "e177ac5e12e443b0870706c40492e17105bf08ef59f41ce53773f2d91f64b2e3",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 10.860345760981243,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 6.46232597156013,
+        "max_planar_excursion_m": 1.3200479458037695,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.036875998330872004,
+          0.07135786282676132,
+          0.07076076845515637,
+          0.041546513901985896
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 5.033391952514648,
+        "maximum_postphysics_joint_speed_rad_s": 9.976313591003418,
+        "maximum_exposure_h": 0.28143040206811243,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "preflight",
+      "motion": "left",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "51314d823427030fc7734b102f2471a7823818af0bae931deb565233aa6a9b51",
+      "own_raw_trace_sha256": "af34809cab924b19f587a3102e249f49e841c14686ed8166b16da8f3ebff9a3e",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 10.160939892133076,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 6.766029137097794,
+        "max_planar_excursion_m": 1.228436312603744,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.0388440408710683,
+          0.030076058838858617,
+          0.041953575904914414,
+          0.029424533835622477
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.9783406257629395,
+        "maximum_postphysics_joint_speed_rad_s": 9.96459674835205,
+        "maximum_exposure_h": 0.2079797177018587,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "preflight",
+      "motion": "right",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "650cb59a445e7a94b8bc2d63292d9b77ea7a7a898b5033732fc617c79e78f94e",
+      "own_raw_trace_sha256": "5cf0e9046805c9e8fd4ad09c9a0f647d5a18d7678e12f307d92e13b3f14f84dd",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 11.273395021756489,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 5.616201831704314,
+        "max_planar_excursion_m": 1.3529067614902595,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.056927314623384635,
+          0.02731711720115311,
+          0.018617721672242047,
+          0.07276681669504606
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.098582744598389,
+        "maximum_postphysics_joint_speed_rad_s": 9.960583686828613,
+        "maximum_exposure_h": 0.27564912732568236,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "preflight",
+      "motion": "turn_left",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "69ff8c6df1eb6746ad0df54ad8374816409885b29ce080e582f1fbcf2b1ee81d",
+      "own_raw_trace_sha256": "77b5dbb21fc9c0b4f86e4624d93f78d7b2c8ff505e0cd635af9486e29c14ea1e",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": null,
+        "signed_mean_yaw_rate_rad_s": 0.2243958121536879,
+        "max_abs_heading_change_deg": 154.2831957218009,
+        "max_planar_excursion_m": 0.11559900910414318,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.04110647700728967,
+          0.019574368140449536,
+          0.060164711232790415,
+          0.04157815739824831
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.222515106201172,
+        "maximum_postphysics_joint_speed_rad_s": 9.977113723754883,
+        "maximum_exposure_h": 0.2151518603643184,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "signed_mean_turn_rate_met": true,
+          "maximum_planar_excursion_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "preflight",
+      "motion": "turn_right",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "c4f378c55c1650a1ee703ebc0e3f0a6bdf0afd912c82478660a67ac9fa9c7bf9",
+      "own_raw_trace_sha256": "e01b77f3197be0b0d747d59f0d89e36386c368d0e1c36f6ff0621293e25c8752",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": null,
+        "signed_mean_yaw_rate_rad_s": 0.24707792826763164,
+        "max_abs_heading_change_deg": 169.87827000685672,
+        "max_planar_excursion_m": 0.12594312926974732,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.031815986953529315,
+          0.027847393983932583,
+          0.03463902527063692,
+          0.04451469891792632
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 3.871648073196411,
+        "maximum_postphysics_joint_speed_rad_s": 9.964714050292969,
+        "maximum_exposure_h": 0.15972049767073798,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "signed_mean_turn_rate_met": true,
+          "maximum_planar_excursion_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "preflight",
+      "motion": "prone",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "frames": 1200,
+      "requested_frames": 1200,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": false,
+      "checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4",
+      "own_summary_sha256": "4e2684f365c6e8683ab49185454681f8f09543ddeede1b12d832ac4e44d9da3f",
+      "own_raw_trace_sha256": "dbd43b1a2fa8a927d2fcb6ad11277401fcdc29b9912442441de7f6342e1aa35b",
+      "raw_recalculated": false,
+      "metrics": {
+        "maximum_xy_distance_m": 0.05751858508331434,
+        "maximum_heading_change_deg": 21.38010519030432,
+        "forbidden_contact_sample_count": 0,
+        "maximum_applied_effort_Nm": 3.864065647125244,
+        "maximum_exposure_h": 0.908998134389988
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "preflight",
+      "motion": "wave",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "frames": 1800,
+      "requested_frames": 1800,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": false,
+      "checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b",
+      "own_summary_sha256": "7ba0dc2475528ce765f94bdafb60603b242038a0df63ab8c49c5eabe95d2ac31",
+      "own_raw_trace_sha256": "3e51981c5b6d2cd407f1bb03c73d03ed6b4330bb4c56a559850fd27c718f93a0",
+      "raw_recalculated": false,
+      "metrics": {
+        "maximum_xy_distance_m": 0.0623897381269785,
+        "maximum_heading_change_deg": 4.677385144510562,
+        "forbidden_contact_sample_count": 0,
+        "maximum_applied_effort_Nm": 2.0026955604553223,
+        "maximum_exposure_h": 0.4835393741851319
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "preflight",
+      "motion": "sit",
+      "recorded_duration_s": 32.0,
+      "requested_duration_s": 32.0,
+      "frames": 1600,
+      "requested_frames": 1600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b0c7753154fcda06d4b781e2c73e0d117f0cda31c61c94670e0563eeb7d84f5",
+      "own_summary_sha256": "6791ac937502dc33900aecd475c30527981a8d686d24e0158147ccff1133b5a7",
+      "own_raw_trace_sha256": "97a2d039958e5729c986b5875c6efe8f8086ec1908583c19e49da83b3cd4db44",
+      "raw_recalculated": false,
+      "metrics": {
+        "maximum_xy_distance_m": 0.03436577595109302,
+        "maximum_heading_change_deg": 2.0225371559227283,
+        "forbidden_contact_sample_count": 0,
+        "maximum_applied_effort_Nm": 1.9674370288848877,
+        "maximum_exposure_h": 0.1498340546698744
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "evaluate",
+      "motion": "forward",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "dfef64661b4f991c57d3954785c0c56d3c4d3bdefe2e40c877d46be4ee2b84a5",
+      "own_raw_trace_sha256": "4c19ac76393033ae60c5de52883d085e2b3cc5e794844b806d9e13d576fd25dd",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 41.07637008031209,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 5.846860407989898,
+        "max_planar_excursion_m": 4.930950485223817,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          20
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.03762160267499639,
+          0.03448139372439503,
+          0.03294651303171824,
+          0.049384838497943805
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 5.5,
+        "maximum_postphysics_joint_speed_rad_s": 9.970502853393555,
+        "maximum_exposure_h": 0.6876565364399183,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "evaluate",
+      "motion": "backward",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "89d5b9acc92acc5f4838789d5cd249447c11fbd8725cedee12afcf203a0990bf",
+      "own_raw_trace_sha256": "e177ac5e12e443b0870706c40492e17105bf08ef59f41ce53773f2d91f64b2e3",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 10.860345760981243,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 6.46232597156013,
+        "max_planar_excursion_m": 1.3200479458037695,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.036875998330872004,
+          0.07135786282676132,
+          0.07076076845515637,
+          0.041546513901985896
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 5.033391952514648,
+        "maximum_postphysics_joint_speed_rad_s": 9.976313591003418,
+        "maximum_exposure_h": 0.28143040206811243,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "evaluate",
+      "motion": "left",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "6462d988f19e54a0d87a743caf9e7f3414d5dec128784d1a046f890ea4682792",
+      "own_raw_trace_sha256": "af34809cab924b19f587a3102e249f49e841c14686ed8166b16da8f3ebff9a3e",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 10.160939892133076,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 6.766029137097794,
+        "max_planar_excursion_m": 1.228436312603744,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.0388440408710683,
+          0.030076058838858617,
+          0.041953575904914414,
+          0.029424533835622477
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.9783406257629395,
+        "maximum_postphysics_joint_speed_rad_s": 9.96459674835205,
+        "maximum_exposure_h": 0.2079797177018587,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "evaluate",
+      "motion": "right",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "0f280c3db89b86c1628f870315da96e8bd5786c8584fca7359b0a44a6acd8491",
+      "own_raw_trace_sha256": "5cf0e9046805c9e8fd4ad09c9a0f647d5a18d7678e12f307d92e13b3f14f84dd",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 11.273395021756489,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 5.616201831704314,
+        "max_planar_excursion_m": 1.3529067614902595,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.056927314623384635,
+          0.02731711720115311,
+          0.018617721672242047,
+          0.07276681669504606
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.098582744598389,
+        "maximum_postphysics_joint_speed_rad_s": 9.960583686828613,
+        "maximum_exposure_h": 0.27564912732568236,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "evaluate",
+      "motion": "turn_left",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "60e05982715e22166f1bbbaa6b0719f018dd50f04557310c5279b0e39d37af53",
+      "own_raw_trace_sha256": "77b5dbb21fc9c0b4f86e4624d93f78d7b2c8ff505e0cd635af9486e29c14ea1e",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": null,
+        "signed_mean_yaw_rate_rad_s": 0.2243958121536879,
+        "max_abs_heading_change_deg": 154.2831957218009,
+        "max_planar_excursion_m": 0.11559900910414318,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.04110647700728967,
+          0.019574368140449536,
+          0.060164711232790415,
+          0.04157815739824831
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.222515106201172,
+        "maximum_postphysics_joint_speed_rad_s": 9.977113723754883,
+        "maximum_exposure_h": 0.2151518603643184,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "signed_mean_turn_rate_met": true,
+          "maximum_planar_excursion_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "evaluate",
+      "motion": "turn_right",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "5d6772383828383d220f0aff560487c710cc8c582558c8b068690d0dad4222e9",
+      "own_raw_trace_sha256": "e01b77f3197be0b0d747d59f0d89e36386c368d0e1c36f6ff0621293e25c8752",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": null,
+        "signed_mean_yaw_rate_rad_s": 0.24707792826763164,
+        "max_abs_heading_change_deg": 169.87827000685672,
+        "max_planar_excursion_m": 0.12594312926974732,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.031815986953529315,
+          0.027847393983932583,
+          0.03463902527063692,
+          0.04451469891792632
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 3.871648073196411,
+        "maximum_postphysics_joint_speed_rad_s": 9.964714050292969,
+        "maximum_exposure_h": 0.15972049767073798,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "signed_mean_turn_rate_met": true,
+          "maximum_planar_excursion_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "evaluate",
+      "motion": "prone",
+      "recorded_duration_s": 11.74,
+      "requested_duration_s": 24.0,
+      "frames": 587,
+      "requested_frames": 1200,
+      "outcome": "FIRST_TERMINAL_STOP",
+      "skill_acceptance": false,
+      "checkpoint_sha256": "9337e7ee04c7d09e5ba421cdf55a9cf2f73fee0c04308c706aab91f67b8ef780",
+      "own_summary_sha256": "45a8a02eecd6a20553192f2dbdb709ed62dfd9fecc2857bc34dc206be0d98f12",
+      "own_raw_trace_sha256": "c11c55ccbf4eeb9e6cdf55b211bb9d31bba00f319bf635f81219a548ff34c024",
+      "raw_recalculated": true,
+      "metrics": {
+        "maximum_xy_distance_m": 0.14639345077413463,
+        "maximum_heading_change_deg": 11.465209693515085,
+        "forbidden_contact_sample_count": 4,
+        "maximum_applied_effort_Nm": 3.9109878540039062,
+        "maximum_exposure_h": 0.4209342267460803
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "evaluate",
+      "motion": "wave",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "frames": 1800,
+      "requested_frames": 1800,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": false,
+      "checkpoint_sha256": "8c5ba1f92863373b9c8d1c886f2028f7b735b605927f80d06ca825bd8a84e7ec",
+      "own_summary_sha256": "12f9906e56469039512fd5fa3b02edea0d0294316519aff9703b32f039422117",
+      "own_raw_trace_sha256": "4d0da4afbe0bb4b644507e71e6adba07615437249513b32d0a5d7c540e60de07",
+      "raw_recalculated": true,
+      "metrics": {
+        "maximum_xy_distance_m": 0.062078284446020114,
+        "maximum_heading_change_deg": 4.737489087083342,
+        "forbidden_contact_sample_count": 0,
+        "maximum_applied_effort_Nm": 1.9936619997024536,
+        "maximum_exposure_h": 0.47126241045767897
+      }
+    },
+    {
+      "condition": "A",
+      "stage": "evaluate",
+      "motion": "sit",
+      "recorded_duration_s": 32.0,
+      "requested_duration_s": 32.0,
+      "frames": 1600,
+      "requested_frames": 1600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b0c7753154fcda06d4b781e2c73e0d117f0cda31c61c94670e0563eeb7d84f5",
+      "own_summary_sha256": "d9586008ed3f5c3ab8c3bf7bafae910ba1a654bdd02144a42ea8c030a024232d",
+      "own_raw_trace_sha256": "97a2d039958e5729c986b5875c6efe8f8086ec1908583c19e49da83b3cd4db44",
+      "raw_recalculated": false,
+      "metrics": {
+        "maximum_xy_distance_m": 0.03436577595109302,
+        "maximum_heading_change_deg": 2.0225371559227283,
+        "forbidden_contact_sample_count": 0,
+        "maximum_applied_effort_Nm": 1.9674370288848877,
+        "maximum_exposure_h": 0.1498340546698744
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "preflight",
+      "motion": "forward",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "1ebdc59caf765762cecc52e486e796c84b5d5f1285ad48e949afceb478d7110d",
+      "own_raw_trace_sha256": "4c19ac76393033ae60c5de52883d085e2b3cc5e794844b806d9e13d576fd25dd",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 41.07637008031209,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 5.846860407989898,
+        "max_planar_excursion_m": 4.930950485223817,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          20
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.03762160267499639,
+          0.03448139372439503,
+          0.03294651303171824,
+          0.049384838497943805
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 5.5,
+        "maximum_postphysics_joint_speed_rad_s": 9.970502853393555,
+        "maximum_exposure_h": 0.6876565364399183,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "preflight",
+      "motion": "backward",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "0ce931ad980a2a3d98b2e09bcf458408fd47d07831c04192f6b4f9c00a366278",
+      "own_raw_trace_sha256": "e177ac5e12e443b0870706c40492e17105bf08ef59f41ce53773f2d91f64b2e3",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 10.860345760981243,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 6.46232597156013,
+        "max_planar_excursion_m": 1.3200479458037695,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.036875998330872004,
+          0.07135786282676132,
+          0.07076076845515637,
+          0.041546513901985896
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 5.033391952514648,
+        "maximum_postphysics_joint_speed_rad_s": 9.976313591003418,
+        "maximum_exposure_h": 0.28143040206811243,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "preflight",
+      "motion": "left",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "541a8b5986e63d7f94cf37fc1a69904b5471bb45ec1b819954d6f0c75d16824a",
+      "own_raw_trace_sha256": "af34809cab924b19f587a3102e249f49e841c14686ed8166b16da8f3ebff9a3e",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 10.160939892133076,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 6.766029137097794,
+        "max_planar_excursion_m": 1.228436312603744,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.0388440408710683,
+          0.030076058838858617,
+          0.041953575904914414,
+          0.029424533835622477
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.9783406257629395,
+        "maximum_postphysics_joint_speed_rad_s": 9.96459674835205,
+        "maximum_exposure_h": 0.2079797177018587,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "preflight",
+      "motion": "right",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "8df1bcb7b5c258f7628bb5e77bf182eb206bde1793d90e7a8f0a6b60e8b543b1",
+      "own_raw_trace_sha256": "5cf0e9046805c9e8fd4ad09c9a0f647d5a18d7678e12f307d92e13b3f14f84dd",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 11.273395021756489,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 5.616201831704314,
+        "max_planar_excursion_m": 1.3529067614902595,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.056927314623384635,
+          0.02731711720115311,
+          0.018617721672242047,
+          0.07276681669504606
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.098582744598389,
+        "maximum_postphysics_joint_speed_rad_s": 9.960583686828613,
+        "maximum_exposure_h": 0.27564912732568236,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "preflight",
+      "motion": "turn_left",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "7167ee84462d95b4c426d604417e809e567f9b120cb748b7634ef54be995b02d",
+      "own_raw_trace_sha256": "77b5dbb21fc9c0b4f86e4624d93f78d7b2c8ff505e0cd635af9486e29c14ea1e",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": null,
+        "signed_mean_yaw_rate_rad_s": 0.2243958121536879,
+        "max_abs_heading_change_deg": 154.2831957218009,
+        "max_planar_excursion_m": 0.11559900910414318,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.04110647700728967,
+          0.019574368140449536,
+          0.060164711232790415,
+          0.04157815739824831
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.222515106201172,
+        "maximum_postphysics_joint_speed_rad_s": 9.977113723754883,
+        "maximum_exposure_h": 0.2151518603643184,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "signed_mean_turn_rate_met": true,
+          "maximum_planar_excursion_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "preflight",
+      "motion": "turn_right",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "53b6bc11bb7145d890ce471a6b28a5231b98a2b7570569a5e82c07c9fcf77d03",
+      "own_raw_trace_sha256": "e01b77f3197be0b0d747d59f0d89e36386c368d0e1c36f6ff0621293e25c8752",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": null,
+        "signed_mean_yaw_rate_rad_s": 0.24707792826763164,
+        "max_abs_heading_change_deg": 169.87827000685672,
+        "max_planar_excursion_m": 0.12594312926974732,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.031815986953529315,
+          0.027847393983932583,
+          0.03463902527063692,
+          0.04451469891792632
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 3.871648073196411,
+        "maximum_postphysics_joint_speed_rad_s": 9.964714050292969,
+        "maximum_exposure_h": 0.15972049767073798,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "signed_mean_turn_rate_met": true,
+          "maximum_planar_excursion_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "preflight",
+      "motion": "prone",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "frames": 1200,
+      "requested_frames": 1200,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": false,
+      "checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4",
+      "own_summary_sha256": "7d35d1901438b2714d0ed919666aebe86c3f5cb66cc63bbc4ffe912c7e1c6351",
+      "own_raw_trace_sha256": "dbd43b1a2fa8a927d2fcb6ad11277401fcdc29b9912442441de7f6342e1aa35b",
+      "raw_recalculated": false,
+      "metrics": {
+        "maximum_xy_distance_m": 0.05751858508331434,
+        "maximum_heading_change_deg": 21.38010519030432,
+        "forbidden_contact_sample_count": 0,
+        "maximum_applied_effort_Nm": 3.864065647125244,
+        "maximum_exposure_h": 0.908998134389988
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "preflight",
+      "motion": "wave",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "frames": 1800,
+      "requested_frames": 1800,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": false,
+      "checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b",
+      "own_summary_sha256": "2452139e8f5c4dbd1bc790ca025866a2ac9ae705cb2ab3fb3511c5d8efefb0a7",
+      "own_raw_trace_sha256": "3e51981c5b6d2cd407f1bb03c73d03ed6b4330bb4c56a559850fd27c718f93a0",
+      "raw_recalculated": false,
+      "metrics": {
+        "maximum_xy_distance_m": 0.0623897381269785,
+        "maximum_heading_change_deg": 4.677385144510562,
+        "forbidden_contact_sample_count": 0,
+        "maximum_applied_effort_Nm": 2.0026955604553223,
+        "maximum_exposure_h": 0.4835393741851319
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "preflight",
+      "motion": "sit",
+      "recorded_duration_s": 32.0,
+      "requested_duration_s": 32.0,
+      "frames": 1600,
+      "requested_frames": 1600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b0c7753154fcda06d4b781e2c73e0d117f0cda31c61c94670e0563eeb7d84f5",
+      "own_summary_sha256": "696f73af671bb8b9852a43f5ad1da31ffc2cf421b6760004e35923a45889067a",
+      "own_raw_trace_sha256": "97a2d039958e5729c986b5875c6efe8f8086ec1908583c19e49da83b3cd4db44",
+      "raw_recalculated": false,
+      "metrics": {
+        "maximum_xy_distance_m": 0.03436577595109302,
+        "maximum_heading_change_deg": 2.0225371559227283,
+        "forbidden_contact_sample_count": 0,
+        "maximum_applied_effort_Nm": 1.9674370288848877,
+        "maximum_exposure_h": 0.1498340546698744
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "evaluate",
+      "motion": "forward",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "6e205d771b108aa4a78d0ed0baadda895363a75f1ec6b3e8ccb53349bda96ff8",
+      "own_raw_trace_sha256": "4c19ac76393033ae60c5de52883d085e2b3cc5e794844b806d9e13d576fd25dd",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 41.07637008031209,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 5.846860407989898,
+        "max_planar_excursion_m": 4.930950485223817,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          20
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.03762160267499639,
+          0.03448139372439503,
+          0.03294651303171824,
+          0.049384838497943805
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 5.5,
+        "maximum_postphysics_joint_speed_rad_s": 9.970502853393555,
+        "maximum_exposure_h": 0.6876565364399183,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "evaluate",
+      "motion": "backward",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "7c3e7f87c8703703e7638887dfafbbeb929d46daeb0d8a13f2bf8ed363843ad5",
+      "own_raw_trace_sha256": "e177ac5e12e443b0870706c40492e17105bf08ef59f41ce53773f2d91f64b2e3",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 10.860345760981243,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 6.46232597156013,
+        "max_planar_excursion_m": 1.3200479458037695,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.036875998330872004,
+          0.07135786282676132,
+          0.07076076845515637,
+          0.041546513901985896
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 5.033391952514648,
+        "maximum_postphysics_joint_speed_rad_s": 9.976313591003418,
+        "maximum_exposure_h": 0.28143040206811243,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "evaluate",
+      "motion": "left",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "ebc00dff1b8567e35847fb2e7db2d70746145dc04888f3cb5942a788a6d963de",
+      "own_raw_trace_sha256": "af34809cab924b19f587a3102e249f49e841c14686ed8166b16da8f3ebff9a3e",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 10.160939892133076,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 6.766029137097794,
+        "max_planar_excursion_m": 1.228436312603744,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.0388440408710683,
+          0.030076058838858617,
+          0.041953575904914414,
+          0.029424533835622477
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.9783406257629395,
+        "maximum_postphysics_joint_speed_rad_s": 9.96459674835205,
+        "maximum_exposure_h": 0.2079797177018587,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "evaluate",
+      "motion": "right",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "c27dc541133d8057ac2ca81a089718004d9acfbb3b0c2b9f5948811781f8c6b1",
+      "own_raw_trace_sha256": "5cf0e9046805c9e8fd4ad09c9a0f647d5a18d7678e12f307d92e13b3f14f84dd",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": 11.273395021756489,
+        "signed_mean_yaw_rate_rad_s": null,
+        "max_abs_heading_change_deg": 5.616201831704314,
+        "max_planar_excursion_m": 1.3529067614902595,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.056927314623384635,
+          0.02731711720115311,
+          0.018617721672242047,
+          0.07276681669504606
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.098582744598389,
+        "maximum_postphysics_joint_speed_rad_s": 9.960583686828613,
+        "maximum_exposure_h": 0.27564912732568236,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "translation_speed_met": true,
+          "heading_change_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "evaluate",
+      "motion": "turn_left",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "ec4dea4ed9b8742e73b434fae44afca15eaa1a22d201e2a7224c1a653e33fb15",
+      "own_raw_trace_sha256": "77b5dbb21fc9c0b4f86e4624d93f78d7b2c8ff505e0cd635af9486e29c14ea1e",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": null,
+        "signed_mean_yaw_rate_rad_s": 0.2243958121536879,
+        "max_abs_heading_change_deg": 154.2831957218009,
+        "max_planar_excursion_m": 0.11559900910414318,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.04110647700728967,
+          0.019574368140449536,
+          0.060164711232790415,
+          0.04157815739824831
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 4.222515106201172,
+        "maximum_postphysics_joint_speed_rad_s": 9.977113723754883,
+        "maximum_exposure_h": 0.2151518603643184,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "signed_mean_turn_rate_met": true,
+          "maximum_planar_excursion_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "evaluate",
+      "motion": "turn_right",
+      "recorded_duration_s": 12.0,
+      "requested_duration_s": 12.0,
+      "frames": 600,
+      "requested_frames": 600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+      "own_summary_sha256": "e04afc58dc3dfca358a015fc2f55e626ed5ea22d0a0dd1889baee2ee505a8a49",
+      "own_raw_trace_sha256": "e01b77f3197be0b0d747d59f0d89e36386c368d0e1c36f6ff0621293e25c8752",
+      "raw_recalculated": false,
+      "metrics": {
+        "speed_cm_s": null,
+        "signed_mean_yaw_rate_rad_s": 0.24707792826763164,
+        "max_abs_heading_change_deg": 169.87827000685672,
+        "max_planar_excursion_m": 0.12594312926974732,
+        "lift15_FL_FR_RL_RR": [
+          20,
+          19,
+          19,
+          19
+        ],
+        "slip_m_FL_FR_RL_RR": [
+          0.031815986953529315,
+          0.027847393983932583,
+          0.03463902527063692,
+          0.04451469891792632
+        ],
+        "max_nonfoot_N": 0.0,
+        "max_torque_Nm": 3.871648073196411,
+        "maximum_postphysics_joint_speed_rad_s": 9.964714050292969,
+        "maximum_exposure_h": 0.15972049767073798,
+        "criteria": {
+          "completed_requested_interval": true,
+          "every_foot_lift15_at_least18": true,
+          "every_foot_slip_at_most15cm": true,
+          "no_actual_speed_exceedance": true,
+          "no_nonfoot_contact": true,
+          "no_drive_cap_violation": true,
+          "signed_mean_turn_rate_met": true,
+          "maximum_planar_excursion_met": true
+        },
+        "additional_400hz_gates": {
+          "no_forbidden_contact_400hz": true,
+          "no_postphysics_speed_exceedance": true,
+          "no_mid_episode_reset": true
+        },
+        "walking_acceptance": false,
+        "all_development_targets_met": true
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "evaluate",
+      "motion": "prone",
+      "recorded_duration_s": 9.94,
+      "requested_duration_s": 24.0,
+      "frames": 497,
+      "requested_frames": 1200,
+      "outcome": "FIRST_TERMINAL_STOP",
+      "skill_acceptance": false,
+      "checkpoint_sha256": "cc4036801cdba6113e38a3283716d8cc188e51cb2947ee196c992294a2ffbc10",
+      "own_summary_sha256": "6c89268739854e072fba9722ab830e8fff980ec8fc74adf6dc9a7705c9925f9a",
+      "own_raw_trace_sha256": "c4247f62e1e2ed54bc5c980b53c33788dfcdb55bb196242413573e25cad394c3",
+      "raw_recalculated": true,
+      "metrics": {
+        "maximum_xy_distance_m": 0.1859203075284304,
+        "maximum_heading_change_deg": 10.121136311848717,
+        "forbidden_contact_sample_count": 6,
+        "maximum_applied_effort_Nm": 3.887753963470459,
+        "maximum_exposure_h": 0.35659956651652375
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "evaluate",
+      "motion": "wave",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "frames": 1800,
+      "requested_frames": 1800,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": false,
+      "checkpoint_sha256": "51ccf2dee522cbf5369e181794ca55652a761b2a8a2095f844f82ac3b8628f78",
+      "own_summary_sha256": "683b5ec7d022efc5dd4f54d20ba5aa30823776a57a6ee9fe7830ac8a97e1fbc6",
+      "own_raw_trace_sha256": "ef01c9152360022bc54273a7d5d227972a168884737b2d730a1b606ac0e31467",
+      "raw_recalculated": true,
+      "metrics": {
+        "maximum_xy_distance_m": 0.06224695120622181,
+        "maximum_heading_change_deg": 4.808328468558239,
+        "forbidden_contact_sample_count": 0,
+        "maximum_applied_effort_Nm": 1.9864777326583862,
+        "maximum_exposure_h": 0.4726936327562817
+      }
+    },
+    {
+      "condition": "B",
+      "stage": "evaluate",
+      "motion": "sit",
+      "recorded_duration_s": 32.0,
+      "requested_duration_s": 32.0,
+      "frames": 1600,
+      "requested_frames": 1600,
+      "outcome": "COMPLETED_REQUESTED_INTERVAL",
+      "skill_acceptance": true,
+      "checkpoint_sha256": "7b0c7753154fcda06d4b781e2c73e0d117f0cda31c61c94670e0563eeb7d84f5",
+      "own_summary_sha256": "bd228cad2d33a325af74846e2aa38e878c5e674ab923c09eae3c08610a7a3879",
+      "own_raw_trace_sha256": "97a2d039958e5729c986b5875c6efe8f8086ec1908583c19e49da83b3cd4db44",
+      "raw_recalculated": false,
+      "metrics": {
+        "maximum_xy_distance_m": 0.03436577595109302,
+        "maximum_heading_change_deg": 2.0225371559227283,
+        "forbidden_contact_sample_count": 0,
+        "maximum_applied_effort_Nm": 1.9674370288848877,
+        "maximum_exposure_h": 0.1498340546698744
+      }
+    }
+  ],
+  "trial31_reference_selected_values": [
+    {
+      "id": "T31_A_prone_evaluate",
+      "branch": "A",
+      "expert": "prone",
+      "duration_s": 24.0,
+      "maximum_xy_distance_m": 0.09282271744148043,
+      "maximum_heading_change_deg": 6.258170249728625,
+      "skill_acceptance": false
+    },
+    {
+      "id": "T31_A_wave_evaluate",
+      "branch": "A",
+      "expert": "wave",
+      "duration_s": 36.0,
+      "maximum_xy_distance_m": 0.06151874869746229,
+      "maximum_heading_change_deg": 4.586055453663234,
+      "skill_acceptance": false
+    },
+    {
+      "id": "T31_B_prone_evaluate",
+      "branch": "B",
+      "expert": "prone",
+      "duration_s": 9.68,
+      "maximum_xy_distance_m": 0.18482389897970827,
+      "maximum_heading_change_deg": 17.710286864042036,
+      "skill_acceptance": false
+    },
+    {
+      "id": "T31_B_wave_evaluate",
+      "branch": "B",
+      "expert": "wave",
+      "duration_s": 36.0,
+      "maximum_xy_distance_m": 0.06157261813731625,
+      "maximum_heading_change_deg": 5.024895413938725,
+      "skill_acceptance": false
+    },
+    {
+      "id": "T31_C_prone_evaluate",
+      "branch": "C",
+      "expert": "prone",
+      "duration_s": 9.74,
+      "maximum_xy_distance_m": 0.20113303759499834,
+      "maximum_heading_change_deg": 9.720157789310738,
+      "skill_acceptance": false
+    },
+    {
+      "id": "T31_C_wave_evaluate",
+      "branch": "C",
+      "expert": "wave",
+      "duration_s": 23.18,
+      "maximum_xy_distance_m": 0.09003800973855161,
+      "maximum_heading_change_deg": 4.371759153820705,
+      "skill_acceptance": false
+    }
+  ],
+  "models": [
+    {
+      "condition": "A",
+      "expert": "prone",
+      "updates": 250,
+      "iteration": 249,
+      "sha256": "9337e7ee04c7d09e5ba421cdf55a9cf2f73fee0c04308c706aab91f67b8ef780",
+      "bytes": 952427,
+      "all_saved_tensors_finite": true,
+      "actor_dim": 89,
+      "critic_dim": 122,
+      "optimizer_states": 17,
+      "optimizer_steps": 5000,
+      "parent_checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4"
+    },
+    {
+      "condition": "A",
+      "expert": "wave",
+      "updates": 250,
+      "iteration": 249,
+      "sha256": "8c5ba1f92863373b9c8d1c886f2028f7b735b605927f80d06ca825bd8a84e7ec",
+      "bytes": 952427,
+      "all_saved_tensors_finite": true,
+      "actor_dim": 89,
+      "critic_dim": 122,
+      "optimizer_states": 17,
+      "optimizer_steps": 5000,
+      "parent_checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b"
+    },
+    {
+      "condition": "B",
+      "expert": "prone",
+      "updates": 250,
+      "iteration": 249,
+      "sha256": "cc4036801cdba6113e38a3283716d8cc188e51cb2947ee196c992294a2ffbc10",
+      "bytes": 952427,
+      "all_saved_tensors_finite": true,
+      "actor_dim": 89,
+      "critic_dim": 122,
+      "optimizer_states": 17,
+      "optimizer_steps": 5000,
+      "parent_checkpoint_sha256": "ee613aa982ba4a815596cffc007314cf71a99da7583ccca19c583fad76b477f4"
+    },
+    {
+      "condition": "B",
+      "expert": "wave",
+      "updates": 250,
+      "iteration": 249,
+      "sha256": "51ccf2dee522cbf5369e181794ca55652a761b2a8a2095f844f82ac3b8628f78",
+      "bytes": 952427,
+      "all_saved_tensors_finite": true,
+      "actor_dim": 89,
+      "critic_dim": 122,
+      "optimizer_states": 17,
+      "optimizer_steps": 5000,
+      "parent_checkpoint_sha256": "8f5070f06c6c814c3022d3854e7fb70e8f229d05e80d0d79c6d22ece6031d83b"
+    }
+  ],
+  "verification": {
+    "original_metadata_per_condition": 75,
+    "original_metadata_total": 150,
+    "locally_collected_files": 185,
+    "locally_collected_bytes": 118395083,
+    "final_models_cpu_verified": 4,
+    "raw_arrays_collected": 12,
+    "raw_arrays_recalculated_in_followup": 12,
+    "retained_cases_verification": "Original summary and provenance SHA checks; their raw arrays were not recalculated in this follow-up.",
+    "intermediate_models_locally_loaded": 0,
+    "intermediate_model_inventory_sha_checked": 8,
+    "video_files_received": 0,
+    "video_decoded": false,
+    "video_visual_review_performed": false
+  },
+  "publication": {
+    "selected_aggregates_only": true,
+    "source_raw_arrays_included": false,
+    "weights_included": false,
+    "cad_or_stl_included": false,
+    "private_photos_included": false,
+    "new_trial32_videos_included": false,
+    "source_access_note": "Original internal artifacts are represented by hashes only; this package does not reproduce or independently verify the entire simulation."
+  },
+  "source_report_sha256": {
+    "aggregation": "bade747513213c81229a5aed08ce6cb83b9d4ccd76027bc82673452dc6f1569d",
+    "checkpoint_independent_review": "d21248a7e8e28e6c2a4dfb5b811d02f780489d37e3e1abb8171030af00a15337",
+    "collection_verification": "fa44601d2b6d9ff8c90d108a83e41727403dccab8d26cb4bbd1e09a34f05a115"
+  }
+}

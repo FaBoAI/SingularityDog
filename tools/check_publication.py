@@ -55,6 +55,22 @@ def approved_media(root):
     for name, entry in data['files'].items():
         if Path(name).parent != Path('docs/media') or entry.get('reviewed_as_own_measured_visualization') is not True:
             raise ValueError('Only explicitly reviewed measured visualizations may be published')
+        binding_keys = ('measured_data', 'generator')
+        if any(key in entry for key in binding_keys):
+            if not all(key in entry for key in binding_keys):
+                raise ValueError('Per-file media requires both measured_data and generator bindings')
+            for key in binding_keys:
+                binding = entry[key]
+                if not isinstance(binding, dict):
+                    raise ValueError('Invalid per-file media source binding')
+                source_name, expected = binding.get('path'), binding.get('sha256')
+                if (not isinstance(source_name, str) or not source_name
+                        or '\\' in source_name or Path(source_name).as_posix() != source_name
+                        or not isinstance(expected, str) or re.fullmatch(r'[0-9a-f]{64}', expected) is None):
+                    raise ValueError('Per-file media requires a safe relative path and exact SHA')
+                source = member(root, source_name)
+                if not source.is_file() or digest(source) != expected:
+                    raise ValueError('Per-file media source or generator changed after review')
     return data['files']
 
 
