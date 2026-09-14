@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
-  "as_of": "2026-09-13",
-  "verified_recent_series_count": 30,
+  "as_of": "2026-09-14",
+  "verified_recent_series_count": 31,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同じ比較計画の複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "現在の機体系列で確認したH01–H04とL00–L25の30回。診断・失敗・途中終了を含み、成功30回や全開発通算を意味しない。同じ計画の複数条件は1回で、専門方策・追加評価・映像・準備revision・未実施条件を重複計上しない。",
+  "scope": "現在の機体系列で確認したH01–H04とL00–L26の31回。診断・失敗・途中終了を含み、成功31回や全開発通算を意味しない。同じ計画の複数条件は1回。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -2026,6 +2026,154 @@
         }
       },
       "selected_public_evidence_sha256": "1f49badb3482e930743fa144e16f167ef900c0af8dd41e974daaad03352b7523"
+    },
+    {
+      "id": "L26",
+      "series_order": 31,
+      "kind": "MULTI_CONDITION_MULTI_EXPERT_TRAINING_AND_EVALUATION",
+      "counted": true,
+      "outcome_time": {
+        "kind": "three_conditions_including_final_evaluations_completed",
+        "value_utc": "2026-09-13T17:20:06.583175+00:00",
+        "note": "Execution completion, not collection or publication time."
+      },
+      "new_training_updates": 1500,
+      "transitions": 12288000,
+      "final_iteration": null,
+      "final_iteration_by_expert": {
+        "locomotion": 149,
+        "prone": 249,
+        "wave": 249,
+        "sit": 59
+      },
+      "retained_iterations_not_new_training": [
+        "locomotion",
+        "sit"
+      ],
+      "training": {
+        "conditions": 3,
+        "executed_conditions": [
+          "A",
+          "B",
+          "C"
+        ],
+        "completed_main_updates_per_condition": 500,
+        "completed_total_main_updates_across_separate_conditions": 1500,
+        "expert_updates_per_condition": {
+          "locomotion": 0,
+          "prone": 250,
+          "wave": 250,
+          "sit": 0
+        },
+        "same_initial_parents_and_seed": true,
+        "condition_seed": 42,
+        "conditions_do_not_inherit_each_other": true,
+        "independent_experts_per_condition": 4,
+        "single_unified_actor": false,
+        "trained_final_checkpoint_count": 6,
+        "final_iteration_each_trained_checkpoint": 249,
+        "transitions_each_trained_checkpoint": 2048000,
+        "optimizer_states_each": 17,
+        "optimizer_steps_per_parameter_each": 5000,
+        "additional_learning_for_evaluation": 0,
+        "smoke_updates_excluded_from_main_budget": true,
+        "smoke_updates_excluded": 12
+      },
+      "main_update_budget_completed": true,
+      "trial_execution_completed": true,
+      "additional_training_updates_for_evaluation": 0,
+      "deterministic_final_evaluation_rollouts": 27,
+      "deterministic_baseline_evaluation_rollouts": 27,
+      "baseline_qualified_motion_count_by_condition": {
+        "A": 7,
+        "B": 7,
+        "C": 7
+      },
+      "qualified_motion_count": null,
+      "qualified_motion_count_by_condition": {
+        "A": 7,
+        "B": 7,
+        "C": 7
+      },
+      "qualified_motions_in_each_condition": [
+        "forward",
+        "backward",
+        "left",
+        "right",
+        "turn_left",
+        "turn_right",
+        "sit"
+      ],
+      "unqualified_motions_in_each_condition": [
+        "prone",
+        "wave"
+      ],
+      "new_passing_motion_count": 0,
+      "skill_acceptance": false,
+      "registered_six_direction_criteria_passed": true,
+      "walking_acceptance": true,
+      "walking_acceptance_scope": "Retained L23 locomotion expert re-evaluated in Trial31; zero new locomotion updates.",
+      "hardware_acceptance": false,
+      "continuous_switching_evaluated": false,
+      "unified_nine_skill_actor": false,
+      "all_final_requested_intervals_completed": false,
+      "candidate_release_eligible_by_condition": {
+        "A": false,
+        "B": false,
+        "C": false
+      },
+      "selected_evidence": "evidence/l26-evaluation.json",
+      "own_report_sha256": "1b7ffc6d0de2edb1869acc03b1b59aa7adcfe0eac8b5f72418de94462045668e",
+      "selected_results_sha256": "db8843159442d2b42f158d2dc01b817d7ef08b878c8c8c5e0eb48d46d2e1990d",
+      "media": {
+        "new_public_videos": 3,
+        "selected_actual_recording_count": 47,
+        "status": "PUBLISHED_TRIAL31_ABC_COMPARISON_MEDIA",
+        "video_urls": [
+          "docs/media/l26-a-nine-motions.mp4",
+          "docs/media/l26-b-nine-motions.mp4",
+          "docs/media/l26-c-nine-motions.mp4"
+        ],
+        "gif_urls": [
+          "docs/media/l26-a-nine-motions.gif",
+          "docs/media/l26-b-nine-motions.gif",
+          "docs/media/l26-c-nine-motions.gif"
+        ],
+        "comparison_duration_s": 14.0,
+        "publication_complete": true,
+        "readme_historical_digest_count": 7,
+        "acceptance_scope": "Original complete or first-terminal episodes; display stills do not count as measured holds."
+      },
+      "title": "独立A/B/C各500更新、各7/9維持・伏せと挨拶は未達",
+      "change": "同じ第30回親から伏せ250・挨拶250を独立学習。伏せの左右差1/0.5/0.25倍と挨拶の支持移動45/40/35mmを比較。歩行・座位は0更新、D17と合否基準を維持。",
+      "result": "全1500主更新・27最終評価を完了、各7/9合格、新規合格0。A挨拶はXY61.519mmで未達ながら高挙上・往復・復帰を維持。B挨拶は方位5.0249°・復帰1.9975秒で退行。B/C伏せは9.68/9.74秒、C挨拶は23.18秒で禁止接触停止。",
+      "next_decision": "第31回の伏せ下降時の位置ずれと、挨拶の挙上前の支持移動を分けて検証する。B/Cの一律左右差抑制・支持移動縮小は現状採用せず、保持・復帰を守る比較を検討。次の学習は未開始。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。",
+      "comparison_scope": "Same selected parents and seed42, modified controls/references in B/C paired parent evaluation. Separate experts; no union of passing cases.",
+      "source_registry": {
+        "A": {
+          "source_manifest_sha256": "e30868ad4b46324a53e16bf2695c6fac358179f777e17ac7d702a12a10948d6c",
+          "contract_sha256": "05324bc4e742e65b8f0ec1e0f927da7dfce8e8d325ed3b85f6e43d76d650f9be"
+        },
+        "B": {
+          "source_manifest_sha256": "ebc67d9e5aae2c0b5c59b327b9bd047b2d4082aae3227045d54fa259645595bd",
+          "contract_sha256": "486640d49619a5758bdeec2e71dcbbb27cbcd57723190c961ced6f8654ac5c6b"
+        },
+        "C": {
+          "source_manifest_sha256": "5db82691bb454c36e6e54a934bfdf1f9ee4ecd3f356bd0b5ee00190eb048cb8c",
+          "contract_sha256": "23856104faca8a3ba4d2c88e2f873ca148cf8cb69ae7ffe70f70527043624ea7"
+        }
+      },
+      "verification": {
+        "final_prone_raw_cases": 3,
+        "final_wave_raw_cases": 3,
+        "all_six_completed": true,
+        "retained_motion_raw_cases_recomputed": 0,
+        "prone_report_sha256": "de7bb309146401dd6f46340c0c2ae03fb4f3072a3e35e1acdb94806ac03ed356",
+        "wave_report_sha256": "6d7c5e5fffba91bf2e9993491698b9b2aaa8fb2930e533d8a7fbdad6811f06c9",
+        "scope": "All recorded samples through first terminal, including short failures. Same frozen numerical evaluators, not a new GPU evaluation."
+      },
+      "evaluation_scope": "Six new final prone/wave raw arrays replayed; seven retained motions verified by original summaries and recorded raw SHA, not local raw replay.",
+      "selected_public_evidence_sha256": "4d2f6d73219b2d305262490a3ab3fdf1b70d1093e7f07d7df20cb2be76937d21"
     }
   ],
   "visualization": {
@@ -2057,14 +2205,14 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": "伏せの連続支持と四足復帰を保ちながら、全区間の位置50mm・方位5°を同時に満たす条件を検討する。挨拶は150mm挙上と方位成功を保ち、400Hz時系列で支持移動中の最大位置ずれを確認する。次の学習は未開始。補強PLAの形状・質量は固定D17へ未反映で、専門方策間の切替、外乱、実機、印刷強度は別に検証する。",
+  "next": "第31回の伏せ下降時の位置ずれと、挨拶の挙上前の支持移動を分けて検証する。B/Cの一律左右差抑制・支持移動縮小は現状採用せず、保持・復帰を守る比較を検討。次の学習は未開始。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
     "effective_date": "2026-09-10",
     "existing_frozen_1000_update_plan_rewritten": false,
     "new_training_started_for_publication": false,
-    "default_scope": "Default total new main updates per bounded trial, divided among experts. Explicit comparison exceptions: Trial27 completed two independent500-update conditions; Trial28 executed A500 and skipped B; Trial29 and Trial30 each completed three independent500-update conditions. These completed comparisons do not increase the default budget or authorize future learning.",
+    "default_scope": "Default500 new main updates per finite trial. Completed explicit multi-condition comparisons include Trial27 A/B and Trial29–31 A/B/C; these do not authorize future learning or raise the default.",
     "l20_planned_updates_by_expert": {
       "locomotion": 320,
       "prone": 60,
@@ -2116,6 +2264,7 @@
     "cad_completion_scope": "SelectedD17 three-part source geometry and simulation derivation only; not whole-assembly manufacturing acceptance.",
     "completed_l23_scope": "SameD17; A500 and nine full evaluations finished, six directions plus sit qualified. B not started. No video publication or hardware/printed-strength acceptance.",
     "completed_l24_scope": "SameD17; three independent500-update conditions and all27 final episodes completed, each7/9. Prone return and wave time changes were paired against matched parent conditions. No hardware acceptance.",
-    "completed_l25_scope": "SameD17; three independent500-update conditions and all27 final episodes completed, each7/9. Six trained final checkpoints were CPU-verified and backed up. Reinforced PLA geometry/mass was not applied to this physics; initial result publication had no new video; A/B comparison media were published first; all three A/B/C comparison MP4s and GIFs are now published. No hardware acceptance."
+    "completed_l25_scope": "SameD17; three independent500-update conditions and all27 final episodes completed, each7/9. Six trained final checkpoints were CPU-verified and backed up. Reinforced PLA geometry/mass was not applied to this physics; initial result publication had no new video; A/B comparison media were published first; all three A/B/C comparison MP4s and GIFs are now published. No hardware acceptance.",
+    "next_decision": "第31回の伏せ下降時の位置ずれと、挨拶の挙上前の支持移動を分けて検証する。B/Cの一律左右差抑制・支持移動縮小は現状採用せず、保持・復帰を守る比較を検討。次の学習は未開始。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。"
   }
 }

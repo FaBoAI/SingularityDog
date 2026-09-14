@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
-  "updated": "2026-09-12",
-  "numbering_scope": "直近27回（H01〜H04＋L00〜L22）のうち後半L00〜L22の23件を表示。L22のA/Bは同じ1試行に数える。成功27回という意味ではない。",
+  "updated": "2026-09-14",
+  "numbering_scope": "直近31回（H01〜H04＋L00〜L26）のうちL00〜L26の27件を表示。第31回ABCは同じ1試行で、成功31回という意味ではない。",
   "loops": [
     {
       "id": "L00",
@@ -710,12 +710,68 @@
       "video_url": "media/l22-a-nine-motions.mp4",
       "report_url": "l22-evaluation.md",
       "new_training_updates": 1000
+    },
+    {
+      "id": "L23",
+      "order": 23,
+      "state": "EVALUATED",
+      "title": "A500更新で7/9合格、全6方向達成・B未実施",
+      "change": "同D17・選択親の観測と従来復帰参照を保持し、歩行の速度余裕・左方向、伏せ復帰、挨拶位置の報酬と探索・更新配分を変更。Bの股先行経路は未実施。",
+      "result": "Aは歩行150・伏せ250・挨拶100・座位0、計500新更新。選択親6/9から最終7/9へ、全6方向と座位が合格。前進41.0764cm/s。伏せ第2保持1.8800秒・第2基本復帰0.0875秒と挨拶最大XY63.028mmが未達。Bは残り7200秒の開始条件を満たさず未開始。",
+      "comparison_scope": "SameD17 selected parent baseline: locomotion/prone Trial27A, wave Trial27B, retained sit. All nine baseline selected values and raw/checkpoint identities match those parent evaluations. Multiple reward, exploration and allocation changes are not causally isolated.",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video_url": null,
+      "report_url": "l23-evaluation.md",
+      "new_training_updates": 500
+    },
+    {
+      "id": "L24",
+      "order": 24,
+      "state": "EVALUATED",
+      "title": "独立A/B/C各500更新、各7/9合格、復帰経路と挨拶時間を比較",
+      "change": "伏せは従来経路Aと股1秒先行B・0.75秒先行Cを比較。挨拶は18秒周期Aと20秒周期B/C、Cの予測制動を比較。同じ第28回親から独立に伏せ250・挨拶250更新、歩行と座位は保持。",
+      "result": "3条件とも各500更新・最終9件を完了し、全6方向と座位の7/9合格。伏せB/Cは復帰各2秒を2周期達成したが、方位と伏せ支持保持が未達。挨拶Aは最大XY60.632mm・方位5.401°、B/Cは150mm挙上維持も未達。全条件を総合改善として採用しない。",
+      "comparison_scope": "D17 and unchanged acceptance gates. Each condition is compared with its own parent evaluation using the same return path and time allocation; wave A36s differs from B/C40s. B/C prone return improvements already present in parent evaluations must not be attributed solely to new PPO.",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video_url": null,
+      "report_url": "l24-evaluation.md",
+      "new_training_updates": 1500
+    },
+    {
+      "id": "L25",
+      "order": 25,
+      "state": "EVALUATED",
+      "title": "独立A/B/C各500更新、保持と挙上は改善、位置・方位が残り各7/9",
+      "change": "伏せは第29回B、挨拶は第28回Aの同じ親から3条件を独立学習。挨拶は元18秒周期を維持し、探索幅と学習率を抑えて高さ・方位保護、追加XY報酬を段階比較。伏せも支持保持と定置の報酬差を比較。各条件で伏せ250・挨拶250、歩行と座位0更新。",
+      "result": "15:01:52 JSTに全3条件・1500主更新・27最終評価を完了。各7/9合格。伏せB/Cは伏せ保持・四足復帰を各2秒×2周期達成したが、最大XY61.443/57.519mm・方位21.750/21.380°で未達。Aも第2伏せ1.9500秒とXY51.201mmで未達。挨拶は全条件で150mm挙上8秒・4往復・復帰各2秒を維持したが、最大XY62.390/63.010/63.015mmで未達。",
+      "comparison_scope": "All three conditions use the same selected parents and seed42, paired with byte-identical parent raw evaluations. Same D17 and unchanged gates; four separate experts, not one actor or an ensemble union of successful cases.",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video_url": "media/l25-a-nine-motions.mp4",
+      "report_url": "l25-evaluation.md",
+      "new_training_updates": 1500
+    },
+    {
+      "id": "L26",
+      "order": 26,
+      "state": "EVALUATED",
+      "title": "独立A/B/C各500更新、各7/9維持・伏せと挨拶は未達",
+      "change": "同じ第30回親から伏せ250・挨拶250を独立学習。伏せの左右差1/0.5/0.25倍と挨拶の支持移動45/40/35mmを比較。歩行・座位は0更新、D17と合否基準を維持。",
+      "result": "全1500主更新・27最終評価を完了、各7/9合格、新規合格0。A挨拶はXY61.519mmで未達ながら高挙上・往復・復帰を維持。B挨拶は方位5.0249°・復帰1.9975秒で退行。B/C伏せは9.68/9.74秒、C挨拶は23.18秒で禁止接触停止。",
+      "comparison_scope": "Same selected parents and seed42, modified controls/references in B/C paired parent evaluation. Separate experts; no union of passing cases.",
+      "forward_speed_m_s": 0.41076370080312086,
+      "lift15_counts": null,
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "new_training_updates": 1500
     }
   ],
   "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。",
   "target_actual_forward_m_s": 0.4,
-  "verified_recent_series_count": 27,
-  "latest_loop_id": "L22",
+  "verified_recent_series_count": 31,
+  "latest_loop_id": "L26",
   "comparison_cases": [
     {
       "id": "L09-matched-L10",
@@ -885,53 +941,131 @@
       "forward_speed_m_s": null,
       "video_url": "media/l22-b-nine-motions.mp4",
       "report_url": "l22-evaluation.md"
+    },
+    {
+      "id": "L24-B",
+      "title": "第29回・条件B",
+      "state": "EVALUATED",
+      "change": "伏せは従来経路Aと股1秒先行B・0.75秒先行Cを比較。挨拶は18秒周期Aと20秒周期B/C、Cの予測制動を比較。同じ第28回親から独立に伏せ250・挨拶250更新、歩行と座位は保持。",
+      "result": "3条件とも各500更新・最終9件を完了し、全6方向と座位の7/9合格。伏せB/Cは復帰各2秒を2周期達成したが、方位と伏せ支持保持が未達。挨拶Aは最大XY60.632mm・方位5.401°、B/Cは150mm挙上維持も未達。全条件を総合改善として採用しない。",
+      "comparison_scope": "Independent condition; full original episode or first-terminal outcome, not display duration.",
+      "forward_speed_m_s": null,
+      "video_url": null,
+      "report_url": "l24-evaluation.md"
+    },
+    {
+      "id": "L24-C",
+      "title": "第29回・条件C",
+      "state": "EVALUATED",
+      "change": "伏せは従来経路Aと股1秒先行B・0.75秒先行Cを比較。挨拶は18秒周期Aと20秒周期B/C、Cの予測制動を比較。同じ第28回親から独立に伏せ250・挨拶250更新、歩行と座位は保持。",
+      "result": "3条件とも各500更新・最終9件を完了し、全6方向と座位の7/9合格。伏せB/Cは復帰各2秒を2周期達成したが、方位と伏せ支持保持が未達。挨拶Aは最大XY60.632mm・方位5.401°、B/Cは150mm挙上維持も未達。全条件を総合改善として採用しない。",
+      "comparison_scope": "Independent condition; full original episode or first-terminal outcome, not display duration.",
+      "forward_speed_m_s": null,
+      "video_url": null,
+      "report_url": "l24-evaluation.md"
+    },
+    {
+      "id": "L25-B",
+      "title": "第30回・条件B",
+      "state": "EVALUATED",
+      "change": "伏せは第29回B、挨拶は第28回Aの同じ親から3条件を独立学習。挨拶は元18秒周期を維持し、探索幅と学習率を抑えて高さ・方位保護、追加XY報酬を段階比較。伏せも支持保持と定置の報酬差を比較。各条件で伏せ250・挨拶250、歩行と座位0更新。",
+      "result": "15:01:52 JSTに全3条件・1500主更新・27最終評価を完了。各7/9合格。伏せB/Cは伏せ保持・四足復帰を各2秒×2周期達成したが、最大XY61.443/57.519mm・方位21.750/21.380°で未達。Aも第2伏せ1.9500秒とXY51.201mmで未達。挨拶は全条件で150mm挙上8秒・4往復・復帰各2秒を維持したが、最大XY62.390/63.010/63.015mmで未達。",
+      "comparison_scope": "Independent condition; full original episode or first-terminal outcome, not display duration.",
+      "forward_speed_m_s": null,
+      "video_url": "media/l25-b-nine-motions.mp4",
+      "report_url": "l25-evaluation.md"
+    },
+    {
+      "id": "L25-C",
+      "title": "第30回・条件C",
+      "state": "EVALUATED",
+      "change": "伏せは第29回B、挨拶は第28回Aの同じ親から3条件を独立学習。挨拶は元18秒周期を維持し、探索幅と学習率を抑えて高さ・方位保護、追加XY報酬を段階比較。伏せも支持保持と定置の報酬差を比較。各条件で伏せ250・挨拶250、歩行と座位0更新。",
+      "result": "15:01:52 JSTに全3条件・1500主更新・27最終評価を完了。各7/9合格。伏せB/Cは伏せ保持・四足復帰を各2秒×2周期達成したが、最大XY61.443/57.519mm・方位21.750/21.380°で未達。Aも第2伏せ1.9500秒とXY51.201mmで未達。挨拶は全条件で150mm挙上8秒・4往復・復帰各2秒を維持したが、最大XY62.390/63.010/63.015mmで未達。",
+      "comparison_scope": "Independent condition; full original episode or first-terminal outcome, not display duration.",
+      "forward_speed_m_s": null,
+      "video_url": "media/l25-c-nine-motions.mp4",
+      "report_url": "l25-evaluation.md"
+    },
+    {
+      "id": "L26-B",
+      "title": "第31回・条件B",
+      "state": "EVALUATED",
+      "change": "同じ第30回親から伏せ250・挨拶250を独立学習。伏せの左右差1/0.5/0.25倍と挨拶の支持移動45/40/35mmを比較。歩行・座位は0更新、D17と合否基準を維持。",
+      "result": "全1500主更新・27最終評価を完了、各7/9合格、新規合格0。A挨拶はXY61.519mmで未達ながら高挙上・往復・復帰を維持。B挨拶は方位5.0249°・復帰1.9975秒で退行。B/C伏せは9.68/9.74秒、C挨拶は23.18秒で禁止接触停止。",
+      "comparison_scope": "Independent condition; full original episode or first-terminal outcome, not display duration.",
+      "forward_speed_m_s": null,
+      "video_url": "media/l26-b-nine-motions.mp4",
+      "report_url": "l26-evaluation.md"
+    },
+    {
+      "id": "L26-C",
+      "title": "第31回・条件C",
+      "state": "EVALUATED",
+      "change": "同じ第30回親から伏せ250・挨拶250を独立学習。伏せの左右差1/0.5/0.25倍と挨拶の支持移動45/40/35mmを比較。歩行・座位は0更新、D17と合否基準を維持。",
+      "result": "全1500主更新・27最終評価を完了、各7/9合格、新規合格0。A挨拶はXY61.519mmで未達ながら高挙上・往復・復帰を維持。B挨拶は方位5.0249°・復帰1.9975秒で退行。B/C伏せは9.68/9.74秒、C挨拶は23.18秒で禁止接触停止。",
+      "comparison_scope": "Independent condition; full original episode or first-terminal outcome, not display duration.",
+      "forward_speed_m_s": null,
+      "video_url": "media/l26-c-nine-motions.mp4",
+      "report_url": "l26-evaluation.md"
     }
   ],
-  "default_comparison_before": "L22",
+  "default_comparison_before": "L26",
   "latest_cases": [
     {
       "direction": "forward",
       "label": "前進",
       "duration_s": 12.0,
       "completed_interval": true,
-      "speed_cm_s": 39.34681018193562,
+      "speed_cm_s": 41.07637008031209,
       "signed_mean_yaw_rate_rad_s": null,
-      "yaw_end_deg": -21.0529419737357,
-      "max_planar_excursion_m": 4.908489336791267,
-      "target_result": "未達"
+      "max_planar_excursion_m": null,
+      "yaw_end_deg": null,
+      "target_result": "既存全基準達成",
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "scope": "Retained model, no new learning in Trial31."
     },
     {
       "direction": "backward",
-      "label": "後進",
+      "label": "後退",
       "duration_s": 12.0,
       "completed_interval": true,
-      "speed_cm_s": 11.871400475502014,
+      "speed_cm_s": 10.860345760981243,
       "signed_mean_yaw_rate_rad_s": null,
-      "yaw_end_deg": -9.134435890824506,
-      "max_planar_excursion_m": 1.4533238079440463,
-      "target_result": "登録基準合格"
+      "max_planar_excursion_m": null,
+      "yaw_end_deg": null,
+      "target_result": "既存全基準達成",
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "scope": "Retained model, no new learning in Trial31."
     },
     {
       "direction": "left",
       "label": "左移動",
       "duration_s": 12.0,
       "completed_interval": true,
-      "speed_cm_s": 9.047122796376545,
+      "speed_cm_s": 10.160939892133076,
       "signed_mean_yaw_rate_rad_s": null,
-      "yaw_end_deg": -11.438201356690769,
-      "max_planar_excursion_m": 1.1266272328958493,
-      "target_result": "未達"
+      "max_planar_excursion_m": null,
+      "yaw_end_deg": null,
+      "target_result": "既存全基準達成",
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "scope": "Retained model, no new learning in Trial31."
     },
     {
       "direction": "right",
       "label": "右移動",
       "duration_s": 12.0,
       "completed_interval": true,
-      "speed_cm_s": 8.814539511998493,
+      "speed_cm_s": 11.273395021756489,
       "signed_mean_yaw_rate_rad_s": null,
-      "yaw_end_deg": -19.265320969385602,
-      "max_planar_excursion_m": 1.1106875961316394,
-      "target_result": "未達"
+      "max_planar_excursion_m": null,
+      "yaw_end_deg": null,
+      "target_result": "既存全基準達成",
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "scope": "Retained model, no new learning in Trial31."
     },
     {
       "direction": "turn_left",
@@ -939,10 +1073,13 @@
       "duration_s": 12.0,
       "completed_interval": true,
       "speed_cm_s": null,
-      "signed_mean_yaw_rate_rad_s": 0.2127871282528224,
-      "yaw_end_deg": 146.30165260314817,
-      "max_planar_excursion_m": 0.22002197044392874,
-      "target_result": "未達"
+      "signed_mean_yaw_rate_rad_s": 0.2243958121536879,
+      "max_planar_excursion_m": null,
+      "yaw_end_deg": null,
+      "target_result": "既存全基準達成",
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "scope": "Retained model, no new learning in Trial31."
     },
     {
       "direction": "turn_right",
@@ -950,16 +1087,19 @@
       "duration_s": 12.0,
       "completed_interval": true,
       "speed_cm_s": null,
-      "signed_mean_yaw_rate_rad_s": 0.26390626764783437,
-      "yaw_end_deg": -181.4485838792497,
-      "max_planar_excursion_m": 0.26711722816129435,
-      "target_result": "未達"
+      "signed_mean_yaw_rate_rad_s": 0.24707792826763164,
+      "max_planar_excursion_m": null,
+      "yaw_end_deg": null,
+      "target_result": "既存全基準達成",
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "scope": "Retained model, no new learning in Trial31."
     }
   ],
-  "latest_locomotion_loop_id": "L22",
-  "latest_cases_scope": "L20のD16・元L13親+0と最終方策の6方向評価。旧D13のL13結果はhistorical_l13_casesに保持。",
+  "latest_locomotion_loop_id": "L26",
+  "latest_cases_scope": "Trial31 re-evaluation of the retained Trial28 A locomotion model, D17 and zero new updates. A/B/C same recorded raw SHA. Historical cases remain separate.",
   "future_training_updates": 500,
-  "latest_locomotion_development_targets_met_case_count": 1,
+  "latest_locomotion_development_targets_met_case_count": 6,
   "latest_locomotion_evaluation_case_count": 6,
   "next_loop": {
     "id": null,
@@ -968,7 +1108,7 @@
     "training_started": false,
     "counted_as_completed_loop": false,
     "default_new_training_updates": 500,
-    "scope": "第25回の未達・親比較から次の有限試行を決める。次回の学習は未開始。個別合格と連続切替・外乱・実機は別に検証する。"
+    "scope": "第31回の伏せ下降時の位置ずれと、挨拶の挙上前の支持移動を分けて検証する。B/Cの一律左右差抑制・支持移動縮小は現状採用せず、保持・復帰を守る比較を検討。次の学習は未開始。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。"
   },
   "historical_l13_cases": [
     {
@@ -1041,58 +1181,76 @@
   "historical_l13_cases_scope": "Historical L13 six-direction locomotion on D13; separate from the current L20 nine-motion evaluation on D16.",
   "historical_l13_case_count": 6,
   "historical_l13_development_targets_met_case_count": 6,
-  "latest_locomotion_stage_id": "L20",
-  "selected_actual_recording_count": 39,
+  "latest_locomotion_stage_id": "L26",
+  "selected_actual_recording_count": 47,
   "separate_measured_chart_mp4_count": 1,
-  "default_comparison_after": "L22-B",
+  "default_comparison_after": "L26-B",
   "latest_motion_cases": [
     {
       "motion_id": "forward",
       "label": "前進",
       "expert_id": "locomotion",
-      "skill_acceptance": false,
+      "skill_acceptance": true,
       "duration_s": 12.0,
-      "video_url": "media/l20-forward.mp4"
+      "requested_duration_s": 12.0,
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
     },
     {
       "motion_id": "backward",
-      "label": "後進",
+      "label": "後退",
       "expert_id": "locomotion",
       "skill_acceptance": true,
       "duration_s": 12.0,
-      "video_url": "media/l20-backward.mp4"
+      "requested_duration_s": 12.0,
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
     },
     {
       "motion_id": "left",
       "label": "左移動",
       "expert_id": "locomotion",
-      "skill_acceptance": false,
+      "skill_acceptance": true,
       "duration_s": 12.0,
-      "video_url": "media/l20-left.mp4"
+      "requested_duration_s": 12.0,
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
     },
     {
       "motion_id": "right",
       "label": "右移動",
       "expert_id": "locomotion",
-      "skill_acceptance": false,
+      "skill_acceptance": true,
       "duration_s": 12.0,
-      "video_url": "media/l20-right.mp4"
+      "requested_duration_s": 12.0,
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
     },
     {
       "motion_id": "turn_left",
       "label": "左旋回",
       "expert_id": "locomotion",
-      "skill_acceptance": false,
+      "skill_acceptance": true,
       "duration_s": 12.0,
-      "video_url": "media/l20-turn-left.mp4"
+      "requested_duration_s": 12.0,
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
     },
     {
       "motion_id": "turn_right",
       "label": "右旋回",
       "expert_id": "locomotion",
-      "skill_acceptance": false,
+      "skill_acceptance": true,
       "duration_s": 12.0,
-      "video_url": "media/l20-turn-right.mp4"
+      "requested_duration_s": 12.0,
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
     },
     {
       "motion_id": "prone",
@@ -1100,7 +1258,10 @@
       "expert_id": "prone",
       "skill_acceptance": false,
       "duration_s": 24.0,
-      "video_url": "media/l20-prone.mp4"
+      "requested_duration_s": 24.0,
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
     },
     {
       "motion_id": "wave",
@@ -1108,15 +1269,21 @@
       "expert_id": "wave",
       "skill_acceptance": false,
       "duration_s": 36.0,
-      "video_url": "media/l20-wave.mp4"
+      "requested_duration_s": 36.0,
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
     },
     {
       "motion_id": "sit",
-      "label": "浅いお座り・四足復帰",
+      "label": "お座り・四足復帰",
       "expert_id": "sit",
       "skill_acceptance": true,
       "duration_s": 32.0,
-      "video_url": "media/l20-sit.mp4"
+      "requested_duration_s": 32.0,
+      "video_url": "media/l26-a-nine-motions.mp4",
+      "report_url": "l26-evaluation.md",
+      "video_scope": "Selected14second comparison excerpt; metrics use the recorded episode."
     }
   ]
 }

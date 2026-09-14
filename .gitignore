@@ -137,3 +137,11 @@ IMG_*.[Hh][Ee][Ii][Cc]
 # User-selected Trial30 C comparison video and preview
 !docs/media/l25-c-nine-motions.mp4
 !docs/media/l25-c-nine-motions.gif
+
+# User-selected Trial31 A/B/C comparison videos and previews
+!docs/media/l26-a-nine-motions.mp4
+!docs/media/l26-a-nine-motions.gif
+!docs/media/l26-b-nine-motions.mp4
+!docs/media/l26-b-nine-motions.gif
+!docs/media/l26-c-nine-motions.mp4
+!docs/media/l26-c-nine-motions.gif
