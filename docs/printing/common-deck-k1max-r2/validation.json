@@ -1,0 +1,76 @@
+{
+  "schema": "singularitydog.common-deck-validation.v1",
+  "result": "GEOMETRY_AND_STATIC_FASTENER_CHECKS_PASS",
+  "changes": {
+    "filled_obsolete_shelf_bores": 4,
+    "chassis_head_access_reliefs": 2,
+    "head_access_diameter_mm": 8.4,
+    "chassis_hole_diameter_mm": 3.4,
+    "floor_thickness_mm": 3.0,
+    "cap_axes_xy_mm": [
+      [
+        25.331562833786,
+        -34
+      ],
+      [
+        25.331562833786,
+        34
+      ],
+      [
+        124.668437166214,
+        -34
+      ],
+      [
+        124.668437166214,
+        34
+      ]
+    ],
+    "cap_shape_unchanged": true,
+    "cap_seated_shift_z_mm": -0.2
+  },
+  "Jetson_gates": {
+    "actual_closed_bores_coaxial": true,
+    "actual_M3_shaft_clear": true,
+    "surrounded_by_cap_post_floor_material": true,
+    "cap_OD7_washer_supported": true,
+    "seated_hardware_clear": true,
+    "original_cap_shape_only_repositioned": true,
+    "rigid_contact_projection_exists_without_envelope_penetration": true,
+    "obsolete_four_bores_and_countersinks_filled": true,
+    "two_chassis_wells_clear_original_floor_preserved": true
+  },
+  "lower_pole_fasteners": {
+    "count": 8,
+    "status": "PASS_STATIC_FASTENER_PATHS",
+    "tested_with_reinforced_base_ids": [
+      "B02",
+      "B04",
+      "B06",
+      "B08"
+    ],
+    "hardware_nominal": {
+      "retainer_M3x20_count": 4,
+      "inner_chassis_M3x45_count": 4,
+      "outer_clamp_M3x40_count": 4,
+      "washer_OD7_ID3p2_t0p5_count": 24,
+      "nut_AF5p5_H2p4_count": 12
+    }
+  },
+  "original_vs_final_STL": "0fbf7b130e3f11b26908bb8fc4eb50acbdf0ea0ad4356b8ac565227566d745bb",
+  "source_receipt_sha256": {
+    "Jetson": "c45cfe8939a207cee5a79372abbd65a22dc8b557f7e567ae2c64043f22201742",
+    "lower_pole": "30de132b1a93bf4f5a7e176fddea66ac38c0ac67acd9f8e38b570b1ff26f6828",
+    "package": "69483affb52ca1a1ada888cfe2e050c5dbd1fefe31ddad9710a73a8c56aedc7a"
+  },
+  "input_sources_preserved": true,
+  "photo_assets_used": false,
+  "physical_fit_verified": false,
+  "strength_verified": false,
+  "sliced": false,
+  "limitations": [
+    "Static geometry is not a load rating or a clamp-preload measurement.",
+    "Actual Jetson edges, ports, fasteners and printed tolerances require physical fitting.",
+    "Articulated leg motion and material fatigue/creep were not newly validated.",
+    "Recorded hashes trace internal reports; private source CAD and reports are not bundled."
+  ]
+}

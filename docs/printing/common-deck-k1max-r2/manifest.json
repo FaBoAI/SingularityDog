@@ -1,0 +1,243 @@
+{
+  "schema": "singularitydog.common-deck-k1max-r2.v1",
+  "units": "mm",
+  "parts": [
+    {
+      "id": "COMMON_PLATE_R2",
+      "file": "printable_mm/common_equipment_plate_K1Max_r2_mm.stl",
+      "sha256": "0fbf7b130e3f11b26908bb8fc4eb50acbdf0ea0ad4356b8ac565227566d745bb",
+      "quantity": 1,
+      "dimensions_mm": [
+        280.0,
+        130.0,
+        26.0
+      ],
+      "solid_PLA_mass_g": 219.4409739291092,
+      "color": "black",
+      "watertight": true,
+      "connected_solids": 1,
+      "scale_percent": 100
+    },
+    {
+      "id": "B26",
+      "file": "printable_mm/B26_jetson_edge_retainer_front_mm.stl",
+      "sha256": "db0a1c13298a9c0fdd9f08a7ee6ebf1ee24e457d007ec0d056c580d200613c56",
+      "quantity": 1,
+      "dimensions_mm": [
+        11.20001220703125,
+        78.0,
+        2.999998092651367
+      ],
+      "solid_PLA_mass_g": 3.1797561753599126,
+      "color": "black",
+      "watertight": true,
+      "connected_solids": 1,
+      "scale_percent": 100
+    },
+    {
+      "id": "B27",
+      "file": "printable_mm/B27_jetson_edge_retainer_rear_mm.stl",
+      "sha256": "07f8bf3c1945a4f7a582cdde8cf513db513e40905bf77049dc2faca99bfe5c93",
+      "quantity": 1,
+      "dimensions_mm": [
+        11.199996948242188,
+        78.0,
+        2.999998092651367
+      ],
+      "solid_PLA_mass_g": 3.179751772219608,
+      "color": "black",
+      "watertight": true,
+      "connected_solids": 1,
+      "scale_percent": 100
+    },
+    {
+      "id": "B17",
+      "file": "printable_mm/lower_pole_clamps/B17_d20_long_-1_-1_-1_lower_mm.stl",
+      "sha256": "b75be16eb7a9da0ef8b6106088e9dd2a6e1db4298a85635d4fdd8c4f8543427b",
+      "quantity": 1,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "solid_PLA_mass_g": 8.828602191651227,
+      "color": "black",
+      "watertight": true,
+      "connected_solids": 1,
+      "scale_percent": 100
+    },
+    {
+      "id": "B18",
+      "file": "printable_mm/lower_pole_clamps/B18_d20_long_-1_-1_-1_upper_mm.stl",
+      "sha256": "abf8a7c168c92202ded8b7607de77158e485b80be9f1e58503a5b24e8f4fa510",
+      "quantity": 1,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "solid_PLA_mass_g": 8.828602191651214,
+      "color": "black",
+      "watertight": true,
+      "connected_solids": 1,
+      "scale_percent": 100
+    },
+    {
+      "id": "B19",
+      "file": "printable_mm/lower_pole_clamps/B19_d20_long_-1_1_-1_lower_mm.stl",
+      "sha256": "9a703bbde2c515a92288d2f4b7d7cb6c422094e202f6b334755b41d855b28391",
+      "quantity": 1,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "solid_PLA_mass_g": 8.828602191651227,
+      "color": "black",
+      "watertight": true,
+      "connected_solids": 1,
+      "scale_percent": 100
+    },
+    {
+      "id": "B20",
+      "file": "printable_mm/lower_pole_clamps/B20_d20_long_-1_1_-1_upper_mm.stl",
+      "sha256": "56128d84226f561d53d6e5f1c38cddc067853c2eacd9d3274fb85783723fe17b",
+      "quantity": 1,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "solid_PLA_mass_g": 8.828602191651214,
+      "color": "black",
+      "watertight": true,
+      "connected_solids": 1,
+      "scale_percent": 100
+    },
+    {
+      "id": "B21",
+      "file": "printable_mm/lower_pole_clamps/B21_d20_long_1_-1_-1_lower_mm.stl",
+      "sha256": "7bbfe394cf8ce5ed2eea29bdd570428d56c530e741d5a17a548677351fff98e8",
+      "quantity": 1,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "solid_PLA_mass_g": 8.828602191651228,
+      "color": "black",
+      "watertight": true,
+      "connected_solids": 1,
+      "scale_percent": 100
+    },
+    {
+      "id": "B22",
+      "file": "printable_mm/lower_pole_clamps/B22_d20_long_1_-1_-1_upper_mm.stl",
+      "sha256": "19e12dfdc84fcbf97431a682808db15a1f0710a5ff001b710472cd7caab04aaa",
+      "quantity": 1,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "solid_PLA_mass_g": 8.828602191651218,
+      "color": "black",
+      "watertight": true,
+      "connected_solids": 1,
+      "scale_percent": 100
+    },
+    {
+      "id": "B23",
+      "file": "printable_mm/lower_pole_clamps/B23_d20_long_1_1_-1_lower_mm.stl",
+      "sha256": "1d1f2c045465cef8c009fdac98209cc431cfb1d5156dba219763bbbc49a0a407",
+      "quantity": 1,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "solid_PLA_mass_g": 8.828602191651228,
+      "color": "black",
+      "watertight": true,
+      "connected_solids": 1,
+      "scale_percent": 100
+    },
+    {
+      "id": "B24",
+      "file": "printable_mm/lower_pole_clamps/B24_d20_long_1_1_-1_upper_mm.stl",
+      "sha256": "b79412efcc58628565b1bd9958c0079bf26d991ed76755172d2c075fd6b2da6b",
+      "quantity": 1,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "solid_PLA_mass_g": 8.828602191651218,
+      "color": "black",
+      "watertight": true,
+      "connected_solids": 1,
+      "scale_percent": 100
+    }
+  ],
+  "unique_printed_part_count": 11,
+  "lower_clamp_pairs": 4,
+  "solid_PLA_total_g": 296.4292994098985,
+  "density_g_cm3": 1.24,
+  "mass_basis": "Uniform solid PLA; sliced consumption unavailable",
+  "optional_clamp_layout": {
+    "file": "optional_plates/CLAMPS_ONLY_8parts_black_mm.stl",
+    "sha256": "3d47bdc888f8f688ae0a35266635b81d616f040154e2c554e857d4f1543c34fb",
+    "part_count": 8,
+    "replaces_individual_ids": [
+      "B17",
+      "B18",
+      "B19",
+      "B20",
+      "B21",
+      "B22",
+      "B23",
+      "B24"
+    ],
+    "print_both": false
+  },
+  "hardware_nominal": {
+    "retainer_M3x20_count": 4,
+    "inner_chassis_M3x45_count": 4,
+    "outer_clamp_M3x40_count": 4,
+    "washer_OD7_ID3p2_t0p5_count": 24,
+    "nut_AF5p5_H2p4_count": 12
+  },
+  "verification": {
+    "Jetson_geometric_gates": {
+      "actual_closed_bores_coaxial": true,
+      "actual_M3_shaft_clear": true,
+      "surrounded_by_cap_post_floor_material": true,
+      "cap_OD7_washer_supported": true,
+      "seated_hardware_clear": true,
+      "original_cap_shape_only_repositioned": true,
+      "rigid_contact_projection_exists_without_envelope_penetration": true,
+      "obsolete_four_bores_and_countersinks_filled": true,
+      "two_chassis_wells_clear_original_floor_preserved": true
+    },
+    "lower_static_hardware": "PASS_STATIC_FASTENER_PATHS",
+    "assembly_sha256": "d35e00c2bd5da74f5b3d32cb6540c16e727533b0c3f28b8b47578f2b80561867"
+  },
+  "physical_fit_verified": false,
+  "strength_verified": false,
+  "sliced": false,
+  "photos_included": false,
+  "source_Fusion_or_training_model_modified": false,
+  "status": "GEOMETRY_VERIFIED_PHYSICAL_FIT_AND_LOAD_TESTS_PENDING",
+  "selected_print_bytes_unchanged": true,
+  "public_text_is_curated": true,
+  "source_local_manifest_sha256": "2c8d32d6eeb9d0384c944d1b0df526573984fd9a07445a8b13e6870f50d0a71a",
+  "archive_note": "Public archive rebuilt from the listed public counterparts; differs from the local full-audit ZIP.",
+  "excluded": [
+    "reference photographs",
+    "editable CAD assemblies",
+    "equipment meshes",
+    "raw audit files with local paths",
+    "training models and weights",
+    "connection or authentication data"
+  ]
+}

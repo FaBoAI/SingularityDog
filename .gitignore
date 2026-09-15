@@ -148,3 +148,18 @@ IMG_*.[Hh][Ee][Ii][Cc]
 
 # Trial32 measured checkpoint comparison
 !docs/media/l27-checkpoint-comparison.png
+
+# Individually selected black common deck and lower pole kit, 2026-09-15
+!docs/printing/common-deck-k1max-r2/printable_mm/common_equipment_plate_K1Max_r2_mm.stl
+!docs/printing/common-deck-k1max-r2/printable_mm/B26_jetson_edge_retainer_front_mm.stl
+!docs/printing/common-deck-k1max-r2/printable_mm/B27_jetson_edge_retainer_rear_mm.stl
+!docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B17_d20_long_-1_-1_-1_lower_mm.stl
+!docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B18_d20_long_-1_-1_-1_upper_mm.stl
+!docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B19_d20_long_-1_1_-1_lower_mm.stl
+!docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B20_d20_long_-1_1_-1_upper_mm.stl
+!docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B21_d20_long_1_-1_-1_lower_mm.stl
+!docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B22_d20_long_1_-1_-1_upper_mm.stl
+!docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B23_d20_long_1_1_-1_lower_mm.stl
+!docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B24_d20_long_1_1_-1_upper_mm.stl
+!docs/printing/common-deck-k1max-r2/optional_plates/CLAMPS_ONLY_8parts_black_mm.stl
+!docs/printing/common-deck-k1max-r2/FaBoRobotDog_Black_Deck_and_PoleClamps_K1Max_r2_public.zip

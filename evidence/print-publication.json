@@ -1,12 +1,12 @@
 {
   "schema": "singularitydog.user-selected-print-files.v1",
   "authorization": "user_selected_next_ten_print_parts_2026-09-12",
-  "scope": "Only the individually registered next-ten-part and yellow-dense kits, arranged plates, technical mesh previews, selected print metadata and public archives.",
-  "individual_part_count": 38,
-  "arranged_plate_count": 8,
-  "STL_file_count": 46,
-  "preview_PNG_count": 4,
-  "archive_member_count": 56,
+  "scope": "Only the individually registered print packages, their specified arranged plates, technical drawings and curated text.",
+  "individual_part_count": 49,
+  "arranged_plate_count": 9,
+  "STL_file_count": 58,
+  "preview_PNG_count": 6,
+  "archive_member_count": 73,
   "files": {
     "docs/printing/next-10-parts/individual_parts/black/B1_FL_base_mount_mm.stl": {
       "kind": "stl",
@@ -1851,6 +1851,520 @@
         }
       },
       "rebuilt_from_public_counterparts_only": true
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/common_equipment_plate_K1Max_r2_mm.stl": {
+      "kind": "stl",
+      "sha256": "0fbf7b130e3f11b26908bb8fc4eb50acbdf0ea0ad4356b8ac565227566d745bb",
+      "bytes": 547284,
+      "reviewed_for_publication": true,
+      "source_sha256": "0fbf7b130e3f11b26908bb8fc4eb50acbdf0ea0ad4356b8ac565227566d745bb",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 10944,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        280.0,
+        130.0,
+        26.0
+      ],
+      "dimensions_mm": [
+        280.0,
+        130.0,
+        26.0
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "COMMON_PLATE_R2"
+      ],
+      "source_kind": "user_selected_delivered_r2_print_STL_identical_bytes"
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/B26_jetson_edge_retainer_front_mm.stl": {
+      "kind": "stl",
+      "sha256": "db0a1c13298a9c0fdd9f08a7ee6ebf1ee24e457d007ec0d056c580d200613c56",
+      "bytes": 12684,
+      "reviewed_for_publication": true,
+      "source_sha256": "db0a1c13298a9c0fdd9f08a7ee6ebf1ee24e457d007ec0d056c580d200613c56",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 252,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        11.20001220703125,
+        78.0,
+        2.999998092651367
+      ],
+      "dimensions_mm": [
+        11.20001220703125,
+        78.0,
+        2.999998092651367
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B26"
+      ],
+      "source_kind": "user_selected_delivered_r2_print_STL_identical_bytes"
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/B27_jetson_edge_retainer_rear_mm.stl": {
+      "kind": "stl",
+      "sha256": "07f8bf3c1945a4f7a582cdde8cf513db513e40905bf77049dc2faca99bfe5c93",
+      "bytes": 12684,
+      "reviewed_for_publication": true,
+      "source_sha256": "07f8bf3c1945a4f7a582cdde8cf513db513e40905bf77049dc2faca99bfe5c93",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 252,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        11.199996948242188,
+        78.0,
+        2.999998092651367
+      ],
+      "dimensions_mm": [
+        11.199996948242188,
+        78.0,
+        2.999998092651367
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B27"
+      ],
+      "source_kind": "user_selected_delivered_r2_print_STL_identical_bytes"
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B17_d20_long_-1_-1_-1_lower_mm.stl": {
+      "kind": "stl",
+      "sha256": "b75be16eb7a9da0ef8b6106088e9dd2a6e1db4298a85635d4fdd8c4f8543427b",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "b75be16eb7a9da0ef8b6106088e9dd2a6e1db4298a85635d4fdd8c4f8543427b",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B17"
+      ],
+      "source_kind": "user_selected_delivered_r2_print_STL_identical_bytes"
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B18_d20_long_-1_-1_-1_upper_mm.stl": {
+      "kind": "stl",
+      "sha256": "abf8a7c168c92202ded8b7607de77158e485b80be9f1e58503a5b24e8f4fa510",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "abf8a7c168c92202ded8b7607de77158e485b80be9f1e58503a5b24e8f4fa510",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B18"
+      ],
+      "source_kind": "user_selected_delivered_r2_print_STL_identical_bytes"
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B19_d20_long_-1_1_-1_lower_mm.stl": {
+      "kind": "stl",
+      "sha256": "9a703bbde2c515a92288d2f4b7d7cb6c422094e202f6b334755b41d855b28391",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "9a703bbde2c515a92288d2f4b7d7cb6c422094e202f6b334755b41d855b28391",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B19"
+      ],
+      "source_kind": "user_selected_delivered_r2_print_STL_identical_bytes"
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B20_d20_long_-1_1_-1_upper_mm.stl": {
+      "kind": "stl",
+      "sha256": "56128d84226f561d53d6e5f1c38cddc067853c2eacd9d3274fb85783723fe17b",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "56128d84226f561d53d6e5f1c38cddc067853c2eacd9d3274fb85783723fe17b",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B20"
+      ],
+      "source_kind": "user_selected_delivered_r2_print_STL_identical_bytes"
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B21_d20_long_1_-1_-1_lower_mm.stl": {
+      "kind": "stl",
+      "sha256": "7bbfe394cf8ce5ed2eea29bdd570428d56c530e741d5a17a548677351fff98e8",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "7bbfe394cf8ce5ed2eea29bdd570428d56c530e741d5a17a548677351fff98e8",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B21"
+      ],
+      "source_kind": "user_selected_delivered_r2_print_STL_identical_bytes"
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B22_d20_long_1_-1_-1_upper_mm.stl": {
+      "kind": "stl",
+      "sha256": "19e12dfdc84fcbf97431a682808db15a1f0710a5ff001b710472cd7caab04aaa",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "19e12dfdc84fcbf97431a682808db15a1f0710a5ff001b710472cd7caab04aaa",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B22"
+      ],
+      "source_kind": "user_selected_delivered_r2_print_STL_identical_bytes"
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B23_d20_long_1_1_-1_lower_mm.stl": {
+      "kind": "stl",
+      "sha256": "1d1f2c045465cef8c009fdac98209cc431cfb1d5156dba219763bbbc49a0a407",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "1d1f2c045465cef8c009fdac98209cc431cfb1d5156dba219763bbbc49a0a407",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B23"
+      ],
+      "source_kind": "user_selected_delivered_r2_print_STL_identical_bytes"
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B24_d20_long_1_1_-1_upper_mm.stl": {
+      "kind": "stl",
+      "sha256": "b79412efcc58628565b1bd9958c0079bf26d991ed76755172d2c075fd6b2da6b",
+      "bytes": 24284,
+      "reviewed_for_publication": true,
+      "source_sha256": "b79412efcc58628565b1bd9958c0079bf26d991ed76755172d2c075fd6b2da6b",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "role": "individual_part",
+      "part_ids": [
+        "B24"
+      ],
+      "source_kind": "user_selected_delivered_r2_print_STL_identical_bytes"
+    },
+    "docs/printing/common-deck-k1max-r2/optional_plates/CLAMPS_ONLY_8parts_black_mm.stl": {
+      "kind": "stl",
+      "sha256": "3d47bdc888f8f688ae0a35266635b81d616f040154e2c554e857d4f1543c34fb",
+      "bytes": 193684,
+      "reviewed_for_publication": true,
+      "source_sha256": "3d47bdc888f8f688ae0a35266635b81d616f040154e2c554e857d4f1543c34fb",
+      "units": "mm",
+      "strict_binary_stl": true,
+      "triangles": 3872,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        91.96116638183594,
+        118.0,
+        12.75
+      ],
+      "dimensions_mm": [
+        91.96116638183594,
+        118.0,
+        12.75
+      ],
+      "closed_surface_components": 8,
+      "role": "arranged_plate",
+      "part_ids": [
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B24"
+      ],
+      "source_kind": "user_selected_delivered_r2_print_STL_identical_bytes"
+    },
+    "docs/printing/common-deck-k1max-r2/previews/common_plate_mounting_underside_exploded.png": {
+      "kind": "preview_png",
+      "sha256": "a3afd629d7e5186d0147867c47ecd02af7986737d72ebad6a13429dc95457f8c",
+      "bytes": 345730,
+      "reviewed_for_publication": true,
+      "source_sha256": "a3afd629d7e5186d0147867c47ecd02af7986737d72ebad6a13429dc95457f8c",
+      "width": 2560,
+      "height": 1600,
+      "origin": "Technical drawing from selected print-part geometry and nominal tube primitives; no camera photographs.",
+      "visual_reviewed": true
+    },
+    "docs/printing/common-deck-k1max-r2/previews/jetson_retainer_hole_positions.png": {
+      "kind": "preview_png",
+      "sha256": "2aa70d956589596875127235d0fd3e3862ca5fea4bdbd8fcab9c6c374107c58e",
+      "bytes": 161653,
+      "reviewed_for_publication": true,
+      "source_sha256": "2aa70d956589596875127235d0fd3e3862ca5fea4bdbd8fcab9c6c374107c58e",
+      "width": 2400,
+      "height": 1440,
+      "origin": "Technical drawing from selected print-part geometry and nominal tube primitives; no camera photographs.",
+      "visual_reviewed": true
+    },
+    "docs/printing/common-deck-k1max-r2/manifest.json": {
+      "kind": "manifest_json",
+      "sha256": "eb76e5b40665c3ec38268b2c872efeccf7849ba67e290cca312e186b53e80ffb",
+      "bytes": 7312,
+      "reviewed_for_publication": true
+    },
+    "docs/printing/common-deck-k1max-r2/validation.json": {
+      "kind": "validation_json",
+      "sha256": "37bd83dc005a20208c2c1b6160fa529123f51f2293a922a315cd94642737256c",
+      "bytes": 2398,
+      "reviewed_for_publication": true
+    },
+    "docs/printing/common-deck-k1max-r2/README.md": {
+      "kind": "readme_md",
+      "sha256": "0f27ac27cd27cfb2fb6526797fb8ce0525b7d03652d42c6a513f1d5fb60413bd",
+      "bytes": 6990,
+      "reviewed_for_publication": true
+    },
+    "docs/printing/common-deck-k1max-r2/FaBoRobotDog_Black_Deck_and_PoleClamps_K1Max_r2_public.zip": {
+      "kind": "zip",
+      "sha256": "978cd07385c88d62289be611058f3617ece2a372c47d5180b954f3f704af5157",
+      "bytes": 687685,
+      "reviewed_for_publication": true,
+      "member_count": 17,
+      "rebuilt_from_public_counterparts_only": true,
+      "members": {
+        "printable_mm/common_equipment_plate_K1Max_r2_mm.stl": {
+          "public_path": "docs/printing/common-deck-k1max-r2/printable_mm/common_equipment_plate_K1Max_r2_mm.stl",
+          "sha256": "0fbf7b130e3f11b26908bb8fc4eb50acbdf0ea0ad4356b8ac565227566d745bb",
+          "bytes": 547284
+        },
+        "printable_mm/B26_jetson_edge_retainer_front_mm.stl": {
+          "public_path": "docs/printing/common-deck-k1max-r2/printable_mm/B26_jetson_edge_retainer_front_mm.stl",
+          "sha256": "db0a1c13298a9c0fdd9f08a7ee6ebf1ee24e457d007ec0d056c580d200613c56",
+          "bytes": 12684
+        },
+        "printable_mm/B27_jetson_edge_retainer_rear_mm.stl": {
+          "public_path": "docs/printing/common-deck-k1max-r2/printable_mm/B27_jetson_edge_retainer_rear_mm.stl",
+          "sha256": "07f8bf3c1945a4f7a582cdde8cf513db513e40905bf77049dc2faca99bfe5c93",
+          "bytes": 12684
+        },
+        "printable_mm/lower_pole_clamps/B17_d20_long_-1_-1_-1_lower_mm.stl": {
+          "public_path": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B17_d20_long_-1_-1_-1_lower_mm.stl",
+          "sha256": "b75be16eb7a9da0ef8b6106088e9dd2a6e1db4298a85635d4fdd8c4f8543427b",
+          "bytes": 24284
+        },
+        "printable_mm/lower_pole_clamps/B18_d20_long_-1_-1_-1_upper_mm.stl": {
+          "public_path": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B18_d20_long_-1_-1_-1_upper_mm.stl",
+          "sha256": "abf8a7c168c92202ded8b7607de77158e485b80be9f1e58503a5b24e8f4fa510",
+          "bytes": 24284
+        },
+        "printable_mm/lower_pole_clamps/B19_d20_long_-1_1_-1_lower_mm.stl": {
+          "public_path": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B19_d20_long_-1_1_-1_lower_mm.stl",
+          "sha256": "9a703bbde2c515a92288d2f4b7d7cb6c422094e202f6b334755b41d855b28391",
+          "bytes": 24284
+        },
+        "printable_mm/lower_pole_clamps/B20_d20_long_-1_1_-1_upper_mm.stl": {
+          "public_path": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B20_d20_long_-1_1_-1_upper_mm.stl",
+          "sha256": "56128d84226f561d53d6e5f1c38cddc067853c2eacd9d3274fb85783723fe17b",
+          "bytes": 24284
+        },
+        "printable_mm/lower_pole_clamps/B21_d20_long_1_-1_-1_lower_mm.stl": {
+          "public_path": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B21_d20_long_1_-1_-1_lower_mm.stl",
+          "sha256": "7bbfe394cf8ce5ed2eea29bdd570428d56c530e741d5a17a548677351fff98e8",
+          "bytes": 24284
+        },
+        "printable_mm/lower_pole_clamps/B22_d20_long_1_-1_-1_upper_mm.stl": {
+          "public_path": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B22_d20_long_1_-1_-1_upper_mm.stl",
+          "sha256": "19e12dfdc84fcbf97431a682808db15a1f0710a5ff001b710472cd7caab04aaa",
+          "bytes": 24284
+        },
+        "printable_mm/lower_pole_clamps/B23_d20_long_1_1_-1_lower_mm.stl": {
+          "public_path": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B23_d20_long_1_1_-1_lower_mm.stl",
+          "sha256": "1d1f2c045465cef8c009fdac98209cc431cfb1d5156dba219763bbbc49a0a407",
+          "bytes": 24284
+        },
+        "printable_mm/lower_pole_clamps/B24_d20_long_1_1_-1_upper_mm.stl": {
+          "public_path": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B24_d20_long_1_1_-1_upper_mm.stl",
+          "sha256": "b79412efcc58628565b1bd9958c0079bf26d991ed76755172d2c075fd6b2da6b",
+          "bytes": 24284
+        },
+        "optional_plates/CLAMPS_ONLY_8parts_black_mm.stl": {
+          "public_path": "docs/printing/common-deck-k1max-r2/optional_plates/CLAMPS_ONLY_8parts_black_mm.stl",
+          "sha256": "3d47bdc888f8f688ae0a35266635b81d616f040154e2c554e857d4f1543c34fb",
+          "bytes": 193684
+        },
+        "previews/common_plate_mounting_underside_exploded.png": {
+          "public_path": "docs/printing/common-deck-k1max-r2/previews/common_plate_mounting_underside_exploded.png",
+          "sha256": "a3afd629d7e5186d0147867c47ecd02af7986737d72ebad6a13429dc95457f8c",
+          "bytes": 345730
+        },
+        "previews/jetson_retainer_hole_positions.png": {
+          "public_path": "docs/printing/common-deck-k1max-r2/previews/jetson_retainer_hole_positions.png",
+          "sha256": "2aa70d956589596875127235d0fd3e3862ca5fea4bdbd8fcab9c6c374107c58e",
+          "bytes": 161653
+        },
+        "manifest.json": {
+          "public_path": "docs/printing/common-deck-k1max-r2/manifest.json",
+          "sha256": "eb76e5b40665c3ec38268b2c872efeccf7849ba67e290cca312e186b53e80ffb",
+          "bytes": 7312
+        },
+        "validation.json": {
+          "public_path": "docs/printing/common-deck-k1max-r2/validation.json",
+          "sha256": "37bd83dc005a20208c2c1b6160fa529123f51f2293a922a315cd94642737256c",
+          "bytes": 2398
+        },
+        "README.md": {
+          "public_path": "docs/printing/common-deck-k1max-r2/README.md",
+          "sha256": "0f27ac27cd27cfb2fb6526797fb8ce0525b7d03652d42c6a513f1d5fb60413bd",
+          "bytes": 6990
+        }
+      }
     }
   },
   "selected_original_print_package_sha256": "ef1d545589f4d4fbc8be5e9f667e62b1bcb774285cd0174859ccd7bf8cc2dcae",
@@ -1868,22 +2382,24 @@
     "stl_vertices": "9 float32 little-endian values at record+12; all finite",
     "bbox_tolerance_mm": 0.0001,
     "units": "mm",
-    "path_scope": "Every file must be exactly registered within one of the two explicit expected_directories.",
+    "path_scope": "Each file must be exactly registered under one of the three explicit package directories.",
     "archive": "Unique exact registered member names, no absolute or traversal paths, no directories/symlinks, CRC and SHA/byte equality with public counterparts.",
     "metadata": "Text scan also applies to all MD, CSV and JSON including text inside the archive."
   },
   "authorization_addendum": "On 2026-09-12 the user additionally requested denser yellow printing plates: four-leg movable parts and fitting upper clamps. Original authorization string and prior selected files are preserved.",
   "expected_directories": [
     "docs/printing/next-10-parts",
-    "docs/printing/yellow-dense"
+    "docs/printing/yellow-dense",
+    "docs/printing/common-deck-k1max-r2"
   ],
-  "individual_part_count_scope": "Individual STL entries across both kits; five FL identities occur in both.",
-  "unique_selected_part_identities": 33,
-  "archive_count": 2,
-  "archive_member_count_scope": "Sum of the 19-entry and 37-entry archives, not one archive.",
+  "individual_part_count_scope": "Individual STL entries across three kits; the previous two retain their five repeated FL identities. Separate installed clamp locations are separate part identities.",
+  "unique_selected_part_identities": 44,
+  "archive_count": 3,
+  "archive_member_count_scope": "Sum across the three archives, not a single archive.",
   "solid_PLA_equivalent_mass_g_by_package": {
     "next-10-parts": 703.7799383956661,
-    "yellow-dense": 978.4682029120671
+    "yellow-dense": 978.4682029120671,
+    "common-deck-k1max-r2": 296.4292994098985
   },
   "packages": {
     "next-10-parts": {
@@ -1898,6 +2414,19 @@
       "plates": 4,
       "archive_members": 37,
       "repeats_five_FL_parts_from_first_kit": true
+    },
+    "common-deck-k1max-r2": {
+      "manifest": "docs/printing/common-deck-k1max-r2/manifest.json",
+      "individual_parts": 11,
+      "plates": 1,
+      "archive_members": 17
     }
-  }
+  },
+  "authorization_addenda": [
+    {
+      "date": "2026-09-15",
+      "instruction": "User requested organizing the delivered r2 common-deck and lower-carbon-pole mounting results and committing them to GitHub.",
+      "selected_directory": "docs/printing/common-deck-k1max-r2"
+    }
+  ]
 }

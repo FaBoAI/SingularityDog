@@ -2,20 +2,20 @@
   "schema": "singularitydog.manifest.v1",
   "files": {
     ".gitignore": {
-      "sha256": "e09bf9f41b17bc8079e5348f823e09e2298edd29cbb93dce3ce4f28874f33668",
-      "bytes": 6258
+      "sha256": "990814af67cdde078d588d23b0f2478867edf85bb3faa12533ac9c4451224df8",
+      "bytes": 7580
     },
     "README.md": {
-      "sha256": "3fbd7004f52df981bd0000a5bc5c60bbdad1f4e2ca09874c8615b94f2e77bcc9",
-      "bytes": 16756
+      "sha256": "83314031a29049cbb219ff0bf47beecbdaf1b5d66be8701823b0d065db2cbcea",
+      "bytes": 17814
     },
     "RELEASE_FILES.json": {
-      "sha256": "7f761c4d1d1e8521baf79f049c97cbc708d01bda0774e103afcc5ac6a9085f4e",
-      "bytes": 10546
+      "sha256": "123eca1a19eaa78a89aa081533f4c86aff9a567b1ccd358b75051e6d48f11bbb",
+      "bytes": 12224
     },
     "docs/current-status.md": {
-      "sha256": "c952576800d27e6179dc276c55a4a7991e9f2db11d4efa944a33be17b0bccf23",
-      "bytes": 41233
+      "sha256": "64ba2690f7c99d620a0cffa7b13c856d8821f5265ed77e50990ac7b089601dda",
+      "bytes": 42000
     },
     "docs/decision-log.md": {
       "sha256": "7fb29de45f37a4ef7799b9c06ff6c45a85d1350d7b949f7b4092673edbe34f5a",
@@ -449,6 +449,10 @@
       "sha256": "0a1251bd1cbc2cd85383920eb9a78f4fa04a183a399eab3097b1bcd4e48674db",
       "bytes": 11666
     },
+    "docs/printing-common-deck-k1max.md": {
+      "sha256": "cc7f36f88ef42b557a9fd84bf2145aa3504534c95d9a4754651b4a6dfe254404",
+      "bytes": 4643
+    },
     "docs/printing-next-10-parts.md": {
       "sha256": "4c7056017c59fc7615169c2ad2d3dc8fcefb92cf78c36cac3594c9ea6c50533e",
       "bytes": 2409
@@ -456,6 +460,78 @@
     "docs/printing-yellow-dense.md": {
       "sha256": "31226273d7464d2335c331ee96254fcb940f301e9798b058e902c705cedc1e48",
       "bytes": 2165
+    },
+    "docs/printing/common-deck-k1max-r2/FaBoRobotDog_Black_Deck_and_PoleClamps_K1Max_r2_public.zip": {
+      "sha256": "978cd07385c88d62289be611058f3617ece2a372c47d5180b954f3f704af5157",
+      "bytes": 687685
+    },
+    "docs/printing/common-deck-k1max-r2/README.md": {
+      "sha256": "0f27ac27cd27cfb2fb6526797fb8ce0525b7d03652d42c6a513f1d5fb60413bd",
+      "bytes": 6990
+    },
+    "docs/printing/common-deck-k1max-r2/manifest.json": {
+      "sha256": "eb76e5b40665c3ec38268b2c872efeccf7849ba67e290cca312e186b53e80ffb",
+      "bytes": 7312
+    },
+    "docs/printing/common-deck-k1max-r2/optional_plates/CLAMPS_ONLY_8parts_black_mm.stl": {
+      "sha256": "3d47bdc888f8f688ae0a35266635b81d616f040154e2c554e857d4f1543c34fb",
+      "bytes": 193684
+    },
+    "docs/printing/common-deck-k1max-r2/previews/common_plate_mounting_underside_exploded.png": {
+      "sha256": "a3afd629d7e5186d0147867c47ecd02af7986737d72ebad6a13429dc95457f8c",
+      "bytes": 345730
+    },
+    "docs/printing/common-deck-k1max-r2/previews/jetson_retainer_hole_positions.png": {
+      "sha256": "2aa70d956589596875127235d0fd3e3862ca5fea4bdbd8fcab9c6c374107c58e",
+      "bytes": 161653
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/B26_jetson_edge_retainer_front_mm.stl": {
+      "sha256": "db0a1c13298a9c0fdd9f08a7ee6ebf1ee24e457d007ec0d056c580d200613c56",
+      "bytes": 12684
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/B27_jetson_edge_retainer_rear_mm.stl": {
+      "sha256": "07f8bf3c1945a4f7a582cdde8cf513db513e40905bf77049dc2faca99bfe5c93",
+      "bytes": 12684
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/common_equipment_plate_K1Max_r2_mm.stl": {
+      "sha256": "0fbf7b130e3f11b26908bb8fc4eb50acbdf0ea0ad4356b8ac565227566d745bb",
+      "bytes": 547284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B17_d20_long_-1_-1_-1_lower_mm.stl": {
+      "sha256": "b75be16eb7a9da0ef8b6106088e9dd2a6e1db4298a85635d4fdd8c4f8543427b",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B18_d20_long_-1_-1_-1_upper_mm.stl": {
+      "sha256": "abf8a7c168c92202ded8b7607de77158e485b80be9f1e58503a5b24e8f4fa510",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B19_d20_long_-1_1_-1_lower_mm.stl": {
+      "sha256": "9a703bbde2c515a92288d2f4b7d7cb6c422094e202f6b334755b41d855b28391",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B20_d20_long_-1_1_-1_upper_mm.stl": {
+      "sha256": "56128d84226f561d53d6e5f1c38cddc067853c2eacd9d3274fb85783723fe17b",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B21_d20_long_1_-1_-1_lower_mm.stl": {
+      "sha256": "7bbfe394cf8ce5ed2eea29bdd570428d56c530e741d5a17a548677351fff98e8",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B22_d20_long_1_-1_-1_upper_mm.stl": {
+      "sha256": "19e12dfdc84fcbf97431a682808db15a1f0710a5ff001b710472cd7caab04aaa",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B23_d20_long_1_1_-1_lower_mm.stl": {
+      "sha256": "1d1f2c045465cef8c009fdac98209cc431cfb1d5156dba219763bbbc49a0a407",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B24_d20_long_1_1_-1_upper_mm.stl": {
+      "sha256": "b79412efcc58628565b1bd9958c0079bf26d991ed76755172d2c075fd6b2da6b",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/validation.json": {
+      "sha256": "37bd83dc005a20208c2c1b6160fa529123f51f2293a922a315cd94642737256c",
+      "bytes": 2398
     },
     "docs/printing/next-10-parts/FaBoRobotDog_K1_Next_STL_10parts.zip": {
       "sha256": "130ffaad7a2507c28ee1d99366e4c3be51d14479b33e18bdd0ea734be422aef9",
@@ -694,8 +770,8 @@
       "bytes": 82328
     },
     "docs/publication-scope.md": {
-      "sha256": "a5bb7b56376c22dc1dc14f3afc987c94e0cd084ffa21cef16f22800cfad99425",
-      "bytes": 32598
+      "sha256": "ccb8045fa71e10670cb1a2d6c125a0dc66e1b8c4a490d0dd20c29d533018901d",
+      "bytes": 34034
     },
     "docs/toolkit.md": {
       "sha256": "a88d3dd2c2ebe247b11a687083775f38e69f05e3c3ffae7f84b1048c091678e5",
@@ -822,8 +898,8 @@
       "bytes": 21736
     },
     "evidence/print-publication.json": {
-      "sha256": "701d9d847dcd2ea52b8140d32ff26844ff1e9cbf8050b33a2175d73885f4fd19",
-      "bytes": 65844
+      "sha256": "c5fb90ce1d6b90e8a123f78f0e26f6d828b9137bd3b31caa55904851ec8879b3",
+      "bytes": 84540
     },
     "evidence/progress.json": {
       "sha256": "b5fe0e707b17b73f1988ee6eb743542dd1447e8a7f98edb4270252e6b0c96d99",
@@ -886,8 +962,8 @@
       "bytes": 12288
     },
     "tests/test_print_publication.py": {
-      "sha256": "99b2796dc4edf022f483823637ae630e14b9ff04454fbcb44efbc2d5b86e21eb",
-      "bytes": 6458
+      "sha256": "7608586bac57db4aa8811e1ede8978bcb11d19a23725ba117589fe885a675c21",
+      "bytes": 7067
     },
     "tests/test_tools.py": {
       "sha256": "567e5d02a3d467c1ffc865a898fa7fe3b57abadb2f1799e94b6d38f9d43989fe",
@@ -906,8 +982,8 @@
       "bytes": 6389
     },
     "tools/check_publication.py": {
-      "sha256": "f4371ed0182866251ec33ea3e2cf76377f722a1ce54ed0c00dbcb7916c449b81",
-      "bytes": 13800
+      "sha256": "930faa0761cbc122ac5ba48ec774bf22eea117bd542a4bb32dfd46c7a18abad2",
+      "bytes": 13865
     },
     "tools/evaluate_trace.py": {
       "sha256": "9235cdfcb3d39c3d14af3ea860c5cc0741d042e7e0d2bce072f04b96533f275f",

@@ -14,8 +14,8 @@ from check_publication import check, PRINT_AUTHORIZATION
 
 
 class PrintPublicationTests(unittest.TestCase):
-    def fixture(self, root):
-        directory = root / 'docs/printing/next-10-parts'
+    def fixture(self, root, package='next-10-parts'):
+        directory = root / 'docs/printing' / package
         directory.mkdir(parents=True)
         (root / 'evidence').mkdir()
         # Synthetic triangle, not a real printable part.
@@ -58,6 +58,17 @@ class PrintPublicationTests(unittest.TestCase):
             extra = directory / 'unselected.stl'
             extra.write_bytes((directory / 'example.stl').read_bytes())
             self.assertTrue(check(root, [str(extra.relative_to(root))]))
+
+    def test_common_deck_scope_does_not_allow_unselected_sibling(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            _, registry = self.fixture(root, 'common-deck-k1max-r2')
+            self.assertEqual(check(root, list(registry['files'])), [])
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            _, registry = self.fixture(root, 'common-deck-unselected')
+            with self.assertRaisesRegex(ValueError, 'outside selected package scope'):
+                check(root, list(registry['files']))
 
     def test_changed_stl_length_nan_and_dimensions_rejected(self):
         for variant in ['changed', 'length', 'nan', 'dimensions', 'authorization']:
