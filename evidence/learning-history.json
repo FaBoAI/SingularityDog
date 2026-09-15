@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
-  "as_of": "2026-09-14",
-  "verified_recent_series_count": 32,
+  "as_of": "2026-09-15",
+  "verified_recent_series_count": 35,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同じ比較計画の複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "直近のH01〜H04とL00〜L27、計32回の有限な実行・評価を整理。条件数、保存時点、動画追加を別の実験回数として加算しない。成功32回や全開発期間の総回数ではない。",
+  "scope": "直近のH01〜H04とL00〜L30、計35回の有限な実行・評価。条件数・停止再試行・保存時点を別の回に加算しない。成功35回ではない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -2325,6 +2325,115 @@
       },
       "evaluation_scope": "Twelve prone/wave raw arrays at100/200/250updates replayed. Seven retained motions verified by original summaries and recorded raw SHA, not local raw replay. Final4models CPU verified; intermediate8 model binaries not locally CPU verified.",
       "selected_public_evidence_sha256": "0c8da3d5e79b38a4fd0e68ce38852d636a1f7f4e29f2a3ef0941610517ccaa10"
+    },
+    {
+      "id": "L28",
+      "series_order": 33,
+      "counted": true,
+      "kind": "FINITE_MULTI_CANDIDATE_TRAINING_AND_EVALUATION",
+      "new_training_updates": 1000,
+      "separate_smoke_updates": 8,
+      "new_passing_motion_count": 0,
+      "skill_acceptance": false,
+      "hardware_acceptance": false,
+      "candidate_adopted": false,
+      "selected_evidence": "evidence/l28-evaluation.json",
+      "selected_public_evidence_sha256": "b90414fe87fea939a8bd0f238ad5fae21362a15eb477279b9a7706c46d4e8703",
+      "outcome_time": {
+        "kind": "last_finite_execution_and_evaluation_ended",
+        "value_utc": "2026-09-14T21:51:37.317727+00:00"
+      },
+      "source_report_sha256": {
+        "prone_comparison": "0149431b9623141771fbe93d65198295fa0c2a067eeb10cbd1c62a6e74c7e025",
+        "wave_review": "bbef004f76ecc1667438faa841b4455cb0ca58180e3b0a7eba8026bd9a90eee0",
+        "terminal": "e6000f928c38f25a699c27ca88c662a2d0b3e4d435b4b2382653993a71b1a101",
+        "collection_review": "00a4dc41c5ba0bfc2c2115ffb96a97635562dd7e48c7a8639ced738070bbf548",
+        "result_document": "3a4a494eeb9df3e6925eb3e00ec9c0c8eac070e03b41ac6b90361ac56774120d",
+        "prone_review": "bc276ab4319330ddfcf24080c32ec0c46b08dcbd21b2bd65cf75dfe55ed4775d"
+      },
+      "media": {
+        "new_public_videos": 0,
+        "selected_actual_recording_count": 47
+      },
+      "qualified_motion_count_by_condition": {
+        "A": 7,
+        "B": 7
+      },
+      "deterministic_parent_and_final_evaluations": 36,
+      "post_training_intermediate_evaluations": 8,
+      "trained_checkpoint_evaluations": 12
+    },
+    {
+      "id": "L29",
+      "series_order": 34,
+      "counted": true,
+      "kind": "FINITE_MULTI_CANDIDATE_TRAINING_AND_EVALUATION",
+      "new_training_updates": 400,
+      "separate_smoke_updates": 8,
+      "new_passing_motion_count": 0,
+      "skill_acceptance": false,
+      "hardware_acceptance": false,
+      "candidate_adopted": false,
+      "selected_evidence": "evidence/l29-evaluation.json",
+      "selected_public_evidence_sha256": "da7f15cf9cbdae85efea5fd83a16b5067c04ea968f573f4ffb89dca160b5e865",
+      "outcome_time": {
+        "kind": "last_finite_execution_and_evaluation_ended",
+        "value_utc": "2026-09-15T05:48:18.170593+00:00"
+      },
+      "source_report_sha256": {
+        "result_record": "8b7d39fa8deee043581b850a39c0e2456c483494eef54da609e522b47d36f7ed",
+        "wave_review": "bbef004f76ecc1667438faa841b4455cb0ca58180e3b0a7eba8026bd9a90eee0",
+        "terminal": "6eeef2b9cbcda9ef1e26a67c066d9f7f4d6da62441f29ebfffcdccdbbae7f897",
+        "collection_review": "048eac7cdd2e33a9cf0070be8996efa35a51634af787d1c8483afdc401699262",
+        "result_document": "f54e1579ae5fef9d65dd83bba5f09838288f8031bf4f7743a9fd2a63a93764a0",
+        "prone_review": "bc276ab4319330ddfcf24080c32ec0c46b08dcbd21b2bd65cf75dfe55ed4775d"
+      },
+      "media": {
+        "new_public_videos": 0,
+        "selected_actual_recording_count": 47
+      },
+      "qualified_motion_count_by_condition": {
+        "A": 7,
+        "B": 7
+      },
+      "deterministic_parent_and_final_evaluations": 36,
+      "post_training_intermediate_evaluations": 8,
+      "trained_checkpoint_evaluations": 12
+    },
+    {
+      "id": "L30",
+      "series_order": 35,
+      "counted": true,
+      "kind": "FINITE_MULTI_CANDIDATE_TRAINING_AND_EVALUATION",
+      "new_training_updates": 277,
+      "separate_smoke_updates": 14,
+      "new_passing_motion_count": 0,
+      "skill_acceptance": false,
+      "hardware_acceptance": false,
+      "candidate_adopted": false,
+      "selected_evidence": "evidence/l30-evaluation.json",
+      "selected_public_evidence_sha256": "50ac15943835f9df40862d41ce05cf8526c0912c4312dc0d28c0dd0e351091d8",
+      "outcome_time": {
+        "kind": "last_finite_execution_and_evaluation_ended",
+        "value_utc": "2026-09-15T10:35:46.214265+00:00"
+      },
+      "source_report_sha256": {
+        "PRONE_PUBLIC_REVIEW.json": "bc276ab4319330ddfcf24080c32ec0c46b08dcbd21b2bd65cf75dfe55ed4775d",
+        "WAVE_PUBLIC_REVIEW.json": "bbef004f76ecc1667438faa841b4455cb0ca58180e3b0a7eba8026bd9a90eee0",
+        "PIPELINE_PUBLIC_REVIEW.json": "4c0b7947287c9d8b20c139c7f0cc14b2b06521407fc6ca6c407a183a1ef53cb0"
+      },
+      "media": {
+        "new_public_videos": 0,
+        "selected_actual_recording_count": 47
+      },
+      "execution_attempts": 9,
+      "completed_attempts": 6,
+      "preflight_stops": 2,
+      "technical_stops": 1,
+      "deterministic_recorded_evaluations": 20,
+      "trained_checkpoint_evaluations": 11,
+      "original_combined_plan_completed": false,
+      "nine_motion_full_evaluation_completed": false
     }
   ],
   "visualization": {
@@ -2356,7 +2465,7 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": "第32回の伏せA100など完走・復帰を維持した保存時点を比較基準に、下降中の位置ずれと復帰後の崩れを分けて検証する。挨拶は挙上前後の支持移動による位置ずれを優先する。次の学習・実機採用は未実施。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。",
+  "next": "第36回は9月16日いっぱいのGPU使用許可を受けて準備中。補正の感度を先に測り、2周期の保持・復帰を守って位置ずれを減らす有限学習を進める。結果公開時点で学習開始未確認。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,

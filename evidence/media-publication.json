@@ -41,7 +41,22 @@
       },
       "representation": "STATIC_MEASURED_CHECKPOINT_CHART_NOT_SIMULATOR_FOOTAGE",
       "review": "16 source-bound checkpoint rows; compared A/B XY values and early-stop durations. PNG visually checked for legible axes, different scales, target line and duration annotations. No source recording, photo or robot asset used."
+    },
+    "docs/media/l30-checkpoint-comparison.png": {
+      "sha256": "4e3bc832ff5d3da95d1d6a26256dab45db98869efbb526c7a5b9711ead45616b",
+      "bytes": 108950,
+      "reviewed_as_own_measured_visualization": true,
+      "measured_data": {
+        "path": "evidence/l30-evaluation.json",
+        "sha256": "50ac15943835f9df40862d41ce05cf8526c0912c4312dc0d28c0dd0e351091d8"
+      },
+      "generator": {
+        "path": "tools/render_trial35_comparison.py",
+        "sha256": "416bfad34e44c6f7852f7d48998badd7867fc885578abc0f5be29ab491faf377"
+      },
+      "representation": "STATIC_MEASURED_CHECKPOINT_CHART_NOT_SIMULATOR_FOOTAGE",
+      "review": "Six source-bound complete-interval measurements for latest prone R4b and wave W4. Visually reviewed labels, common zero-based axes, 50mm limit, values and non-adoption note. No photo, robot mesh or recording used."
     }
   },
-  "default_bindings_scope": "Root measured_data and generator apply to the three forward-history assets; Trial32 chart has explicit per-file bindings."
+  "default_bindings_scope": "Root measured_data and generator apply to the three forward-history assets; Trial32 and Trial35 charts have explicit per-file bindings."
 }

@@ -1,0 +1,555 @@
+{
+  "schema": "singularitydog.l28-evaluation.v1",
+  "trial_number": 33,
+  "loop_id": "L28",
+  "as_of": "2026-09-15",
+  "main_updates": 1000,
+  "separate_smoke_updates": 8,
+  "new_passing_motion_count": 0,
+  "candidate_adopted": false,
+  "physical_model": {
+    "id": "D17",
+    "unchanged_during_trials": true,
+    "printed_reinforcements_included": false,
+    "new_equipment_deck_included": false
+  },
+  "seed": 42,
+  "criteria": {
+    "maximum_xy_distance_m": 0.05,
+    "maximum_heading_change_deg": 5,
+    "prone_requested_s": 24,
+    "wave_requested_s": 36,
+    "cycles": 2
+  },
+  "checkpoint_evaluations_after_training": true,
+  "extra_ppo_updates_for_evaluation": 0,
+  "publication": {
+    "selected_values_only": true,
+    "weights_included": false,
+    "raw_arrays_included": false,
+    "private_photos_included": false,
+    "new_video_files": 0,
+    "note": "Internal evidence hashes identify original records; the public package does not reproduce the simulation environment."
+  },
+  "execution_status": "TWO_CONDITIONS_COMPLETED",
+  "qualified_motion_count_by_condition": {
+    "A": 7,
+    "B": 7
+  },
+  "retained_qualified_motions": [
+    "forward",
+    "backward",
+    "left",
+    "right",
+    "turn_left",
+    "turn_right",
+    "sit"
+  ],
+  "new_updates_by_expert_per_condition": {
+    "prone": 250,
+    "wave": 250,
+    "locomotion": 0,
+    "sit": 0
+  },
+  "parents": {
+    "prone": "Trial32 A100",
+    "wave": "Trial31 A250"
+  },
+  "checkpoint_comparison": [
+    {
+      "id": "T33_A_prone_preflight",
+      "expert": "prone",
+      "condition": "A",
+      "updates": 0,
+      "stage": "preflight",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.1021396990406205,
+      "maximum_heading_change_deg": 4.22673679045129,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "checkpoint_sha256": "73788273a06b7c129da32aaf170455cf5b5f7c10c125e1913c5335fa7beefe8f",
+      "raw_array_sha256_registered": "76f29b65c8f1e8480b2f03e9a07546df96574eb2e2187bf2db40bd4d1a0945f3",
+      "raw_recalculated": false,
+      "prone_hold_s": [
+        2.0,
+        2.0
+      ],
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_xy_distance"
+      ]
+    },
+    {
+      "id": "T33_A_prone_intermediate_100",
+      "expert": "prone",
+      "condition": "A",
+      "updates": 100,
+      "stage": "intermediate_100",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.10391663536577558,
+      "maximum_heading_change_deg": 9.009133509691956,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "checkpoint_sha256": "7c5b5384218466881e85b0fc34b93df607592d6872c4f1efeb67404d74f4a6b4",
+      "raw_array_sha256_registered": "d7d87600fe05837f16e757f180342ac026541d8a6cbd32361c93b43693f2c534",
+      "raw_recalculated": false,
+      "prone_hold_s": [
+        2.0,
+        2.0
+      ],
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "return_hold_tilt",
+        "return_hold_height"
+      ]
+    },
+    {
+      "id": "T33_A_prone_intermediate_200",
+      "expert": "prone",
+      "condition": "A",
+      "updates": 200,
+      "stage": "intermediate_200",
+      "recorded_duration_s": 11.86,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.16407934349136252,
+      "maximum_heading_change_deg": 21.149963745209682,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 6,
+      "checkpoint_sha256": "6fe1ed13675b2d7e26349a95807ba1ae7f43796e8fccbec16a0fff952f7d3b59",
+      "raw_array_sha256_registered": "5c48ae805030a7640afc527771080bec178175855e22c98ae73ca0a50c67f2ed",
+      "raw_recalculated": false,
+      "prone_hold_s": [
+        2.0,
+        0.0
+      ],
+      "return_hold_s": [
+        1.3525,
+        0.0
+      ],
+      "failed_gates": [
+        "requested_interval_completed",
+        "no_forbidden_contact_samples",
+        "all_prone_holds",
+        "all_four_foot_return_holds",
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "return_hold_tilt",
+        "return_hold_height"
+      ]
+    },
+    {
+      "id": "T33_A_prone_evaluate",
+      "expert": "prone",
+      "condition": "A",
+      "updates": 250,
+      "stage": "evaluate",
+      "recorded_duration_s": 11.1,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.1605340898134572,
+      "maximum_heading_change_deg": 20.8741839425831,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 6,
+      "checkpoint_sha256": "9e346fd2f6babad273af0d344bec5cf7c60cbfa2db71fb598fd4cfd202e8f52c",
+      "raw_array_sha256_registered": "39ad4ff1673e17bbc2eccec4ffca436d830b773bc213c2a5fd78b0f016f70d2b",
+      "raw_recalculated": false,
+      "prone_hold_s": [
+        2.0,
+        0.0
+      ],
+      "return_hold_s": [
+        0.6175,
+        0.0
+      ],
+      "failed_gates": [
+        "requested_interval_completed",
+        "no_forbidden_contact_samples",
+        "all_prone_holds",
+        "all_four_foot_return_holds",
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "return_hold_tilt",
+        "return_hold_height"
+      ]
+    },
+    {
+      "id": "T33_B_prone_preflight",
+      "expert": "prone",
+      "condition": "B",
+      "updates": 0,
+      "stage": "preflight",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.1021396990406205,
+      "maximum_heading_change_deg": 4.22673679045129,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "checkpoint_sha256": "73788273a06b7c129da32aaf170455cf5b5f7c10c125e1913c5335fa7beefe8f",
+      "raw_array_sha256_registered": "76f29b65c8f1e8480b2f03e9a07546df96574eb2e2187bf2db40bd4d1a0945f3",
+      "raw_recalculated": false,
+      "prone_hold_s": [
+        2.0,
+        2.0
+      ],
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_xy_distance"
+      ]
+    },
+    {
+      "id": "T33_B_prone_intermediate_100",
+      "expert": "prone",
+      "condition": "B",
+      "updates": 100,
+      "stage": "intermediate_100",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.09873468485624302,
+      "maximum_heading_change_deg": 4.633866507899216,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "checkpoint_sha256": "f83c8e990d68e5603736ccd743136f06f511bc9262669bc278c15b7fadaf0b05",
+      "raw_array_sha256_registered": "17615eaf9ef3ab2ec522e1722abc59d36323894afd9cc72d4fe298bcde27df81",
+      "raw_recalculated": false,
+      "prone_hold_s": [
+        2.0,
+        2.0
+      ],
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_xy_distance"
+      ]
+    },
+    {
+      "id": "T33_B_prone_intermediate_200",
+      "expert": "prone",
+      "condition": "B",
+      "updates": 200,
+      "stage": "intermediate_200",
+      "recorded_duration_s": 10.6,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.1717410592006052,
+      "maximum_heading_change_deg": 15.819536646458612,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 6,
+      "checkpoint_sha256": "12b3361e3e73bf538f473fd5f3aed9de00f6b3da5cdc84b7d976254776e7ceac",
+      "raw_array_sha256_registered": "5a4c8b15332f38a8460d07177685bb09836a036de42c4cc46a5217cfe507772f",
+      "raw_recalculated": false,
+      "prone_hold_s": [
+        2.0,
+        0.0
+      ],
+      "return_hold_s": [
+        0.14250000000000002,
+        0.0
+      ],
+      "failed_gates": [
+        "requested_interval_completed",
+        "no_forbidden_contact_samples",
+        "all_prone_holds",
+        "all_four_foot_return_holds",
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "return_hold_tilt",
+        "return_hold_height"
+      ]
+    },
+    {
+      "id": "T33_B_prone_evaluate",
+      "expert": "prone",
+      "condition": "B",
+      "updates": 250,
+      "stage": "evaluate",
+      "recorded_duration_s": 10.3,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.15806629516717555,
+      "maximum_heading_change_deg": 12.919574162755598,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 4,
+      "checkpoint_sha256": "5bf3cdf88882e929feb602779e24ad574e32c28cf34542bcbf0162b2e2b9f626",
+      "raw_array_sha256_registered": "2d26f3338d5529e195661b2ff266e04c732a3d4d41c66b21b90f7a794dd660c4",
+      "raw_recalculated": true,
+      "prone_hold_s": [
+        2.0,
+        0.0
+      ],
+      "return_hold_s": [
+        0.0025,
+        0.0
+      ],
+      "failed_gates": [
+        "requested_interval_completed",
+        "no_forbidden_contact_samples",
+        "all_prone_holds",
+        "all_four_foot_return_holds",
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "return_hold_tilt",
+        "return_hold_height"
+      ]
+    },
+    {
+      "id": "33A-parent",
+      "expert": "wave",
+      "condition": "A",
+      "updates": 0,
+      "stage": "preflight",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.06151874869746229,
+      "maximum_heading_change_deg": 4.586055453663234,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "summary_sha256": "b14563ecc0fc479ed1653f09b7835b2ff85a8fd68fd1e42611494b65cd9c6483",
+      "completion_sha256": "7933936e59b421a903264f8514531e772fb4900fd8907a0320eab3e86454f1de",
+      "contract_sha256": "b17b10b1ea1a4c6bac973652110bc59af00d06455fbc17471bd08af9d03e4e2c",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "33B-parent",
+      "expert": "wave",
+      "condition": "B",
+      "updates": 0,
+      "stage": "preflight",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.06151874869746229,
+      "maximum_heading_change_deg": 4.586055453663234,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "summary_sha256": "cc07de95c72792c0e68567f120707818945fb2619d6b071f219fa18fc92ef55b",
+      "completion_sha256": "14fc3a853620eb9668af2ae84e1041c7d5faed9e06a4364abe6df27ce1fa6e9a",
+      "contract_sha256": "2652566ee92374f2eec0bce9c6b50bdf1f2558ae73471bcdd2948de4680a17e1",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "33A-100",
+      "expert": "wave",
+      "condition": "A",
+      "updates": 100,
+      "stage": "intermediate_100",
+      "recorded_duration_s": 24.26,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.08397360249712593,
+      "maximum_heading_change_deg": 4.519115393578388,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 1,
+      "maximum_actual_joint_speed_rad_s": 3.7267510890960693,
+      "return_hold_s": [
+        2.0,
+        0.0
+      ],
+      "failed_gates": [
+        "requested_interval_completed",
+        "no_forbidden_contact_samples",
+        "all_greeting_cycles",
+        "all_high_paw_attainments",
+        "maximum_xy_distance",
+        "maximum_tilt"
+      ],
+      "summary_sha256": "4a836bf1647f9f7765e6e3764572ade7a35c1326ecd73d390fe47b99c47a18ca",
+      "completion_sha256": "31e936a6e668e7fdfd3957d22ce126bf12440c09c4c9dfab78cecc492450fb93",
+      "contract_sha256": "b17b10b1ea1a4c6bac973652110bc59af00d06455fbc17471bd08af9d03e4e2c",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "33A-200",
+      "expert": "wave",
+      "condition": "A",
+      "updates": 200,
+      "stage": "intermediate_200",
+      "recorded_duration_s": 7.140000000000001,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.08973533229066188,
+      "maximum_heading_change_deg": 4.867366548620719,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 2,
+      "maximum_actual_joint_speed_rad_s": 3.6254143714904785,
+      "return_hold_s": [
+        0.0
+      ],
+      "failed_gates": [
+        "requested_interval_completed",
+        "no_forbidden_contact_samples",
+        "all_greeting_cycles",
+        "all_high_paw_attainments",
+        "maximum_xy_distance",
+        "maximum_tilt"
+      ],
+      "summary_sha256": "eb3a5b3a5fdc886d7553480e42ea377576e83823278486ccd973c95f55ba86c8",
+      "completion_sha256": "3c8915a26ad00a57b09072d96647df947fd6251056617eba891924328d35d12e",
+      "contract_sha256": "b17b10b1ea1a4c6bac973652110bc59af00d06455fbc17471bd08af9d03e4e2c",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "33A-250",
+      "expert": "wave",
+      "condition": "A",
+      "updates": 250,
+      "stage": "evaluate",
+      "recorded_duration_s": 10.6,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.13568621735589947,
+      "maximum_heading_change_deg": 9.964542097293512,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 7,
+      "maximum_actual_joint_speed_rad_s": 4.807579517364502,
+      "return_hold_s": [
+        0.0
+      ],
+      "failed_gates": [
+        "requested_interval_completed",
+        "no_forbidden_contact_samples",
+        "all_greeting_cycles",
+        "all_high_paw_attainments",
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "maximum_tilt"
+      ],
+      "summary_sha256": "2f1deb6fc0cb3a26614ebcbab4d26e39b73d51abc5912e1f1bfedff25205c6c3",
+      "completion_sha256": "264cb4cd86754c78dbd924550f9bdefa8b97d4f5e280a7bbd4eb9dee4402152f",
+      "contract_sha256": "b17b10b1ea1a4c6bac973652110bc59af00d06455fbc17471bd08af9d03e4e2c",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "33B-100",
+      "expert": "wave",
+      "condition": "B",
+      "updates": 100,
+      "stage": "intermediate_100",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.08377765233986954,
+      "maximum_heading_change_deg": 5.8127478770825585,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 5.297877788543701,
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance"
+      ],
+      "summary_sha256": "ef484a4b843f813c9d0d3775f585eddf4af7e95c799abb0a4376ae848c57c697",
+      "completion_sha256": "aca1dcb411ffc5f92860850e89142dd8e3c9107ac8cc93f7a4eacc6eee10ef7f",
+      "contract_sha256": "2652566ee92374f2eec0bce9c6b50bdf1f2558ae73471bcdd2948de4680a17e1",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "33B-200",
+      "expert": "wave",
+      "condition": "B",
+      "updates": 200,
+      "stage": "intermediate_200",
+      "recorded_duration_s": 8.46,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.12568069576858312,
+      "maximum_heading_change_deg": 8.334414756795848,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 7,
+      "maximum_actual_joint_speed_rad_s": 3.5879900455474854,
+      "return_hold_s": [
+        0.0
+      ],
+      "failed_gates": [
+        "requested_interval_completed",
+        "no_forbidden_contact_samples",
+        "all_greeting_cycles",
+        "all_high_paw_attainments",
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "maximum_tilt"
+      ],
+      "summary_sha256": "53cbb135995c1ff68df4b35f4ffcc6336aa2d163a770c153335b3045c6686fe8",
+      "completion_sha256": "4e99bc03506512f4e6ed418ea9db2a15d6df5f078101228c274566c5def9903a",
+      "contract_sha256": "2652566ee92374f2eec0bce9c6b50bdf1f2558ae73471bcdd2948de4680a17e1",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "33B-250",
+      "expert": "wave",
+      "condition": "B",
+      "updates": 250,
+      "stage": "evaluate",
+      "recorded_duration_s": 10.120000000000001,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.1287740623770207,
+      "maximum_heading_change_deg": 8.363340496830594,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 5,
+      "maximum_actual_joint_speed_rad_s": 6.899282932281494,
+      "return_hold_s": [
+        0.0
+      ],
+      "failed_gates": [
+        "requested_interval_completed",
+        "no_forbidden_contact_samples",
+        "all_greeting_cycles",
+        "all_high_paw_attainments",
+        "maximum_heading_change",
+        "maximum_xy_distance",
+        "maximum_tilt"
+      ],
+      "summary_sha256": "b20f46bb4c89c94eac3c0cb5527793d87736e638d063b466a3941046f8336b74",
+      "completion_sha256": "8582a7f0f4a994f575bfdfe770368378a1c06811ec07be4a594c7ce5a6b13079",
+      "contract_sha256": "2652566ee92374f2eec0bce9c6b50bdf1f2558ae73471bcdd2948de4680a17e1",
+      "raw_verification": "not_locally_received"
+    }
+  ],
+  "verification": {
+    "metadata_files": 150,
+    "collected_files": 161,
+    "final_models_cpu_checked": 4,
+    "intermediate_models_cpu_checked": 0,
+    "parent_and_final_cases": 36,
+    "intermediate_cases": 8,
+    "raw_recalculated_cases": [
+      "B/prone/250"
+    ],
+    "videos_received": 0
+  },
+  "source_report_sha256": {
+    "prone_comparison": "0149431b9623141771fbe93d65198295fa0c2a067eeb10cbd1c62a6e74c7e025",
+    "wave_review": "bbef004f76ecc1667438faa841b4455cb0ca58180e3b0a7eba8026bd9a90eee0",
+    "terminal": "e6000f928c38f25a699c27ca88c662a2d0b3e4d435b4b2382653993a71b1a101",
+    "collection_review": "00a4dc41c5ba0bfc2c2115ffb96a97635562dd7e48c7a8639ced738070bbf548",
+    "result_document": "3a4a494eeb9df3e6925eb3e00ec9c0c8eac070e03b41ac6b90361ac56774120d",
+    "prone_review": "bc276ab4319330ddfcf24080c32ec0c46b08dcbd21b2bd65cf75dfe55ed4775d"
+  },
+  "completed_at_jst": "2026-09-15T06:51:37+09:00",
+  "trained_checkpoint_evaluations": 12,
+  "completed_at_utc": "2026-09-14T21:51:37.317727+00:00"
+}

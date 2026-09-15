@@ -1,0 +1,1737 @@
+{
+  "schema": "singularitydog.l30-evaluation.v1",
+  "trial_number": 35,
+  "loop_id": "L30",
+  "as_of": "2026-09-15",
+  "main_updates": 277,
+  "separate_smoke_updates": 14,
+  "new_passing_motion_count": 0,
+  "candidate_adopted": false,
+  "physical_model": {
+    "id": "D17",
+    "unchanged_during_trials": true,
+    "printed_reinforcements_included": false,
+    "new_equipment_deck_included": false
+  },
+  "seed": 42,
+  "criteria": {
+    "maximum_xy_distance_m": 0.05,
+    "maximum_heading_change_deg": 5,
+    "prone_requested_s": 24,
+    "wave_requested_s": 36,
+    "cycles": 2
+  },
+  "checkpoint_evaluations_after_training": true,
+  "extra_ppo_updates_for_evaluation": 0,
+  "publication": {
+    "selected_values_only": true,
+    "weights_included": false,
+    "raw_arrays_included": false,
+    "private_photos_included": false,
+    "new_video_files": 0,
+    "note": "Internal evidence hashes identify original records; the public package does not reproduce the simulation environment."
+  },
+  "completed_at_jst": "2026-09-15T19:35:46+09:00",
+  "execution_status": "NINE_FINITE_ATTEMPTS_TERMINAL_SIX_COMPLETED_THREE_STOPPED",
+  "original_combined_plan_completed": false,
+  "nine_motion_full_evaluation_completed": false,
+  "total_recorded_evaluations": 20,
+  "trained_checkpoint_evaluations": 11,
+  "trained_checkpoint_passes": 0,
+  "latest_candidates": {
+    "prone": "R4b 38 updates",
+    "wave": "W4 57 updates"
+  },
+  "prone_evaluation_rows": [
+    {
+      "trial": 35,
+      "case": "old35_parent",
+      "new_updates": 0,
+      "duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "physics_samples": 9600,
+      "maximum_xy_mm": 98.73468485624302,
+      "maximum_absolute_unwrapped_yaw_deg": 5.125981852821259,
+      "prone_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "four_foot_return_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "strict_return_tilt_pass": true,
+      "strict_return_height_pass": true,
+      "forbidden_contact_samples": 0,
+      "maximum_actual_joint_speed_rad_s": 3.560943603515625,
+      "actual_speed_gate_pass": true,
+      "skill_acceptance": false,
+      "failed_gates": [],
+      "failed_stationary_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance"
+      ],
+      "evidence_id": "trial35_initial_pair_common_raw_recalculation",
+      "summary_sha256": "89d9ccb4445cd9d022b5b6926b430a5486b3be2d3454380c6ac6454f54da68a4",
+      "registered_raw_sha256": "af0ba6c8ec09dff547c4435318a3ec72925136d8a19ceb4f0260213a01782f75",
+      "evidence_scope": "previously_recomputed_raw",
+      "additional_ppo_updates_for_evaluation": 0
+    },
+    {
+      "trial": 35,
+      "case": "r2_parent",
+      "new_updates": 0,
+      "duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "physics_samples": 9600,
+      "maximum_xy_mm": 69.11036165024731,
+      "maximum_absolute_unwrapped_yaw_deg": 22.048747107674853,
+      "prone_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "four_foot_return_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "strict_return_tilt_pass": true,
+      "strict_return_height_pass": true,
+      "forbidden_contact_samples": 0,
+      "maximum_actual_joint_speed_rad_s": 5.218640327453613,
+      "actual_speed_gate_pass": true,
+      "skill_acceptance": false,
+      "failed_gates": [],
+      "failed_stationary_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance"
+      ],
+      "evidence_id": "trial35_initial_pair_common_raw_recalculation",
+      "summary_sha256": "ae81bba22291ee15a93b0ccb18930d6a2fdadbac2558e173bfcd42edbcb5a0b0",
+      "registered_raw_sha256": "40266281eccb2ffb4744ec92a645318c09a7af7d0f2231942b911c44a482df17",
+      "evidence_scope": "previously_recomputed_raw",
+      "additional_ppo_updates_for_evaluation": 0
+    },
+    {
+      "trial": 35,
+      "case": "r3_parent",
+      "new_updates": 0,
+      "duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "physics_samples": 9600,
+      "maximum_xy_mm": 99.65333214431458,
+      "maximum_absolute_unwrapped_yaw_deg": 4.699359130026933,
+      "prone_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "four_foot_return_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "strict_return_tilt_pass": true,
+      "strict_return_height_pass": true,
+      "forbidden_contact_samples": 0,
+      "maximum_actual_joint_speed_rad_s": 3.481961727142334,
+      "actual_speed_gate_pass": true,
+      "skill_acceptance": false,
+      "failed_gates": [],
+      "failed_stationary_gates": [
+        "maximum_xy_distance"
+      ],
+      "evidence_id": "trial35_initial_pair_common_raw_recalculation",
+      "summary_sha256": "c5e5d44f19a690d062a9dbbce833a32832751ffb80c4da98ff22992b76becdde",
+      "registered_raw_sha256": "f0eb84a9690d2d64636e846a44fa38c68b3b5e82923fac250cde42eea9ab06f8",
+      "evidence_scope": "previously_recomputed_raw",
+      "additional_ppo_updates_for_evaluation": 0
+    },
+    {
+      "trial": 35,
+      "case": "r3_final25",
+      "new_updates": 25,
+      "duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "physics_samples": 9600,
+      "maximum_xy_mm": 100.63474023248168,
+      "maximum_absolute_unwrapped_yaw_deg": 5.088690559402155,
+      "prone_continuous_hold_s": [
+        2.0,
+        1.97
+      ],
+      "four_foot_return_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "strict_return_tilt_pass": true,
+      "strict_return_height_pass": true,
+      "forbidden_contact_samples": 0,
+      "maximum_actual_joint_speed_rad_s": 3.482884168624878,
+      "actual_speed_gate_pass": true,
+      "skill_acceptance": false,
+      "failed_gates": [
+        "all_prone_holds"
+      ],
+      "failed_stationary_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance"
+      ],
+      "evidence_id": "trial35_initial_pair_common_raw_recalculation",
+      "summary_sha256": "1ab65571eb15af13eaa4111ee6e679a5603a926120d1bf29b44b79e14386496b",
+      "registered_raw_sha256": "e66b86e516d9fe5396d1ff41a33e1c55f014f7bfc353555ea154c45e59d9e560",
+      "evidence_scope": "previously_recomputed_raw",
+      "additional_ppo_updates_for_evaluation": 0
+    },
+    {
+      "trial": 35,
+      "case": "r4_preflight_technical_stop",
+      "new_updates": 0,
+      "duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "physics_samples": 9600,
+      "maximum_xy_mm": 99.65333214431458,
+      "maximum_absolute_unwrapped_yaw_deg": 4.699359130026933,
+      "prone_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "four_foot_return_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "strict_return_tilt_pass": true,
+      "strict_return_height_pass": true,
+      "forbidden_contact_samples": 0,
+      "maximum_actual_joint_speed_rad_s": 3.481961727142334,
+      "actual_speed_gate_pass": true,
+      "skill_acceptance": false,
+      "failed_gates": [],
+      "failed_stationary_gates": [
+        "maximum_xy_distance"
+      ],
+      "evidence_id": "trial35_projected_retry_raw_recalculation",
+      "summary_sha256": "b02986e0eba890a0b33bdc4daef24dbc304a58285e494c4a11800e0713f3d871",
+      "registered_raw_sha256": "f0eb84a9690d2d64636e846a44fa38c68b3b5e82923fac250cde42eea9ab06f8",
+      "evidence_scope": "raw_bytes_identical_to_recomputed_r3_parent",
+      "additional_ppo_updates_for_evaluation": 0
+    },
+    {
+      "trial": 35,
+      "case": "r4b_preflight",
+      "new_updates": 0,
+      "duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "physics_samples": 9600,
+      "maximum_xy_mm": 99.65333214431458,
+      "maximum_absolute_unwrapped_yaw_deg": 4.699359130026933,
+      "prone_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "four_foot_return_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "strict_return_tilt_pass": true,
+      "strict_return_height_pass": true,
+      "forbidden_contact_samples": 0,
+      "maximum_actual_joint_speed_rad_s": 3.481961727142334,
+      "actual_speed_gate_pass": true,
+      "skill_acceptance": false,
+      "failed_gates": [],
+      "failed_stationary_gates": [
+        "maximum_xy_distance"
+      ],
+      "evidence_id": "trial35_projected_retry_raw_recalculation",
+      "summary_sha256": "b2837aa187d41bd672d8f0216e1b1584f2f9e56484e75e1db079a2558b9cecac",
+      "registered_raw_sha256": "f0eb84a9690d2d64636e846a44fa38c68b3b5e82923fac250cde42eea9ab06f8",
+      "evidence_scope": "previously_recomputed_raw",
+      "additional_ppo_updates_for_evaluation": 0
+    },
+    {
+      "trial": 35,
+      "case": "r4b_intermediate_25",
+      "new_updates": 25,
+      "duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "physics_samples": 9600,
+      "maximum_xy_mm": 99.86859074120906,
+      "maximum_absolute_unwrapped_yaw_deg": 4.716764929544834,
+      "prone_continuous_hold_s": [
+        2.0,
+        1.9825000000000002
+      ],
+      "four_foot_return_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "strict_return_tilt_pass": true,
+      "strict_return_height_pass": true,
+      "forbidden_contact_samples": 0,
+      "maximum_actual_joint_speed_rad_s": 3.4831032752990723,
+      "actual_speed_gate_pass": true,
+      "skill_acceptance": false,
+      "failed_gates": [
+        "all_prone_holds"
+      ],
+      "failed_stationary_gates": [
+        "maximum_xy_distance"
+      ],
+      "evidence_id": "trial35_projected_retry_raw_recalculation",
+      "summary_sha256": "926a1c983f7d5d0734cc5baf7b77b66be6afcf6d918a577720991f03df1652d7",
+      "registered_raw_sha256": "4accfafbbff049bb58087ef7492b6d1adcbfa1085a11cae9bae6485403642a5b",
+      "evidence_scope": "previously_recomputed_raw",
+      "additional_ppo_updates_for_evaluation": 0
+    },
+    {
+      "trial": 35,
+      "case": "r4b_evaluate",
+      "new_updates": 38,
+      "duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "physics_samples": 9600,
+      "maximum_xy_mm": 100.32046679343439,
+      "maximum_absolute_unwrapped_yaw_deg": 5.120201887284775,
+      "prone_continuous_hold_s": [
+        2.0,
+        1.9725000000000001
+      ],
+      "four_foot_return_continuous_hold_s": [
+        2.0,
+        2.0
+      ],
+      "strict_return_tilt_pass": true,
+      "strict_return_height_pass": true,
+      "forbidden_contact_samples": 0,
+      "maximum_actual_joint_speed_rad_s": 3.4829394817352295,
+      "actual_speed_gate_pass": true,
+      "skill_acceptance": false,
+      "failed_gates": [
+        "all_prone_holds"
+      ],
+      "failed_stationary_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance"
+      ],
+      "evidence_id": "trial35_projected_retry_raw_recalculation",
+      "summary_sha256": "d49f780fb4fa0828a94f0a90d9554db9deda9f0e4b5d9b5b615a72e317d3629d",
+      "registered_raw_sha256": "2a77176ee0e2df0fcfe48abb44d041bf28d78e199d0b69e896b8aa94e840475d",
+      "evidence_scope": "previously_recomputed_raw",
+      "additional_ppo_updates_for_evaluation": 0
+    }
+  ],
+  "wave_evaluation_rows": [
+    {
+      "id": "35W1-parent",
+      "trial": 35,
+      "condition": "W1",
+      "new_updates": 0,
+      "training_budget_updates": 50,
+      "stage": "preflight",
+      "recorded_s": 36.0,
+      "requested_s": 36.0,
+      "maximum_xy_mm": 61.518748697462286,
+      "maximum_yaw_deg": 4.586055453663234,
+      "final_xy_mm": 8.786361738627319,
+      "passed_cycles": 2,
+      "round_trips_total": 4,
+      "valid_high_paw_s_total": 8.0,
+      "four_foot_return_s_by_cycle": [
+        2.0,
+        2.0
+      ],
+      "minimum_paw_clearance_mm_by_cycle": [
+        154.37344110012054,
+        155.89793419837952
+      ],
+      "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "skill_pass": false,
+      "adopted": false,
+      "evaluation_record_ended_utc": "2026-09-15T06:53:10.107520+00:00",
+      "summary_sha256": "1803949ea64fb1b1460ccb172eba74bfb65beb6b7a83827a84a11f805e87f1fa",
+      "completion_sha256": "01596f19943f5b2c0cde9b9da3cd44b4967572f10b98916e407b84f1066ce0dd",
+      "contract_sha256": "c6995cd9f761de0425a87268dacab5b72003d25ce471a69b3ec51f0bf92cdb62",
+      "evidence_ids": [
+        "E050",
+        "E051"
+      ],
+      "raw_byte_verification": "actual_local_bytes_match_summary_provenance"
+    },
+    {
+      "id": "35W2-parent",
+      "trial": 35,
+      "condition": "W2",
+      "new_updates": 0,
+      "training_budget_updates": 50,
+      "stage": "preflight",
+      "recorded_s": 36.0,
+      "requested_s": 36.0,
+      "maximum_xy_mm": 61.518748697462286,
+      "maximum_yaw_deg": 4.586055453663234,
+      "final_xy_mm": 8.786361738627319,
+      "passed_cycles": 2,
+      "round_trips_total": 4,
+      "valid_high_paw_s_total": 8.0,
+      "four_foot_return_s_by_cycle": [
+        2.0,
+        2.0
+      ],
+      "minimum_paw_clearance_mm_by_cycle": [
+        154.37344110012054,
+        155.89793419837952
+      ],
+      "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "skill_pass": false,
+      "adopted": false,
+      "evaluation_record_ended_utc": "2026-09-15T07:57:24.141332+00:00",
+      "summary_sha256": "5edbe52be7aab1724353e935bd9d133ab4b9db1aca683a4fe000ae34f7b6e707",
+      "completion_sha256": "06b6cbd23c02ab23d2a4d4497645e46df802f00da107e592f47561695cb989d8",
+      "contract_sha256": "05b2d0647b7cea34ee4f6d07c3ca4cff32d698cef3bbf779341d81807cb940af",
+      "evidence_ids": [
+        "E062",
+        "E063"
+      ],
+      "raw_byte_verification": "actual_local_bytes_match_summary_provenance"
+    },
+    {
+      "id": "35W3-parent",
+      "trial": 35,
+      "condition": "W3",
+      "new_updates": 0,
+      "training_budget_updates": 57,
+      "stage": "preflight",
+      "recorded_s": 36.0,
+      "requested_s": 36.0,
+      "maximum_xy_mm": 61.518748697462286,
+      "maximum_yaw_deg": 4.586055453663234,
+      "final_xy_mm": 8.786361738627319,
+      "passed_cycles": 2,
+      "round_trips_total": 4,
+      "valid_high_paw_s_total": 8.0,
+      "four_foot_return_s_by_cycle": [
+        2.0,
+        2.0
+      ],
+      "minimum_paw_clearance_mm_by_cycle": [
+        154.37344110012054,
+        155.89793419837952
+      ],
+      "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "skill_pass": false,
+      "adopted": false,
+      "evaluation_record_ended_utc": "2026-09-15T09:19:46.844228+00:00",
+      "summary_sha256": "18e75c208aa72990bca8b5db86fc1038eed93f94267026bf05170815bf9e134c",
+      "completion_sha256": "9c8ef1892e8cdae61281bf1a105e466b5b02765d04e83c7cb55f81c579366d9b",
+      "contract_sha256": "9b73261279711de10242539b286e2e51919d13566c7185a83f60ad7cf3a996b9",
+      "evidence_ids": [
+        "E074",
+        "E075"
+      ],
+      "raw_byte_verification": "actual_local_bytes_match_summary_provenance"
+    },
+    {
+      "id": "35W4-parent",
+      "trial": 35,
+      "condition": "W4",
+      "new_updates": 0,
+      "training_budget_updates": 57,
+      "stage": "preflight",
+      "recorded_s": 36.0,
+      "requested_s": 36.0,
+      "maximum_xy_mm": 61.518748697462286,
+      "maximum_yaw_deg": 4.586055453663234,
+      "final_xy_mm": 8.786361738627319,
+      "passed_cycles": 2,
+      "round_trips_total": 4,
+      "valid_high_paw_s_total": 8.0,
+      "four_foot_return_s_by_cycle": [
+        2.0,
+        2.0
+      ],
+      "minimum_paw_clearance_mm_by_cycle": [
+        154.37344110012054,
+        155.89793419837952
+      ],
+      "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "skill_pass": false,
+      "adopted": false,
+      "evaluation_record_ended_utc": "2026-09-15T10:20:35.627949+00:00",
+      "summary_sha256": "1b7dca476290ea818430a251baaef2d50ab5dbcf70dbf06e7d91ab3c4459c206",
+      "completion_sha256": "05590d6cf95723e2fc404984d055b92a0f46bf82f74c1fe7a714033da676ead9",
+      "contract_sha256": "cbc2072f3770eff164d422d4396d93e170762da49d896991b2eced4e18e119a8",
+      "evidence_ids": [
+        "E086",
+        "E087"
+      ],
+      "raw_byte_verification": "actual_local_bytes_match_summary_provenance"
+    },
+    {
+      "id": "35W1-25",
+      "trial": 35,
+      "condition": "W1",
+      "new_updates": 25,
+      "training_budget_updates": 50,
+      "stage": "intermediate_25",
+      "recorded_s": 36.0,
+      "requested_s": 36.0,
+      "maximum_xy_mm": 61.54498620734268,
+      "maximum_yaw_deg": 4.5912390140402675,
+      "final_xy_mm": 7.351364146975046,
+      "passed_cycles": 2,
+      "round_trips_total": 4,
+      "valid_high_paw_s_total": 8.0,
+      "four_foot_return_s_by_cycle": [
+        2.0,
+        2.0
+      ],
+      "minimum_paw_clearance_mm_by_cycle": [
+        154.36898565292358,
+        155.6056479215622
+      ],
+      "maximum_actual_joint_speed_rad_s": 3.787466049194336,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "skill_pass": false,
+      "adopted": false,
+      "evaluation_record_ended_utc": "2026-09-15T07:03:28.363519+00:00",
+      "summary_sha256": "c79ed4741ed192bfb465cc4f822fa5054b1161424fa0fcf0ff71fed7782ec820",
+      "completion_sha256": "123c908460b99a15308aad57cebf8263c487aa03939af4f309bba2c3e339c6e0",
+      "contract_sha256": "c6995cd9f761de0425a87268dacab5b72003d25ce471a69b3ec51f0bf92cdb62",
+      "evidence_ids": [
+        "E053",
+        "E054"
+      ],
+      "raw_byte_verification": "actual_local_bytes_match_summary_provenance"
+    },
+    {
+      "id": "35W1-50",
+      "trial": 35,
+      "condition": "W1",
+      "new_updates": 50,
+      "training_budget_updates": 50,
+      "stage": "evaluate",
+      "recorded_s": 36.0,
+      "requested_s": 36.0,
+      "maximum_xy_mm": 61.50603883059984,
+      "maximum_yaw_deg": 4.586766145531739,
+      "final_xy_mm": 7.138386992976897,
+      "passed_cycles": 2,
+      "round_trips_total": 4,
+      "valid_high_paw_s_total": 8.0,
+      "four_foot_return_s_by_cycle": [
+        2.0,
+        2.0
+      ],
+      "minimum_paw_clearance_mm_by_cycle": [
+        154.39999496936798,
+        155.51203882694244
+      ],
+      "maximum_actual_joint_speed_rad_s": 3.7836992740631104,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "skill_pass": false,
+      "adopted": false,
+      "evaluation_record_ended_utc": "2026-09-15T07:07:38.720356+00:00",
+      "summary_sha256": "65b2c2db5200441c19349b0a9c92d2b5ef9133ee7db06bfd738870983969ae37",
+      "completion_sha256": "86ed7ce94bd523c65cd8a16c6e954b0a8ad75a120af35ebcaaff1418ff3a5108",
+      "contract_sha256": "c6995cd9f761de0425a87268dacab5b72003d25ce471a69b3ec51f0bf92cdb62",
+      "evidence_ids": [
+        "E056",
+        "E057"
+      ],
+      "raw_byte_verification": "actual_local_bytes_match_summary_provenance"
+    },
+    {
+      "id": "35W2-25",
+      "trial": 35,
+      "condition": "W2",
+      "new_updates": 25,
+      "training_budget_updates": 50,
+      "stage": "intermediate_25",
+      "recorded_s": 36.0,
+      "requested_s": 36.0,
+      "maximum_xy_mm": 61.485092066718614,
+      "maximum_yaw_deg": 4.588103905917387,
+      "final_xy_mm": 9.792492346946956,
+      "passed_cycles": 2,
+      "round_trips_total": 4,
+      "valid_high_paw_s_total": 8.0,
+      "four_foot_return_s_by_cycle": [
+        2.0,
+        2.0
+      ],
+      "minimum_paw_clearance_mm_by_cycle": [
+        154.39936912059784,
+        156.15089631080627
+      ],
+      "maximum_actual_joint_speed_rad_s": 3.7869348526000977,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "skill_pass": false,
+      "adopted": false,
+      "evaluation_record_ended_utc": "2026-09-15T08:07:40.462824+00:00",
+      "summary_sha256": "7a2290a519d7f587eba4b7d75a02732afe8d1fb80c98e298c0caf0b5b4a5cdfe",
+      "completion_sha256": "6597716374bc42f4128bbb757219f2abe234f5a35685931f9a344b494443e34f",
+      "contract_sha256": "05b2d0647b7cea34ee4f6d07c3ca4cff32d698cef3bbf779341d81807cb940af",
+      "evidence_ids": [
+        "E065",
+        "E066"
+      ],
+      "raw_byte_verification": "actual_local_bytes_match_summary_provenance"
+    },
+    {
+      "id": "35W2-50",
+      "trial": 35,
+      "condition": "W2",
+      "new_updates": 50,
+      "training_budget_updates": 50,
+      "stage": "evaluate",
+      "recorded_s": 36.0,
+      "requested_s": 36.0,
+      "maximum_xy_mm": 61.468349579796055,
+      "maximum_yaw_deg": 4.567390324900826,
+      "final_xy_mm": 8.827551625425691,
+      "passed_cycles": 2,
+      "round_trips_total": 4,
+      "valid_high_paw_s_total": 8.0,
+      "four_foot_return_s_by_cycle": [
+        2.0,
+        2.0
+      ],
+      "minimum_paw_clearance_mm_by_cycle": [
+        154.353413939476,
+        155.86997961997986
+      ],
+      "maximum_actual_joint_speed_rad_s": 3.78941011428833,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "skill_pass": false,
+      "adopted": false,
+      "evaluation_record_ended_utc": "2026-09-15T08:11:52.161411+00:00",
+      "summary_sha256": "2c67e03aba7d84f767c966d8fa3ecc8f971b9dda1e78879c37a444d5e7b84589",
+      "completion_sha256": "40a9ee6a058b907ff370f9fe6222e055b189dce8eb0b36728c05420249004814",
+      "contract_sha256": "05b2d0647b7cea34ee4f6d07c3ca4cff32d698cef3bbf779341d81807cb940af",
+      "evidence_ids": [
+        "E068",
+        "E069"
+      ],
+      "raw_byte_verification": "actual_local_bytes_match_summary_provenance"
+    },
+    {
+      "id": "35W3-25",
+      "trial": 35,
+      "condition": "W3",
+      "new_updates": 25,
+      "training_budget_updates": 57,
+      "stage": "intermediate_25",
+      "recorded_s": 36.0,
+      "requested_s": 36.0,
+      "maximum_xy_mm": 61.49018659737266,
+      "maximum_yaw_deg": 4.582691721883083,
+      "final_xy_mm": 9.418902160422133,
+      "passed_cycles": 2,
+      "round_trips_total": 4,
+      "valid_high_paw_s_total": 8.0,
+      "four_foot_return_s_by_cycle": [
+        2.0,
+        2.0
+      ],
+      "minimum_paw_clearance_mm_by_cycle": [
+        154.3944070339203,
+        156.0852119922638
+      ],
+      "maximum_actual_joint_speed_rad_s": 3.787904739379883,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "skill_pass": false,
+      "adopted": false,
+      "evaluation_record_ended_utc": "2026-09-15T09:30:39.555994+00:00",
+      "summary_sha256": "caba18ecd76482de7e17ac5119a9a36d4206ec29be22258ecc00bd823a3cf59d",
+      "completion_sha256": "3cd1b64966104cb2f37a66640b64a17b576b0917e5808137133a23dcec5737a2",
+      "contract_sha256": "9b73261279711de10242539b286e2e51919d13566c7185a83f60ad7cf3a996b9",
+      "evidence_ids": [
+        "E077",
+        "E078"
+      ],
+      "raw_byte_verification": "actual_local_bytes_match_summary_provenance"
+    },
+    {
+      "id": "35W3-57",
+      "trial": 35,
+      "condition": "W3",
+      "new_updates": 57,
+      "training_budget_updates": 57,
+      "stage": "evaluate",
+      "recorded_s": 36.0,
+      "requested_s": 36.0,
+      "maximum_xy_mm": 61.54082211110151,
+      "maximum_yaw_deg": 4.580548814883367,
+      "final_xy_mm": 7.767285213863696,
+      "passed_cycles": 2,
+      "round_trips_total": 4,
+      "valid_high_paw_s_total": 8.0,
+      "four_foot_return_s_by_cycle": [
+        2.0,
+        2.0
+      ],
+      "minimum_paw_clearance_mm_by_cycle": [
+        154.34942042827606,
+        155.6765774488449
+      ],
+      "maximum_actual_joint_speed_rad_s": 3.7872586250305176,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "skill_pass": false,
+      "adopted": false,
+      "evaluation_record_ended_utc": "2026-09-15T09:34:51.466449+00:00",
+      "summary_sha256": "03daacded6ae0e1509830115e0382e46300f03c6090e7c75715964a6764332e7",
+      "completion_sha256": "4daaf24b0de754120ce3247f8348d7611c5d5fab8e6329eec1109291a90a73fd",
+      "contract_sha256": "9b73261279711de10242539b286e2e51919d13566c7185a83f60ad7cf3a996b9",
+      "evidence_ids": [
+        "E080",
+        "E081"
+      ],
+      "raw_byte_verification": "actual_local_bytes_match_summary_provenance"
+    },
+    {
+      "id": "35W4-25",
+      "trial": 35,
+      "condition": "W4",
+      "new_updates": 25,
+      "training_budget_updates": 57,
+      "stage": "intermediate_25",
+      "recorded_s": 36.0,
+      "requested_s": 36.0,
+      "maximum_xy_mm": 61.48691783629537,
+      "maximum_yaw_deg": 4.586287259506054,
+      "final_xy_mm": 7.607303583991055,
+      "passed_cycles": 2,
+      "round_trips_total": 4,
+      "valid_high_paw_s_total": 8.0,
+      "four_foot_return_s_by_cycle": [
+        2.0,
+        2.0
+      ],
+      "minimum_paw_clearance_mm_by_cycle": [
+        154.36038768291473,
+        155.64264750480652
+      ],
+      "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "skill_pass": false,
+      "adopted": false,
+      "evaluation_record_ended_utc": "2026-09-15T10:31:31.089684+00:00",
+      "summary_sha256": "96abd2e0279fbd801b47320d551e33318ad9aea5151dc2edf7904e5ecd536377",
+      "completion_sha256": "8960f2a9bd83bd2dd306ce5dc612e2a206a3ca01ae74d104e104cca54de75357",
+      "contract_sha256": "cbc2072f3770eff164d422d4396d93e170762da49d896991b2eced4e18e119a8",
+      "evidence_ids": [
+        "E089",
+        "E090"
+      ],
+      "raw_byte_verification": "actual_local_bytes_match_summary_provenance"
+    },
+    {
+      "id": "35W4-57",
+      "trial": 35,
+      "condition": "W4",
+      "new_updates": 57,
+      "training_budget_updates": 57,
+      "stage": "evaluate",
+      "recorded_s": 36.0,
+      "requested_s": 36.0,
+      "maximum_xy_mm": 61.582619920940736,
+      "maximum_yaw_deg": 4.579599847640176,
+      "final_xy_mm": 9.558667137837936,
+      "passed_cycles": 2,
+      "round_trips_total": 4,
+      "valid_high_paw_s_total": 8.0,
+      "four_foot_return_s_by_cycle": [
+        2.0,
+        2.0
+      ],
+      "minimum_paw_clearance_mm_by_cycle": [
+        154.37561666965485,
+        156.13328313827515
+      ],
+      "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+      "forbidden_contact_samples": 0,
+      "overspeed_joint_samples": 0,
+      "gates": {
+        "requested_interval_completed": true,
+        "no_reset_between_cycles": true,
+        "no_forbidden_contact_samples": true,
+        "actual_joint_speed_within_limit": true,
+        "all_greeting_cycles": true,
+        "all_high_paw_attainments": true,
+        "maximum_heading_change": true,
+        "maximum_xy_distance": false,
+        "maximum_tilt": true,
+        "exposure_continuous_between_phases_and_cycles": true,
+        "exposure_within_bounds": true,
+        "peak_torque_within_bound": true,
+        "torque_within_actual_limiter_caps": true
+      },
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "skill_pass": false,
+      "adopted": false,
+      "evaluation_record_ended_utc": "2026-09-15T10:35:42.904713+00:00",
+      "summary_sha256": "922fb91675954e23e22df99970d75438609530e96c1ac94039230fa8aca49bed",
+      "completion_sha256": "1fb80558b3bec8b9029cf7a019ef3de35fd07307f52a4d9ba15c8b66b79ac172",
+      "contract_sha256": "cbc2072f3770eff164d422d4396d93e170762da49d896991b2eced4e18e119a8",
+      "evidence_ids": [
+        "E092",
+        "E093"
+      ],
+      "raw_byte_verification": "actual_local_bytes_match_summary_provenance"
+    }
+  ],
+  "prone_attempts": [
+    {
+      "candidate": "r1_hold_blend",
+      "main_updates_completed": 0,
+      "smoke_updates_completed": 0,
+      "execution_status": "STOPPED_ON_CONDITION_ERROR_OR_TIMEOUT",
+      "collection_status": "PARTIAL_TRIAL35_RESULTS_RECORDED",
+      "note": "学習前評価で yaw 基準未達。主学習・試運転を開始せず停止。",
+      "execution_receipt_sha256": "33ab12d9e57ac8bf9009904874839c90f232cfed67b004573192fae6bf7a2150",
+      "verification_receipt_sha256": "0c70b7636880ad3624376dcdbaa8647bbcda188f764f08419e3c35f0802f2fa6",
+      "new_successful_policy_adopted": false
+    },
+    {
+      "candidate": "r2_pair_hip085",
+      "main_updates_completed": 0,
+      "smoke_updates_completed": 0,
+      "execution_status": "STOPPED_BEFORE_PRONE_TRAINING_PREFLIGHT_GATE",
+      "collection_status": "PARTIAL_TRIAL35_PRONE_ONLY_RESULTS_RECORDED",
+      "note": "左右ペア補正で XY は減少したが yaw が悪化。学習前評価で停止。",
+      "execution_receipt_sha256": "e70890a55ecf9b50d7103c0075ce47c69054ba20945c864002cff6916bc1fadd",
+      "verification_receipt_sha256": "5c6e812e00357de65554f9dfd52e67396523e5a3ba752cecf4320d2e6aa4673a",
+      "new_successful_policy_adopted": false
+    },
+    {
+      "candidate": "r3_common_hip085",
+      "main_updates_completed": 25,
+      "smoke_updates_completed": 2,
+      "execution_status": "PRONE_ONLY_COMPLETE",
+      "collection_status": "PASS_COMPLETED_TRIAL35_PRONE_ONLY_25_MAIN_2_SMOKE_2_CASES_ONE_MODEL",
+      "note": "主学習完了。最終モデルは XY・yaw・第2周期の保持が未達。",
+      "execution_receipt_sha256": "1bbc67c6d494286e2b4838bb2656246e8a59a08a1345ed8c66001c59f087948c",
+      "verification_receipt_sha256": "77ac17c1e54842af7cb47ffaca4d52ba713e267c2fdc06aa738ffa84757c9ca2",
+      "new_successful_policy_adopted": false
+    },
+    {
+      "candidate": "r4_projected_teacher",
+      "main_updates_completed": 0,
+      "smoke_updates_completed": 2,
+      "execution_status": "ERROR_PRONE_ONLY_INCOMPLETE",
+      "collection_status": "PARTIAL_TRIAL35_PRONE_ONLY_RESULTS_RECORDED",
+      "note": "試運転は16環境で2更新完了。制御側が256環境を期待して照合エラーとなり、主学習前に停止。",
+      "execution_receipt_sha256": "adfd1a8d9adf32668fd640ece551cbcc536929704d59d5766bb7db5298768127",
+      "verification_receipt_sha256": "28c2f0088146f0cd3a392b1547e0524c768e067475eb7a231768e70432f2bcdd",
+      "new_successful_policy_adopted": false
+    },
+    {
+      "candidate": "r4b_projected_retry",
+      "main_updates_completed": 38,
+      "smoke_updates_completed": 2,
+      "execution_status": "PRONE_ONLY_COMPLETE",
+      "collection_status": "PASS_COMPLETED_TRIAL35_PRONE_PROJECTED_R4B_38_MAIN_2_SMOKE_3_CASES_ONE_MODEL",
+      "note": "科学ソースは r4 と同一。環境数の照合だけ修正し、新規実行で38更新完了。保存25・最終38とも未達。",
+      "execution_receipt_sha256": "f3ca231bc7c8ebfa48441bf44579f0f52fda555340b93bf0f83709a806af2995",
+      "verification_receipt_sha256": "ba92ef2004e36dacfee6426c6e0662402f5eb48be2b9254b75cf1e7451f1098d",
+      "new_successful_policy_adopted": false
+    }
+  ],
+  "wave_runs": [
+    {
+      "id": "35W1",
+      "trial": 35,
+      "main_updates": 50,
+      "smoke_updates": 2,
+      "training_completed": true,
+      "evaluated_saved_updates": [
+        25,
+        50
+      ],
+      "all_new_models_skill_pass": false,
+      "any_new_model_adopted": false,
+      "collection_review_status": "PASS_COMPLETED_TRIAL35_WAVE_ONLY_50_MAIN_2_SMOKE_3_CASES_ONE_MODEL",
+      "collection_review_sha256": "5ab48f98358bdfc711f3eb5f79d0bdc3855fd35794e1e75fe0f8ae837cc5bb91",
+      "collection_evidence_id": "E047",
+      "stages": {
+        "smoke": {
+          "updates": 2,
+          "status": "L30_PPO_API_SMOKE_PASSED",
+          "ended_utc": "2026-09-15T06:54:12.029386+00:00",
+          "completion_sha256": "8a8ad248834ea8c09eb84f0e68b501d6d58f444e336fc2c9e8b683c4a95ab02c",
+          "evidence_id": "E048",
+          "optimizer_states": 17,
+          "optimizer_steps_per_parameter": 40
+        },
+        "train": {
+          "updates": 50,
+          "status": "L30_TRAINING_COMPLETED",
+          "ended_utc": "2026-09-15T06:59:16.559813+00:00",
+          "completion_sha256": "a1a436bee6d3018c99bcb5089804a315add534ca5e4bf089cf0f915f3c9e8fb9",
+          "evidence_id": "E049",
+          "optimizer_states": 17,
+          "optimizer_steps_per_parameter": 1000,
+          "training_counters": {
+            "max_actual_speed_rad_s": 11.146247863769531,
+            "overspeed_cells": 7,
+            "illegal_contact_lane_substeps": 1072,
+            "episode_reset_lanes": 511
+          },
+          "episode_terminations": 255
+        }
+      },
+      "description_ja": "支持移動初期の教師targetを境界へ投影（1倍）"
+    },
+    {
+      "id": "35W2",
+      "trial": 35,
+      "main_updates": 50,
+      "smoke_updates": 2,
+      "training_completed": true,
+      "evaluated_saved_updates": [
+        25,
+        50
+      ],
+      "all_new_models_skill_pass": false,
+      "any_new_model_adopted": false,
+      "collection_review_status": "PASS_COMPLETED_TRIAL35_WAVE_WEIGHTED_50_MAIN_2_SMOKE_3_CASES_ONE_MODEL",
+      "collection_review_sha256": "46b0f2e6e37b9062ff095766bd23569c0f40567b25666543c0047ed3f7e0fe0e",
+      "collection_evidence_id": "E059",
+      "stages": {
+        "smoke": {
+          "updates": 2,
+          "status": "L30_PPO_API_SMOKE_PASSED",
+          "ended_utc": "2026-09-15T07:58:26.125425+00:00",
+          "completion_sha256": "4704ebd566bca69cfabaab330dfcacb68bf41c1be967483b9f97954c3f11557e",
+          "evidence_id": "E060",
+          "optimizer_states": 17,
+          "optimizer_steps_per_parameter": 40
+        },
+        "train": {
+          "updates": 50,
+          "status": "L30_TRAINING_COMPLETED",
+          "ended_utc": "2026-09-15T08:03:28.637495+00:00",
+          "completion_sha256": "b3bd63bc730e2a6a6361411d0790c750b79fcc0b51d7ec804b84d5d468ee88bb",
+          "evidence_id": "E061",
+          "optimizer_states": 17,
+          "optimizer_steps_per_parameter": 1000,
+          "training_counters": {
+            "max_actual_speed_rad_s": 12.13436508178711,
+            "overspeed_cells": 12,
+            "illegal_contact_lane_substeps": 1174,
+            "episode_reset_lanes": 513
+          },
+          "episode_terminations": 257
+        }
+      },
+      "description_ja": "W1の投影対象セル損失だけ4倍"
+    },
+    {
+      "id": "35W3",
+      "trial": 35,
+      "main_updates": 57,
+      "smoke_updates": 2,
+      "training_completed": true,
+      "evaluated_saved_updates": [
+        25,
+        57
+      ],
+      "all_new_models_skill_pass": false,
+      "any_new_model_adopted": false,
+      "collection_review_status": "PASS_COMPLETED_TRIAL35_WAVE_CANONICAL_57_MAIN_2_SMOKE_3_CASES_ONE_MODEL",
+      "collection_review_sha256": "9954d1716cd71fee814a4a7cfe88bf96e71db1b0ceb67236f7c65e02c86eb0b1",
+      "collection_evidence_id": "E071",
+      "stages": {
+        "smoke": {
+          "updates": 2,
+          "status": "L30_PPO_API_SMOKE_PASSED",
+          "ended_utc": "2026-09-15T09:20:50.212449+00:00",
+          "completion_sha256": "793fef2bf153143a3a010705aaaa875b7ef8c7c2d2c71efc5a3409be6efc26e1",
+          "evidence_id": "E072",
+          "optimizer_states": 17,
+          "optimizer_steps_per_parameter": 40
+        },
+        "train": {
+          "updates": 57,
+          "status": "L30_TRAINING_COMPLETED",
+          "ended_utc": "2026-09-15T09:26:28.413917+00:00",
+          "completion_sha256": "a3389bd706bdebb1eb473b330655db268ac0fa57a1bbd92864109f7dc913f1c1",
+          "evidence_id": "E073",
+          "optimizer_states": 17,
+          "optimizer_steps_per_parameter": 1140,
+          "training_counters": {
+            "max_actual_speed_rad_s": 12.387279510498047,
+            "overspeed_cells": 9,
+            "illegal_contact_lane_substeps": 1128,
+            "episode_reset_lanes": 512
+          },
+          "episode_terminations": 256
+        }
+      },
+      "description_ja": "親を基準にNormal平均を境界へ移すcanonical分布"
+    },
+    {
+      "id": "35W4",
+      "trial": 35,
+      "main_updates": 57,
+      "smoke_updates": 2,
+      "training_completed": true,
+      "evaluated_saved_updates": [
+        25,
+        57
+      ],
+      "all_new_models_skill_pass": false,
+      "any_new_model_adopted": false,
+      "collection_review_status": "PASS_COMPLETED_TRIAL35_WAVE_SCOPED_57_MAIN_2_SMOKE_3_CASES_ONE_MODEL",
+      "collection_review_sha256": "cfdd3b916a833848206f39d06726686996d6ef940822433befe3863c0bc4d3fa",
+      "collection_evidence_id": "E083",
+      "stages": {
+        "smoke": {
+          "updates": 2,
+          "status": "L30_PPO_API_SMOKE_PASSED",
+          "ended_utc": "2026-09-15T10:21:38.916978+00:00",
+          "completion_sha256": "2e235e30ab2cab0d49667cfa599716c4ecefb4bf9f359491b40ee7adfe82bd73",
+          "evidence_id": "E084",
+          "optimizer_states": 17,
+          "optimizer_steps_per_parameter": 40
+        },
+        "train": {
+          "updates": 57,
+          "status": "L30_TRAINING_COMPLETED",
+          "ended_utc": "2026-09-15T10:27:19.179620+00:00",
+          "completion_sha256": "10781ca26f26d85ba27c71713ca0a94e70980d3b16c77c39efd3ab9e1516a98e",
+          "evidence_id": "E085",
+          "optimizer_states": 17,
+          "optimizer_steps_per_parameter": 1140,
+          "training_counters": {
+            "max_actual_speed_rad_s": 10.146817207336426,
+            "overspeed_cells": 1,
+            "illegal_contact_lane_substeps": 258,
+            "episode_reset_lanes": 512
+          },
+          "episode_terminations": 256
+        }
+      },
+      "description_ja": "W3の可変平均・探索を挙上前支持9関節へ限定"
+    }
+  ],
+  "r4b_actual_training_evidence": {
+    "main_updates": 38,
+    "policy_steps": 1216,
+    "environments": 256,
+    "two_complete_cycles_environments": 256,
+    "all_environments_completed_two_cycles": true,
+    "projected_cell_exposures": 288755,
+    "projected_cell_exposure_unit": "同じ経験を5学習epochで再利用するため重複を含む。固有の制御サンプル数ではない。",
+    "probe_count": 1,
+    "probe_update": 4,
+    "bc_gradient_norm": 6.865725496803518,
+    "ppo_gradient_norm": 43.61319022739113,
+    "bc_to_ppo_norm_ratio": 0.15742314334280275,
+    "gradient_cosine": -0.0881083434459523,
+    "probe_scope": "最初の実対象minibatch 1回。学習全体でどちらが支配したかは断定しない。",
+    "additional_optimizer_steps": 0,
+    "training_receipt_sha256": "5075e4ede5ce057493910f98de01c2239e4c77a00679fe4b1f5dfd087ab34ea4"
+  },
+  "wave_training_coverage": {
+    "training_36s_lanes_old": 1,
+    "training_36s_lanes_new": 194,
+    "total_lanes": 256,
+    "training_36s_lane_fraction": 0.7578125,
+    "training_early_reset_lane_events": 62,
+    "training_end36s_reset_lane_events": 194,
+    "early_reset_global_poststep_time_s_range": [
+      24.12,
+      30.080000000000002
+    ],
+    "termination_reasons_recorded_per_lane": false,
+    "active_20to21s_target_mean_abs_parent_delta_old_rad": 0.00016192787223392064,
+    "active_20to21s_target_mean_abs_parent_delta_new_rad": 0.00032324638631608753,
+    "active_20to21s_target_max_abs_parent_delta_new_rad": 0.0016607344150543213
+  },
+  "findings": {
+    "prone": [
+      {
+        "finding": "第33回は100更新で成立していた復帰が200/250更新で禁止接触・途中停止へ退行した。B100もXY未達で成功ではない。",
+        "evidence_id": "trial33_metadata_comparison"
+      },
+      {
+        "finding": "第34回は更新幅を縮小して全24秒と復帰を維持したが、A/Bの全新保存点で第2周期の連続保持が不足。直接の親行動損失もXY改善につながらなかった。",
+        "evidence_id": "trial34_final_raw_recalculation"
+      },
+      {
+        "finding": "第35回の最大XYは下降中に生じ、50mm初回超過は約3.87秒。4.8〜5.0秒だけの平滑化は主要なずれの後だった。",
+        "evidence_id": "trial35_descent_and_saturation_diagnosis"
+      },
+      {
+        "finding": "既存基準軌道は胴体座標の足先幅を片側約108mm広げる。記録された荷重のある足中心の世界移動は左右非対称。滑りと転がりの内訳までは断定しない。",
+        "evidence_id": "trial35_descent_and_saturation_diagnosis"
+      },
+      {
+        "finding": "共通hip補正は相反するaction飽和で許容変化が0となり、3.875秒まで効果0。下降全体でも約69.33%のtickでrange/slew後の効果0。教師投影後も解消しなかった。",
+        "evidence_id": "trial35_descent_and_saturation_diagnosis"
+      },
+      {
+        "finding": "R3の25更新は第2保持を経験していなかった。R4b38では全256環境の実2周期経験を確認したが、第2保持が1.9725秒に低下した。経験不足だけでは説明できない。",
+        "evidence_id": "trial35_projected_retry_raw_recalculation"
+      },
+      {
+        "finding": "R4b最終38の第2保持は400Hzで2サンプルのskid荷重不足があり、連続保持が27.5ms不足。高さと傾きは全800サンプル適合。50Hzの末尾サンプルだけでは不足を見逃す。",
+        "evidence_id": "trial35_projected_retry_raw_recalculation"
+      }
+    ],
+    "wave_cautions": [
+      "保存25/50や100/200はそれぞれ主学習終了後に評価。オンライン早期停止ではない。",
+      "短く停止した評価の最大変位を36秒完走より改善したとは扱わない。",
+      "四足復帰は接地・高さ・姿勢の成立であり原位置への復帰ではない。",
+      "学習時の接触/速度/reset統計は確定的最終評価と別。全resetを失敗とは数えない。",
+      "35W3/W4は学生重みだけでは方策を再現できず、固定親・契約・wrapperの組が必要。",
+      "単一seedで一般効果・BC支配・学習率増の有効性を断定しない。"
+    ]
+  },
+  "next_design_proposals": {
+    "prone": [
+      {
+        "priority": 1,
+        "proposal": "下降軌道と接地の整合を先に検証する。左右足先幅の拡大、荷重配分、関節可動域を同時に満たす経路をCPUの正運動学/逆運動学で比較し、0更新の親評価で全24秒・2周期の保持と復帰を確認する。",
+        "reason": "主要なXYずれは下降中に発生するため。接地点固定の鉛直下降が既存可動域で成立するとはまだ断定しない。"
+      },
+      {
+        "priority": 2,
+        "proposal": "補正は最終の関節targetまで伝わる有効域を先に測る。action±1と関節限界の二重飽和を考慮し、左右差分・yaw・支持荷重を維持できる小さい下降専用経路に限定する。",
+        "reason": "既存共通補正の指令消失を確認。後段共通shiftは改善方向を予測できず今回は見送った。単にgainを増やさない。"
+      },
+      {
+        "priority": 3,
+        "proposal": "新しい学習を行う場合は変更可能範囲を下降に限定し、保持・復帰の親経路を守る。既存89観測、実2周期の被覆記録、400Hzの元判定を維持し、保存点を同じ全長で比較する。",
+        "reason": "raw教師保持と全周期経験だけでは保持退行を防げなかった。world XYの真値を新しい制御入力として隠して追加しない。"
+      }
+    ],
+    "wave": [
+      "挙上前支持9関節に探索を限定する基盤を候補として保持し、独立seedと既存親の全36秒評価で再現性を確認。",
+      "最大XY付近の適用指令と原位置保持報酬の感度を測り、方向/量を検証してから学習率・更新予算を変更。",
+      "phase別接触・過速度・正常完走の終了理由、policy loss/KL/clip fractionを記録し、名目更新数で2周期経験を代用しない。"
+    ]
+  },
+  "verification": {
+    "final_models_cpu_checked": 6,
+    "original_videos_received": 20,
+    "videos_with_decoded_and_visual_review_receipts": 17,
+    "decoded_video_frames": 27600,
+    "all_recorded_cases": 20,
+    "parent_cases": 9,
+    "trained_checkpoint_cases": 11,
+    "latest_prone_collected_files": 37,
+    "latest_wave_collected_files": 36,
+    "intermediate_models_cpu_checked": 0
+  },
+  "source_report_sha256": {
+    "PRONE_PUBLIC_REVIEW.json": "bc276ab4319330ddfcf24080c32ec0c46b08dcbd21b2bd65cf75dfe55ed4775d",
+    "WAVE_PUBLIC_REVIEW.json": "bbef004f76ecc1667438faa841b4455cb0ca58180e3b0a7eba8026bd9a90eee0",
+    "PIPELINE_PUBLIC_REVIEW.json": "4c0b7947287c9d8b20c139c7f0cc14b2b06521407fc6ca6c407a183a1ef53cb0"
+  },
+  "scientific_evidence": [
+    {
+      "id": "trial33_metadata_comparison",
+      "sha256": "0149431b9623141771fbe93d65198295fa0c2a067eeb10cbd1c62a6e74c7e025",
+      "description": "trial33_metadata_comparison"
+    },
+    {
+      "id": "trial34_metadata_comparison",
+      "sha256": "0d6d26f657f9647eaa13d7c691040e6e57b74e34dece160f9f3350427045f727",
+      "description": "trial34_metadata_comparison"
+    },
+    {
+      "id": "trial34_final_raw_recalculation",
+      "sha256": "9cc614559c9bd93f207fd63854efb41c1399881e12d590eb1cd119ec96627607",
+      "description": "trial34_final_raw_recalculation"
+    },
+    {
+      "id": "trial35_initial_pair_common_raw_recalculation",
+      "sha256": "8151049e2c4f3a68fc06113ecfc626f7d2ad87e5e91f5add670b0a6301cd383c",
+      "description": "trial35_initial_pair_common_raw_recalculation"
+    },
+    {
+      "id": "trial35_projected_retry_raw_recalculation",
+      "sha256": "ac33d5dc5f96df177d797a42fdebc1c26e5f98b460ef56c868a6314187ca60e8",
+      "description": "trial35_projected_retry_raw_recalculation"
+    },
+    {
+      "id": "trial33_B250_raw_recalculation",
+      "sha256": "a928e10945f04fe3592ee8eb0cb757a460147afccaa735aeb9152a1602611740",
+      "description": "trial33_B250_raw_recalculation"
+    },
+    {
+      "id": "trial35_initial_admission_diagnosis",
+      "sha256": "3102ff3e5816b863bbd5f3527c6362c7ebb48c077bdd5ba5143d065832b53414",
+      "description": "trial35_initial_admission_diagnosis"
+    },
+    {
+      "id": "trial35_descent_and_saturation_diagnosis",
+      "sha256": "d0b34c8fbf300d358088314ea483011e684c3e69a13a119c0cc33aad3ec90206",
+      "description": "Recorded-state kinematic diagnosis; proposed post-clamp common correction was rejected without training."
+    },
+    {
+      "id": "r1_hold_blend_execution_receipt",
+      "sha256": "33ab12d9e57ac8bf9009904874839c90f232cfed67b004573192fae6bf7a2150",
+      "description": "r1_hold_blend_execution_receipt"
+    },
+    {
+      "id": "r1_hold_blend_collection_verification",
+      "sha256": "0c70b7636880ad3624376dcdbaa8647bbcda188f764f08419e3c35f0802f2fa6",
+      "description": "r1_hold_blend_collection_verification"
+    },
+    {
+      "id": "r2_pair_hip085_execution_receipt",
+      "sha256": "e70890a55ecf9b50d7103c0075ce47c69054ba20945c864002cff6916bc1fadd",
+      "description": "r2_pair_hip085_execution_receipt"
+    },
+    {
+      "id": "r2_pair_hip085_collection_verification",
+      "sha256": "5c6e812e00357de65554f9dfd52e67396523e5a3ba752cecf4320d2e6aa4673a",
+      "description": "r2_pair_hip085_collection_verification"
+    },
+    {
+      "id": "r3_common_hip085_execution_receipt",
+      "sha256": "1bbc67c6d494286e2b4838bb2656246e8a59a08a1345ed8c66001c59f087948c",
+      "description": "r3_common_hip085_execution_receipt"
+    },
+    {
+      "id": "r3_common_hip085_collection_verification",
+      "sha256": "77ac17c1e54842af7cb47ffaca4d52ba713e267c2fdc06aa738ffa84757c9ca2",
+      "description": "r3_common_hip085_collection_verification"
+    },
+    {
+      "id": "r4_projected_teacher_execution_receipt",
+      "sha256": "adfd1a8d9adf32668fd640ece551cbcc536929704d59d5766bb7db5298768127",
+      "description": "r4_projected_teacher_execution_receipt"
+    },
+    {
+      "id": "r4_projected_teacher_collection_verification",
+      "sha256": "28c2f0088146f0cd3a392b1547e0524c768e067475eb7a231768e70432f2bcdd",
+      "description": "r4_projected_teacher_collection_verification"
+    },
+    {
+      "id": "r4b_projected_retry_execution_receipt",
+      "sha256": "f3ca231bc7c8ebfa48441bf44579f0f52fda555340b93bf0f83709a806af2995",
+      "description": "r4b_projected_retry_execution_receipt"
+    },
+    {
+      "id": "r4b_projected_retry_collection_verification",
+      "sha256": "ba92ef2004e36dacfee6426c6e0662402f5eb48be2b9254b75cf1e7451f1098d",
+      "description": "r4b_projected_retry_collection_verification"
+    },
+    {
+      "evidence_id": "E095",
+      "sha256": "76ccc0bc846121625f6b66ae6f02663fb516769bc830ad08eefc8c8f5721a4e6",
+      "label": "TRIAL33_WAVE_AB_METADATA_COMPARISON"
+    },
+    {
+      "evidence_id": "E096",
+      "sha256": "17ad46b6d14d2322a85026a1f68fea441ce71258d86c01b8f5b7c198e5787b6a",
+      "label": "WAVE_FINAL_RAW_DIAGNOSTIC"
+    },
+    {
+      "evidence_id": "E097",
+      "sha256": "d467cf44fe0e4ccc0329962845a08da70b8d977dbcaf296961a144b9efe6358a",
+      "label": "WAVE_WEIGHTED_RAW_COMPARISON"
+    },
+    {
+      "evidence_id": "E098",
+      "sha256": "79d1ec84aa5abe068b3c4c595040c454d011ab36333a6a77ecd0d0bf9729234e",
+      "label": "WAVE_WEIGHTED_INTERPRETATION"
+    },
+    {
+      "evidence_id": "E099",
+      "sha256": "b7be8986eb91159f99dfc82574265bb05df1246638c0ef5a4953b1a4016e607c",
+      "label": "WAVE_CANONICAL_RAW_COMPARISON"
+    },
+    {
+      "evidence_id": "E100",
+      "sha256": "142319b4dcb67e26bb6d91b3f1aee8247afdb2531ceb5c7c1fb2fc3969a877ab",
+      "label": "WAVE_CANONICAL_INTERPRETATION"
+    },
+    {
+      "evidence_id": "E101",
+      "sha256": "6dccc69411add0daafa6cc4e1433145a552a1ea1090d6971cdde1edf21d4084a",
+      "label": "WAVE_SCOPED_RAW_COMPARISON"
+    },
+    {
+      "evidence_id": "E102",
+      "sha256": "bfa58b8cd8975c476cd827f3ba93de355732849b64a38f7f5ffeae87a8765a24",
+      "label": "WAVE_SCOPED_INTERPRETATION"
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": "original_combined_candidate",
+      "actual_expert": "prone",
+      "status": "STOPPED_ON_CONDITION_ERROR_OR_TIMEOUT",
+      "main_updates": 0,
+      "smoke_updates": 0,
+      "ended_utc": "2026-09-15T06:32:07.815979+00:00",
+      "recorded_evaluations": 1,
+      "trained_checkpoint_evaluations": 0,
+      "new_final_models_cpu_verified": 0,
+      "terminal_sha256": "33ab12d9e57ac8bf9009904874839c90f232cfed67b004573192fae6bf7a2150",
+      "collection_review_sha256": "0c70b7636880ad3624376dcdbaa8647bbcda188f764f08419e3c35f0802f2fa6",
+      "admission_failed_checks": [
+        "heading_preserved"
+      ]
+    },
+    {
+      "attempt": "wave_run",
+      "actual_expert": "wave",
+      "status": "WAVE_ONLY_COMPLETE",
+      "main_updates": 50,
+      "smoke_updates": 2,
+      "ended_utc": "2026-09-15T07:07:41.875496+00:00",
+      "recorded_evaluations": 3,
+      "trained_checkpoint_evaluations": 2,
+      "new_final_models_cpu_verified": 1,
+      "terminal_sha256": "978eeb3bdbb3a23a1120fb72306cc0dce7af2fec056982503a33e2a4f6a86e34",
+      "collection_review_sha256": "5ab48f98358bdfc711f3eb5f79d0bdc3855fd35794e1e75fe0f8ae837cc5bb91"
+    },
+    {
+      "attempt": "prone_run",
+      "actual_expert": "prone",
+      "status": "STOPPED_BEFORE_PRONE_TRAINING_PREFLIGHT_GATE",
+      "main_updates": 0,
+      "smoke_updates": 0,
+      "ended_utc": "2026-09-15T07:20:25.429070+00:00",
+      "recorded_evaluations": 1,
+      "trained_checkpoint_evaluations": 0,
+      "new_final_models_cpu_verified": 0,
+      "terminal_sha256": "e70890a55ecf9b50d7103c0075ce47c69054ba20945c864002cff6916bc1fadd",
+      "collection_review_sha256": "5c6e812e00357de65554f9dfd52e67396523e5a3ba752cecf4320d2e6aa4673a",
+      "admission_failed_checks": [
+        "heading_preserved"
+      ]
+    },
+    {
+      "attempt": "prone_common_run",
+      "actual_expert": "prone",
+      "status": "PRONE_ONLY_COMPLETE",
+      "main_updates": 25,
+      "smoke_updates": 2,
+      "ended_utc": "2026-09-15T07:51:51.074243+00:00",
+      "recorded_evaluations": 2,
+      "trained_checkpoint_evaluations": 1,
+      "new_final_models_cpu_verified": 1,
+      "terminal_sha256": "1bbc67c6d494286e2b4838bb2656246e8a59a08a1345ed8c66001c59f087948c",
+      "collection_review_sha256": "77ac17c1e54842af7cb47ffaca4d52ba713e267c2fdc06aa738ffa84757c9ca2"
+    },
+    {
+      "attempt": "wave_weighted_run",
+      "actual_expert": "wave",
+      "status": "WAVE_ONLY_COMPLETE",
+      "main_updates": 50,
+      "smoke_updates": 2,
+      "ended_utc": "2026-09-15T08:11:55.266529+00:00",
+      "recorded_evaluations": 3,
+      "trained_checkpoint_evaluations": 2,
+      "new_final_models_cpu_verified": 1,
+      "terminal_sha256": "9cfe341dab3e842f3747df53c0832fd414bef78e81298a72db28c8ef135f5175",
+      "collection_review_sha256": "46b0f2e6e37b9062ff095766bd23569c0f40567b25666543c0047ed3f7e0fe0e"
+    },
+    {
+      "attempt": "prone_projected_run",
+      "actual_expert": "prone",
+      "status": "ERROR_PRONE_ONLY_INCOMPLETE",
+      "main_updates": 0,
+      "smoke_updates": 2,
+      "ended_utc": "2026-09-15T08:48:57.699592+00:00",
+      "recorded_evaluations": 1,
+      "trained_checkpoint_evaluations": 0,
+      "new_final_models_cpu_verified": 0,
+      "terminal_sha256": "adfd1a8d9adf32668fd640ece551cbcc536929704d59d5766bb7db5298768127",
+      "collection_review_sha256": "28c2f0088146f0cd3a392b1547e0524c768e067475eb7a231768e70432f2bcdd"
+    },
+    {
+      "attempt": "prone_projected_retry_run",
+      "actual_expert": "prone",
+      "status": "PRONE_ONLY_COMPLETE",
+      "main_updates": 38,
+      "smoke_updates": 2,
+      "ended_utc": "2026-09-15T09:14:07.871086+00:00",
+      "recorded_evaluations": 3,
+      "trained_checkpoint_evaluations": 2,
+      "new_final_models_cpu_verified": 1,
+      "terminal_sha256": "f3ca231bc7c8ebfa48441bf44579f0f52fda555340b93bf0f83709a806af2995",
+      "collection_review_sha256": "ba92ef2004e36dacfee6426c6e0662402f5eb48be2b9254b75cf1e7451f1098d"
+    },
+    {
+      "attempt": "wave_canonical_run",
+      "actual_expert": "wave",
+      "status": "WAVE_ONLY_COMPLETE",
+      "main_updates": 57,
+      "smoke_updates": 2,
+      "ended_utc": "2026-09-15T09:34:54.820918+00:00",
+      "recorded_evaluations": 3,
+      "trained_checkpoint_evaluations": 2,
+      "new_final_models_cpu_verified": 1,
+      "terminal_sha256": "4fe4f2de62550a2a4f639cce2352c235d9ad3a349c7d538db2872167bc20b2a9",
+      "collection_review_sha256": "9954d1716cd71fee814a4a7cfe88bf96e71db1b0ceb67236f7c65e02c86eb0b1"
+    },
+    {
+      "attempt": "wave_scoped_run",
+      "actual_expert": "wave",
+      "status": "WAVE_ONLY_COMPLETE",
+      "main_updates": 57,
+      "smoke_updates": 2,
+      "ended_utc": "2026-09-15T10:35:46.042961+00:00",
+      "recorded_evaluations": 3,
+      "trained_checkpoint_evaluations": 2,
+      "new_final_models_cpu_verified": 1,
+      "terminal_sha256": "81b6f8ca239198b030443bc370e3cf2065ee163c1e21305a75a04b06f7b15909",
+      "collection_review_sha256": "cfdd3b916a833848206f39d06726686996d6ef940822433befe3863c0bc4d3fa"
+    }
+  ],
+  "latest_checkpoint_comparison": {
+    "prone": [
+      {
+        "id": "r4b_preflight",
+        "updates": 0,
+        "recorded_duration_s": 24.0,
+        "requested_duration_s": 24.0,
+        "maximum_xy_distance_m": 0.09965333214431457,
+        "maximum_heading_change_deg": 4.699359130026933,
+        "prone_hold_s": [
+          2.0,
+          2.0
+        ],
+        "return_hold_s": [
+          2.0,
+          2.0
+        ],
+        "skill_acceptance": false,
+        "summary_sha256": "b2837aa187d41bd672d8f0216e1b1584f2f9e56484e75e1db079a2558b9cecac"
+      },
+      {
+        "id": "r4b_intermediate_25",
+        "updates": 25,
+        "recorded_duration_s": 24.0,
+        "requested_duration_s": 24.0,
+        "maximum_xy_distance_m": 0.09986859074120906,
+        "maximum_heading_change_deg": 4.716764929544834,
+        "prone_hold_s": [
+          2.0,
+          1.9825000000000002
+        ],
+        "return_hold_s": [
+          2.0,
+          2.0
+        ],
+        "skill_acceptance": false,
+        "summary_sha256": "926a1c983f7d5d0734cc5baf7b77b66be6afcf6d918a577720991f03df1652d7"
+      },
+      {
+        "id": "r4b_evaluate",
+        "updates": 38,
+        "recorded_duration_s": 24.0,
+        "requested_duration_s": 24.0,
+        "maximum_xy_distance_m": 0.1003204667934344,
+        "maximum_heading_change_deg": 5.120201887284775,
+        "prone_hold_s": [
+          2.0,
+          1.9725000000000001
+        ],
+        "return_hold_s": [
+          2.0,
+          2.0
+        ],
+        "skill_acceptance": false,
+        "summary_sha256": "d49f780fb4fa0828a94f0a90d9554db9deda9f0e4b5d9b5b615a72e317d3629d"
+      }
+    ],
+    "wave": [
+      {
+        "id": "35W4-parent",
+        "expert": "wave",
+        "condition": "W4",
+        "updates": 0,
+        "stage": "preflight",
+        "recorded_duration_s": 36.0,
+        "requested_duration_s": 36.0,
+        "maximum_xy_distance_m": 0.06151874869746229,
+        "maximum_heading_change_deg": 4.586055453663234,
+        "skill_acceptance": false,
+        "forbidden_contact_sample_count": 0,
+        "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+        "return_hold_s": [
+          2.0,
+          2.0
+        ],
+        "failed_gates": [
+          "maximum_xy_distance"
+        ],
+        "summary_sha256": "1b7dca476290ea818430a251baaef2d50ab5dbcf70dbf06e7d91ab3c4459c206",
+        "completion_sha256": "05590d6cf95723e2fc404984d055b92a0f46bf82f74c1fe7a714033da676ead9",
+        "contract_sha256": "cbc2072f3770eff164d422d4396d93e170762da49d896991b2eced4e18e119a8",
+        "raw_verification": "actual_local_bytes_match_summary_provenance"
+      },
+      {
+        "id": "35W4-25",
+        "expert": "wave",
+        "condition": "W4",
+        "updates": 25,
+        "stage": "intermediate_25",
+        "recorded_duration_s": 36.0,
+        "requested_duration_s": 36.0,
+        "maximum_xy_distance_m": 0.06148691783629537,
+        "maximum_heading_change_deg": 4.586287259506054,
+        "skill_acceptance": false,
+        "forbidden_contact_sample_count": 0,
+        "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+        "return_hold_s": [
+          2.0,
+          2.0
+        ],
+        "failed_gates": [
+          "maximum_xy_distance"
+        ],
+        "summary_sha256": "96abd2e0279fbd801b47320d551e33318ad9aea5151dc2edf7904e5ecd536377",
+        "completion_sha256": "8960f2a9bd83bd2dd306ce5dc612e2a206a3ca01ae74d104e104cca54de75357",
+        "contract_sha256": "cbc2072f3770eff164d422d4396d93e170762da49d896991b2eced4e18e119a8",
+        "raw_verification": "actual_local_bytes_match_summary_provenance"
+      },
+      {
+        "id": "35W4-57",
+        "expert": "wave",
+        "condition": "W4",
+        "updates": 57,
+        "stage": "evaluate",
+        "recorded_duration_s": 36.0,
+        "requested_duration_s": 36.0,
+        "maximum_xy_distance_m": 0.06158261992094074,
+        "maximum_heading_change_deg": 4.579599847640176,
+        "skill_acceptance": false,
+        "forbidden_contact_sample_count": 0,
+        "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+        "return_hold_s": [
+          2.0,
+          2.0
+        ],
+        "failed_gates": [
+          "maximum_xy_distance"
+        ],
+        "summary_sha256": "922fb91675954e23e22df99970d75438609530e96c1ac94039230fa8aca49bed",
+        "completion_sha256": "1fb80558b3bec8b9029cf7a019ef3de35fd07307f52a4d9ba15c8b66b79ac172",
+        "contract_sha256": "cbc2072f3770eff164d422d4396d93e170762da49d896991b2eced4e18e119a8",
+        "raw_verification": "actual_local_bytes_match_summary_provenance"
+      }
+    ]
+  }
+}

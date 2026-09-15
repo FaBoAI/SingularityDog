@@ -1,0 +1,1124 @@
+{
+  "schema": "singularitydog.l29-evaluation.v1",
+  "trial_number": 34,
+  "loop_id": "L29",
+  "as_of": "2026-09-15",
+  "main_updates": 400,
+  "separate_smoke_updates": 8,
+  "new_passing_motion_count": 0,
+  "candidate_adopted": false,
+  "physical_model": {
+    "id": "D17",
+    "unchanged_during_trials": true,
+    "printed_reinforcements_included": false,
+    "new_equipment_deck_included": false
+  },
+  "seed": 42,
+  "criteria": {
+    "maximum_xy_distance_m": 0.05,
+    "maximum_heading_change_deg": 5,
+    "prone_requested_s": 24,
+    "wave_requested_s": 36,
+    "cycles": 2
+  },
+  "checkpoint_evaluations_after_training": true,
+  "extra_ppo_updates_for_evaluation": 0,
+  "publication": {
+    "selected_values_only": true,
+    "weights_included": false,
+    "raw_arrays_included": false,
+    "private_photos_included": false,
+    "new_video_files": 0,
+    "note": "Internal evidence hashes identify original records; the public package does not reproduce the simulation environment."
+  },
+  "execution_status": "TWO_CONDITIONS_COMPLETED",
+  "qualified_motion_count_by_condition": {
+    "A": 7,
+    "B": 7
+  },
+  "retained_qualified_motions": [
+    "forward",
+    "backward",
+    "left",
+    "right",
+    "turn_left",
+    "turn_right",
+    "sit"
+  ],
+  "new_updates_by_expert_per_condition": {
+    "prone": 100,
+    "wave": 100,
+    "locomotion": 0,
+    "sit": 0
+  },
+  "parents": {
+    "prone": "Trial33 B100",
+    "wave": "Trial31 A250"
+  },
+  "checkpoint_comparison": [
+    {
+      "id": "T34_A_prone_preflight",
+      "expert": "prone",
+      "condition": "A",
+      "updates": 0,
+      "stage": "preflight",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.09873468485624302,
+      "maximum_heading_change_deg": 4.633866507899216,
+      "maximum_actual_joint_speed_rad_s": 3.560943603515625,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "prone_hold_s": [
+        2.0,
+        2.0
+      ],
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "checkpoint_sha256": "f83c8e990d68e5603736ccd743136f06f511bc9262669bc278c15b7fadaf0b05",
+      "summary_sha256": "f7ba5227c73771fe6014d35f4dd8fbdee494ebf1f2f909f6f110ce8796a1279a",
+      "completion_sha256": "326b4de3d1bdc5265652740b7cbe1aad0737b65d2d12adfa18fd4d380c5a9744"
+    },
+    {
+      "id": "T34_A_prone_intermediate_25",
+      "expert": "prone",
+      "condition": "A",
+      "updates": 25,
+      "stage": "intermediate_25",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.09852272928292863,
+      "maximum_heading_change_deg": 4.576178155822358,
+      "maximum_actual_joint_speed_rad_s": 3.481224536895752,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "prone_hold_s": [
+        2.0,
+        1.98
+      ],
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "checkpoint_sha256": "70ebb73a007a30b729861a6abb2aeb02920cd3aa89240a2f865b2f177f275a3c",
+      "summary_sha256": "84554b48b5ea6eb42c4c191672b33f96d501ad4bf75de4f35a9cfc08c0b49a25",
+      "completion_sha256": "13bf548d21b9a51c6d7abd8ecc62167ad82ba37b54d65469aed87185d1623d9e"
+    },
+    {
+      "id": "T34_A_prone_intermediate_50",
+      "expert": "prone",
+      "condition": "A",
+      "updates": 50,
+      "stage": "intermediate_50",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.09736098215867568,
+      "maximum_heading_change_deg": 4.4526003221871,
+      "maximum_actual_joint_speed_rad_s": 3.480405330657959,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "prone_hold_s": [
+        2.0,
+        1.965
+      ],
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "checkpoint_sha256": "f6dcdaea1ad20232898af16e995305e8d79961b79ed8053998d730f8bdcd69df",
+      "summary_sha256": "6e9967afb0d2083ecbf8da936fdee1ad7fe38aae91fa9ff4632431fe78b4701a",
+      "completion_sha256": "39296ba5bf721a5bb76f6fbe6da4ab9976cf8afcf233ccf650d7f9af36e5ce59"
+    },
+    {
+      "id": "T34_A_prone_evaluate",
+      "expert": "prone",
+      "condition": "A",
+      "updates": 100,
+      "stage": "evaluate",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.09795311437634124,
+      "maximum_heading_change_deg": 4.6415641244026675,
+      "maximum_actual_joint_speed_rad_s": 3.484243392944336,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "prone_hold_s": [
+        2.0,
+        1.9675
+      ],
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "checkpoint_sha256": "dbcc229db50acccf72d72e2e294784216111bf6dd21222547bd438b389322c1d",
+      "summary_sha256": "290a56d8b9a4fed16bb7bca8f047513547e4f88fa71588b32467ffe8cc61e843",
+      "completion_sha256": "609e8b348aaa04b8ca04190bc7f86d0407f6c725139e1bdf001d38b3ea132dd3"
+    },
+    {
+      "id": "T34_B_prone_preflight",
+      "expert": "prone",
+      "condition": "B",
+      "updates": 0,
+      "stage": "preflight",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.09873468485624302,
+      "maximum_heading_change_deg": 4.633866507899216,
+      "maximum_actual_joint_speed_rad_s": 3.560943603515625,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "prone_hold_s": [
+        2.0,
+        2.0
+      ],
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "checkpoint_sha256": "f83c8e990d68e5603736ccd743136f06f511bc9262669bc278c15b7fadaf0b05",
+      "summary_sha256": "159e6453ff9898677722ccc2ba334efb1cae8d7f4510cb0fa32ea5c89710d396",
+      "completion_sha256": "dcbbc7f4e7499d07d4b8ef97da4faf20c10a7dd88022f7466dc7814ae4541e0b"
+    },
+    {
+      "id": "T34_B_prone_intermediate_25",
+      "expert": "prone",
+      "condition": "B",
+      "updates": 25,
+      "stage": "intermediate_25",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.09906675773451394,
+      "maximum_heading_change_deg": 4.969493093135892,
+      "maximum_actual_joint_speed_rad_s": 3.4829070568084717,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "prone_hold_s": [
+        2.0,
+        1.9725000000000001
+      ],
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "checkpoint_sha256": "0a701434998bf20da3ed52765dbbd59c80c01d4ed8c702ca5f6cb6b5989a9a29",
+      "summary_sha256": "dd55650b1ba12d941936febaadea3271f486f57f834e386dbdfff76178b1e88a",
+      "completion_sha256": "8800d50309c5bd3bfbba93577a241b5d69a5f9978f40007b223e81a5cf19eaa2"
+    },
+    {
+      "id": "T34_B_prone_intermediate_50",
+      "expert": "prone",
+      "condition": "B",
+      "updates": 50,
+      "stage": "intermediate_50",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.09881397801140729,
+      "maximum_heading_change_deg": 5.006092704583009,
+      "maximum_actual_joint_speed_rad_s": 3.481534004211426,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "prone_hold_s": [
+        2.0,
+        1.9725000000000001
+      ],
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "checkpoint_sha256": "a986745da759eb14b9603eb6a6027dbacb50a577ac89df4d8fdc324fd642e7e2",
+      "summary_sha256": "8f702600f3180ff4bb67345bdf44e825292e47648fbf4b9fcb60ef0a72320644",
+      "completion_sha256": "10d6ea4534d22803ed379abde6cf37e433c4b7dedbd3ec34aca56c746dee01aa"
+    },
+    {
+      "id": "T34_B_prone_evaluate",
+      "expert": "prone",
+      "condition": "B",
+      "updates": 100,
+      "stage": "evaluate",
+      "recorded_duration_s": 24.0,
+      "requested_duration_s": 24.0,
+      "maximum_xy_distance_m": 0.09972067669369106,
+      "maximum_heading_change_deg": 4.999399993082654,
+      "maximum_actual_joint_speed_rad_s": 3.480570077896118,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "prone_hold_s": [
+        2.0,
+        1.97
+      ],
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "checkpoint_sha256": "4601f61ffff1e54313b0a2cb6be53bd12847b11396a8a0089905e748eb8fd8dd",
+      "summary_sha256": "c798921e1787a8a98378c395d6af4251e275f694aa766f927781b47ceedff448",
+      "completion_sha256": "d42fa6f228161851467f9cce6e4ab542db070c0b584ba36e72a53a7afe62a07b"
+    },
+    {
+      "id": "34A-parent",
+      "expert": "wave",
+      "condition": "A",
+      "updates": 0,
+      "stage": "preflight",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.06151874869746229,
+      "maximum_heading_change_deg": 4.586055453663234,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "summary_sha256": "d475de970b41ad54d67214d8d7c85a15c79507900092d37524b244367c5d3fa8",
+      "completion_sha256": "9afa9dc085e8e35dde1235806fcb39faea315325b3b7beff48b16c6c171b94f4",
+      "contract_sha256": "c51f93c76d2047a2b87ed8dd7718b6484daecfa601c1e9507fd39a1a7038cf8b",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "34B-parent",
+      "expert": "wave",
+      "condition": "B",
+      "updates": 0,
+      "stage": "preflight",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.06151874869746229,
+      "maximum_heading_change_deg": 4.586055453663234,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.785710096359253,
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "summary_sha256": "a7224eeebe36face9c5d674de7b9cb5f773ec90a8312bd0b94bafe1663224fe7",
+      "completion_sha256": "ef639e9a3ef9696b9789f32b6dd9d2d27ac366d74d35a1531fb6b768d35e7d14",
+      "contract_sha256": "3c213ca5a9b0442515e4b0d6458718a99506726dfddefded12d88981c4f7c4df",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "34A-25",
+      "expert": "wave",
+      "condition": "A",
+      "updates": 25,
+      "stage": "intermediate_25",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.06146868530422837,
+      "maximum_heading_change_deg": 4.590440715305229,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.7864294052124023,
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "summary_sha256": "1ac27564702831081eff8be237b1c7f792cd588e42cab722088aa3787955d83e",
+      "completion_sha256": "e25fb547acbdae7d9fa337dadc7b36c540a10b12009df6fdea459d89a18ce560",
+      "contract_sha256": "c51f93c76d2047a2b87ed8dd7718b6484daecfa601c1e9507fd39a1a7038cf8b",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "34A-50",
+      "expert": "wave",
+      "condition": "A",
+      "updates": 50,
+      "stage": "intermediate_50",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.0615233399730983,
+      "maximum_heading_change_deg": 4.559704295874296,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.7876036167144775,
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "summary_sha256": "68a65b8ca61ec4166ac82678b72f24b01e9a19b1ba42db8e6b1918d61568717a",
+      "completion_sha256": "d8af59ee0771a1f1863ad0af27226bda050f99fe655d4af9dd134309ce0a9605",
+      "contract_sha256": "c51f93c76d2047a2b87ed8dd7718b6484daecfa601c1e9507fd39a1a7038cf8b",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "34A-100",
+      "expert": "wave",
+      "condition": "A",
+      "updates": 100,
+      "stage": "evaluate",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.09004931586539523,
+      "maximum_heading_change_deg": 6.552222078066008,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 4.331910133361816,
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_heading_change",
+        "maximum_xy_distance"
+      ],
+      "summary_sha256": "374c67f2da346187e16b71ced20ec07b4210adfe97d06dee21d1eb709ec508fc",
+      "completion_sha256": "ad066721f7d1d82623f0e1c7f4ee0a0ef85f674abfb4acc16dc0238090343853",
+      "contract_sha256": "c51f93c76d2047a2b87ed8dd7718b6484daecfa601c1e9507fd39a1a7038cf8b",
+      "raw_verification": "actual_local_bytes_match_summary_provenance"
+    },
+    {
+      "id": "34B-25",
+      "expert": "wave",
+      "condition": "B",
+      "updates": 25,
+      "stage": "intermediate_25",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.06148608257453315,
+      "maximum_heading_change_deg": 4.58342945209385,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.786900281906128,
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "summary_sha256": "80f04575357091877fc032a60a276f4f45b04685a0b9f664015a4296fe4f338c",
+      "completion_sha256": "d38a41b02423cb6dd575e142bee3d851d182c0c9a1b2c7d8002951344433cb9e",
+      "contract_sha256": "3c213ca5a9b0442515e4b0d6458718a99506726dfddefded12d88981c4f7c4df",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "34B-50",
+      "expert": "wave",
+      "condition": "B",
+      "updates": 50,
+      "stage": "intermediate_50",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.06155957319352561,
+      "maximum_heading_change_deg": 4.574676834445214,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.7852864265441895,
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "summary_sha256": "3fd3a86312221ed3d9d409a1816b3f957c90581dbae08f973df64baf2af86fe7",
+      "completion_sha256": "374aefb556a532620f80a0cfb20171485484193500df3dfd01800973bf564b09",
+      "contract_sha256": "3c213ca5a9b0442515e4b0d6458718a99506726dfddefded12d88981c4f7c4df",
+      "raw_verification": "not_locally_received"
+    },
+    {
+      "id": "34B-100",
+      "expert": "wave",
+      "condition": "B",
+      "updates": 100,
+      "stage": "evaluate",
+      "recorded_duration_s": 36.0,
+      "requested_duration_s": 36.0,
+      "maximum_xy_distance_m": 0.06148490442287197,
+      "maximum_heading_change_deg": 4.590779894281736,
+      "skill_acceptance": false,
+      "forbidden_contact_sample_count": 0,
+      "maximum_actual_joint_speed_rad_s": 3.784759283065796,
+      "return_hold_s": [
+        2.0,
+        2.0
+      ],
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "summary_sha256": "966a30c614d80d4609b3ccc2002428b2eb5190ea31d11ed918af5b04790551b9",
+      "completion_sha256": "7e0c2893f49c2fd8886845dd17446cf0eeff4f636b7c3d29d89cc18e68fedf42",
+      "contract_sha256": "3c213ca5a9b0442515e4b0d6458718a99506726dfddefded12d88981c4f7c4df",
+      "raw_verification": "actual_local_bytes_match_summary_provenance"
+    }
+  ],
+  "verification": {
+    "metadata_files": 150,
+    "final_models_cpu_checked": 4,
+    "intermediate_models_cpu_checked": 0,
+    "parent_and_final_cases": 36,
+    "intermediate_cases": 8,
+    "final_raw_arrays_received": 4,
+    "raw_recalculation_scope": "Four final prone/wave cases plus wave parent; 5 traces.",
+    "videos_received": 18,
+    "videos_decoded_and_visually_sampled": 4,
+    "decoded_video_frames": 6000
+  },
+  "source_report_sha256": {
+    "result_record": "8b7d39fa8deee043581b850a39c0e2456c483494eef54da609e522b47d36f7ed",
+    "wave_review": "bbef004f76ecc1667438faa841b4455cb0ca58180e3b0a7eba8026bd9a90eee0",
+    "terminal": "6eeef2b9cbcda9ef1e26a67c066d9f7f4d6da62441f29ebfffcdccdbbae7f897",
+    "collection_review": "048eac7cdd2e33a9cf0070be8996efa35a51634af787d1c8483afdc401699262",
+    "result_document": "f54e1579ae5fef9d65dd83bba5f09838288f8031bf4f7743a9fd2a63a93764a0",
+    "prone_review": "bc276ab4319330ddfcf24080c32ec0c46b08dcbd21b2bd65cf75dfe55ed4775d"
+  },
+  "completed_at_jst": "2026-09-15T14:48:18+09:00",
+  "parent_and_final_cases": {
+    "B": {
+      "status": "PASS_COMPLETED_CONDITION_METADATA_IDENTITY",
+      "original_metadata_count": 75,
+      "observed_updates": {
+        "prone": 100,
+        "wave": 100
+      },
+      "separate_smoke_updates": {
+        "prone": 2,
+        "wave": 2
+      },
+      "cases": [
+        {
+          "case": "preflight/forward",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "4c19ac76393033ae60c5de52883d085e2b3cc5e794844b806d9e13d576fd25dd",
+          "video_sha256": "d87cb68b9575ab8c5aed7be6f91e2a019f2e1472770bbc679f597cc8c994cbe9",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "preflight/backward",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "e177ac5e12e443b0870706c40492e17105bf08ef59f41ce53773f2d91f64b2e3",
+          "video_sha256": "55b4cffa8add71d1fef41682ebad57a95416de049242e6c85cf15ae9e0ae44fa",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "preflight/left",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "af34809cab924b19f587a3102e249f49e841c14686ed8166b16da8f3ebff9a3e",
+          "video_sha256": "9379fdd46a12f35eafccf46ebc6491bc5a5b074b66c9019425e25c53165c8641",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "preflight/right",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "5cf0e9046805c9e8fd4ad09c9a0f647d5a18d7678e12f307d92e13b3f14f84dd",
+          "video_sha256": "d40cbde610fa9dd0179da7a78b181377bcf6592f417c177160533ff47a2f0d07",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "preflight/turn_left",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "77b5dbb21fc9c0b4f86e4624d93f78d7b2c8ff505e0cd635af9486e29c14ea1e",
+          "video_sha256": "4e3ddbebeb873668dfbeee0ace97e7abec3daf92d0c7d0c0c77f3e696086b769",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "preflight/turn_right",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "e01b77f3197be0b0d747d59f0d89e36386c368d0e1c36f6ff0621293e25c8752",
+          "video_sha256": "1911b7754dc35a5198371246a933ffad87d0861ca004a1b28e16adc29cf478f2",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "preflight/prone",
+          "frames": 1200,
+          "requested_frames": 1200,
+          "recorded_duration_s": 24.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "17615eaf9ef3ab2ec522e1722abc59d36323894afd9cc72d4fe298bcde27df81",
+          "video_sha256": "668c65b6c3d19a29bd2a8f23eb58e441ff423a20267a53e9c8cf7f1c57deae6a",
+          "checkpoint_sha256": "f83c8e990d68e5603736ccd743136f06f511bc9262669bc278c15b7fadaf0b05"
+        },
+        {
+          "case": "preflight/wave",
+          "frames": 1800,
+          "requested_frames": 1800,
+          "recorded_duration_s": 36.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "a84e02b29bd6bdd8834ec866cebb79807fde68775801ff7d55b123121bfd8e28",
+          "video_sha256": "6740aeaefd64cd103bc04a9b3353a75e05b155146a5906e064d0a1c2eb203d97",
+          "checkpoint_sha256": "4099aa91d8384c841bd9c7e2b063edccaabd7ba183208f21c2cff490139249a3"
+        },
+        {
+          "case": "preflight/sit",
+          "frames": 1600,
+          "requested_frames": 1600,
+          "recorded_duration_s": 32.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "97a2d039958e5729c986b5875c6efe8f8086ec1908583c19e49da83b3cd4db44",
+          "video_sha256": "9cc516b30e0d4840b0cefe300156101c382de1b64e2cdefe0c4aa5a39b05146c",
+          "checkpoint_sha256": "7b0c7753154fcda06d4b781e2c73e0d117f0cda31c61c94670e0563eeb7d84f5"
+        },
+        {
+          "case": "evaluate/forward",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "4c19ac76393033ae60c5de52883d085e2b3cc5e794844b806d9e13d576fd25dd",
+          "video_sha256": "02a9a4e180be29ff8155464656306574282582a17da47f1d428a43d8c358ba0e",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "evaluate/backward",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "e177ac5e12e443b0870706c40492e17105bf08ef59f41ce53773f2d91f64b2e3",
+          "video_sha256": "3d2352f1b8c44a0ffa35eb7e63b28a216253a08bac91c26afdeffb7a32be6730",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "evaluate/left",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "af34809cab924b19f587a3102e249f49e841c14686ed8166b16da8f3ebff9a3e",
+          "video_sha256": "9b7294354d6a29d88f81a689cadf92306f915a612836027b82a03703ff0670d1",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "evaluate/right",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "5cf0e9046805c9e8fd4ad09c9a0f647d5a18d7678e12f307d92e13b3f14f84dd",
+          "video_sha256": "8dc19a9f2a5913a32e9dcaef6baa7e6d1837826f890ca120b7a1f633d1659755",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "evaluate/turn_left",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "77b5dbb21fc9c0b4f86e4624d93f78d7b2c8ff505e0cd635af9486e29c14ea1e",
+          "video_sha256": "ab71463b571922d6327a7960648e1e2302647b4f8861cbd1665b4a14f2a01267",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "evaluate/turn_right",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "e01b77f3197be0b0d747d59f0d89e36386c368d0e1c36f6ff0621293e25c8752",
+          "video_sha256": "71ee029b3e536008540fb64a0501ed7a60f98aae771b03c3d9770ab2a40c84d0",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "evaluate/prone",
+          "frames": 1200,
+          "requested_frames": 1200,
+          "recorded_duration_s": 24.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "a7a03ccae4209880067f7284d4d70896475ad3ab62b2db7ffd2d577e5d335608",
+          "video_sha256": "57129c8513177e6e701d73ff41636d5a845868bfcf90577f90f296157cb136e4",
+          "checkpoint_sha256": "4601f61ffff1e54313b0a2cb6be53bd12847b11396a8a0089905e748eb8fd8dd"
+        },
+        {
+          "case": "evaluate/wave",
+          "frames": 1800,
+          "requested_frames": 1800,
+          "recorded_duration_s": 36.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "96d837f9c9dd63585eee06837e38d5149e559b3b4ed9ccc70506c3eaa0ceb958",
+          "video_sha256": "75c094578890a3aa006e70b817123fb355c10945111988f85ecab491b284d242",
+          "checkpoint_sha256": "cfc1ff2784e26e9c7f4162b3b82e860f32f39e778db7d996d24d61d2f625bb1d"
+        },
+        {
+          "case": "evaluate/sit",
+          "frames": 1600,
+          "requested_frames": 1600,
+          "recorded_duration_s": 32.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "97a2d039958e5729c986b5875c6efe8f8086ec1908583c19e49da83b3cd4db44",
+          "video_sha256": "5b32cf38d068ec5f7fe212e02f6422dbf336f6ab58886cb8110ee4b853c785e1",
+          "checkpoint_sha256": "7b0c7753154fcda06d4b781e2c73e0d117f0cda31c61c94670e0563eeb7d84f5"
+        }
+      ],
+      "post_training_intermediate_cases": [
+        {
+          "case": "intermediate_25/prone",
+          "checkpoint_updates": 25,
+          "training_updates_already_completed": 100,
+          "counts_as_new_ppo_updates": false,
+          "frames": 1200,
+          "requested_frames": 1200,
+          "recorded_duration_s": 24.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "8bafaff3ff838e00ae094fff9e0012e8237c85ae4e20b6e667d0cb0d716a7bc2",
+          "video_sha256": "af6a2ae615206a73bcd2c084ebc9205ca83d9e9df7550969599608b39fbaa7c4",
+          "checkpoint_sha256": "0a701434998bf20da3ed52765dbbd59c80c01d4ed8c702ca5f6cb6b5989a9a29"
+        },
+        {
+          "case": "intermediate_50/prone",
+          "checkpoint_updates": 50,
+          "training_updates_already_completed": 100,
+          "counts_as_new_ppo_updates": false,
+          "frames": 1200,
+          "requested_frames": 1200,
+          "recorded_duration_s": 24.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "26df559ebcc7d91ab8ad5910a131ec4b59351f33864a43d1b540213cdfe45ad5",
+          "video_sha256": "fb1a8e9dae6930539bf058e09ddd37c021fa5d9e5db83432a56b3bde0d75c8e2",
+          "checkpoint_sha256": "a986745da759eb14b9603eb6a6027dbacb50a577ac89df4d8fdc324fd642e7e2"
+        },
+        {
+          "case": "intermediate_25/wave",
+          "checkpoint_updates": 25,
+          "training_updates_already_completed": 100,
+          "counts_as_new_ppo_updates": false,
+          "frames": 1800,
+          "requested_frames": 1800,
+          "recorded_duration_s": 36.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "6de58539c45c7b3539f35ae7f047e897975b1095b725ba627b277d7d90961a72",
+          "video_sha256": "84faf8899d18ea393e61d6c8f7e1c740ddc92ad6a798886f88e203263804a59f",
+          "checkpoint_sha256": "c64842a047719e755bf1c37f8c229918e05b100471f66a6a9484c1003c7031b0"
+        },
+        {
+          "case": "intermediate_50/wave",
+          "checkpoint_updates": 50,
+          "training_updates_already_completed": 100,
+          "counts_as_new_ppo_updates": false,
+          "frames": 1800,
+          "requested_frames": 1800,
+          "recorded_duration_s": 36.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "4f4190b3de022f3376fc4bec678fb35534f2b8ddca5d13718af91edb0280b493",
+          "video_sha256": "fe17e304b284aea2ab1eeb76f887d13e8ac77116046c2809943bbf978f71efd0",
+          "checkpoint_sha256": "03490a727b8c473db1c31ddea8b15f87dec613ffc6b7996c4b1e6031b1cf28f3"
+        }
+      ],
+      "models": [
+        {
+          "expert": "prone",
+          "updates": 100,
+          "iteration": 99,
+          "sha256": "4601f61ffff1e54313b0a2cb6be53bd12847b11396a8a0089905e748eb8fd8dd",
+          "bytes": 952353,
+          "all_saved_tensors_finite": true,
+          "actor_dim": 89,
+          "critic_dim": 122,
+          "optimizer_states": 17,
+          "optimizer_steps": 2000,
+          "initialization": {
+            "parent_checkpoint_sha256": "f83c8e990d68e5603736ccd743136f06f511bc9262669bc278c15b7fadaf0b05",
+            "baseline_parent_checkpoint_sha256": "f83c8e990d68e5603736ccd743136f06f511bc9262669bc278c15b7fadaf0b05",
+            "parent_updates": 100,
+            "actor_mean_tensors_copied": 8,
+            "first_layer_columns_copied": 89,
+            "columns_zeroed": 0,
+            "new_update_counter": 0,
+            "actor_input_dim": 89,
+            "critic_input_dim": 122
+          }
+        },
+        {
+          "expert": "wave",
+          "updates": 100,
+          "iteration": 99,
+          "sha256": "cfc1ff2784e26e9c7f4162b3b82e860f32f39e778db7d996d24d61d2f625bb1d",
+          "bytes": 952353,
+          "all_saved_tensors_finite": true,
+          "actor_dim": 89,
+          "critic_dim": 122,
+          "optimizer_states": 17,
+          "optimizer_steps": 2000,
+          "initialization": {
+            "parent_checkpoint_sha256": "4099aa91d8384c841bd9c7e2b063edccaabd7ba183208f21c2cff490139249a3",
+            "baseline_parent_checkpoint_sha256": "4099aa91d8384c841bd9c7e2b063edccaabd7ba183208f21c2cff490139249a3",
+            "parent_updates": 250,
+            "actor_mean_tensors_copied": 8,
+            "first_layer_columns_copied": 89,
+            "columns_zeroed": 0,
+            "new_update_counter": 0,
+            "actor_input_dim": 89,
+            "critic_input_dim": 122
+          }
+        }
+      ],
+      "final_pass_count": 7
+    },
+    "A": {
+      "status": "PASS_COMPLETED_CONDITION_METADATA_IDENTITY",
+      "original_metadata_count": 75,
+      "observed_updates": {
+        "prone": 100,
+        "wave": 100
+      },
+      "separate_smoke_updates": {
+        "prone": 2,
+        "wave": 2
+      },
+      "cases": [
+        {
+          "case": "preflight/forward",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "4c19ac76393033ae60c5de52883d085e2b3cc5e794844b806d9e13d576fd25dd",
+          "video_sha256": "f2ffac5eb61eb18cd17a09698fe93bed8e3daceaa969029502db9494b606220e",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "preflight/backward",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "e177ac5e12e443b0870706c40492e17105bf08ef59f41ce53773f2d91f64b2e3",
+          "video_sha256": "633e5232d83bfea9d992e0bba2e835c3121d46a5dccb27736f7f76759ca2ca10",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "preflight/left",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "af34809cab924b19f587a3102e249f49e841c14686ed8166b16da8f3ebff9a3e",
+          "video_sha256": "bc95d5370e20791ea41d87f6d16128f1ba03cf00cc6621978f49a4384e55c9dc",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "preflight/right",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "5cf0e9046805c9e8fd4ad09c9a0f647d5a18d7678e12f307d92e13b3f14f84dd",
+          "video_sha256": "a60ab1be972ee101e4321200b26e590a9a205cb963e1abe27fcf757096466eed",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "preflight/turn_left",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "77b5dbb21fc9c0b4f86e4624d93f78d7b2c8ff505e0cd635af9486e29c14ea1e",
+          "video_sha256": "9a2d80caf88ac9e1626e27ca7c922727e7a4b4afc88263f6749cc8b5f6497915",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "preflight/turn_right",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "e01b77f3197be0b0d747d59f0d89e36386c368d0e1c36f6ff0621293e25c8752",
+          "video_sha256": "702e46dc61d3f6cb2f6923a7ee83dfa11e19e81f372d74dfc86202501756a216",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "preflight/prone",
+          "frames": 1200,
+          "requested_frames": 1200,
+          "recorded_duration_s": 24.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "17615eaf9ef3ab2ec522e1722abc59d36323894afd9cc72d4fe298bcde27df81",
+          "video_sha256": "61bb7cc065c42319f00a3bb7e9872ecb87e7176336ad6ed5ae1603d70ae29ce1",
+          "checkpoint_sha256": "f83c8e990d68e5603736ccd743136f06f511bc9262669bc278c15b7fadaf0b05"
+        },
+        {
+          "case": "preflight/wave",
+          "frames": 1800,
+          "requested_frames": 1800,
+          "recorded_duration_s": 36.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "a84e02b29bd6bdd8834ec866cebb79807fde68775801ff7d55b123121bfd8e28",
+          "video_sha256": "bcaf5298a9f8d0e89cab93b81df6872cf079e39ea1ac84f5d2152ceceaa9ac08",
+          "checkpoint_sha256": "4099aa91d8384c841bd9c7e2b063edccaabd7ba183208f21c2cff490139249a3"
+        },
+        {
+          "case": "preflight/sit",
+          "frames": 1600,
+          "requested_frames": 1600,
+          "recorded_duration_s": 32.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "97a2d039958e5729c986b5875c6efe8f8086ec1908583c19e49da83b3cd4db44",
+          "video_sha256": "9b51cc6fb2b61a0fd402b135ee7d9221429a999d066ef23b89017617a9043834",
+          "checkpoint_sha256": "7b0c7753154fcda06d4b781e2c73e0d117f0cda31c61c94670e0563eeb7d84f5"
+        },
+        {
+          "case": "evaluate/forward",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "4c19ac76393033ae60c5de52883d085e2b3cc5e794844b806d9e13d576fd25dd",
+          "video_sha256": "f48b695602f6d024e051ae8d224592f30aad03f4229cfba8aca00024abaa776e",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "evaluate/backward",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "e177ac5e12e443b0870706c40492e17105bf08ef59f41ce53773f2d91f64b2e3",
+          "video_sha256": "e89eab1b05c490727185688a094454f83868dc254bcd4f8e0472ca6c4b968b32",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "evaluate/left",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "af34809cab924b19f587a3102e249f49e841c14686ed8166b16da8f3ebff9a3e",
+          "video_sha256": "73513941431211520aa0fbb5c393fe2698a0c2c1c7d9c97b44ee3f25a58c8f86",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "evaluate/right",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "5cf0e9046805c9e8fd4ad09c9a0f647d5a18d7678e12f307d92e13b3f14f84dd",
+          "video_sha256": "f07f352ad8f1dc48dad0212944f651c176f411938c9ecd4e264f1d2dc2e544a3",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "evaluate/turn_left",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "77b5dbb21fc9c0b4f86e4624d93f78d7b2c8ff505e0cd635af9486e29c14ea1e",
+          "video_sha256": "2f41aedc20d72f792620baf1fffb6d59715c4c3284adf9cdb7fc4252b8e8573f",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "evaluate/turn_right",
+          "frames": 600,
+          "requested_frames": 600,
+          "recorded_duration_s": 12.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "e01b77f3197be0b0d747d59f0d89e36386c368d0e1c36f6ff0621293e25c8752",
+          "video_sha256": "3d51169e2e9345f42911655abe7be4a734e009d00d98ab97c285b69008f54b07",
+          "checkpoint_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+        },
+        {
+          "case": "evaluate/prone",
+          "frames": 1200,
+          "requested_frames": 1200,
+          "recorded_duration_s": 24.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "9e9d95e8fbe0283309b1b0a2e980977a2d48c29faddc81aa175c596cf1007c47",
+          "video_sha256": "7d83c98c12f8e20443c892807514598061633bac0e1c96eca75424f06a527f3d",
+          "checkpoint_sha256": "dbcc229db50acccf72d72e2e294784216111bf6dd21222547bd438b389322c1d"
+        },
+        {
+          "case": "evaluate/wave",
+          "frames": 1800,
+          "requested_frames": 1800,
+          "recorded_duration_s": 36.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "8ce1700e7770e20d97fad07abb7c2fbd45951bb6b9773d9ca5e5f52d71e65202",
+          "video_sha256": "404a65906dea4c68bcbcf8dee31dd9a8bc9e9a3d6b257bd9e64fc9399494760f",
+          "checkpoint_sha256": "1fb0d6afd88f4ff915be847b9ca620b43b5a1d296148507330e61368eb27d361"
+        },
+        {
+          "case": "evaluate/sit",
+          "frames": 1600,
+          "requested_frames": 1600,
+          "recorded_duration_s": 32.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": true,
+          "raw_array_sha256": "97a2d039958e5729c986b5875c6efe8f8086ec1908583c19e49da83b3cd4db44",
+          "video_sha256": "40e28bc9095aef131c93edf50b8fd637b4770077879cca5017408018a0878207",
+          "checkpoint_sha256": "7b0c7753154fcda06d4b781e2c73e0d117f0cda31c61c94670e0563eeb7d84f5"
+        }
+      ],
+      "post_training_intermediate_cases": [
+        {
+          "case": "intermediate_25/prone",
+          "checkpoint_updates": 25,
+          "training_updates_already_completed": 100,
+          "counts_as_new_ppo_updates": false,
+          "frames": 1200,
+          "requested_frames": 1200,
+          "recorded_duration_s": 24.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "a7f0fce16a7e8423d90d783f6a839b5a32a4133bd0ebd58e3ef33c1b35dc62c1",
+          "video_sha256": "685cf73139597174f8455c5734482b6fb3c63ab55abb0b8398dc2a2b5a01b331",
+          "checkpoint_sha256": "70ebb73a007a30b729861a6abb2aeb02920cd3aa89240a2f865b2f177f275a3c"
+        },
+        {
+          "case": "intermediate_50/prone",
+          "checkpoint_updates": 50,
+          "training_updates_already_completed": 100,
+          "counts_as_new_ppo_updates": false,
+          "frames": 1200,
+          "requested_frames": 1200,
+          "recorded_duration_s": 24.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "918fe82a92c5a7f46641a83809bb41d331975b4b7a7fb4a55caecd8a8dfe480d",
+          "video_sha256": "0ceab3b851fd0fa2c34a04d982b7311fb4913def828e16366fe17ac72f1ba717",
+          "checkpoint_sha256": "f6dcdaea1ad20232898af16e995305e8d79961b79ed8053998d730f8bdcd69df"
+        },
+        {
+          "case": "intermediate_25/wave",
+          "checkpoint_updates": 25,
+          "training_updates_already_completed": 100,
+          "counts_as_new_ppo_updates": false,
+          "frames": 1800,
+          "requested_frames": 1800,
+          "recorded_duration_s": 36.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "97d235837b2693bf82a16276edc85b4bd5dea450565d4df01dc39c7ad1c6d5a7",
+          "video_sha256": "621d6d0f0484e101ae48aa1c3896a0ebbba18a0a53c190f77ab5022664815629",
+          "checkpoint_sha256": "1f1bcef0852878d66527553f3682b7e68a34ccfeeb96eace248290eccdf45fc6"
+        },
+        {
+          "case": "intermediate_50/wave",
+          "checkpoint_updates": 50,
+          "training_updates_already_completed": 100,
+          "counts_as_new_ppo_updates": false,
+          "frames": 1800,
+          "requested_frames": 1800,
+          "recorded_duration_s": 36.0,
+          "outcome": "COMPLETED_REQUESTED_INTERVAL",
+          "skill_acceptance": false,
+          "raw_array_sha256": "eba270fec4902321451f2d9e9c5f7dff9e1db71fd553fd0a438aa33382855585",
+          "video_sha256": "6ccbf3638e456ef580b34be4cd97d7078b1646b6194ae82b56bcd40570d165d0",
+          "checkpoint_sha256": "17cbc9e12f0cab91f8df1d2fbe013b96de9dd86e0c379ff977bdfa065b80324b"
+        }
+      ],
+      "models": [
+        {
+          "expert": "prone",
+          "updates": 100,
+          "iteration": 99,
+          "sha256": "dbcc229db50acccf72d72e2e294784216111bf6dd21222547bd438b389322c1d",
+          "bytes": 952353,
+          "all_saved_tensors_finite": true,
+          "actor_dim": 89,
+          "critic_dim": 122,
+          "optimizer_states": 17,
+          "optimizer_steps": 2000,
+          "initialization": {
+            "parent_checkpoint_sha256": "f83c8e990d68e5603736ccd743136f06f511bc9262669bc278c15b7fadaf0b05",
+            "baseline_parent_checkpoint_sha256": "f83c8e990d68e5603736ccd743136f06f511bc9262669bc278c15b7fadaf0b05",
+            "parent_updates": 100,
+            "actor_mean_tensors_copied": 8,
+            "first_layer_columns_copied": 89,
+            "columns_zeroed": 0,
+            "new_update_counter": 0,
+            "actor_input_dim": 89,
+            "critic_input_dim": 122
+          }
+        },
+        {
+          "expert": "wave",
+          "updates": 100,
+          "iteration": 99,
+          "sha256": "1fb0d6afd88f4ff915be847b9ca620b43b5a1d296148507330e61368eb27d361",
+          "bytes": 952353,
+          "all_saved_tensors_finite": true,
+          "actor_dim": 89,
+          "critic_dim": 122,
+          "optimizer_states": 17,
+          "optimizer_steps": 2000,
+          "initialization": {
+            "parent_checkpoint_sha256": "4099aa91d8384c841bd9c7e2b063edccaabd7ba183208f21c2cff490139249a3",
+            "baseline_parent_checkpoint_sha256": "4099aa91d8384c841bd9c7e2b063edccaabd7ba183208f21c2cff490139249a3",
+            "parent_updates": 250,
+            "actor_mean_tensors_copied": 8,
+            "first_layer_columns_copied": 89,
+            "columns_zeroed": 0,
+            "new_update_counter": 0,
+            "actor_input_dim": 89,
+            "critic_input_dim": 122
+          }
+        }
+      ],
+      "final_pass_count": 7
+    }
+  },
+  "trained_checkpoint_evaluations": 12,
+  "completed_at_utc": "2026-09-15T05:48:18.170593+00:00"
+}
