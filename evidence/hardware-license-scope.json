@@ -1,0 +1,393 @@
+{
+  "schema": "singularitydog.hardware-license-scope.v1",
+  "effective_date": "2026-09-18",
+  "license_spdx": "CERN-OHL-S-2.0",
+  "license_notice": "LICENSE-HARDWARE.md",
+  "license_text": "LICENSES/CERN-OHL-S-2.0.txt",
+  "copyright_notice": "2026 SingularityDog contributors",
+  "source_location": "https://github.com/FaBoAI/SingularityDog",
+  "license_text_origin": "https://gitlab.com/ohwr/project/cernohl/-/wikis/uploads/819d71bea3458f71fba6cf4fb0f2de6b/cern_ohl_s_v2.txt",
+  "license_text_sha256": "253ad3f89603e728abfa60c36fbcaf8225cf55c1eab12725f19fb3d74d647f3a",
+  "scope": "Project-authored current mechanical STLs and selected hardware design documentation only; no third-party component internals, software, weights, media, trademarks or automatic future-file coverage.",
+  "complete_source_published": false,
+  "native_editable_cad_published": false,
+  "assembly_and_wiring_documentation_complete": false,
+  "files": {
+    "docs/bom.md": {
+      "sha256": "f607fc189a90624d1f06ef0f3862d89f1b426aed630e75f0303d4dbdfe530831",
+      "bytes": 8275
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/B26_jetson_edge_retainer_front_mm.stl": {
+      "sha256": "db0a1c13298a9c0fdd9f08a7ee6ebf1ee24e457d007ec0d056c580d200613c56",
+      "bytes": 12684
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/B27_jetson_edge_retainer_rear_mm.stl": {
+      "sha256": "07f8bf3c1945a4f7a582cdde8cf513db513e40905bf77049dc2faca99bfe5c93",
+      "bytes": 12684
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/common_equipment_plate_K1Max_r2_mm.stl": {
+      "sha256": "0fbf7b130e3f11b26908bb8fc4eb50acbdf0ea0ad4356b8ac565227566d745bb",
+      "bytes": 547284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B17_d20_long_-1_-1_-1_lower_mm.stl": {
+      "sha256": "b75be16eb7a9da0ef8b6106088e9dd2a6e1db4298a85635d4fdd8c4f8543427b",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B18_d20_long_-1_-1_-1_upper_mm.stl": {
+      "sha256": "abf8a7c168c92202ded8b7607de77158e485b80be9f1e58503a5b24e8f4fa510",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B19_d20_long_-1_1_-1_lower_mm.stl": {
+      "sha256": "9a703bbde2c515a92288d2f4b7d7cb6c422094e202f6b334755b41d855b28391",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B20_d20_long_-1_1_-1_upper_mm.stl": {
+      "sha256": "56128d84226f561d53d6e5f1c38cddc067853c2eacd9d3274fb85783723fe17b",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B21_d20_long_1_-1_-1_lower_mm.stl": {
+      "sha256": "7bbfe394cf8ce5ed2eea29bdd570428d56c530e741d5a17a548677351fff98e8",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B22_d20_long_1_-1_-1_upper_mm.stl": {
+      "sha256": "19e12dfdc84fcbf97431a682808db15a1f0710a5ff001b710472cd7caab04aaa",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B23_d20_long_1_1_-1_lower_mm.stl": {
+      "sha256": "1d1f2c045465cef8c009fdac98209cc431cfb1d5156dba219763bbbc49a0a407",
+      "bytes": 24284
+    },
+    "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B24_d20_long_1_1_-1_upper_mm.stl": {
+      "sha256": "b79412efcc58628565b1bd9958c0079bf26d991ed76755172d2c075fd6b2da6b",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B01_FL_hip_front_collar_reinforced_r1_mm.stl": {
+      "sha256": "f7da14548e99ede4aabc81efa0f5096219bb454bbf4ce64d6552da682e7616fe",
+      "bytes": 224284
+    },
+    "docs/printing/current/black/B02_FL_rear_base_mount_crosslink_r2_mm.stl": {
+      "sha256": "7de6feb1e99105092f1ddc72090325fd4d63a157b175f5ad9cc9dc7acb89e41e",
+      "bytes": 455684
+    },
+    "docs/printing/current/black/B03_FR_hip_front_collar_reinforced_r1_mm.stl": {
+      "sha256": "590edbdefe90033477a19caf3131ef0c00d41df68bf942a64fe54b1fed98f48a",
+      "bytes": 224284
+    },
+    "docs/printing/current/black/B04_FR_rear_base_mount_crosslink_r2_mm.stl": {
+      "sha256": "38fe0ba958455079e6e7f2c534a9915a45d2d97558ab6819a83dda0acd5d9d43",
+      "bytes": 455384
+    },
+    "docs/printing/current/black/B05_RL_hip_front_collar_reinforced_r1_mm.stl": {
+      "sha256": "590edbdefe90033477a19caf3131ef0c00d41df68bf942a64fe54b1fed98f48a",
+      "bytes": 224284
+    },
+    "docs/printing/current/black/B06_RL_rear_base_mount_crosslink_r2_mm.stl": {
+      "sha256": "b40bcdcda786c6f166a4f47fa1990bb551b2e81fbb4c1a8a70f8c79dc70cad2f",
+      "bytes": 456384
+    },
+    "docs/printing/current/black/B07_RR_hip_front_collar_reinforced_r1_mm.stl": {
+      "sha256": "f7da14548e99ede4aabc81efa0f5096219bb454bbf4ce64d6552da682e7616fe",
+      "bytes": 224284
+    },
+    "docs/printing/current/black/B08_RR_rear_base_mount_crosslink_r2_mm.stl": {
+      "sha256": "1948c916a661bdb4640e9750ff130839819d69420a7d949e9f72c77bb895bb98",
+      "bytes": 450184
+    },
+    "docs/printing/current/black/B09_d20_cross_-1_-1_lower_mm.stl": {
+      "sha256": "5f8b04a2c4a6d6414413a3c2a4e040ccdde822d8962b128f0c166d84d53e3d14",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B10_d20_cross_-1_-1_upper_mm.stl": {
+      "sha256": "d1ad2a0911fcf59fdb51cfb58a1d012dfd0b7eb9e6d961d88fc2a2ebefe24638",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B11_d20_cross_-1_1_lower_mm.stl": {
+      "sha256": "cc34c2ecffea25dc5bebf5c865afddcbf10554edf11f593615ed45589ecb93da",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B12_d20_cross_-1_1_upper_mm.stl": {
+      "sha256": "bde8e6e242374b32bb31a3a06944f391755ec078f545284047d9cf3cf39de0b5",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B13_d20_cross_1_-1_lower_mm.stl": {
+      "sha256": "d8f68541d6c70bc0045f35943456ab63a551fcb55f4711285853f9b496335146",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B14_d20_cross_1_-1_upper_mm.stl": {
+      "sha256": "554485904d9aac58a96411b109383c826fb4d6cf487ef9ab8d496cdc60cd216c",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B15_d20_cross_1_1_lower_mm.stl": {
+      "sha256": "3700b46622e8b398c5518c918644106f75c17065c77a28f887dde4bdb407c152",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B16_d20_cross_1_1_upper_mm.stl": {
+      "sha256": "22634aa79792c18ee24f306bd42467f6ba813c8612e69ba4bb20ddcd61080d79",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B25_pla_underfloor_IMU_support_mm.stl": {
+      "sha256": "2997352e30b34f5a99904ef84ad0370a9e36c900f993d7c348670a547efe218b",
+      "bytes": 14284
+    },
+    "docs/printing/current/black/B34_pla_prone_skid_cap_left_front_mm.stl": {
+      "sha256": "0b826d21a2d0f6333255a2312af08188c1f67b83d03fe228317d1d08b3a586f0",
+      "bytes": 63484
+    },
+    "docs/printing/current/black/B35_pla_prone_skid_cap_left_rear_mm.stl": {
+      "sha256": "aa8e1bc146a6dbb259fa065823a6e827cea2dfcedb8e460db47951d8566cb1bf",
+      "bytes": 63484
+    },
+    "docs/printing/current/black/B36_pla_prone_skid_cap_right_front_mm.stl": {
+      "sha256": "f4a0dd39bf81acd64744786bc186671801a9cb427e36903f6add36bc6e397330",
+      "bytes": 63484
+    },
+    "docs/printing/current/black/B37_pla_prone_skid_cap_right_rear_mm.stl": {
+      "sha256": "165eeceac5c559b8fcbb678da8c949f3409800498ebd1a98d29fdea217edcbc0",
+      "bytes": 63484
+    },
+    "docs/printing/current/black/B38_pla_prone_skid_left_mm.stl": {
+      "sha256": "27684aab20247b35ed36c313851c10a0b2942fb115668de011caf64805a48452",
+      "bytes": 222084
+    },
+    "docs/printing/current/black/B39_pla_prone_skid_right_mm.stl": {
+      "sha256": "c5be985ea78914f1626a931a5165626bfa3de1c220a6258103bf8df660a77cc3",
+      "bytes": 222084
+    },
+    "docs/printing/current/black/B40_display_rear_carrier_r1_mm.stl": {
+      "sha256": "8733f00580f3380ad3825fde58b35dd23b3eede48015005edf5e1cf158231745",
+      "bytes": 523484
+    },
+    "docs/printing/current/black/B41_display_crossrail_upper_clamp_mm.stl": {
+      "sha256": "de045bbc4b59730aa5dd5d21becc126954445a27d3c75d8a2c4c473f672e2952",
+      "bytes": 28284
+    },
+    "docs/printing/current/black/B42_display_front_open_ring_r1_mm.stl": {
+      "sha256": "381eda0227ef695fca8402770911106c368b8c0175e467142588d47050a1d92c",
+      "bytes": 351284
+    },
+    "docs/printing/current/black/FIT_RECEIVER_SAME_GUIDES_mm.stl": {
+      "sha256": "8a3c41866ae4f6d37c42ef313bae4a775bc11c12de0e2b64a99ceebce88951f3",
+      "bytes": 63984
+    },
+    "docs/printing/current/black/FIT_SPACER_10mm_FOR_M3x20_mm.stl": {
+      "sha256": "d00bef3856e2e1955d2f4ab3c490e1162e3f39d07ae172c71e48f10bdc3b1c6f",
+      "bytes": 40284
+    },
+    "docs/printing/current/black/FL_FOOT_R3_CASSETTE_BODY_mm.stl": {
+      "sha256": "aafbb44529ef6e18edc8de0fa63687216a419a0bfca84476a3665a4f7e7aba1d",
+      "bytes": 273784
+    },
+    "docs/printing/current/black/FR_FOOT_R3_CASSETTE_BODY_mm.stl": {
+      "sha256": "aafbb44529ef6e18edc8de0fa63687216a419a0bfca84476a3665a4f7e7aba1d",
+      "bytes": 273784
+    },
+    "docs/printing/current/black/NUT_CASSETTE_A_FIT_OPTION_mm.stl": {
+      "sha256": "05763a524d3267181874596b9457cf8855972cdcedb637e583d1e3b9e3f59459",
+      "bytes": 85384
+    },
+    "docs/printing/current/black/NUT_CASSETTE_B_STANDARD_mm.stl": {
+      "sha256": "63e28e96fd8918e4c0af114315f25d264ed6a3a908573875a46c5c8ef7697d2d",
+      "bytes": 104984
+    },
+    "docs/printing/current/black/NUT_CASSETTE_C_FIT_OPTION_mm.stl": {
+      "sha256": "e578bfb3865b2e5bbd107aa744cd76fef2283a0a40f162c70032eb12829207f7",
+      "bytes": 124484
+    },
+    "docs/printing/current/black/RL_FOOT_R3_CASSETTE_BODY_mm.stl": {
+      "sha256": "aafbb44529ef6e18edc8de0fa63687216a419a0bfca84476a3665a4f7e7aba1d",
+      "bytes": 273784
+    },
+    "docs/printing/current/black/RR_FOOT_R3_CASSETTE_BODY_mm.stl": {
+      "sha256": "aafbb44529ef6e18edc8de0fa63687216a419a0bfca84476a3665a4f7e7aba1d",
+      "bytes": 273784
+    },
+    "docs/printing/current/manifest.json": {
+      "sha256": "bac01d9adcd5139096964e39f596162ccf6bf18d018a106bfb2445d0c3eb6ea5",
+      "bytes": 98301
+    },
+    "docs/printing/current/yellow/Y01_d20_long_-1_-1_1_lower_mm.stl": {
+      "sha256": "4a9939959a3b245314628b41e68e6d490195520c5c18b836853e5d369c1799e7",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y02_d20_long_-1_-1_1_upper_mm.stl": {
+      "sha256": "80d9eb33efd18c2c9f9a0288c841b79ba37ca66f98cbdc40ffd863d09ebad4f0",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y03_d20_long_-1_1_1_lower_mm.stl": {
+      "sha256": "8f17b525736d3f5db592e0582fd42858d57bb3247123d12fc471f9f54ad5018a",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y04_d20_long_-1_1_1_upper_mm.stl": {
+      "sha256": "0e8922b8aee3afb2de497dd295be9083dea9e48c4ef0d73bf509d86eeff987e9",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y05_d20_long_1_-1_1_lower_mm.stl": {
+      "sha256": "35b9879367e276d9a13cbf7447e3a1bd0e6eee980524c3b9406083ef9b19e744",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y06_d20_long_1_-1_1_upper_mm.stl": {
+      "sha256": "482502ba499fd3166723dc6eff2a569e5cab655587b7314888ac3550380640bb",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y07_d20_long_1_1_1_lower_mm.stl": {
+      "sha256": "d254ec4e83f63475a9653bba8a823b6d78bfaeadf761efe9cd27176691e86e32",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y08_d20_long_1_1_1_upper_mm.stl": {
+      "sha256": "7940c5f95e696efb0b271c0cce117e229ba322effd258c2f33822b188b7a13e1",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y09_pla_center_bank_tray_20mm_usb_front_crossbars_lower_clamps_mm.stl": {
+      "sha256": "c55d8e3d95b63f1893e31e430261feb73a2971c9db1b46d73a58a4b43e1872c0",
+      "bytes": 238884
+    },
+    "docs/printing/current/yellow/Y10_pla_center_bank_upper_clamp_front_left_mm.stl": {
+      "sha256": "88e7d30bad08338f52d3eecc788c634af096fa655726885fb487e0b9258e5323",
+      "bytes": 53084
+    },
+    "docs/printing/current/yellow/Y11_pla_center_bank_upper_clamp_front_right_mm.stl": {
+      "sha256": "cf3afce7262891d527dade04a38b21ba14d783b1018e616d51dbd9df4355d367",
+      "bytes": 53084
+    },
+    "docs/printing/current/yellow/Y12_pla_center_bank_upper_clamp_rear_left_mm.stl": {
+      "sha256": "d83f9ad7ca6f8cb7827f5d140d38ed2f1ca23ee005f222e782f6fc11eb73acf0",
+      "bytes": 53084
+    },
+    "docs/printing/current/yellow/Y13_pla_center_bank_upper_clamp_rear_right_mm.stl": {
+      "sha256": "9052c3bbcbe028ce7e253899f3864c39ee36a7201529e46129ec10a5ae2d680a",
+      "bytes": 53084
+    },
+    "docs/printing/current/yellow/Y14_pla_U_recovery_handle_mm.stl": {
+      "sha256": "4dde805984bfb3d18093a9f1b662d15eed03637129d7b3e68bf95975193c9ef0",
+      "bytes": 382284
+    },
+    "docs/printing/current/yellow/Y15_pla_rail_clamp_front_left_lower_mm.stl": {
+      "sha256": "710419cee7cf954ceb8f1903b281338e6d849859668f83937f49679dd43289e9",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y16_pla_rail_clamp_front_left_upper_mm.stl": {
+      "sha256": "00f1060ec6bdc763f08b12e3b27813e177b6c0f4be5a6b6ebf8d8a0bd897ec94",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y17_pla_rail_clamp_front_right_lower_mm.stl": {
+      "sha256": "f54207ccbaee09b2d00b964b85f699c1ef0adfcf2e441ae398cc8d1173682eae",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y18_pla_rail_clamp_front_right_upper_mm.stl": {
+      "sha256": "0e6af5924448dc61563af5cb507af5e970caa1126b0f38dcfaf2da8cf0d8844b",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y19_pla_rail_clamp_rear_left_lower_mm.stl": {
+      "sha256": "4ce40a4ede7240097d406311bbb466ef0d21f92bc48f376cd7c50f3ab5cb172b",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y20_pla_rail_clamp_rear_left_upper_mm.stl": {
+      "sha256": "bc78ee796af26a9ffd74ebbaf6b766a9980e6c033fa32b95331373a803547ac5",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y21_pla_rail_clamp_rear_right_lower_mm.stl": {
+      "sha256": "8ef3658d3a38188c185ec6a4ae9116db62c9345289f6129f7d5a48a1d5dc3be7",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y22_pla_rail_clamp_rear_right_upper_mm.stl": {
+      "sha256": "203b7bc69552e295567a90f5ab2b6c45797e2dbcbb9e7206406b9dfb622cb8af",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y23_pla_fork_crossbeam_front_mm.stl": {
+      "sha256": "cc1ea1370751d23ae4299212f0b4f1269027c28d4e3201f45d09d18728238827",
+      "bytes": 169484
+    },
+    "docs/printing/current/yellow/Y24_pla_fork_crossbeam_rear_mm.stl": {
+      "sha256": "c56fb41ac6f37b2c7a7bbcfc084789035944f5cc16575ea825043bb09dc6b81f",
+      "bytes": 169484
+    },
+    "docs/printing/current/yellow/Y25_FL_calf_front_collar_reinforced_mm.stl": {
+      "sha256": "9a2558c36778d67be523ca05bb3cf13319ae3359d6cc14ddc7918236058a84de",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y26_FL_calf_joint_part_reinforced_mm.stl": {
+      "sha256": "73b051b527d747e259cfc72665912780a924a73c4bbd9b47007b25a039d46eef",
+      "bytes": 244384
+    },
+    "docs/printing/current/yellow/Y27_FL_hip_joint_part_reinforced_mm.stl": {
+      "sha256": "216d69c5cb7ecfdf736f01462bd0a7847fd057c14d911281fcb7325dce361282",
+      "bytes": 263984
+    },
+    "docs/printing/current/yellow/Y28_FL_thigh_front_collar_reinforced_mm.stl": {
+      "sha256": "d194d398199d8657e4bfb2397933e71b89d7426bdaad9c843eb6c470f2dcff50",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y29_FL_thigh_joint_part_reinforced_mm.stl": {
+      "sha256": "ee47da1375e110d7ef38ad509a55a8541b22af521b9f5b246bd74aef3cb4e693",
+      "bytes": 376284
+    },
+    "docs/printing/current/yellow/Y30_FR_calf_front_collar_reinforced_mm.stl": {
+      "sha256": "9a2558c36778d67be523ca05bb3cf13319ae3359d6cc14ddc7918236058a84de",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y31_FR_calf_joint_part_reinforced_mm.stl": {
+      "sha256": "b9a98fe0a930f16f757bc8816bfcd7531143cea205c92b2966436949b04e018f",
+      "bytes": 243984
+    },
+    "docs/printing/current/yellow/Y32_FR_hip_joint_part_reinforced_mm.stl": {
+      "sha256": "30bb3bc2df5124ac39475c58f3898c4f69f718e71a6e37a42df597f517df0c23",
+      "bytes": 263884
+    },
+    "docs/printing/current/yellow/Y33_FR_thigh_front_collar_reinforced_mm.stl": {
+      "sha256": "d194d398199d8657e4bfb2397933e71b89d7426bdaad9c843eb6c470f2dcff50",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y34_FR_thigh_joint_part_reinforced_mm.stl": {
+      "sha256": "db8f11d2586856ab8c63c6d83ff6dc6eca8e2c7dce9574593a8a4fe1f383d0a8",
+      "bytes": 381684
+    },
+    "docs/printing/current/yellow/Y35_RL_calf_front_collar_reinforced_mm.stl": {
+      "sha256": "9a2558c36778d67be523ca05bb3cf13319ae3359d6cc14ddc7918236058a84de",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y36_RL_calf_joint_part_reinforced_mm.stl": {
+      "sha256": "1a7d9a665982754ea00a99d4819d74823b50c7d362291e5e0130297815f73997",
+      "bytes": 244384
+    },
+    "docs/printing/current/yellow/Y37_RL_hip_joint_part_reinforced_mm.stl": {
+      "sha256": "a90cb47df6452955fceeb1d4567d4f87f6aa91af16620c60862d6503a40e196b",
+      "bytes": 264184
+    },
+    "docs/printing/current/yellow/Y38_RL_thigh_front_collar_reinforced_mm.stl": {
+      "sha256": "d194d398199d8657e4bfb2397933e71b89d7426bdaad9c843eb6c470f2dcff50",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y39_RL_thigh_joint_part_reinforced_mm.stl": {
+      "sha256": "ee47da1375e110d7ef38ad509a55a8541b22af521b9f5b246bd74aef3cb4e693",
+      "bytes": 376284
+    },
+    "docs/printing/current/yellow/Y40_RR_calf_front_collar_reinforced_mm.stl": {
+      "sha256": "9a2558c36778d67be523ca05bb3cf13319ae3359d6cc14ddc7918236058a84de",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y41_RR_calf_joint_part_reinforced_mm.stl": {
+      "sha256": "b9a98fe0a930f16f757bc8816bfcd7531143cea205c92b2966436949b04e018f",
+      "bytes": 243984
+    },
+    "docs/printing/current/yellow/Y42_RR_hip_joint_part_reinforced_mm.stl": {
+      "sha256": "7338cd73562193275ce2d134ff17797050b56475a58ca00afc01b0ca7d170268",
+      "bytes": 263784
+    },
+    "docs/printing/current/yellow/Y43_RR_thigh_front_collar_reinforced_mm.stl": {
+      "sha256": "d194d398199d8657e4bfb2397933e71b89d7426bdaad9c843eb6c470f2dcff50",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y44_RR_thigh_joint_part_reinforced_mm.stl": {
+      "sha256": "db8f11d2586856ab8c63c6d83ff6dc6eca8e2c7dce9574593a8a4fe1f383d0a8",
+      "bytes": 381684
+    },
+    "docs/stl-parts.md": {
+      "sha256": "a9e9c7b7e31cbf35b2f5f164cb2fa084e020f09ed8f935f8d9aa29acf7e5eb34",
+      "bytes": 23099
+    },
+    "evidence/bom.json": {
+      "sha256": "4fdbb74e3d0462a658e924612c6aa487dc2d5a6300a091136f74d0e29d45b82d",
+      "bytes": 19592
+    }
+  }
+}

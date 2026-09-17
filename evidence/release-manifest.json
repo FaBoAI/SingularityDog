@@ -5,13 +5,21 @@
       "sha256": "870eb813bcac4694f6c301ef33fc20af67ca63141008821e81219518e3031912",
       "bytes": 13159
     },
+    "LICENSE-HARDWARE.md": {
+      "sha256": "3c1c80fdefee346255ef3552347d2d81a177f47c8e127708a1ad1fb60a5520f3",
+      "bytes": 3835
+    },
+    "LICENSES/CERN-OHL-S-2.0.txt": {
+      "sha256": "253ad3f89603e728abfa60c36fbcaf8225cf55c1eab12725f19fb3d74d647f3a",
+      "bytes": 13419
+    },
     "README.md": {
-      "sha256": "613a42d15fe19ecf26b106ab00b53ce152d19e62e4e9f5039295968002eb968e",
-      "bytes": 11680
+      "sha256": "4ff4a91654d1f2f20415ac52832b9b4ff1f2042f9190902dbfd655e9fc39fa17",
+      "bytes": 11935
     },
     "RELEASE_FILES.json": {
-      "sha256": "1b40a546394bf1cbfd17d23054f5515aa857b29c08816a661a3b227718fbc1a7",
-      "bytes": 18626
+      "sha256": "7a4395a5de8fdb0cd3a77da231666fd7b44c680984f95a14967d08e71ba4baec",
+      "bytes": 18726
     },
     "docs/bom.md": {
       "sha256": "f607fc189a90624d1f06ef0f3862d89f1b426aed630e75f0303d4dbdfe530831",
@@ -22,8 +30,8 @@
       "bytes": 44857
     },
     "docs/decision-log.md": {
-      "sha256": "7366ac4f6961e2c4fff7aa4ebda25c31585f797f41541326ba5aa3cfca260631",
-      "bytes": 33670
+      "sha256": "2d95db3c89bd85c76f2a4cc007bf9e0653928d1eaf6702cd32e92e2705cb739d",
+      "bytes": 34475
     },
     "docs/improvement-loops.md": {
       "sha256": "19d9428952600cd3bb3eee2ce238415a3400765e706b5995ced29da62ed07845",
@@ -1126,8 +1134,8 @@
       "bytes": 83649
     },
     "docs/publication-scope.md": {
-      "sha256": "db3cd68775be8c98bcb65b9c05175f321dd632a404c9f62f03a78b26878b7892",
-      "bytes": 36199
+      "sha256": "3857aaac2508d82191c680033495dce4276b71a7c14678c36e6a14e9c18777e3",
+      "bytes": 37156
     },
     "docs/real-world-deployment.md": {
       "sha256": "59331c7d094cbb14079deb0ae56dc31b1075969e2a72a6bbec6fd8755ea1ee26",
@@ -1142,8 +1150,8 @@
       "bytes": 4555
     },
     "docs/video-history.md": {
-      "sha256": "e5697b54d45a665b515a31a3fc9c8297a0873f099737ea0a5911c27ba030e70e",
-      "bytes": 37791
+      "sha256": "6f28054722c49c2790189e9f8b9c2322a8f4e4797975f363f0aa2f379708626c",
+      "bytes": 38064
     },
     "evidence/bom.json": {
       "sha256": "4fdbb74e3d0462a658e924612c6aa487dc2d5a6300a091136f74d0e29d45b82d",
@@ -1152,6 +1160,10 @@
     "evidence/forward-motion.json": {
       "sha256": "c07344e1195e9f1c6028fb020b1628139dbc884ecbe86fe4c9af2e38e3f37e78",
       "bytes": 119546
+    },
+    "evidence/hardware-license-scope.json": {
+      "sha256": "6ac3746afd04dc7b53fae30c965601ee1e9b8ebb43361b375e4984c0142b987a",
+      "bytes": 18849
     },
     "evidence/improvement-loops.json": {
       "sha256": "1ae1c598fe4f15b86172146fd49ca57bcf4f3550b85236832e56acf015e0b43e",

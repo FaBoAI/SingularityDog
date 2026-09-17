@@ -1,5 +1,7 @@
 [
   ".gitignore",
+  "LICENSE-HARDWARE.md",
+  "LICENSES/CERN-OHL-S-2.0.txt",
   "README.md",
   "RELEASE_FILES.json",
   "docs/bom.md",
@@ -287,6 +289,7 @@
   "docs/video-history.md",
   "evidence/bom.json",
   "evidence/forward-motion.json",
+  "evidence/hardware-license-scope.json",
   "evidence/improvement-loops.json",
   "evidence/l06-evaluation.json",
   "evidence/l07-evaluation.json",
