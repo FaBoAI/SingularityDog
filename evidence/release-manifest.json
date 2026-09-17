@@ -2,28 +2,32 @@
   "schema": "singularitydog.manifest.v1",
   "files": {
     ".gitignore": {
-      "sha256": "69aeb4a88dab6468ca22824fa43c1eb8e0233b7d3b3b212c3d77c83a2ebf9581",
-      "bytes": 7668
+      "sha256": "870eb813bcac4694f6c301ef33fc20af67ca63141008821e81219518e3031912",
+      "bytes": 13159
     },
     "README.md": {
-      "sha256": "a87f77727887fe75ce1df4b6ba5570de127f925c8c5cd1e47ce73057d35b2ad6",
-      "bytes": 17044
+      "sha256": "300e4b670cedd4643108e14f0464f32b30fe5ebb129f000cd3f3587137fa716c",
+      "bytes": 9993
     },
     "RELEASE_FILES.json": {
-      "sha256": "b91c0a94b96fa95241b8b052b330e44131be8c5a5e8256248ba01405b58c5b36",
-      "bytes": 12496
+      "sha256": "1b40a546394bf1cbfd17d23054f5515aa857b29c08816a661a3b227718fbc1a7",
+      "bytes": 18626
+    },
+    "docs/bom.md": {
+      "sha256": "f607fc189a90624d1f06ef0f3862d89f1b426aed630e75f0303d4dbdfe530831",
+      "bytes": 8275
     },
     "docs/current-status.md": {
-      "sha256": "01136f08c5b4d1da6114f9163e2a92cd984bf2054fb729bdf78a9d24f85a8b83",
-      "bytes": 43315
+      "sha256": "26b12949b96eea0b8c52c6a1e29d6426b92197386a6bfa3445d05f4d4ae9fb48",
+      "bytes": 44857
     },
     "docs/decision-log.md": {
-      "sha256": "7fb29de45f37a4ef7799b9c06ff6c45a85d1350d7b949f7b4092673edbe34f5a",
-      "bytes": 33067
+      "sha256": "7366ac4f6961e2c4fff7aa4ebda25c31585f797f41541326ba5aa3cfca260631",
+      "bytes": 33670
     },
     "docs/improvement-loops.md": {
-      "sha256": "8df910d175acb3f90180770f977aea81c8910d4f57072a1073cb054feedc2d5a",
-      "bytes": 30179
+      "sha256": "19d9428952600cd3bb3eee2ce238415a3400765e706b5995ced29da62ed07845",
+      "bytes": 31045
     },
     "docs/l06-evaluation.md": {
       "sha256": "6ff41f911bfa24f1e24b99426d1c7e1849b18a0d3d7d41535f2fb76bc88b2f60",
@@ -124,6 +128,14 @@
     "docs/l30-evaluation.md": {
       "sha256": "f91b3ad751ab2d7a4f7a200e9b6a7214519459b636c4826eaaff479b8fea978b",
       "bytes": 8421
+    },
+    "docs/l31-evaluation.md": {
+      "sha256": "6f66ae91758a78054c314e1426e1be82c2d9fb914072b7f319d4f04f62b131ee",
+      "bytes": 3519
+    },
+    "docs/l32-evaluation.md": {
+      "sha256": "b4cdfa57d0e3706e842f175763b498892ac3cd2d6de00f4604fdc2ef30af2beb",
+      "bytes": 5625
     },
     "docs/media/archive-dev250-left.gif": {
       "sha256": "7f86fedef091ea506bcd0aeb6b5a9f2bc2192343bbef2c5f088d827a62275766",
@@ -457,13 +469,17 @@
       "sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7",
       "bytes": 3029
     },
+    "docs/milestone-history.md": {
+      "sha256": "3310dabd9dae069d90002c84f6c8984bd8f087e59cfe05fb9b576deddf07ae9a",
+      "bytes": 4800
+    },
     "docs/next-loop-spec.md": {
-      "sha256": "2e04cb227c94a7cc2ed358b38742bed48401c30806c33fbcd71a0315122abff0",
-      "bytes": 15438
+      "sha256": "955b57c94f01e2dd49751e1f346e603d9c38f21fd9f9046c82fe50e03986e14f",
+      "bytes": 16189
     },
     "docs/pla-parts-mass.md": {
-      "sha256": "0a1251bd1cbc2cd85383920eb9a78f4fa04a183a399eab3097b1bcd4e48674db",
-      "bytes": 11666
+      "sha256": "38844a011aa68fbd571e94435c53a37f11bd29494e94e252c36214e9ec9cefc9",
+      "bytes": 11942
     },
     "docs/printing-common-deck-k1max.md": {
       "sha256": "cc7f36f88ef42b557a9fd84bf2145aa3504534c95d9a4754651b4a6dfe254404",
@@ -548,6 +564,330 @@
     "docs/printing/common-deck-k1max-r2/validation.json": {
       "sha256": "37bd83dc005a20208c2c1b6160fa529123f51f2293a922a315cd94642737256c",
       "bytes": 2398
+    },
+    "docs/printing/current/README.md": {
+      "sha256": "f94bb7349d38c69fdcc5951d6e29d9f31f62a9d736aa782719a063a86981b7ab",
+      "bytes": 5507
+    },
+    "docs/printing/current/black/B01_FL_hip_front_collar_reinforced_r1_mm.stl": {
+      "sha256": "f7da14548e99ede4aabc81efa0f5096219bb454bbf4ce64d6552da682e7616fe",
+      "bytes": 224284
+    },
+    "docs/printing/current/black/B02_FL_rear_base_mount_crosslink_r2_mm.stl": {
+      "sha256": "7de6feb1e99105092f1ddc72090325fd4d63a157b175f5ad9cc9dc7acb89e41e",
+      "bytes": 455684
+    },
+    "docs/printing/current/black/B03_FR_hip_front_collar_reinforced_r1_mm.stl": {
+      "sha256": "590edbdefe90033477a19caf3131ef0c00d41df68bf942a64fe54b1fed98f48a",
+      "bytes": 224284
+    },
+    "docs/printing/current/black/B04_FR_rear_base_mount_crosslink_r2_mm.stl": {
+      "sha256": "38fe0ba958455079e6e7f2c534a9915a45d2d97558ab6819a83dda0acd5d9d43",
+      "bytes": 455384
+    },
+    "docs/printing/current/black/B05_RL_hip_front_collar_reinforced_r1_mm.stl": {
+      "sha256": "590edbdefe90033477a19caf3131ef0c00d41df68bf942a64fe54b1fed98f48a",
+      "bytes": 224284
+    },
+    "docs/printing/current/black/B06_RL_rear_base_mount_crosslink_r2_mm.stl": {
+      "sha256": "b40bcdcda786c6f166a4f47fa1990bb551b2e81fbb4c1a8a70f8c79dc70cad2f",
+      "bytes": 456384
+    },
+    "docs/printing/current/black/B07_RR_hip_front_collar_reinforced_r1_mm.stl": {
+      "sha256": "f7da14548e99ede4aabc81efa0f5096219bb454bbf4ce64d6552da682e7616fe",
+      "bytes": 224284
+    },
+    "docs/printing/current/black/B08_RR_rear_base_mount_crosslink_r2_mm.stl": {
+      "sha256": "1948c916a661bdb4640e9750ff130839819d69420a7d949e9f72c77bb895bb98",
+      "bytes": 450184
+    },
+    "docs/printing/current/black/B09_d20_cross_-1_-1_lower_mm.stl": {
+      "sha256": "5f8b04a2c4a6d6414413a3c2a4e040ccdde822d8962b128f0c166d84d53e3d14",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B10_d20_cross_-1_-1_upper_mm.stl": {
+      "sha256": "d1ad2a0911fcf59fdb51cfb58a1d012dfd0b7eb9e6d961d88fc2a2ebefe24638",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B11_d20_cross_-1_1_lower_mm.stl": {
+      "sha256": "cc34c2ecffea25dc5bebf5c865afddcbf10554edf11f593615ed45589ecb93da",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B12_d20_cross_-1_1_upper_mm.stl": {
+      "sha256": "bde8e6e242374b32bb31a3a06944f391755ec078f545284047d9cf3cf39de0b5",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B13_d20_cross_1_-1_lower_mm.stl": {
+      "sha256": "d8f68541d6c70bc0045f35943456ab63a551fcb55f4711285853f9b496335146",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B14_d20_cross_1_-1_upper_mm.stl": {
+      "sha256": "554485904d9aac58a96411b109383c826fb4d6cf487ef9ab8d496cdc60cd216c",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B15_d20_cross_1_1_lower_mm.stl": {
+      "sha256": "3700b46622e8b398c5518c918644106f75c17065c77a28f887dde4bdb407c152",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B16_d20_cross_1_1_upper_mm.stl": {
+      "sha256": "22634aa79792c18ee24f306bd42467f6ba813c8612e69ba4bb20ddcd61080d79",
+      "bytes": 24284
+    },
+    "docs/printing/current/black/B25_pla_underfloor_IMU_support_mm.stl": {
+      "sha256": "2997352e30b34f5a99904ef84ad0370a9e36c900f993d7c348670a547efe218b",
+      "bytes": 14284
+    },
+    "docs/printing/current/black/B34_pla_prone_skid_cap_left_front_mm.stl": {
+      "sha256": "0b826d21a2d0f6333255a2312af08188c1f67b83d03fe228317d1d08b3a586f0",
+      "bytes": 63484
+    },
+    "docs/printing/current/black/B35_pla_prone_skid_cap_left_rear_mm.stl": {
+      "sha256": "aa8e1bc146a6dbb259fa065823a6e827cea2dfcedb8e460db47951d8566cb1bf",
+      "bytes": 63484
+    },
+    "docs/printing/current/black/B36_pla_prone_skid_cap_right_front_mm.stl": {
+      "sha256": "f4a0dd39bf81acd64744786bc186671801a9cb427e36903f6add36bc6e397330",
+      "bytes": 63484
+    },
+    "docs/printing/current/black/B37_pla_prone_skid_cap_right_rear_mm.stl": {
+      "sha256": "165eeceac5c559b8fcbb678da8c949f3409800498ebd1a98d29fdea217edcbc0",
+      "bytes": 63484
+    },
+    "docs/printing/current/black/B38_pla_prone_skid_left_mm.stl": {
+      "sha256": "27684aab20247b35ed36c313851c10a0b2942fb115668de011caf64805a48452",
+      "bytes": 222084
+    },
+    "docs/printing/current/black/B39_pla_prone_skid_right_mm.stl": {
+      "sha256": "c5be985ea78914f1626a931a5165626bfa3de1c220a6258103bf8df660a77cc3",
+      "bytes": 222084
+    },
+    "docs/printing/current/black/B40_display_rear_carrier_r1_mm.stl": {
+      "sha256": "8733f00580f3380ad3825fde58b35dd23b3eede48015005edf5e1cf158231745",
+      "bytes": 523484
+    },
+    "docs/printing/current/black/B41_display_crossrail_upper_clamp_mm.stl": {
+      "sha256": "de045bbc4b59730aa5dd5d21becc126954445a27d3c75d8a2c4c473f672e2952",
+      "bytes": 28284
+    },
+    "docs/printing/current/black/B42_display_front_open_ring_r1_mm.stl": {
+      "sha256": "381eda0227ef695fca8402770911106c368b8c0175e467142588d47050a1d92c",
+      "bytes": 351284
+    },
+    "docs/printing/current/black/FIT_RECEIVER_SAME_GUIDES_mm.stl": {
+      "sha256": "8a3c41866ae4f6d37c42ef313bae4a775bc11c12de0e2b64a99ceebce88951f3",
+      "bytes": 63984
+    },
+    "docs/printing/current/black/FIT_SPACER_10mm_FOR_M3x20_mm.stl": {
+      "sha256": "d00bef3856e2e1955d2f4ab3c490e1162e3f39d07ae172c71e48f10bdc3b1c6f",
+      "bytes": 40284
+    },
+    "docs/printing/current/black/FL_FOOT_R3_CASSETTE_BODY_mm.stl": {
+      "sha256": "aafbb44529ef6e18edc8de0fa63687216a419a0bfca84476a3665a4f7e7aba1d",
+      "bytes": 273784
+    },
+    "docs/printing/current/black/FR_FOOT_R3_CASSETTE_BODY_mm.stl": {
+      "sha256": "aafbb44529ef6e18edc8de0fa63687216a419a0bfca84476a3665a4f7e7aba1d",
+      "bytes": 273784
+    },
+    "docs/printing/current/black/NUT_CASSETTE_A_FIT_OPTION_mm.stl": {
+      "sha256": "05763a524d3267181874596b9457cf8855972cdcedb637e583d1e3b9e3f59459",
+      "bytes": 85384
+    },
+    "docs/printing/current/black/NUT_CASSETTE_B_STANDARD_mm.stl": {
+      "sha256": "63e28e96fd8918e4c0af114315f25d264ed6a3a908573875a46c5c8ef7697d2d",
+      "bytes": 104984
+    },
+    "docs/printing/current/black/NUT_CASSETTE_C_FIT_OPTION_mm.stl": {
+      "sha256": "e578bfb3865b2e5bbd107aa744cd76fef2283a0a40f162c70032eb12829207f7",
+      "bytes": 124484
+    },
+    "docs/printing/current/black/RL_FOOT_R3_CASSETTE_BODY_mm.stl": {
+      "sha256": "aafbb44529ef6e18edc8de0fa63687216a419a0bfca84476a3665a4f7e7aba1d",
+      "bytes": 273784
+    },
+    "docs/printing/current/black/RR_FOOT_R3_CASSETTE_BODY_mm.stl": {
+      "sha256": "aafbb44529ef6e18edc8de0fa63687216a419a0bfca84476a3665a4f7e7aba1d",
+      "bytes": 273784
+    },
+    "docs/printing/current/manifest.json": {
+      "sha256": "bac01d9adcd5139096964e39f596162ccf6bf18d018a106bfb2445d0c3eb6ea5",
+      "bytes": 98301
+    },
+    "docs/printing/current/yellow/Y01_d20_long_-1_-1_1_lower_mm.stl": {
+      "sha256": "4a9939959a3b245314628b41e68e6d490195520c5c18b836853e5d369c1799e7",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y02_d20_long_-1_-1_1_upper_mm.stl": {
+      "sha256": "80d9eb33efd18c2c9f9a0288c841b79ba37ca66f98cbdc40ffd863d09ebad4f0",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y03_d20_long_-1_1_1_lower_mm.stl": {
+      "sha256": "8f17b525736d3f5db592e0582fd42858d57bb3247123d12fc471f9f54ad5018a",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y04_d20_long_-1_1_1_upper_mm.stl": {
+      "sha256": "0e8922b8aee3afb2de497dd295be9083dea9e48c4ef0d73bf509d86eeff987e9",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y05_d20_long_1_-1_1_lower_mm.stl": {
+      "sha256": "35b9879367e276d9a13cbf7447e3a1bd0e6eee980524c3b9406083ef9b19e744",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y06_d20_long_1_-1_1_upper_mm.stl": {
+      "sha256": "482502ba499fd3166723dc6eff2a569e5cab655587b7314888ac3550380640bb",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y07_d20_long_1_1_1_lower_mm.stl": {
+      "sha256": "d254ec4e83f63475a9653bba8a823b6d78bfaeadf761efe9cd27176691e86e32",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y08_d20_long_1_1_1_upper_mm.stl": {
+      "sha256": "7940c5f95e696efb0b271c0cce117e229ba322effd258c2f33822b188b7a13e1",
+      "bytes": 24284
+    },
+    "docs/printing/current/yellow/Y09_pla_center_bank_tray_20mm_usb_front_crossbars_lower_clamps_mm.stl": {
+      "sha256": "c55d8e3d95b63f1893e31e430261feb73a2971c9db1b46d73a58a4b43e1872c0",
+      "bytes": 238884
+    },
+    "docs/printing/current/yellow/Y10_pla_center_bank_upper_clamp_front_left_mm.stl": {
+      "sha256": "88e7d30bad08338f52d3eecc788c634af096fa655726885fb487e0b9258e5323",
+      "bytes": 53084
+    },
+    "docs/printing/current/yellow/Y11_pla_center_bank_upper_clamp_front_right_mm.stl": {
+      "sha256": "cf3afce7262891d527dade04a38b21ba14d783b1018e616d51dbd9df4355d367",
+      "bytes": 53084
+    },
+    "docs/printing/current/yellow/Y12_pla_center_bank_upper_clamp_rear_left_mm.stl": {
+      "sha256": "d83f9ad7ca6f8cb7827f5d140d38ed2f1ca23ee005f222e782f6fc11eb73acf0",
+      "bytes": 53084
+    },
+    "docs/printing/current/yellow/Y13_pla_center_bank_upper_clamp_rear_right_mm.stl": {
+      "sha256": "9052c3bbcbe028ce7e253899f3864c39ee36a7201529e46129ec10a5ae2d680a",
+      "bytes": 53084
+    },
+    "docs/printing/current/yellow/Y14_pla_U_recovery_handle_mm.stl": {
+      "sha256": "4dde805984bfb3d18093a9f1b662d15eed03637129d7b3e68bf95975193c9ef0",
+      "bytes": 382284
+    },
+    "docs/printing/current/yellow/Y15_pla_rail_clamp_front_left_lower_mm.stl": {
+      "sha256": "710419cee7cf954ceb8f1903b281338e6d849859668f83937f49679dd43289e9",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y16_pla_rail_clamp_front_left_upper_mm.stl": {
+      "sha256": "00f1060ec6bdc763f08b12e3b27813e177b6c0f4be5a6b6ebf8d8a0bd897ec94",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y17_pla_rail_clamp_front_right_lower_mm.stl": {
+      "sha256": "f54207ccbaee09b2d00b964b85f699c1ef0adfcf2e441ae398cc8d1173682eae",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y18_pla_rail_clamp_front_right_upper_mm.stl": {
+      "sha256": "0e6af5924448dc61563af5cb507af5e970caa1126b0f38dcfaf2da8cf0d8844b",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y19_pla_rail_clamp_rear_left_lower_mm.stl": {
+      "sha256": "4ce40a4ede7240097d406311bbb466ef0d21f92bc48f376cd7c50f3ab5cb172b",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y20_pla_rail_clamp_rear_left_upper_mm.stl": {
+      "sha256": "bc78ee796af26a9ffd74ebbaf6b766a9980e6c033fa32b95331373a803547ac5",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y21_pla_rail_clamp_rear_right_lower_mm.stl": {
+      "sha256": "8ef3658d3a38188c185ec6a4ae9116db62c9345289f6129f7d5a48a1d5dc3be7",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y22_pla_rail_clamp_rear_right_upper_mm.stl": {
+      "sha256": "203b7bc69552e295567a90f5ab2b6c45797e2dbcbb9e7206406b9dfb622cb8af",
+      "bytes": 64084
+    },
+    "docs/printing/current/yellow/Y23_pla_fork_crossbeam_front_mm.stl": {
+      "sha256": "cc1ea1370751d23ae4299212f0b4f1269027c28d4e3201f45d09d18728238827",
+      "bytes": 169484
+    },
+    "docs/printing/current/yellow/Y24_pla_fork_crossbeam_rear_mm.stl": {
+      "sha256": "c56fb41ac6f37b2c7a7bbcfc084789035944f5cc16575ea825043bb09dc6b81f",
+      "bytes": 169484
+    },
+    "docs/printing/current/yellow/Y25_FL_calf_front_collar_reinforced_mm.stl": {
+      "sha256": "9a2558c36778d67be523ca05bb3cf13319ae3359d6cc14ddc7918236058a84de",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y26_FL_calf_joint_part_reinforced_mm.stl": {
+      "sha256": "73b051b527d747e259cfc72665912780a924a73c4bbd9b47007b25a039d46eef",
+      "bytes": 244384
+    },
+    "docs/printing/current/yellow/Y27_FL_hip_joint_part_reinforced_mm.stl": {
+      "sha256": "216d69c5cb7ecfdf736f01462bd0a7847fd057c14d911281fcb7325dce361282",
+      "bytes": 263984
+    },
+    "docs/printing/current/yellow/Y28_FL_thigh_front_collar_reinforced_mm.stl": {
+      "sha256": "d194d398199d8657e4bfb2397933e71b89d7426bdaad9c843eb6c470f2dcff50",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y29_FL_thigh_joint_part_reinforced_mm.stl": {
+      "sha256": "ee47da1375e110d7ef38ad509a55a8541b22af521b9f5b246bd74aef3cb4e693",
+      "bytes": 376284
+    },
+    "docs/printing/current/yellow/Y30_FR_calf_front_collar_reinforced_mm.stl": {
+      "sha256": "9a2558c36778d67be523ca05bb3cf13319ae3359d6cc14ddc7918236058a84de",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y31_FR_calf_joint_part_reinforced_mm.stl": {
+      "sha256": "b9a98fe0a930f16f757bc8816bfcd7531143cea205c92b2966436949b04e018f",
+      "bytes": 243984
+    },
+    "docs/printing/current/yellow/Y32_FR_hip_joint_part_reinforced_mm.stl": {
+      "sha256": "30bb3bc2df5124ac39475c58f3898c4f69f718e71a6e37a42df597f517df0c23",
+      "bytes": 263884
+    },
+    "docs/printing/current/yellow/Y33_FR_thigh_front_collar_reinforced_mm.stl": {
+      "sha256": "d194d398199d8657e4bfb2397933e71b89d7426bdaad9c843eb6c470f2dcff50",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y34_FR_thigh_joint_part_reinforced_mm.stl": {
+      "sha256": "db8f11d2586856ab8c63c6d83ff6dc6eca8e2c7dce9574593a8a4fe1f383d0a8",
+      "bytes": 381684
+    },
+    "docs/printing/current/yellow/Y35_RL_calf_front_collar_reinforced_mm.stl": {
+      "sha256": "9a2558c36778d67be523ca05bb3cf13319ae3359d6cc14ddc7918236058a84de",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y36_RL_calf_joint_part_reinforced_mm.stl": {
+      "sha256": "1a7d9a665982754ea00a99d4819d74823b50c7d362291e5e0130297815f73997",
+      "bytes": 244384
+    },
+    "docs/printing/current/yellow/Y37_RL_hip_joint_part_reinforced_mm.stl": {
+      "sha256": "a90cb47df6452955fceeb1d4567d4f87f6aa91af16620c60862d6503a40e196b",
+      "bytes": 264184
+    },
+    "docs/printing/current/yellow/Y38_RL_thigh_front_collar_reinforced_mm.stl": {
+      "sha256": "d194d398199d8657e4bfb2397933e71b89d7426bdaad9c843eb6c470f2dcff50",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y39_RL_thigh_joint_part_reinforced_mm.stl": {
+      "sha256": "ee47da1375e110d7ef38ad509a55a8541b22af521b9f5b246bd74aef3cb4e693",
+      "bytes": 376284
+    },
+    "docs/printing/current/yellow/Y40_RR_calf_front_collar_reinforced_mm.stl": {
+      "sha256": "9a2558c36778d67be523ca05bb3cf13319ae3359d6cc14ddc7918236058a84de",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y41_RR_calf_joint_part_reinforced_mm.stl": {
+      "sha256": "b9a98fe0a930f16f757bc8816bfcd7531143cea205c92b2966436949b04e018f",
+      "bytes": 243984
+    },
+    "docs/printing/current/yellow/Y42_RR_hip_joint_part_reinforced_mm.stl": {
+      "sha256": "7338cd73562193275ce2d134ff17797050b56475a58ca00afc01b0ca7d170268",
+      "bytes": 263784
+    },
+    "docs/printing/current/yellow/Y43_RR_thigh_front_collar_reinforced_mm.stl": {
+      "sha256": "d194d398199d8657e4bfb2397933e71b89d7426bdaad9c843eb6c470f2dcff50",
+      "bytes": 241984
+    },
+    "docs/printing/current/yellow/Y44_RR_thigh_joint_part_reinforced_mm.stl": {
+      "sha256": "db8f11d2586856ab8c63c6d83ff6dc6eca8e2c7dce9574593a8a4fe1f383d0a8",
+      "bytes": 381684
     },
     "docs/printing/next-10-parts/FaBoRobotDog_K1_Next_STL_10parts.zip": {
       "sha256": "130ffaad7a2507c28ee1d99366e4c3be51d14479b33e18bdd0ea734be422aef9",
@@ -782,28 +1122,40 @@
       "bytes": 832032
     },
     "docs/progress.html": {
-      "sha256": "a86043f5f3c0c82ede987c4ce810e90ae09c31bda8aef2c57a8b22daa5a5a046",
-      "bytes": 82328
+      "sha256": "05a293547f2b98f0d9faafc12c0a0b4721d414cc5bbafcd7bba35982c112306f",
+      "bytes": 83649
     },
     "docs/publication-scope.md": {
-      "sha256": "b819be23a2cc1c4000b00cf5fc858ac1f97510921eecf8852d6fd67b83a3ff7e",
-      "bytes": 34840
+      "sha256": "db3cd68775be8c98bcb65b9c05175f321dd632a404c9f62f03a78b26878b7892",
+      "bytes": 36199
+    },
+    "docs/real-world-deployment.md": {
+      "sha256": "59331c7d094cbb14079deb0ae56dc31b1075969e2a72a6bbec6fd8755ea1ee26",
+      "bytes": 2776
+    },
+    "docs/stl-parts.md": {
+      "sha256": "a9e9c7b7e31cbf35b2f5f164cb2fa084e020f09ed8f935f8d9aa29acf7e5eb34",
+      "bytes": 23099
     },
     "docs/toolkit.md": {
       "sha256": "a88d3dd2c2ebe247b11a687083775f38e69f05e3c3ffae7f84b1048c091678e5",
       "bytes": 4555
     },
     "docs/video-history.md": {
-      "sha256": "4281c70cffe19f59761f4b5c3c3f31bc988cdc0d47ab841ddc770933a8f5dc33",
-      "bytes": 37185
+      "sha256": "e5697b54d45a665b515a31a3fc9c8297a0873f099737ea0a5911c27ba030e70e",
+      "bytes": 37791
+    },
+    "evidence/bom.json": {
+      "sha256": "4fdbb74e3d0462a658e924612c6aa487dc2d5a6300a091136f74d0e29d45b82d",
+      "bytes": 19592
     },
     "evidence/forward-motion.json": {
       "sha256": "c07344e1195e9f1c6028fb020b1628139dbc884ecbe86fe4c9af2e38e3f37e78",
       "bytes": 119546
     },
     "evidence/improvement-loops.json": {
-      "sha256": "91fc72038de51a2c99de002358020d36299206c9f2545e0fd97b767f230230c1",
-      "bytes": 72673
+      "sha256": "1ae1c598fe4f15b86172146fd49ca57bcf4f3550b85236832e56acf015e0b43e",
+      "bytes": 76336
     },
     "evidence/l06-evaluation.json": {
       "sha256": "2ac7c4714786aefe14e63373b6edd7e80fe5a64d8b9d9ca34956c0c6ffaf572d",
@@ -914,8 +1266,8 @@
       "bytes": 66237
     },
     "evidence/learning-history.json": {
-      "sha256": "6120de31236054dcbf1b8aebedbd7394a50e20d2e8c4e12f2050e8c134cd6441",
-      "bytes": 129267
+      "sha256": "66b956a14e2e8814b2bd4879cd6d9b04849bb8851d79c53447c4f72d245ac071",
+      "bytes": 131625
     },
     "evidence/media-publication.json": {
       "sha256": "efeb30b68903bad0013cd60e2d63ad346b8bb9e4caf1773aab80fe693aca2bc0",
@@ -926,20 +1278,32 @@
       "bytes": 21736
     },
     "evidence/print-publication.json": {
-      "sha256": "c5fb90ce1d6b90e8a123f78f0e26f6d828b9137bd3b31caa55904851ec8879b3",
-      "bytes": 84540
+      "sha256": "3259c6aed32934b8ef07e113e76dc79949c11cb20cfac34c338301cf7fdfc65d",
+      "bytes": 159913
     },
     "evidence/progress.json": {
-      "sha256": "b5fe0e707b17b73f1988ee6eb743542dd1447e8a7f98edb4270252e6b0c96d99",
-      "bytes": 977234
+      "sha256": "0dc3c0e1fe30b424a28a6e06764878d00e2c63932daad4529c612bdb53a14d80",
+      "bytes": 976386
     },
     "evidence/recording-publication.json": {
       "sha256": "045dc3930f04f757579272e71f6fda3b031b691596f644b7dd762431577a89c8",
       "bytes": 274713
     },
+    "evidence/stl-catalog.json": {
+      "sha256": "236d7bd5c0f3a4a9a9ebfb0eff1148defdadb62a8b09342222da55cb09d4f849",
+      "bytes": 2624
+    },
+    "evidence/trial36-results-summary.json": {
+      "sha256": "8b48ed68cc2ecf250a739ca1d7ad375b6b7e0d38ab2e31ad80635ebd59aec0ba",
+      "bytes": 4356
+    },
+    "evidence/trial37-results-summary.json": {
+      "sha256": "afb85b1e947bd9404733c889ea9f6dc258f54df178023e8b5a4110c610baccf2",
+      "bytes": 13057
+    },
     "evidence/video-history.json": {
-      "sha256": "bf74b761c631cd943f977cce2e4166c5621c7096ea7554451be97781459fbf34",
-      "bytes": 68361
+      "sha256": "4297bc58124a290855c4a0a15529796f01b2ec447cd979ade6141440a114f214",
+      "bytes": 68205
     },
     "examples/synthetic_robot.urdf": {
       "sha256": "5c8d44b624f71f4a6667dbbd23da8c23c0661f8594766a7e961feed76b591a37",
@@ -990,8 +1354,8 @@
       "bytes": 12288
     },
     "tests/test_print_publication.py": {
-      "sha256": "7608586bac57db4aa8811e1ede8978bcb11d19a23725ba117589fe885a675c21",
-      "bytes": 7067
+      "sha256": "6c1cf01d21ad95e5ecf77cfdfbd26ea93b9cd019b33d1a53abca5b9657aae0ae",
+      "bytes": 7851
     },
     "tests/test_tools.py": {
       "sha256": "567e5d02a3d467c1ffc865a898fa7fe3b57abadb2f1799e94b6d38f9d43989fe",
@@ -1010,8 +1374,8 @@
       "bytes": 6389
     },
     "tools/check_publication.py": {
-      "sha256": "930faa0761cbc122ac5ba48ec774bf22eea117bd542a4bb32dfd46c7a18abad2",
-      "bytes": 13865
+      "sha256": "f5a8a86fa24f015f34f2ed25c623a03a6a12f08a08a12cfc7494b1b95e1643e7",
+      "bytes": 13896
     },
     "tools/evaluate_trace.py": {
       "sha256": "9235cdfcb3d39c3d14af3ea860c5cc0741d042e7e0d2bce072f04b96533f275f",

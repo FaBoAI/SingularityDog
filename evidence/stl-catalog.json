@@ -1,0 +1,50 @@
+{
+  "schema": "singularitydog.stl-catalog-evidence.v1",
+  "as_of": "2026-09-17",
+  "catalog": "docs/stl-parts.md",
+  "selection_manifest": "docs/printing/current/manifest.json",
+  "selection_manifest_sha256": "bac01d9adcd5139096964e39f596162ccf6bf18d018a106bfb2445d0c3eb6ea5",
+  "selected_source_records": {
+    "FaBoRobotDog_Print_All_Yellow_K1Max_20260914_r1": {
+      "revision_record_sha256": "43277ce4ff1e8aaa8817eb4ec47e0a9d9f300caf2def9593915d9581e17105e0"
+    },
+    "FaBoRobotDog_Print_Black_Individual_20260914_r3": {
+      "revision_record_sha256": "7e964060cf5a1a19eb4038011f283b570af1f79982e729e1579203e906205b14"
+    },
+    "Black_CrossLink_Reinforced_r2": {
+      "revision_record_sha256": "9c798ddde696c4b44d6522833c699d889e92ebf2ca0f9e3a62029b7d6c280ed3"
+    },
+    "FaBoRobotDog_Display_FrontClamp_20260916_r1": {
+      "revision_record_sha256": "9d464fd481731227c014c940811684d04a0d44c9bf6a8837b6a419867f14de2f"
+    },
+    "FaBoRobotDog_Print_FootPads_Cassette_20260917_r3": {
+      "revision_record_sha256": "e0585cda4f24c9935713a04449d25e1d6bf9a2b4894e45467752195b943290b1"
+    }
+  },
+  "source_record_notes": "Only names and hashes of selected package records are retained; raw records and source paths are excluded.",
+  "common_deck_replacement_record_sha256": "6ac4729a3714c90bdcd16d103b27c53f16e1d4b3eaf6f3400274ab0c4295c135",
+  "validation": {
+    "method": "Binary STL record length, finite vertices and normals, exact float32 vertex sharing; Trimesh topology and signed volume; SHA match to selected source; bounds and published manifest dimensions.",
+    "software": "trimesh 5.1.0",
+    "selected_individual_files": 90,
+    "all_closed": true,
+    "all_consistent_winding": true,
+    "all_single_connected_surface": true,
+    "all_positive_volume": true,
+    "all_z0_within_mm": 0.001,
+    "all_source_bytes_unchanged": true,
+    "all_under_50_MB": true,
+    "units_note": "STL does not encode units. mm is declared by the selected source manifests; measured extents are checked against those manifests when supplied.",
+    "scope_limit": "Does not prove self-intersection absence, printer/slicer suitability, assembled fit, continuous-motion clearance, or material strength."
+  },
+  "counts": {
+    "installed_design_candidate_quantity": 89,
+    "yellow": 44,
+    "black": 45,
+    "installed_individual_entries": 86,
+    "additional_test_or_alternative_entries": 4,
+    "new_stl_files": 79,
+    "reused_published_stl_entries": 11
+  },
+  "physical_assembly": "Actual installed revision per part unknown. The user reports completed printing but this catalog does not certify fit or strength."
+}

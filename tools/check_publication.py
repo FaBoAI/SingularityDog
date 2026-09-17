@@ -15,7 +15,7 @@ BLOCKED_PARTS = {'.git', 'vendor', 'meshes', 'weights', 'checkpoints', 'raw_logs
 RECORDING_AUTHORIZATION = 'user_selected_six_history_assets_and_l05_l06_l07_l08_l09_l10_l11_l12_results_2026-09-10'
 PRINT_AUTHORIZATION = 'user_selected_next_ten_print_parts_2026-09-12'
 PRINT_DIRECTORIES = (Path('docs/printing/next-10-parts'), Path('docs/printing/yellow-dense'),
-                     Path('docs/printing/common-deck-k1max-r2'))
+                     Path('docs/printing/common-deck-k1max-r2'), Path('docs/printing/current'))
 PATTERNS = {
     'private-network-address': re.compile(r'(?<![\d.])(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(?![\d.])'),
     'local-home-path': re.compile(r'/(?:Users|home)/[A-Za-z0-9_.-]+/'),

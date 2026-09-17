@@ -70,6 +70,20 @@ class PrintPublicationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'outside selected package scope'):
                 check(root, list(registry['files']))
 
+    def test_current_catalog_scope_still_requires_individual_registration(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            directory, registry = self.fixture(root, 'current')
+            self.assertEqual(check(root, list(registry['files'])), [])
+            extra = directory / 'unregistered.stl'
+            extra.write_bytes((directory / 'example.stl').read_bytes())
+            self.assertTrue(check(root, [str(extra.relative_to(root))]))
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            _, registry = self.fixture(root, 'current-unselected')
+            with self.assertRaisesRegex(ValueError, 'outside selected package scope'):
+                check(root, list(registry['files']))
+
     def test_changed_stl_length_nan_and_dimensions_rejected(self):
         for variant in ['changed', 'length', 'nan', 'dimensions', 'authorization']:
             with self.subTest(variant=variant), tempfile.TemporaryDirectory() as temp:

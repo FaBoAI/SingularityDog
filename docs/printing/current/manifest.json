@@ -1,0 +1,3328 @@
+{
+  "schema": "singularitydog.current-print-selection.v1",
+  "as_of": "2026-09-17",
+  "units": "mm",
+  "scale_percent": 100,
+  "status": "DESIGN_CANDIDATES_PHYSICAL_ASSEMBLY_AND_STRENGTH_UNCONFIRMED",
+  "quantity_basis": "One design candidate configuration with all listed optional equipment and standard B foot cassettes. Not an as-built inventory or remaining print count.",
+  "installed_design_candidate_quantity": 89,
+  "yellow_quantity": 44,
+  "black_quantity": 45,
+  "installed_part_file_entries": 86,
+  "test_and_alternative_file_entries": 4,
+  "parts": [
+    {
+      "id": "Y01",
+      "name_ja": "D20縦管クランプ 位置(-1,-1)・上段 下半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_structure",
+      "file": "docs/printing/current/yellow/Y01_d20_long_-1_-1_1_lower_mm.stl",
+      "sha256": "4a9939959a3b245314628b41e68e6d490195520c5c18b836853e5d369c1799e7",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.84034803214,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出し・初層をスライサーで確認"
+    },
+    {
+      "id": "Y02",
+      "name_ja": "D20縦管クランプ 位置(-1,-1)・上段 上半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_structure",
+      "file": "docs/printing/current/yellow/Y02_d20_long_-1_-1_1_upper_mm.stl",
+      "sha256": "80d9eb33efd18c2c9f9a0288c841b79ba37ca66f98cbdc40ffd863d09ebad4f0",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840348032131,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出し・初層をスライサーで確認"
+    },
+    {
+      "id": "Y03",
+      "name_ja": "D20縦管クランプ 位置(-1,1)・上段 下半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_structure",
+      "file": "docs/printing/current/yellow/Y03_d20_long_-1_1_1_lower_mm.stl",
+      "sha256": "8f17b525736d3f5db592e0582fd42858d57bb3247123d12fc471f9f54ad5018a",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.8403480321385,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出し・初層をスライサーで確認"
+    },
+    {
+      "id": "Y04",
+      "name_ja": "D20縦管クランプ 位置(-1,1)・上段 上半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_structure",
+      "file": "docs/printing/current/yellow/Y04_d20_long_-1_1_1_upper_mm.stl",
+      "sha256": "0e8922b8aee3afb2de497dd295be9083dea9e48c4ef0d73bf509d86eeff987e9",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.8403480321285,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出し・初層をスライサーで確認"
+    },
+    {
+      "id": "Y05",
+      "name_ja": "D20縦管クランプ 位置(1,-1)・上段 下半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_structure",
+      "file": "docs/printing/current/yellow/Y05_d20_long_1_-1_1_lower_mm.stl",
+      "sha256": "35b9879367e276d9a13cbf7447e3a1bd0e6eee980524c3b9406083ef9b19e744",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.8403480321385,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出し・初層をスライサーで確認"
+    },
+    {
+      "id": "Y06",
+      "name_ja": "D20縦管クランプ 位置(1,-1)・上段 上半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_structure",
+      "file": "docs/printing/current/yellow/Y06_d20_long_1_-1_1_upper_mm.stl",
+      "sha256": "482502ba499fd3166723dc6eff2a569e5cab655587b7314888ac3550380640bb",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840348032133,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出し・初層をスライサーで確認"
+    },
+    {
+      "id": "Y07",
+      "name_ja": "D20縦管クランプ 位置(1,1)・上段 下半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_structure",
+      "file": "docs/printing/current/yellow/Y07_d20_long_1_1_1_lower_mm.stl",
+      "sha256": "d254ec4e83f63475a9653bba8a823b6d78bfaeadf761efe9cd27176691e86e32",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.8403480321385,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出し・初層をスライサーで確認"
+    },
+    {
+      "id": "Y08",
+      "name_ja": "D20縦管クランプ 位置(1,1)・上段 上半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_structure",
+      "file": "docs/printing/current/yellow/Y08_d20_long_1_1_1_upper_mm.stl",
+      "sha256": "7940c5f95e696efb0b271c0cce117e229ba322effd258c2f33822b188b7a13e1",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840348032133,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出し・初層をスライサーで確認"
+    },
+    {
+      "id": "Y09",
+      "name_ja": "モバイル台（短辺USB・壁20mm）",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_bank",
+      "file": "docs/printing/current/yellow/Y09_pla_center_bank_tray_20mm_usb_front_crossbars_lower_clamps_mm.stl",
+      "sha256": "c55d8e3d95b63f1893e31e430261feb73a2971c9db1b46d73a58a4b43e1872c0",
+      "bytes": 238884,
+      "dimensions_mm": [
+        110.20000457763672,
+        184.0,
+        36.30000305175781
+      ],
+      "triangles": 4776,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        110.20000457763672,
+        184.0,
+        36.30000305175781
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 89693.42831014167,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y10",
+      "name_ja": "モバイル台 上クランプ 前 左",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_bank",
+      "file": "docs/printing/current/yellow/Y10_pla_center_bank_upper_clamp_front_left_mm.stl",
+      "sha256": "88e7d30bad08338f52d3eecc788c634af096fa655726885fb487e0b9258e5323",
+      "bytes": 53084,
+      "dimensions_mm": [
+        16.0,
+        44.0,
+        18.0
+      ],
+      "triangles": 1060,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        16.0,
+        44.0,
+        18.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9295.847960213698,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y11",
+      "name_ja": "モバイル台 上クランプ 前 右",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_bank",
+      "file": "docs/printing/current/yellow/Y11_pla_center_bank_upper_clamp_front_right_mm.stl",
+      "sha256": "cf3afce7262891d527dade04a38b21ba14d783b1018e616d51dbd9df4355d367",
+      "bytes": 53084,
+      "dimensions_mm": [
+        16.0,
+        44.0,
+        18.0
+      ],
+      "triangles": 1060,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        16.0,
+        44.0,
+        18.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9295.847955278561,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y12",
+      "name_ja": "モバイル台 上クランプ 後 左",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_bank",
+      "file": "docs/printing/current/yellow/Y12_pla_center_bank_upper_clamp_rear_left_mm.stl",
+      "sha256": "d83f9ad7ca6f8cb7827f5d140d38ed2f1ca23ee005f222e782f6fc11eb73acf0",
+      "bytes": 53084,
+      "dimensions_mm": [
+        16.0,
+        44.0,
+        18.0
+      ],
+      "triangles": 1060,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        16.0,
+        44.0,
+        18.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9295.847483731926,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y13",
+      "name_ja": "モバイル台 上クランプ 後 右",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "yellow_bank",
+      "file": "docs/printing/current/yellow/Y13_pla_center_bank_upper_clamp_rear_right_mm.stl",
+      "sha256": "9052c3bbcbe028ce7e253899f3864c39ee36a7201529e46129ec10a5ae2d680a",
+      "bytes": 53084,
+      "dimensions_mm": [
+        16.0,
+        44.0,
+        18.0
+      ],
+      "triangles": 1060,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        16.0,
+        44.0,
+        18.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9295.847019786293,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y14",
+      "name_ja": "取手",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "handle",
+      "file": "docs/printing/current/yellow/Y14_pla_U_recovery_handle_mm.stl",
+      "sha256": "4dde805984bfb3d18093a9f1b662d15eed03637129d7b3e68bf95975193c9ef0",
+      "bytes": 382284,
+      "dimensions_mm": [
+        187.96018981933594,
+        85.50001525878906,
+        24.0
+      ],
+      "triangles": 7644,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        187.96018981933594,
+        85.50001525878906,
+        24.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 177480.6102302292,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y15",
+      "name_ja": "取手レールクランプ 前 左 下半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "handle",
+      "file": "docs/printing/current/yellow/Y15_pla_rail_clamp_front_left_lower_mm.stl",
+      "sha256": "710419cee7cf954ceb8f1903b281338e6d849859668f83937f49679dd43289e9",
+      "bytes": 64084,
+      "dimensions_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "triangles": 1280,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 29145.05664231327,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y16",
+      "name_ja": "取手レールクランプ 前 左 上半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "handle",
+      "file": "docs/printing/current/yellow/Y16_pla_rail_clamp_front_left_upper_mm.stl",
+      "sha256": "00f1060ec6bdc763f08b12e3b27813e177b6c0f4be5a6b6ebf8d8a0bd897ec94",
+      "bytes": 64084,
+      "dimensions_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "triangles": 1280,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 29145.05669595119,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y17",
+      "name_ja": "取手レールクランプ 前 右 下半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "handle",
+      "file": "docs/printing/current/yellow/Y17_pla_rail_clamp_front_right_lower_mm.stl",
+      "sha256": "f54207ccbaee09b2d00b964b85f699c1ef0adfcf2e441ae398cc8d1173682eae",
+      "bytes": 64084,
+      "dimensions_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "triangles": 1280,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 29145.056642313273,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y18",
+      "name_ja": "取手レールクランプ 前 右 上半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "handle",
+      "file": "docs/printing/current/yellow/Y18_pla_rail_clamp_front_right_upper_mm.stl",
+      "sha256": "0e6af5924448dc61563af5cb507af5e970caa1126b0f38dcfaf2da8cf0d8844b",
+      "bytes": 64084,
+      "dimensions_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "triangles": 1280,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 29145.05669595119,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y19",
+      "name_ja": "取手レールクランプ 後 左 下半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "handle",
+      "file": "docs/printing/current/yellow/Y19_pla_rail_clamp_rear_left_lower_mm.stl",
+      "sha256": "4ce40a4ede7240097d406311bbb466ef0d21f92bc48f376cd7c50f3ab5cb172b",
+      "bytes": 64084,
+      "dimensions_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "triangles": 1280,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 29145.056642313273,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y20",
+      "name_ja": "取手レールクランプ 後 左 上半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "handle",
+      "file": "docs/printing/current/yellow/Y20_pla_rail_clamp_rear_left_upper_mm.stl",
+      "sha256": "bc78ee796af26a9ffd74ebbaf6b766a9980e6c033fa32b95331373a803547ac5",
+      "bytes": 64084,
+      "dimensions_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "triangles": 1280,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 29145.056695951196,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y21",
+      "name_ja": "取手レールクランプ 後 右 下半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "handle",
+      "file": "docs/printing/current/yellow/Y21_pla_rail_clamp_rear_right_lower_mm.stl",
+      "sha256": "8ef3658d3a38188c185ec6a4ae9116db62c9345289f6129f7d5a48a1d5dc3be7",
+      "bytes": 64084,
+      "dimensions_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "triangles": 1280,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 29145.05664231327,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y22",
+      "name_ja": "取手レールクランプ 後 右 上半分",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "handle",
+      "file": "docs/printing/current/yellow/Y22_pla_rail_clamp_rear_right_upper_mm.stl",
+      "sha256": "203b7bc69552e295567a90f5ab2b6c45797e2dbcbb9e7206406b9dfb622cb8af",
+      "bytes": 64084,
+      "dimensions_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "triangles": 1280,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        18.0,
+        56.0,
+        36.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 29145.056695951196,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y23",
+      "name_ja": "取手横梁 前",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "handle",
+      "file": "docs/printing/current/yellow/Y23_pla_fork_crossbeam_front_mm.stl",
+      "sha256": "cc1ea1370751d23ae4299212f0b4f1269027c28d4e3201f45d09d18728238827",
+      "bytes": 169484,
+      "dimensions_mm": [
+        51.999996185302734,
+        206.0,
+        40.0
+      ],
+      "triangles": 3388,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        51.999996185302734,
+        206.0,
+        40.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 162616.86183026404,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y24",
+      "name_ja": "取手横梁 後",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "既存形状・9/14選定",
+      "group": "handle",
+      "file": "docs/printing/current/yellow/Y24_pla_fork_crossbeam_rear_mm.stl",
+      "sha256": "c56fb41ac6f37b2c7a7bbcfc084789035944f5cc16575ea825043bb09dc6b81f",
+      "bytes": 169484,
+      "dimensions_mm": [
+        51.999996185302734,
+        206.0,
+        40.0
+      ],
+      "triangles": 3388,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        51.999996185302734,
+        206.0,
+        40.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 162616.86183026407,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y25",
+      "name_ja": "左前 脛側カラー",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y25_FL_calf_front_collar_reinforced_mm.stl",
+      "sha256": "9a2558c36778d67be523ca05bb3cf13319ae3359d6cc14ddc7918236058a84de",
+      "bytes": 241984,
+      "dimensions_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "triangles": 4838,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9492.747774227795,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y26",
+      "name_ja": "左前 脛リンク",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y26_FL_calf_joint_part_reinforced_mm.stl",
+      "sha256": "73b051b527d747e259cfc72665912780a924a73c4bbd9b47007b25a039d46eef",
+      "bytes": 244384,
+      "dimensions_mm": [
+        122.0,
+        55.0,
+        31.999000549316406
+      ],
+      "triangles": 4886,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        122.0,
+        55.0,
+        31.999000549316406
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 62379.11657254628,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢の平坦接地面積0。サポート・ラフト・初層をスライスで確認"
+    },
+    {
+      "id": "Y27",
+      "name_ja": "左前 股リンク",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y27_FL_hip_joint_part_reinforced_mm.stl",
+      "sha256": "216d69c5cb7ecfdf736f01462bd0a7847fd057c14d911281fcb7325dce361282",
+      "bytes": 263984,
+      "dimensions_mm": [
+        80.0,
+        102.0,
+        55.99420166015625
+      ],
+      "triangles": 5278,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        80.0,
+        102.0,
+        55.99420166015625
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 46330.054324189405,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢の平坦接地面積0。サポート・ラフト・初層をスライスで確認"
+    },
+    {
+      "id": "Y28",
+      "name_ja": "左前 腿側カラー",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y28_FL_thigh_front_collar_reinforced_mm.stl",
+      "sha256": "d194d398199d8657e4bfb2397933e71b89d7426bdaad9c843eb6c470f2dcff50",
+      "bytes": 241984,
+      "dimensions_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "triangles": 4838,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9492.738675697788,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y29",
+      "name_ja": "左前 腿リンク",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y29_FL_thigh_joint_part_reinforced_mm.stl",
+      "sha256": "ee47da1375e110d7ef38ad509a55a8541b22af521b9f5b246bd74aef3cb4e693",
+      "bytes": 376284,
+      "dimensions_mm": [
+        163.98019409179688,
+        80.0,
+        66.0
+      ],
+      "triangles": 7524,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        163.98019409179688,
+        80.0,
+        66.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 88871.2499246259,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢の平坦接地面積0。サポート・ラフト・初層をスライスで確認"
+    },
+    {
+      "id": "Y30",
+      "name_ja": "右前 脛側カラー",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y30_FR_calf_front_collar_reinforced_mm.stl",
+      "sha256": "9a2558c36778d67be523ca05bb3cf13319ae3359d6cc14ddc7918236058a84de",
+      "bytes": 241984,
+      "dimensions_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "triangles": 4838,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9492.747774227795,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y31",
+      "name_ja": "右前 脛リンク",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y31_FR_calf_joint_part_reinforced_mm.stl",
+      "sha256": "b9a98fe0a930f16f757bc8816bfcd7531143cea205c92b2966436949b04e018f",
+      "bytes": 243984,
+      "dimensions_mm": [
+        122.0,
+        55.0,
+        31.999000549316406
+      ],
+      "triangles": 4878,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        122.0,
+        55.0,
+        31.999000549316406
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 62379.11647325431,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢の平坦接地面積0。サポート・ラフト・初層をスライスで確認"
+    },
+    {
+      "id": "Y32",
+      "name_ja": "右前 股リンク",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y32_FR_hip_joint_part_reinforced_mm.stl",
+      "sha256": "30bb3bc2df5124ac39475c58f3898c4f69f718e71a6e37a42df597f517df0c23",
+      "bytes": 263884,
+      "dimensions_mm": [
+        80.0,
+        102.0,
+        55.99420166015625
+      ],
+      "triangles": 5276,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        80.0,
+        102.0,
+        55.99420166015625
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 46323.616051273704,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢の平坦接地面積0。サポート・ラフト・初層をスライスで確認"
+    },
+    {
+      "id": "Y33",
+      "name_ja": "右前 腿側カラー",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y33_FR_thigh_front_collar_reinforced_mm.stl",
+      "sha256": "d194d398199d8657e4bfb2397933e71b89d7426bdaad9c843eb6c470f2dcff50",
+      "bytes": 241984,
+      "dimensions_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "triangles": 4838,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9492.738675697788,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y34",
+      "name_ja": "右前 腿リンク",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y34_FR_thigh_joint_part_reinforced_mm.stl",
+      "sha256": "db8f11d2586856ab8c63c6d83ff6dc6eca8e2c7dce9574593a8a4fe1f383d0a8",
+      "bytes": 381684,
+      "dimensions_mm": [
+        163.98019409179688,
+        80.0,
+        66.0
+      ],
+      "triangles": 7632,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        163.98019409179688,
+        80.0,
+        66.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 88871.25086463014,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢の平坦接地面積0。サポート・ラフト・初層をスライスで確認"
+    },
+    {
+      "id": "Y35",
+      "name_ja": "左後 脛側カラー",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y35_RL_calf_front_collar_reinforced_mm.stl",
+      "sha256": "9a2558c36778d67be523ca05bb3cf13319ae3359d6cc14ddc7918236058a84de",
+      "bytes": 241984,
+      "dimensions_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "triangles": 4838,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9492.747774227795,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y36",
+      "name_ja": "左後 脛リンク",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y36_RL_calf_joint_part_reinforced_mm.stl",
+      "sha256": "1a7d9a665982754ea00a99d4819d74823b50c7d362291e5e0130297815f73997",
+      "bytes": 244384,
+      "dimensions_mm": [
+        122.0,
+        55.0,
+        31.999000549316406
+      ],
+      "triangles": 4886,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        122.0,
+        55.0,
+        31.999000549316406
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 62379.11657254628,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢の平坦接地面積0。サポート・ラフト・初層をスライスで確認"
+    },
+    {
+      "id": "Y37",
+      "name_ja": "左後 股リンク",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y37_RL_hip_joint_part_reinforced_mm.stl",
+      "sha256": "a90cb47df6452955fceeb1d4567d4f87f6aa91af16620c60862d6503a40e196b",
+      "bytes": 264184,
+      "dimensions_mm": [
+        80.0,
+        102.0,
+        55.99420166015625
+      ],
+      "triangles": 5282,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        80.0,
+        102.0,
+        55.99420166015625
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 46323.61430501656,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢の平坦接地面積0。サポート・ラフト・初層をスライスで確認"
+    },
+    {
+      "id": "Y38",
+      "name_ja": "左後 腿側カラー",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y38_RL_thigh_front_collar_reinforced_mm.stl",
+      "sha256": "d194d398199d8657e4bfb2397933e71b89d7426bdaad9c843eb6c470f2dcff50",
+      "bytes": 241984,
+      "dimensions_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "triangles": 4838,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9492.738675697788,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y39",
+      "name_ja": "左後 腿リンク",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y39_RL_thigh_joint_part_reinforced_mm.stl",
+      "sha256": "ee47da1375e110d7ef38ad509a55a8541b22af521b9f5b246bd74aef3cb4e693",
+      "bytes": 376284,
+      "dimensions_mm": [
+        163.98019409179688,
+        80.0,
+        66.0
+      ],
+      "triangles": 7524,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        163.98019409179688,
+        80.0,
+        66.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 88871.2499246259,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢の平坦接地面積0。サポート・ラフト・初層をスライスで確認"
+    },
+    {
+      "id": "Y40",
+      "name_ja": "右後 脛側カラー",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y40_RR_calf_front_collar_reinforced_mm.stl",
+      "sha256": "9a2558c36778d67be523ca05bb3cf13319ae3359d6cc14ddc7918236058a84de",
+      "bytes": 241984,
+      "dimensions_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "triangles": 4838,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9492.747774227795,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y41",
+      "name_ja": "右後 脛リンク",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y41_RR_calf_joint_part_reinforced_mm.stl",
+      "sha256": "b9a98fe0a930f16f757bc8816bfcd7531143cea205c92b2966436949b04e018f",
+      "bytes": 243984,
+      "dimensions_mm": [
+        122.0,
+        55.0,
+        31.999000549316406
+      ],
+      "triangles": 4878,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        122.0,
+        55.0,
+        31.999000549316406
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 62379.11647325431,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢の平坦接地面積0。サポート・ラフト・初層をスライスで確認"
+    },
+    {
+      "id": "Y42",
+      "name_ja": "右後 股リンク",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y42_RR_hip_joint_part_reinforced_mm.stl",
+      "sha256": "7338cd73562193275ce2d134ff17797050b56475a58ca00afc01b0ca7d170268",
+      "bytes": 263784,
+      "dimensions_mm": [
+        80.0,
+        102.0,
+        55.99420166015625
+      ],
+      "triangles": 5274,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        80.0,
+        102.0,
+        55.99420166015625
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 46330.05502971283,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢の平坦接地面積0。サポート・ラフト・初層をスライスで確認"
+    },
+    {
+      "id": "Y43",
+      "name_ja": "右後 腿側カラー",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y43_RR_thigh_front_collar_reinforced_mm.stl",
+      "sha256": "d194d398199d8657e4bfb2397933e71b89d7426bdaad9c843eb6c470f2dcff50",
+      "bytes": 241984,
+      "dimensions_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "triangles": 4838,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9492.738675697788,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "支持材・初層をスライサーで確認"
+    },
+    {
+      "id": "Y44",
+      "name_ja": "右後 腿リンク",
+      "color": "yellow",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "補強r1",
+      "group": "yellow_moving",
+      "file": "docs/printing/current/yellow/Y44_RR_thigh_joint_part_reinforced_mm.stl",
+      "sha256": "db8f11d2586856ab8c63c6d83ff6dc6eca8e2c7dce9574593a8a4fe1f383d0a8",
+      "bytes": 381684,
+      "dimensions_mm": [
+        163.98019409179688,
+        80.0,
+        66.0
+      ],
+      "triangles": 7632,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        163.98019409179688,
+        80.0,
+        66.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 88871.25086463014,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢の平坦接地面積0。サポート・ラフト・初層をスライスで確認"
+    },
+    {
+      "id": "B01",
+      "name_ja": "左前 Body側 股関節カラー",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "collar_reinforced_r1",
+      "group": "black_body",
+      "file": "docs/printing/current/black/B01_FL_hip_front_collar_reinforced_r1_mm.stl",
+      "sha256": "f7da14548e99ede4aabc81efa0f5096219bb454bbf4ce64d6552da682e7616fe",
+      "bytes": 224284,
+      "dimensions_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "triangles": 4484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9707.386023047999,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B02",
+      "name_ja": "左前 Body側モーターマウント・中央連結補強",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "中央連結r2",
+      "group": "black_body",
+      "file": "docs/printing/current/black/B02_FL_rear_base_mount_crosslink_r2_mm.stl",
+      "sha256": "7de6feb1e99105092f1ddc72090325fd4d63a157b175f5ad9cc9dc7acb89e41e",
+      "bytes": 455684,
+      "dimensions_mm": [
+        73.0,
+        162.0,
+        93.0
+      ],
+      "triangles": 9112,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        73.0,
+        162.0,
+        93.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 113843.95961840094,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢を維持。橋の下にサポート必須"
+    },
+    {
+      "id": "B03",
+      "name_ja": "右前 Body側 股関節カラー",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "collar_reinforced_r1",
+      "group": "black_body",
+      "file": "docs/printing/current/black/B03_FR_hip_front_collar_reinforced_r1_mm.stl",
+      "sha256": "590edbdefe90033477a19caf3131ef0c00d41df68bf942a64fe54b1fed98f48a",
+      "bytes": 224284,
+      "dimensions_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "triangles": 4484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9707.38601294411,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B04",
+      "name_ja": "右前 Body側モーターマウント・中央連結補強",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "中央連結r2",
+      "group": "black_body",
+      "file": "docs/printing/current/black/B04_FR_rear_base_mount_crosslink_r2_mm.stl",
+      "sha256": "38fe0ba958455079e6e7f2c534a9915a45d2d97558ab6819a83dda0acd5d9d43",
+      "bytes": 455384,
+      "dimensions_mm": [
+        73.0,
+        162.0,
+        93.0
+      ],
+      "triangles": 9106,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        73.0,
+        162.0,
+        93.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 113843.83832527518,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢を維持。橋の下にサポート必須"
+    },
+    {
+      "id": "B05",
+      "name_ja": "左後 Body側 股関節カラー",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "collar_reinforced_r1",
+      "group": "black_body",
+      "file": "docs/printing/current/black/B05_RL_hip_front_collar_reinforced_r1_mm.stl",
+      "sha256": "590edbdefe90033477a19caf3131ef0c00d41df68bf942a64fe54b1fed98f48a",
+      "bytes": 224284,
+      "dimensions_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "triangles": 4484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9707.38601294411,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B06",
+      "name_ja": "左後 Body側モーターマウント・中央連結補強",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "中央連結r2",
+      "group": "black_body",
+      "file": "docs/printing/current/black/B06_RL_rear_base_mount_crosslink_r2_mm.stl",
+      "sha256": "b40bcdcda786c6f166a4f47fa1990bb551b2e81fbb4c1a8a70f8c79dc70cad2f",
+      "bytes": 456384,
+      "dimensions_mm": [
+        73.0,
+        162.0,
+        93.0
+      ],
+      "triangles": 9126,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        73.0,
+        162.0,
+        93.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 113843.83914646153,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢を維持。橋の下にサポート必須"
+    },
+    {
+      "id": "B07",
+      "name_ja": "右後 Body側 股関節カラー",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "collar_reinforced_r1",
+      "group": "black_body",
+      "file": "docs/printing/current/black/B07_RR_hip_front_collar_reinforced_r1_mm.stl",
+      "sha256": "f7da14548e99ede4aabc81efa0f5096219bb454bbf4ce64d6552da682e7616fe",
+      "bytes": 224284,
+      "dimensions_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "triangles": 4484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        56.0,
+        72.0,
+        6.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9707.386023047999,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B08",
+      "name_ja": "右後 Body側モーターマウント・中央連結補強",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "中央連結r2",
+      "group": "black_body",
+      "file": "docs/printing/current/black/B08_RR_rear_base_mount_crosslink_r2_mm.stl",
+      "sha256": "1948c916a661bdb4640e9750ff130839819d69420a7d949e9f72c77bb895bb98",
+      "bytes": 450184,
+      "dimensions_mm": [
+        73.0,
+        162.0,
+        93.0
+      ],
+      "triangles": 9002,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        73.0,
+        162.0,
+        93.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 113843.9605573006,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "配布姿勢を維持。橋の下にサポート必須"
+    },
+    {
+      "id": "B09",
+      "name_ja": "D20横管クランプ 位置(-1,-1) 下半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "black_clamps",
+      "file": "docs/printing/current/black/B09_d20_cross_-1_-1_lower_mm.stl",
+      "sha256": "5f8b04a2c4a6d6414413a3c2a4e040ccdde822d8962b128f0c166d84d53e3d14",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138085,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B10",
+      "name_ja": "D20横管クランプ 位置(-1,-1) 上半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "black_clamps",
+      "file": "docs/printing/current/black/B10_d20_cross_-1_-1_upper_mm.stl",
+      "sha256": "d1ad2a0911fcf59fdb51cfb58a1d012dfd0b7eb9e6d961d88fc2a2ebefe24638",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138081,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B11",
+      "name_ja": "D20横管クランプ 位置(-1,1) 下半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "black_clamps",
+      "file": "docs/printing/current/black/B11_d20_cross_-1_1_lower_mm.stl",
+      "sha256": "cc34c2ecffea25dc5bebf5c865afddcbf10554edf11f593615ed45589ecb93da",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138085,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B12",
+      "name_ja": "D20横管クランプ 位置(-1,1) 上半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "black_clamps",
+      "file": "docs/printing/current/black/B12_d20_cross_-1_1_upper_mm.stl",
+      "sha256": "bde8e6e242374b32bb31a3a06944f391755ec078f545284047d9cf3cf39de0b5",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138086,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B13",
+      "name_ja": "D20横管クランプ 位置(1,-1) 下半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "black_clamps",
+      "file": "docs/printing/current/black/B13_d20_cross_1_-1_lower_mm.stl",
+      "sha256": "d8f68541d6c70bc0045f35943456ab63a551fcb55f4711285853f9b496335146",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138086,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B14",
+      "name_ja": "D20横管クランプ 位置(1,-1) 上半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "black_clamps",
+      "file": "docs/printing/current/black/B14_d20_cross_1_-1_upper_mm.stl",
+      "sha256": "554485904d9aac58a96411b109383c826fb4d6cf487ef9ab8d496cdc60cd216c",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138081,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B15",
+      "name_ja": "D20横管クランプ 位置(1,1) 下半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "black_clamps",
+      "file": "docs/printing/current/black/B15_d20_cross_1_1_lower_mm.stl",
+      "sha256": "3700b46622e8b398c5518c918644106f75c17065c77a28f887dde4bdb407c152",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138087,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B16",
+      "name_ja": "D20横管クランプ 位置(1,1) 上半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "black_clamps",
+      "file": "docs/printing/current/black/B16_d20_cross_1_1_upper_mm.stl",
+      "sha256": "22634aa79792c18ee24f306bd42467f6ba813c8612e69ba4bb20ddcd61080d79",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138086,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B17",
+      "name_ja": "D20縦管クランプ 位置(-1,-1)・下段 下半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "共通底板r2同梱・既存形状",
+      "group": "black_clamps",
+      "file": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B17_d20_long_-1_-1_-1_lower_mm.stl",
+      "sha256": "b75be16eb7a9da0ef8b6106088e9dd2a6e1db4298a85635d4fdd8c4f8543427b",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138086,
+      "source_bytes_unchanged": true,
+      "reused_public_file": true,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "B18",
+      "name_ja": "D20縦管クランプ 位置(-1,-1)・下段 上半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "共通底板r2同梱・既存形状",
+      "group": "black_clamps",
+      "file": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B18_d20_long_-1_-1_-1_upper_mm.stl",
+      "sha256": "abf8a7c168c92202ded8b7607de77158e485b80be9f1e58503a5b24e8f4fa510",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.8404771380765,
+      "source_bytes_unchanged": true,
+      "reused_public_file": true,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "B19",
+      "name_ja": "D20縦管クランプ 位置(-1,1)・下段 下半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "共通底板r2同梱・既存形状",
+      "group": "black_clamps",
+      "file": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B19_d20_long_-1_1_-1_lower_mm.stl",
+      "sha256": "9a703bbde2c515a92288d2f4b7d7cb6c422094e202f6b334755b41d855b28391",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138086,
+      "source_bytes_unchanged": true,
+      "reused_public_file": true,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "B20",
+      "name_ja": "D20縦管クランプ 位置(-1,1)・下段 上半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "共通底板r2同梱・既存形状",
+      "group": "black_clamps",
+      "file": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B20_d20_long_-1_1_-1_upper_mm.stl",
+      "sha256": "56128d84226f561d53d6e5f1c38cddc067853c2eacd9d3274fb85783723fe17b",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.8404771380765,
+      "source_bytes_unchanged": true,
+      "reused_public_file": true,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "B21",
+      "name_ja": "D20縦管クランプ 位置(1,-1)・下段 下半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "共通底板r2同梱・既存形状",
+      "group": "black_clamps",
+      "file": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B21_d20_long_1_-1_-1_lower_mm.stl",
+      "sha256": "7bbfe394cf8ce5ed2eea29bdd570428d56c530e741d5a17a548677351fff98e8",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138087,
+      "source_bytes_unchanged": true,
+      "reused_public_file": true,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "B22",
+      "name_ja": "D20縦管クランプ 位置(1,-1)・下段 上半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "共通底板r2同梱・既存形状",
+      "group": "black_clamps",
+      "file": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B22_d20_long_1_-1_-1_upper_mm.stl",
+      "sha256": "19e12dfdc84fcbf97431a682808db15a1f0710a5ff001b710472cd7caab04aaa",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138078,
+      "source_bytes_unchanged": true,
+      "reused_public_file": true,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "B23",
+      "name_ja": "D20縦管クランプ 位置(1,1)・下段 下半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "共通底板r2同梱・既存形状",
+      "group": "black_clamps",
+      "file": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B23_d20_long_1_1_-1_lower_mm.stl",
+      "sha256": "1d1f2c045465cef8c009fdac98209cc431cfb1d5156dba219763bbbc49a0a407",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138087,
+      "source_bytes_unchanged": true,
+      "reused_public_file": true,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "B24",
+      "name_ja": "D20縦管クランプ 位置(1,1)・下段 上半分",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "共通底板r2同梱・既存形状",
+      "group": "black_clamps",
+      "file": "docs/printing/common-deck-k1max-r2/printable_mm/lower_pole_clamps/B24_d20_long_1_1_-1_upper_mm.stl",
+      "sha256": "b79412efcc58628565b1bd9958c0079bf26d991ed76755172d2c075fd6b2da6b",
+      "bytes": 24284,
+      "dimensions_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "triangles": 484,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        40.96116638183594,
+        22.0,
+        12.75
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 7119.840477138078,
+      "source_bytes_unchanged": true,
+      "reused_public_file": true,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "B25",
+      "name_ja": "IMU取付台（仮寸法）",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "equipment",
+      "file": "docs/printing/current/black/B25_pla_underfloor_IMU_support_mm.stl",
+      "sha256": "2997352e30b34f5a99904ef84ad0370a9e36c900f993d7c348670a547efe218b",
+      "bytes": 14284,
+      "dimensions_mm": [
+        30.0,
+        40.0,
+        2.0
+      ],
+      "triangles": 284,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        30.0,
+        40.0,
+        2.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 2357.069255700792,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "仮寸法。IMU現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B26",
+      "name_ja": "Jetson端部押さえ 前",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "共通底板r2同梱・既存形状",
+      "group": "equipment",
+      "file": "docs/printing/common-deck-k1max-r2/printable_mm/B26_jetson_edge_retainer_front_mm.stl",
+      "sha256": "db0a1c13298a9c0fdd9f08a7ee6ebf1ee24e457d007ec0d056c580d200613c56",
+      "bytes": 12684,
+      "dimensions_mm": [
+        11.20001220703125,
+        78.0,
+        2.999998092651367
+      ],
+      "triangles": 252,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        11.20001220703125,
+        78.0,
+        2.999998092651367
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 2564.319496257994,
+      "source_bytes_unchanged": true,
+      "reused_public_file": true,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "B27",
+      "name_ja": "Jetson端部押さえ 後",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "共通底板r2同梱・既存形状",
+      "group": "equipment",
+      "file": "docs/printing/common-deck-k1max-r2/printable_mm/B27_jetson_edge_retainer_rear_mm.stl",
+      "sha256": "07f8bf3c1945a4f7a582cdde8cf513db513e40905bf77049dc2faca99bfe5c93",
+      "bytes": 12684,
+      "dimensions_mm": [
+        11.199996948242188,
+        78.0,
+        2.999998092651367
+      ],
+      "triangles": 252,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        11.199996948242188,
+        78.0,
+        2.999998092651367
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 2564.3159453383932,
+      "source_bytes_unchanged": true,
+      "reused_public_file": true,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "B34",
+      "name_ja": "腹部スキッド 固定キャップ 左 前",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "skid",
+      "file": "docs/printing/current/black/B34_pla_prone_skid_cap_left_front_mm.stl",
+      "sha256": "0b826d21a2d0f6333255a2312af08188c1f67b83d03fe228317d1d08b3a586f0",
+      "bytes": 63484,
+      "dimensions_mm": [
+        18.0,
+        36.000003814697266,
+        11.699996948242188
+      ],
+      "triangles": 1268,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        18.0,
+        36.000003814697266,
+        11.699996948242188
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 4353.187366137333,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B35",
+      "name_ja": "腹部スキッド 固定キャップ 左 後",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "skid",
+      "file": "docs/printing/current/black/B35_pla_prone_skid_cap_left_rear_mm.stl",
+      "sha256": "aa8e1bc146a6dbb259fa065823a6e827cea2dfcedb8e460db47951d8566cb1bf",
+      "bytes": 63484,
+      "dimensions_mm": [
+        18.0,
+        36.000003814697266,
+        11.699996948242188
+      ],
+      "triangles": 1268,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        18.0,
+        36.000003814697266,
+        11.699996948242188
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 4353.187390298951,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B36",
+      "name_ja": "腹部スキッド 固定キャップ 右 前",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "skid",
+      "file": "docs/printing/current/black/B36_pla_prone_skid_cap_right_front_mm.stl",
+      "sha256": "f4a0dd39bf81acd64744786bc186671801a9cb427e36903f6add36bc6e397330",
+      "bytes": 63484,
+      "dimensions_mm": [
+        18.0,
+        36.000003814697266,
+        11.699996948242188
+      ],
+      "triangles": 1268,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        18.0,
+        36.000003814697266,
+        11.699996948242188
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 4353.187353412812,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B37",
+      "name_ja": "腹部スキッド 固定キャップ 右 後",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "skid",
+      "file": "docs/printing/current/black/B37_pla_prone_skid_cap_right_rear_mm.stl",
+      "sha256": "165eeceac5c559b8fcbb678da8c949f3409800498ebd1a98d29fdea217edcbc0",
+      "bytes": 63484,
+      "dimensions_mm": [
+        18.0,
+        36.000003814697266,
+        11.699996948242188
+      ],
+      "triangles": 1268,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        18.0,
+        36.000003814697266,
+        11.699996948242188
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 4353.1873775744325,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B38",
+      "name_ja": "腹部スキッド 左",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "skid",
+      "file": "docs/printing/current/black/B38_pla_prone_skid_left_mm.stl",
+      "sha256": "27684aab20247b35ed36c313851c10a0b2942fb115668de011caf64805a48452",
+      "bytes": 222084,
+      "dimensions_mm": [
+        172.0,
+        34.69999694824219,
+        36.000003814697266
+      ],
+      "triangles": 4440,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        172.0,
+        34.69999694824219,
+        36.000003814697266
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 45787.96417072128,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B39",
+      "name_ja": "腹部スキッド 右",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "D17_retained",
+      "group": "skid",
+      "file": "docs/printing/current/black/B39_pla_prone_skid_right_mm.stl",
+      "sha256": "c5be985ea78914f1626a931a5165626bfa3de1c220a6258103bf8df660a77cc3",
+      "bytes": 222084,
+      "dimensions_mm": [
+        172.0,
+        34.69999694824219,
+        36.000003814697266
+      ],
+      "triangles": 4440,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        172.0,
+        34.69999694824219,
+        36.000003814697266
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 45787.96513621896,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "現物適合・強度未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "B40",
+      "name_ja": "顔 背面支持枠",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "前面クランプr1",
+      "group": "display",
+      "file": "docs/printing/current/black/B40_display_rear_carrier_r1_mm.stl",
+      "sha256": "8733f00580f3380ad3825fde58b35dd23b3eede48015005edf5e1cf158231745",
+      "bytes": 523484,
+      "dimensions_mm": [
+        110.0,
+        110.0,
+        80.80000305175781
+      ],
+      "triangles": 10468,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        110.0,
+        110.0,
+        80.80000305175781
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 73884.08828179419,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "顔・基板・USB・フレキの現物適合未検証",
+      "support_note": "B40は配布姿勢でサポート必須"
+    },
+    {
+      "id": "B41",
+      "name_ja": "顔支持 上クランプ",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "従来B41再利用",
+      "group": "display",
+      "file": "docs/printing/current/black/B41_display_crossrail_upper_clamp_mm.stl",
+      "sha256": "de045bbc4b59730aa5dd5d21becc126954445a27d3c75d8a2c4c473f672e2952",
+      "bytes": 28284,
+      "dimensions_mm": [
+        48.0,
+        76.0,
+        18.000001907348633
+      ],
+      "triangles": 564,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        48.0,
+        76.0,
+        18.000001907348633
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 53031.200114547304,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "顔・基板・USB・フレキの現物適合未検証",
+      "support_note": "穴・張出しを層プレビューで確認"
+    },
+    {
+      "id": "COMMON_PLATE_R2",
+      "name_ja": "Jetson＋Makita 共通底板",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "共通底板r2",
+      "group": "equipment",
+      "file": "docs/printing/common-deck-k1max-r2/printable_mm/common_equipment_plate_K1Max_r2_mm.stl",
+      "sha256": "0fbf7b130e3f11b26908bb8fc4eb50acbdf0ea0ad4356b8ac565227566d745bb",
+      "bytes": 547284,
+      "dimensions_mm": [
+        280.0,
+        130.0,
+        26.0
+      ],
+      "triangles": 10944,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        280.0,
+        130.0,
+        26.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 176968.52736218483,
+      "source_bytes_unchanged": true,
+      "reused_public_file": true,
+      "fit_status": "機器・ケーブルの現物適合・強度未検証",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "B42",
+      "name_ja": "顔 前面リング",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "前面クランプr1",
+      "group": "display",
+      "file": "docs/printing/current/black/B42_display_front_open_ring_r1_mm.stl",
+      "sha256": "381eda0227ef695fca8402770911106c368b8c0175e467142588d47050a1d92c",
+      "bytes": 351284,
+      "dimensions_mm": [
+        110.0,
+        110.0,
+        4.0
+      ],
+      "triangles": 7024,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        110.0,
+        110.0,
+        4.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 13379.151170291094,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "表示領域・パッド・締付荷重は現物確認",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "FOOT_FL",
+      "name_ja": "左前 足先本体",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "足先cassette r3",
+      "group": "feet",
+      "file": "docs/printing/current/black/FL_FOOT_R3_CASSETTE_BODY_mm.stl",
+      "sha256": "aafbb44529ef6e18edc8de0fa63687216a419a0bfca84476a3665a4f7e7aba1d",
+      "bytes": 273784,
+      "dimensions_mm": [
+        47.962398529052734,
+        47.9724006652832,
+        38.0
+      ],
+      "triangles": 5474,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        47.962398529052734,
+        47.9724006652832,
+        38.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 48657.47468601051,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "試験片で先に嵌合確認。旧r2ホルダーと互換なし",
+      "support_note": "平らな取付面が下。内部通路の垂れ・サポートを確認"
+    },
+    {
+      "id": "FOOT_FR",
+      "name_ja": "右前 足先本体",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "足先cassette r3",
+      "group": "feet",
+      "file": "docs/printing/current/black/FR_FOOT_R3_CASSETTE_BODY_mm.stl",
+      "sha256": "aafbb44529ef6e18edc8de0fa63687216a419a0bfca84476a3665a4f7e7aba1d",
+      "bytes": 273784,
+      "dimensions_mm": [
+        47.962398529052734,
+        47.9724006652832,
+        38.0
+      ],
+      "triangles": 5474,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        47.962398529052734,
+        47.9724006652832,
+        38.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 48657.47468601051,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "試験片で先に嵌合確認。旧r2ホルダーと互換なし",
+      "support_note": "平らな取付面が下。内部通路の垂れ・サポートを確認"
+    },
+    {
+      "id": "FOOT_RL",
+      "name_ja": "左後 足先本体",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "足先cassette r3",
+      "group": "feet",
+      "file": "docs/printing/current/black/RL_FOOT_R3_CASSETTE_BODY_mm.stl",
+      "sha256": "aafbb44529ef6e18edc8de0fa63687216a419a0bfca84476a3665a4f7e7aba1d",
+      "bytes": 273784,
+      "dimensions_mm": [
+        47.962398529052734,
+        47.9724006652832,
+        38.0
+      ],
+      "triangles": 5474,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        47.962398529052734,
+        47.9724006652832,
+        38.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 48657.47468601051,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "試験片で先に嵌合確認。旧r2ホルダーと互換なし",
+      "support_note": "平らな取付面が下。内部通路の垂れ・サポートを確認"
+    },
+    {
+      "id": "FOOT_RR",
+      "name_ja": "右後 足先本体",
+      "color": "black",
+      "quantity_per_robot": 1,
+      "quantity_scope": "installed_candidate",
+      "revision": "足先cassette r3",
+      "group": "feet",
+      "file": "docs/printing/current/black/RR_FOOT_R3_CASSETTE_BODY_mm.stl",
+      "sha256": "aafbb44529ef6e18edc8de0fa63687216a419a0bfca84476a3665a4f7e7aba1d",
+      "bytes": 273784,
+      "dimensions_mm": [
+        47.962398529052734,
+        47.9724006652832,
+        38.0
+      ],
+      "triangles": 5474,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        47.962398529052734,
+        47.9724006652832,
+        38.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 48657.47468601051,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "試験片で先に嵌合確認。旧r2ホルダーと互換なし",
+      "support_note": "平らな取付面が下。内部通路の垂れ・サポートを確認"
+    },
+    {
+      "id": "CASSETTE_A",
+      "name_ja": "ナットホルダー A（公差代替）",
+      "color": "black",
+      "quantity_per_robot": null,
+      "quantity_scope": "alternative_not_additive",
+      "revision": "足先cassette r3",
+      "group": "fit_test",
+      "file": "docs/printing/current/black/NUT_CASSETTE_A_FIT_OPTION_mm.stl",
+      "sha256": "05763a524d3267181874596b9457cf8855972cdcedb637e583d1e3b9e3f59459",
+      "bytes": 85384,
+      "dimensions_mm": [
+        23.0,
+        33.20000076293945,
+        5.0
+      ],
+      "triangles": 1706,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        23.0,
+        33.20000076293945,
+        5.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 2374.6980328834875,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "A/B/Cのいずれかを4個。現物試験後に選定",
+      "support_note": "ナット穴を上。スライス未検証",
+      "quantity_if_selected": 4
+    },
+    {
+      "id": "CASSETTE_B",
+      "name_ja": "ナットホルダー B（標準）",
+      "color": "black",
+      "quantity_per_robot": 4,
+      "quantity_scope": "installed_candidate",
+      "revision": "足先cassette r3",
+      "group": "feet",
+      "file": "docs/printing/current/black/NUT_CASSETTE_B_STANDARD_mm.stl",
+      "sha256": "63e28e96fd8918e4c0af114315f25d264ed6a3a908573875a46c5c8ef7697d2d",
+      "bytes": 104984,
+      "dimensions_mm": [
+        23.0,
+        33.20000076293945,
+        5.0
+      ],
+      "triangles": 2098,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        23.0,
+        33.20000076293945,
+        5.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 2313.1864457230395,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "A/B/Cのいずれかを4個。現物試験後に選定",
+      "support_note": "ナット穴を上。スライス未検証"
+    },
+    {
+      "id": "CASSETTE_C",
+      "name_ja": "ナットホルダー C（公差代替）",
+      "color": "black",
+      "quantity_per_robot": null,
+      "quantity_scope": "alternative_not_additive",
+      "revision": "足先cassette r3",
+      "group": "fit_test",
+      "file": "docs/printing/current/black/NUT_CASSETTE_C_FIT_OPTION_mm.stl",
+      "sha256": "e578bfb3865b2e5bbd107aa744cd76fef2283a0a40f162c70032eb12829207f7",
+      "bytes": 124484,
+      "dimensions_mm": [
+        23.0,
+        33.20000076293945,
+        5.0
+      ],
+      "triangles": 2488,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        23.0,
+        33.20000076293945,
+        5.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 2251.4774091025342,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "A/B/Cのいずれかを4個。現物試験後に選定",
+      "support_note": "ナット穴を上。スライス未検証",
+      "quantity_if_selected": 4
+    },
+    {
+      "id": "FIT_RECEIVER",
+      "name_ja": "ガイド嵌合試験片",
+      "color": "black",
+      "quantity_per_robot": 0,
+      "quantity_scope": "test_coupon_not_installed",
+      "revision": "足先cassette r3",
+      "group": "fit_test",
+      "file": "docs/printing/current/black/FIT_RECEIVER_SAME_GUIDES_mm.stl",
+      "sha256": "8a3c41866ae4f6d37c42ef313bae4a775bc11c12de0e2b64a99ceebce88951f3",
+      "bytes": 63984,
+      "dimensions_mm": [
+        30.0,
+        32.79999923706055,
+        13.0
+      ],
+      "triangles": 1278,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        30.0,
+        32.79999923706055,
+        13.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 9994.338838186946,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "装着しない試験片。試験時に各1個",
+      "support_note": "層プレビューで支持材・初層を確認"
+    },
+    {
+      "id": "FIT_SPACER",
+      "name_ja": "脚厚10mm 試験スペーサー",
+      "color": "black",
+      "quantity_per_robot": 0,
+      "quantity_scope": "test_coupon_not_installed",
+      "revision": "足先cassette r3",
+      "group": "fit_test",
+      "file": "docs/printing/current/black/FIT_SPACER_10mm_FOR_M3x20_mm.stl",
+      "sha256": "d00bef3856e2e1955d2f4ab3c490e1162e3f39d07ae172c71e48f10bdc3b1c6f",
+      "bytes": 40284,
+      "dimensions_mm": [
+        30.0,
+        16.0,
+        10.0
+      ],
+      "triangles": 804,
+      "bbox_min_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bbox_max_mm": [
+        30.0,
+        16.0,
+        10.0
+      ],
+      "closed_surface_components": 1,
+      "watertight": true,
+      "winding_consistent": true,
+      "volume_mm3": 4538.543581529062,
+      "source_bytes_unchanged": true,
+      "reused_public_file": false,
+      "fit_status": "装着しない試験片。試験時に各1個",
+      "support_note": "層プレビューで支持材・初層を確認"
+    }
+  ],
+  "replacements": [
+    {
+      "part_ids": [
+        "B02",
+        "B04",
+        "B06",
+        "B08"
+      ],
+      "selected_revision": "中央連結r2",
+      "supersedes": "9/14 base mount candidate_v3・旧追加10部品のB1",
+      "count_once": true
+    },
+    {
+      "part_ids": [
+        "Y25-Y44"
+      ],
+      "selected_revision": "可動部補強r1",
+      "supersedes": "旧黄色28点の可動部20点・旧追加10部品の左前脚5点",
+      "count_once": true
+    },
+    {
+      "part_ids": [
+        "COMMON_PLATE_R2"
+      ],
+      "selected_revision": "共通底板r2",
+      "supersedes_ids": [
+        "B28",
+        "B29",
+        "B30",
+        "B31",
+        "B32",
+        "B33"
+      ],
+      "count_once": true
+    },
+    {
+      "part_ids": [
+        "B40",
+        "B42"
+      ],
+      "selected_revision": "前面クランプr1",
+      "supersedes_ids": [
+        "B40"
+      ],
+      "adds_ids": [
+        "B42"
+      ],
+      "retained_ids": [
+        "B41"
+      ],
+      "count_once": true
+    },
+    {
+      "part_ids": [
+        "FOOT_FL",
+        "FOOT_FR",
+        "FOOT_RL",
+        "FOOT_RR",
+        "CASSETTE_B"
+      ],
+      "selected_revision": "足先cassette r3",
+      "supersedes": "足先r1（NO_SOCKET）・M3足先r2",
+      "count_once": true
+    }
+  ],
+  "physical_fit_verified": false,
+  "load_strength_verified": false,
+  "slicing_of_this_selection_performed": false,
+  "actual_installed_revisions": "unknown",
+  "photos_included": false,
+  "editable_CAD_included": false
+}

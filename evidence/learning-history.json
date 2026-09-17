@@ -1,11 +1,11 @@
 {
   "schema": "singularitydog.learning-history.v1",
-  "as_of": "2026-09-15",
-  "verified_recent_series_count": 35,
+  "as_of": "2026-09-17",
+  "verified_recent_series_count": 37,
   "successful_improvements_count": null,
   "all_development_total": null,
   "count_definition": "仮説・設定・診断を定め、有限GPU実行と結果評価を終え、次の判断に結び付けた一組を1回とする。同じ比較計画の複数条件は1回。PPO更新数、フォルダ数、起動前失敗、CPU/native検査、checkpoint違いだけの評価は数えない。",
-  "scope": "直近のH01〜H04とL00〜L30、計35回の有限な実行・評価。条件数・停止再試行・保存時点を別の回に加算しない。成功35回ではない。",
+  "scope": "直近のH01〜H04とL00〜L32、計37回の有限な実行・評価。条件・再試行・保存時点を別の回に加算しない。実機成功37回ではない。",
   "identity_policy": "H01-H04を先行履歴として追加。既存L00-L04のIDは変更しない。",
   "baseline": {
     "counted": false,
@@ -2434,6 +2434,57 @@
       "trained_checkpoint_evaluations": 11,
       "original_combined_plan_completed": false,
       "nine_motion_full_evaluation_completed": false
+    },
+    {
+      "id": "L31",
+      "series_order": 36,
+      "counted": true,
+      "kind": "FINITE_TRAINING_AND_EVALUATION",
+      "new_skill_accepted": false,
+      "skill_acceptance": false,
+      "hardware_acceptance": false,
+      "candidate_adopted": false,
+      "selected_evidence": "evidence/trial36-results-summary.json",
+      "selected_public_evidence_sha256": "8b48ed68cc2ecf250a739ca1d7ad375b6b7e0d38ab2e31ad80635ebd59aec0ba",
+      "outcome_time": {
+        "kind": "reported_final_evaluation_ended",
+        "value_utc": "2026-09-16T09:18:35.977579+00:00"
+      },
+      "media": {
+        "new_public_videos": 0,
+        "selected_actual_recording_count": 47
+      },
+      "nine_motion_full_evaluation_completed": false,
+      "scope": "Final r8 greeting training and its parent/checkpoint evaluations only; not an aggregate of every earlier Trial36 attempt.",
+      "published_final_run_main_updates": 500,
+      "published_final_run_separate_smoke_updates": 2,
+      "total_trial_main_updates": null,
+      "total_trial_main_updates_scope": "Earlier recovery attempts not aggregated by this selected final-run report."
+    },
+    {
+      "id": "L32",
+      "series_order": 37,
+      "counted": true,
+      "kind": "FINITE_TRAINING_AND_EVALUATION",
+      "new_skill_accepted": false,
+      "skill_acceptance": false,
+      "hardware_acceptance": false,
+      "candidate_adopted": false,
+      "selected_evidence": "evidence/trial37-results-summary.json",
+      "selected_public_evidence_sha256": "afb85b1e947bd9404733c889ea9f6dc258f54df178023e8b5a4110c610baccf2",
+      "outcome_time": {
+        "kind": "reported_final_evaluation_ended",
+        "value_utc": "2026-09-17T04:36:22.031584+00:00"
+      },
+      "media": {
+        "new_public_videos": 0,
+        "selected_actual_recording_count": 47
+      },
+      "nine_motion_full_evaluation_completed": false,
+      "scope": "Completed A/B training and D/E fixed diagnostics within one registered trial. Conditions and checkpoints are not additional trial numbers.",
+      "new_training_updates": 1000,
+      "separate_smoke_updates": 4,
+      "diagnostic_conditions_ppo_updates": 0
     }
   ],
   "visualization": {
@@ -2465,7 +2516,7 @@
     "own_render_report_sha256": "197f73416090c3f85cbace1719123866b32cd294ce15c5856492962a8f6c94c7"
   },
   "provenance_scope": "この履歴JSONは自作の実験報告SHAと選択した結果metadataのみ。生ログ・非公開sourcepath・接続情報・メーカー資料・モデル形状は含まない。別途ユーザー指定の表示用画像・録画を個別台帳に記録。",
-  "next": "第36回は9月16日いっぱいのGPU使用許可を受けて準備中。補正の感度を先に測り、2周期の保持・復帰を守って位置ずれを減らす有限学習を進める。結果公開時点で学習開始未確認。",
+  "next": "実機印刷完了の報告を受け、実機Deployを優先。接続・停止処理・12軸校正・Jetson非出力推論照合・支持付き立位と低速歩行を進める。組立版と実機動作は未確認。GPUは実測との差分改善へ使い、次の学習は未開始。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
@@ -2527,5 +2578,18 @@
     "completed_l25_scope": "SameD17; three independent500-update conditions and all27 final episodes completed, each7/9. Six trained final checkpoints were CPU-verified and backed up. Reinforced PLA geometry/mass was not applied to this physics; initial result publication had no new video; A/B comparison media were published first; all three A/B/C comparison MP4s and GIFs are now published. No hardware acceptance.",
     "next_decision": "第32回の伏せA100など完走・復帰を維持した保存時点を比較基準に、下降中の位置ずれと復帰後の崩れを分けて検証する。挨拶は挙上前後の支持移動による位置ずれを優先する。次の学習・実機採用は未実施。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。",
     "completed_l27_scope": "第32回は独立A/B各500主更新、両条件7/9。100・200更新の保存モデルを250更新終了後に評価し追加PPO0、全12保存モデル評価が未達。固定D17・保持歩行/座位0更新。動画未取得・未掲載。"
-  }
+  },
+  "requested_milestones": [
+    1,
+    2,
+    5,
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40
+  ],
+  "trial40_status": "NOT_EXECUTED_NOT_COUNTED"
 }

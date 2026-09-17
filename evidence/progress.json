@@ -1,6 +1,6 @@
 {
   "schema": "singularitydog.public-progress.v1",
-  "as_of": "2026-09-14",
+  "as_of": "2026-09-17",
   "target_actual_forward_m_s": 0.4,
   "baseline": {
     "stage_updates": 250,
@@ -103,38 +103,11 @@
     "private_authored_summary_sha256": "121d6eb0a40de74dde9f417463ccbdd19f055149b634b23e49afaf742eb09269"
   },
   "next_stage": {
-    "status": "FOLLOW_UP_NOT_STARTED",
-    "scope": "第32回の伏せA100など完走・復帰を維持した保存時点を比較基準に、下降中の位置ずれと復帰後の崩れを分けて検証する。挨拶は挙上前後の支持移動による位置ずれを優先する。次の学習・実機採用は未実施。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。",
-    "materials_and_appearance": {
-      "base_plate_color": "black",
-      "carbon_color": "black",
-      "legs_material": "PLA",
-      "legs_color": "yellow",
-      "handle_color": "yellow",
-      "carbon_retaining_parts_color": "black",
-      "face_frame_color": "black",
-      "qdd_and_motors_color": "black",
-      "foot_tip_balls_color": "black",
-      "display_color": "black",
-      "display_content": "white eyes",
-      "imu_color": "red",
-      "imu_location": "under the lower plate",
-      "body_color": "black",
-      "back_pla_color": "yellow",
-      "upper_pla_color": "yellow",
-      "body_base_color": "black"
-    },
-    "spec_document": "docs/next-loop-spec.md",
-    "pla_mass_document": "docs/pla-parts-mass.md",
-    "planned_loop": {
-      "id": null,
-      "series_order": null,
-      "status": "NOT_STARTED_UNSPECIFIED",
-      "training_started": false,
-      "counted_as_completed_loop": false,
-      "default_new_training_updates": 500,
-      "scope": "第32回の伏せA100など完走・復帰を維持した保存時点を比較基準に、下降中の位置ずれと復帰後の崩れを分けて検証する。挨拶は挙上前後の支持移動による位置ずれを優先する。次の学習・実機採用は未実施。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。"
-    }
+    "status": "REAL_WORLD_COMMISSIONING_PREPARATION",
+    "scope": "実機印刷完了の報告を受け、実機Deployを優先。接続・停止処理・12軸校正・Jetson非出力推論照合・支持付き立位と低速歩行を進める。組立版と実機動作は未確認。GPUは実測との差分改善へ使い、次の学習は未開始。",
+    "spec_document": "docs/real-world-deployment.md",
+    "bom_document": "docs/bom.md",
+    "stl_document": "docs/stl-parts.md"
   },
   "provenance_scope": "Selected own observations; individually authorized result videos in the publication registry. No private sources, vendor inputs or learned weights distributed.",
   "latest_l20": {
@@ -4041,8 +4014,8 @@
       "docs/media/l09-four-directions.mp4"
     ]
   },
-  "latest_stage_id": "L27",
-  "verified_recent_series_count": 32,
+  "latest_stage_id": "L32",
+  "verified_recent_series_count": 37,
   "latest_l10": {
     "schema": "singularitydog.selected-learning-evaluation.v1",
     "id": "L10",
@@ -10819,7 +10792,7 @@
     }
   },
   "separate_measured_chart_mp4_count": 1,
-  "latest_stage": {
+  "historical_latest_l27_full_evaluation": {
     "schema": "singularitydog.l27-evaluation.v1",
     "loop_id": "L27",
     "trial_number": 32,
@@ -14711,6 +14684,17 @@
       "checkpoint_independent_review": "d21248a7e8e28e6c2a4dfb5b811d02f780489d37e3e1abb8171030af00a15337",
       "collection_verification": "fa44601d2b6d9ff8c90d108a83e41727403dccab8d26cb4bbd1e09a34f05a115"
     }
+  },
+  "latest_stage": {
+    "trial_number": 37,
+    "loop_id": "L32",
+    "status": "EVALUATED_NO_NEW_SKILL_ACCEPTED",
+    "main_updates": 1000,
+    "separate_smoke_updates": 4,
+    "source": "evidence/trial37-results-summary.json",
+    "source_sha256": "afb85b1e947bd9404733c889ea9f6dc258f54df178023e8b5a4110c610baccf2",
+    "scope": "Greeting A/B and D/E diagnostics only; not nine-motion regression.",
+    "hardware_deployed": false
   },
   "latest_l21": {
     "schema": "singularitydog.nine-motion-evaluation.v1",

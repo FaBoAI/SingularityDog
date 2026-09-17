@@ -1,0 +1,115 @@
+{
+  "schema": "singularitydog.trial36-public-results.v1",
+  "trial": 36,
+  "loop_id": "L31",
+  "scope": "Final r8 greeting training and its parent/checkpoint evaluations only; not an aggregate of every earlier Trial36 attempt.",
+  "status": "TRAINING_COMPLETE_SKILL_NOT_ACCEPTED",
+  "source_report_name": "TRIAL36_R8_FINAL_RESULTS.json",
+  "source_report_sha256": "4b6f59165422f0ca0ff04a7a5a14626c0adce5e84fa18497550ec45e3ac1b2ce",
+  "ended_utc": "2026-09-16T09:18:35.977579+00:00",
+  "main_updates": 500,
+  "separate_smoke_updates": 2,
+  "num_envs": 16,
+  "rollout_steps": 32,
+  "main_transitions": 256000,
+  "optimizer_states": 17,
+  "optimizer_steps_per_parameter": 10000,
+  "maximum_xy_gate_mm": 50,
+  "requested_evaluation_duration_s": 36.0,
+  "evaluations": [
+    {
+      "stage": "preflight",
+      "checkpoint_updates": 0,
+      "maximum_xy_mm": 61.518748697462286,
+      "final_xy_mm": 8.786361738627319,
+      "maximum_heading_change_deg": 4.586055453663234,
+      "maximum_tilt_deg": 2.45347382183245,
+      "maximum_applied_effort_Nm": 1.989362120628357,
+      "maximum_exposure_h": 0.44723870358748286,
+      "skill_acceptance": false,
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "passed_cycle_count": 2,
+      "wave_round_trips": 4,
+      "valid_high_paw_duration_s": 8.0,
+      "minimum_return_hold_s": 2.0,
+      "summary_sha256": "2e46927c0adad3615c1d9f69426414a48c432ad3cb12714b707e2cfaf9467147"
+    },
+    {
+      "stage": "intermediate_100",
+      "checkpoint_updates": 100,
+      "maximum_xy_mm": 61.5045097661727,
+      "final_xy_mm": 7.030702785384832,
+      "maximum_heading_change_deg": 4.5869254016507774,
+      "maximum_tilt_deg": 2.4287198100212892,
+      "maximum_applied_effort_Nm": 1.9891376495361328,
+      "maximum_exposure_h": 0.4563236776166371,
+      "skill_acceptance": false,
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "passed_cycle_count": 2,
+      "wave_round_trips": 4,
+      "valid_high_paw_duration_s": 8.0,
+      "minimum_return_hold_s": 2.0,
+      "summary_sha256": "0bd731dba74d8d9b465401f7740c7dd836e351b2081b941df76ab69a65c2f0bd"
+    },
+    {
+      "stage": "intermediate_250",
+      "checkpoint_updates": 250,
+      "maximum_xy_mm": 61.587830520604,
+      "final_xy_mm": 7.504877096885872,
+      "maximum_heading_change_deg": 4.581734463582305,
+      "maximum_tilt_deg": 2.4370763729925082,
+      "maximum_applied_effort_Nm": 1.9887032508850098,
+      "maximum_exposure_h": 0.4532152816970466,
+      "skill_acceptance": false,
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "passed_cycle_count": 2,
+      "wave_round_trips": 4,
+      "valid_high_paw_duration_s": 8.0,
+      "minimum_return_hold_s": 2.0,
+      "summary_sha256": "d0ce9f3fe603727c5a234f88b004c08458fc4489b9d510aecfada10a7fc59b1b"
+    },
+    {
+      "stage": "evaluate",
+      "checkpoint_updates": 500,
+      "maximum_xy_mm": 61.52842304849222,
+      "final_xy_mm": 8.301822840172251,
+      "maximum_heading_change_deg": 4.584424151659814,
+      "maximum_tilt_deg": 2.4467432621620295,
+      "maximum_applied_effort_Nm": 1.9894604682922363,
+      "maximum_exposure_h": 0.44972042714431804,
+      "skill_acceptance": false,
+      "failed_gates": [
+        "maximum_xy_distance"
+      ],
+      "passed_cycle_count": 2,
+      "wave_round_trips": 4,
+      "valid_high_paw_duration_s": 8.0,
+      "minimum_return_hold_s": 2.0,
+      "summary_sha256": "5a7749346480b8d14d261b5a74ada266a3664c68713be32ad6fb2e985f6a1dcc"
+    }
+  ],
+  "final_minus_parent_maximum_xy_mm": 0.00967435102993619,
+  "new_skill_accepted": false,
+  "candidate_adopted": false,
+  "nine_motion_regression_performed": false,
+  "hardware_evaluated": false,
+  "video_published": false,
+  "video_visually_reviewed": false,
+  "verification": {
+    "transferred_summary_hashes_and_sizes_verified": true,
+    "completion_bindings_verified": true,
+    "evaluation_bindings_verified": true,
+    "original_400hz_recalculation_scope": "Performed on the execution host; raw arrays not included in this publication."
+  },
+  "limits": [
+    "Single registered condition; tiny numerical differences do not establish robust improvement.",
+    "Training updates and deterministic evaluation completion do not imply skill acceptance.",
+    "Final r8 used one eighth of the transitions planned for 128 environments."
+  ]
+}

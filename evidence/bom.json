@@ -1,0 +1,597 @@
+{
+  "schema": "singularitydog.bom.v1",
+  "updated": "2026-09-17",
+  "scope_ja": "1台の最新設計候補を整理した構成BOM。購入済み・組立完了・調達可能性を示す表ではない。",
+  "status": "design_bom_incomplete_for_procurement",
+  "units": {
+    "dimensions": "mm",
+    "mass": "g"
+  },
+  "price_data_included": false,
+  "actual_full_robot_mass_g": null,
+  "current_all_fasteners_total": null,
+  "printed_parts_catalog": "docs/stl-parts.md",
+  "printed_parts_quantity_per_candidate": 89,
+  "printed_parts_quantity_basis_ja": "黄色44＋黒旧41−統合6＋共通底板1＋顔B42追加1＋足先本体4＋標準カセット4。試験片と代替品を除く設計候補数。現物装着数ではない。",
+  "purchased_or_cut_parts": [
+    {
+      "id": "qdd_motor",
+      "name_ja": "QDDモーター",
+      "quantity_per_robot": 12,
+      "unit": "個",
+      "status": "model_selected_actual_model_unconfirmed",
+      "model": "RobStride RS05 reference model",
+      "dimensions_mm": {
+        "reference_body_diameter": 46,
+        "reference_body_length": 44
+      },
+      "mass_g": {
+        "per_unit": 191,
+        "basis": "reference_value_not_weighed"
+      },
+      "notes_ja": [
+        "4脚×3軸。RS05は設計・学習用モデルの採用品。現物の型番・改版・質量は未照合。",
+        "旧EduLite 05の242g/台は混用しない。放熱器等の追加品は未選定。"
+      ],
+      "source_ids": [
+        "motor_frame_config"
+      ]
+    },
+    {
+      "id": "jetson",
+      "name_ja": "Jetson Orin Nano",
+      "quantity_per_robot": 1,
+      "unit": "式",
+      "status": "specified_exact_assembly_unconfirmed",
+      "model": "NVIDIA Jetson Orin Nano",
+      "dimensions_mm": {
+        "clamped_edge_thickness": 6.5
+      },
+      "mass_g": {
+        "per_unit": 174,
+        "basis": "retained_unmeasured_reference_allowance"
+      },
+      "notes_ja": [
+        "キャリア・SSD・ケース・冷却を含む実装構成と実外形を要確認。6.5mmは固定する端の厚み。"
+      ],
+      "source_ids": [
+        "hardware_requirements",
+        "d17_ledger",
+        "common_deck"
+      ]
+    },
+    {
+      "id": "makita",
+      "name_ja": "Makita 40Vmax 2.5Ahバッテリー",
+      "quantity_per_robot": 1,
+      "unit": "個",
+      "status": "user_measured_envelope_actual_part_number_unconfirmed",
+      "model": "Initial design: BL4025; measured unit part number not independently matched",
+      "dimensions_mm": {
+        "length_width_height": [
+          118,
+          78,
+          60
+        ]
+      },
+      "mass_g": {
+        "per_unit": 687,
+        "basis": "user_reported_measurement"
+      },
+      "notes_ja": [
+        "最新実測の寸法・質量を採用。旧152×79.5×50mmや700/710gを流用しない。",
+        "初期設計の容量指定は2.5Ah。採寸記録中の利用者表記は2.5Aで、現物ラベルの独立照合は未実施。",
+        "接点・脱着方向・アダプターは要確認。"
+      ],
+      "source_ids": [
+        "measured_makita",
+        "hardware_requirements",
+        "d17_ledger"
+      ]
+    },
+    {
+      "id": "mobile_battery",
+      "name_ja": "Jetson用モバイルバッテリー",
+      "quantity_per_robot": 1,
+      "unit": "個",
+      "status": "measured_envelope_model_unconfirmed",
+      "model": null,
+      "dimensions_mm": {
+        "length_width_height": [
+          103,
+          52,
+          26
+        ]
+      },
+      "mass_g": {
+        "per_unit": 200,
+        "basis": "retained_provisional_allowance_not_measured"
+      },
+      "notes_ja": [
+        "短辺の片側にUSB開口。旧UGREEN候補の型番・公称寸法から現物を特定しない。",
+        "PD出力仕様と給電部品の適合は未確定。"
+      ],
+      "source_ids": [
+        "d17_ledger",
+        "measured_makita"
+      ]
+    },
+    {
+      "id": "display_assembly",
+      "name_ja": "丸型ディスプレイ＋ESP32-S3基板",
+      "quantity_per_robot": 1,
+      "unit": "式",
+      "status": "measured_display_front_electronics_unmeasured",
+      "model": null,
+      "dimensions_mm": {
+        "display_front_diameter": 96,
+        "black_layer_thickness": 1.5,
+        "silver_layer_thickness": 4
+      },
+      "mass_g": {
+        "per_unit": 200,
+        "basis": "retained_face_assembly_allowance_not_measured"
+      },
+      "notes_ja": [
+        "ESP32-S3基板はディスプレイ1式に含めて数える。別買い基板1個として重複計上しない。",
+        "背面基板・USBプラグ・FPCを含む総外形と総厚、製品名、表示/通信方式は未確定。",
+        "銀部径85mmと基板逃げ100×40×27.3mmは仮包絡で購入品寸法ではない。"
+      ],
+      "source_ids": [
+        "display_mount",
+        "display_assembly",
+        "d17_ledger"
+      ]
+    },
+    {
+      "id": "imu",
+      "name_ja": "IMU",
+      "quantity_per_robot": 1,
+      "unit": "個",
+      "status": "unselected_placeholder",
+      "model": null,
+      "dimensions_mm": {
+        "placeholder": [
+          20,
+          20,
+          8
+        ]
+      },
+      "mass_g": {
+        "per_unit": 5,
+        "basis": "placeholder_allowance"
+      },
+      "notes_ja": [
+        "機種・通信方式・実寸法・固定穴・軸方向は未確定。"
+      ],
+      "source_ids": [
+        "handle_geometry",
+        "d17_ledger"
+      ]
+    },
+    {
+      "id": "separator",
+      "name_ja": "配線セパレーター",
+      "quantity_per_robot": 1,
+      "unit": "個",
+      "status": "mounting_area_specified_product_unconfirmed",
+      "model": null,
+      "dimensions_mm": {
+        "adhesive_area": [
+          44,
+          44
+        ]
+      },
+      "mass_g": {
+        "per_unit": 25,
+        "basis": "separator_and_connectors_combined_provisional_budget"
+      },
+      "notes_ja": [
+        "44×44mmは接着面。製品の実外形・厚みではない。旧45×45mm包絡は仮の逃げ寸法。",
+        "25gは接続部品込みの予算で、個別コネクターへ重複加算しない。"
+      ],
+      "source_ids": [
+        "d17_ledger"
+      ]
+    },
+    {
+      "id": "separator_tape",
+      "name_ja": "セパレーター固定用両面テープ",
+      "quantity_per_robot": 1,
+      "unit": "箇所分",
+      "status": "unselected",
+      "model": null,
+      "dimensions_mm": {
+        "mounting_area": [
+          44,
+          44
+        ]
+      },
+      "mass_g": {
+        "per_unit": 1,
+        "basis": "provisional_budget"
+      },
+      "notes_ja": [
+        "厚み・銘柄・接着条件は未確定。"
+      ],
+      "source_ids": [
+        "d17_ledger"
+      ]
+    },
+    {
+      "id": "carbon_long",
+      "name_ja": "カーボン縦管",
+      "quantity_per_robot": 4,
+      "unit": "本",
+      "status": "design_dimensions_actual_cut_unverified",
+      "model": null,
+      "dimensions_mm": {
+        "outer_diameter": 20,
+        "inner_diameter": 18,
+        "wall_thickness": 1,
+        "length": 330
+      },
+      "mass_g": {
+        "per_unit": 31.516457500812827,
+        "basis": "model_volume_times_assumed_density_1600_kg_m3"
+      },
+      "notes_ja": [
+        "上段2本＋下段2本。切断済み寸法・径公差・実重量は未測定。"
+      ],
+      "source_ids": [
+        "motor_frame_config",
+        "d17_ledger"
+      ]
+    },
+    {
+      "id": "carbon_cross",
+      "name_ja": "カーボン横管",
+      "quantity_per_robot": 2,
+      "unit": "本",
+      "status": "design_dimensions_actual_cut_unverified",
+      "model": null,
+      "dimensions_mm": {
+        "outer_diameter": 20,
+        "inner_diameter": 18,
+        "wall_thickness": 1,
+        "length": 166
+      },
+      "mass_g": {
+        "per_unit": 15.853733167075543,
+        "basis": "model_volume_times_assumed_density_1600_kg_m3"
+      },
+      "notes_ja": [
+        "前後各1本。切断済み寸法・径公差・実重量は未測定。"
+      ],
+      "source_ids": [
+        "motor_frame_config",
+        "d17_ledger"
+      ]
+    },
+    {
+      "id": "makita_straps",
+      "name_ja": "Makita固定ベルト",
+      "quantity_per_robot": 2,
+      "unit": "本",
+      "status": "count_specified_dimensions_unconfirmed",
+      "model": null,
+      "dimensions_mm": {
+        "assumed_width": 20
+      },
+      "mass_g": null,
+      "notes_ja": [
+        "マジックテープ式。幅20mmは設計仮値。長さ・厚さ・保持力は未確定。"
+      ],
+      "source_ids": [
+        "measured_makita"
+      ]
+    },
+    {
+      "id": "mobile_strap",
+      "name_ja": "モバイルバッテリー固定ベルト",
+      "quantity_per_robot": 1,
+      "unit": "本",
+      "status": "count_specified_dimensions_unconfirmed",
+      "model": null,
+      "dimensions_mm": {
+        "assumed_width": 20
+      },
+      "mass_g": null,
+      "notes_ja": [
+        "マジックテープ式。幅20mmは設計仮値。長さ・厚さ・保持力は未確定。"
+      ],
+      "source_ids": [
+        "d17_ledger"
+      ]
+    },
+    {
+      "id": "display_soft_pads",
+      "name_ja": "ディスプレイ支持用の柔らかいパッド",
+      "quantity_per_robot": 8,
+      "unit": "箇所分",
+      "status": "fit_test_provisional",
+      "model": null,
+      "dimensions_mm": {
+        "assumed_thickness_per_side": 0.3
+      },
+      "mass_g": null,
+      "notes_ja": [
+        "支持4点の前後に各1箇所。材質・切出し外形・圧縮後の厚さは未確定。"
+      ],
+      "source_ids": [
+        "display_mount",
+        "display_assembly"
+      ]
+    },
+    {
+      "id": "handle_sleeves",
+      "name_ja": "取手横梁の鋼製圧縮スリーブ",
+      "quantity_per_robot": 8,
+      "unit": "個",
+      "status": "design_ledger_provisional_not_purchase_verified",
+      "model": null,
+      "dimensions_mm": {
+        "outer_diameter": 8,
+        "inner_diameter": 5.5,
+        "length": 18
+      },
+      "mass_g": null,
+      "notes_ja": [
+        "取手の設計台帳に8個。銘柄・加工公差・現物適合は未確定。"
+      ],
+      "source_ids": [
+        "handle_geometry",
+        "d17_ledger"
+      ]
+    }
+  ],
+  "fastener_subassemblies": [
+    {
+      "assembly_id": "common_deck_r2",
+      "name_ja": "共通底板＋下段クランプ＋Jetson上押さえ",
+      "status": "cad_static_geometry_checked_physical_fit_pending",
+      "counts": {
+        "M3x45_screw": 4,
+        "M3x40_screw": 4,
+        "M3x20_screw": 4,
+        "ordinary_M3_hex_nut": 12,
+        "M3_washer_OD7_ID3p2_T0p5": 24
+      },
+      "notes_ja": [
+        "上下ワッシャー各1枚/ねじ。M3ナット対辺5.5mm、高さ2.4mm。ねじ頭の検査包絡φ6×3mm。",
+        "B17～B24の下段クランプと本体脚部の共締めを含む。既存クランプ分を再加算しない。"
+      ],
+      "source_ids": [
+        "common_deck"
+      ]
+    },
+    {
+      "assembly_id": "display_front_clamp_r1",
+      "name_ja": "ディスプレイ前面リング",
+      "status": "cad_fit_candidate_physical_fit_pending",
+      "counts": {
+        "M3x12_screw": 4,
+        "ordinary_M3_hex_nut": 4,
+        "M3_washer_OD7_ID3p2_T0p5": 4
+      },
+      "notes_ja": [
+        "前面リングの4点分。B40/B41のポール固定4穴のねじは別で、長さと全金具内訳は未確定。"
+      ],
+      "source_ids": [
+        "display_mount",
+        "display_assembly"
+      ]
+    },
+    {
+      "assembly_id": "foot_cassette_r3",
+      "name_ja": "足先本体＋ナットカセット4脚分",
+      "status": "cad_fit_candidate_physical_fit_pending",
+      "counts": {
+        "M3x20_socket_head_screw": 8,
+        "ordinary_M3_hex_nut": 8,
+        "M3_washer_OD7_T0p5": 8
+      },
+      "notes_ja": [
+        "1脚に各2個。通常M3六角ナット対辺5.5mm、高さ2.4mm。ナイロン付きナットは想定しない。",
+        "試験セットと旧r2に使う金具は本番用へ重複加算しない。"
+      ],
+      "source_ids": [
+        "foot_cassette"
+      ]
+    },
+    {
+      "assembly_id": "handle_ledger",
+      "name_ja": "取手・横梁・専用レールクランプ",
+      "status": "design_ledger_provisional_not_current_fastener_fit_certification",
+      "counts": {
+        "M5x50_screw": 4,
+        "M5x65_screw": 8,
+        "M5_nut": 12,
+        "M5_washer_OD12_ID5p5_T1": 24
+      },
+      "notes_ja": [
+        "D17台帳の仮仕様。ねじ頭φ8.5×5mm、ナット高さ4mmの包絡を仮定。",
+        "鋼製スリーブ8個は購入品表に一度だけ計上。取手の実物耐荷重・締付条件は未確定。"
+      ],
+      "source_ids": [
+        "handle_geometry",
+        "d17_ledger"
+      ]
+    },
+    {
+      "assembly_id": "imu_support_ledger",
+      "name_ja": "IMU支持台→底板（IMU基板自体の固定を除く）",
+      "status": "design_ledger_provisional_not_purchase_verified",
+      "counts": {
+        "M3x10_flat_head_screw": 2,
+        "M3_nut": 2,
+        "M3_washer_OD7_ID3p4_T0p5": 2
+      },
+      "notes_ja": [
+        "支持台用の仮寸法。未選定IMU基板の固定穴・ねじとは別。"
+      ],
+      "source_ids": [
+        "handle_geometry",
+        "d17_ledger"
+      ]
+    }
+  ],
+  "unselected_or_unquantified": [
+    {
+      "id": "usb_can",
+      "name_ja": "USB-CANアダプター",
+      "quantity_per_robot": 1,
+      "status": "unselected_or_incomplete",
+      "notes_ja": "台数の初期計画。型番・チャネル数・絶縁有無は未確定。"
+    },
+    {
+      "id": "makita_adapter",
+      "name_ja": "Makita接点・電池アダプター",
+      "quantity_per_robot": 1,
+      "status": "unselected_or_incomplete",
+      "notes_ja": "端子・電池側保護との適合・固定方式は未確定。"
+    },
+    {
+      "id": "jetson_power_interface",
+      "name_ja": "Jetson給電用のPD交渉器・DCケーブル",
+      "quantity_per_robot": null,
+      "status": "unselected_or_incomplete",
+      "notes_ja": "初期構成で別途必要とされた給電部。現物バッテリー/キャリア照合後に点数・仕様を確定。"
+    },
+    {
+      "id": "power_protection",
+      "name_ja": "電源分配・保護・遮断・回生処理",
+      "quantity_per_robot": null,
+      "status": "unselected_or_incomplete",
+      "notes_ja": "部品型番・定格・数量が未確定。既存70gの設計予算を購入品の実重量と扱わない。"
+    },
+    {
+      "id": "harness",
+      "name_ja": "CAN/電源/USB配線・コネクター・結束材",
+      "quantity_per_robot": null,
+      "status": "unselected_or_incomplete",
+      "notes_ja": "ピン割当・長さ・線径・必要点数は未確定。既存80gの雑材予算を部品表へ重複計上しない。"
+    },
+    {
+      "id": "remaining_fasteners",
+      "name_ja": "モーター・関節・上段/横管クランプ・モバイル台・顔ポール固定等の金具",
+      "quantity_per_robot": null,
+      "status": "unselected_or_incomplete",
+      "notes_ja": "現行改訂全体のねじ長さ・本数・軸受・放熱部品の確定が必要。旧版のねじ総数は流用しない。"
+    }
+  ],
+  "aggregation_rules_ja": [
+    "組立単位別のねじ表は部分内訳。機体全体のねじ総数を推定しない。",
+    "旧版と交換版、個別STLと配置プレート、試験セットと本番部品を合算しない。",
+    "未実測の質量、複数部品込みの予算、実測質量を混ぜた総重量を新規に算出しない。",
+    "0/空欄の代用にnullを使う。nullは未確定で不要を意味しない。"
+  ],
+  "sources": [
+    {
+      "id": "motor_frame_config",
+      "description_ja": "RS05参照モデルのモーター・カーボン管寸法",
+      "sha256": "1c9472018d7d338792cd44d9d49b7dc2812455f528f164a446f812c060c3055b",
+      "public_path": null,
+      "source_file_published_by_this_bom": false
+    },
+    {
+      "id": "d17_ledger",
+      "description_ja": "D17構成台帳の機器質量・カーボン6本・取手金具",
+      "sha256": "7beae704c2f4791bca3f990183ee8005f1f93bea8bce5d2561748e3fced372e1",
+      "public_path": null,
+      "source_file_published_by_this_bom": false
+    },
+    {
+      "id": "measured_makita",
+      "description_ja": "2026-09-11利用者によるMakita寸法・質量記録",
+      "sha256": "89e4b50206373bedcfb1c1eaef2edbe0ee3e6325e4150649cb30fe7f6cfd37d3",
+      "public_path": null,
+      "source_file_published_by_this_bom": false
+    },
+    {
+      "id": "hardware_requirements",
+      "description_ja": "初期ハードウェア指定の機器名・未選定電装品",
+      "sha256": "f9323cf1ff85a197584c339d8018fe3f0b7e6f432d1873522047c47946dcb948",
+      "public_path": null,
+      "source_file_published_by_this_bom": false
+    },
+    {
+      "id": "handle_geometry",
+      "description_ja": "取手とIMU台の金具寸法を定義した設計コード",
+      "sha256": "a842ba19a2beb50b78504010be46c8a94166b1b721161da1fe5cafa6afa5f192",
+      "public_path": null,
+      "source_file_published_by_this_bom": false
+    },
+    {
+      "id": "common_deck",
+      "description_ja": "共通底板r2の公開組立手順",
+      "sha256": "0f27ac27cd27cfb2fb6526797fb8ce0525b7d03652d42c6a513f1d5fb60413bd",
+      "public_path": "docs/printing/common-deck-k1max-r2/README.md",
+      "source_file_published_by_this_bom": true
+    },
+    {
+      "id": "display_mount",
+      "description_ja": "前面4ねじ式ディスプレイマウントr1の寸法記録",
+      "sha256": "b1563bec80c1579b625005b8d3c8a94e2a705624ae9584782ff54e4578f87dce",
+      "public_path": null,
+      "source_file_published_by_this_bom": false
+    },
+    {
+      "id": "display_assembly",
+      "description_ja": "ディスプレイ・ESP32-S3と前後パッドの組立記録",
+      "sha256": "249972f0eb6dbac2a04690c5bb58d729df63c9d0ae3ede9c2fe467bb91be501c",
+      "public_path": null,
+      "source_file_published_by_this_bom": false
+    },
+    {
+      "id": "foot_cassette",
+      "description_ja": "足先カセットr3のねじ・ナット・座金の内訳",
+      "sha256": "e0585cda4f24c9935713a04449d25e1d6bf9a2b4894e45467752195b943290b1",
+      "public_path": null,
+      "source_file_published_by_this_bom": false
+    }
+  ],
+  "extracted_frame_components": [
+    {
+      "name": "carbon_long_-1_-1",
+      "length_mm": 330.0,
+      "outer_diameter_mm": 20.0,
+      "inner_diameter_mm": 18.0
+    },
+    {
+      "name": "carbon_long_-1_1",
+      "length_mm": 330.0,
+      "outer_diameter_mm": 20.0,
+      "inner_diameter_mm": 18.0
+    },
+    {
+      "name": "carbon_long_1_-1",
+      "length_mm": 330.0,
+      "outer_diameter_mm": 20.0,
+      "inner_diameter_mm": 18.0
+    },
+    {
+      "name": "carbon_long_1_1",
+      "length_mm": 330.0,
+      "outer_diameter_mm": 20.0,
+      "inner_diameter_mm": 18.0
+    },
+    {
+      "name": "carbon_cross_-1",
+      "length_mm": 166.0,
+      "outer_diameter_mm": 20.0,
+      "inner_diameter_mm": 18.0
+    },
+    {
+      "name": "carbon_cross_1",
+      "length_mm": 166.0,
+      "outer_diameter_mm": 20.0,
+      "inner_diameter_mm": 18.0
+    }
+  ],
+  "verification_limits_ja": [
+    "現物の型番・全数・印刷公差・締付保持力・走行強度の照合は未完了。",
+    "ここでは新しい購入推奨・価格調査・実機成功の主張を行わない。",
+    "根拠の非公開写真、私有CAD、絶対パス、接続情報、個人識別情報を収録しない。"
+  ]
+}

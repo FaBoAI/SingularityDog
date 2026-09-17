@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.video-history.v1",
-  "as_of": "2026-09-14",
-  "recent_series_count": 32,
+  "as_of": "2026-09-17",
+  "recent_series_count": 37,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
   "date_scope": "JST date of corresponding experiment records or result confirmation, not exact recording timestamps.",
@@ -1368,7 +1368,7 @@
       "presentation_scope": "14seconds at original speed. Six directions12s; prone up to12s or earlier terminal; wave/sit first14s. Finished cells hold last color frame. Full evaluation outcomes include B/C prone early termination and C wave23.18s, which is beyond the displayed excerpt."
     }
   ],
-  "count_scope": "32試行、選択した実録画・比較MP4は47本。最新掲載は第31回A/B/C比較3本。第32回は数値・比較図のみで動画未掲載。GIF、CAD画像、実測チャート再描画MP4の1本は別枠。過去の動画・履歴は維持。",
+  "count_scope": "37試行、公開録画・比較MP4は47本。最新録画は第31回A/B/C。第32〜37回は数値・報告中心で新規録画公開なし。GIF・CAD画像・再描画チャートMP4は別枠。",
   "future_training_policy": {
     "default_new_updates": 500,
     "final_zero_based_iteration_for_fresh_500_update_run": 499,
@@ -1377,13 +1377,10 @@
     "new_training_started_for_publication": false
   },
   "next_motion_plan": {
-    "id": null,
-    "series_order": null,
-    "status": "NOT_STARTED_UNSPECIFIED",
+    "status": "REAL_WORLD_COMMISSIONING_PREPARATION",
+    "scope": "実機印刷完了の報告を受け、実機Deployを優先。接続・停止処理・12軸校正・Jetson非出力推論照合・支持付き立位と低速歩行を進める。組立版と実機動作は未確認。GPUは実測との差分改善へ使い、次の学習は未開始。",
     "training_started": false,
-    "counted_as_completed_loop": false,
-    "default_new_training_updates": 500,
-    "scope": "第32回の保存モデル比較を踏まえ、伏せの下降・起立と挨拶の挙上前後の支持移動を分けて検討し、完走・復帰を守る。次の学習は未開始。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。"
+    "counted_as_completed_loop": false
   },
   "selected_actual_recording_count": 47,
   "separate_measured_chart_mp4_count": 1,
@@ -1458,20 +1455,19 @@
     "B"
   ],
   "latest_numerical_evaluation": {
-    "loop": "L27",
-    "series_order": 32,
+    "loop": "L32",
+    "series_order": 37,
     "conditions": [
       "A",
-      "B"
+      "B",
+      "D",
+      "E"
     ],
-    "status": "COMPLETED",
     "new_main_updates": 1000,
-    "final_skill_pass_count_per_condition": 7,
-    "evaluated_motion_count_per_condition": 9,
-    "video_files_retrieved": 0,
-    "new_published_recording_count": 0,
-    "video_visual_review_completed": false,
-    "evaluation_document": "docs/l27-evaluation.md",
-    "evaluation_evidence": "evidence/l27-evaluation.json"
-  }
+    "separate_smoke_updates": 4,
+    "new_skill_accepted": false,
+    "nine_motion_regression_performed": false,
+    "report_url": "docs/l32-evaluation.md"
+  },
+  "historical_latest_motion_comparison_scope": "Prior latest_*motion/condition fields refer to Trial32 or earlier footage, not to Trial37."
 }

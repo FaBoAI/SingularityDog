@@ -1,7 +1,7 @@
 {
   "schema": "singularitydog.improvement-index.v1",
-  "updated": "2026-09-14",
-  "numbering_scope": "直近32回（H01〜H04＋L00〜L27）のうちL00〜L27の28件を表示。第32回A/Bは同じ1試行で、成功32回という意味ではない。",
+  "updated": "2026-09-17",
+  "numbering_scope": "直近37回（H01〜H04＋L00〜L32）。この画面はL00〜L32の33件を表示。第40回は未実施、実機Deploy準備は試行数に含めない。",
   "loops": [
     {
       "id": "L00",
@@ -780,12 +780,87 @@
       "video_url": null,
       "report_url": "l27-evaluation.md",
       "new_training_updates": 1000
+    },
+    {
+      "id": "L28",
+      "order": 28,
+      "state": "EVALUATED",
+      "title": "第33回：支持・復帰を守る2条件の追加学習",
+      "change": "支持・復帰を守る2条件の追加学習",
+      "result": "A/B計1000主更新。移動6方向とお座りの7/9を維持し、伏せ・挨拶の新規合格なし。",
+      "comparison_scope": "Fixed D17, simulation-only per-condition evaluation; not a hardware release.",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video_url": null,
+      "report_url": "l28-evaluation.md",
+      "reported_main_updates": 1000,
+      "reported_main_updates_scope": "published trial accounting"
+    },
+    {
+      "id": "L29",
+      "order": 29,
+      "state": "EVALUATED",
+      "title": "第34回：位置ずれを調べる2条件の追加学習",
+      "change": "位置ずれを調べる2条件の追加学習",
+      "result": "計400主更新。保持済み7/9を維持したが、伏せ・挨拶の新規合格なし。",
+      "comparison_scope": "Fixed D17, simulation-only per-condition evaluation; not a hardware release.",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video_url": null,
+      "report_url": "l29-evaluation.md",
+      "reported_main_updates": 400,
+      "reported_main_updates_scope": "published trial accounting"
+    },
+    {
+      "id": "L30",
+      "order": 30,
+      "state": "EVALUATED",
+      "title": "第35回：有限9試行で支持動作と指令伝達を診断",
+      "change": "有限9試行で支持動作と指令伝達を診断",
+      "result": "277主更新。最新伏せXY100.320mm、挨拶61.583mm。新規合格なし。",
+      "comparison_scope": "Fixed D17, simulation-only per-condition evaluation; not a hardware release.",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video_url": null,
+      "report_url": "l30-evaluation.md",
+      "reported_main_updates": 277,
+      "reported_main_updates_scope": "published trial accounting"
+    },
+    {
+      "id": "L31",
+      "order": 31,
+      "state": "EVALUATED",
+      "title": "第36回：挨拶r8の500更新と保存時点評価",
+      "change": "挨拶r8の500更新と保存時点評価",
+      "result": "最終r8で500主更新。最大XY61.528mmで50mm未達。第36回の全復旧試行を合算した更新数ではない。",
+      "comparison_scope": "Final r8 greeting training and its parent/checkpoint evaluations only; not an aggregate of every earlier Trial36 attempt.",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video_url": null,
+      "report_url": "l31-evaluation.md",
+      "reported_main_updates": 500,
+      "reported_main_updates_scope": "final r8 run only"
+    },
+    {
+      "id": "L32",
+      "order": 32,
+      "state": "EVALUATED",
+      "title": "第37回：挨拶A/B各500更新と固定補正D/Eを比較",
+      "change": "挨拶A/B各500更新と固定補正D/Eを比較",
+      "result": "A/B計1000主更新、最大XY61.633/60.509mm。D/EはPPO0。全候補不採用、新規合格なし。",
+      "comparison_scope": "Completed A/B training and D/E fixed diagnostics within one registered trial. Conditions and checkpoints are not additional trial numbers.",
+      "forward_speed_m_s": null,
+      "lift15_counts": null,
+      "video_url": null,
+      "report_url": "l32-evaluation.md",
+      "reported_main_updates": 1000,
+      "reported_main_updates_scope": "published trial accounting"
     }
   ],
   "notes": "日付時点の実験記録。正常終了・速度達成・歩行品質・実機移行は別判定。READMEにユーザー指定の録画と、実測データを再描画したチャートを区別して掲載。",
   "target_actual_forward_m_s": 0.4,
-  "verified_recent_series_count": 32,
-  "latest_loop_id": "L27",
+  "verified_recent_series_count": 37,
+  "latest_loop_id": "L32",
   "comparison_cases": [
     {
       "id": "L09-matched-L10",
@@ -1155,11 +1230,11 @@
   "next_loop": {
     "id": null,
     "series_order": null,
-    "status": "NOT_STARTED_UNSPECIFIED",
+    "status": "REAL_WORLD_COMMISSIONING_PREPARATION",
     "training_started": false,
     "counted_as_completed_loop": false,
     "default_new_training_updates": 500,
-    "scope": "第32回の伏せA100など完走・復帰を維持した保存時点を比較基準に、下降中の位置ずれと復帰後の崩れを分けて検証する。挨拶は挙上前後の支持移動による位置ずれを優先する。次の学習・実機採用は未実施。補強PLAは固定D17へ未反映で、連続切替・外乱・実機・印刷強度は別検証。"
+    "scope": "実機印刷完了の報告を受け、実機Deployを優先。接続・停止処理・12軸校正・Jetson非出力推論照合・支持付き立位と低速歩行を進める。組立版と実機動作は未確認。GPUは実測との差分改善へ使い、次の学習は未開始。"
   },
   "historical_l13_cases": [
     {
@@ -1345,5 +1420,6 @@
       "report_url": "l27-evaluation.md",
       "video_scope": "Retained model, zero new updates; Trial32 numerical evaluation only, no published video."
     }
-  ]
+  ],
+  "latest_motion_cases_scope": "Historical Trial32 nine-motion comparison retained for this display. Trials33/34 have later nine-motion evaluations in their reports. Trials36/37 evaluated greeting only, not a new nine-motion regression."
 }

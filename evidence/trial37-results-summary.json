@@ -1,0 +1,350 @@
+{
+  "schema": "singularitydog.trial37-public-results.v1",
+  "trial": 37,
+  "loop_id": "L32",
+  "scope": "Completed A/B training and D/E fixed diagnostics within one registered trial. Conditions and checkpoints are not additional trial numbers.",
+  "latest_ended_utc": "2026-09-17T04:36:22.031584+00:00",
+  "main_updates": 1000,
+  "separate_smoke_updates": 4,
+  "main_transitions": 512000,
+  "maximum_xy_gate_mm": 50.0,
+  "maximum_yaw_gate_deg": 5.0,
+  "requested_evaluation_duration_s": 36.0,
+  "new_skill_accepted": false,
+  "candidate_adopted": false,
+  "nine_motion_regression_performed": false,
+  "hardware_evaluated": false,
+  "video_published": false,
+  "conditions": [
+    {
+      "condition": "A",
+      "source_report_name": "TRIAL37_A_FINAL_RESULTS.json",
+      "source_report_sha256": "3311b894e8086aa9c72c7c18e2129dcc593d4bb7d06e14849e6a078f14c30e89",
+      "ended_utc": "2026-09-17T01:14:16.573505+00:00",
+      "status": "TRAINING_COMPLETE_SKILL_NOT_ACCEPTED",
+      "kind": "PPO_TRAINING",
+      "main_updates": 500,
+      "separate_smoke_updates": 2,
+      "main_transitions": 256000,
+      "num_envs": 16,
+      "rollout_steps": 32,
+      "optimizer_states": 17,
+      "optimizer_steps_per_parameter": 10000,
+      "evaluations": [
+        {
+          "stage": "preflight",
+          "checkpoint_updates": 0,
+          "maximum_xy_mm": 61.518748697462286,
+          "final_xy_mm": 8.786361738627319,
+          "maximum_heading_change_deg": 4.586055453663234,
+          "skill_acceptance": false,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "wave_round_trips": 4,
+          "valid_high_paw_duration_s": 8.0,
+          "minimum_return_hold_s": 2.0,
+          "summary_sha256": "7b4484c0692388a9bd879a3fbca1a0c5f07672f490423837b151aaee5d448c4d",
+          "passed_other_gate_count": 12
+        },
+        {
+          "stage": "intermediate_100",
+          "checkpoint_updates": 100,
+          "maximum_xy_mm": 61.50428332922394,
+          "final_xy_mm": 8.904561502674488,
+          "maximum_heading_change_deg": 4.587662470409215,
+          "skill_acceptance": false,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "wave_round_trips": 4,
+          "valid_high_paw_duration_s": 8.0,
+          "minimum_return_hold_s": 2.0,
+          "summary_sha256": "cb5e0648b1d1867ee355b4752ae178222eb4a80649203ceb4eb25a5b3bf674e6",
+          "passed_other_gate_count": 12
+        },
+        {
+          "stage": "intermediate_250",
+          "checkpoint_updates": 250,
+          "maximum_xy_mm": 61.50305635745647,
+          "final_xy_mm": 8.163753322176582,
+          "maximum_heading_change_deg": 4.585455834923121,
+          "skill_acceptance": false,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "wave_round_trips": 4,
+          "valid_high_paw_duration_s": 8.0,
+          "minimum_return_hold_s": 2.0,
+          "summary_sha256": "2c675bd0dc5e1aa1189da449bb2ce8232a10bde7c9cfeaf7137f798a8a8ecf35",
+          "passed_other_gate_count": 12
+        },
+        {
+          "stage": "evaluate",
+          "checkpoint_updates": 500,
+          "maximum_xy_mm": 61.63328299246413,
+          "final_xy_mm": 9.003351627107039,
+          "maximum_heading_change_deg": 4.574168104709888,
+          "skill_acceptance": false,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "wave_round_trips": 4,
+          "valid_high_paw_duration_s": 8.0,
+          "minimum_return_hold_s": 2.0,
+          "summary_sha256": "df895a502e5a7000b2c1ed65e1629d4a381c9cc95b3413f9dcf154efc893e15d",
+          "passed_other_gate_count": 12
+        }
+      ],
+      "stochastic_training_termination_reason_lane_events": {
+        "timeout": 127,
+        "tipped": 0,
+        "collapsed": 0,
+        "illegal_contact": 4,
+        "actual_joint_speed": 0
+      },
+      "video_visually_reviewed": false,
+      "candidate_adopted": false
+    },
+    {
+      "condition": "B",
+      "source_report_name": "TRIAL37_B_FINAL_RESULTS.json",
+      "source_report_sha256": "6eecf49d8d0bb2deec85462bcf039f636313cd024cbc17375f1b14bdc05bee4a",
+      "ended_utc": "2026-09-17T02:20:18.161961+00:00",
+      "status": "TRAINING_COMPLETE_SKILL_NOT_ACCEPTED",
+      "kind": "PPO_TRAINING",
+      "main_updates": 500,
+      "separate_smoke_updates": 2,
+      "main_transitions": 256000,
+      "num_envs": 16,
+      "rollout_steps": 32,
+      "optimizer_states": 17,
+      "optimizer_steps_per_parameter": 10000,
+      "evaluations": [
+        {
+          "stage": "preflight",
+          "checkpoint_updates": 0,
+          "maximum_xy_mm": 60.51230843357438,
+          "final_xy_mm": 7.143605258004619,
+          "maximum_heading_change_deg": 4.657297541403359,
+          "skill_acceptance": false,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "wave_round_trips": 4,
+          "valid_high_paw_duration_s": 8.0,
+          "minimum_return_hold_s": 2.0,
+          "summary_sha256": "2bef9fe4115698e4dd3e90364e4d1676df420d05daa8eaf6a2c5a420e6442c65",
+          "passed_other_gate_count": 12,
+          "difference_vs_seeded_PPO0_mm": 0.0
+        },
+        {
+          "stage": "intermediate_100",
+          "checkpoint_updates": 100,
+          "maximum_xy_mm": 60.562094841416275,
+          "final_xy_mm": 8.079781632998285,
+          "maximum_heading_change_deg": 4.654490384589968,
+          "skill_acceptance": false,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "wave_round_trips": 4,
+          "valid_high_paw_duration_s": 8.0,
+          "minimum_return_hold_s": 2.0,
+          "summary_sha256": "1e42142fcf6de1b9d9c90a75fde5d498033ec22e80bd180c3a1b859bec1f5a47",
+          "passed_other_gate_count": 12,
+          "difference_vs_seeded_PPO0_mm": 0.04978640784189281
+        },
+        {
+          "stage": "intermediate_250",
+          "checkpoint_updates": 250,
+          "maximum_xy_mm": 60.881086333323324,
+          "final_xy_mm": 15.474250584293669,
+          "maximum_heading_change_deg": 4.662485303528671,
+          "skill_acceptance": false,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "wave_round_trips": 4,
+          "valid_high_paw_duration_s": 8.0,
+          "minimum_return_hold_s": 2.0,
+          "summary_sha256": "defbd1b9fcf72ff1a860bf06806d89052a989c336fc907507c9ce6c6bf696682",
+          "passed_other_gate_count": 12,
+          "difference_vs_seeded_PPO0_mm": 0.3687778997489417
+        },
+        {
+          "stage": "evaluate",
+          "checkpoint_updates": 500,
+          "maximum_xy_mm": 60.50901597136531,
+          "final_xy_mm": 7.620654498373555,
+          "maximum_heading_change_deg": 4.672608447357035,
+          "skill_acceptance": false,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "wave_round_trips": 4,
+          "valid_high_paw_duration_s": 8.0,
+          "minimum_return_hold_s": 2.0,
+          "summary_sha256": "ec4bb62eb6a872640d30b61fc45bf74bd756682c168b7c182986e460e5f851a1",
+          "passed_other_gate_count": 12,
+          "difference_vs_seeded_PPO0_mm": -0.0032924622090746425
+        }
+      ],
+      "stochastic_training_termination_reason_lane_events": {
+        "timeout": 128,
+        "tipped": 0,
+        "collapsed": 0,
+        "illegal_contact": 3,
+        "actual_joint_speed": 0
+      },
+      "seeded_PPO0_51_arrays_exact": true,
+      "initial_fixed_seed_gain_not_PPO_mm": 1.006440263887903,
+      "final_minus_seeded_PPO0_mm": -0.0032924622090746425,
+      "video_visually_reviewed": false,
+      "candidate_adopted": false
+    },
+    {
+      "condition": "D",
+      "source_report_name": "TRIAL37_D_FINAL_RESULTS.json",
+      "source_report_sha256": "be1510fc211fb264d9230c8359b8a0ea98548553eac8c702fd6bdcf02da88e73",
+      "ended_utc": "2026-09-17T03:37:57.661738+00:00",
+      "status": "NO_PROMISING_TARGET",
+      "kind": "FIXED_DIAGNOSTIC",
+      "main_updates": 0,
+      "separate_smoke_updates": 0,
+      "optimizer_steps": 0,
+      "candidate_confirmed": false,
+      "evaluations": [
+        {
+          "case_id": "baseline_before",
+          "maximum_xy_mm": 60.51230843357438,
+          "maximum_yaw_deg": 4.657297541403359,
+          "recorded_s": 36.0,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "original_skill_acceptance": false,
+          "summary_sha256": "eed323f29577aae8bdaaf971b0ce1e17600016c8f781b8b829aa772e05472fb4"
+        },
+        {
+          "case_id": "neg010",
+          "maximum_xy_mm": 60.663435098546906,
+          "maximum_yaw_deg": 4.402215825193215,
+          "recorded_s": 36.0,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "original_skill_acceptance": false,
+          "summary_sha256": "cb27d4e34b316eaaec2bd80da989d2e3c09fe89e8313e218d1f3f8ccc46f3b25"
+        },
+        {
+          "case_id": "pos010",
+          "maximum_xy_mm": 60.42839809524624,
+          "maximum_yaw_deg": 4.862232764954538,
+          "recorded_s": 36.0,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "original_skill_acceptance": false,
+          "summary_sha256": "ca08ef3064efc0589c97bf94ff73519c3eb8faf13672f24dabe14f0b15b23e41"
+        },
+        {
+          "case_id": "neg020",
+          "maximum_xy_mm": 68.80417354031317,
+          "maximum_yaw_deg": 4.090469842487245,
+          "recorded_s": 36.0,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "original_skill_acceptance": false,
+          "summary_sha256": "5f3760013b4c3e9785f646b8ea66b574ffd249b261bfeca5674def26f507e7c8"
+        },
+        {
+          "case_id": "pos020",
+          "maximum_xy_mm": 60.3942892756656,
+          "maximum_yaw_deg": 5.063983749048173,
+          "recorded_s": 36.0,
+          "failed_gates": [
+            "maximum_heading_change",
+            "maximum_xy_distance"
+          ],
+          "original_skill_acceptance": false,
+          "summary_sha256": "d06337bd902886c72e24e8bf4adb6178de1d89a1e3a406517522e14fc1e63e6e"
+        },
+        {
+          "case_id": "baseline_after",
+          "maximum_xy_mm": 60.51230843357438,
+          "maximum_yaw_deg": 4.657297541403359,
+          "recorded_s": 36.0,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "original_skill_acceptance": false,
+          "summary_sha256": "dfdc903a74f250b8a62be3d905a3ccaaaa9a5f9eb0b25ac4ac42665acd9d6b22"
+        }
+      ],
+      "video_visually_reviewed": false,
+      "candidate_adopted": false
+    },
+    {
+      "condition": "E",
+      "source_report_name": "TRIAL37_E_FINAL_RESULTS.json",
+      "source_report_sha256": "8236849141014ae2c04b1f991da38a519b4f69107b3aebd042e9c0033981e065",
+      "ended_utc": "2026-09-17T04:36:22.031584+00:00",
+      "status": "NO_PROMISING_TARGET",
+      "kind": "FIXED_DIAGNOSTIC",
+      "main_updates": 0,
+      "separate_smoke_updates": 0,
+      "optimizer_steps": 0,
+      "candidate_confirmed": false,
+      "evaluations": [
+        {
+          "case_id": "baseline_before",
+          "maximum_xy_mm": 60.51230843357438,
+          "maximum_yaw_deg": 4.657297541403359,
+          "recorded_s": 36.0,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "original_skill_acceptance": false,
+          "summary_sha256": "5ab53e73a65716c3bbed5e0de9415d935173a91a08f97e8361b23cd2d8edcbbc"
+        },
+        {
+          "case_id": "direction_neg145",
+          "maximum_xy_mm": 157.0209187477259,
+          "maximum_yaw_deg": 4.36352792998426,
+          "recorded_s": 29.8,
+          "failed_gates": [
+            "requested_interval_completed",
+            "no_forbidden_contact_samples",
+            "all_greeting_cycles",
+            "all_high_paw_attainments",
+            "maximum_xy_distance"
+          ],
+          "original_skill_acceptance": false,
+          "summary_sha256": "b3fd2634c3efe0f799f024aa1f8cee8883ab92804edb8cb087e93e5d6dde9ba7"
+        },
+        {
+          "case_id": "baseline_after",
+          "maximum_xy_mm": 60.51230843357438,
+          "maximum_yaw_deg": 4.657297541403359,
+          "recorded_s": 36.0,
+          "failed_gates": [
+            "maximum_xy_distance"
+          ],
+          "original_skill_acceptance": false,
+          "summary_sha256": "72f4cfa75d3722ec5983fb00f911ecb2da191a52a14d1dd32fb1294cc666112b"
+        }
+      ],
+      "video_visually_reviewed": false,
+      "candidate_adopted": false
+    }
+  ],
+  "limits": [
+    "A/B use one registered seed; submillimeter changes do not establish robust improvement.",
+    "B fixed initial compensation gain is distinct from PPO learning.",
+    "D/E are fixed diagnostics with zero PPO, smoke and optimizer updates.",
+    "Numerical results and provenance were checked from selected summaries. Original raw replay was performed on the execution host, not independently replayed locally.",
+    "No new simulation video is published or visually reviewed in this report."
+  ]
+}
