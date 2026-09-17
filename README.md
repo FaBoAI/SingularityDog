@@ -4,7 +4,7 @@
 
 2026-09-17更新。**第37回まで評価済み・実機の印刷完了。次は実機Deployを優先します。** 組立・配線・関節校正と実機歩行は確認中です。前進の最終目標は40cm/sです。
 
-[現在地](docs/current-status.md) · [進捗一覧](#過去の進捗) · [BOM](docs/bom.md) · [STL部材一覧](docs/stl-parts.md) · [実機Deploy計画](docs/real-world-deployment.md) · [全動画](docs/video-history.md)
+[現在地](docs/current-status.md) · [進捗一覧](#過去の進捗) · [動画で見る進捗](#動画で見る進捗) · [BOM](docs/bom.md) · [STL部材一覧](docs/stl-parts.md) · [実機Deploy計画](docs/real-world-deployment.md) · [全動画](docs/video-history.md)
 
 ## 現在できていること
 
@@ -38,15 +38,25 @@
 
 初期映像も保持しています：[最初に掲載した動画](docs/media/archive-joystick2197-left.mp4) · [よちよち歩き・第4回](docs/media/h04-forward.mp4)。前者の2197は保存番号で、第1回を意味しません。
 
-## 最新の公開動画
+## 動画で見る進捗
 
-**第31回・条件Aの9動作を3×3で比較。** 14秒の抜粋で、英語ラベルは各画面の左上、先に終了した枠は最後のカラー画像を保持します。シミュレーション録画です。
+第**1・2・5・10・20・30回**を順にたどります。プレビューをクリックするとMP4を開けます。掲載映像はシミュレーション録画です。
 
-<img src="docs/media/l26-a-nine-motions.gif" width="720" alt="第31回Aの9動作を3×3で表示した14秒のシミュレーション録画。7/9合格、伏せと挨拶は未達。">
+| 第1回 — 荷重移動 | 第2回 — 周期参照 |
+|---|---|
+| 4脚それぞれ約20mmの足上げを保持。<br>**公開動画なし** · [記録を見る](docs/milestone-history.md) | 全脚が15mm以上の足上げを各3回。<br>**公開動画なし** · [記録を見る](docs/milestone-history.md) |
 
-[条件A MP4](docs/media/l26-a-nine-motions.mp4) · [条件B](docs/media/l26-b-nine-motions.mp4) · [条件C](docs/media/l26-c-nine-motions.mp4) · [全長の評価と未達](docs/l26-evaluation.md)
+| 第5回 — 4方向への歩行 | 第10回 — 慣性を修正して再学習 |
+|---|---|
+| <a href="docs/media/l00-four-directions.mp4"><img src="docs/media/l00-four-directions.gif" width="420" alt="第5回の4方向歩行シミュレーション"></a><br>前進10.37cm/s。後左脚の足上げなどが課題。<br>[MP4を見る](docs/media/l00-four-directions.mp4) · [記録](docs/milestone-history.md) | <a href="docs/media/l05-four-directions.mp4"><img src="docs/media/l05-four-directions.gif" width="420" alt="第10回の4方向歩行シミュレーション"></a><br>前進16.54cm/s。当時の20cm/s目標は未達。<br>[MP4を見る](docs/media/l05-four-directions.mp4) · [記録](docs/milestone-history.md) |
 
-最新の数値報告は第37回です。動画のない回を旧動画で代用せず、全47本の公開録画・比較MP4は[動画履歴](docs/video-history.md)に残しています。14秒の映像や終了後の静止表示は、全評価区間の合格を意味しません。
+| 第20回 — 伏せと起立 | 第30回 — 9動作を3×3で比較 |
+|---|---|
+| <a href="docs/media/l15-model499-stationary-prone.mp4"><img src="docs/media/l15-model499-stationary-prone.gif" width="420" alt="第20回の伏せと起立シミュレーション"></a><br>伏せを2秒ずつ2回保持。起立保持・位置・方位に課題。<br>[MP4を見る](docs/media/l15-model499-stationary-prone.mp4) · [評価](docs/l15-evaluation.md) | <a href="docs/media/l25-a-nine-motions.mp4"><img src="docs/media/l25-a-nine-motions.gif" width="420" alt="第30回条件Aの9動作を3×3で比較した14秒のシミュレーション録画"></a><br>A/B/C各7/9合格。伏せ・挨拶の位置や方位に課題。<br>MP4：[A](docs/media/l25-a-nine-motions.mp4) / [B](docs/media/l25-b-nine-motions.mp4) / [C](docs/media/l25-c-nine-motions.mp4) · [評価](docs/l25-evaluation.md) |
+
+第1・2回は記録のみです。第30回のプレビューは条件Aの14秒抜粋で、動作名を各画面の左上に表示し、先に終了した枠は最後のカラー画像を保持します。合否は全評価区間に基づき、静止表示の時間を動作成功へ数えません。
+
+[全47本の公開録画・比較MP4](docs/video-history.md) · [最新の数値報告：第37回](docs/l32-evaluation.md)
 
 ## BOM — 機体を構成する部品
 
