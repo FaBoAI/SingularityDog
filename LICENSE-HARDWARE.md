@@ -1,6 +1,7 @@
 # Hardware licence — CERN-OHL-S-2.0
 
-SPDX-FileCopyrightText: 2026 SingularityDog contributors  
+SPDX-FileCopyrightText: 2026 SingularityDog contributors
+
 SPDX-License-Identifier: CERN-OHL-S-2.0
 
 2026-09-18から、[適用ファイル一覧](evidence/hardware-license-scope.json)に列挙した、本プロジェクト独自の現行機構部品のSTLと設計資料を **CERN Open Hardware Licence Version 2 — Strongly Reciprocal** で公開します。対象ファイルを明示するこの文書を、各ファイルのライセンス通知とします。
