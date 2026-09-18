@@ -2,9 +2,9 @@
 
 **GPT-6 Astraが、3D CADの設計・強化学習・評価・改善を進めるロボット犬プロジェクト。**
 
-<a href="docs/media/cad-type00.png"><img src="docs/media/cad-type00.png" width="100%" alt="SingularityDogの3D CAD全体像。4脚、カーボンフレーム、円形ディスプレイを備えた初期設計モデル"></a>
+<a href="docs/media/cad-yellow-assembly-20260914.png"><img src="docs/media/cad-yellow-assembly-20260914.png" width="100%" alt="SingularityDogの黄色・黒のCAD全体像。黄色の脚・取手、黒いBodyと顔を備えた2026年9月14日の全体CAD更新版"></a>
 
-*初期CADの全体像。現行の補強部品・取手・顔マウント・足先は、[STL部材一覧](docs/stl-parts.md)で確認できます。*
+*黄色の脚・取手と黒いBody・顔を反映したCAD全体像（2026-09-14の全体更新版）。その後の共通底板・顔固定・左右連結部・足先の改訂は、[最新STL部材一覧](docs/stl-parts.md)で確認できます。*
 
 **[BOM・部品表](docs/bom.md)** · **[色別STL・ダウンロード](docs/stl-parts.md)** · [動画で見る進捗](#動画で見る進捗) · [実機Deploy](#実機deployの状況) · [現在の課題](#現在の課題) · [ハードウェアライセンス](#ハードウェアライセンス)
 

@@ -1,6 +1,6 @@
 {
   "schema": "singularitydog.video-history.v1",
-  "as_of": "2026-09-17",
+  "as_of": "2026-09-18",
   "recent_series_count": 37,
   "additional_loops_counted_from_media": 0,
   "all_development_total": null,
@@ -13,6 +13,14 @@
       "kind": "DESIGN_VIEW",
       "loop": null,
       "result": "CAD exterior study; not a real robot photograph or a walking result."
+    },
+    {
+      "id": "CAD-YELLOW-20260914",
+      "original": "docs/media/cad-yellow-assembly-20260914.png",
+      "date": "2026-09-14",
+      "kind": "DESIGN_VIEW",
+      "loop": null,
+      "result": "Latest verified saved full Fusion assembly view: yellow legs/handle/upper mounts, black body/face/motors/feet. Includes candidate_v3 base mounts; later 9/15-9/17 common deck, face front mount, crosslink r2 and feet r3 remain separate revisions. Not a hardware photograph or walking result."
     },
     {
       "id": "ARCHIVE2197",

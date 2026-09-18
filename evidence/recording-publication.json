@@ -12277,6 +12277,23 @@
       "presentation_revision": "trial31_color_end14_preview_labels_v1",
       "media_verification_sha256": "93d32f444ddc3dec6e8b0eaa4579cd77a3b9ebc72e07a8c3ab48acc4e6d74461",
       "visual_review_sha256": "181b2d94a4ca62051571a558758dffc072c682e57a41f080b4840ead2397eb85"
+    },
+    "docs/media/cad-yellow-assembly-20260914.png": {
+      "sha256": "9c84537e541c2a45da845de24a14384c3624aef4f86ed58ceaa49bf57c2e69fe",
+      "bytes": 284423,
+      "reviewed_for_publication": true,
+      "kind": "user_selected_original",
+      "source_sha256": "9c84537e541c2a45da845de24a14384c3624aef4f86ed58ceaa49bf57c2e69fe",
+      "user_selected_filename": "assembly_preview.png",
+      "authorization_scope": "user_requested_yellow_latest_saved_full_CAD_hero_2026-09-18",
+      "representation": "NATIVE_FUSION_CAD_ASSEMBLY_VIEW_NOT_REAL_PHOTOGRAPH",
+      "model_revision_date": "2026-09-14",
+      "model_revision": "D17 PLA Reinforced with four candidate_v3 base mounts; final whole-assembly cloud revision v2",
+      "dimensions_px": [
+        1600,
+        1100
+      ],
+      "review": "Image visually checked: yellow legs, upper mounts and handle; black frame, motors, face and feet. No private camera image, account UI or connection data. Exact original bytes. Later common deck, display front mount, crosslink r2 and foot cassette r3 updates are separate parts and are not represented as integrated here."
     }
   }
 }
