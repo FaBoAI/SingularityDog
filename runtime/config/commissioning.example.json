@@ -1,0 +1,448 @@
+{
+  "schema_version": 1,
+  "motor_model": "RS05",
+  "id_order": "foot_to_body",
+  "legs": {
+    "FR": [
+      1,
+      2,
+      3
+    ],
+    "FL": [
+      4,
+      5,
+      6
+    ],
+    "RR": [
+      7,
+      8,
+      9
+    ],
+    "RL": [
+      10,
+      11,
+      12
+    ]
+  },
+  "calibration_convention": "joint_rad = sign * motor_output_rad + offset_rad",
+  "notes": [
+    "Template only. All verification flags remain false. Do not infer knee/hip roles from foot-to-body ID order.",
+    "RS05 model and leg IDs are user reported; semantic joint mapping and calibration require physical evidence.",
+    "Timeout metadata records 2026-09-20 r2 diagnostics: nine zero values; IDs 6, 9 and 10 returned status 1, so their values remain unknown.",
+    "Timeout metadata cannot replace a measured, reviewed communication-loss stop test for every motor.",
+    "Evidence strings and artifact references require human review; this validator does not prove their contents or authorize motion.",
+    "IMU correction convention: corrected_accel_sensor = accel_scale * (raw_accel_sensor - accel_bias_m_s2); corrected_gyro_sensor = raw_gyro_sensor - gyro_bias_rad_s; then apply matrix_sensor_to_body."
+  ],
+  "motors": [
+    {
+      "id": 1,
+      "model": "RS05",
+      "joint": {
+        "model_joint_name": null,
+        "semantic_role": null,
+        "verified": false,
+        "evidence": []
+      },
+      "calibration": {
+        "verified": false,
+        "offset_rad": null,
+        "sign": null,
+        "measured_rom_rad": {
+          "min": null,
+          "max": null
+        },
+        "evidence": []
+      },
+      "observed_can_timeout": {
+        "value_ticks": 0,
+        "read_status": 0,
+        "evidence": [
+          "docs/hardware-bringup-20260920.md (2026-09-20 r2 telemetry; source checkout relative)"
+        ]
+      },
+      "communication_loss_stop": {
+        "verified": false,
+        "measured_stop_latency_s": null,
+        "evidence": []
+      }
+    },
+    {
+      "id": 2,
+      "model": "RS05",
+      "joint": {
+        "model_joint_name": null,
+        "semantic_role": null,
+        "verified": false,
+        "evidence": []
+      },
+      "calibration": {
+        "verified": false,
+        "offset_rad": null,
+        "sign": null,
+        "measured_rom_rad": {
+          "min": null,
+          "max": null
+        },
+        "evidence": []
+      },
+      "observed_can_timeout": {
+        "value_ticks": 0,
+        "read_status": 0,
+        "evidence": [
+          "docs/hardware-bringup-20260920.md (2026-09-20 r2 telemetry; source checkout relative)"
+        ]
+      },
+      "communication_loss_stop": {
+        "verified": false,
+        "measured_stop_latency_s": null,
+        "evidence": []
+      }
+    },
+    {
+      "id": 3,
+      "model": "RS05",
+      "joint": {
+        "model_joint_name": null,
+        "semantic_role": null,
+        "verified": false,
+        "evidence": []
+      },
+      "calibration": {
+        "verified": false,
+        "offset_rad": null,
+        "sign": null,
+        "measured_rom_rad": {
+          "min": null,
+          "max": null
+        },
+        "evidence": []
+      },
+      "observed_can_timeout": {
+        "value_ticks": 0,
+        "read_status": 0,
+        "evidence": [
+          "docs/hardware-bringup-20260920.md (2026-09-20 r2 telemetry; source checkout relative)"
+        ]
+      },
+      "communication_loss_stop": {
+        "verified": false,
+        "measured_stop_latency_s": null,
+        "evidence": []
+      }
+    },
+    {
+      "id": 4,
+      "model": "RS05",
+      "joint": {
+        "model_joint_name": null,
+        "semantic_role": null,
+        "verified": false,
+        "evidence": []
+      },
+      "calibration": {
+        "verified": false,
+        "offset_rad": null,
+        "sign": null,
+        "measured_rom_rad": {
+          "min": null,
+          "max": null
+        },
+        "evidence": []
+      },
+      "observed_can_timeout": {
+        "value_ticks": 0,
+        "read_status": 0,
+        "evidence": [
+          "docs/hardware-bringup-20260920.md (2026-09-20 r2 telemetry; source checkout relative)"
+        ]
+      },
+      "communication_loss_stop": {
+        "verified": false,
+        "measured_stop_latency_s": null,
+        "evidence": []
+      }
+    },
+    {
+      "id": 5,
+      "model": "RS05",
+      "joint": {
+        "model_joint_name": null,
+        "semantic_role": null,
+        "verified": false,
+        "evidence": []
+      },
+      "calibration": {
+        "verified": false,
+        "offset_rad": null,
+        "sign": null,
+        "measured_rom_rad": {
+          "min": null,
+          "max": null
+        },
+        "evidence": []
+      },
+      "observed_can_timeout": {
+        "value_ticks": 0,
+        "read_status": 0,
+        "evidence": [
+          "docs/hardware-bringup-20260920.md (2026-09-20 r2 telemetry; source checkout relative)"
+        ]
+      },
+      "communication_loss_stop": {
+        "verified": false,
+        "measured_stop_latency_s": null,
+        "evidence": []
+      }
+    },
+    {
+      "id": 6,
+      "model": "RS05",
+      "joint": {
+        "model_joint_name": null,
+        "semantic_role": null,
+        "verified": false,
+        "evidence": []
+      },
+      "calibration": {
+        "verified": false,
+        "offset_rad": null,
+        "sign": null,
+        "measured_rom_rad": {
+          "min": null,
+          "max": null
+        },
+        "evidence": []
+      },
+      "observed_can_timeout": {
+        "value_ticks": null,
+        "read_status": 1,
+        "evidence": [
+          "docs/hardware-bringup-20260920.md (2026-09-20 r2 telemetry; source checkout relative)"
+        ]
+      },
+      "communication_loss_stop": {
+        "verified": false,
+        "measured_stop_latency_s": null,
+        "evidence": []
+      }
+    },
+    {
+      "id": 7,
+      "model": "RS05",
+      "joint": {
+        "model_joint_name": null,
+        "semantic_role": null,
+        "verified": false,
+        "evidence": []
+      },
+      "calibration": {
+        "verified": false,
+        "offset_rad": null,
+        "sign": null,
+        "measured_rom_rad": {
+          "min": null,
+          "max": null
+        },
+        "evidence": []
+      },
+      "observed_can_timeout": {
+        "value_ticks": 0,
+        "read_status": 0,
+        "evidence": [
+          "docs/hardware-bringup-20260920.md (2026-09-20 r2 telemetry; source checkout relative)"
+        ]
+      },
+      "communication_loss_stop": {
+        "verified": false,
+        "measured_stop_latency_s": null,
+        "evidence": []
+      }
+    },
+    {
+      "id": 8,
+      "model": "RS05",
+      "joint": {
+        "model_joint_name": null,
+        "semantic_role": null,
+        "verified": false,
+        "evidence": []
+      },
+      "calibration": {
+        "verified": false,
+        "offset_rad": null,
+        "sign": null,
+        "measured_rom_rad": {
+          "min": null,
+          "max": null
+        },
+        "evidence": []
+      },
+      "observed_can_timeout": {
+        "value_ticks": 0,
+        "read_status": 0,
+        "evidence": [
+          "docs/hardware-bringup-20260920.md (2026-09-20 r2 telemetry; source checkout relative)"
+        ]
+      },
+      "communication_loss_stop": {
+        "verified": false,
+        "measured_stop_latency_s": null,
+        "evidence": []
+      }
+    },
+    {
+      "id": 9,
+      "model": "RS05",
+      "joint": {
+        "model_joint_name": null,
+        "semantic_role": null,
+        "verified": false,
+        "evidence": []
+      },
+      "calibration": {
+        "verified": false,
+        "offset_rad": null,
+        "sign": null,
+        "measured_rom_rad": {
+          "min": null,
+          "max": null
+        },
+        "evidence": []
+      },
+      "observed_can_timeout": {
+        "value_ticks": null,
+        "read_status": 1,
+        "evidence": [
+          "docs/hardware-bringup-20260920.md (2026-09-20 r2 telemetry; source checkout relative)"
+        ]
+      },
+      "communication_loss_stop": {
+        "verified": false,
+        "measured_stop_latency_s": null,
+        "evidence": []
+      }
+    },
+    {
+      "id": 10,
+      "model": "RS05",
+      "joint": {
+        "model_joint_name": null,
+        "semantic_role": null,
+        "verified": false,
+        "evidence": []
+      },
+      "calibration": {
+        "verified": false,
+        "offset_rad": null,
+        "sign": null,
+        "measured_rom_rad": {
+          "min": null,
+          "max": null
+        },
+        "evidence": []
+      },
+      "observed_can_timeout": {
+        "value_ticks": null,
+        "read_status": 1,
+        "evidence": [
+          "docs/hardware-bringup-20260920.md (2026-09-20 r2 telemetry; source checkout relative)"
+        ]
+      },
+      "communication_loss_stop": {
+        "verified": false,
+        "measured_stop_latency_s": null,
+        "evidence": []
+      }
+    },
+    {
+      "id": 11,
+      "model": "RS05",
+      "joint": {
+        "model_joint_name": null,
+        "semantic_role": null,
+        "verified": false,
+        "evidence": []
+      },
+      "calibration": {
+        "verified": false,
+        "offset_rad": null,
+        "sign": null,
+        "measured_rom_rad": {
+          "min": null,
+          "max": null
+        },
+        "evidence": []
+      },
+      "observed_can_timeout": {
+        "value_ticks": 0,
+        "read_status": 0,
+        "evidence": [
+          "docs/hardware-bringup-20260920.md (2026-09-20 r2 telemetry; source checkout relative)"
+        ]
+      },
+      "communication_loss_stop": {
+        "verified": false,
+        "measured_stop_latency_s": null,
+        "evidence": []
+      }
+    },
+    {
+      "id": 12,
+      "model": "RS05",
+      "joint": {
+        "model_joint_name": null,
+        "semantic_role": null,
+        "verified": false,
+        "evidence": []
+      },
+      "calibration": {
+        "verified": false,
+        "offset_rad": null,
+        "sign": null,
+        "measured_rom_rad": {
+          "min": null,
+          "max": null
+        },
+        "evidence": []
+      },
+      "observed_can_timeout": {
+        "value_ticks": 0,
+        "read_status": 0,
+        "evidence": [
+          "docs/hardware-bringup-20260920.md (2026-09-20 r2 telemetry; source checkout relative)"
+        ]
+      },
+      "communication_loss_stop": {
+        "verified": false,
+        "measured_stop_latency_s": null,
+        "evidence": []
+      }
+    }
+  ],
+  "imu": {
+    "rotation": {
+      "verified": false,
+      "matrix_sensor_to_body": null,
+      "artifact": null,
+      "evidence": []
+    },
+    "bias_and_scale": {
+      "verified": false,
+      "accel_bias_m_s2": null,
+      "accel_scale": null,
+      "gyro_bias_rad_s": null,
+      "artifact": null,
+      "evidence": []
+    }
+  },
+  "physical": {
+    "power_cut": {
+      "verified": false,
+      "evidence": []
+    },
+    "support": {
+      "verified": false,
+      "evidence": []
+    }
+  }
+}

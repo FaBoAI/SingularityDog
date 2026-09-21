@@ -14,24 +14,52 @@
       "bytes": 13419
     },
     "README.md": {
-      "sha256": "33626d8b7060b6174033b0202620b98ea608e9fbc881960bba797e82fed41788",
-      "bytes": 12082
+      "sha256": "286011bca84d5f38451ba33f35d0f661fb7381a1dcf28dcbda31df7e2b3e2b20",
+      "bytes": 13185
     },
     "RELEASE_FILES.json": {
-      "sha256": "99c3cf0326a168a1baca733801603fbd721af60660ec8fc00e1d3c137350fd10",
-      "bytes": 18775
+      "sha256": "b62c9fc6c8b1d5211a7e94ede9b114db26ce2f1e7143358dd1975eea86035f0d",
+      "bytes": 21749
     },
     "docs/bom.md": {
-      "sha256": "f607fc189a90624d1f06ef0f3862d89f1b426aed630e75f0303d4dbdfe530831",
-      "bytes": 8275
+      "sha256": "f3d51a7dcce9390eee24d7e2a83fcebde8155786faaa6d68c1bc33a2121334e4",
+      "bytes": 8622
+    },
+    "docs/can-readonly-timing-probe.md": {
+      "sha256": "5e8793d442c8893b4fbfe3b313c9b134122cf88cacbc2f1da3ce2884e4d2d071",
+      "bytes": 5010
     },
     "docs/current-status.md": {
-      "sha256": "26b12949b96eea0b8c52c6a1e29d6426b92197386a6bfa3445d05f4d4ae9fb48",
-      "bytes": 44857
+      "sha256": "eea0750c05a8e3d0d373d92d4a6027fc526579a6b4e5e4ddd28ec44eb60de1a5",
+      "bytes": 45148
     },
     "docs/decision-log.md": {
       "sha256": "2d95db3c89bd85c76f2a4cc007bf9e0653928d1eaf6702cd32e92e2705cb739d",
       "bytes": 34475
+    },
+    "docs/deploy-20-minute-plan.md": {
+      "sha256": "9fe59199619bd85b4f899ee856710376ccfbc80149063bb1fd62f0c11aae90e1",
+      "bytes": 7787
+    },
+    "docs/hardware-bringup-20260920.md": {
+      "sha256": "76feb2a4d6fc1c2e477cdcd4cabbafa567fc4135a953e34efef7581681eae604",
+      "bytes": 21817
+    },
+    "docs/hardware-known-issues.md": {
+      "sha256": "f6c02b375e115a7acedcda739094985b623c94057c6f8ac9eac36d67277b6ffd",
+      "bytes": 8581
+    },
+    "docs/hardware-readiness-20260921.md": {
+      "sha256": "7685125843b5a059f65cdb79b2ac48e047ec664f57140df4fbad7734244ffe69",
+      "bytes": 19388
+    },
+    "docs/hardware-results-20260921.md": {
+      "sha256": "7f5a9ba96ab256be7df116e46a7e0922f5787ecaab000dc1db082382e84a9325",
+      "bytes": 7209
+    },
+    "docs/hardware-test-plan-20260922.md": {
+      "sha256": "530c0e7269d8c9e20e6581282a6516760e0b0a4bcff5d9a94d331c6badb07c20",
+      "bytes": 5307
     },
     "docs/improvement-loops.md": {
       "sha256": "19d9428952600cd3bb3eee2ce238415a3400765e706b5995ced29da62ed07845",
@@ -484,6 +512,10 @@
     "docs/milestone-history.md": {
       "sha256": "3310dabd9dae069d90002c84f6c8984bd8f087e59cfe05fb9b576deddf07ae9a",
       "bytes": 4800
+    },
+    "docs/model-environment-20260921.md": {
+      "sha256": "4a6fb7531a40fef5070273ada9e5e4c682ac0caca21863fd9d83627a8bc3e11a",
+      "bytes": 5200
     },
     "docs/next-loop-spec.md": {
       "sha256": "955b57c94f01e2dd49751e1f346e603d9c38f21fd9f9046c82fe50e03986e14f",
@@ -1138,12 +1170,16 @@
       "bytes": 83649
     },
     "docs/publication-scope.md": {
-      "sha256": "3afa8c325594d42d6eb726f999b0c6ee9acf92f03dcc855c98225c980adc63a5",
-      "bytes": 37716
+      "sha256": "eaa2a596f96ea575bb0fa2c5475505536ef4521edd8cd9170c0173ebc6447154",
+      "bytes": 38860
     },
     "docs/real-world-deployment.md": {
-      "sha256": "59331c7d094cbb14079deb0ae56dc31b1075969e2a72a6bbec6fd8755ea1ee26",
-      "bytes": 2776
+      "sha256": "3069d52ce7589fb86f2150aa6489c8ffd450912184d40b694c5b92974c63320d",
+      "bytes": 5104
+    },
+    "docs/rs05-supported-leg-stationarity.md": {
+      "sha256": "69bdb8071edc480fe42957111461fcf3e9a3475b0f269583f223d084d49de342",
+      "bytes": 4829
     },
     "docs/stl-parts.md": {
       "sha256": "a9e9c7b7e31cbf35b2f5f164cb2fa084e020f09ed8f935f8d9aa29acf7e5eb34",
@@ -1158,16 +1194,20 @@
       "bytes": 38506
     },
     "evidence/bom.json": {
-      "sha256": "4fdbb74e3d0462a658e924612c6aa487dc2d5a6300a091136f74d0e29d45b82d",
-      "bytes": 19592
+      "sha256": "226f1c7d980fbcaac4a72ad520cbb121bab25ffef608e4fd950c9394dc8ffb70",
+      "bytes": 20301
     },
     "evidence/forward-motion.json": {
       "sha256": "c07344e1195e9f1c6028fb020b1628139dbc884ecbe86fe4c9af2e38e3f37e78",
       "bytes": 119546
     },
     "evidence/hardware-license-scope.json": {
-      "sha256": "6ac3746afd04dc7b53fae30c965601ee1e9b8ebb43361b375e4984c0142b987a",
+      "sha256": "375a297e17280a639fb04e53d343045d1a9cd726774af09e36fdaef576afcca1",
       "bytes": 18849
+    },
+    "evidence/hardware-results-20260921.json": {
+      "sha256": "49b1e5cb1554e3644fc29be33bb81f2a340c6b109b1be51d9c989bba5d8f5a74",
+      "bytes": 5449
     },
     "evidence/improvement-loops.json": {
       "sha256": "1ae1c598fe4f15b86172146fd49ca57bcf4f3550b85236832e56acf015e0b43e",
@@ -1328,6 +1368,246 @@
     "examples/synthetic_trace.json": {
       "sha256": "cf1fcd8a68497e43c6fe9bea6aec2b29148c947d7c7c00f8b8edbd32f10635f5",
       "bytes": 10438
+    },
+    "runtime/.gitignore": {
+      "sha256": "be7e8805f7bc23f2200a3ebec889aaea6f21b2f82c8082fa3ca8a51fccf5def4",
+      "bytes": 52
+    },
+    "runtime/CALIBRATION.md": {
+      "sha256": "9a5134c360591315c6d9271db7eba0fdc3dca7e62a4d75b631ff1236ccb55501",
+      "bytes": 4949
+    },
+    "runtime/IMU_IMPLEMENTATION_NOTES.md": {
+      "sha256": "6ec15759107938c99dd45d1bb5f966a3d8a6648219aeee40c6adf407b73a861b",
+      "bytes": 5025
+    },
+    "runtime/LEG_TRIAL.md": {
+      "sha256": "7ab329173e72cfd092af9df734452e9f8fbbc51fc064e7d46df43300b857563d",
+      "bytes": 4517
+    },
+    "runtime/MANUAL_CALIBRATION.md": {
+      "sha256": "5eca0ea96b47e6103d77fdeecf40297e66d79e1fc3ce31574e0d22c05321b319",
+      "bytes": 5181
+    },
+    "runtime/MANUAL_MOTION_CHECK.md": {
+      "sha256": "da4969eadc1256d542c71a143332cc8b074dbfdce8b15252360197b6afc82d63",
+      "bytes": 3442
+    },
+    "runtime/POLICY_SHADOW.md": {
+      "sha256": "979f8becd6d06d4ec73cfb12c163c48f5049c11665597189a427d5ea6196a50d",
+      "bytes": 5438
+    },
+    "runtime/POSE_CALIBRATION.md": {
+      "sha256": "91795093e8e6de9bf26e4bce21315ee57416edd32972fddbcd610cea001d6f1e",
+      "bytes": 6969
+    },
+    "runtime/README.md": {
+      "sha256": "9a28b73bd67f11881cc5cde44aa759ceede1175013ae00a5d0c321ad7c78fa00",
+      "bytes": 7275
+    },
+    "runtime/SAFETY_IMPLEMENTATION_NOTES.md": {
+      "sha256": "80f3dcc1ef64d7be929bc2b4a25cf68fe29cde4a5c01c1f8fbc5e409b8141e2f",
+      "bytes": 5263
+    },
+    "runtime/SINGLE_JOINT_TRIAL.md": {
+      "sha256": "c35b8cc561f83d999a541048093b5f2d503a664cc13cc2b4ad57f00de193fdeb",
+      "bytes": 6929
+    },
+    "runtime/config/commissioning.example.json": {
+      "sha256": "b157b14e456faae38b64e3ba49ec10c3a3e93a98a4bc220b0f39528bd13c2b8b",
+      "bytes": 10930
+    },
+    "runtime/requirements.txt": {
+      "sha256": "95fdad543f34e4a191cd17219e1a73b4ab4b0b5ad9806a25c3b49e7b48ab8ca0",
+      "bytes": 17
+    },
+    "runtime/singularitydog_hw/__init__.py": {
+      "sha256": "2344e5418b018be98cbd653b54e9330fbca4ee1d0e35fe01acb3a3ff9bde46c7",
+      "bytes": 105
+    },
+    "runtime/singularitydog_hw/can_readonly.py": {
+      "sha256": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+      "bytes": 9959
+    },
+    "runtime/singularitydog_hw/can_timing_probe.py": {
+      "sha256": "be285ae75fc4e5271fceb696bfc6f4590e8b23f54b25380747eb92fe58930a0a",
+      "bytes": 16023
+    },
+    "runtime/singularitydog_hw/commissioning.py": {
+      "sha256": "1b9c40a7ebe12d30a3967a6d5590a7adc574ef42023db55bf069888945eac85a",
+      "bytes": 11527
+    },
+    "runtime/singularitydog_hw/diagnose.py": {
+      "sha256": "0b69e75caeaa8f62b57383ccadcf2ec9fe97396e157ee7c8f59229621110a3ba",
+      "bytes": 12422
+    },
+    "runtime/singularitydog_hw/imu.py": {
+      "sha256": "a11711418fa58e9fbbeb6d8659edc5dd6b01005afab8bac2e3b6df7ae81175fb",
+      "bytes": 18442
+    },
+    "runtime/singularitydog_hw/imu_calibration.py": {
+      "sha256": "e857bdd856c85afb67f194ad85ab00fd192feffa9ae73a9138de1670b9137826",
+      "bytes": 21864
+    },
+    "runtime/singularitydog_hw/imu_capture.py": {
+      "sha256": "76b75f69cd8b918cb7ece98da21335cb058f9e85bbee85afec4a513c5cee4200",
+      "bytes": 6514
+    },
+    "runtime/singularitydog_hw/joint_observation.py": {
+      "sha256": "27ea198a8651d167ec8032f339a5cd9ca0ca5379dd40b6a3b8ccaaa671204f23",
+      "bytes": 14221
+    },
+    "runtime/singularitydog_hw/joint_snapshot.py": {
+      "sha256": "84a0145e08836aad275951c9024399361ce5a710e955a8eb97d7511af41ef027",
+      "bytes": 5925
+    },
+    "runtime/singularitydog_hw/manual_calibration.py": {
+      "sha256": "38a2e572b566da0cdc2ac6abeb8a49b3b93bc688b65528574d8b96d340a95b66",
+      "bytes": 21241
+    },
+    "runtime/singularitydog_hw/manual_motion_check.py": {
+      "sha256": "7a41345ca0a08f23b2e96d3b32bc0b30ecb5a7240cc88ad226371cd7610691d3",
+      "bytes": 12386
+    },
+    "runtime/singularitydog_hw/policy_shadow.py": {
+      "sha256": "d46181303822563f24572f15ab8af6d3c7ebd82be4d5529b7aa4d38b683a8016",
+      "bytes": 26793
+    },
+    "runtime/singularitydog_hw/pose_record.py": {
+      "sha256": "28bbea91d7ee4a76a690015e748a24c42abb525f87701c3c65885a34d3d45829",
+      "bytes": 14289
+    },
+    "runtime/singularitydog_hw/position_response_evidence.py": {
+      "sha256": "5ba44a23be5e6360b15678289ecd53cd569eb3bbf3514ccf4211d0bd5ddd7ad8",
+      "bytes": 2928
+    },
+    "runtime/singularitydog_hw/replacement_evidence.py": {
+      "sha256": "c24f959c4a2e3ea66d0301397e8c277c707f8e935bcfc65d4e15e1c8844729f7",
+      "bytes": 5226
+    },
+    "runtime/singularitydog_hw/rs05_joint_trial.py": {
+      "sha256": "376bc3cb59cd5cd2953cb5d37c2da6d4241bacba5fc671f8db70a47afa9080dd",
+      "bytes": 22392
+    },
+    "runtime/singularitydog_hw/rs05_leg_trial.py": {
+      "sha256": "9620591678ede171acfae5d1a75cec3f7803962641b59093fb620e81b593faa4",
+      "bytes": 34654
+    },
+    "runtime/singularitydog_hw/rs05_trial_protocol.py": {
+      "sha256": "128edaa507409894de73d7fa17b5a4ec853c42bbcaa1d96dfd6444600d633edb",
+      "bytes": 9910
+    },
+    "runtime/singularitydog_hw/safety.py": {
+      "sha256": "a23e5f3f0dec748243c2ac1529569eb9557e53c0fe4aba5d48d62925a6d71eab",
+      "bytes": 11239
+    },
+    "runtime/tests/test_can_readonly.py": {
+      "sha256": "11c13939841e3750f106a033bf91014d49a1aaf455c4f9b383703b9b143296f4",
+      "bytes": 3850
+    },
+    "runtime/tests/test_can_timing_probe.py": {
+      "sha256": "6c5131737d350d650397a41d76361d255eb9e9da018ecf485bc804fbc069e2c1",
+      "bytes": 11045
+    },
+    "runtime/tests/test_commissioning.py": {
+      "sha256": "a4607a1a78a6470b83c8504707af65a88da5360cf6a56003cb49aa880b24cab8",
+      "bytes": 8977
+    },
+    "runtime/tests/test_diagnose.py": {
+      "sha256": "ae8d328a04fbafef954e770bf137ae522841926a3f130723dc75b4fe6ece4769",
+      "bytes": 1845
+    },
+    "runtime/tests/test_imu.py": {
+      "sha256": "dbea7f6b289e4876b86fe98475ff8f07b8e1fcb5dd77ab6075b484973d1c1562",
+      "bytes": 14524
+    },
+    "runtime/tests/test_imu_calibration.py": {
+      "sha256": "a7b8b80a57c5f7d10c0fc5ced7fa879a2afd37ae4af5cc6d543976513f087fa1",
+      "bytes": 13756
+    },
+    "runtime/tests/test_imu_capture.py": {
+      "sha256": "1daaf0a633b6ce623d0c14950d15c34a02b69a451f0b553655a122334b99c08e",
+      "bytes": 1237
+    },
+    "runtime/tests/test_joint_observation.py": {
+      "sha256": "15ac84a034239c3e69de6f225a3f7951e2c399a7ce3fa2858d6db695dd141ef8",
+      "bytes": 11878
+    },
+    "runtime/tests/test_joint_snapshot.py": {
+      "sha256": "27fccf5d9fa4aeb40b1bdd6ab5efd6979e8ee0895e81e63935b3777cea28c852",
+      "bytes": 3345
+    },
+    "runtime/tests/test_manual_calibration.py": {
+      "sha256": "91a984d8b3405b4fd8d5eb47b54653c5bb420bdab673f98c910dc0c00e179483",
+      "bytes": 20392
+    },
+    "runtime/tests/test_manual_calibration_replacement.py": {
+      "sha256": "24c52d9c97ed9025bb18e72315b5b14d93b76c75d34fc9ce40ec2c2c883111b7",
+      "bytes": 9649
+    },
+    "runtime/tests/test_manual_motion_check.py": {
+      "sha256": "9d2084adddd28452d930522bc757cb5c7f7ff4d312bfd38ab7b15ed9bacb12e9",
+      "bytes": 8294
+    },
+    "runtime/tests/test_policy_shadow.py": {
+      "sha256": "ac06c7fbac16ba7dfc28042825bc791446057d80843bcd2067e868d257eac093",
+      "bytes": 17059
+    },
+    "runtime/tests/test_policy_shadow_mount.py": {
+      "sha256": "e66b73a840913572b778de59ffe53020786bd58d9926d51f6246aad446fe5e29",
+      "bytes": 9170
+    },
+    "runtime/tests/test_pose_jog.py": {
+      "sha256": "5afdc0a9a05ae7292fe1e125acf48390e086d4ae520e8362d750d342e8a51e3b",
+      "bytes": 13756
+    },
+    "runtime/tests/test_pose_record.py": {
+      "sha256": "f3b88cb31ffc593315edd0adfe8a9b7210d4a266c1eac9ee2bff7fa51cdb0ea3",
+      "bytes": 10841
+    },
+    "runtime/tests/test_position_response_evidence.py": {
+      "sha256": "cbff1ee34f8f8688f27210b83904901b9b622de5a382887b907d7cc142bdb51b",
+      "bytes": 2638
+    },
+    "runtime/tests/test_replacement_evidence.py": {
+      "sha256": "cbca8ea4d5776df4d53792529d2db1404d19359088aa07e1cd8ae0129df1264e",
+      "bytes": 6204
+    },
+    "runtime/tests/test_rs05_joint_trial.py": {
+      "sha256": "814342396071a1ba1a5547e1f0fe7b4befbe34becc57cf007fb30c4d0cb32f39",
+      "bytes": 12354
+    },
+    "runtime/tests/test_rs05_leg_pacing.py": {
+      "sha256": "64f087dd5d9ca2a6eb4ddc42baf0828b3a782bd3aa3acfbb5eabb3f107c64bab",
+      "bytes": 6525
+    },
+    "runtime/tests/test_rs05_leg_position_gate.py": {
+      "sha256": "53f2a6e6817d913a481264c9c2391bcd07353d6f351ff646a2c631b0ffa42170",
+      "bytes": 3234
+    },
+    "runtime/tests/test_rs05_leg_settled.py": {
+      "sha256": "33b60b93566f6428f36c16c8b36e4da9d0d93cc5d8aecedd49b131e97aaa8b2b",
+      "bytes": 10167
+    },
+    "runtime/tests/test_rs05_leg_transport.py": {
+      "sha256": "ccdd650a5a772d4c69cb47e95f5ca00ae712a35d490bd5319ee36c0067824892",
+      "bytes": 9990
+    },
+    "runtime/tests/test_rs05_leg_trial.py": {
+      "sha256": "31335f0a97cbe10b25411a36230968a8c5a8914de947c371b1b5b0b0d5dc313b",
+      "bytes": 9282
+    },
+    "runtime/tests/test_rs05_trial_protocol.py": {
+      "sha256": "aeae74b469dfd0876b86bfcf0bc4b3178b468fd829799c29f189ab64e7d909d8",
+      "bytes": 18566
+    },
+    "runtime/tests/test_safety.py": {
+      "sha256": "dd55c3736ce21dd1f9ec52d8ab894356b21ccc749ff06eb58c5ad17e454ea07f",
+      "bytes": 11795
+    },
+    "runtime/tests/test_step5_jog.py": {
+      "sha256": "d7a273ce37d1f8869bc07f35e826062532c0b6e81f3e6c071f649ab3f3c33ef8",
+      "bytes": 9020
     },
     "skills/singularitydog-design-study/SKILL.md": {
       "sha256": "f47a5cccb7a3a6cc869fbe09caa02fbb2ceddd14f3bf1d130ba2ee74f3b7b775",

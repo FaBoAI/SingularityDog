@@ -1,0 +1,197 @@
+{
+  "schema": "singularitydog.hardware-results.v1",
+  "as_of": "2026-09-21T14:55:13+09:00",
+  "scope": "Selected commissioning aggregates for 2026-09-20 and 2026-09-21; no raw logs or device identities.",
+  "hardware": {
+    "motor_model": "RobStride RS05",
+    "motor_count": 12,
+    "model_basis": "operator confirmation",
+    "can_adapter": "RobStride USB2CAN / CH340",
+    "imu": "GY-ICM20948V2",
+    "imu_connection": "I2C"
+  },
+  "calibration": {
+    "recorded_legs": 4,
+    "accepted_observation_poses_per_leg": 5,
+    "motor_count": 12,
+    "status": "unverified_model_calibration_candidates",
+    "id11_replaced": true,
+    "id11_latest_pose_max_range_deg": 0.051
+  },
+  "supported_fr_trials": [
+    {
+      "label": "single_5deg",
+      "start_jst": "2026-09-21T14:52:50+09:00",
+      "motor_ids": [
+        1,
+        2,
+        3
+      ],
+      "command_duration_s": 5,
+      "ramp_s": 4,
+      "hold_command_s": 1,
+      "command_delta_deg": [
+        -5,
+        -5,
+        5
+      ],
+      "final_active_delta_deg": [
+        -4.633018115979045,
+        -3.421276244372396,
+        4.34198386499196
+      ],
+      "tx_count": 411,
+      "rx_count": 411,
+      "unanswered_tx_count": 0,
+      "unmatched_rx_count": 0,
+      "enable_count": 3,
+      "positive_gain_commands": 300,
+      "all_stops_confirmed": true,
+      "gate_profile": "position-v2",
+      "gate_velocity_rms_rad_s": {
+        "1": 0.04287195541683656,
+        "2": 0.028197751592779652,
+        "3": 0.04253181491738958
+      },
+      "audit_status": "AUDIT_PASS"
+    },
+    {
+      "label": "two_stage_first",
+      "start_jst": "2026-09-21T14:54:51+09:00",
+      "motor_ids": [
+        1,
+        2,
+        3
+      ],
+      "command_duration_s": 5,
+      "ramp_s": 4,
+      "hold_command_s": 1,
+      "command_delta_deg": [
+        -5,
+        -5,
+        5
+      ],
+      "final_active_delta_deg": [
+        -3.9154667354242356,
+        -3.900435329391145,
+        3.5531898950223333
+      ],
+      "tx_count": 411,
+      "rx_count": 411,
+      "unanswered_tx_count": 0,
+      "unmatched_rx_count": 0,
+      "enable_count": 3,
+      "positive_gain_commands": 300,
+      "all_stops_confirmed": true,
+      "gate_profile": "position-v2",
+      "gate_velocity_rms_rad_s": {
+        "1": 0.03965004447223826,
+        "2": 0.0461380441984918,
+        "3": 0.05584652121969481
+      },
+      "audit_status": "AUDIT_PASS"
+    },
+    {
+      "label": "two_stage_second",
+      "start_jst": "2026-09-21T14:55:05+09:00",
+      "motor_ids": [
+        1,
+        2,
+        3
+      ],
+      "command_duration_s": 5,
+      "ramp_s": 4,
+      "hold_command_s": 1,
+      "command_delta_deg": [
+        -5,
+        -5,
+        5
+      ],
+      "final_active_delta_deg": [
+        -3.978556598900428,
+        -2.8018835710119223,
+        3.0649157500205253
+      ],
+      "tx_count": 411,
+      "rx_count": 411,
+      "unanswered_tx_count": 0,
+      "unmatched_rx_count": 0,
+      "enable_count": 3,
+      "positive_gain_commands": 300,
+      "all_stops_confirmed": true,
+      "gate_profile": "position-v2",
+      "gate_velocity_rms_rad_s": {
+        "1": 0.040929694440954414,
+        "2": 0.03521913785908616,
+        "3": 0.034203378430383645
+      },
+      "audit_status": "AUDIT_PASS"
+    }
+  ],
+  "trial_only_total_frames": {
+    "tx": 1233,
+    "rx": 1233
+  },
+  "two_stage_measurements": {
+    "1": {
+      "net_stage1_center_to_stage2_final_active_deg": -6.289235208325129,
+      "final_released_snapshot_minus_stage2_final_active_deg": 0.47710110202841133
+    },
+    "2": {
+      "net_stage1_center_to_stage2_final_active_deg": -6.515976517124776,
+      "final_released_snapshot_minus_stage2_final_active_deg": 0.7889448603391246
+    },
+    "3": {
+      "net_stage1_center_to_stage2_final_active_deg": 6.146751745043638,
+      "final_released_snapshot_minus_stage2_final_active_deg": -7.096530530268931
+    }
+  },
+  "operator_final_report": "Movement observed without abnormality; explicit correction of earlier selection preserved privately.",
+  "can_readonly_timing": {
+    "cycles": 20,
+    "median_cycle_ms": 81.2,
+    "max_cycle_ms": 81.84,
+    "observed_rate_hz": 12.32,
+    "policy_target_hz": 50
+  },
+  "imu_static_measurement": {
+    "acceleration_norm_m_s2": 10.7346,
+    "reference_gravity_m_s2": 9.80665,
+    "relative_difference_percent_approx": 9.46,
+    "calibrated": false
+  },
+  "policy_shadow": {
+    "trial": 28,
+    "condition": "A",
+    "checkpoint": "model_149.pt",
+    "input_count": 74,
+    "residual_output_count": 12,
+    "model_sha256": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434",
+    "source": "recorded_sensor_logs",
+    "actuator_output": false,
+    "cpu_torchscript_ms": {
+      "warm_median": 7.13,
+      "warm_max": 9.33,
+      "cold_first": 143.6
+    }
+  },
+  "validation": {
+    "position_gate_tests_local_and_jetson": 47,
+    "runtime_offline_tests_publication_local": 325
+  },
+  "limits": {
+    "continuous_10deg_reached": false,
+    "holding_verified": false,
+    "full_calibration_verified": false,
+    "learned_policy_actuation_performed": false,
+    "standing_or_walking_on_hardware_verified": false,
+    "physical_watchdog_stop_latency_verified": false,
+    "video_recorded_for_final_three_trials": false
+  },
+  "references": [
+    "docs/hardware-results-20260921.md",
+    "docs/hardware-bringup-20260920.md",
+    "docs/hardware-readiness-20260921.md",
+    "docs/hardware-test-plan-20260922.md"
+  ]
+}

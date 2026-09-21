@@ -14,8 +14,8 @@
   "assembly_and_wiring_documentation_complete": false,
   "files": {
     "docs/bom.md": {
-      "sha256": "f607fc189a90624d1f06ef0f3862d89f1b426aed630e75f0303d4dbdfe530831",
-      "bytes": 8275
+      "sha256": "f3d51a7dcce9390eee24d7e2a83fcebde8155786faaa6d68c1bc33a2121334e4",
+      "bytes": 8622
     },
     "docs/printing/common-deck-k1max-r2/printable_mm/B26_jetson_edge_retainer_front_mm.stl": {
       "sha256": "db0a1c13298a9c0fdd9f08a7ee6ebf1ee24e457d007ec0d056c580d200613c56",
@@ -386,8 +386,8 @@
       "bytes": 23099
     },
     "evidence/bom.json": {
-      "sha256": "4fdbb74e3d0462a658e924612c6aa487dc2d5a6300a091136f74d0e29d45b82d",
-      "bytes": 19592
+      "sha256": "226f1c7d980fbcaac4a72ad520cbb121bab25ffef608e4fd950c9394dc8ffb70",
+      "bytes": 20301
     }
   }
 }

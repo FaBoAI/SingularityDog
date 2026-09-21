@@ -1,6 +1,6 @@
 {
   "schema": "singularitydog.bom.v1",
-  "updated": "2026-09-17",
+  "updated": "2026-09-21",
   "scope_ja": "1台の最新設計候補を整理した構成BOM。購入済み・組立完了・調達可能性を示す表ではない。",
   "status": "design_bom_incomplete_for_procurement",
   "units": {
@@ -19,8 +19,8 @@
       "name_ja": "QDDモーター",
       "quantity_per_robot": 12,
       "unit": "個",
-      "status": "model_selected_actual_model_unconfirmed",
-      "model": "RobStride RS05 reference model",
+      "status": "operator_confirmed_model_actual_mass_unweighed",
+      "model": "RobStride RS05",
       "dimensions_mm": {
         "reference_body_diameter": 46,
         "reference_body_length": 44
@@ -30,11 +30,12 @@
         "basis": "reference_value_not_weighed"
       },
       "notes_ja": [
-        "4脚×3軸。RS05は設計・学習用モデルの採用品。現物の型番・改版・質量は未照合。",
+        "4脚×3軸。操作者が全12個の実機をRS05と確認。改版・質量は未照合。ID11は交換済み。",
         "旧EduLite 05の242g/台は混用しない。放熱器等の追加品は未選定。"
       ],
       "source_ids": [
-        "motor_frame_config"
+        "motor_frame_config",
+        "hardware_bringup"
       ]
     },
     {
@@ -148,8 +149,8 @@
       "name_ja": "IMU",
       "quantity_per_robot": 1,
       "unit": "個",
-      "status": "unselected_placeholder",
-      "model": null,
+      "status": "selected_and_i2c_telemetry_observed",
+      "model": "GY-ICM20948V2",
       "dimensions_mm": {
         "placeholder": [
           20,
@@ -162,11 +163,13 @@
         "basis": "placeholder_allowance"
       },
       "notes_ja": [
-        "機種・通信方式・実寸法・固定穴・軸方向は未確定。"
+        "I2C接続で計測確認。基板Xは犬の左、部品面は下向きとの操作者確認。",
+        "制御用の軸照合・六面校正は未完了。旧仮包絡20×20×8と仮5gは実寸・実重量ではない。"
       ],
       "source_ids": [
         "handle_geometry",
-        "d17_ledger"
+        "d17_ledger",
+        "hardware_bringup"
       ]
     },
     {
@@ -441,8 +444,11 @@
       "id": "usb_can",
       "name_ja": "USB-CANアダプター",
       "quantity_per_robot": 1,
-      "status": "unselected_or_incomplete",
-      "notes_ja": "台数の初期計画。型番・チャネル数・絶縁有無は未確定。"
+      "status": "selected_and_used_control_performance_incomplete",
+      "notes_ja": "RobStride USB2CAN / CH340を1台使用。RS05の識別・読み取り・限定駆動を確認。絶縁・全12軸制御性能は未検証。",
+      "source_ids": [
+        "hardware_bringup"
+      ]
     },
     {
       "id": "makita_adapter",
@@ -549,6 +555,13 @@
       "sha256": "e0585cda4f24c9935713a04449d25e1d6bf9a2b4894e45467752195b943290b1",
       "public_path": null,
       "source_file_published_by_this_bom": false
+    },
+    {
+      "id": "hardware_bringup",
+      "description_ja": "操作者による全RS05の確認と、USB2CAN・GY-ICM20948V2の実機診断",
+      "sha256": "76feb2a4d6fc1c2e477cdcd4cabbafa567fc4135a953e34efef7581681eae604",
+      "public_path": "docs/hardware-bringup-20260920.md",
+      "source_file_published_by_this_bom": true
     }
   ],
   "extracted_frame_components": [
