@@ -85,6 +85,49 @@ class StageTests(unittest.TestCase):
         self.assertIn("下脚も一緒に回ります", manual.guidance(stages[2]))
         self.assertIn("測定済み角度や駆動目標にはしません", manual.guidance(stages[3]))
 
+    def test_two_calf_recheck_retains_reference_and_return_without_other_candidates(self):
+        stages = manual.make_stages(["FL", "RR"], "calf")
+        self.assertEqual([s["id"] for s in stages],
+                         ["fl-l", "fl-calf", "fl-return", "rr-l", "rr-calf", "rr-return"])
+        self.assertEqual([s["ids"] for s in stages], [[4, 5, 6]] * 3 + [[7, 8, 9]] * 3)
+        for sign in (-1, 1):
+            signed = manual.build_candidates(stages, complete_records(stages, sign))
+            self.assertEqual([c["sign_candidate"] for c in signed], [sign, sign])
+        records = complete_records(stages)
+        candidates = manual.build_candidates(stages, records)
+        self.assertEqual([c["motor_id"] for c in candidates], [4, 7])
+        self.assertTrue(all(c["approved_for_runtime"] is False for c in candidates))
+        without_rr_return = manual.build_candidates(stages, records[:-1])
+        self.assertEqual(without_rr_return[0]["sign_candidate"], 1)
+        self.assertIsNone(without_rr_return[1]["sign_candidate"])
+
+    def test_subset_still_rejects_other_axis_motion_and_return_drift(self):
+        stages = manual.make_stages(["FL"], "calf")
+        records = complete_records(stages)
+        for index, changes in ((1, {4: 8, 5: 4}), (2, {6: 4})):
+            with self.subTest(index=index):
+                bad = list(records)
+                bad[index] = observation(stages[index], synthetic_pose(changes), synthetic_pose())
+                self.assertIsNone(manual.build_candidates(stages, bad)[0]["sign_candidate"])
+
+    def test_selection_errors_happen_without_capture(self):
+        for legs, joint in (([], None), (["FL", "FL"], "calf"), (["XX"], None), (["FL"], "bad")):
+            with self.subTest(legs=legs, joint=joint), self.assertRaises(ValueError):
+                manual.make_stages(legs, joint)
+
+    def test_subset_cli_guide_does_not_open_transport(self):
+        with patch.object(manual.joint_snapshot, "main") as capture, contextlib.redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(manual.main(["--legs", "FL", "RR", "--joint", "calf"]), 0)
+        capture.assert_not_called()
+        self.assertIn("[6/6]", out.getvalue())
+        self.assertNotIn("上脚を少し前へ", out.getvalue())
+
+    def test_cli_rejects_ambiguous_or_duplicate_legs(self):
+        for args in (["--leg", "FL", "--legs", "RR"], ["--legs", "FL", "FL"]):
+            with self.subTest(args=args), contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+                manual.main(args)
+            self.assertEqual(error.exception.code, 2)
+
 
 class AnalysisTests(unittest.TestCase):
     def setUp(self):

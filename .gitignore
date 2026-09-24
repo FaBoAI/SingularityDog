@@ -250,3 +250,6 @@ IMG_*.[Hh][Ee][Ii][Cc]
 
 # Individually selected yellow CAD hero, 2026-09-18
 !docs/media/cad-yellow-assembly-20260914.png
+
+# Own illustrative RR hip reference, derived from public model dimensions
+!docs/media/rr-hip-horizontal-reference.png

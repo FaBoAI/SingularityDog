@@ -32,15 +32,21 @@ OTHER_AXIS_LIMIT_DEG = 3.0
 RETURN_LIMIT_DEG = 3.0
 
 
-def make_stages(legs=None):
+def make_stages(legs=None, joint=None):
+    legs = list(LEGS) if legs is None else list(legs)
+    if not legs or len(set(legs)) != len(legs) or any(leg not in LEGS for leg in legs):
+        raise ValueError("脚は重複しないFR/FL/RR/RLで指定してください")
+    if joint not in (None, "calf", "thigh", "hip"):
+        raise ValueError("関節はcalf/thigh/hipで指定してください")
+    kinds = KINDS if joint is None else ("l", joint, "return")
     stages = []
-    for leg in legs or LEGS:
+    for leg in legs:
         label, ids = LEGS[leg]
         outward = -10 if leg in ("FR", "RR") else 10
         targets = {"l": (0, 0, -90), "calf": (0, 0, -80),
                    "thigh": (0, -10, -90), "hip": (outward, 0, -90),
                    "return": (0, 0, -90)}
-        for kind in KINDS:
+        for kind in kinds:
             hip, thigh, calf = targets[kind]
             stages.append({"id": f"{leg.lower()}-{kind}", "leg": leg,
                            "label": label, "kind": kind, "ids": list(ids),
@@ -241,6 +247,7 @@ class Session:
         self.data.update(status=status, finished_at=datetime.datetime.now().astimezone().isoformat())
         self.save()
         lines = ["# 手動校正の観測結果", "", "手で合わせた概略角度による候補です。実機制御には未適用。",
+                 f"今回選択した{len(self.stages)}姿勢・{len(self.data['candidates'])}関節だけの結果です。",
                  "q_model = sign × raw + offset の候補値。角度折り返し補正なし。",
                  "モーター電源の再投入をまたぐ連続性は未検証。", "",
                  "| ID | 脚・関節 | 符号候補 | offset候補 rad | 状態 |", "|---:|---|---:|---:|---|"]
@@ -264,7 +271,9 @@ def run_interactive(session, read=tty_input, write=print):
     write("支持台上・全脚を浮かせて手で合わせるモード / 自動駆動なし")
     write("モーターが脱力し手で動くことを確認。別の駆動プログラムを同時に起動しないでください。")
     write("Enter=今の位置を記録して次へ / s=飛ばす / q=終了。読み取り中は約1秒姿勢を保持。")
-    write("約3分は目安です。1脚ずつ5姿勢、全脚20記録。電源再投入時は終了して最初から。")
+    selected_ids = [s["moving_id"] for s in session.stages if s["moving_id"] is not None]
+    write(f"今回の対象: ID {', '.join(map(str, selected_ids))} / {len(session.stages)}姿勢。"
+          "選択した関節だけの観測です。電源再投入時は終了して最初から。")
     status = "INTERRUPTED"
     try:
         for index, stage in enumerate(session.stages, 1):
@@ -299,6 +308,7 @@ def run_interactive(session, read=tty_input, write=print):
         status = "OBSERVATIONS_COMPLETE" if len(accepted) == len(session.stages) else "OBSERVATIONS_PARTIAL"
         if status == "OBSERVATIONS_COMPLETE":
             write("\n観測の記録が揃いました（校正候補・実機駆動は未承認）")
+            write(f"今回選択した{len(session.stages)}姿勢だけの完了です。他の関節の校正状態は変更しません。")
         else:
             write(f"\n校正は未完了: {len(accepted)}/{len(session.stages)}姿勢の有効な観測を記録しました。")
             titles = {"l": "基準のL字", "calf": "膝から先を少し下げる", "thigh": "上脚を少し前へ",
@@ -325,13 +335,20 @@ def run_interactive(session, read=tty_input, write=print):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--execute", action="store_true", help="対話式の読み取りを開始（駆動しません）")
-    ap.add_argument("--leg", choices=LEGS, help="この脚だけ5姿勢。省略は全4脚20姿勢")
+    legs = ap.add_mutually_exclusive_group()
+    legs.add_argument("--leg", choices=LEGS, help="この脚だけ。既定は5姿勢")
+    legs.add_argument("--legs", nargs="+", choices=LEGS, help="指定した脚を順番に記録。例: FL RR")
+    ap.add_argument("--joint", choices=("calf", "thigh", "hip"),
+                    help="1関節だけ再確認。各脚でL字→選択関節→L字の3姿勢")
     ap.add_argument("--sweeps", type=int, choices=range(3, 11), default=5)
     ap.add_argument("--output", type=Path)
     ap.add_argument("--replacement-evidence", type=Path,
                     help="ID11交換前後の読み取り記録を指定する非公開JSON")
     args = ap.parse_args(argv)
-    stages = make_stages([args.leg] if args.leg else None)
+    try:
+        stages = make_stages([args.leg] if args.leg else args.legs, args.joint)
+    except ValueError as error:
+        ap.error(str(error))
     if not args.execute:
         for index, stage in enumerate(stages, 1):
             print(f"\n[{index}/{len(stages)}] " + guidance(stage))

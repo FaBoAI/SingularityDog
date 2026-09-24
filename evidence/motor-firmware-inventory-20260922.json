@@ -1,0 +1,228 @@
+{
+  "schema": "singularitydog.motor-firmware-inventory.v1",
+  "measured_at": "2026-09-22T05:18:58.658831+00:00",
+  "status": "VERSION_PROBE_COMPLETE",
+  "motors": [
+    {
+      "motor_id": 1,
+      "model": "RS05",
+      "leg": "FR",
+      "joint": "足先側",
+      "firmware_version": "0.5.0.9",
+      "version_bytes_hex": "00050009",
+      "undefined_byte7": 7,
+      "identity_verified": true,
+      "stop_mode": 0,
+      "fault_bits": 0,
+      "can_timeout_read_status": 0
+    },
+    {
+      "motor_id": 2,
+      "model": "RS05",
+      "leg": "FR",
+      "joint": "中央",
+      "firmware_version": "0.5.0.9",
+      "version_bytes_hex": "00050009",
+      "undefined_byte7": 7,
+      "identity_verified": true,
+      "stop_mode": 0,
+      "fault_bits": 0,
+      "can_timeout_read_status": 0
+    },
+    {
+      "motor_id": 3,
+      "model": "RS05",
+      "leg": "FR",
+      "joint": "付け根",
+      "firmware_version": "0.5.0.9",
+      "version_bytes_hex": "00050009",
+      "undefined_byte7": 7,
+      "identity_verified": true,
+      "stop_mode": 0,
+      "fault_bits": 0,
+      "can_timeout_read_status": 0
+    },
+    {
+      "motor_id": 4,
+      "model": "RS05",
+      "leg": "FL",
+      "joint": "足先側",
+      "firmware_version": "0.5.0.9",
+      "version_bytes_hex": "00050009",
+      "undefined_byte7": 7,
+      "identity_verified": true,
+      "stop_mode": 0,
+      "fault_bits": 0,
+      "can_timeout_read_status": 0
+    },
+    {
+      "motor_id": 5,
+      "model": "RS05",
+      "leg": "FL",
+      "joint": "中央",
+      "firmware_version": "0.5.0.9",
+      "version_bytes_hex": "00050009",
+      "undefined_byte7": 7,
+      "identity_verified": true,
+      "stop_mode": 0,
+      "fault_bits": 0,
+      "can_timeout_read_status": 0
+    },
+    {
+      "motor_id": 6,
+      "model": "RS05",
+      "leg": "FL",
+      "joint": "付け根",
+      "firmware_version": "0.5.0.3",
+      "version_bytes_hex": "00050003",
+      "undefined_byte7": 7,
+      "identity_verified": true,
+      "stop_mode": 0,
+      "fault_bits": 0,
+      "can_timeout_read_status": 1
+    },
+    {
+      "motor_id": 7,
+      "model": "RS05",
+      "leg": "RR",
+      "joint": "足先側",
+      "firmware_version": "0.5.0.9",
+      "version_bytes_hex": "00050009",
+      "undefined_byte7": 7,
+      "identity_verified": true,
+      "stop_mode": 0,
+      "fault_bits": 0,
+      "can_timeout_read_status": 0
+    },
+    {
+      "motor_id": 8,
+      "model": "RS05",
+      "leg": "RR",
+      "joint": "中央",
+      "firmware_version": "0.5.0.9",
+      "version_bytes_hex": "00050009",
+      "undefined_byte7": 7,
+      "identity_verified": true,
+      "stop_mode": 0,
+      "fault_bits": 0,
+      "can_timeout_read_status": 0
+    },
+    {
+      "motor_id": 9,
+      "model": "RS05",
+      "leg": "RR",
+      "joint": "付け根",
+      "firmware_version": "0.5.0.3",
+      "version_bytes_hex": "00050003",
+      "undefined_byte7": 7,
+      "identity_verified": true,
+      "stop_mode": 0,
+      "fault_bits": 0,
+      "can_timeout_read_status": 1
+    },
+    {
+      "motor_id": 10,
+      "model": "RS05",
+      "leg": "RL",
+      "joint": "足先側",
+      "firmware_version": "0.5.0.3",
+      "version_bytes_hex": "00050003",
+      "undefined_byte7": 7,
+      "identity_verified": true,
+      "stop_mode": 0,
+      "fault_bits": 0,
+      "can_timeout_read_status": 1
+    },
+    {
+      "motor_id": 11,
+      "model": "RS05",
+      "leg": "RL",
+      "joint": "中央",
+      "firmware_version": "0.5.0.9",
+      "version_bytes_hex": "00050009",
+      "undefined_byte7": 7,
+      "identity_verified": true,
+      "stop_mode": 0,
+      "fault_bits": 0,
+      "can_timeout_read_status": 0
+    },
+    {
+      "motor_id": 12,
+      "model": "RS05",
+      "leg": "RL",
+      "joint": "付け根",
+      "firmware_version": "0.5.0.9",
+      "version_bytes_hex": "00050009",
+      "undefined_byte7": 7,
+      "identity_verified": true,
+      "stop_mode": 0,
+      "fault_bits": 0,
+      "can_timeout_read_status": 0
+    }
+  ],
+  "counts_by_version": {
+    "0.5.0.3": 3,
+    "0.5.0.9": 9
+  },
+  "write_attempts": 36,
+  "elapsed_s": 0.866421842,
+  "allowed_can_types": [
+    0,
+    4
+  ],
+  "ordinary_stop_sent": true,
+  "motor_enable_sent": false,
+  "settings_written": false,
+  "firmware_written": false,
+  "raw_summary_sha256": "7aed52c4b8cb5cfbe980c514448e8e059371b226aa3c5476396e01d60abfcd95",
+  "raw_events_sha256": "e6a171360378eeb7c5f21e0c04ba950d6694a9392064efd40c49a2ada8e9a5f0",
+  "source_sha256": {
+    "motor_version_probe.py": "4f219e8cf80d6bfee7dfa18b8f0ffc46467e8595f01392cf33d89b61227f7feb",
+    "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+    "rs05_trial_protocol.py": "128edaa507409894de73d7fa17b5a4ec853c42bbcaa1d96dfd6444600d633edb",
+    "can_timing_probe.py": "be285ae75fc4e5271fceb696bfc6f4590e8b23f54b25380747eb92fe58930a0a"
+  },
+  "version_decode": {
+    "byte_offsets_zero_based": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "order": "high-to-low as received",
+    "undefined_byte7_excluded": true,
+    "decimal_bcd_ambiguity_affects_these_samples": false
+  },
+  "latest_official_rs05": {
+    "version": "0.5.0.14",
+    "release": "V26.05.19",
+    "url": "https://github.com/RobStride/Product_Information/releases/tag/V26.05.19",
+    "binary_sha256": "e05502e115a014029c79f5ad052b6c8b1e1790b557763c8a42da0dc35b6d79be"
+  },
+  "limitations": [
+    "Version correlation does not prove the cause of can_timeout read rejection.",
+    "No firmware update performed.",
+    "No physical watchdog-stop-latency or standing/policy-output validation."
+  ],
+  "independent_raw_audit": {
+    "status": "PASS",
+    "private_audit_sha256": "a6041a7e3e85f40021ac3d33a43632563bf4daa31a3fca33cf5379ee735ddb7d",
+    "tx_count": 36,
+    "rx_count": 36,
+    "uid_matches": 12,
+    "confirmed_stops": 12,
+    "version_replies": 12
+  },
+  "subsequent_replacement_plan": {
+    "status": "OPERATOR_REPORTED_COMPLETE_HARDWARE_VERIFICATION_PENDING",
+    "ids": [
+      6,
+      9,
+      10
+    ],
+    "previous_inventory_is_pre_replacement": true,
+    "old_calibration_must_not_be_reused_for_replaced_units": true,
+    "reported_complete_date": "2026-09-23",
+    "new_hardware_verified": false
+  }
+}

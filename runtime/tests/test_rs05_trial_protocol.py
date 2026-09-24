@@ -23,6 +23,62 @@ def feedback(*, kind=2, source=1, destination=0xFD, mode=0, faults=0,
 
 
 class RS05TrialCodecTests(unittest.TestCase):
+    def test_rr_hip_kp6_codec_changes_only_id9_kp_with_unchanged_bounds(self):
+        from singularitydog_hw.rs05_trial_protocol import STEP5_MAX_OFFSET_RAD
+        phase=TrialPhase.POSITION_STEP5_RR_HIP_KP6
+        for center in (0.,POSITION_MIN+STEP5_MAX_OFFSET_RAD,POSITION_MAX-STEP5_MAX_OFFSET_RAD):
+            for offset in (-STEP5_MAX_OFFSET_RAD,0.,STEP5_MAX_OFFSET_RAD):
+                old=ATParser().feed(motion_request(phase=TrialPhase.POSITION_STEP5_KP4,
+                    center_rad=center,offset_rad=offset,motor_id=9))[0]
+                new=ATParser().feed(motion_request(phase=phase,
+                    center_rad=center,offset_rad=offset,motor_id=9))[0]
+                self.assertEqual(struct.unpack('>4H',new.data)[1:],(32767,786,1966))
+                self.assertEqual(new.can_id,old.can_id)
+                self.assertEqual(new.data[:4]+new.data[6:],old.data[:4]+old.data[6:])
+        for center in (POSITION_MIN,POSITION_MAX,
+                       math.nextafter(POSITION_MIN+STEP5_MAX_OFFSET_RAD,-math.inf),
+                       math.nextafter(POSITION_MAX-STEP5_MAX_OFFSET_RAD,math.inf)):
+            with self.assertRaises(ValueError):motion_request(phase=phase,center_rad=center,motor_id=9)
+        for offset in (math.nextafter(STEP5_MAX_OFFSET_RAD,math.inf),
+                       -math.nextafter(STEP5_MAX_OFFSET_RAD,math.inf),2*math.pi):
+            with self.assertRaises(ValueError):
+                motion_request(phase=phase,center_rad=0.,offset_rad=offset,motor_id=9)
+
+    def test_rr_hip_kp6_codec_requires_exact_phase_and_id9_no_gain_override(self):
+        phase=TrialPhase.POSITION_STEP5_RR_HIP_KP6
+        for mid in (0,1,2,3,4,5,6,7,8,10,11,12,13,True,9.,'9',None):
+            with self.assertRaises(ValueError):motion_request(phase=phase,center_rad=0.,motor_id=mid)
+        with self.assertRaises(ValueError):motion_request(phase=phase,center_rad=0.)
+        for bad in ('rr_hip_kp6_diagnostic',phase.value,None,6,True):
+            with self.assertRaises(ValueError):motion_request(phase=bad,center_rad=0.,motor_id=9)
+        for name in ('center_rad','offset_rad'):
+            for bad in (math.nan,math.inf,-math.inf,True,None,'0.0',10**500):
+                with self.assertRaises(ValueError):
+                    motion_request(**{'phase':phase,'center_rad':0.,'motor_id':9,name:bad})
+        with self.assertRaises(TypeError):motion_request(phase=phase,center_rad=0.,motor_id=9,kp=7.)
+
+    def test_kp4_diagnostic_changes_only_kp_at_same_five_degree_boundary(self):
+        from singularitydog_hw.rs05_trial_protocol import STEP5_MAX_OFFSET_RAD
+        for mid in range(1,13):
+            for center in (0., POSITION_MIN+STEP5_MAX_OFFSET_RAD, POSITION_MAX-STEP5_MAX_OFFSET_RAD):
+                for offset in (-STEP5_MAX_OFFSET_RAD,0.,STEP5_MAX_OFFSET_RAD):
+                    old=ATParser().feed(motion_request(phase=TrialPhase.POSITION_STEP5,
+                        center_rad=center,offset_rad=offset,motor_id=mid))[0]
+                    new=ATParser().feed(motion_request(phase=TrialPhase.POSITION_STEP5_KP4,
+                        center_rad=center,offset_rad=offset,motor_id=mid))[0]
+                    p,v,kp,kd=struct.unpack('>4H',new.data)
+                    self.assertEqual((kp,kd),(524,1966))
+                    self.assertEqual(new.can_id,old.can_id)
+                    self.assertEqual((new.can_id>>8)&65535,32767) # nominal zero FF
+                    self.assertEqual(new.data[:4]+new.data[6:],old.data[:4]+old.data[6:])
+        for offset in (math.nextafter(STEP5_MAX_OFFSET_RAD,math.inf),-math.nextafter(STEP5_MAX_OFFSET_RAD,math.inf),2*math.pi,math.nan):
+            with self.assertRaises(ValueError):
+                motion_request(phase=TrialPhase.POSITION_STEP5_KP4,center_rad=0.,offset_rad=offset)
+        for center in (POSITION_MIN,POSITION_MAX,math.nan):
+            with self.assertRaises(ValueError):motion_request(phase=TrialPhase.POSITION_STEP5_KP4,center_rad=center)
+        for phase in ('position_step5_kp4','kp4_diagnostic',None):
+            with self.assertRaises(ValueError):motion_request(phase=phase,center_rad=0.)
+
     def test_enable_stop_and_watchdog_golden_wire(self):
         cases = [
             (enable_request, TrialPhase.ENABLE,

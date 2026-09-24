@@ -1,0 +1,262 @@
+{
+  "schema": "singularitydog.hardware-relative-trial.v1",
+  "date": "2026-09-22",
+  "leg": "FR",
+  "started_at": "2026-09-22T13:14:25.001029+09:00",
+  "completed_at": "2026-09-22T13:14:32.513810+09:00",
+  "status": "MOTION_FINISHED_RESET_CONFIRMED",
+  "motor_control_commands_sent": true,
+  "operator_observation": "動きが見えた。異常なし",
+  "operator_support_and_power_cut_confirmed": true,
+  "scope": "one supported relative trial; not standing or policy output",
+  "command": {
+    "raw_directions": [
+      1,
+      1,
+      1
+    ],
+    "target_offsets_deg": [
+      5,
+      5,
+      5
+    ],
+    "duration_s": 5,
+    "ramp_s": 4,
+    "endpoint_dwell_s": 1,
+    "cycle_s": 0.05,
+    "Kp": 3,
+    "Kd": 0.15,
+    "torque_feedforward": 0
+  },
+  "motors": [
+    {
+      "can_id": 1,
+      "commanded_relative_deg": 5,
+      "measured_final_relative_deg": 4.575242964394748,
+      "final_tracking_error_deg": -0.42475703560525163,
+      "initial_voltage_V": 36.00151824951172,
+      "stop_reset_confirmed": true,
+      "stop_mode_state": 0,
+      "stop_fault_bits": 0
+    },
+    {
+      "can_id": 2,
+      "commanded_relative_deg": 5,
+      "measured_final_relative_deg": 3.69744857779428,
+      "final_tracking_error_deg": -1.30255142220572,
+      "initial_voltage_V": 35.19446563720703,
+      "stop_reset_confirmed": true,
+      "stop_mode_state": 0,
+      "stop_fault_bits": 0
+    },
+    {
+      "can_id": 3,
+      "commanded_relative_deg": 5,
+      "measured_final_relative_deg": 1.2453160985467913,
+      "final_tracking_error_deg": -3.7546839014532085,
+      "initial_voltage_V": 36.45767593383789,
+      "stop_reset_confirmed": true,
+      "stop_mode_state": 0,
+      "stop_fault_bits": 0
+    }
+  ],
+  "stop_confirmed": true,
+  "audit": {
+    "status": "AUDIT_PASS",
+    "sha256": "c576632dd62d96156f8c7c5e1b93644a3f4dfd5db2ceb7a2cc8912a5b3624f5d",
+    "all12_identities_match_before_after": true,
+    "transferred_file_count": 10,
+    "all_transferred_hashes_match": true,
+    "tx_counts": {
+      "before": 492,
+      "trial": 411,
+      "after": 252
+    },
+    "missing_or_unmatched_frames": 0,
+    "positive_gain_command_frames": 300
+  },
+  "source_hashes": {
+    "trial_summary": "e646f4a1a4442dfb294ec9486080fb216099d01ced71d814a3f7c82bfa54e292",
+    "trial_events": "5ada47acd10c009476eaaf337cdd26ad7fbee1f5e79561bf95a3b8c64b9e0092"
+  },
+  "limitations": [
+    "ID3 reached only about 1.25 degrees for a 5 degree target; not a tracking success for all joints.",
+    "No load-bearing stance, policy output, or all-leg actuation tested.",
+    "Velocity and torque field scales remain firmware-dependent and unresolved.",
+    "Watchdog configuration read back; physical timeout response not verified.",
+    "Position-v2 stationarity scope is supported FR only.",
+    "Manual zero/sign references remain candidates; no automatic recalibration."
+  ],
+  "approved_for_runtime": false,
+  "rr_manual_reference_followup": {
+    "status": "REPEATABLE_MANUAL_ZERO_CANDIDATE_NOT_APPLIED",
+    "can_id": 9,
+    "operator_axis_center_alignment_confirmed_twice": true,
+    "same_boot": true,
+    "all12_identities_match": true,
+    "repeat_mean_difference_deg": -0.03855300277013697,
+    "repeat_median_difference_deg": -0.05671447577320088,
+    "candidate_offset_rad": 0.687396377325058,
+    "candidate_sign": 1,
+    "old_offset_rad": 0.07813385874032974,
+    "offset_change_deg": 34.908170930415814,
+    "method": "negative equal-weight arithmetic mean of the two per-capture raw position medians",
+    "source_audit_sha256": "df8aea9fdb8dd97b5044faa34c750dae31d8a10226739eea3c745691c3f915be",
+    "observation_sources": [
+      {
+        "source_hashes": {
+          "events.jsonl": "79537bec57121765198b65ba84770e1da1aeb04378327366d4aec9d085f9496c",
+          "summary.json": "79735f29f57cef506bc99c76183b0686bdac8ee5848c4110150433e201e99cfd"
+        },
+        "span_deg": 0.08223889270153853,
+        "sampling_issues": [],
+        "candidate_model_median_deg": 0.02835723788660044
+      },
+      {
+        "source_hashes": {
+          "events.jsonl": "7b5a7b69f0f4baed9814a1f83a5b0cf5d7260a4db33451ccfe6b8543d521a21e",
+          "summary.json": "edbf032f0aa19527f54f442022edd20dde040131110afe4356360ade95c1afa9"
+        },
+        "span_deg": 0.07371823171194762,
+        "sampling_issues": [
+          "velocity"
+        ],
+        "candidate_model_median_deg": -0.02835723788660044
+      }
+    ],
+    "absolute_angle_measured": false,
+    "runtime_applied": false,
+    "encoder_zero_written": false,
+    "sign_revalidated_today": false
+  },
+  "fl_attempt_after_recharge": {
+    "leg": "FL",
+    "started_at": "2026-09-22T13:56:37.021155+09:00",
+    "completed_at": "2026-09-22T13:56:37.373527+09:00",
+    "status": "ABORTED_BEFORE_ENABLE",
+    "requested_raw_offset_deg": [
+      -5,
+      -5,
+      -5
+    ],
+    "requested_duration_s": 5,
+    "reason": "ID6 can_timeout 0x7028 parameter status1 (read failure)",
+    "motion_completed": false,
+    "enable_frames": 0,
+    "positive_gain_frames": 0,
+    "zero_gain_frames": 3,
+    "stop_confirmed": true,
+    "stopped_ids": [
+      4,
+      5,
+      6
+    ],
+    "volatile_watchdog_writes_sent_ids": [
+      4,
+      5
+    ],
+    "watchdog_written_value_ticks": 4000,
+    "watchdog_readback_reached_inside_trial": false,
+    "source_hashes": {
+      "summary": "94e71281a294106f4e2c88a9c81e29c05b0c42966ce0e053f2fe19a8f429f7bf",
+      "events": "b6ba185553a1ed4d3b31ddf15b5740443cc5f3aa56cd77cdec63b211feaac602"
+    },
+    "approved_for_runtime": false,
+    "audit": {
+      "sha256": "1eded105ea2aa18aae0504231b7a42545565b58895cfe14a92c0a1789e10e9d1",
+      "raw_rx_redecoded_matches": true,
+      "discarded_and_residual_bytes": 0,
+      "tx_rx_counts": {
+        "before": 492,
+        "trial": 29,
+        "after": 252,
+        "capability_followup": 48
+      },
+      "uid_match_verified": true
+    }
+  },
+  "watchdog_capability_followup": {
+    "started_at": "2026-09-22T13:58:22.648854+09:00",
+    "completed_at": "2026-09-22T13:58:23.009912+09:00",
+    "allowed_can_types": [
+      0,
+      17
+    ],
+    "tx_count": 48,
+    "all12_identities_match": true,
+    "all12_current_A": 0,
+    "rejected_ids": [
+      6,
+      9,
+      10
+    ],
+    "status_meaning": "read failure only; firmware support and cause not established",
+    "parameter_index_hex": "0x7028",
+    "reported_ticks": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 4000,
+      "5": 4000,
+      "6": null,
+      "7": 0,
+      "8": 0,
+      "9": null,
+      "10": null,
+      "11": 0,
+      "12": 0
+    },
+    "source_hashes": {
+      "summary": "422069a7c62f475ce0d214b5dd9a66608f2e2247188b787fdb102535c528b447",
+      "events": "fe3fe5cf650197e32b1cd1a55062c04170c92764743d72602387cb071e8bfdae"
+    },
+    "motor_commands_sent": false
+  },
+  "saved_data_tools": {
+    "prestand": {
+      "tests": 17,
+      "recharged_all12_voltage_current_pass": true,
+      "original_calibration_outside_model_hip_ids": [
+        3,
+        6,
+        9,
+        12
+      ],
+      "live_readiness": false
+    },
+    "policy_replay": {
+      "related_tests": 71,
+      "complete_capture_and_identity_validated": true,
+      "h_hypotheses": [
+        0,
+        1
+      ],
+      "max_age_ms": 100,
+      "max_spread_ms": 100,
+      "first_blocked_tick_index": 0,
+      "acquisition_spread_ms": 148.438491,
+      "policy_ticks_completed_per_h": 0,
+      "status": "INCOMPLETE",
+      "model_range_gate_reached": false,
+      "mac_jetson_first_blocked_tick_equal": true,
+      "jetson_summary_sha256": "40d498071ca5c075bfbc7649dfc28b35e415c12315619df255ecd11150c50031",
+      "events_sha256": "561b5fbacd6187bb2a10e883dce08b2d98e440d62988d39cabc65ed17f5afb02",
+      "motor_output_available": false,
+      "live_50hz_verified": false
+    }
+  },
+  "motor_firmware_inventory": {
+    "path": "motor-firmware-inventory-20260922.json",
+    "status": "VERSION_PROBE_COMPLETE",
+    "counts_by_version": {
+      "0.5.0.3": 3,
+      "0.5.0.9": 9
+    },
+    "old_version_ids": [
+      6,
+      9,
+      10
+    ],
+    "firmware_written": false
+  }
+}

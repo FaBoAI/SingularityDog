@@ -14,6 +14,10 @@ Type 1 uses the current RS05 manual/official SDK profile: +/-12.57 rad,
 POSITION fixes Kp=0.5/Kd=0.02 and POSITION_STEP2 fixes Kp=5.0/Kd=0.05,
 both with +/-1 degree targets. Separately selected POSITION_VISIBLE permits
 +/-3 degrees and POSITION_STEP5 permits +/-5 degrees, both with Kp=3.0/Kd=0.15.
+POSITION_STEP5_KP4 is an explicitly selected diagnostic with the same5-degree
+bound and Kd=0.15, changing Kp only to4.0. There is no automatic escalation.
+POSITION_STEP5_RR_HIP_KP6 permits Kp=6.0 only for explicit motor ID9, with the
+same bounds and Kd. The runner additionally requires the fixed RR hip-only plan.
 These are trial choices, not vendor safety
 limits or automatic gain tuning. No gain set or zero velocity/torque reference imposes a physical
 speed or total torque cap. Even nominal zero has uint16 quantization bias.
@@ -43,6 +47,8 @@ STEP2_KP = 5.0
 STEP2_KD = 0.05
 VISIBLE_KP = 3.0
 VISIBLE_KD = 0.15
+STEP5_KP4_DIAGNOSTIC_KP = 4.0
+STEP5_RR_HIP_KP6_DIAGNOSTIC_KP = 6.0
 
 
 class TrialPhase(Enum):
@@ -54,6 +60,8 @@ class TrialPhase(Enum):
     POSITION_STEP2 = "position_step2"
     POSITION_VISIBLE = "position_visible"
     POSITION_STEP5 = "position_step5"
+    POSITION_STEP5_KP4 = "position_step5_kp4"
+    POSITION_STEP5_RR_HIP_KP6 = "position_step5_rr_hip_kp6"
     STOP = "stop"
 
 
@@ -146,20 +154,25 @@ def motion_request(*, phase, center_rad, offset_rad=0.0, motor_id=MOTOR_ID):
     reference. This function cannot check freshness, sign, support, or calibration.
     No modulo conversion or unwrapping is performed. POSITION and POSITION_STEP2
     require +/-1 degree headroom; POSITION_VISIBLE requires +/-3 degrees and
-    POSITION_STEP5 requires +/-5 degrees headroom. Each phase must be explicitly selected; no
+    All POSITION_STEP5 phases require +/-5 degrees headroom. Each phase must be explicitly selected; no
     measurement or unsuccessful motion automatically changes gains or bounds.
     """
     _selected_id(motor_id)
     if type(phase) is not TrialPhase or phase not in (
             TrialPhase.ZERO_GAIN, TrialPhase.POSITION, TrialPhase.POSITION_STEP2,
-            TrialPhase.POSITION_VISIBLE, TrialPhase.POSITION_STEP5):
+            TrialPhase.POSITION_VISIBLE, TrialPhase.POSITION_STEP5, TrialPhase.POSITION_STEP5_KP4,
+            TrialPhase.POSITION_STEP5_RR_HIP_KP6):
         raise ValueError("Motion requires an explicit zero-gain or position trial phase")
+    if phase is TrialPhase.POSITION_STEP5_RR_HIP_KP6 and motor_id != 9:
+        raise ValueError("RR hip Kp6 diagnostic requires explicit motor ID9")
     center = _number(center_rad, "center_rad")
     offset = _number(offset_rad, "offset_rad")
     if not POSITION_MIN <= center <= POSITION_MAX:
         raise ValueError("Center requires an unambiguous in-range motor reference")
     max_offset = {TrialPhase.POSITION_VISIBLE: VISIBLE_MAX_OFFSET_RAD,
-                  TrialPhase.POSITION_STEP5: STEP5_MAX_OFFSET_RAD}.get(phase, MAX_OFFSET_RAD)
+                  TrialPhase.POSITION_STEP5: STEP5_MAX_OFFSET_RAD,
+                  TrialPhase.POSITION_STEP5_KP4: STEP5_MAX_OFFSET_RAD,
+                  TrialPhase.POSITION_STEP5_RR_HIP_KP6: STEP5_MAX_OFFSET_RAD}.get(phase, MAX_OFFSET_RAD)
     if abs(offset) > max_offset:
         raise ValueError("Trial offset exceeds the selected phase's bound")
     if phase is TrialPhase.ZERO_GAIN:
@@ -172,6 +185,10 @@ def motion_request(*, phase, center_rad, offset_rad=0.0, motor_id=MOTOR_ID):
             raise ValueError("Center has insufficient headroom for the selected phase")
         if phase in (TrialPhase.POSITION_VISIBLE, TrialPhase.POSITION_STEP5):
             kp, kd = VISIBLE_KP, VISIBLE_KD
+        elif phase is TrialPhase.POSITION_STEP5_KP4:
+            kp, kd = STEP5_KP4_DIAGNOSTIC_KP, VISIBLE_KD
+        elif phase is TrialPhase.POSITION_STEP5_RR_HIP_KP6:
+            kp, kd = STEP5_RR_HIP_KP6_DIAGNOSTIC_KP, VISIBLE_KD
         elif phase is TrialPhase.POSITION_STEP2:
             kp, kd = STEP2_KP, STEP2_KD
         else:

@@ -1,0 +1,959 @@
+{
+  "schema": "singularitydog.hardware-readonly-results.v1",
+  "date": "2026-09-22",
+  "scope": "Fixed-mount IMU, finite CAN reads, manual hip references, and offline stateful policy foundation",
+  "motor_control_commands_sent": false,
+  "can_bitrate_changed": false,
+  "actual_can_bitrate_verified": false,
+  "uart_baudrate": 921600,
+  "imu": {
+    "captures": [
+      {
+        "capture": "a",
+        "started_at": "2026-09-22T11:36:49.271677+09:00",
+        "completed_at": "2026-09-22T11:37:29.466406+09:00",
+        "status": "RECORDED_NOT_CALIBRATED",
+        "restore_status": "restored",
+        "errors": [],
+        "statistics": {
+          "samples": 2866,
+          "duration_s": 29.990091085,
+          "rate_hz": 95.53155380154791,
+          "accel_mean_m_s2": [
+            0.2684872444403063,
+            -0.4366957833033879,
+            -10.681336407002183
+          ],
+          "accel_std_m_s2": [
+            0.010586446826269892,
+            0.011230033909152259,
+            0.011357456560282886
+          ],
+          "gyro_mean_rad_s": [
+            0.006759463284080467,
+            0.02270927890806534,
+            -0.0026684367318596685
+          ],
+          "gyro_std_rad_s": [
+            0.0010627787199737392,
+            0.000939787837490374,
+            0.0008610007729233227
+          ],
+          "accel_norm_mean_m_s2": 10.69364174799349,
+          "accel_norm_std_m_s2": 0.011375018272754701,
+          "accel_norm_min_m_s2": 10.654261765296857,
+          "accel_norm_max_m_s2": 10.732900988388387,
+          "gravity_norm_deviation_percent": 9.044798662065956,
+          "specific_force_direction_sensor_unit": [
+            0.02510721136107718,
+            -0.04083699899690031,
+            -0.9988503228465201
+          ],
+          "temperature_c": {
+            "mean": 28.943972242372965,
+            "min": 28.475963698445504,
+            "max": 29.43442058286159,
+            "first": 28.76350076377033,
+            "last": 29.146883517536764
+          },
+          "first_to_last_quarter": {
+            "accel_mean_change_m_s2": [
+              0.0034542043504768305,
+              0.003924016268426478,
+              0.004893734817931872
+            ],
+            "gyro_mean_change_rad_s": [
+              -0.00018533284308353774,
+              -0.0001762150626507114,
+              -0.00014365156110491108
+            ],
+            "temperature_mean_change_c": 0.10447983216295498
+          }
+        },
+        "trim_unchanged": true,
+        "events_sha256": "842a7f60ddab8c54023ad857f3aa9af4e237d594cd71513de98528b50c964c2b",
+        "summary_sha256": "bfaad6dbdbd3f4be6fdea763ef401c8d8ab941ab9bfa14e088c6f136698bec55"
+      },
+      {
+        "capture": "b",
+        "started_at": "2026-09-22T11:37:29.527359+09:00",
+        "completed_at": "2026-09-22T11:38:09.731806+09:00",
+        "status": "RECORDED_NOT_CALIBRATED",
+        "restore_status": "restored",
+        "errors": [],
+        "statistics": {
+          "samples": 2910,
+          "duration_s": 29.990101687,
+          "rate_hz": 96.99867077346333,
+          "accel_mean_m_s2": [
+            0.26369786449943616,
+            -0.4456119394371845,
+            -10.686171292666929
+          ],
+          "accel_std_m_s2": [
+            0.010368412872166307,
+            0.011173676745003625,
+            0.011074199174864073
+          ],
+          "gyro_mean_rad_s": [
+            0.006347987883798059,
+            0.022536407728710604,
+            -0.0026209927255035122
+          ],
+          "gyro_std_rad_s": [
+            0.0010608452575693985,
+            0.0009441963966627628,
+            0.0008592833852103681
+          ],
+          "accel_norm_mean_m_s2": 10.69871935441623,
+          "accel_norm_std_m_s2": 0.01107379310537177,
+          "accel_norm_min_m_s2": 10.661337416609639,
+          "accel_norm_max_m_s2": 10.736906757213477,
+          "gravity_norm_deviation_percent": 9.096575837989839,
+          "specific_force_direction_sensor_unit": [
+            0.024647635237767196,
+            -0.04165100298286722,
+            -0.9988281574063214
+          ],
+          "temperature_c": {
+            "mean": 29.057114643362333,
+            "min": 28.619732231107918,
+            "max": 29.62611195974481,
+            "first": 29.09896067331596,
+            "last": 29.338574894419985
+          },
+          "first_to_last_quarter": {
+            "accel_mean_change_m_s2": [
+              -0.002180962929076269,
+              -0.0022320084940452567,
+              -0.0002379381979995543
+            ],
+            "gyro_mean_change_rad_s": [
+              -0.00017977970706830639,
+              1.1545485775029535e-05,
+              8.704929751013899e-05
+            ],
+            "temperature_mean_change_c": 0.03843056145905521
+          }
+        },
+        "trim_unchanged": true,
+        "events_sha256": "3a19f8fe6eeca1ea90fca8f4dc0e632d6f9cbb91ca598180ace2966cfcb6f23b",
+        "summary_sha256": "875f67d8f10e5787ec13b803484e4657d8f41bb40009d302f74065916edc8d48"
+      }
+    ],
+    "operator_confirmed_both_stationary": true,
+    "comparison": {
+      "gyro_b_residual_after_subtracting_a_mean_rad_s": [
+        -0.0004114754002824076,
+        -0.00017287117935473745,
+        4.744400635615627e-05
+      ],
+      "gyro_b_residual_std_rad_s": [
+        0.0010608452575693985,
+        0.0009441963966627628,
+        0.0008592833852103681
+      ],
+      "accel_b_minus_a_mean_m_s2": [
+        -0.004789379940870142,
+        -0.008916156133796649,
+        -0.004834885664745769
+      ],
+      "specific_force_direction_change_deg": 0.053573976533388266,
+      "temperature_b_minus_a_mean_c": 0.11314240098936779
+    },
+    "gyro_bias_candidate_rad_s": [
+      0.006759463284080467,
+      0.02270927890806534,
+      -0.0026684367318596685
+    ],
+    "candidate_status": "GYRO_BIAS_CANDIDATE",
+    "candidate_eligible": true,
+    "approved_for_runtime": false,
+    "automatically_applied": false,
+    "accel_bias_or_scale_identified": false,
+    "mount_rotation_verified": false,
+    "absolute_level_verified": false,
+    "offline_orientation_replay": {
+      "status": "OFFLINE_DIAGNOSTIC_ONLY",
+      "samples": 2910,
+      "actual_duration_s": 29.990101687,
+      "raw_final_relative_rotation_deg": 40.48236806549992,
+      "raw_max_relative_rotation_deg": 40.48236806549992,
+      "subtract_a_bias_final_relative_rotation_deg": 0.7734442212699264,
+      "subtract_a_bias_max_relative_rotation_deg": 0.7734442212699264,
+      "gyro_bias_fit_capture": "a",
+      "replayed_capture": "b",
+      "approved_for_runtime": false,
+      "absolute_attitude_verified": false,
+      "accel_correction_applied": false,
+      "mount_rotation_applied": false,
+      "sensor_fusion_applied": false,
+      "source_sha256": {
+        "imu_orientation_replay.py": "6abd08ff4fa411cf5d94a11059916223c9ce46855d8429314d1f61c64e53d866",
+        "imu_fixed_mount_baseline.py": "9fa1b70398de7897ec55cc9616c0cf14b998dae48a8583f209994e85a44097dc"
+      },
+      "report_sha256": "a577694aa97de8716faea2d47885591625c980bcf0fe30d33e5adf38f112358f"
+    },
+    "directed_motion_check": {
+      "status": "PITCH_ROLL_AXIS_SIGNS_CONSISTENT_WITH_CANDIDATE_ONLY",
+      "operator_confirmed_nose_up_then_return": true,
+      "operator_confirmed_left_side_up_then_return": true,
+      "candidate_R_body_from_sensor": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ],
+      "pitch_roll_signs_supported": true,
+      "exact_mount_verified": false,
+      "yaw_verified": false,
+      "angle_accuracy_verified": false,
+      "approved_for_runtime": false,
+      "audit_sha256": "e28806ab440154336a6f52b70e603277beb63eae9f78e64dadae65decc53575d",
+      "captures": {
+        "nose_up": {
+          "integrity": {
+            "validator_passed": true,
+            "samples": 4658,
+            "actual_duration_s": 47.990051896,
+            "reported_restore_status": "restored",
+            "data_ready_during_read_count": 244
+          },
+          "hashes": {
+            "summary_sha256": "da4d1eb0cdd4f66244b3ff70f189f87396c332e72814e370e9105b1025e28835",
+            "events_sha256": "e52bdf088ebb81197500c8695d0bf005b2953df7450b20f44010eb87e543d16c",
+            "measurement_sequence_sha256": "7046b4174d010d0b2a30c15e4c13cd4516a66689e8ae87489e2c060a63e87d08",
+            "source_sha256": {
+              "imu_capture.py": "76b75f69cd8b918cb7ece98da21335cb058f9e85bbee85afec4a513c5cee4200",
+              "imu.py": "a11711418fa58e9fbbeb6d8659edc5dd6b01005afab8bac2e3b6df7ae81175fb"
+            }
+          },
+          "candidate_mapping_observations": {
+            "expected_lift_gyro_sensor_axis": "x",
+            "expected_lift_gyro_sign": -1,
+            "lift_gyro_sign_matches": true,
+            "return_gyro_sign_reverses": true,
+            "lift_primary_axis_squared_rate_time_integral_fraction": 0.7095916004032333,
+            "return_primary_axis_squared_rate_time_integral_fraction": 0.8752018666390894,
+            "lift_primary_axis_integral_rad_not_external_angle": -0.28532639828232514,
+            "return_primary_axis_integral_rad_not_external_angle": 0.38460865157416924,
+            "accel_elevated_reference_segment": "elevated_slow_motion_not_stationary_hold",
+            "accel_elevated_minus_pre_sensor_m_s2": [
+              -0.0428699689957939,
+              2.626083478735312,
+              0.49581078379302035
+            ],
+            "accel_elevated_minus_pre_candidate_body_m_s2": [
+              2.626083478735312,
+              -0.0428699689957939,
+              -0.49581078379302035
+            ],
+            "expected_positive_specific_force_change_sensor_axis": "y",
+            "specific_force_change_sign_matches": true,
+            "accel_direction_change_pre_to_elevated_deg_not_calibrated_tilt": 14.424073170964256,
+            "accel_post_minus_pre_sensor_m_s2": [
+              -0.06406235521828657,
+              -0.19394150731507478,
+              -0.004865697453553253
+            ],
+            "accel_direction_change_pre_to_post_deg_not_calibrated_tilt": 1.0957130708370117,
+            "high_tilt_window_stationary_hold_verified": false,
+            "note": "The elevated nose window still has appreciable angular motion; acceleration direction is a qualitative corroboration, not a quasi-static attitude calibration."
+          }
+        },
+        "left_side_up": {
+          "integrity": {
+            "validator_passed": true,
+            "samples": 5347,
+            "actual_duration_s": 54.990096304,
+            "reported_restore_status": "restored",
+            "data_ready_during_read_count": 275
+          },
+          "hashes": {
+            "summary_sha256": "4379e93ae8f1647e2bf25a55b423f62e5a803fac82d71c08312495cd37a82024",
+            "events_sha256": "eaa636902023eb152609d9fa4cb9b65dd6b21ac5d87032a56820681c6ee11d25",
+            "measurement_sequence_sha256": "09af55c449e579e9518330c7b72a120bf41024ff0f3c01a5f0126018529dd097",
+            "source_sha256": {
+              "imu_capture.py": "76b75f69cd8b918cb7ece98da21335cb058f9e85bbee85afec4a513c5cee4200",
+              "imu.py": "a11711418fa58e9fbbeb6d8659edc5dd6b01005afab8bac2e3b6df7ae81175fb"
+            }
+          },
+          "candidate_mapping_observations": {
+            "expected_lift_gyro_sensor_axis": "y",
+            "expected_lift_gyro_sign": 1,
+            "lift_gyro_sign_matches": true,
+            "return_gyro_sign_reverses": true,
+            "lift_primary_axis_squared_rate_time_integral_fraction": 0.6400606949923544,
+            "return_primary_axis_squared_rate_time_integral_fraction": 0.857642886760677,
+            "lift_primary_axis_integral_rad_not_external_angle": 0.30070196873884675,
+            "return_primary_axis_integral_rad_not_external_angle": -0.30225217061111637,
+            "accel_elevated_reference_segment": "elevated_hold",
+            "accel_elevated_minus_pre_sensor_m_s2": [
+              2.993695435023486,
+              -0.5874497772454765,
+              0.4929450239118083
+            ],
+            "accel_elevated_minus_pre_candidate_body_m_s2": [
+              -0.5874497772454765,
+              2.993695435023486,
+              -0.4929450239118083
+            ],
+            "expected_positive_specific_force_change_sensor_axis": "x",
+            "specific_force_change_sign_matches": true,
+            "accel_direction_change_pre_to_elevated_deg_not_calibrated_tilt": 16.674698186911133,
+            "accel_post_minus_pre_sensor_m_s2": [
+              0.04041627773642428,
+              -0.44084169285625113,
+              -0.011287206810047579
+            ],
+            "accel_direction_change_pre_to_post_deg_not_calibrated_tilt": 2.3730139633711045,
+            "high_tilt_window_stationary_hold_verified": false,
+            "note": "A roughly 3-second elevated posture is visible, with small residual motion and incidental pitch/yaw; later hold samples are quieter. Return posture differs slightly from initial posture."
+          }
+        }
+      }
+    },
+    "incomplete_yaw_capture": {
+      "status": "INCOMPLETE_EVIDENCE",
+      "summary_bytes": 0,
+      "events_sha256": "249cd07f6b8da6c65fc4a735e1528ac6c85c584dff2ebc940bcea4e66eb0449d",
+      "retained_samples": 5332,
+      "full_validator_passed": false,
+      "operator_described_mixed_motion_ending_left": true,
+      "exact_motion_timing_verified": false,
+      "last_substantial_sensor_z_burst": "positive; candidate body-z transform gives right-turn sign; association unresolved",
+      "yaw_verified": false,
+      "summary_reconstructed": false,
+      "audit_sha256": "fd8fad6d012f027cc9736fdc5556c1d689fc1c78898da65e1e5fbda9dc8e9606"
+    }
+  },
+  "can_profiles": [
+    {
+      "profile": "w1g0",
+      "status": "READONLY_PIPELINE_COMPLETE",
+      "window": 1,
+      "gap_ms": 0.0,
+      "cycles_completed": 20,
+      "writes": 492,
+      "replies": 492,
+      "identities_verified": true,
+      "statistics_ms": {
+        "request_wire_RTT": {
+          "count": 492,
+          "min": 2.899517,
+          "median": 3.071778,
+          "mean": 3.0919833597560977,
+          "p95": 3.252232,
+          "max": 3.584659
+        },
+        "parameter_wire_RTT": {
+          "count": 480,
+          "min": 2.899517,
+          "median": 3.0711545,
+          "mean": 3.0895481833333336,
+          "p95": 3.244039,
+          "max": 3.584659
+        },
+        "cycle_duration": {
+          "count": 20,
+          "min": 80.163086,
+          "median": 82.156376,
+          "mean": 82.18103135,
+          "p95": 83.064672,
+          "max": 83.439787
+        },
+        "cycle_oldest_newest_spread": {
+          "count": 20,
+          "min": 76.653694,
+          "median": 78.679497,
+          "mean": 78.6732312,
+          "p95": 79.619313,
+          "max": 79.931579
+        }
+      },
+      "pending_at_end": [],
+      "residual_final": {
+        "serial_pending_bytes": 0,
+        "parser_pending_bytes": 0,
+        "parser_discarded_bytes": 0
+      },
+      "errors": [],
+      "events_sha256": "d2d1d498bc3698ae5b3852b383802ad4737bc12bc74f1a22a06c0391b1af0ff1",
+      "summary_sha256": "5a16da336d181d3e8bacd01dd76d783750265c8d4578b18246d4f574053feb74"
+    },
+    {
+      "profile": "w4g1",
+      "status": "READONLY_PIPELINE_COMPLETE",
+      "window": 4,
+      "gap_ms": 1.0,
+      "cycles_completed": 20,
+      "writes": 492,
+      "replies": 492,
+      "identities_verified": true,
+      "statistics_ms": {
+        "request_wire_RTT": {
+          "count": 492,
+          "min": 2.309732,
+          "median": 3.05225,
+          "mean": 3.213490969512195,
+          "p95": 4.174875,
+          "max": 4.710763
+        },
+        "parameter_wire_RTT": {
+          "count": 480,
+          "min": 2.309732,
+          "median": 2.916246,
+          "mean": 3.2096468312499997,
+          "p95": 4.174875,
+          "max": 4.710763
+        },
+        "cycle_duration": {
+          "count": 20,
+          "min": 37.038817,
+          "median": 37.3981245,
+          "mean": 37.44749095,
+          "p95": 37.884602,
+          "max": 38.273703
+        },
+        "cycle_oldest_newest_spread": {
+          "count": 20,
+          "min": 33.978887,
+          "median": 34.293521999999996,
+          "mean": 34.346202899999994,
+          "p95": 34.839232,
+          "max": 35.139468
+        }
+      },
+      "pending_at_end": [],
+      "residual_final": {
+        "serial_pending_bytes": 0,
+        "parser_pending_bytes": 0,
+        "parser_discarded_bytes": 0
+      },
+      "errors": [],
+      "events_sha256": "7522dfcd250c1c2031bbdcfd0ca1a035de777e4d686b159db88100be44d9c8ff",
+      "summary_sha256": "f532bd6c153084762c9e8f0e6381bc7121514006dd230a0828d6f3bf76dedad8"
+    },
+    {
+      "profile": "w4g0",
+      "status": "INCOMPLETE",
+      "window": 4,
+      "gap_ms": 0.0,
+      "cycles_completed": 0,
+      "writes": 36,
+      "replies": 34,
+      "identities_verified": true,
+      "statistics_ms": {
+        "request_wire_RTT": {
+          "count": 34,
+          "min": 1.402727,
+          "median": 3.072198,
+          "mean": 3.076845176470588,
+          "p95": 4.648321,
+          "max": 4.708163
+        },
+        "parameter_wire_RTT": {
+          "count": 22,
+          "min": 1.402727,
+          "median": 3.0833019999999998,
+          "mean": 3.062098272727273,
+          "p95": 4.648321,
+          "max": 4.708163
+        },
+        "cycle_duration": null,
+        "cycle_oldest_newest_spread": null
+      },
+      "pending_at_end": [
+        {
+          "motor_id": 1,
+          "parameter": "velocity"
+        },
+        {
+          "motor_id": 2,
+          "parameter": "position"
+        }
+      ],
+      "residual_final": {
+        "serial_pending_bytes": 0,
+        "parser_pending_bytes": 0,
+        "parser_discarded_bytes": 0
+      },
+      "errors": [
+        "TimeoutError('Missing reply within request deadline')"
+      ],
+      "events_sha256": "9a70559239e88082aebefbd57f8af71f27b04063786a8df89850ea68fb051943",
+      "summary_sha256": "207891aa97f0609cd8756e50a301d6120205230a1f484ca74f68ec96163a9818"
+    },
+    {
+      "profile": "r2-interleaved-w4g1",
+      "status": "READONLY_PIPELINE_COMPLETE",
+      "window": 4,
+      "gap_ms": 1.0,
+      "request_order": "interleaved",
+      "cycles_completed": 20,
+      "writes": 492,
+      "replies": 492,
+      "identities_verified": true,
+      "statistics_ms": {
+        "request_wire_RTT": {
+          "count": 492,
+          "min": 2.332076,
+          "median": 3.0515939999999997,
+          "mean": 3.2197512093495932,
+          "p95": 4.220912,
+          "max": 4.74041
+        },
+        "parameter_wire_RTT": {
+          "count": 480,
+          "min": 2.332076,
+          "median": 2.8667585,
+          "mean": 3.2196839895833334,
+          "p95": 4.220912,
+          "max": 4.74041
+        },
+        "cycle_duration": {
+          "count": 20,
+          "min": 37.216322,
+          "median": 37.568313,
+          "mean": 37.6163058,
+          "p95": 37.928975,
+          "max": 38.239829
+        },
+        "cycle_oldest_newest_spread": {
+          "count": 20,
+          "min": 34.178313,
+          "median": 34.4529735,
+          "mean": 34.4985505,
+          "p95": 34.845781,
+          "max": 34.99932
+        }
+      },
+      "pending_at_end": [],
+      "residual_final": {
+        "serial_pending_bytes": 0,
+        "parser_pending_bytes": 0,
+        "parser_discarded_bytes": 0
+      },
+      "errors": [],
+      "started_at": "2026-09-22T12:07:21.473653+09:00",
+      "completed_at": "2026-09-22T12:07:22.286493+09:00",
+      "all_write_calls_entered": true,
+      "all_writes_returned_17_bytes": true,
+      "events_sha256": "466a052518e08dd8dfefe6aa0171c50f28f58f8f504fcf2a450d7521b8389893",
+      "summary_sha256": "cb1d6dfb66156a5494348ee6e7c8761c92078fa768a25e5b9788538b346c2ef9",
+      "source_sha256": {
+        "can_pipeline_probe.py": "5868fee5518c2c7dc6b21f56ae533afa0148d6dd87ab3eab476d81d7d02b4566",
+        "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+        "can_timing_probe.py": "be285ae75fc4e5271fceb696bfc6f4590e8b23f54b25380747eb92fe58930a0a"
+      }
+    },
+    {
+      "profile": "r2-byparam-w4g1",
+      "status": "READONLY_PIPELINE_COMPLETE",
+      "window": 4,
+      "gap_ms": 1.0,
+      "request_order": "by-parameter",
+      "cycles_completed": 20,
+      "writes": 492,
+      "replies": 492,
+      "identities_verified": true,
+      "statistics_ms": {
+        "request_wire_RTT": {
+          "count": 492,
+          "min": 2.316748,
+          "median": 3.0463294999999997,
+          "mean": 3.2074993861788617,
+          "p95": 4.251377,
+          "max": 4.779739
+        },
+        "parameter_wire_RTT": {
+          "count": 480,
+          "min": 2.316748,
+          "median": 3.001705,
+          "mean": 3.2079112166666666,
+          "p95": 4.251377,
+          "max": 4.779739
+        },
+        "cycle_duration": {
+          "count": 20,
+          "min": 37.100672,
+          "median": 37.259715,
+          "mean": 37.4245852,
+          "p95": 37.754924,
+          "max": 39.260425
+        },
+        "cycle_oldest_newest_spread": {
+          "count": 20,
+          "min": 33.985476,
+          "median": 34.1749685,
+          "mean": 34.327020850000004,
+          "p95": 34.659442,
+          "max": 36.122765
+        }
+      },
+      "pending_at_end": [],
+      "residual_final": {
+        "serial_pending_bytes": 0,
+        "parser_pending_bytes": 0,
+        "parser_discarded_bytes": 0
+      },
+      "errors": [],
+      "started_at": "2026-09-22T12:07:43.094070+09:00",
+      "completed_at": "2026-09-22T12:07:43.902897+09:00",
+      "all_write_calls_entered": true,
+      "all_writes_returned_17_bytes": true,
+      "events_sha256": "258d23ffe9fe23da82b669cc4aa3d1f08ff185de095948ae4b53bac817f17dc9",
+      "summary_sha256": "c4c6126b7c5b8416c5ca9ad352867d707e435df8621d16245f38e92ca1eedde7",
+      "source_sha256": {
+        "can_pipeline_probe.py": "5868fee5518c2c7dc6b21f56ae533afa0148d6dd87ab3eab476d81d7d02b4566",
+        "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+        "can_timing_probe.py": "be285ae75fc4e5271fceb696bfc6f4590e8b23f54b25380747eb92fe58930a0a"
+      }
+    },
+    {
+      "profile": "r2-byparam-w4g0p5",
+      "status": "READONLY_PIPELINE_COMPLETE",
+      "window": 4,
+      "gap_ms": 0.5,
+      "request_order": "by-parameter",
+      "cycles_completed": 20,
+      "writes": 492,
+      "replies": 492,
+      "identities_verified": true,
+      "statistics_ms": {
+        "request_wire_RTT": {
+          "count": 492,
+          "min": 1.642239,
+          "median": 2.6660825,
+          "mean": 2.6013814146341465,
+          "p95": 3.425121,
+          "max": 4.592471
+        },
+        "parameter_wire_RTT": {
+          "count": 480,
+          "min": 1.642239,
+          "median": 2.6534585,
+          "mean": 2.5875955874999996,
+          "p95": 3.417569,
+          "max": 4.592471
+        },
+        "cycle_duration": {
+          "count": 20,
+          "min": 24.713237,
+          "median": 26.638809000000002,
+          "mean": 26.51797025,
+          "p95": 27.043969,
+          "max": 27.332839
+        },
+        "cycle_oldest_newest_spread": {
+          "count": 20,
+          "min": 22.079235,
+          "median": 23.897237,
+          "mean": 23.81951745,
+          "p95": 24.387151,
+          "max": 24.538674
+        }
+      },
+      "pending_at_end": [],
+      "residual_final": {
+        "serial_pending_bytes": 0,
+        "parser_pending_bytes": 0,
+        "parser_discarded_bytes": 0
+      },
+      "errors": [],
+      "started_at": "2026-09-22T12:08:15.092059+09:00",
+      "completed_at": "2026-09-22T12:08:15.683749+09:00",
+      "all_write_calls_entered": true,
+      "all_writes_returned_17_bytes": true,
+      "events_sha256": "e8b4f9520cdc7d2308f00c4f3b94b9d61fc8209d2536d59ca1caec3c071a6172",
+      "summary_sha256": "6a12cb8f56fbf1ebc2b5db7a4fc2287a627f42ad06e64a05d859abd2017f837d",
+      "source_sha256": {
+        "can_pipeline_probe.py": "5868fee5518c2c7dc6b21f56ae533afa0148d6dd87ab3eab476d81d7d02b4566",
+        "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+        "can_timing_probe.py": "be285ae75fc4e5271fceb696bfc6f4590e8b23f54b25380747eb92fe58930a0a"
+      }
+    },
+    {
+      "profile": "r2-byparam-w4g0p25",
+      "status": "INCOMPLETE",
+      "window": 4,
+      "gap_ms": 0.25,
+      "request_order": "by-parameter",
+      "cycles_completed": 0,
+      "writes": 36,
+      "replies": 33,
+      "identities_verified": true,
+      "statistics_ms": {
+        "request_wire_RTT": {
+          "count": 33,
+          "min": 1.770241,
+          "median": 3.066682,
+          "mean": 3.0715899696969697,
+          "p95": 4.622264,
+          "max": 4.84486
+        },
+        "parameter_wire_RTT": {
+          "count": 21,
+          "min": 1.770241,
+          "median": 3.047322,
+          "mean": 3.019100380952381,
+          "p95": 4.622264,
+          "max": 4.84486
+        },
+        "cycle_duration": null,
+        "cycle_oldest_newest_spread": null
+      },
+      "pending_at_end": [
+        {
+          "motor_id": 2,
+          "parameter": "position"
+        },
+        {
+          "motor_id": 9,
+          "parameter": "position"
+        },
+        {
+          "motor_id": 5,
+          "parameter": "velocity"
+        }
+      ],
+      "residual_final": {
+        "serial_pending_bytes": 0,
+        "parser_pending_bytes": 0,
+        "parser_discarded_bytes": 0
+      },
+      "errors": [
+        "TimeoutError('Missing reply within request deadline')"
+      ],
+      "started_at": "2026-09-22T12:09:01.477790+09:00",
+      "completed_at": "2026-09-22T12:09:01.786600+09:00",
+      "all_write_calls_entered": true,
+      "all_writes_returned_17_bytes": true,
+      "events_sha256": "ca48d0aff9e892a7996ce11178504bc579f947723dce576b54f0125127c1c51f",
+      "summary_sha256": "6aafdb7403fdc2b68142f5a579efd746f158e81ea2c79f0025412f91e1634d86",
+      "source_sha256": {
+        "can_pipeline_probe.py": "5868fee5518c2c7dc6b21f56ae533afa0148d6dd87ab3eab476d81d7d02b4566",
+        "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+        "can_timing_probe.py": "be285ae75fc4e5271fceb696bfc6f4590e8b23f54b25380747eb92fe58930a0a"
+      }
+    }
+  ],
+  "full_controller_50Hz_verified": false,
+  "raw_audit": "All r1 and r2 profiles independently redecoded: Type0/17 only, 12 identities matched, frame counts and statistics verified. r1 w4g0 lacks ID1 velocity and ID2 position in raw. r2 byparam w4g0p25 lacks ID2 position, ID9 position and ID5 velocity in raw; all writes returned 17 bytes. Loss location unknown; full write is host acceptance only.",
+  "limitations": [
+    "20-cycle successes are finite read-only measurements, not continuous reliability or controller acceptance.",
+    "Protocol has no transaction sequence number; stale same-key replies cannot be fully disambiguated.",
+    "Fixed-pose data does not identify acceleration bias/scale or validate mount rotation and dynamic orientation.",
+    "Raw logs and hardware identities remain private."
+  ],
+  "official_sources": {
+    "checked_on": "2026-09-22",
+    "commits": {
+      "Python_Sample": "cbf977e56c842d57a65f3f17c1b1ecaef002c424",
+      "SampleProgram": "5f598686b05fcc527ee0fc0ea954f0afd652b234",
+      "CAN-USB-data-conversion": "72524311fbf4980d74ad53387c075cc50d8dd417",
+      "Product_Information": "0f4ad74fdb67023e75bbcbeebecd6f1a003ce000"
+    },
+    "type17_position_velocity_float32_matches": true,
+    "rs05_type1_type2_scale_discrepancy": {
+      "manual_speed_range_abs_rad_s": 50,
+      "sdk_speed_range_abs_rad_s": 33,
+      "manual_torque_range_abs_nm": 5.5,
+      "sdk_torque_range_abs_nm": 17,
+      "installed_firmware_mapping_verified": false
+    },
+    "active_report_reply_type_discrepancy_unresolved": true,
+    "adapter_minimum_gap_documented": false,
+    "runtime_scale_changed": false
+  },
+  "hip_horizontal_references": {
+    "motor_commands_sent": false,
+    "all_uid_match": true,
+    "calibration_changed": false,
+    "approved_for_runtime": false,
+    "references": [
+      {
+        "leg": "FR",
+        "motor_id": 3,
+        "operator_horizontal_confirmed": true,
+        "external_angle_measured": false,
+        "status": "REFERENCE_ONLY_NOT_RUNTIME_CALIBRATION",
+        "old_candidate_model_deg": 5.9371419360335835,
+        "raw_mean_rad": 6.2219202518463135,
+        "raw_mean_deg": 356.48977089776804,
+        "span_deg": 0.07936679815554816,
+        "samples": 10,
+        "hashes": {
+          "summary.json": "a4ccaaaa65fc57e712eabe299f814073d6024233e7836b135a2f527ebfd6ae3c",
+          "events.jsonl": "64152d60cf24201db30aae122db6260f787f9a16617a98c5480f19e0fa2df49c"
+        }
+      },
+      {
+        "leg": "FL",
+        "motor_id": 6,
+        "operator_horizontal_confirmed": true,
+        "external_angle_measured": false,
+        "status": "REFERENCE_ONLY_NOT_RUNTIME_CALIBRATION",
+        "old_candidate_model_deg": 2.20380698099095,
+        "raw_mean_rad": 4.337093257904053,
+        "raw_mean_deg": 248.4971390325465,
+        "span_deg": 0.07379336379281776,
+        "samples": 10,
+        "hashes": {
+          "summary.json": "6375c5469d6c74b1dc8e303d8e0b8c8e7af07173e6a3bba478e06152ce50d8a0",
+          "events.jsonl": "35cbd20eaa29a1aaf7e64be75025e549f45ba7f0d5fffb4d84b2a6ec138e65aa"
+        }
+      },
+      {
+        "leg": "RL",
+        "motor_id": 12,
+        "operator_horizontal_confirmed": true,
+        "external_angle_measured": false,
+        "status": "REFERENCE_ONLY_NOT_RUNTIME_CALIBRATION",
+        "old_candidate_model_deg": -4.875050252172271,
+        "raw_mean_rad": 1.537864875793457,
+        "raw_mean_deg": 88.11316684437564,
+        "span_deg": 0.02551758673916764,
+        "samples": 10,
+        "hashes": {
+          "summary.json": "cfeeb7e27009594544673f8fb58017a6b99484a6c8f7cbbb14c6d95acefc5cc8",
+          "events.jsonl": "66bf5b295fb361c5189d9df3d5b1fe0add0eea5ef2e59f445598c02176f20854"
+        }
+      },
+      {
+        "leg": "RR",
+        "motor_id": 9,
+        "operator_horizontal_confirmed": true,
+        "external_angle_measured": false,
+        "status": "REFERENCE_ONLY_NOT_RUNTIME_CALIBRATION",
+        "old_candidate_model_deg": -28.03483750447284,
+        "raw_mean_rad": -0.5674340784549713,
+        "raw_mean_deg": -32.51157784736509,
+        "span_deg": 0.22110346871706776,
+        "samples": 10,
+        "hashes": {
+          "summary.json": "5a8701dec27e2db83b389a95baeb2cd7c385ce51873bd887ec61fc6917bc0461",
+          "events.jsonl": "5a565205cff108071fbfb1ff6afec700703c21405b5960092247380a61f95db5"
+        }
+      }
+    ],
+    "limitations": [
+      "Positions manually aligned by eye; no calibrated level/goniometer.",
+      "Hand support can move duringread; reported span is hiponly.",
+      "Do not infer zero/sign from currentrangealone or wrap modulo2pi."
+    ],
+    "external_camera_available": false
+  },
+  "stateful_policy_foundation": {
+    "status": "SYNTHETIC_STATEFUL_REFERENCE_COMPARISON_PASSED",
+    "input_kind": "SYNTHETIC_ONLY",
+    "hardware_opened": false,
+    "motor_output_available": false,
+    "output_allowed": false,
+    "approved_for_runtime": false,
+    "live_50hz_verified": false,
+    "wall_clock_timing_verified": false,
+    "virtual_dt_s": 0.02,
+    "ticks_per_hypothesis": 100,
+    "h_hypotheses": [
+      0,
+      1
+    ],
+    "h_measured": false,
+    "tolerance": {
+      "atol": 1e-06,
+      "rtol": 1e-06
+    },
+    "related_unit_tests": 61,
+    "scenarios": [
+      {
+        "h_hypothesis": 0,
+        "max_absolute_errors": {
+          "observation74": 0.0,
+          "actor12": 0.0,
+          "target12": 0.0,
+          "state_buffers": 0.0
+        },
+        "observer_summary": {
+          "motor_output_available": false,
+          "output_allowed": false,
+          "approved_for_runtime": false,
+          "live_50hz_verified": false,
+          "calibration_verified": false,
+          "gravity_fusion_verified": false,
+          "raw_driver_axes_verified": false,
+          "sensor_alignment_verified": false,
+          "gyro_bias_verified": false,
+          "fresh_identity_match_verified": false,
+          "wall_clock_timing_verified": false,
+          "h_measured": false,
+          "h_hypothesis": 0.0,
+          "h_semantics": "fixed twelve-joint load-history sensitivity hypothesis",
+          "independent_cold_reset": false,
+          "dt_s": 0.02,
+          "status": "COMPLETE_NO_OUTPUT_DIAGNOSTIC",
+          "run_number": 1,
+          "ticks_completed": 100,
+          "ticks_requested": 100,
+          "reset_count": 1,
+          "failure": null,
+          "incomplete": false
+        },
+        "stateful_previous_clipped_verified": true,
+        "virtual_elapsed_s": 2.0000000000000013
+      },
+      {
+        "h_hypothesis": 1,
+        "max_absolute_errors": {
+          "observation74": 0.0,
+          "actor12": 0.0,
+          "target12": 0.0,
+          "state_buffers": 0.0
+        },
+        "observer_summary": {
+          "motor_output_available": false,
+          "output_allowed": false,
+          "approved_for_runtime": false,
+          "live_50hz_verified": false,
+          "calibration_verified": false,
+          "gravity_fusion_verified": false,
+          "raw_driver_axes_verified": false,
+          "sensor_alignment_verified": false,
+          "gyro_bias_verified": false,
+          "fresh_identity_match_verified": false,
+          "wall_clock_timing_verified": false,
+          "h_measured": false,
+          "h_hypothesis": 1.0,
+          "h_semantics": "fixed twelve-joint load-history sensitivity hypothesis",
+          "independent_cold_reset": false,
+          "dt_s": 0.02,
+          "status": "COMPLETE_NO_OUTPUT_DIAGNOSTIC",
+          "run_number": 1,
+          "ticks_completed": 100,
+          "ticks_requested": 100,
+          "reset_count": 1,
+          "failure": null,
+          "incomplete": false
+        },
+        "stateful_previous_clipped_verified": true,
+        "virtual_elapsed_s": 2.0000000000000013
+      }
+    ],
+    "report_sha256": "3d06f409684be4da5a8d06bd7669764dc647b8745393d9a44d72ef838b4ffcb1",
+    "source_sha256": {
+      "policy_observer.py": "9399a7a525ca021e802f4142f57ad332c8538bcacd74d6cabe28b646b05e34c8",
+      "telemetry_snapshot.py": "47ff8afe07084a62bafb3093a0e60666ac52d9540d90acfe03d5d5a3c0377610"
+    }
+  }
+}

@@ -56,7 +56,22 @@
       },
       "representation": "STATIC_MEASURED_CHECKPOINT_CHART_NOT_SIMULATOR_FOOTAGE",
       "review": "Six source-bound complete-interval measurements for latest prone R4b and wave W4. Visually reviewed labels, common zero-based axes, 50mm limit, values and non-adoption note. No photo, robot mesh or recording used."
+    },
+    "docs/media/rr-hip-horizontal-reference.png": {
+      "sha256": "f0ce5518d6dd19cc31389632e90f81765b7ac40146bc436f8e1897deaaa6670d",
+      "bytes": 216880,
+      "reviewed_as_own_measured_visualization": true,
+      "measured_data": {
+        "path": "evidence/rr-hip-reference.json",
+        "sha256": "99ffe7a58ddf88bae7402e3b4a98bab237d2a99e962705eb78356a9fef850a70"
+      },
+      "generator": {
+        "path": "tools/render_rr_hip_reference.py",
+        "sha256": "547a1fccfda0574eaefe0dcd7715f8e722d58560ba944ee9d768a76060cef1c2"
+      },
+      "representation": "ILLUSTRATIVE_MODEL_SCHEMATIC_WITH_EYE_ALIGNED_REFERENCE_COMPARISON",
+      "review": "Own Pillow drawing of projected ID9/ID8 centers from D17 joint origins, not a photo or mesh. The encoder-derived old candidate angle is eye-aligned, not an externally measured physical angle; the 30.1mm height is an illustrative model prediction. PNG visually reviewed for full labels, rear-view handedness, body-relative reference, 64mm dimension, caveats and no-actuation scope. No user photo, robot mesh, UID or connection information used."
     }
   },
-  "default_bindings_scope": "Root measured_data and generator apply to the three forward-history assets; Trial32 and Trial35 charts have explicit per-file bindings."
+  "default_bindings_scope": "Root measured_data and generator apply to the three forward-history assets; Trial32, Trial35 and the illustrative RR reference have explicit per-file bindings."
 }

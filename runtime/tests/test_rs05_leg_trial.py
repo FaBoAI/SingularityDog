@@ -42,6 +42,8 @@ class FakeLegTransport:
         if name == "position":
             return {"value": 12.56 if self.failure == "headroom" and mid == 3 else self.centers[mid]}
         if name == "can_timeout":
+            if self.failure == "prior_watchdog_rejected" and mid == 3:
+                raise RuntimeError("ID3 parameter rejected: can_timeout")
             value = self.watchdogs[mid]
             if self.failure == "watchdog" and mid == 3:
                 value = 0
@@ -130,6 +132,13 @@ class LegRunnerTests(unittest.TestCase):
         self.assertEqual([f.destination for _, f in t.frames if f.kind == 3], [1, 2, 3])
         first_enable = next(i for i, (_, f) in enumerate(t.frames) if f.kind == 3)
         self.assertEqual({f.destination for _, f in t.frames[:first_enable] if f.kind == 18}, {1, 2, 3})
+        first_watchdog_write = next(when for when, f in t.frames if f.kind == 18)
+        prior_reads = [call for call in t.calls if call[2] == "can_timeout"][:3]
+        self.assertEqual([call[1] for call in prior_reads], [1, 2, 3])
+        self.assertTrue(all(call[3] < first_watchdog_write for call in prior_reads))
+        for mid in t.ids:
+            self.assertEqual(r["motors"][mid]["watchdog_previous_ticks"], 0)
+            self.assertEqual(r["motors"][mid]["watchdog_readback_ticks"], 4000)
         self.assertEqual(t.stop_calls[-1], (1, 2, 3))
         self.assertEqual([f.kind for _, f in t.frames[-3:]], [4, 4, 4])
         self.assertTrue(99 <= len(t.motion_batches) <= 101)
@@ -165,6 +174,26 @@ class LegRunnerTests(unittest.TestCase):
                 self.assertEqual(r["status"], "ABORTED")
                 self.assertFalse(any(f.kind == 3 for _, f in t.frames))
                 self.assertEqual(t.stop_calls[-1], (1, 2, 3))
+
+    def test_rejected_third_prior_watchdog_read_writes_nothing_and_stops_all(self):
+        t = FakeLegTransport("prior_watchdog_rejected")
+        r = execute(t)
+        self.assertEqual(r["status"], "ABORTED")
+        self.assertFalse(r["motion_completed"])
+        self.assertIsNot(r.get("enable_confirmed"), True)
+        self.assertTrue(r["stop_confirmed"])
+        self.assertTrue(any("parameter rejected: can_timeout" in e for e in r["errors"]))
+        self.assertEqual([call[1] for call in t.calls if call[2] == "can_timeout"], [1, 2, 3])
+        self.assertFalse(any(f.kind in (3, 18) for _, f in t.frames))
+        self.assertEqual(t.watchdogs, {1: 0, 2: 0, 3: 0})
+        self.assertEqual(t.motion_batches, [])
+        self.assertEqual(t.stop_calls, [(1, 2, 3), (1, 2, 3)])
+        self.assertEqual([f.destination for _, f in t.frames[-3:]], [1, 2, 3])
+        self.assertEqual([f.kind for _, f in t.frames[-3:]], [4, 4, 4])
+        for mid in (1, 2):
+            self.assertEqual(r["motors"][mid]["watchdog_previous_ticks"], 0)
+        self.assertNotIn("watchdog_previous_ticks", r["motors"][3])
+        self.assertTrue(all("watchdog_readback_ticks" not in m for m in r["motors"].values()))
 
     def test_any_sibling_failure_stops_all_without_retry(self):
         for failure in ("partial_enable", "communication", "overspeed", "fault", "stale", "late_drift"):

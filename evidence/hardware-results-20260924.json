@@ -1,0 +1,4541 @@
+{
+  "schema": "singularitydog.bounded-pose-relative-results.v1",
+  "date": "2026-09-24",
+  "source_relative_metrics_sha256": "255dcdd8b52bf1a208da8454cab32f0d7b80fc0b23b63f1893da407be1bfaba8",
+  "scope": "RR finite 3-axis trials only; not stand or learned policy deployment",
+  "comparison_initial_pose_matched": false,
+  "initial_position_change_r2_minus_r1_deg": {
+    "foot": 2.92325,
+    "thigh": 2.43971,
+    "hip": -0.28573
+  },
+  "both_trials_stop_mode0_fault0_confirmed": true,
+  "hold_completed": false,
+  "r1_operator_feedback": "movement_visible_no_abnormality",
+  "r2_operator_feedback": "movement_visible_no_abnormality",
+  "physical_torque_limit_verified": false,
+  "physical_watchdog_shutdown_time_verified": false,
+  "runtime_approved": false,
+  "metrics": {
+    "r1": {
+      "command": {
+        "Kp_nominal": 3.0,
+        "Kp_encoded": 2.998397802700847,
+        "Kd_encoded": 0.14999618524452582,
+        "velocity_ff_rad_s": -0.0007629510948348184,
+        "torque_ff_nm": -8.392462043183002e-05,
+        "ramp_s": 4,
+        "nominal_hold_s": 1,
+        "command_cycle_s": 0.05
+      },
+      "joints": [
+        {
+          "joint": "foot",
+          "nominal_final_relative_target_deg": 4.009308579837272,
+          "final_encoded_relative_command_deg": 4.000239463592266,
+          "last_completed_relative_actual_deg": 3.0111692665502092,
+          "last_completed_abs_error_to_fixed_target_deg": 0.9981393132870625,
+          "first_hold_reply_actual_relative_deg": 3.0111692665502092,
+          "first_hold_reply_abs_error_deg": 0.9981393132870625,
+          "last_completed_elapsed_s": 3.9724991580001188,
+          "last_half_second_trend": {
+            "sample_count": 10,
+            "time_first_last_s": [
+              3.5226021149996996,
+              3.9724991580001188
+            ],
+            "position_change_deg": 0.04395867542404162,
+            "position_peak_to_peak_deg": 0.04395867542404162,
+            "linear_position_slope_deg_s": 0.093238624676735,
+            "detrended_position_RMS_deg": 0.007572659732177686,
+            "nonzero_position_increment_sign_reversals": 2,
+            "mean_velocity_feedback_rad_s": 0.007324330510414256,
+            "velocity_feedback_range_rad_s": [
+              -0.03433279926756683,
+              0.05111772335393283
+            ],
+            "mean_torque_feedback_nm": 0.056195925841153384,
+            "torque_feedback_range_nm": [
+              0.04775310902571128,
+              0.06755931944762317
+            ],
+            "command_change_deg": 0.15072424364218232
+          },
+          "maximum_abs_velocity_feedback_rad_s": 0.2738994430456998,
+          "maximum_abs_torque_feedback_nm": 0.12009613183794876
+        },
+        {
+          "joint": "thigh",
+          "nominal_final_relative_target_deg": 4.0003644611202915,
+          "final_encoded_relative_command_deg": 4.000239463592266,
+          "last_completed_relative_actual_deg": 2.505644499173222,
+          "last_completed_abs_error_to_fixed_target_deg": 1.49471996194707,
+          "first_hold_reply_actual_relative_deg": 2.505644499173222,
+          "first_hold_reply_abs_error_deg": 1.49471996194707,
+          "last_completed_elapsed_s": 3.9725606679999146,
+          "last_half_second_trend": {
+            "sample_count": 10,
+            "time_first_last_s": [
+              3.522664681000151,
+              3.9725606679999146
+            ],
+            "position_change_deg": 0.021979337712122585,
+            "position_peak_to_peak_deg": 0.021979337712122585,
+            "linear_position_slope_deg_s": 0.04261765046216471,
+            "detrended_position_RMS_deg": 0.006310312844409555,
+            "nonzero_position_increment_sign_reversals": 0,
+            "mean_velocity_feedback_rad_s": 0.011139085984588348,
+            "velocity_feedback_range_rad_s": [
+              -0.058747234302281015,
+              0.04654001678492392
+            ],
+            "mean_torque_feedback_nm": 0.08840619516288975,
+            "torque_feedback_range_nm": [
+              0.07477683680476055,
+              0.09575799191271805
+            ],
+            "command_change_deg": 0.15038800224249435
+          },
+          "maximum_abs_velocity_feedback_rad_s": 0.14877546349278958,
+          "maximum_abs_torque_feedback_nm": 0.09575799191271805
+        },
+        {
+          "joint": "hip",
+          "nominal_final_relative_target_deg": -3.98338056697141,
+          "final_encoded_relative_command_deg": -4.000239463592266,
+          "last_completed_relative_actual_deg": -2.439706486037058,
+          "last_completed_abs_error_to_fixed_target_deg": 1.5436740809343523,
+          "first_hold_reply_actual_relative_deg": -2.439706486037058,
+          "first_hold_reply_abs_error_deg": 1.5436740809343523,
+          "last_completed_elapsed_s": 3.9726094090001425,
+          "last_half_second_trend": {
+            "sample_count": 10,
+            "time_first_last_s": [
+              3.5227152779998505,
+              3.9726094090001425
+            ],
+            "position_change_deg": -0.0439586754241434,
+            "position_peak_to_peak_deg": 0.0439586754241434,
+            "linear_position_slope_deg_s": -0.08258683738318119,
+            "detrended_position_RMS_deg": 0.009797327200459702,
+            "nonzero_position_increment_sign_reversals": 2,
+            "mean_velocity_feedback_rad_s": -0.0010681315327687457,
+            "velocity_feedback_range_rad_s": [
+              -0.05111772335393283,
+              0.07095445181963811
+            ],
+            "mean_torque_feedback_nm": -0.0952376592660407,
+            "torque_feedback_range_nm": [
+              -0.10801098649576524,
+              -0.08854047455558067
+            ],
+            "command_change_deg": -0.1497495169404243
+          },
+          "maximum_abs_velocity_feedback_rad_s": 0.1655603875791556,
+          "maximum_abs_torque_feedback_nm": 0.15803006027313682
+        }
+      ],
+      "timing": {
+        "basis": "logged offending-frame to full-stop-write/reset-reply; not physical shutdown latency",
+        "first_stop_write_ms": 4.284844,
+        "all_stop_writes_ms": 14.537675,
+        "last_mode0_fault0_reply_ms": 38.421209,
+        "hip_last_active_reply_logged_after_stop_writes": true
+      }
+    },
+    "r2": {
+      "command": {
+        "Kp_nominal": 4.0,
+        "Kp_encoded": 3.9978637369344625,
+        "Kd_encoded": 0.14999618524452582,
+        "velocity_ff_rad_s": -0.0007629510948348184,
+        "torque_ff_nm": -8.392462043183002e-05,
+        "ramp_s": 4,
+        "nominal_hold_s": 1,
+        "command_cycle_s": 0.05
+      },
+      "joints": [
+        {
+          "joint": "foot",
+          "nominal_final_relative_target_deg": 4.017628497418182,
+          "final_encoded_relative_command_deg": 4.000239463592266,
+          "last_completed_relative_actual_deg": 4.154094827576716,
+          "last_completed_abs_error_to_fixed_target_deg": 0.1364663301585342,
+          "first_hold_reply_actual_relative_deg": 4.132115489864594,
+          "first_hold_reply_abs_error_deg": 0.11448699244641163,
+          "last_completed_elapsed_s": 3.972649184999682,
+          "last_half_second_trend": {
+            "sample_count": 10,
+            "time_first_last_s": [
+              3.522583986999962,
+              3.972649184999682
+            ],
+            "position_change_deg": 0.021979337712122585,
+            "position_peak_to_peak_deg": 0.021979337712122585,
+            "linear_position_slope_deg_s": 0.023986788685734225,
+            "detrended_position_RMS_deg": 0.005622555738113138,
+            "nonzero_position_increment_sign_reversals": 0,
+            "mean_velocity_feedback_rad_s": -0.008239871824216038,
+            "velocity_feedback_range_rad_s": [
+              -0.05111772335393283,
+              0.058747234302281015
+            ],
+            "mean_torque_feedback_nm": -0.017657740138857035,
+            "torque_feedback_range_nm": [
+              -0.029121843289845017,
+              -0.006630045014114572
+            ],
+            "command_change_deg": 0.15103321571745099
+          },
+          "maximum_abs_velocity_feedback_rad_s": 0.40512703135728856,
+          "maximum_abs_torque_feedback_nm": 0.12194247348744902
+        },
+        {
+          "joint": "thigh",
+          "nominal_final_relative_target_deg": 4.001767584445791,
+          "final_encoded_relative_command_deg": 4.000239463592163,
+          "last_completed_relative_actual_deg": 3.318879994518806,
+          "last_completed_abs_error_to_fixed_target_deg": 0.6828875899269852,
+          "first_hold_reply_actual_relative_deg": 3.318879994518806,
+          "first_hold_reply_abs_error_deg": 0.6828875899269852,
+          "last_completed_elapsed_s": 3.9727125499998692,
+          "last_half_second_trend": {
+            "sample_count": 10,
+            "time_first_last_s": [
+              3.5226486639999166,
+              3.9727125499998692
+            ],
+            "position_change_deg": 0.17583470169637003,
+            "position_peak_to_peak_deg": 0.17583470169637003,
+            "linear_position_slope_deg_s": 0.3037465930403525,
+            "detrended_position_RMS_deg": 0.02086946080277258,
+            "nonzero_position_increment_sign_reversals": 0,
+            "mean_velocity_feedback_rad_s": 0.03433279926756683,
+            "velocity_feedback_range_rad_s": [
+              -0.049591821164263195,
+              0.11978332188906649
+            ],
+            "mean_torque_feedback_nm": 0.054702067597466805,
+            "torque_feedback_range_nm": [
+              0.04708171206225664,
+              0.06688792248416853
+            ],
+            "command_change_deg": 0.15043696230776596
+          },
+          "maximum_abs_velocity_feedback_rad_s": 0.28000305180437834,
+          "maximum_abs_torque_feedback_nm": 0.12714579995422337
+        },
+        {
+          "joint": "hip",
+          "nominal_final_relative_target_deg": -3.9896807448678993,
+          "final_encoded_relative_command_deg": -4.000239463592163,
+          "last_completed_relative_actual_deg": -2.2858511220527085,
+          "last_completed_abs_error_to_fixed_target_deg": 1.7038296228151908,
+          "first_hold_reply_actual_relative_deg": -2.2858511220527085,
+          "first_hold_reply_abs_error_deg": 1.7038296228151908,
+          "last_completed_elapsed_s": 3.972792428000048,
+          "last_half_second_trend": {
+            "sample_count": 10,
+            "time_first_last_s": [
+              3.5227004759999545,
+              3.972792428000048
+            ],
+            "position_change_deg": -0.06593801313616421,
+            "position_peak_to_peak_deg": 0.06593801313616421,
+            "linear_position_slope_deg_s": -0.15451435485868653,
+            "detrended_position_RMS_deg": 0.008244137684956363,
+            "nonzero_position_increment_sign_reversals": 0,
+            "mean_velocity_feedback_rad_s": -0.023498893720912406,
+            "velocity_feedback_range_rad_s": [
+              -0.07400625619897738,
+              0.0373846036469061
+            ],
+            "mean_torque_feedback_nm": -0.1431754024567029,
+            "torque_feedback_range_nm": [
+              -0.16205844205386466,
+              -0.13385976958876977
+            ],
+            "command_change_deg": -0.14998258623728392
+          },
+          "maximum_abs_velocity_feedback_rad_s": 0.10299839780270048,
+          "maximum_abs_torque_feedback_nm": 0.16927595941100204
+        }
+      ],
+      "timing": {
+        "basis": "logged offending-frame to full-stop-write/reset-reply; not physical shutdown latency",
+        "first_stop_write_ms": 1.645662,
+        "all_stop_writes_ms": 11.904688,
+        "last_mode0_fault0_reply_ms": 37.006419,
+        "hip_last_active_reply_logged_after_stop_writes": false
+      }
+    }
+  },
+  "r3_countermeasures": {
+    "implementation_status": "deployed_and_one_matched_trial_executed",
+    "api_related_tests_passed": 147,
+    "wrapper_tests_passed": 31,
+    "independent_review": "PASS",
+    "deployed_files_hash_verified": 14,
+    "new_motor_actuation_sent": true,
+    "matched_start_candidate_tolerance_deg": 0.5,
+    "current_median_minus_fixed_reference_deg": {
+      "foot": 4.590160329815369,
+      "thigh": 2.8890060943753135,
+      "hip": 5.928358312760947
+    },
+    "reference_basis": "r2 before last Type17; explicit new hip-target diagnostic baseline; not matched Kp A/B",
+    "current_capture_requests": 492,
+    "current_capture_replies": 492,
+    "next_step": "r4 charge-only and r5 ID9 Kp6 comparisons completed; hip error remains1.374deg. Separate transient response from steady error before further gain changes.",
+    "runtime_approved": false,
+    "readonly_capture_independent_audit": "PASS",
+    "all_three_ten_samples_outside_tolerance": true,
+    "all12_voltage_range_V": [
+      35.159378,
+      36.422588
+    ],
+    "initial_mismatch_capture_is_historical": true
+  },
+  "r3_matched_hip_trial": {
+    "status": "ABORTED",
+    "source_summary_sha256": "ba24d9407d2ed5aae971ed9a573d11734382ec06b0354dd9b82b3d2cb5c590f0",
+    "operator_start_confirmation": "all3 within0.5deg, hands released",
+    "operator_post_motion_feedback": "movement_visible_no_abnormality",
+    "matched_start_check_passed": true,
+    "Kp": 4.0,
+    "Kd": 0.15,
+    "target_change_from_fixed_reference_deg": [
+      0,
+      0,
+      -4
+    ],
+    "completed_motion_samples": 240,
+    "arrival_candidate_met": false,
+    "hold_candidate_met": false,
+    "stop_mode0_fault0_all3": true,
+    "pre_post_capture_counts": {
+      "before": 492,
+      "after": 252
+    },
+    "all12_pre_post_quiet": true,
+    "trial_port_closed": true,
+    "locks_released": true,
+    "runtime_approved": false,
+    "joints": [
+      {
+        "joint": "foot",
+        "initial_minus_reference_deg": -0.21544253682646555,
+        "target_minus_fresh_center_deg": 0.21544253682646555,
+        "last_completed_actual_minus_fresh_center_deg": 0.021979337712122585,
+        "last_completed_abs_target_error_deg": 0.19346319911434295,
+        "initial_voltage_V": 35.12428665161133
+      },
+      {
+        "joint": "thigh",
+        "initial_minus_reference_deg": 0.020211753266228812,
+        "target_minus_fresh_center_deg": -0.020211753266228812,
+        "last_completed_actual_minus_fresh_center_deg": -0.13187602627222664,
+        "last_completed_abs_target_error_deg": 0.11166427300599782,
+        "initial_voltage_V": 35.264644622802734
+      },
+      {
+        "joint": "hip",
+        "initial_minus_reference_deg": -0.4059473339488824,
+        "target_minus_fresh_center_deg": -3.594052666051118,
+        "last_completed_actual_minus_fresh_center_deg": -1.9561610563719893,
+        "last_completed_abs_target_error_deg": 1.6378916096791285,
+        "initial_voltage_V": 35.264644622802734
+      }
+    ],
+    "relative_analysis_sha256": "478b5673892dce40bd23819a142bc903e14e83bac42958034b24ac1e1b3a71d0",
+    "first_hold_rejected_id9_abs_target_error_deg": 1.6159122719672094,
+    "first_hold_rejected_reply_is_accepted_motion_sample": false,
+    "independent_raw_audit": "PASS",
+    "independent_audit_sha256": "ca68b89f89043770d0b878fb31759d98bfca62fda4da68e94a517083e547f6d0",
+    "raw_tx_rx_verified": 1098,
+    "trial_completed_successfully": false
+  },
+  "manual_alignment_tool": {
+    "offline_tests_passed": 28,
+    "independent_review": "PASS",
+    "smoke_seconds": 10,
+    "smoke_requests_replies": 153,
+    "smoke_complete_samples": 50,
+    "operator_session_seconds": 90,
+    "operator_session_requests_replies": 1353,
+    "operator_session_complete_samples": 450,
+    "operator_session_matched_samples": 83,
+    "motor_output_available": false,
+    "calibration_changed": false,
+    "smoke_independent_raw_audit": "PASS",
+    "smoke_audit_sha256": "c294f7acda0aabbf9b5d91d547ebfce8d483cebf1361d50760e17d62ea1416c3"
+  },
+  "r4_charged_same_target_trial": {
+    "status": "ABORTED",
+    "source_summary_sha256": "19d4ca026f44c954f6be65ddc4e0ead4529e07b7f6e552e64ee3a0985425d868",
+    "source_events_sha256": "50c07e0bd84af7c96d42d5c7b22a43ee4705407764b954f4fc61a81efc7bd3b3",
+    "wrapper_sha256": "9532b909e622123cade0b33d964e1604891e53308a9e3c043c63d6b7994e8220",
+    "reference_sha256": "71bf3383a5b4c699cbaa58e1c8b7a5595e9cb7bba5d79312e1a2f93f7be5ab1d",
+    "relative_analysis_sha256": "c1a586e2acef18cf28028893a39d048e274af78e10687776069bb7558ef3f07d",
+    "relative_analysis_script_sha256": "45494ee733b5711be03f05dc884c35825581d4d01472e99ea21b641eb245b60f",
+    "same_software_reference_absolute_targets_gains_as_r3": true,
+    "same_individuals_verified_all12": true,
+    "firmware_version_queried_in_this_trial": false,
+    "operator_post_motion_feedback": "movement_visible_no_abnormality",
+    "matched_start_check_passed": true,
+    "matched_start_tolerance_candidate_deg": 0.5,
+    "Kp": 4.0,
+    "Kd": 0.15,
+    "target_change_from_fixed_reference_deg": [
+      0,
+      0,
+      -4
+    ],
+    "completed_motion_samples_per_axis": 80,
+    "completed_motion_samples": 240,
+    "arrival_candidate_met": false,
+    "hold_candidate_met": false,
+    "first_hold_reply_counts_as_completed_motion_sample": false,
+    "stop_mode0_fault0_all3": true,
+    "pre_post_capture_counts": {
+      "before": 492,
+      "after": 252
+    },
+    "all12_pre_post_quiet": true,
+    "trial_port_closed": true,
+    "capture_ports_closed": true,
+    "locks_released": true,
+    "events_flush_confirmed": true,
+    "raw_tx_rx_verified": 1098,
+    "independent_raw_audit": "PASS",
+    "runtime_approved": false,
+    "trial_completed_successfully": false,
+    "joints": [
+      {
+        "joint": "foot",
+        "initial_minus_reference_deg": -0.17148386140242391,
+        "initial_minus_r3_initial_deg": 0.04395867542404162,
+        "target_minus_fresh_center_deg": 0.17148386140242391,
+        "last_completed_actual_minus_fresh_center_deg": 0.021979337712122585,
+        "last_completed_abs_target_error_deg": 0.14950452369030134,
+        "last_completed_elapsed_s": 3.972738501999629,
+        "first_hold_unaccepted_actual_minus_fresh_center_deg": 0.021979337712122585,
+        "first_hold_unaccepted_abs_target_error_deg": 0.14950452369030134,
+        "first_hold_reply_is_abort_trigger": false,
+        "initial_voltage_V": 40.914005279541016,
+        "before_voltage_minmax_V": [
+          40.8789176940918,
+          40.914005279541016
+        ],
+        "after_voltage_minmax_V": [
+          40.8789176940918,
+          40.914005279541016
+        ],
+        "last10_completed_sample_trend": {
+          "count": 10,
+          "span_s": 0.4500845989987283,
+          "elapsed_first_last_s": [
+            3.5226539030009008,
+            3.972738501999629
+          ],
+          "position_change_deg": 0.0,
+          "position_peak_to_peak_deg": 0.0,
+          "OLS_slope_deg_s": 0.0,
+          "detrended_RMS_deg": 0.0,
+          "command_change_deg": 0.006446676019051844,
+          "mean_torque_feedback_nm": 0.006965743495841892
+        },
+        "maximum_abs_velocity_feedback_rad_s": 0.13046463721675394,
+        "maximum_abs_torque_feedback_nm": 0.018715190356298095
+      },
+      {
+        "joint": "thigh",
+        "initial_minus_reference_deg": -0.0677055975819562,
+        "initial_minus_r3_initial_deg": -0.08791735084818501,
+        "target_minus_fresh_center_deg": 0.0677055975819562,
+        "last_completed_actual_minus_fresh_center_deg": -0.04395867542404162,
+        "last_completed_abs_target_error_deg": 0.11166427300599782,
+        "last_completed_elapsed_s": 3.9728086970008007,
+        "first_hold_unaccepted_actual_minus_fresh_center_deg": -0.04395867542404162,
+        "first_hold_unaccepted_abs_target_error_deg": 0.11166427300599782,
+        "first_hold_reply_is_abort_trigger": false,
+        "initial_voltage_V": 41.19471740722656,
+        "before_voltage_minmax_V": [
+          41.19471740722656,
+          41.22980880737305
+        ],
+        "after_voltage_minmax_V": [
+          41.19471740722656,
+          41.19471740722656
+        ],
+        "last10_completed_sample_trend": {
+          "count": 10,
+          "span_s": 0.4500896820009075,
+          "elapsed_first_last_s": [
+            3.5227190149998933,
+            3.9728086970008007
+          ],
+          "position_change_deg": 0.0,
+          "position_peak_to_peak_deg": 0.02197933771212259,
+          "OLS_slope_deg_s": 0.021305137698064816,
+          "detrended_RMS_deg": 0.008241410090554787,
+          "command_change_deg": 0.0025452893859375246,
+          "mean_torque_feedback_nm": 0.005522240024414415
+        },
+        "maximum_abs_velocity_feedback_rad_s": 0.12283512626840576,
+        "maximum_abs_torque_feedback_nm": 0.019386587319752735
+      },
+      {
+        "joint": "hip",
+        "initial_minus_reference_deg": -0.20813329454049154,
+        "initial_minus_r3_initial_deg": 0.19781403940839082,
+        "target_minus_fresh_center_deg": -3.7918667054595083,
+        "last_completed_actual_minus_fresh_center_deg": -2.15397509578038,
+        "last_completed_abs_target_error_deg": 1.6378916096791285,
+        "last_completed_elapsed_s": 3.972864027000469,
+        "first_hold_unaccepted_actual_minus_fresh_center_deg": -2.1759544334925027,
+        "first_hold_unaccepted_abs_target_error_deg": 1.6159122719670058,
+        "first_hold_reply_is_abort_trigger": true,
+        "initial_voltage_V": 41.19471740722656,
+        "before_voltage_minmax_V": [
+          41.19471740722656,
+          41.19471740722656
+        ],
+        "after_voltage_minmax_V": [
+          41.19471740722656,
+          41.19471740722656
+        ],
+        "last10_completed_sample_trend": {
+          "count": 10,
+          "span_s": 0.45009003300037875,
+          "elapsed_first_last_s": [
+            3.52277399400009,
+            3.972864027000469
+          ],
+          "position_change_deg": -0.04395867542404153,
+          "position_peak_to_peak_deg": 0.04395867542404153,
+          "OLS_slope_deg_s": -0.09850923444332212,
+          "detrended_RMS_deg": 0.010659390431009953,
+          "command_change_deg": -0.14254948516794602,
+          "mean_torque_feedback_nm": -0.1366124971389338
+        },
+        "maximum_abs_velocity_feedback_rad_s": 0.14267185473411104,
+        "maximum_abs_torque_feedback_nm": 0.1476234073395899
+      }
+    ],
+    "voltage_measurement_scope": "initial and before/after reads; no active-phase voltage measurement",
+    "interpretation": "Initial hip voltage increased by5.930073V, but fixed-target error is unchanged. Relative travel increase equals start-angle difference; do not infer improved absolute arrival or universal voltage independence."
+  },
+  "r4_vs_r3_comparison": {
+    "same_absolute_targets": true,
+    "same_command_gains": true,
+    "initial_positions_identical": false,
+    "both_initial_positions_within_fixed_reference_candidate": true,
+    "hip_initial_reference_difference_r3_deg": -0.4059473339488824,
+    "hip_initial_reference_difference_r4_deg": -0.20813329454049154,
+    "hip_initial_change_r4_minus_r3_deg": 0.19781403940839082,
+    "hip_last_completed_absolute_position_change_deg": 0.0,
+    "hip_first_hold_unaccepted_absolute_position_change_deg": 0.0,
+    "hip_initial_voltage_change_V": 5.930072784423828,
+    "hold_completed_either_trial": false,
+    "limitations": [
+      "matched tolerance is not identical starting pose",
+      "no powered-phase voltage readings",
+      "no firmware version query in these two trials"
+    ]
+  },
+  "next_diagnostic_candidate": {
+    "status": "executed_r5_arrival_rejected_all3_stopped",
+    "scope": "RR explicit limited gain profile; no automatic retry or gain adjustment",
+    "nominal_Kp_by_joint": {
+      "foot": 4,
+      "thigh": 4,
+      "hip": 6
+    },
+    "changed_variable": "ID9 Kp only",
+    "keep": [
+      "same fixed start reference and targets",
+      "Kd0.15",
+      "nominal zero feedforward",
+      "4s ramp plus nominal1s hold",
+      "1deg arrival candidate",
+      "0.5Nm Type2 feedback monitor",
+      "existing stop and freshness gates"
+    ],
+    "physical_torque_cap_verified": false,
+    "runtime_approved": false,
+    "api_related_tests_passed": 138,
+    "wrapper_tests_passed": 31,
+    "independent_review": "PASS",
+    "legacy_kp3_kp4_replay_conditions_unchanged": 4,
+    "deployed_files_hash_verified": 14,
+    "new_profile_actuated": true,
+    "wrapper_sha256": "7aee37207634e84279ef3ea2fa2e4732997139a12da36e2a516c2b740c7e470f",
+    "package_manifest_sha256": "9fe809ae93f81426742636dc55ccc12642ca65c8c827322504adbc5a269d8ab7",
+    "runner_sha256": "b20c67fbf2266fdfc7335c134fad7b89b487010f36d39709917e7a709df8e70a",
+    "protocol_sha256": "d290d108bf2333120d5204760d29e081e7e17bb64755b311f5ea8091eeddf614",
+    "historical_candidate_now_executed": true
+  },
+  "r5_hip_kp6_trial": {
+    "status": "ABORTED",
+    "source_summary_sha256": "a6cd6259ab0aebe8e43cf4dfcbf7fef3a7a1f2fb656cf280f3195e4ff67bcc9d",
+    "source_events_sha256": "be3039113c06d132cfd846c26cd667d6ba842097776b634a33d48b3f63aa9014",
+    "wrapper_sha256": "7aee37207634e84279ef3ea2fa2e4732997139a12da36e2a516c2b740c7e470f",
+    "reference_sha256": "71bf3383a5b4c699cbaa58e1c8b7a5595e9cb7bba5d79312e1a2f93f7be5ab1d",
+    "same_fixed_reference_and_targets_as_r4": true,
+    "nominal_Kp_by_joint": {
+      "foot": 4,
+      "thigh": 4,
+      "hip": 6
+    },
+    "Kd": 0.15,
+    "torque_feedforward_nm": 0,
+    "operator_post_motion_feedback": "movement_visible_no_abnormality",
+    "matched_start_check_passed": true,
+    "alignment_samples_complete": 300,
+    "alignment_samples_within_candidate": 300,
+    "completed_motion_samples_per_axis": 80,
+    "arrival_candidate_met": false,
+    "hold_candidate_met": false,
+    "first_hold_unaccepted_abs_target_error_hip_deg": 1.3741395571345734,
+    "stop_mode0_fault0_all3": true,
+    "trial_port_closed": true,
+    "locks_released": true,
+    "events_flush_confirmed": true,
+    "all12_pre_post_quiet": true,
+    "raw_tx_rx_verified": 1098,
+    "joints": [
+      {
+        "joint": "foot",
+        "nominal_Kp": 4.0,
+        "initial_minus_reference_deg": -0.14950452369030134,
+        "initial_voltage_V": 40.808738708496094,
+        "last_completed_actual_minus_fresh_center_deg": 0.0,
+        "last_completed_abs_target_error_deg": 0.14950452369030134,
+        "last10_completed_span_s": 0.4499197909990471,
+        "last10_completed_position_change_deg": -0.021979337711919032,
+        "maximum_abs_torque_feedback_nm": 0.014015411612115614
+      },
+      {
+        "joint": "thigh",
+        "nominal_Kp": 4.0,
+        "initial_minus_reference_deg": -0.0677055975819562,
+        "initial_voltage_V": 41.08945083618164,
+        "last_completed_actual_minus_fresh_center_deg": -0.06593801313616421,
+        "last_completed_abs_target_error_deg": 0.1336436107181204,
+        "last10_completed_span_s": 0.44993761899968376,
+        "last10_completed_position_change_deg": 0.02197933771202081,
+        "maximum_abs_torque_feedback_nm": 0.016197451743343194
+      },
+      {
+        "joint": "hip",
+        "nominal_Kp": 6.0,
+        "initial_minus_reference_deg": -0.3180299831007991,
+        "initial_voltage_V": 41.124542236328125,
+        "last_completed_actual_minus_fresh_center_deg": -2.3078304597646278,
+        "last_completed_abs_target_error_deg": 1.3741395571345734,
+        "last10_completed_span_s": 0.44992520099913236,
+        "last10_completed_position_change_deg": -0.08791735084818501,
+        "maximum_abs_torque_feedback_nm": 0.1942854962996874
+      }
+    ],
+    "runtime_approved": false,
+    "physical_torque_cap_verified": false,
+    "active_voltage_measured": false,
+    "interpretation": "Hip fixed-target error decreased by0.263752deg but remains above1deg. First hold reply aborts the trial; no constant-target settling trace, so transient lag versus steady load/friction error remains unresolved.",
+    "independent_raw_audit": "PASS",
+    "independent_raw_audit_sha256": "3cdf0658e2e7a23b3472a12c607bd194e003c44cd3a294fafcbbeb7263a4c955",
+    "relative_analysis_sha256": "843937773c41b1029fb2ab297588ce58b0eebe9b4276321080b565fd39a698ac",
+    "relative_analysis_script_sha256": "8844cc6cc0183baa76c3a5c8e590e9f72d2d1d115dac47c50bf58a2e2fb1712e",
+    "hip_error_decrease_from_r4_deg": 0.2637520525445551,
+    "additional_trials_executed": false
+  },
+  "r6_settling_observation": {
+    "status": "RR_SETTLING_OBSERVATION_COMPLETE_RESET_CONFIRMED_DUAL_BUS_PRE_POST",
+    "observation_only": true,
+    "source_summary_sha256": "7fc1f7968cbab1e7fa36f6c80abcf629ec5edd198ce7066d20b1a7d5b6d5e84b",
+    "source_events_sha256": "26f2a97bb9675616860933cd7fecefdbfefb3c924b937d3db2ed77b1626bb93f",
+    "scope": "RR IDs7/8/9 finite matched-reference observation; not standing or learned-policy actuation",
+    "ramp_s": 4,
+    "nominal_target_dwell_s": 1,
+    "Kp_by_motor": {
+      "7": 4,
+      "8": 4,
+      "9": 6
+    },
+    "Kd": 0.15,
+    "torque_feedforward_nm": 0,
+    "arrival_error_criterion_deg": 1,
+    "observation_max_error_deg": 2,
+    "observation_max_worsening_from_first_batch_deg": 0.25,
+    "observation_completed": true,
+    "arrival_candidate_met": false,
+    "hold_candidate_met": false,
+    "stop_confirmed": true,
+    "ports_closed": true,
+    "locks_released": true,
+    "events_flush_confirmed": true,
+    "operator_feedback": "movement_visible_no_abnormality",
+    "approved_for_runtime": false,
+    "physical_torque_limit_verified": false,
+    "whole_transaction_elapsed_s": 14.824201863999406,
+    "motors": {
+      "7": {
+        "accepted_observation_samples": 20,
+        "observed_span_s": 0.95000129,
+        "first_hold_abs_error_deg": 0.14950452369030134,
+        "final_abs_error_deg": 0.14950452369030134,
+        "max_abs_error_deg": 0.14950452369030134,
+        "max_source_gap_ms": 50.076989
+      },
+      "8": {
+        "accepted_observation_samples": 20,
+        "observed_span_s": 0.95000129,
+        "first_hold_abs_error_deg": 0.1336436107181204,
+        "final_abs_error_deg": 0.1336436107181204,
+        "max_abs_error_deg": 0.1556229484301412,
+        "max_source_gap_ms": 50.076989
+      },
+      "9": {
+        "accepted_observation_samples": 20,
+        "observed_span_s": 0.950021929,
+        "first_hold_abs_error_deg": 1.3741395571345734,
+        "final_abs_error_deg": 1.33018088171043,
+        "max_abs_error_deg": 1.3741395571345734,
+        "max_source_gap_ms": 50.126396
+      }
+    },
+    "software_validation": {
+      "related_tests_passed": 151,
+      "private_wrapper_tests_passed": 33,
+      "independent_default_cases_identical_to_r5": 6,
+      "independent_strict_evaluator_cases_identical_to_r5": 8
+    },
+    "raw_audit_sha256": "7a6fbcc2b34701fb6f4c06a5f0fc8fe04cacbefdb338101b349f73643bdb1181",
+    "raw_audit_status": "PASS",
+    "total_tx_rx_pairs": 1155,
+    "trial_tx_rx_pairs": 411,
+    "active_command_frames": 300,
+    "active_command_frames_per_motor": 100,
+    "max_active_velocity_feedback_rad_s": 0.1701380941481645,
+    "max_active_torque_feedback_nm": 0.18505378805218609,
+    "post_stop_observation": {
+      "motor_id": 9,
+      "mode": 0,
+      "fault": 0,
+      "velocity_feedback_rad_s": 1.0597390707255698,
+      "interpretation": "Stop confirms disabled mode, not instantaneous zero physical speed; following all12 quiet read passed"
+    },
+    "settling_analysis_sha256": "74e86c122e833af9f0bf7b1fd663455b3b1c9f0fd25eb934f00703b26e107a0b"
+  },
+  "manual_L_capture_preparation": {
+    "status": "FOUR_SEPARATE_L_REFERENCES_RECORDED_AND_AUDITED",
+    "motor_output_available": false,
+    "calibration_modified": false,
+    "leg_order": [
+      "FR",
+      "FL",
+      "RR",
+      "RL"
+    ],
+    "separate_records_not_simultaneous_pose": true,
+    "sweeps_per_capture": 5,
+    "queries_per_capture": 252,
+    "offline_tests_passed": 24,
+    "independent_review": "PASS",
+    "private_launcher_sha256": "9d383885d0ab5e36b22ef4470b249d1e56e6f988882a7c945b9c57d8a30abd24",
+    "previous_launcher_sha256": "b5a5799c3e007481cf26cdc8e6b018448730d36bbf88ccd130566c1cdfc9561b",
+    "session_revision": "r2_after_verified_restart",
+    "current_session_boot_pinned": true,
+    "frozen_helper_boot_separated": true,
+    "complete_captures": 4,
+    "actual_readonly_pairs": 1008,
+    "cancelled_capture_not_used": true,
+    "source_session_sha256": "9582db967e2fbf19cc5fd6703556c8c40db676d5e899bbc949179891b10f14ae",
+    "audit_sha256": "4588df3cc6e204ecdd7ff236f6bd70534619b5eacb579b62e6c8977f86042dbc",
+    "max_selected_joint_sample_span_deg": 0.5330006420711151,
+    "span_is_not_absolute_angle_accuracy": true
+  },
+  "dual_bus_one_tick_preparation": {
+    "status": "R2_EXECUTED_REAL_INPUT_REJECTED_FRESHNESS",
+    "new_tests_passed": 22,
+    "frozen_dependency_tests_passed": 60,
+    "independent_review": "PASS",
+    "h_hypotheses": [
+      0,
+      1
+    ],
+    "ticks_per_hypothesis": 1,
+    "required_inputs": "new explicit calibration candidate with SHA and matching12identities; same verified boot",
+    "motor_output_available": false,
+    "approved_for_runtime": false,
+    "live_50hz_verified": false,
+    "real_sensor_policy_ticks": 0,
+    "source_sha256": "826167fd937686311ec15752a530d856bcdfc0a6ae15b92852e29b886936cee2",
+    "previous_source_sha256": "b4bd93a55b6848c445f2c313660f97b6e8467da3e976deaa1bf75c536212364e",
+    "deployed_files_verified": 18,
+    "source_archive_sha256": "57c66fc701b1a2fcff1e6329137c545910591fa4648255204c410423394a717d",
+    "current_session_boot_pinned": true,
+    "embedded_new_L_provenance_required": true
+  },
+  "post_restart_readonly": {
+    "status": "READONLY_OBSERVATION_COMPLETE_NOT_DRIVE_APPROVAL",
+    "serial_access_problem": "rear_port_permission_denied_before_any_TX",
+    "permission_fix": "dialout_group_membership_with_group_aware_launcher",
+    "requests": 492,
+    "identity_queries": 12,
+    "parameter_queries": 480,
+    "all_12_identities_match": true,
+    "all_currents_A": 0,
+    "voltage_range_V": [
+      37.861244201660156,
+      39.26481246948242
+    ],
+    "first_TX_to_last_reply_s": 2.319853382,
+    "all_12_quiet_during_capture": true,
+    "ports_closed": true,
+    "locks_released": true,
+    "motor_output_sent": false,
+    "mode_fault_measured": false,
+    "imu_measured": false,
+    "calibration_approved": false,
+    "runtime_approved": false,
+    "independent_raw_audit": "PASS",
+    "audit_sha256": "ef7dc0e077e6740e98feef47cdbf03c390b26ab41ec8328281f087bfe0214185"
+  },
+  "offline_L_candidate_builder_preparation": {
+    "status": "REAL_CAPTURE_AUDITED_UNAPPROVED_CANDIDATE_SAVED",
+    "source_sha256": "579a06dc44a13c2abf4bfca09057c6e3352ec89d66325b8545e7be185cc6807d",
+    "test_methods_passed": 7,
+    "synthetic_model_input_compatibility": "PASS",
+    "independent_review": "PASS",
+    "real_candidate_generated": true,
+    "motor_output_available": false,
+    "controller_configuration_changed": false,
+    "retained_signs_not_reverified": true,
+    "automatic_turn_wrapping": false,
+    "candidate_sha256": "8712f765f4760577a1a3d0612948d23269256cdf35438a72dec8a39529c4029e",
+    "runtime_approved": false,
+    "signs_newly_verified": false
+  },
+  "new_L_live_no_output_r1": {
+    "status": "INCOMPLETE",
+    "model": "trial28A_model149",
+    "candidate_sha256": "8712f765f4760577a1a3d0612948d23269256cdf35438a72dec8a39529c4029e",
+    "read_requests": 48,
+    "matched_replies": 48,
+    "producer_query_attempts": 49,
+    "next_query_aborted_before_TX": true,
+    "all_12_identities_match": true,
+    "motor_output_frames": 0,
+    "motor_configuration_writes": 0,
+    "real_policy_ticks_by_hypothesis": [
+      0,
+      0
+    ],
+    "synthetic_warmup_ticks_per_hypothesis": 3,
+    "failure": "stale_observations_and_acquisition_spread",
+    "max_age_ms": 188.399814,
+    "acquisition_spread_ms": 187.959999,
+    "max_allowed_age_and_spread_ms": 100,
+    "start_lateness_ms": 1.795857,
+    "allowed_start_lateness_ms": 5,
+    "imu_configuration_restored": true,
+    "serial_ports_closed": true,
+    "ownership_locks_released": true,
+    "producer_threads_exited": true,
+    "log_flushed": true,
+    "raw_audit_sha256": "cd18e97109a5be671fd0fa22c36ba55c5c8a62d4b027b128126aecae209317e2",
+    "offline_angle_diagnostic": {
+      "scope": "same rejected asynchronous snapshot; not a successful angle-gated policy input",
+      "hip_degrees": {
+        "3": 43.0862539637878,
+        "6": -33.701792610243714,
+        "9": 33.968306591657615,
+        "12": -32.516727468489826
+      },
+      "model_hip_range_degrees": [
+        -28.64788975654116,
+        28.64788975654116
+      ]
+    },
+    "limits_relaxed": false,
+    "runtime_approved": false
+  },
+  "new_L_live_no_output_r2_paired": {
+    "status": "INCOMPLETE_RANGE_BLOCKED",
+    "motor_output_available": false,
+    "output_allowed": false,
+    "controller_config_changed": false,
+    "live_50hz_verified": false,
+    "new_adapter_tests_passed": 22,
+    "frozen_dependency_tests_passed": 129,
+    "independent_adapter_review": "PASS; independently reran 22 tests",
+    "fresh_identity_all12_verified": true,
+    "scheduled_snapshot_oldest_age_ms": 49.856645,
+    "scheduled_snapshot_acquisition_spread_ms": 49.202274,
+    "scheduled_snapshot_receive_spread_ms": 44.315178,
+    "tick_start_lateness_ms": 0.38999,
+    "conservative_age_at_block_ms": 52.449424,
+    "age_and_spread_limit_ms": 100,
+    "real_model_ticks_by_hypothesis": {
+      "h0": 0,
+      "h1": 0
+    },
+    "synthetic_warmup_per_hypothesis": 3,
+    "blocked_reason": "Four calibrated hip positions outside registered model range; no clipping",
+    "model_hip_range_deg": [
+      -28.64789,
+      28.64789
+    ],
+    "diagnostic_model_hip_deg": {
+      "FR": 43.080571,
+      "FL": -33.690454,
+      "RR": 33.971148,
+      "RL": -32.513831
+    },
+    "all_other_eight_positions_within_model_range": true,
+    "observer_failure_cancelled_paired_CAN": true,
+    "twenty_cycles_completed": false,
+    "can_wire_write_counts": {
+      "front": 77,
+      "rear": 76
+    },
+    "decoded_response_counts": {
+      "front": 76,
+      "rear": 75
+    },
+    "producer_threads_exited": true,
+    "common_lock_released": true,
+    "IMU_configuration_restored": true,
+    "raw_event_logs_flushed": true,
+    "dropped_events": 0,
+    "snapshot_independently_reconstructed": true,
+    "full_raw_audit": "PASS of INCOMPLETE run; 153 actual transmissions,151 correlated replies; no runtime approval",
+    "physical_alternative": "Body supported manually with feet lightly touching floor; no motor output; operator readiness not yet confirmed",
+    "can_write_attempt_counts": {
+      "front": 78,
+      "rear": 77
+    },
+    "pending_entries_at_cancellation_total": 4,
+    "actual_transmitted_without_decoded_reply": 2,
+    "rejected_before_write": 2,
+    "serial_residual_bytes_per_bus": 17,
+    "residual_byte_contents_recorded": false,
+    "wire_writes_after_observer_failure": 0,
+    "independent_raw_audit_sha256": "24290868ed2ea1cb3e6826fbccdc10301a91bf571bbe0d6f154f387fb3669da8"
+  },
+  "new_L_live_no_output_r3_current": {
+    "status": "INCOMPLETE_RANGE_BLOCKED",
+    "output_allowed": false,
+    "motor_output_available": false,
+    "fresh_identity_all12_verified": true,
+    "controller_config_changed": false,
+    "live_50hz_verified": false,
+    "operator_supported_pose_confirmed": false,
+    "scheduled_snapshot_oldest_age_ms": 45.340072,
+    "scheduled_snapshot_acquisition_spread_ms": 44.844131,
+    "scheduled_snapshot_receive_spread_ms": 39.799256,
+    "tick_start_lateness_ms": 0.643723,
+    "conservative_age_at_block_ms": 48.50708,
+    "real_model_ticks_by_hypothesis": {
+      "h0": 0,
+      "h1": 0
+    },
+    "diagnostic_model_hip_deg": {
+      "FR": 43.080571,
+      "FL": -33.698951,
+      "RR": 33.971148,
+      "RL": -32.516727
+    },
+    "blocked_reason": "Four hip positions outside registered joint range; no clipping",
+    "all_other_eight_positions_within_model_range": true,
+    "actual_tx": 164,
+    "decoded_replies": 163,
+    "canonical_CAN_types": [
+      0,
+      17
+    ],
+    "pending_actual_reads": 1,
+    "transmit_attempts_rejected_before_write": 0,
+    "residual_serial_bytes": {
+      "front": 0,
+      "rear": 17
+    },
+    "residual_contents_verified": false,
+    "completed_cycles_per_bus": 6,
+    "planned_twenty_cycles_completed": false,
+    "wire_writes_after_observer_failure": 0,
+    "both_devices_closed": true,
+    "all_producer_threads_exited": true,
+    "common_lock_released": true,
+    "IMU_configuration_restored": true,
+    "all_three_logs_flushed": true,
+    "dropped_events": 0,
+    "independent_audit_status": "PASS of INCOMPLETE diagnostic",
+    "independent_audit_sha256": "a6e3f581fe8663033bfb706e7fbeddff85a2a2fb962a3368954ccba0739db082"
+  },
+  "new_L_live_no_output_r4_supported": {
+    "status": "INCOMPLETE_TICK_EXECUTION_DEADLINE",
+    "operator_supported_pose_confirmed": true,
+    "output_allowed": false,
+    "motor_output_available": false,
+    "controller_config_changed": false,
+    "live_50hz_verified": false,
+    "all12_calibrated_positions_within_registered_range": true,
+    "fresh_identity_all12_verified": true,
+    "snapshot_oldest_age_ms": 51.271475,
+    "snapshot_acquisition_spread_ms": 50.073398,
+    "tick_start_lateness_ms": 0.872083,
+    "actual_age_before_h0_consume_ms": 53.331848,
+    "h0_consume_duration_ms": 474.322245,
+    "scheduled_tick_to_h0_return_ms": 476.382618,
+    "tick_window_ms": 20,
+    "h0_computed_but_rejected_ticks": 1,
+    "h1_computed_ticks": 0,
+    "timing_accepted_ticks": 0,
+    "finite_h0_target_actor_observation": true,
+    "h0_target_within_range": true,
+    "consume_includes": "snapshot validation/copy, tensor input preparation, policy forward and output conversion; not isolated actor timing",
+    "actual_tx": 444,
+    "decoded_replies": 442,
+    "CAN_types": [
+      0,
+      17
+    ],
+    "unrecovered_actual_reads": 2,
+    "front_residual_serial_bytes": 33,
+    "front_residual_parser_bytes": 1,
+    "residual_complete_reply_verified": false,
+    "wire_writes_after_observer_failure": 0,
+    "both_devices_closed": true,
+    "all_producer_threads_exited": true,
+    "common_lock_released": true,
+    "IMU_configuration_restored": true,
+    "logs_flushed": true,
+    "dropped_events": 0,
+    "independent_audit_status": "PASS of INCOMPLETE run",
+    "independent_audit_sha256": "6783586504f9677790e80e5430e0eaa3ba19793059214d19b1cb57cdac3e5ce4"
+  },
+  "captured_input_scripted_profile_r1": {
+    "status": "FILE_REPLAY_PROFILE_AND_EQUIVALENCE_PASS",
+    "hardware_opened": false,
+    "new_live_ticks": 0,
+    "motor_output_available": false,
+    "live_50hz_verified": false,
+    "source_capture": "r4_supported",
+    "repeats_per_model_per_h": 5,
+    "reset_before_every_replay": true,
+    "synthetic_warmup_per_h": 10,
+    "timing_excludes_first_profiled_replay": true,
+    "eager_unprofiled_median_ms": {
+      "h0": 19.292919,
+      "h1": 18.219397
+    },
+    "scripted_unprofiled_median_ms": {
+      "h0": 8.6829035,
+      "h1": 8.792565
+    },
+    "scripted_unprofiled_max_ms": {
+      "h0": 9.253729,
+      "h1": 8.986457
+    },
+    "tolerance": {
+      "atol": 1e-06,
+      "rtol": 1e-06
+    },
+    "eager_scripted_max_abs_error": {
+      "target": 0,
+      "observation": 0,
+      "actor": 0,
+      "buffers": 0
+    },
+    "eager_h0_matches_saved_live_h0_at_tolerance": true,
+    "jit_artifact_sha256": "ca0afc48556564446cb731d891561deaf2462b8f457585395427936c1572fcdf",
+    "profile_report_sha256": "c641cc5c19033709a26e32e3a6e3a9d25f76a7b95d5d50b023c9f4c79ac87b4c",
+    "limitations": "Single stored snapshot; independent reset replays, no concurrent acquisition or 50Hz verification. Thread contention remains a hypothesis."
+  },
+  "scripted_diagnostic_r4_prepared": {
+    "status": "LIVE_TESTED_R5_INPUTS_PASSED_EXECUTION_DEADLINE_FAILED",
+    "archive_sha256": "ab2ccfc7ae7cc0c583c65fa3fad7068ff3ae914e244b3a4cde82043f545b4600",
+    "files_verified": 25,
+    "private_tests_passed": 27,
+    "independent_review_and_test_rerun": "PASS",
+    "source_sha256": "5e07ea5d3a914230cf082d9f7e5ecf8a488a3833bee4b782f92fa78c2cf1e8a7",
+    "artifact_sha256": "ca0afc48556564446cb731d891561deaf2462b8f457585395427936c1572fcdf",
+    "model_kind": "hash_pinned_torchscript_cpu",
+    "synthetic_warmup_per_h": 10,
+    "intraop_threads": 1,
+    "interop_threads": 1,
+    "observer_and_paired_code_unchanged": true,
+    "guard_limits_unchanged": true,
+    "live_50hz_verified": false,
+    "motor_output_available": false,
+    "hardware_ports_opened_for_load_test": 0,
+    "new_real_ticks_for_load_test": 0,
+    "operator_pose_readiness_for_next_live_test": "r5 executed; operator told release and restore support stand"
+  },
+  "new_L_live_no_output_r5_supported_scripted": {
+    "status": "INCOMPLETE_TICK_EXECUTION_DEADLINE",
+    "operator_supported_pose_confirmed": true,
+    "model_kind": "hash_pinned_torchscript_cpu",
+    "output_allowed": false,
+    "motor_output_available": false,
+    "controller_config_changed": false,
+    "live_50hz_verified": false,
+    "fresh_identity_all12_verified": true,
+    "all12_calibrated_positions_within_registered_range": true,
+    "snapshot_oldest_age_ms": 44.240115,
+    "snapshot_acquisition_spread_ms": 43.314753,
+    "tick_start_lateness_ms": 1.166397,
+    "start_to_consume_ms": 1.532009,
+    "h0_consume_duration_ms": 24.793591,
+    "scheduled_tick_to_h0_return_ms": 27.491997,
+    "after_consume_to_log_available_ms": 0.703763,
+    "tick_execution_limit_ms": 20,
+    "h0_computed_but_rejected_ticks": 1,
+    "h1_computed_ticks": 0,
+    "timing_accepted_ticks": 0,
+    "finite_h0_target_actor_observation": true,
+    "h0_target_within_range": true,
+    "actual_tx": 192,
+    "decoded_replies": 190,
+    "CAN_types": [
+      0,
+      17
+    ],
+    "pending_actual_reads": 2,
+    "rear_residual_serial_bytes": 34,
+    "residual_contents_verified": false,
+    "wire_writes_after_observer_failure": 0,
+    "both_devices_closed": true,
+    "all_producer_threads_exited": true,
+    "common_lock_released": true,
+    "IMU_configuration_restored": true,
+    "all_three_logs_flushed": true,
+    "dropped_events": 0,
+    "independent_audit_status": "PASS of INCOMPLETE diagnostic",
+    "independent_audit_sha256": "217868d2f2f9b8679763a922f25dff1df7c5803bd1c9058e7cc7908525341be7",
+    "comparison_limitations": "Different supported capture. Latency reduction observed; pure-forward duration and precise cause not isolated."
+  },
+  "captured_input_concurrency_profile_r1": {
+    "status": "FILE_ONLY_CONCURRENCY_COMPARISON_PASS",
+    "report_sha256": "02d84bfdebb71389d5e86d66819a9e2698f76255a9fbdb4e63df8e47c4be22f1",
+    "source_sha256": "6d8ba47ac26461087c9754abaf0e9a7eb813ea0ccbf3b4db49d828172bf5a0b4",
+    "hardware_opened": false,
+    "new_live_ticks": 0,
+    "motor_output_available": false,
+    "live_50hz_verified": false,
+    "reset_repeats_per_condition_per_h": 5,
+    "conditions": {
+      "baseline": {
+        "h0": {
+          "median_consume_ms": 9.025768,
+          "median_main_thread_cpu_ms": 8.9256,
+          "max_consume_ms": 11.733033
+        },
+        "h1": {
+          "median_consume_ms": 8.808249,
+          "median_main_thread_cpu_ms": 8.68704,
+          "max_consume_ms": 9.21762
+        }
+      },
+      "active_writer": {
+        "h0": {
+          "median_consume_ms": 18.484116,
+          "median_main_thread_cpu_ms": 17.380032,
+          "max_consume_ms": 18.813406
+        },
+        "h1": {
+          "median_consume_ms": 18.749811,
+          "median_main_thread_cpu_ms": 17.544512,
+          "max_consume_ms": 25.023319
+        }
+      },
+      "deferred_writer": {
+        "h0": {
+          "median_consume_ms": 17.62326,
+          "median_main_thread_cpu_ms": 17.375424,
+          "max_consume_ms": 18.690314
+        },
+        "h1": {
+          "median_consume_ms": 17.907005,
+          "median_main_thread_cpu_ms": 17.506912,
+          "max_consume_ms": 18.446584
+        }
+      }
+    },
+    "exact_outputs_and_state_equality_assertions_passed": true,
+    "independent_report_arithmetic_review": "PASS; all30 samples, stage sums, medians and bounded replay cleanup; not independent model reexecution",
+    "limitations": "Same stored snapshot, fixed condition order and unmatched baseline idle cadence. CPU frequency was not recorded. Does not reproduce USB/UART/I2C hardware timing or prove live50Hz.",
+    "conclusion": "Deferring logs changes median wall time by less than1ms; it does not explain about8.5ms increased main-thread CPU time. No live logger change adopted.",
+    "next": "File-only cadence-matched interleaved comparison with read-only per-consume CPU frequency observations; no governor writes."
+  },
+  "captured_input_concurrency_profile_r2": {
+    "status": "INCOMPLETE_BOOKKEEPING_OVERRAN_NEXT_FILE_ONLY_SLOT",
+    "report_sha256": "e67aa87b1ec75c2e4a8ea2f9ec12de349667eb9848db14f69ab9fa354e6da45f",
+    "source_sha256": "256ede0668c72a1e2171e14931d60ffb93fdf904dc2c781fce915b0def6b058c",
+    "completed_samples": 1,
+    "hardware_opened": false,
+    "new_live_ticks": 0,
+    "motor_output_available": false,
+    "live_50hz_verified": false,
+    "first_baseline_after_matched_wait": {
+      "consume_ms": 17.334378,
+      "main_thread_cpu_ms": 17.247424,
+      "cpu_frequency_before_and_after_khz": 729600,
+      "both_policies_at_endpoints": true,
+      "executing_cpu_endpoint_before_and_after": 3
+    },
+    "conclusion": "Waiting baseline also slowed; fixed-order or idle-frequency effects were not controlled in r1. No causal frequency claim or complete condition comparison from this interrupted run.",
+    "failure_scope": "file-only fixed500ms experiment slot, not a live20ms deadline and not a motor event",
+    "next": "Separate equality/bookkeeping from fixed-slot timing in a reviewed new revision."
+  },
+  "captured_input_concurrency_profile_r3": {
+    "status": "FILE_ONLY_CONCURRENCY_COMPARISON_PASS",
+    "source_sha256": "446209fe4147fb8da1a4f91b7f56f758dcb156adc64cb5266578aea364881db9",
+    "report_sha256": "de14397752434c76a30a89aedcc3e87431c8c8dc4758465933976a3aa53bb312",
+    "hardware_opened": false,
+    "new_live_ticks": 0,
+    "motor_output_available": false,
+    "live_50hz_verified": false,
+    "samples": 30,
+    "equal_preconsume_planned_delay_ms": 273.410191,
+    "fixed_file_comparison_slot_ms": 500,
+    "conditions_interleaved": true,
+    "existing_live_guards_unchanged": true,
+    "conditions": {
+      "baseline": {
+        "h0": {
+          "median_consume_ms": 17.495866,
+          "median_main_thread_cpu_ms": 17.354976,
+          "max_consume_ms": 18.192733
+        },
+        "h1": {
+          "median_consume_ms": 17.589988,
+          "median_main_thread_cpu_ms": 17.464288,
+          "max_consume_ms": 18.377998
+        }
+      },
+      "active_writer": {
+        "h0": {
+          "median_consume_ms": 18.346412,
+          "median_main_thread_cpu_ms": 17.785472,
+          "max_consume_ms": 18.395473
+        },
+        "h1": {
+          "median_consume_ms": 18.355822,
+          "median_main_thread_cpu_ms": 17.593888,
+          "max_consume_ms": 18.436565
+        }
+      },
+      "deferred_writer": {
+        "h0": {
+          "median_consume_ms": 18.134295,
+          "median_main_thread_cpu_ms": 17.603136,
+          "max_consume_ms": 18.274438
+        },
+        "h1": {
+          "median_consume_ms": 18.140249,
+          "median_main_thread_cpu_ms": 17.561056,
+          "max_consume_ms": 18.165274
+        }
+      }
+    },
+    "all120_policy_frequency_endpoints_khz": 729600,
+    "frequency_is_endpoint_only_not_interval_trace": true,
+    "exact_output_and_state_assertions_all_passed": true,
+    "post_slot_numerical_validation_ms": 1226.530813,
+    "conclusion": "At equal idle cadence, baseline is about17.5ms and active replay about18.35ms. Deferring logs only improves about0.21ms. Earlier9ms vs18ms comparison did not control idle cadence; do not attribute it all to contention.",
+    "next_candidate": "Completed as captured_input_cpu_performance_profile_r4; original CPU settings restored.",
+    "limitations": "Saved single snapshot with state reset each time; no physical I/O, continuous50Hz or drive validation. Endpoint frequency correlation is not causal proof; runtime settings unchanged."
+  },
+  "captured_input_cpu_performance_profile_r4": {
+    "status": "FILE_ONLY_CONCURRENCY_COMPARISON_PASS",
+    "report_sha256": "2ad97c195f65e9f71daee1c6d13ee1b58eff08482703b9a601f9a0dc53a569a2",
+    "source_sha256": "08d8c0a36c69d88f3fd5136954a1d6e7eb0639350a144c09115653f02a775802",
+    "independent_audit_sha256": "34c06f8a0ef8896e61c186504f224c8fe503dd8d2d7a8b24d14f3ed3b8504a05",
+    "hardware_opened": false,
+    "motor_output_available": false,
+    "new_live_ticks": 0,
+    "live_50hz_verified": false,
+    "samples": 30,
+    "conditions": {
+      "baseline": {
+        "h0": {
+          "median_consume_ms": 9.763787,
+          "median_main_thread_cpu_ms": 9.599712,
+          "max_consume_ms": 10.960887
+        },
+        "h1": {
+          "median_consume_ms": 9.877701,
+          "median_main_thread_cpu_ms": 9.742848,
+          "max_consume_ms": 10.071518
+        }
+      },
+      "active_writer": {
+        "h0": {
+          "median_consume_ms": 10.045952,
+          "median_main_thread_cpu_ms": 9.631168,
+          "max_consume_ms": 11.923368
+        },
+        "h1": {
+          "median_consume_ms": 10.029696,
+          "median_main_thread_cpu_ms": 9.778784,
+          "max_consume_ms": 10.704672
+        }
+      },
+      "deferred_writer": {
+        "h0": {
+          "median_consume_ms": 9.710448,
+          "median_main_thread_cpu_ms": 9.539648,
+          "max_consume_ms": 10.389422
+        },
+        "h1": {
+          "median_consume_ms": 9.902564,
+          "median_main_thread_cpu_ms": 9.755296,
+          "max_consume_ms": 11.390114
+        }
+      }
+    },
+    "fixed_file_comparison_slot_ms": 500,
+    "preconsume_delay_ms": 273.410191,
+    "all120_policy_frequency_endpoints_khz": 1497600,
+    "original_governor": "schedutil",
+    "temporary_governor": "performance",
+    "unchanged_frequency_bounds_khz": [
+      729600,
+      1497600
+    ],
+    "restoration_confirmed_by": [
+      "parent_final",
+      "independent_watchdog",
+      "fresh_sysfs_read"
+    ],
+    "all_conditions_same_outputs_and_state": true,
+    "numerical_validation_scope": "Mandatory same-run equality checks passed. Independent audit recomputed timing/cleanup and checked flags; it did not reexecute state arrays or prove cross-run byte equality.",
+    "bounded_replay_cleanup_passed": true,
+    "all30_max_consume_ms": 11.923368,
+    "conclusion": "Active replay median improved from18.346/18.356ms to10.046/10.030ms within existing CPU frequency ceiling. Original CPU governors restored. This is one stored input replay, hypotheses timed separately; not combined20ms or live50Hz validation."
+  },
+  "cpp_projection_jetson_poc_r1": {
+    "status": "FILE_ONLY_SCALAR_PROJECTION_PARITY_PASS",
+    "source_sha256": "7a4f6ee4d1f4ae165356d91ab160fef5ac67d2958e8d717846ebc10be9d4811a",
+    "native_source_sha256": "4d73a30cc08ad05fd9ad496079469cde8cd36636748a1544521d8f7c98ca94d1",
+    "harness_sha256": "5319b6525bb929090c7eb7b704ec577cac0cd492f862bd169f389e3d0d9232a9",
+    "native_library_sha256": "72035cd83152d2cb334f45e54d73e47d7e32062025201216165fb7a7e0168dad",
+    "torch_version": "2.14.0+cpu",
+    "projection_cases": 260,
+    "full_controller_sequence_ticks": 160,
+    "reset_before_ticks": [
+      0,
+      125
+    ],
+    "geometric_domain_cases": 28,
+    "invalid_inputs_rejected": [
+      "nan",
+      "inf",
+      "nonfinite_up",
+      "negative_request",
+      "excess_request",
+      "bad_alpha",
+      "uncapped_below_request"
+    ],
+    "max_absolute_errors": {
+      "solved": 8.881784197001252e-16,
+      "endpoint_q": 8.881784197001252e-16,
+      "fraction": 0.0,
+      "first_invalid": 0.0,
+      "hi": 0.0,
+      "applied": 0.0,
+      "roundtrip": 1.6653345369377348e-16,
+      "joint_margin": 8.881784197001252e-16,
+      "whole_step_float32": 0.0
+    },
+    "distinct_reason_patterns": 50,
+    "postcheck_rejections": {
+      "joint_margin": 2,
+      "fk_closure": 4
+    },
+    "native_input_mutation_checked_on_actual_ctypes_buffers": true,
+    "benchmark_includes_native_ctypes_boundary": true,
+    "benchmark_excludes": {
+      "tensor_list_conversion": true,
+      "full_model_actor_observer": true,
+      "CAN_IMU": true
+    },
+    "benchmarks": {
+      "zero_request": {
+        "case": "whole_step_0",
+        "requested_m": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "path_rejected": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "timing_ms": {
+          "native": {
+            "median": 0.0285315,
+            "p95": 0.039493,
+            "max": 0.039621
+          },
+          "scripted_tensor_reference": {
+            "median": 3.7632595,
+            "p95": 3.839653,
+            "max": 3.872937
+          }
+        }
+      },
+      "nonzero_request": {
+        "case": "joint_boundary_random_12",
+        "requested_m": [
+          0.01536435909505707,
+          0.01137392752135161,
+          0.024710450159139728,
+          0.0561555648051091
+        ],
+        "path_rejected": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "timing_ms": {
+          "native": {
+            "median": 0.0299395,
+            "p95": 0.040773,
+            "max": 0.042085
+          },
+          "scripted_tensor_reference": {
+            "median": 3.743623,
+            "p95": 3.810495,
+            "max": 3.842019
+          }
+        }
+      },
+      "refined_rejected_path": {
+        "case": "joint_boundary_random_1",
+        "requested_m": [
+          0.06,
+          0.06,
+          0.06,
+          0.06
+        ],
+        "path_rejected": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "timing_ms": {
+          "native": {
+            "median": 0.047686,
+            "p95": 0.053831,
+            "max": 0.05844
+          },
+          "scripted_tensor_reference": {
+            "median": 6.2971755,
+            "p95": 6.39194,
+            "max": 6.446795
+          }
+        }
+      }
+    },
+    "hardware_opened": false,
+    "motor_output_available": false,
+    "output_allowed": false,
+    "new_live_ticks": 0,
+    "approved_for_runtime": false,
+    "live_50hz_verified": false,
+    "scope": "Only stateless fixed-four-leg projection scan/refine/postchecks; observer/actor/controller state/CAN unchanged and not replaced",
+    "limitations": "Synthetic file-only kernel experiment. No end-to-end real-time claim, no policy adoption, no hardware reads or writes. Native trig rounding may differ near geometric branch boundaries; exact masks required over tested inputs only.",
+    "report_sha256": "22175fe06f69c9bd505eb106fd9ac8facae090568cf74e60a2da969996619ec2",
+    "build_flags": [
+      "-std=c++17",
+      "-O3",
+      "-ffp-contract=off",
+      "-shared",
+      "-fPIC"
+    ],
+    "next": "Separately pinned custom operator integration and full model output/state comparison before any live timing use."
+  },
+  "cpp_full_policy_preparation_r1": {
+    "status": "LOCAL_PREPARATION_COMPLETED; target comparison recorded separately in cpp_full_policy_jetson_r2",
+    "manifest_sha256": "4c193033db309ed4860f6dadf214e819c4d1ff3e99c0fe0ed91f47874c9bb866",
+    "source_files": {
+      "projection.cpp": "4d73a30cc08ad05fd9ad496079469cde8cd36636748a1544521d8f7c98ca94d1",
+      "torch_projection.cpp": "16438adb456d1babecd70c81bf72febe3c496befd0789ade699836660cd94ebc",
+      "compare_policy.py": "bc08b1deae89e960718b68895a2bb90ad695dc72bc2abc9902d6c7136d5eee59",
+      "README.md": "407c964014e9f89462027833d4192ea1e0b3c9f6368706a27db5c0302d4c638e"
+    },
+    "generated_sources": {
+      "native_swing_core.py": "ee46d6d6ba931a27814f015f81bea1cc3dd0054c0cd15b0006928c3d1692d4c2",
+      "native_swing_deployment.py": "07f4ec75ffc51b0b8e645a37fc9cd29bc8144bbcc0a48deac1c3b6a1b5d746d3",
+      "replaced_original_block_sha256": "f264a32cd73eb29e855183a003dab9281d185f1a7a86974e455ed3a607001bf3",
+      "original_prefix_suffix_preserved": true,
+      "original_postchecks_preserved": true
+    },
+    "local_validation_report_sha256": "2a4ca5bb6815ac8a97d8c4d63bd9c8dc1cd65c3dbf001ff437d725d17dfbeb77",
+    "local_platform": "macOS arm64",
+    "local_torch_version": "2.10.0",
+    "full_policy_frames": 240,
+    "controller_all_diagnostic_frames": 120,
+    "full_policy_max_abs_error": 0.0,
+    "controller_max_abs_error": 0.0,
+    "numeric_tolerance": {
+      "float64": {
+        "atol": 1e-09,
+        "rtol": 0.0
+      },
+      "float32": {
+        "atol": 1e-06,
+        "rtol": 1e-06
+      },
+      "decision_masks_and_fractions": "exact"
+    },
+    "local_observer_consume_timing": {
+      "original": {
+        "0": {
+          "median_ms": 4.100875,
+          "p95_ms": 6.985375,
+          "max_ms": 6.985375,
+          "samples": 12
+        },
+        "1": {
+          "median_ms": 4.3900625,
+          "p95_ms": 7.78775,
+          "max_ms": 7.78775,
+          "samples": 12
+        }
+      },
+      "native": {
+        "0": {
+          "median_ms": 2.3724999999999996,
+          "p95_ms": 2.832333,
+          "max_ms": 2.832333,
+          "samples": 12
+        },
+        "1": {
+          "median_ms": 2.963625,
+          "p95_ms": 4.469542,
+          "max_ms": 4.469542,
+          "samples": 12
+        }
+      }
+    },
+    "native_input_logical_view_handling": "Valid lazy negative view vs resolved tensor exact; PyTorch dispatcher may materialize before CPU wrapper.",
+    "original_postchecks_preserved": true,
+    "actor_parameters_exactly_equal": true,
+    "new_live_ticks": 0,
+    "motor_output_available": false,
+    "runtime_approved": false,
+    "live_50hz_verified": false,
+    "jetson_integration_sources_transferred": true,
+    "pending": "Resolved by cpp_full_policy_jetson_r2 after C++20 build setting adjustment.",
+    "observer_concurrent_comparison_prepared": {
+      "source_sha256": "d03e8c5ca99a26e86e0f8705871a0866de32f27ede2c2240600d72984d4fb5b4",
+      "planned_reset_replays": 20,
+      "fixed_slot_ms": 500,
+      "recorded_workload_concurrent": true,
+      "entry_rejection_signal_tests_passed": 3,
+      "independent_review": "PASS",
+      "executed": false
+    }
+  },
+  "cpp_full_policy_jetson_build_r1": {
+    "status": "FAILED_BUILD_ONLY",
+    "report_sha256": "97f43d72a379dadc4d370aa224c2d724221ac01fd89a456897db6268c2f2edda",
+    "reason": "Installed PyTorch2.14 headers require C++20; r1 requested C++17",
+    "model_comparisons_executed": 0,
+    "hardware_opened": false,
+    "motor_output_available": false
+  },
+  "cpp_full_policy_jetson_r2": {
+    "status": "FILE_ONLY_NATIVE_POLICY_AND_OBSERVER_PARITY_PASS",
+    "hardware_opened": false,
+    "motor_output_available": false,
+    "output_allowed": false,
+    "approved_for_runtime": false,
+    "new_live_ticks": 0,
+    "live_50hz_verified": false,
+    "harness_sha256": "d4b6bc09693edf95dc220ea512d60fa3d6177dbbf9159ac11191dfcf55d61a11",
+    "kernel_sha256": "4d73a30cc08ad05fd9ad496079469cde8cd36636748a1544521d8f7c98ca94d1",
+    "torch_wrapper_sha256": "16438adb456d1babecd70c81bf72febe3c496befd0789ade699836660cd94ebc",
+    "source_pins": {
+      "swing_core.py": "7a4f6ee4d1f4ae165356d91ab160fef5ac67d2958e8d717846ebc10be9d4811a",
+      "swing_deployment.py": "8ea25946b3e2799d509afc32490a4efafd752d04a40b6b94a9839a576da59bfa",
+      "model_149.pt": "7b06b035894c2696381a028d150609c67fef3a9a421cb001799152777e179434"
+    },
+    "original_jit_sha256": "ca0afc48556564446cb731d891561deaf2462b8f457585395427936c1572fcdf",
+    "torch_version": "2.14.0+cpu",
+    "cxx11_abi": true,
+    "torch_threads": {
+      "intraop": 1,
+      "interop": 1
+    },
+    "library_sha256": "d8ed379d1d2fd01459df35f4063b682d6467129945504791445c65bc756d61bf",
+    "generated_sources": {
+      "native_swing_core.py": "ee46d6d6ba931a27814f015f81bea1cc3dd0054c0cd15b0006928c3d1692d4c2",
+      "native_swing_deployment.py": "07f4ec75ffc51b0b8e645a37fc9cd29bc8144bbcc0a48deac1c3b6a1b5d746d3",
+      "replaced_original_block_sha256": "f264a32cd73eb29e855183a003dab9281d185f1a7a86974e455ed3a607001bf3",
+      "original_prefix_suffix_preserved": true,
+      "original_postchecks_preserved": true
+    },
+    "native_artifact_sha256": "e87e9944aea8d7c6b8e32d144b8c6f4b37ac2c863c45353c9c228f8c9d0ea07f",
+    "full_policy_sequence": {
+      "frames": 240,
+      "reset_before_frames": [
+        0,
+        125,
+        240
+      ],
+      "models": [
+        "original_eager",
+        "original_pinned_jit",
+        "native_jit",
+        "native_saved_reloaded"
+      ],
+      "max_absolute_errors": {
+        "state:last_observation": 0.0,
+        "state:last_actor_output": 0.0,
+        "state:controller.output_anchor": 0.0,
+        "state:controller.phase": 0.0,
+        "state:controller.elapsed": 0.0,
+        "state:controller.filters": 0.0,
+        "state:controller.yaw_filters": 0.0,
+        "state:controller.heading_error_rad": 0.0,
+        "state:controller.sensor_yaw_rate": 0.0,
+        "state:controller.previous_clipped": 0.0,
+        "state:controller.origins": 0.0,
+        "state:controller.anchor": 0.0,
+        "state:controller.offsets": 0.0,
+        "state:controller.signs": 0.0,
+        "state:controller.nominal": 0.0,
+        "state:controller.lower": 0.0,
+        "state:controller.upper": 0.0,
+        "state:controller.scale": 0.0,
+        "state:controller.safe_lower": 0.0,
+        "state:controller.safe_upper": 0.0,
+        "state:controller.sensor_q": 0.0,
+        "state:controller.sensor_up": 0.0,
+        "target": 0.0,
+        "observation74": 0.0,
+        "actor12": 0.0
+      }
+    },
+    "controller_all_outputs": {
+      "frames": 120,
+      "reset_before_frames": [
+        0,
+        75
+      ],
+      "all_dict_keys_compared": true,
+      "exact_integer_bool_masks": true,
+      "distinct_reason_patterns": 1,
+      "max_absolute_errors": {
+        "controller:q_reference_rad": 0.0,
+        "controller:q_target_rad": 0.0,
+        "controller:q_target_before_physical_clip_rad": 0.0,
+        "controller:physical_clip_delta_rad": 0.0,
+        "controller:raw_action": 0.0,
+        "controller:clipped_action": 0.0,
+        "controller:feet_relative_to_base_m": 0.0,
+        "controller:planned_center_clearance_m": 0.0,
+        "controller:phase_after": 0.0,
+        "controller:filter_state_after": 0.0,
+        "controller:bootstrap_progress_after": 0.0,
+        "controller:bootstrap_blend_after": 0.0,
+        "controller:l10_heading_error_rad": 0.0,
+        "controller:l10_measured_yaw_rate_rad_s": 0.0,
+        "controller:l10_raw_yaw_command_rad_s": 0.0,
+        "controller:l10_heading_correction_rad_s": 0.0,
+        "controller:l10_effective_yaw_command_rad_s": 0.0,
+        "controller:l10_filtered_yaw_rate_rad_s": 0.0,
+        "controller:l10_yaw_filter_state_after": 0.0,
+        "controller:l10_anchor_foot_velocity_m_s": 0.0,
+        "controller:l07_projection_m": 0.0,
+        "controller:l07_preprojection_target_rad": 0.0,
+        "controller:l07_preprojection_clip_rad": 0.0,
+        "controller:l07_plane_proxy_relative_m": 0.0,
+        "controller:l13_requested_residual_target_rad": 0.0,
+        "controller:l13_residual_scale_applied": 0.0,
+        "controller:l13_residual_constraint_correction_rad": 0.0,
+        "controller:l13_projection_requested_m": 0.0,
+        "controller:l13_projection_request_before_cap_m": 0.0,
+        "controller:l13_projection_applied_m": 0.0,
+        "controller:l13_projection_unmet_m": 0.0,
+        "controller:l13_projection_fraction": 0.0,
+        "controller:l13_projection_first_invalid_fraction": 0.0,
+        "controller:l13_projection_path_sample_gap_m": 0.0,
+        "controller:l13_target_foot_positions_m": 0.0,
+        "controller:l13_target_joint_margin_rad": 0.0,
+        "state:last_observation": 0.0,
+        "state:last_actor_output": 0.0,
+        "state:controller.output_anchor": 0.0,
+        "state:controller.phase": 0.0,
+        "state:controller.elapsed": 0.0,
+        "state:controller.filters": 0.0,
+        "state:controller.yaw_filters": 0.0,
+        "state:controller.heading_error_rad": 0.0,
+        "state:controller.sensor_yaw_rate": 0.0,
+        "state:controller.previous_clipped": 0.0,
+        "state:controller.origins": 0.0,
+        "state:controller.anchor": 0.0,
+        "state:controller.offsets": 0.0,
+        "state:controller.signs": 0.0,
+        "state:controller.nominal": 0.0,
+        "state:controller.lower": 0.0,
+        "state:controller.upper": 0.0,
+        "state:controller.scale": 0.0,
+        "state:controller.safe_lower": 0.0,
+        "state:controller.safe_upper": 0.0,
+        "state:controller.sensor_q": 0.0,
+        "state:controller.sensor_up": 0.0
+      }
+    },
+    "captured_observer_replay": {
+      "snapshot_sha256": "ec2230ec29bb8617497838e94db3ee5d2b732df3ff6b68d65650bad8b7a31ea7",
+      "capture_status": "INCOMPLETE",
+      "historical_times_unchanged": true,
+      "new_live_ticks": 0,
+      "independent_h_reset": true,
+      "source_freshness_limits_unchanged": true,
+      "original_observer_unchanged": true,
+      "continuous_50hz_claim": false,
+      "max_absolute_errors": {
+        "captured:q_target_rad_diagnostic_only": 0.0,
+        "prior_live:q_target_rad_diagnostic_only": 0.0,
+        "captured:observation74": 0.0,
+        "prior_live:observation74": 0.0,
+        "captured:actor_residual12": 0.0,
+        "prior_live:actor_residual12": 0.0,
+        "captured_state:last_observation": 0.0,
+        "captured_state:last_actor_output": 0.0,
+        "captured_state:controller.output_anchor": 0.0,
+        "captured_state:controller.phase": 0.0,
+        "captured_state:controller.elapsed": 0.0,
+        "captured_state:controller.filters": 0.0,
+        "captured_state:controller.yaw_filters": 0.0,
+        "captured_state:controller.heading_error_rad": 0.0,
+        "captured_state:controller.sensor_yaw_rate": 0.0,
+        "captured_state:controller.previous_clipped": 0.0,
+        "captured_state:controller.origins": 0.0,
+        "captured_state:controller.anchor": 0.0,
+        "captured_state:controller.offsets": 0.0,
+        "captured_state:controller.signs": 0.0,
+        "captured_state:controller.nominal": 0.0,
+        "captured_state:controller.lower": 0.0,
+        "captured_state:controller.upper": 0.0,
+        "captured_state:controller.scale": 0.0,
+        "captured_state:controller.safe_lower": 0.0,
+        "captured_state:controller.safe_upper": 0.0,
+        "captured_state:controller.sensor_q": 0.0,
+        "captured_state:controller.sensor_up": 0.0
+      },
+      "consume_timing": {
+        "original": {
+          "0": {
+            "median_ms": 9.224282500000001,
+            "p95_ms": 9.801492,
+            "max_ms": 9.801492,
+            "samples": 12
+          },
+          "1": {
+            "median_ms": 9.123182,
+            "p95_ms": 9.424775,
+            "max_ms": 9.424775,
+            "samples": 12
+          }
+        },
+        "native": {
+          "0": {
+            "median_ms": 5.7021275,
+            "p95_ms": 5.867465,
+            "max_ms": 5.867465,
+            "samples": 12
+          },
+          "1": {
+            "median_ms": 5.555103,
+            "p95_ms": 5.893856,
+            "max_ms": 5.893856,
+            "samples": 12
+          }
+        }
+      },
+      "forward_only_timing": {
+        "original": {
+          "0": {
+            "median_ms": 6.617255500000001,
+            "p95_ms": 6.860322,
+            "max_ms": 7.248071,
+            "samples": 30
+          },
+          "1": {
+            "median_ms": 6.6413934999999995,
+            "p95_ms": 6.949929,
+            "max_ms": 7.10938,
+            "samples": 30
+          }
+        },
+        "native": {
+          "0": {
+            "median_ms": 3.0942695000000002,
+            "p95_ms": 3.456954,
+            "max_ms": 3.49864,
+            "samples": 30
+          },
+          "1": {
+            "median_ms": 3.102252,
+            "p95_ms": 3.383466,
+            "max_ms": 3.383978,
+            "samples": 30
+          }
+        }
+      },
+      "timing_scope": "Serial interleaved warmed reset-before-replay; no live acquisition concurrency or frequency policy changes"
+    },
+    "numeric_tolerance": {
+      "float64": {
+        "atol": 1e-09,
+        "rtol": 0.0
+      },
+      "float32": {
+        "atol": 1e-06,
+        "rtol": 1e-06
+      },
+      "decision_masks_and_fractions": "exact"
+    },
+    "limitations": "File-only model and stored-snapshot replay; no acquisition, motor output, fresh live tick, real-time loop or runtime adoption. Build/library specific; passing tested inputs does not prove every geometric branch boundary equivalent.",
+    "report_sha256": "a88e35db01fedf02f7516bace3c30622f37f19af461289028b48227d88a2f639",
+    "build_standard": "c++20",
+    "build_ms": 18157.299593,
+    "language_standard_only_change_from_r1": true,
+    "independent_review": "PASS; source scope and summary arithmetic checked; whole sequence not independently reexecuted",
+    "actual_artifacts_retrieved_and_hash_verified": true,
+    "independent_report_audit_sha256": "ccca60672c64702298fcce9db8d60b0825a303f6ef257b14790496db839022ce",
+    "actual_artifact_audit_sha256": "8823c1810716b655460cf5ce1130c896af21fbb3040d8fe7a2a84fe040c92f90"
+  },
+  "cpp_observer_concurrent_jetson_r1": {
+    "status": "FILE_ONLY_FULL_OBSERVER_NATIVE_COMPARISON_PASS",
+    "hardware_opened": false,
+    "motor_output_available": false,
+    "output_allowed": false,
+    "new_live_ticks": 0,
+    "live_50hz_verified": false,
+    "approved_for_runtime": false,
+    "scope": "One historical snapshot, reset replays with recorded emitter workload; no live20ms proof",
+    "native_model_sha256": "e87e9944aea8d7c6b8e32d144b8c6f4b37ac2c863c45353c9c228f8c9d0ea07f",
+    "native_library_sha256": "d8ed379d1d2fd01459df35f4063b682d6467129945504791445c65bc756d61bf",
+    "source_sha256": "d03e8c5ca99a26e86e0f8705871a0866de32f27ede2c2240600d72984d4fb5b4",
+    "max_absolute_errors": {
+      "target": 0.0,
+      "observation": 0.0,
+      "actor": 0.0,
+      "buffers": 0.0
+    },
+    "snapshot_sha256": "ec2230ec29bb8617497838e94db3ee5d2b732df3ff6b68d65650bad8b7a31ea7",
+    "original_model_sha256": "ca0afc48556564446cb731d891561deaf2462b8f457585395427936c1572fcdf",
+    "frequency_setting_changed": false,
+    "report_sha256": "10efc2a0ff9fe69086dd7ac8b6e27a0b2729cae38358e425bf37cdf34f28bc77",
+    "samples": 20,
+    "recorded_emitter_workload_and_writer_concurrent": true,
+    "slot_ms": 500,
+    "metrics": {
+      "original": {
+        "0": {
+          "median_consume_ms": 18.340185,
+          "max_consume_ms": 19.431042,
+          "samples": 5
+        },
+        "1": {
+          "median_consume_ms": 18.33838,
+          "max_consume_ms": 18.377049,
+          "samples": 5
+        }
+      },
+      "native": {
+        "0": {
+          "median_consume_ms": 10.953098,
+          "max_consume_ms": 12.012405,
+          "samples": 5
+        },
+        "1": {
+          "median_consume_ms": 11.126922,
+          "max_consume_ms": 11.264981,
+          "samples": 5
+        }
+      }
+    },
+    "limitations": "One stored snapshot, independent reset before each replay and h; no USB/I2C timing, combined-h20ms or continuous50Hz validation.",
+    "independent_report_audit_sha256": "ccca60672c64702298fcce9db8d60b0825a303f6ef257b14790496db839022ce"
+  },
+  "cpp_observer_cpu_performance_jetson_r1": {
+    "status": "FILE_ONLY_FULL_OBSERVER_NATIVE_COMPARISON_PASS",
+    "hardware_opened": false,
+    "motor_output_available": false,
+    "output_allowed": false,
+    "new_live_ticks": 0,
+    "live_50hz_verified": false,
+    "approved_for_runtime": false,
+    "native_model_sha256": "e87e9944aea8d7c6b8e32d144b8c6f4b37ac2c863c45353c9c228f8c9d0ea07f",
+    "native_library_sha256": "d8ed379d1d2fd01459df35f4063b682d6467129945504791445c65bc756d61bf",
+    "source_sha256": "d03e8c5ca99a26e86e0f8705871a0866de32f27ede2c2240600d72984d4fb5b4",
+    "max_absolute_errors": {
+      "target": 0.0,
+      "observation": 0.0,
+      "actor": 0.0,
+      "buffers": 0.0
+    },
+    "snapshot_sha256": "ec2230ec29bb8617497838e94db3ee5d2b732df3ff6b68d65650bad8b7a31ea7",
+    "original_model_sha256": "ca0afc48556564446cb731d891561deaf2462b8f457585395427936c1572fcdf",
+    "report_sha256": "382cf3319dc4fec0059533d3e3db4331b276fa3d1c09944e43f30e72c31dda35",
+    "samples": 20,
+    "slot_ms": 500,
+    "recorded_emitter_workload_and_writer_concurrent": true,
+    "metrics": {
+      "original": {
+        "0": {
+          "median_consume_ms": 9.566111,
+          "max_consume_ms": 14.56754,
+          "samples": 5
+        },
+        "1": {
+          "median_consume_ms": 9.672363,
+          "max_consume_ms": 9.909507,
+          "samples": 5
+        }
+      },
+      "native": {
+        "0": {
+          "median_consume_ms": 6.376054,
+          "max_consume_ms": 7.587453,
+          "samples": 5
+        },
+        "1": {
+          "median_consume_ms": 6.033179,
+          "max_consume_ms": 6.500986,
+          "samples": 5
+        }
+      }
+    },
+    "original_governor": "schedutil",
+    "temporary_governor": "performance",
+    "changed_by_supervisor": true,
+    "child_did_not_write_settings": true,
+    "frequency_bounds_changed": false,
+    "unchanged_frequency_bounds_khz": [
+      729600,
+      1497600
+    ],
+    "restoration_confirmed_by": [
+      "parent_final",
+      "independent_watchdog",
+      "fresh_sysfs_read"
+    ],
+    "recovery_verification_sha256": "12622984f09393833bafc2881d119106dd8535a389a220278be56066b690bd9b",
+    "parent_final_sha256": "5e5cb42ab04fd5a51e90695b757925d4c560dc6e28758d4940aa96294e8096b1",
+    "watchdog_sha256": "ae73def5797e033e3b6fdf60916c500378958eef7904a223210e690c5f6599cc",
+    "outer_provenance_sha256": "f49306b117702f144cfd054b584bfcf473f0c065d12f1886726150a4120dba69",
+    "supervisor_source_sha256": "627e9be038aaf6849b21f35a2ff146a996f2efa6a9afe65ae330d11c58048891",
+    "launcher_source_sha256": "6a58504e1a343780e9a29f64f27db0b8e0670233677976d1a1a687598324d7ed",
+    "preflight_recovery_tests_passed": 27,
+    "limitations": "One stored snapshot, each h reset and timed separately. Frozen child report frequency_setting_changed=False describes child only. Parent changed governors temporarily and restored. No actual USB/I2C acquisition, combined-h 20ms deadline, live50Hz or motor output validation.",
+    "independent_report_audit_sha256": "2c08585bc4e803e9dae0a7e07c05b8cd93a3b10418a1a378361c927745cb66c4",
+    "observed_frequency_endpoints_khz": {
+      "count": 80,
+      "unique_values": [
+        1497600
+      ]
+    },
+    "writer_rows_total": 3720,
+    "dropped_events_total": 0,
+    "all20_numerical_flags_and_cleanup_passed": true,
+    "independent_audit_scope": "Report arithmetic, source-mandatory equality checks, 20 flags, cleanup, endpoint frequencies, root restoration records and fresh readback verified independently. Model sequence not independently reexecuted."
+  },
+  "post_native_restart_startup_r7": {
+    "status": "READONLY_OBSERVATION_COMPLETE_NOT_DRIVE_APPROVAL",
+    "queries": 492,
+    "replies": 492,
+    "all12_uid_match": true,
+    "current_all_zero": true,
+    "voltage_minmax_V": [
+      36.31732177734375,
+      37.65071105957031
+    ],
+    "both_ports_closed": true,
+    "locks_released": true,
+    "motor_output_sent": false,
+    "calibration_verified": false,
+    "motor_power_cycle_continuity_verified": false,
+    "summary_sha256": "99b670e9b92609859c9a45bfa6be2189c2d8b3bd956ab01b1e6e5a788859c436",
+    "raw_audit_sha256": "b5812bfc5857ab5a0f5ca1579ec06bcf1eb169483b8ec88dcb2fba7887a75a4b"
+  },
+  "native_live_diagnostic_preparation_r1": {
+    "source_sha256": "aa8991f8402d68d985330c157ad308627d739f1f0e5551000cf9f2bbe3af3564",
+    "manifest_sha256": "a911245da38535b830300c762e9cff266fd4f97b0fabc07f85051deab5d2242b",
+    "tests_passed": 34,
+    "extra_combined_20ms_deadline_test_passed": true,
+    "verified_transferred_files": 25,
+    "jetson_model_load_and_synthetic_warmup": "PASS",
+    "independent_model_instances": 2,
+    "warmup_ticks_each": 10,
+    "hardware_opened_for_warmup": false,
+    "historical_candidate_bytes_unchanged": true,
+    "current_boot_calibration_verified": false,
+    "scope": "Historical unverified calibration hypothesis for no-output timing only. Current acquisition boot separately verified. No boot relabelling, wrapping, offset regeneration or motor authorization.",
+    "motor_output_available": false,
+    "runtime_approved": false,
+    "live_executed": false,
+    "supported_pose_ready": false,
+    "cpu_supervisor": {
+      "manifest_sha256": "7589a3f30c687465f9de866765307f9fc4f0827dbef7b0356525e98af444263b",
+      "source_sha256": "994ac7d676c705673b787295c56d8df8968fd7d23f79808ea3022af0756225c8",
+      "launcher_sha256": "09e1f409324c9d59aac55443ee4a67ce20772051b94a82103efc158ee44ee587",
+      "tests_passed": 32,
+      "independent_review": "PASS",
+      "transferred_hashes_verified": true,
+      "remote_preflight_passed": true,
+      "settings_changed": false
+    }
+  },
+  "native_live_retry_connection_status": {
+    "status": "CONNECTION_LOST_BEFORE_NATIVE_LIVE_EXECUTION",
+    "prior_live_start_record_absent": true,
+    "reboot_observed": true,
+    "startup_readonly_retry_result": "UNCONFIRMED_SSH_TIMEOUT",
+    "native_r2_transferred": false,
+    "native_r2_live_executed": false,
+    "native_r2_local_tests": 34,
+    "supervisor_r2_local_tests": 32,
+    "ssh_and_ping_lost": true,
+    "operator_released_supported_pose": true,
+    "motor_output_command_sent": false,
+    "next": "Restore connection and retrieve startup record before another bounded no-output capture"
+  },
+  "native_live_r3_preparation": {
+    "deployed": true,
+    "native_files_verified": 25,
+    "supervisor_files_verified": 9,
+    "local_tests": [
+      34,
+      32
+    ],
+    "independent_minimal_diff_review": "PASS",
+    "native_source_sha256": "e3d822460252869d49702201207142ccb5a38b943979b39d4ace3157ca53629a",
+    "supervisor_sha256": "ef120e8fbed678a25721937460d8d48e16077ca577083bdd8ef279a18d097fbe",
+    "warmup": "PASS_TWO_INDEPENDENT_POLICIES_10_EACH_NO_HARDWARE",
+    "supervisor_preflight": "PASS_NO_SETTING_CHANGE",
+    "live_executed": false,
+    "current_blocker": "Makita charging; supported pose for capture not yet reconfirmed"
+  },
+  "latest_startup_before_charge": {
+    "r9": "ABORTED_VOLTAGE",
+    "r9_voltage_V": [
+      34.001434326171875,
+      35.33482360839844
+    ],
+    "r9_all12_UIDs_matched": true,
+    "r9_requests_replies": [
+      492,
+      492
+    ],
+    "r9_raw_audit_sha256": "befe27d38ed9c3305a6da789a13ee0f4a25d6b306e4b78d469a5f6b20431f11d",
+    "r10": "ABORTED_VOLTAGE",
+    "r10_voltage_V": [
+      33.89616394042969,
+      35.19446563720703
+    ],
+    "both_ports_closed_locks_released": true,
+    "motor_output_sent": false
+  },
+  "native_normalcpu_live_r4": {
+    "status": "PASS_LOCAL_CAPTURE_AUDIT",
+    "capture_status": "INCOMPLETE",
+    "timing_accepted": false,
+    "timing": [
+      {
+        "h": 0,
+        "consume_ms": 13.86674,
+        "end_after_scheduled_ms": 16.623009,
+        "start_lateness_ms": 0.403611,
+        "oldest_input_at_consume_begin_ms": 41.084012,
+        "acquisition_spread_ms": 37.698269,
+        "within20ms_at_return": true
+      },
+      {
+        "h": 1,
+        "consume_ms": 15.391137,
+        "end_after_scheduled_ms": 34.387699,
+        "start_lateness_ms": 0.403611,
+        "oldest_input_at_consume_begin_ms": 57.324305,
+        "acquisition_spread_ms": 37.698269,
+        "within20ms_at_return": false
+      }
+    ],
+    "first_block": {
+      "tick_index": 0,
+      "first_tick_ns": 330309936693,
+      "monotonic_ns": 330346897043,
+      "reason": "ValueError: Policy inference exceeded20ms tick window; no catchup"
+    },
+    "wire": {
+      "front": {
+        "intents": 113,
+        "complete_writes": 113,
+        "captured_replies": 111,
+        "captured_partial_parser_bytes": 15,
+        "reported_residual": {
+          "serial_pending_bytes": 19,
+          "parser_pending_bytes": 15,
+          "parser_discarded_bytes": 0
+        },
+        "uncollected_sent_reads": [
+          {
+            "sequence": 112,
+            "motor_id": 4,
+            "parameter": "velocity"
+          },
+          {
+            "sequence": 113,
+            "motor_id": 5,
+            "parameter": "velocity"
+          }
+        ],
+        "rejected_or_partial_write_sequences": [],
+        "complete_cycles": 8,
+        "device_closed": true
+      },
+      "rear": {
+        "intents": 112,
+        "complete_writes": 112,
+        "captured_replies": 112,
+        "captured_partial_parser_bytes": 0,
+        "reported_residual": {
+          "serial_pending_bytes": 0,
+          "parser_pending_bytes": 0,
+          "parser_discarded_bytes": 0
+        },
+        "uncollected_sent_reads": [],
+        "rejected_or_partial_write_sequences": [],
+        "complete_cycles": 8,
+        "device_closed": true
+      }
+    },
+    "imu_raw_samples_checked": 10,
+    "translated_motor_samples_checked": 211,
+    "cleanup": {
+      "ports_closed": true,
+      "producer_threads_exited": true,
+      "common_lock_released": true,
+      "imu": {
+        "exited": true,
+        "restore_status": "restored"
+      },
+      "main_log_flushed": true,
+      "raw_logs_flushed": {
+        "front": true,
+        "rear": true
+      },
+      "dropped_events": 0
+    },
+    "source_sha256": {
+      "summary.json": "08a2bdb30985b4b7ed943f5e0bf101e1faa2dc5ac75e317d3b40a16c1866a7b1",
+      "sources.json": "f010c3fe441ab3faf9a27e4fe7b49d74d7c7e85030e841c557b1b9fdaf018977",
+      "events.jsonl": "c7b955f688154c6e928c0bd040a8194b4fa06f8f602d9f200734c0ad4566df3c",
+      "events-front.jsonl": "12913e816a9ef6d87c46784634287479e5d2e3b3199e19a58fd089c68057d318",
+      "events-rear.jsonl": "8eaa4189c8b3b404393374ee324a1386792e2987fc676ce697716da4b60d360f"
+    },
+    "audit_source_sha256": "95e7e2bb36665749337dfee9d7a6b3d124d47b119e61b236b5fe69549868a47a",
+    "motor_output_available": false,
+    "calibration_verified": false,
+    "live50hz_verified": false,
+    "limitations": [
+      "Saved-log audit; cleanup metadata is not a fresh device observation.",
+      "Historical calibration remains unverified across boot/power cycle.",
+      "Residual unread serial bytes are not reconstructed or treated as replies.",
+      "One timing tick does not prove continuous50Hz, motor output, standing or walking."
+    ],
+    "audit_sha256": "d8bebfe26545586c7f2b4e64f3ffa826289c5ec3f3c1fe87ddc46b8d08a8aac0",
+    "cpu_before_after_scope_audit_sha256": "6c2fc84a555350e879b9a6aada415c7ad2fc9edafeb58d4afc1e7a3a195baa75",
+    "same_boot_before_after": true,
+    "cpu_settings_changed": false,
+    "normal_governor_before_after": "schedutil",
+    "motor_actuation_sent": false,
+    "private_capture_id": "RO-dual-one-tick-native-normalcpu-20260924-r4"
+  },
+  "unexpected_reboot_during_prior_attempt": {
+    "operator_manual_reboot": false,
+    "reboot_confirmed": true,
+    "diagnostic_start_and_result_records_found": false,
+    "governor_change_reached": "UNCONFIRMED",
+    "watchdog_restoration_confirmed": false,
+    "current_cpu_default_after_reboot_confirmed": true,
+    "cause": "UNDETERMINED",
+    "persistent_journal_enabled_after_baseline": true,
+    "journal_budget_MiB": 64,
+    "journal_retention_days": 3
+  },
+  "end_to_end_20ms_strategy_preparation": {
+    "status": "OFFLINE_AUDIT_AND_LOCAL_PATCH_PREPARATION_ONLY",
+    "strategy": "docs/control-20ms-strategy-20260924.md",
+    "source_capture_id": "RO-dual-one-tick-native-normalcpu-20260924-r4",
+    "acquisition_audit_sha256": "ffeb7093467130a632ec7768e74a3288d42d1687a812f25f65d17cf10afb2158",
+    "complete_paired_cycles": 8,
+    "paired_request_to_final_reply_ms": {
+      "median": 33.507096,
+      "max": 38.365126
+    },
+    "actual_interwrite_gap_median_ms": {
+      "front": 1.847154,
+      "rear": 1.760309
+    },
+    "configured_gap_ms": 0.5,
+    "patch_source_sha256": {
+      "runtime/singularitydog_hw/can_pipeline_probe.py": "7a2eb89e142136a8549eb4980bd38fd4715f026692cca87e2143ac7a416060be",
+      "runtime/singularitydog_hw/policy_observer.py": "f180436674257cc5e8783f28a8760e23401e165aa1c058d2e50690defa9a6be4",
+      "runtime/singularitydog_hw/policy_observer_live.py": "c49feadfc45a5a5e6db3548b3612d2c586844ee9e919d3191288b75ae6a3029f"
+    },
+    "changes": [
+      "Skip identical pySerial timeout assignments while preserving nearest deadline",
+      "Optional eight-stage consume profiling",
+      "Explicit single fixed-h sensitivity diagnostic; default combined-h deadline unchanged"
+    ],
+    "dual_bus_launcher_integration_pending": true,
+    "deployed": false,
+    "new_sensor_captures": 0,
+    "motor_output_sent": false,
+    "live_50hz_verified": false,
+    "end_to_end_20ms_verified": false,
+    "timing_budget_ms": {
+      "acquisition": 6,
+      "input_validation_conversion": 1,
+      "policy": 7,
+      "transmission": 2,
+      "final_checks_queue": 1,
+      "margin": 3
+    },
+    "budget_scope": "Design allocation only, not measured performance or achievement forecast",
+    "next": "Integrate instrumentation into separate dual-bus diagnostic; controlled CAN-only old/new A/B with unchanged timing guards; then add IMU and independent single-h profiling"
+  },
+  "timeout_reconfiguration_live_ab": {
+    "scope": "Live CAN-only20 paired cycles per condition; no IMU, inference or motor output",
+    "status": "COMPLETE_BOTH_CONDITIONS_RAW_AUDIT_PASS",
+    "order": [
+      "baseline",
+      "optimized"
+    ],
+    "same_boot": true,
+    "conditions": {
+      "baseline": {
+        "capture_id": "RO-timeout-ab-20260924-r1-baseline",
+        "status": "COMPLETE_DUAL_CAN_BENCHMARK_NO_OUTPUT",
+        "acquisition_ms": {
+          "count": 20,
+          "min": 16.928676,
+          "median": 24.2207965,
+          "mean": 23.9895297,
+          "p95": 25.418871,
+          "max": 25.683106
+        },
+        "within20ms_cycles": 1,
+        "cycle_start_interval_ms": {
+          "count": 19,
+          "min": 17.366539,
+          "median": 25.219115,
+          "mean": 25.00610431578947,
+          "p95": 27.104795,
+          "max": 27.104795
+        },
+        "requests": 492,
+        "valid_replies": 492,
+        "uid_matches": 12,
+        "residual_bytes": 0,
+        "ports_closed": true,
+        "workers_exited": true,
+        "common_lock_released": true,
+        "source_hashes": {
+          "summary.json": "f87b1cb55e660eddb3b3ef23c07ca6ac87bd872ec11cb6457b06f691fe8a5bd7",
+          "events-front.jsonl": "833c94572f166318769baf37809aab8d324b534beacf2c154e83f84898ab6380",
+          "events-rear.jsonl": "274b1ab4434021379484d0098fe4a545ccfa371729388b77dd3465bfd3d5efd9"
+        }
+      },
+      "optimized": {
+        "capture_id": "RO-timeout-ab-20260924-r1-optimized",
+        "status": "COMPLETE_DUAL_CAN_BENCHMARK_NO_OUTPUT",
+        "acquisition_ms": {
+          "count": 20,
+          "min": 16.922007,
+          "median": 22.044258499999998,
+          "mean": 21.7643235,
+          "p95": 22.613816,
+          "max": 23.039048
+        },
+        "within20ms_cycles": 1,
+        "cycle_start_interval_ms": {
+          "count": 19,
+          "min": 17.466011,
+          "median": 22.78405,
+          "mean": 22.595261421052633,
+          "p95": 23.817529,
+          "max": 23.817529
+        },
+        "requests": 492,
+        "valid_replies": 492,
+        "uid_matches": 12,
+        "residual_bytes": 0,
+        "ports_closed": true,
+        "workers_exited": true,
+        "common_lock_released": true,
+        "source_hashes": {
+          "summary.json": "e049aeeb3daa0e5f3f2d8cb7e9ce48e41edeaef1d7e8f7914c65a3d0c4ebdba4",
+          "events-front.jsonl": "0de6c26e15e9b91703154fdc28fceac41f096668191c52e18ed232042b4dea35",
+          "events-rear.jsonl": "f463b379f94582246726f861de07405489bbe1f5fdee9addc6309affecc6a144"
+        }
+      }
+    },
+    "audit_sha256": "744f8170477aebeee3cefb330d8dcd3093bc28a53d1488f7be841fb8fc71878f",
+    "timing_detail_sha256": "a926e5a99ab18280079b08801bb7a66b5a727a66ff1e726251bb724d9c1167a0",
+    "package_manifest_sha256": "8f1b3405bf94ff38f6178d837170fcdcf21b862020378428d91c045e840356f2",
+    "package_tests_passed": 54,
+    "independent_package_review": "PASS; only two timeout setter regions differ",
+    "motor_output_sent": false,
+    "can_bitrate_changed": false,
+    "imu_accessed": false,
+    "inference_calls": 0,
+    "end_to_end_20ms_verified": false,
+    "limitation": "One short A then B pair; CPU not fixed; no causal/statistical improvement claim",
+    "median_reduction_ms": 2.1765380000000007,
+    "observed_median_reduction_percent": 8.98623627014083
+  },
+  "combined_feedback_id1": {
+    "capture_id": "STOP-combined-feedback-20260924-r1-ID1",
+    "status": "STOP_FEEDBACK_CANDIDATE_CAPTURED",
+    "scope": "ID1 only; one ordinary STOP response carries position and velocity; not read-only",
+    "canonical_can_request_types": [
+      0,
+      17,
+      17,
+      4,
+      17,
+      17
+    ],
+    "requests": 6,
+    "valid_replies": 6,
+    "stop_requests": 1,
+    "stop_payload_all_zero": true,
+    "mode_state": 0,
+    "fault_bits": 0,
+    "candidate_comparison": {
+      "type17_position_before_after_rad": [
+        5.556276321411133,
+        5.556276321411133
+      ],
+      "type17_velocity_before_after_rad_s": [
+        0.002251914469525218,
+        -0.0064746723510324955
+      ],
+      "type2_position_rad_candidate": 5.556041657129779,
+      "type2_velocity_rad_s_candidate": 0.03891050583657574,
+      "same_instant_samples": false,
+      "static_sample_does_not_validate_velocity_scale": true
+    },
+    "position_difference_deg": -0.013445272924066918,
+    "combined_request_to_reply_ms": 3.321046,
+    "raw_type2": {
+      "position_u16": 47251,
+      "velocity_u16": 32793,
+      "torque_u16": 32767,
+      "temperature_u16": 300
+    },
+    "residual_after": {
+      "serial_pending_bytes": 0,
+      "parser_pending_bytes": 0,
+      "discarded_bytes": 0
+    },
+    "serial_closed": true,
+    "locks_released": true,
+    "postcheck_same_boot": true,
+    "postcheck_common_and_port_locks_reacquired": true,
+    "motor_enable_sent": false,
+    "motion_command_sent": false,
+    "motor_configuration_sent": false,
+    "velocity_scale_verified": false,
+    "full_pipeline_20ms_verified": false,
+    "runtime_approved": false,
+    "mock_tests_passed_on_mac_and_jetson": 12,
+    "independent_source_review_passed": true,
+    "source_sha256": "f9b8aedc4f6634b0c34fd39a0370023ca21847d3254e29f7cf7fc32ee7399c15",
+    "events_sha256": "d69a294f9f9e06998d2e084a1d2cc4953b3f95a2053203b45c1aa2e8bb7458eb",
+    "summary_sha256": "333506cfa6ae101ff8aeeadd805724e0d095b27fd0db87102d92e76daa5ef52b",
+    "package_manifest_sha256": "3564f8095182a4ba9daa007ed0c991ba50fe51c6b48b286afd59058ee6460052",
+    "limitations": [
+      "one ID and one feedback only",
+      "STOP changes state; not a periodic read command",
+      "Type17 samples have different timestamps",
+      "static values do not validate dynamic scaling",
+      "instrumented sampler is not a throughput benchmark"
+    ],
+    "independent_raw_audit_status": "PASS_INDEPENDENT_RAW_CAPTURE_AUDIT",
+    "independent_raw_audit_sha256": "60aac4afd501b64aee0435dc4f87fa84cff63a4bb612f9653a01f57275ab767a",
+    "type17_pair_observed_span_ms": {
+      "before": 7.590624,
+      "after": 7.745406
+    }
+  },
+  "combined_feedback_all12_validation": {
+    "status": "PASS",
+    "scope": "STOP-feedback acquisition; no enabling, motion commands or configuration",
+    "pure_read_only": false,
+    "velocity_scale_verified": false,
+    "dynamic_freshness_verified": false,
+    "calibration_verified": false,
+    "full_pipeline_20ms_verified": false,
+    "boot_unchanged": true,
+    "cleanup_report": {
+      "serial_ports_closed": true,
+      "locks_released": true,
+      "signals": []
+    },
+    "buses": {
+      "front": {
+        "tx": 36,
+        "rx": 36,
+        "identities": 6,
+        "stop_type4_tx": 6,
+        "type2_reset0_fault0_rx": 6,
+        "elapsed_ms": 186.859512,
+        "raw_residual_bytes": 0
+      },
+      "rear": {
+        "tx": 36,
+        "rx": 36,
+        "identities": 6,
+        "stop_type4_tx": 6,
+        "type2_reset0_fault0_rx": 6,
+        "elapsed_ms": 201.025568,
+        "raw_residual_bytes": 0
+      }
+    },
+    "tx_count": 72,
+    "rx_count": 72,
+    "identities_verified": 12,
+    "stop_type4_tx": 12,
+    "type2_reset0_fault0_rx": 12,
+    "maximum_abs_position_difference_before_deg": 0.024526195583586385,
+    "maximum_abs_position_difference_after_deg": 0.026294321567004664,
+    "maximum_abs_velocity_difference_before_rad_s": 0.09254584600491711,
+    "maximum_abs_velocity_difference_after_rad_s": 0.15553903813626135,
+    "source_sha256": {
+      "summary.json": "57e5502bfe5839290b21938bcc9d55a582c5a51b738433f172cea35c971951a4",
+      "manifest.json": "fedf8518dee0d4aee01a7e95fb324146154971db7c11cb3e128833161a22ba20",
+      "expected-uids.json": "c9620577cd35e3b84e038bbc2d196b1a62b8f4a46d574a01309f7a8db29c4399",
+      "events-front.jsonl": "af74bb42972ea494f65fcfb20052cebcf6a641316556d42552cb518b99ee1fd6",
+      "events-rear.jsonl": "73655fe09bc2019e28c3a3c2e0425d7773c2ca012f172adb038821cd4fbf2f34"
+    },
+    "capture_id": "STOP-combined-validation-20260924-r2-all12",
+    "audit_sha256": "09b7a2ef5a0c5055716c146b799a5f1b6babcaae247d6f046619e35270e2c46f",
+    "mock_tests_passed_mac_jetson": 14,
+    "source_review": "PASS for fixed12 STOP-only validation",
+    "timing_is_validation_not_periodic_control": true
+  },
+  "combined_feedback_dual_r2": {
+    "status": "PASS_INDEPENDENT_RAW_WIRE_AUDIT",
+    "scope": "CAN-only acquisition over two USB2CAN buses, 20 paired cycles per condition; no IMU, inference or active motion-command dispatch",
+    "order": [
+      "separate",
+      "combined"
+    ],
+    "same_boot": true,
+    "plan": {
+      "cycles_per_condition": 20,
+      "motors": 12,
+      "buses": 2,
+      "motors_per_bus": 6,
+      "window": 4,
+      "gap_ms": 0.5,
+      "uart_baudrate": 921600,
+      "request_timeout_ms": 250,
+      "max_seconds_per_condition": 30,
+      "paired_cycle_sync": true,
+      "same_io_engine": true,
+      "file_logging_during_timed_acquisition": false
+    },
+    "latency_scope": "Earliest host request start through latest host read completion in a paired cycle; gate-arrival and successive-request intervals reported separately",
+    "conditions": {
+      "separate": {
+        "capture_id": "STOP-combined-dual-20260924-r2-separate",
+        "status": "CONDITION_COMPLETE",
+        "pure_read_only": true,
+        "allowed_tx_types": [
+          0,
+          17
+        ],
+        "requests": 492,
+        "valid_replies": 492,
+        "uid_matches": 12,
+        "all12_uid_before_first_telemetry_verified": true,
+        "stop_requests": 0,
+        "type2_mode0_fault0_validated": 0,
+        "request_to_reply_ms": {
+          "count": 20,
+          "min": 26.065165,
+          "median": 36.697667,
+          "p95_nearest_rank": 37.668666,
+          "max": 37.699771
+        },
+        "request_to_reply_within20ms_cycles": 0,
+        "earliest_gate_arrival_to_reply_ms": {
+          "count": 20,
+          "min": 27.023283,
+          "median": 39.075956,
+          "p95_nearest_rank": 40.052061,
+          "max": 40.488911
+        },
+        "gate_to_reply_within20ms_cycles": 0,
+        "successive_earliest_request_interval_ms": {
+          "count": 19,
+          "min": 27.491239,
+          "median": 39.595046,
+          "p95_nearest_rank": 40.194615,
+          "max": 40.194615
+        },
+        "start_intervals_within20ms": 0,
+        "residual_bytes": 0,
+        "ports_closed": true,
+        "workers_exited": true,
+        "common_lock_released": true,
+        "event_buffers_flushed": true,
+        "source_hashes": {
+          "summary.json": "26fd15ddfdef76944e779ddb3ac7865b63c241bd2e366bb5a1ca33790a515117",
+          "front-events.jsonl": "6cd80ab8ec169e0a46b9263488249d144c72f6d9cd97ced18970cf7206869681",
+          "rear-events.jsonl": "7f6b30a555bf5ac37f4bfba052cb80fcadde7454603adb3d0a784edb89e480b7"
+        }
+      },
+      "combined": {
+        "capture_id": "STOP-combined-dual-20260924-r2-combined",
+        "status": "CONDITION_COMPLETE",
+        "pure_read_only": false,
+        "allowed_tx_types": [
+          0,
+          4
+        ],
+        "requests": 252,
+        "valid_replies": 252,
+        "uid_matches": 12,
+        "all12_uid_before_first_telemetry_verified": true,
+        "stop_requests": 240,
+        "type2_mode0_fault0_validated": 240,
+        "request_to_reply_ms": {
+          "count": 20,
+          "min": 13.613166,
+          "median": 18.154301,
+          "p95_nearest_rank": 19.530716,
+          "max": 20.723903
+        },
+        "request_to_reply_within20ms_cycles": 19,
+        "earliest_gate_arrival_to_reply_ms": {
+          "count": 20,
+          "min": 14.532471,
+          "median": 20.2938175,
+          "p95_nearest_rank": 22.583793,
+          "max": 23.210434
+        },
+        "gate_to_reply_within20ms_cycles": 9,
+        "successive_earliest_request_interval_ms": {
+          "count": 19,
+          "min": 15.019083,
+          "median": 21.07327,
+          "p95_nearest_rank": 23.537657,
+          "max": 23.537657
+        },
+        "start_intervals_within20ms": 7,
+        "residual_bytes": 0,
+        "ports_closed": true,
+        "workers_exited": true,
+        "common_lock_released": true,
+        "event_buffers_flushed": true,
+        "source_hashes": {
+          "summary.json": "0d76bb53bb6758141e05132d52e20d53b5597df5be7f037b2403dc243418be48",
+          "front-events.jsonl": "422a395462bbe75b940ccf8f4e81095dfc907c3f7e36c2e4e818da6c388b0cb6",
+          "rear-events.jsonl": "1ad3b5ab330286874a80886a9bbaeab053f92461c7737b044229979771f93bc3"
+        }
+      }
+    },
+    "comparison": {
+      "separate_median_ms": 36.697667,
+      "combined_median_ms": 18.154301,
+      "observed_median_reduction_percent": 50.53009500576698
+    },
+    "postcheck": {
+      "same_boot": true,
+      "common_and_both_port_locks_reacquired": true,
+      "active_benchmark_processes": 0,
+      "serial_opened": false
+    },
+    "audit_sha256": "171f4c04fbd271478982d86447f21533a1d7b2e5a38d1024b9399ad6386186dc",
+    "postcheck_sha256": "47e43a72c59d2478ab43cc7f4f482a1bc211d2481488f1d5bbd5ba3517b27569",
+    "package_manifest_sha256": "37d47225b15c847ae769cf2349dcb256eeeae0cc918c0995ec0d494e5b6d0559",
+    "benchmark_source_sha256": "f8dfdb2f9ad75d0731038f44813674366a58b2a79cefe09e99c00a164f4ec181",
+    "audit_script_sha256": "e567b6d8cd08ecfa1a773de7b27d402e66837c0d4962534e1d5b5784c45b4bb1",
+    "stop_requests": 240,
+    "stop_payload_all_zero": true,
+    "type2_mode0_fault0_validated": 240,
+    "pure_read_only": false,
+    "motor_enable_sent": false,
+    "motion_command_sent": false,
+    "motor_configuration_sent": false,
+    "can_bitrate_changed": false,
+    "can_bitrate_verified": false,
+    "imu_accessed": false,
+    "inference_calls": 0,
+    "velocity_scale_verified": false,
+    "dynamic_freshness_verified": false,
+    "calibration_verified": false,
+    "runtime_approved": false,
+    "full_pipeline_20ms_verified": false,
+    "continuous_50hz_verified": false,
+    "limitations": [
+      "Host request-start/read-completion times are not physical CAN wire, motor application or sensor internal sample timestamps.",
+      "Repeated all-zero Type4 STOP is state-changing disable, not a read-only or active-control benchmark.",
+      "No IMU, actual policy inference or motor command dispatch is included; full20ms is unverified.",
+      "No protocol transaction sequence: very late previous-cycle same-key duplicates cannot be uniquely distinguished; declared limitation retained.",
+      "One short A then B comparison, with CPU frequency/scheduling not controlled, is not continuous50Hz or causal/statistical proof."
+    ]
+  },
+  "deadline_receive_r3": {
+    "status": "PASS_INDEPENDENT_RAW_WIRE_AUDIT",
+    "scope": "CAN-only acquisition of 12 disabled motors over two USB2CAN buses; repeated all-zero Type4 STOP with Type2 feedback. No IMU, inference or active motor-command dispatch.",
+    "order": [
+      "serial",
+      "select"
+    ],
+    "same_boot": true,
+    "plan": {
+      "cycles_per_condition": 20,
+      "motors": 12,
+      "buses": 2,
+      "motors_per_bus": 6,
+      "window": 4,
+      "gap_ms": 0.5,
+      "uart_baudrate": 921600,
+      "request_timeout_ms": 250,
+      "max_seconds_per_condition": 30,
+      "paired_cycle_sync": true,
+      "file_logging_during_timed_acquisition": false
+    },
+    "latency_scope": "Earliest host request start to latest host read completion; gate arrival and successive start intervals are reported separately.",
+    "conditions": {
+      "serial": {
+        "capture_id": "STOP-combined-select-20260924-r3-serial",
+        "status": "CONDITION_COMPLETE",
+        "requests": 252,
+        "valid_replies": 252,
+        "allowed_tx_types": [
+          0,
+          4
+        ],
+        "identity_matches": 12,
+        "all12_uid_before_first_telemetry_verified": true,
+        "stop_requests": 240,
+        "stop_payload_all_zero": true,
+        "type2_mode0_fault0_validated": 240,
+        "request_to_reply_ms": {
+          "count": 20,
+          "min": 15.029181,
+          "median": 17.6114565,
+          "p95_nearest_rank": 18.797246,
+          "max": 18.939159
+        },
+        "request_to_reply_within20ms_cycles": 20,
+        "earliest_gate_arrival_to_reply_ms": {
+          "count": 20,
+          "min": 16.445089,
+          "median": 19.986251,
+          "p95_nearest_rank": 21.089403,
+          "max": 21.119323
+        },
+        "gate_to_reply_within20ms_cycles": 11,
+        "successive_earliest_request_interval_ms": {
+          "count": 19,
+          "min": 16.492735,
+          "median": 19.942797,
+          "p95_nearest_rank": 21.824317,
+          "max": 21.824317
+        },
+        "start_intervals_within20ms": 10,
+        "two_bus_thread_cpu_sum_ms": {
+          "count": 20,
+          "min": 19.0048,
+          "median": 23.611328,
+          "p95_nearest_rank": 25.804384,
+          "max": 25.950784
+        },
+        "buses": {
+          "front": {
+            "max_pending": 3,
+            "write_gap_ms": {
+              "count": 100,
+              "min": 0.972982,
+              "median": 2.237473,
+              "p95_nearest_rank": 3.197048,
+              "max": 4.488224
+            },
+            "write_duration_ms": {
+              "count": 120,
+              "min": 0.219031,
+              "median": 0.399567,
+              "p95_nearest_rank": 0.497514,
+              "max": 0.758975
+            },
+            "cycle_thread_cpu_ms": {
+              "count": 20,
+              "min": 9.605312,
+              "median": 11.668528,
+              "p95_nearest_rank": 12.980448,
+              "max": 13.001312
+            },
+            "cycle_wall_ms": {
+              "count": 20,
+              "min": 16.048786,
+              "median": 18.737392,
+              "p95_nearest_rank": 20.656143,
+              "max": 20.745579
+            },
+            "receiver_profile": {
+              "mode": "serial",
+              "read_wrapper": {
+                "calls": 159,
+                "wall_ns": 94416389,
+                "thread_cpu_ns": 38219360
+              },
+              "deadline_reader": null
+            }
+          },
+          "rear": {
+            "max_pending": 3,
+            "write_gap_ms": {
+              "count": 100,
+              "min": 0.834332,
+              "median": 2.2044655,
+              "p95_nearest_rank": 3.218039,
+              "max": 4.528574
+            },
+            "write_duration_ms": {
+              "count": 120,
+              "min": 0.244182,
+              "median": 0.419582,
+              "p95_nearest_rank": 0.582631,
+              "max": 0.847835
+            },
+            "cycle_thread_cpu_ms": {
+              "count": 20,
+              "min": 9.324224,
+              "median": 11.9216,
+              "p95_nearest_rank": 12.806656,
+              "max": 13.119584
+            },
+            "cycle_wall_ms": {
+              "count": 20,
+              "min": 15.31141,
+              "median": 18.966631,
+              "p95_nearest_rank": 20.872965,
+              "max": 20.923203
+            },
+            "receiver_profile": {
+              "mode": "serial",
+              "read_wrapper": {
+                "calls": 157,
+                "wall_ns": 95425810,
+                "thread_cpu_ns": 37981408
+              },
+              "deadline_reader": null
+            }
+          }
+        },
+        "residual_bytes": 0,
+        "ports_closed": true,
+        "workers_exited": true,
+        "common_lock_released": true,
+        "event_buffers_flushed": true,
+        "capture_sha256": {
+          "summary.json": "0ec0432985d751d6f2bfe3229f12f06b7b1853f91feefbb73ce78703bad34941",
+          "front-events.jsonl": "72e73113185cae4e91e9c4a7367b3e722752d4b0070233d31978054aef9a7e09",
+          "rear-events.jsonl": "eb861988d7ccdd6acc71f2ddf1a8bca7b4c19da2ec03a667a54471bfbef0a137"
+        },
+        "source_sha256": {
+          "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+          "can_pipeline_probe.py": "d9f59454ab838b9dbefbd726a509982ccbbff5432ac8c50fbc466316ed0d0848",
+          "dual_can_pipeline_benchmark.py": "40b208116d1671419261cff5b0b9e2a8fad591ed71bbb776af4613784e5280bd",
+          "benchmark.py": "8c20ee8eb42a1dc6c483666bac162e6eff188e214859ff95440cc1a321b30d55",
+          "serial_deadline_reader.py": "b3b0fd2d832fa7e8b2202d96f3f60968187ff7ace3a54dd9e1da1edc65f2c06f"
+        }
+      },
+      "select": {
+        "capture_id": "STOP-combined-select-20260924-r3-select",
+        "status": "CONDITION_COMPLETE",
+        "requests": 252,
+        "valid_replies": 252,
+        "allowed_tx_types": [
+          0,
+          4
+        ],
+        "identity_matches": 12,
+        "all12_uid_before_first_telemetry_verified": true,
+        "stop_requests": 240,
+        "stop_payload_all_zero": true,
+        "type2_mode0_fault0_validated": 240,
+        "request_to_reply_ms": {
+          "count": 20,
+          "min": 15.379502,
+          "median": 21.695341,
+          "p95_nearest_rank": 26.221813,
+          "max": 27.320456
+        },
+        "request_to_reply_within20ms_cycles": 7,
+        "earliest_gate_arrival_to_reply_ms": {
+          "count": 20,
+          "min": 16.386565,
+          "median": 23.2038075,
+          "p95_nearest_rank": 29.055265,
+          "max": 32.963395
+        },
+        "gate_to_reply_within20ms_cycles": 5,
+        "successive_earliest_request_interval_ms": {
+          "count": 19,
+          "min": 17.382621,
+          "median": 24.535097,
+          "p95_nearest_rank": 30.037337,
+          "max": 30.037337
+        },
+        "start_intervals_within20ms": 5,
+        "two_bus_thread_cpu_sum_ms": {
+          "count": 20,
+          "min": 20.943968,
+          "median": 29.733712,
+          "p95_nearest_rank": 36.045856,
+          "max": 36.711392
+        },
+        "buses": {
+          "front": {
+            "max_pending": 3,
+            "write_gap_ms": {
+              "count": 100,
+              "min": 1.007991,
+              "median": 1.8831235,
+              "p95_nearest_rank": 7.537325,
+              "max": 8.085719
+            },
+            "write_duration_ms": {
+              "count": 120,
+              "min": 0.246198,
+              "median": 0.4511175,
+              "p95_nearest_rank": 0.558665,
+              "max": 0.778401
+            },
+            "cycle_thread_cpu_ms": {
+              "count": 20,
+              "min": 10.562272,
+              "median": 14.700432,
+              "p95_nearest_rank": 18.596416,
+              "max": 18.676672
+            },
+            "cycle_wall_ms": {
+              "count": 20,
+              "min": 16.493665,
+              "median": 23.422487,
+              "p95_nearest_rank": 28.724303,
+              "max": 28.81774
+            },
+            "receiver_profile": {
+              "mode": "select",
+              "read_wrapper": {
+                "calls": 118,
+                "wall_ns": 198094305,
+                "thread_cpu_ns": 107355072
+              },
+              "deadline_reader": {
+                "read_until_calls": 118,
+                "select_calls": 118,
+                "select_wait_ns": 24845969,
+                "read_calls": 108,
+                "read_wall_ns": 2157505,
+                "bytes_received": 2142,
+                "select_eintr": 0,
+                "read_eintr": 0,
+                "spurious_readiness": 0,
+                "soft_expiries": 10,
+                "hard_expiries": 0,
+                "eof_events": 0
+              }
+            }
+          },
+          "rear": {
+            "max_pending": 3,
+            "write_gap_ms": {
+              "count": 100,
+              "min": 1.002712,
+              "median": 1.9241935,
+              "p95_nearest_rank": 7.445841,
+              "max": 7.865024
+            },
+            "write_duration_ms": {
+              "count": 120,
+              "min": 0.156057,
+              "median": 0.42372699999999996,
+              "p95_nearest_rank": 0.526315,
+              "max": 0.940794
+            },
+            "cycle_thread_cpu_ms": {
+              "count": 20,
+              "min": 10.381696,
+              "median": 14.881328,
+              "p95_nearest_rank": 18.094752,
+              "max": 18.58688
+            },
+            "cycle_wall_ms": {
+              "count": 20,
+              "min": 16.723416,
+              "median": 23.778744500000002,
+              "p95_nearest_rank": 28.060202,
+              "max": 29.232826
+            },
+            "receiver_profile": {
+              "mode": "select",
+              "read_wrapper": {
+                "calls": 119,
+                "wall_ns": 192006013,
+                "thread_cpu_ns": 108030848
+              },
+              "deadline_reader": {
+                "read_until_calls": 119,
+                "select_calls": 119,
+                "select_wait_ns": 26335283,
+                "read_calls": 109,
+                "read_wall_ns": 2678321,
+                "bytes_received": 2142,
+                "select_eintr": 0,
+                "read_eintr": 0,
+                "spurious_readiness": 0,
+                "soft_expiries": 10,
+                "hard_expiries": 0,
+                "eof_events": 0
+              }
+            }
+          }
+        },
+        "residual_bytes": 0,
+        "ports_closed": true,
+        "workers_exited": true,
+        "common_lock_released": true,
+        "event_buffers_flushed": true,
+        "capture_sha256": {
+          "summary.json": "475d2a832e8c70d794edbe190a6af4e6cc3b4d11f620635d68ca8922c7e32735",
+          "front-events.jsonl": "2bcdd50d111313f74b2c8576f2fece49f1762d54ae3180c18207994530c989e5",
+          "rear-events.jsonl": "34f2d158cf5f3764307fee5308f89a49e105087424ec5d20516bd0e98a97ebc1"
+        },
+        "source_sha256": {
+          "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+          "can_pipeline_probe.py": "d9f59454ab838b9dbefbd726a509982ccbbff5432ac8c50fbc466316ed0d0848",
+          "dual_can_pipeline_benchmark.py": "40b208116d1671419261cff5b0b9e2a8fad591ed71bbb776af4613784e5280bd",
+          "benchmark.py": "8c20ee8eb42a1dc6c483666bac162e6eff188e214859ff95440cc1a321b30d55",
+          "serial_deadline_reader.py": "b3b0fd2d832fa7e8b2202d96f3f60968187ff7ace3a54dd9e1da1edc65f2c06f"
+        }
+      }
+    },
+    "comparison": {
+      "serial_median_ms": 17.6114565,
+      "select_median_ms": 21.695341,
+      "observed_select_median_reduction_percent": -23.18879474846387,
+      "causal_improvement_verified": false,
+      "interpretation": "Select regressed by about23.19% in observed acquisition median; no adoption based on this result."
+    },
+    "audit_sha256": "e9b9fc83d9b1bb578a59352f37d0610054c3edfb5a59fbc9331c57dd85de8511",
+    "audit_script_sha256": "d4942dc1a73b48471cff59cb2cb55f878be73ad8f409ca40a574d10ed283b029",
+    "package_manifest_sha256": "17374863580a33751b97959c65a6c3e90447e1020a3aadba9c51e9519a3b6657",
+    "pure_read_only": false,
+    "motor_enable_sent": false,
+    "motion_command_sent": false,
+    "motor_configuration_sent": false,
+    "can_bitrate_changed": false,
+    "can_bitrate_verified": false,
+    "imu_accessed": false,
+    "inference_calls": 0,
+    "cpp_used": false,
+    "velocity_scale_verified": false,
+    "dynamic_freshness_verified": false,
+    "calibration_verified": false,
+    "runtime_approved": false,
+    "full_pipeline_20ms_verified": false,
+    "continuous_50hz_verified": false,
+    "limitations": [
+      "Host timestamps do not establish physical CAN-wire time, motor application time or sensor internal sample time.",
+      "Repeated Type4 STOP disables motors and cannot be used as an active walking-control acquisition method.",
+      "No IMU, actual policy inference or active command dispatch is included; full20ms is unverified.",
+      "A single serial-then-select pair with uncontrolled CPU frequency and scheduling does not establish causal improvement or continuous50Hz.",
+      "Thread CPU includes system calls and sums execution across two threads; it is not wall time or Python-only CPU cost.",
+      "Per-cycle CPU excludes the synchronization barrier; receive and boot-guard profiles also include identity reads and the final quiet check.",
+      "The protocol has no transaction sequence number; very late same-key replies from a previous cycle cannot be uniquely disambiguated."
+    ],
+    "change": "Optional POSIX select/nonblocking receive with absolute wake/deadline and CPU profiling; boot identity still freshly read with file open/read/close per check."
+  },
+  "deadline_receive_r4": {
+    "status": "PASS_INDEPENDENT_RAW_WIRE_AUDIT",
+    "scope": "CAN-only acquisition of 12 disabled motors over two USB2CAN buses; repeated all-zero Type4 STOP with Type2 feedback. No IMU, inference or active motor-command dispatch.",
+    "order": [
+      "serial",
+      "select"
+    ],
+    "same_boot": true,
+    "plan": {
+      "cycles_per_condition": 20,
+      "motors": 12,
+      "buses": 2,
+      "motors_per_bus": 6,
+      "window": 4,
+      "gap_ms": 0.5,
+      "uart_baudrate": 921600,
+      "request_timeout_ms": 250,
+      "max_seconds_per_condition": 30,
+      "paired_cycle_sync": true,
+      "file_logging_during_timed_acquisition": false,
+      "boot_guard_mode": "fresh-pread-owned-fd",
+      "boot_check_cached": false,
+      "boot_check_frequency_reduced": false
+    },
+    "latency_scope": "Earliest host request start to latest host read completion; gate arrival and successive start intervals are reported separately.",
+    "conditions": {
+      "serial": {
+        "capture_id": "STOP-combined-select-20260924-r4-serial",
+        "status": "CONDITION_COMPLETE",
+        "requests": 252,
+        "valid_replies": 252,
+        "allowed_tx_types": [
+          0,
+          4
+        ],
+        "identity_matches": 12,
+        "all12_uid_before_first_telemetry_verified": true,
+        "stop_requests": 240,
+        "stop_payload_all_zero": true,
+        "type2_mode0_fault0_validated": 240,
+        "request_to_reply_ms": {
+          "count": 20,
+          "min": 10.325382,
+          "median": 13.1176725,
+          "p95_nearest_rank": 14.566392,
+          "max": 15.319327
+        },
+        "request_to_reply_within20ms_cycles": 20,
+        "earliest_gate_arrival_to_reply_ms": {
+          "count": 20,
+          "min": 10.882739,
+          "median": 14.311744000000001,
+          "p95_nearest_rank": 15.817197,
+          "max": 17.486774
+        },
+        "gate_to_reply_within20ms_cycles": 20,
+        "successive_earliest_request_interval_ms": {
+          "count": 19,
+          "min": 11.094092,
+          "median": 14.467675,
+          "p95_nearest_rank": 16.336957,
+          "max": 16.336957
+        },
+        "start_intervals_within20ms": 19,
+        "two_bus_thread_cpu_sum_ms": {
+          "count": 20,
+          "min": 8.402848,
+          "median": 14.218512,
+          "p95_nearest_rank": 15.38608,
+          "max": 17.038432
+        },
+        "buses": {
+          "front": {
+            "max_pending": 4,
+            "write_gap_ms": {
+              "count": 100,
+              "min": 0.658538,
+              "median": 1.304996,
+              "p95_nearest_rank": 2.26434,
+              "max": 3.753154
+            },
+            "write_duration_ms": {
+              "count": 120,
+              "min": 0.062238,
+              "median": 0.3231895,
+              "p95_nearest_rank": 0.683049,
+              "max": 1.001951
+            },
+            "cycle_thread_cpu_ms": {
+              "count": 20,
+              "min": 4.373056,
+              "median": 7.062512,
+              "p95_nearest_rank": 7.794528,
+              "max": 8.25344
+            },
+            "cycle_wall_ms": {
+              "count": 20,
+              "min": 10.848116,
+              "median": 13.3101295,
+              "p95_nearest_rank": 14.727027,
+              "max": 15.756432
+            },
+            "receiver_profile": {
+              "mode": "serial",
+              "read_wrapper": {
+                "calls": 220,
+                "wall_ns": 134099118,
+                "thread_cpu_ns": 35462112
+              },
+              "deadline_reader": null
+            }
+          },
+          "rear": {
+            "max_pending": 3,
+            "write_gap_ms": {
+              "count": 100,
+              "min": 0.631082,
+              "median": 1.3400035,
+              "p95_nearest_rank": 2.401487,
+              "max": 2.675526
+            },
+            "write_duration_ms": {
+              "count": 120,
+              "min": 0.062718,
+              "median": 0.32539700000000005,
+              "p95_nearest_rank": 0.707657,
+              "max": 0.891938
+            },
+            "cycle_thread_cpu_ms": {
+              "count": 20,
+              "min": 4.029792,
+              "median": 7.224832,
+              "p95_nearest_rank": 7.8016,
+              "max": 8.784992
+            },
+            "cycle_wall_ms": {
+              "count": 20,
+              "min": 9.418532,
+              "median": 13.516299,
+              "p95_nearest_rank": 14.199236,
+              "max": 16.498615
+            },
+            "receiver_profile": {
+              "mode": "serial",
+              "read_wrapper": {
+                "calls": 217,
+                "wall_ns": 127358654,
+                "thread_cpu_ns": 34506368
+              },
+              "deadline_reader": null
+            }
+          }
+        },
+        "residual_bytes": 0,
+        "ports_closed": true,
+        "workers_exited": true,
+        "common_lock_released": true,
+        "event_buffers_flushed": true,
+        "capture_sha256": {
+          "summary.json": "5e6c703e6a19ff8863a7119a1d3617337d491fa0e34e523307a2aa91346ebf2b",
+          "front-events.jsonl": "429707a3fed057b1fc15e19a150f28cc058a7f0d2cfb89a88fcd92d012d9471c",
+          "rear-events.jsonl": "5cfd7c4d486425074a4e4186ddf7fb1b8e957dcd8ae2d5eefff23d979df83464"
+        },
+        "source_sha256": {
+          "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+          "can_pipeline_probe.py": "d9f59454ab838b9dbefbd726a509982ccbbff5432ac8c50fbc466316ed0d0848",
+          "dual_can_pipeline_benchmark.py": "40b208116d1671419261cff5b0b9e2a8fad591ed71bbb776af4613784e5280bd",
+          "benchmark.py": "4bf15f1b6c079dc13f6395b5abeb22d65817c9e5a692cbad09ba38722c3124ad",
+          "serial_deadline_reader.py": "b3b0fd2d832fa7e8b2202d96f3f60968187ff7ace3a54dd9e1da1edc65f2c06f"
+        },
+        "boot_guard_closed": true,
+        "boot_check_profile": {
+          "front": {
+            "calls": 1407,
+            "wall_ns": 64374621,
+            "thread_cpu_ns": 30501472
+          },
+          "rear": {
+            "calls": 1399,
+            "wall_ns": 63491594,
+            "thread_cpu_ns": 31131520
+          },
+          "coordinator": {
+            "calls": 0,
+            "wall_ns": 0,
+            "thread_cpu_ns": 0
+          }
+        },
+        "boot_guard_source_sha256": "e7fde259aada55a69b65ae87381785166ee5ecad71e05919af3089a117c81e00"
+      },
+      "select": {
+        "capture_id": "STOP-combined-select-20260924-r4-select",
+        "status": "CONDITION_COMPLETE",
+        "requests": 252,
+        "valid_replies": 252,
+        "allowed_tx_types": [
+          0,
+          4
+        ],
+        "identity_matches": 12,
+        "all12_uid_before_first_telemetry_verified": true,
+        "stop_requests": 240,
+        "stop_payload_all_zero": true,
+        "type2_mode0_fault0_validated": 240,
+        "request_to_reply_ms": {
+          "count": 20,
+          "min": 9.10482,
+          "median": 13.085199500000002,
+          "p95_nearest_rank": 14.011601,
+          "max": 14.081934
+        },
+        "request_to_reply_within20ms_cycles": 20,
+        "earliest_gate_arrival_to_reply_ms": {
+          "count": 20,
+          "min": 9.641218,
+          "median": 14.7489525,
+          "p95_nearest_rank": 16.544381,
+          "max": 17.014446
+        },
+        "gate_to_reply_within20ms_cycles": 20,
+        "successive_earliest_request_interval_ms": {
+          "count": 19,
+          "min": 9.849883,
+          "median": 14.283912,
+          "p95_nearest_rank": 15.365988,
+          "max": 15.365988
+        },
+        "start_intervals_within20ms": 19,
+        "two_bus_thread_cpu_sum_ms": {
+          "count": 20,
+          "min": 7.39568,
+          "median": 14.173487999999999,
+          "p95_nearest_rank": 15.160448,
+          "max": 15.161792
+        },
+        "buses": {
+          "front": {
+            "max_pending": 4,
+            "write_gap_ms": {
+              "count": 100,
+              "min": 0.68305,
+              "median": 1.411409,
+              "p95_nearest_rank": 2.212535,
+              "max": 2.578475
+            },
+            "write_duration_ms": {
+              "count": 120,
+              "min": 0.053214,
+              "median": 0.3462285,
+              "p95_nearest_rank": 0.65793,
+              "max": 1.027038
+            },
+            "cycle_thread_cpu_ms": {
+              "count": 20,
+              "min": 3.684352,
+              "median": 7.013712,
+              "p95_nearest_rank": 7.569856,
+              "max": 7.574336
+            },
+            "cycle_wall_ms": {
+              "count": 20,
+              "min": 8.107636,
+              "median": 13.267097,
+              "p95_nearest_rank": 14.899572,
+              "max": 15.054287
+            },
+            "receiver_profile": {
+              "mode": "select",
+              "read_wrapper": {
+                "calls": 156,
+                "wall_ns": 131766557,
+                "thread_cpu_ns": 37761728
+              },
+              "deadline_reader": {
+                "read_until_calls": 156,
+                "select_calls": 156,
+                "select_wait_ns": 79334942,
+                "read_calls": 109,
+                "read_wall_ns": 8705756,
+                "bytes_received": 2142,
+                "select_eintr": 0,
+                "read_eintr": 0,
+                "spurious_readiness": 0,
+                "soft_expiries": 47,
+                "hard_expiries": 0,
+                "eof_events": 0
+              }
+            }
+          },
+          "rear": {
+            "max_pending": 4,
+            "write_gap_ms": {
+              "count": 100,
+              "min": 0.684426,
+              "median": 1.271878,
+              "p95_nearest_rank": 2.34053,
+              "max": 3.031163
+            },
+            "write_duration_ms": {
+              "count": 120,
+              "min": 0.05203,
+              "median": 0.305254,
+              "p95_nearest_rank": 0.532622,
+              "max": 0.66177
+            },
+            "cycle_thread_cpu_ms": {
+              "count": 20,
+              "min": 3.711328,
+              "median": 7.035408,
+              "p95_nearest_rank": 7.597664,
+              "max": 7.598496
+            },
+            "cycle_wall_ms": {
+              "count": 20,
+              "min": 9.324332,
+              "median": 13.041377,
+              "p95_nearest_rank": 14.715354,
+              "max": 14.818135
+            },
+            "receiver_profile": {
+              "mode": "select",
+              "read_wrapper": {
+                "calls": 164,
+                "wall_ns": 132501887,
+                "thread_cpu_ns": 38754880
+              },
+              "deadline_reader": {
+                "read_until_calls": 164,
+                "select_calls": 164,
+                "select_wait_ns": 77306691,
+                "read_calls": 102,
+                "read_wall_ns": 7647611,
+                "bytes_received": 2142,
+                "select_eintr": 0,
+                "read_eintr": 0,
+                "spurious_readiness": 0,
+                "soft_expiries": 62,
+                "hard_expiries": 0,
+                "eof_events": 0
+              }
+            }
+          }
+        },
+        "residual_bytes": 0,
+        "ports_closed": true,
+        "workers_exited": true,
+        "common_lock_released": true,
+        "event_buffers_flushed": true,
+        "capture_sha256": {
+          "summary.json": "eff4c373ee22591da3ab31e09fca7403fe23d8561596da96e096fecfebcf1f20",
+          "front-events.jsonl": "74e79ddb3551cbc9b6071f4100b533646ba22fa2bc6facdd18f9118a4c88eed5",
+          "rear-events.jsonl": "451488aca8cfcb33ca8412f67b55ad3753517fb9bde71d2c9b605fa8a39d20b0"
+        },
+        "source_sha256": {
+          "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+          "can_pipeline_probe.py": "d9f59454ab838b9dbefbd726a509982ccbbff5432ac8c50fbc466316ed0d0848",
+          "dual_can_pipeline_benchmark.py": "40b208116d1671419261cff5b0b9e2a8fad591ed71bbb776af4613784e5280bd",
+          "benchmark.py": "4bf15f1b6c079dc13f6395b5abeb22d65817c9e5a692cbad09ba38722c3124ad",
+          "serial_deadline_reader.py": "b3b0fd2d832fa7e8b2202d96f3f60968187ff7ace3a54dd9e1da1edc65f2c06f"
+        },
+        "boot_guard_closed": true,
+        "boot_check_profile": {
+          "front": {
+            "calls": 1947,
+            "wall_ns": 84585814,
+            "thread_cpu_ns": 40419008
+          },
+          "rear": {
+            "calls": 2002,
+            "wall_ns": 86439531,
+            "thread_cpu_ns": 40823264
+          },
+          "coordinator": {
+            "calls": 0,
+            "wall_ns": 0,
+            "thread_cpu_ns": 0
+          }
+        },
+        "boot_guard_source_sha256": "e7fde259aada55a69b65ae87381785166ee5ecad71e05919af3089a117c81e00"
+      }
+    },
+    "comparison": {
+      "serial_median_ms": 13.1176725,
+      "select_median_ms": 13.085199500000002,
+      "observed_select_median_reduction_percent": 0.24755153782043404,
+      "causal_improvement_verified": false,
+      "interpretation": "Select median was only about0.25% lower than serial; treat this as similar performance, not a causal speedup. Both conditions completed all20 acquisition and gate-inclusive samples below20ms."
+    },
+    "audit_sha256": "57076f0da42253d533b2145dbbab7bf7b6c77c405445a98f6288641a02309df5",
+    "audit_script_sha256": "1cde02b72740720e7d1e3d24177a467fa459f9aca4733bb42338b09e1d289a1a",
+    "package_manifest_sha256": "f0610c6fc016d31189a61b9b19ef712d90164f7c35eef08cc8a2878dae0a1a26",
+    "pure_read_only": false,
+    "motor_enable_sent": false,
+    "motion_command_sent": false,
+    "motor_configuration_sent": false,
+    "can_bitrate_changed": false,
+    "can_bitrate_verified": false,
+    "imu_accessed": false,
+    "inference_calls": 0,
+    "cpp_used": false,
+    "velocity_scale_verified": false,
+    "dynamic_freshness_verified": false,
+    "calibration_verified": false,
+    "runtime_approved": false,
+    "full_pipeline_20ms_verified": false,
+    "continuous_50hz_verified": false,
+    "limitations": [
+      "Host timestamps do not establish physical CAN-wire time, motor application time or sensor internal sample time.",
+      "Repeated Type4 STOP disables motors and cannot be used as an active walking-control acquisition method.",
+      "No IMU, actual policy inference or active command dispatch is included; full20ms is unverified.",
+      "A single serial-then-select pair with uncontrolled CPU frequency and scheduling does not establish causal improvement or continuous50Hz.",
+      "Thread CPU includes system calls and sums execution across two threads; it is not wall time or Python-only CPU cost.",
+      "Per-cycle CPU excludes the synchronization barrier; receive and boot-guard profiles also include identity reads and the final quiet check.",
+      "The protocol has no transaction sequence number; very late same-key replies from a previous cycle cannot be uniquely disambiguated."
+    ],
+    "change": "Fresh boot-identity pread on one owned descriptor at every existing check; values are not cached and check frequency is not reduced.",
+    "final_postcheck": {
+      "same_boot": true,
+      "common_and_both_port_locks_reacquired": true,
+      "active_benchmark_processes": 0,
+      "serial_opened": false,
+      "postcheck_sha256": "409c30ef50440e1c6dc2ad413d15b795a47dcad720dd7a49b955cbfd89799f6b"
+    }
+  },
+  "receiver_cpu_profile_r4": {
+    "status": "OFFLINE_SAVED_LOG_CPU_PROFILE_COMPLETE",
+    "scope": "Saved-log CPU microprofile on Jetson; 6 motors per bus cycle; no device I/O.",
+    "cycles_per_bus": 20,
+    "bus_cycles": 40,
+    "frames": 240,
+    "saved_events": 1199,
+    "per_bus_cycle_cpu_ms_median": {
+      "AT_parse": 0.024023,
+      "type2_decode": 0.034184,
+      "deepcopy": 1.2944,
+      "json_container_copy_candidate": 0.308195
+    },
+    "candidate_content_and_non_alias_validation_events": 1199,
+    "candidate_applied_to_live_logger": false,
+    "receive_path_cpp_implemented": false,
+    "hardware_accessed": false,
+    "full_pipeline_20ms_verified": false,
+    "source_sha256": "483a256d059c2da5b0611c7520b8721cb17a0c26e178e98f27cd997c30a0dede",
+    "result_sha256": "44dde704f335ae3d20347e7db1a41d5a8123b4341de0be35b97089ad2fd2adb8",
+    "limitations": [
+      "Sequential offline CPU timings do not predict live parallel wall-time savings.",
+      "Specialized-copy comparison validated saved event schema only; runtime cycles/objects not supported or adopted.",
+      "Existing policy correction C++ implementation is independent of this receive-path investigation."
+    ]
+  },
+  "copy_and_preparation_optimization_r5": {
+    "status": "IMPLEMENTED_TESTED_WITH_SEPARATE_CAN_AND_FILE_ONLY_OBSERVER_MEASUREMENTS",
+    "full_pipeline_20ms_verified": false,
+    "motor_enable_or_motion_commands_sent": false,
+    "changes": {
+      "log_copy": "Bounded owned finite built-in JSON snapshots in EventBuffer, SessionBus and AuditWriter. Nested mutable containers remain detached. No hot serialization.",
+      "per_tick_preparation": "Cache validated calibration digest, provenance template, ordered coefficients, rotation and gyro bias at construction. Live data/hash/freshness/range checks and tensor ownership unchanged."
+    },
+    "validation": {
+      "mac_tests": 184,
+      "jetson_tests": 184,
+      "private_can_runner_tests_each_host": 71,
+      "file_only_runner_tests_each_host": 2,
+      "observer_record_and_state_exact_pairs": 100,
+      "observer_total_calls": 200,
+      "observer_continuous_ticks_each_condition_each_h": 50
+    },
+    "source_sha256": {
+      "event_snapshot.py": "1c2c8f01fbcc5fd0175cb31ad246d450aa695ff101374da3488363a47b068758",
+      "policy_observer.py": "448855bf79b514f251775b0736130328927c989417d10edfaacff1e7254a216e",
+      "policy_observer_live.py": "f7245dbcf0d872f4aa06377846d7f8e222bf98f1adc084ee791e80ab7db5da70",
+      "dual_can_pipeline_benchmark.py": "b31307264ec7e4986520f2d6e0701238d38c627d26222401aa1507c716a0ca3d"
+    },
+    "can_comparison": {
+      "scope": "Two buses, 12 disabled motors, all-zero Type4 STOP/Type2 feedback. select receiver for both. No IMU or policy or active motor-command dispatch.",
+      "order": [
+        "deepcopy",
+        "owned"
+      ],
+      "cycles_each": 20,
+      "audit_sha256": "bd8c07be6d824a743d53a2bb249f6d7a42cd4032f9417b6dfbdbdbc0ff866587",
+      "package_manifest_sha256": "bdd459e44d17f3eee22f9603a8b5c75eed18851e3b5065139d0c5eb6938dca7e",
+      "conditions": {
+        "deepcopy": {
+          "status": "PASS",
+          "receive_mode": "select",
+          "log_snapshot_mode": "deepcopy",
+          "capture_sha256": {
+            "summary.json": "4a418ba46468ca20777ac770760ad2ceacab4b762d257eae4b9487bdf01fdbf9",
+            "front-events.jsonl": "98c1f033276c61335e7c6549ea59eddf006e8af10a6c2d528dc4a0018635585e",
+            "rear-events.jsonl": "4ca60a8b4e320f96a1380affafe05b8b816b101bc3f0ebdb482c3e1507e539b8"
+          },
+          "total_canonical_writes": 252,
+          "total_valid_replies": 252,
+          "all12_uid_before_first_telemetry_verified": true,
+          "type2_mode0_fault0_validated": 240,
+          "request_to_reply_ms": {
+            "count": 20,
+            "min": 8.744078,
+            "median": 12.4011335,
+            "p95_nearest_rank": 14.074503,
+            "max": 14.73283
+          },
+          "request_to_reply_within20ms": 20,
+          "earliest_gate_arrival_to_reply_ms": {
+            "count": 20,
+            "min": 9.2512,
+            "median": 14.244445,
+            "p95_nearest_rank": 16.770181,
+            "max": 18.524257
+          },
+          "gate_to_reply_within20ms": 20,
+          "successive_earliest_request_interval_ms": {
+            "count": 19,
+            "min": 9.55793,
+            "median": 13.781533,
+            "p95_nearest_rank": 16.214449,
+            "max": 16.214449
+          },
+          "two_bus_thread_cpu_sum_ms": {
+            "count": 20,
+            "min": 7.02304,
+            "median": 13.597856,
+            "p95_nearest_rank": 14.90432,
+            "max": 15.32816
+          },
+          "buses": {
+            "front": {
+              "canonical_writes": 126,
+              "matching_replies": 126,
+              "fresh_uid_matches": 6,
+              "complete_cycles": 20,
+              "allowed_tx_types": [
+                0,
+                4
+              ],
+              "mode0_fault0_type2_count": 120,
+              "max_pending": 3,
+              "device_closed": true,
+              "final_residual_zero": true,
+              "write_gap_ms": {
+                "count": 100,
+                "min": 0.684855,
+                "median": 1.335726,
+                "p95_nearest_rank": 2.314384,
+                "max": 3.954345
+              },
+              "write_duration_ms": {
+                "count": 120,
+                "min": 0.058018,
+                "median": 0.37100500000000003,
+                "p95_nearest_rank": 0.592916,
+                "max": 1.087718
+              },
+              "request_to_reply_ms": {
+                "count": 120,
+                "min": 1.723291,
+                "median": 3.1365245,
+                "p95_nearest_rank": 4.790086,
+                "max": 5.329401
+              },
+              "raw_event_count": 629,
+              "receiver_profile": {
+                "mode": "select",
+                "read_wrapper": {
+                  "calls": 160,
+                  "wall_ns": 129370079,
+                  "thread_cpu_ns": 37969824
+                },
+                "deadline_reader": {
+                  "read_until_calls": 160,
+                  "select_calls": 160,
+                  "select_wait_ns": 78800040,
+                  "read_calls": 105,
+                  "read_wall_ns": 7957271,
+                  "bytes_received": 2142,
+                  "select_eintr": 0,
+                  "read_eintr": 0,
+                  "spurious_readiness": 0,
+                  "soft_expiries": 55,
+                  "hard_expiries": 0,
+                  "eof_events": 0
+                }
+              },
+              "cycle_thread_cpu_ms": {
+                "count": 20,
+                "min": 3.5792,
+                "median": 6.797936,
+                "p95_nearest_rank": 7.751264,
+                "max": 7.764512
+              },
+              "cycle_wall_ms": {
+                "count": 20,
+                "min": 9.087994,
+                "median": 12.667334499999999,
+                "p95_nearest_rank": 14.958374,
+                "max": 15.555866
+              },
+              "cycle_thread_cpu_total_ms": 131.428192,
+              "read_wrapper_cpu_fraction": 0.2934977260081908
+            },
+            "rear": {
+              "canonical_writes": 126,
+              "matching_replies": 126,
+              "fresh_uid_matches": 6,
+              "complete_cycles": 20,
+              "allowed_tx_types": [
+                0,
+                4
+              ],
+              "mode0_fault0_type2_count": 120,
+              "max_pending": 4,
+              "device_closed": true,
+              "final_residual_zero": true,
+              "write_gap_ms": {
+                "count": 100,
+                "min": 0.682135,
+                "median": 1.2321225,
+                "p95_nearest_rank": 2.316944,
+                "max": 2.605626
+              },
+              "write_duration_ms": {
+                "count": 120,
+                "min": 0.05197,
+                "median": 0.356972,
+                "p95_nearest_rank": 0.585204,
+                "max": 0.769147
+              },
+              "request_to_reply_ms": {
+                "count": 120,
+                "min": 1.678074,
+                "median": 3.1293245,
+                "p95_nearest_rank": 4.751333,
+                "max": 5.50355
+              },
+              "raw_event_count": 628,
+              "receiver_profile": {
+                "mode": "select",
+                "read_wrapper": {
+                  "calls": 160,
+                  "wall_ns": 128219667,
+                  "thread_cpu_ns": 37567872
+                },
+                "deadline_reader": {
+                  "read_until_calls": 160,
+                  "select_calls": 160,
+                  "select_wait_ns": 76407257,
+                  "read_calls": 104,
+                  "read_wall_ns": 6527801,
+                  "bytes_received": 2142,
+                  "select_eintr": 0,
+                  "read_eintr": 0,
+                  "spurious_readiness": 0,
+                  "soft_expiries": 56,
+                  "hard_expiries": 0,
+                  "eof_events": 0
+                }
+              },
+              "cycle_thread_cpu_ms": {
+                "count": 20,
+                "min": 3.44384,
+                "median": 6.78088,
+                "p95_nearest_rank": 7.461728,
+                "max": 7.576896
+              },
+              "cycle_wall_ms": {
+                "count": 20,
+                "min": 8.280734,
+                "median": 12.8130035,
+                "p95_nearest_rank": 14.292527,
+                "max": 14.363889
+              },
+              "cycle_thread_cpu_total_ms": 129.066272,
+              "read_wrapper_cpu_fraction": 0.2929961750719568
+            }
+          },
+          "boot_guard_closed": true
+        },
+        "owned": {
+          "status": "PASS",
+          "receive_mode": "select",
+          "log_snapshot_mode": "owned",
+          "capture_sha256": {
+            "summary.json": "3082083448adfe5bf3a75c67783f99f6e16593757bb74378b489249b2d97ebb6",
+            "front-events.jsonl": "a2a31fdcdf57ff6a7055144d43f98a5dab4a56cfde164ba6a3f4f65abcb97421",
+            "rear-events.jsonl": "c1953169be4d759ed9611e787d806b929710158a574363b72264f2bb07bb54e1"
+          },
+          "total_canonical_writes": 252,
+          "total_valid_replies": 252,
+          "all12_uid_before_first_telemetry_verified": true,
+          "type2_mode0_fault0_validated": 240,
+          "request_to_reply_ms": {
+            "count": 20,
+            "min": 8.787984,
+            "median": 12.121794000000001,
+            "p95_nearest_rank": 13.960353,
+            "max": 15.825762
+          },
+          "request_to_reply_within20ms": 20,
+          "earliest_gate_arrival_to_reply_ms": {
+            "count": 20,
+            "min": 9.686158,
+            "median": 14.142616,
+            "p95_nearest_rank": 15.698205,
+            "max": 18.567456
+          },
+          "gate_to_reply_within20ms": 20,
+          "successive_earliest_request_interval_ms": {
+            "count": 19,
+            "min": 9.451655,
+            "median": 13.16439,
+            "p95_nearest_rank": 17.060301,
+            "max": 17.060301
+          },
+          "two_bus_thread_cpu_sum_ms": {
+            "count": 20,
+            "min": 7.002656,
+            "median": 12.733471999999999,
+            "p95_nearest_rank": 14.540864,
+            "max": 15.518624
+          },
+          "buses": {
+            "front": {
+              "canonical_writes": 126,
+              "matching_replies": 126,
+              "fresh_uid_matches": 6,
+              "complete_cycles": 20,
+              "allowed_tx_types": [
+                0,
+                4
+              ],
+              "mode0_fault0_type2_count": 120,
+              "max_pending": 4,
+              "device_closed": true,
+              "final_residual_zero": true,
+              "write_gap_ms": {
+                "count": 100,
+                "min": 0.676023,
+                "median": 1.0551400000000002,
+                "p95_nearest_rank": 2.172587,
+                "max": 5.38873
+              },
+              "write_duration_ms": {
+                "count": 120,
+                "min": 0.055746,
+                "median": 0.34541999999999995,
+                "p95_nearest_rank": 0.627414,
+                "max": 0.951104
+              },
+              "request_to_reply_ms": {
+                "count": 120,
+                "min": 1.769437,
+                "median": 3.1219,
+                "p95_nearest_rank": 4.661697,
+                "max": 5.203507
+              },
+              "raw_event_count": 624,
+              "receiver_profile": {
+                "mode": "select",
+                "read_wrapper": {
+                  "calls": 156,
+                  "wall_ns": 131921066,
+                  "thread_cpu_ns": 36986016
+                },
+                "deadline_reader": {
+                  "read_until_calls": 156,
+                  "select_calls": 156,
+                  "select_wait_ns": 83737134,
+                  "read_calls": 100,
+                  "read_wall_ns": 8058804,
+                  "bytes_received": 2142,
+                  "select_eintr": 0,
+                  "read_eintr": 0,
+                  "spurious_readiness": 0,
+                  "soft_expiries": 56,
+                  "hard_expiries": 0,
+                  "eof_events": 0
+                }
+              },
+              "cycle_thread_cpu_ms": {
+                "count": 20,
+                "min": 3.345024,
+                "median": 6.422528,
+                "p95_nearest_rank": 7.387424,
+                "max": 8.9808
+              },
+              "cycle_wall_ms": {
+                "count": 20,
+                "min": 8.619434,
+                "median": 12.088208999999999,
+                "p95_nearest_rank": 14.270605,
+                "max": 15.996776
+              },
+              "cycle_thread_cpu_total_ms": 121.160736,
+              "read_wrapper_cpu_fraction": 0.2803647447785178
+            },
+            "rear": {
+              "canonical_writes": 126,
+              "matching_replies": 126,
+              "fresh_uid_matches": 6,
+              "complete_cycles": 20,
+              "allowed_tx_types": [
+                0,
+                4
+              ],
+              "mode0_fault0_type2_count": 120,
+              "max_pending": 4,
+              "device_closed": true,
+              "final_residual_zero": true,
+              "write_gap_ms": {
+                "count": 100,
+                "min": 0.670967,
+                "median": 1.1697685,
+                "p95_nearest_rank": 2.139306,
+                "max": 2.743711
+              },
+              "write_duration_ms": {
+                "count": 120,
+                "min": 0.055842,
+                "median": 0.36612500000000003,
+                "p95_nearest_rank": 0.594164,
+                "max": 2.219085
+              },
+              "request_to_reply_ms": {
+                "count": 120,
+                "min": 1.662521,
+                "median": 3.1170035,
+                "p95_nearest_rank": 4.683937,
+                "max": 5.516703
+              },
+              "raw_event_count": 625,
+              "receiver_profile": {
+                "mode": "select",
+                "read_wrapper": {
+                  "calls": 154,
+                  "wall_ns": 131623032,
+                  "thread_cpu_ns": 36247616
+                },
+                "deadline_reader": {
+                  "read_until_calls": 154,
+                  "select_calls": 154,
+                  "select_wait_ns": 82382940,
+                  "read_calls": 101,
+                  "read_wall_ns": 9254077,
+                  "bytes_received": 2142,
+                  "select_eintr": 0,
+                  "read_eintr": 0,
+                  "spurious_readiness": 0,
+                  "soft_expiries": 53,
+                  "hard_expiries": 0,
+                  "eof_events": 0
+                }
+              },
+              "cycle_thread_cpu_ms": {
+                "count": 20,
+                "min": 3.554496,
+                "median": 6.3814720000000005,
+                "p95_nearest_rank": 7.088736,
+                "max": 7.223488
+              },
+              "cycle_wall_ms": {
+                "count": 20,
+                "min": 8.006868,
+                "median": 11.8477525,
+                "p95_nearest_rank": 14.841856,
+                "max": 15.48863
+              },
+              "cycle_thread_cpu_total_ms": 118.303616,
+              "read_wrapper_cpu_fraction": 0.27538961418241753
+            }
+          },
+          "boot_guard_closed": true
+        }
+      },
+      "limitations": [
+        "Host request-start/read-completion times are not physical CAN wire, motor application or sensor internal sample timestamps.",
+        "Repeated all-zero Type4 STOP is state-changing disable, not a read-only or active-control benchmark.",
+        "No IMU, actual policy inference or motor command dispatch is included; full20ms is unverified. Boot guard counters include mutex waiting; thread CPU includes system calls. Guard closure is confirmed by saved metadata and frozen source, not an external fd trace.",
+        "No protocol transaction sequence: very late previous-cycle same-key duplicates cannot be uniquely distinguished; declared limitation retained.",
+        "One short deepcopy then owned-snapshot comparison with select reception in both, with CPU frequency/scheduling not controlled, is not continuous50Hz or causal/statistical proof. CPU counters measure host thread execution including system calls, not Python-only CPU cost."
+      ]
+    },
+    "offline_log_copy": {
+      "scope": "Same 1189 saved events sequentially replayed on Jetson; 5 samples x 10 repeats; allocation/free included, hardware and worker scheduling excluded.",
+      "report_sha256": "c020151a3826924dd637166f2dc77a65c437c12c6561f23af8002b2db9fb12e1",
+      "source_sha256": "c241dade865b61403e76af151d854fdd38644a7492af74b306147cc39745cf6a",
+      "events": 1189,
+      "measurements": {
+        "deepcopy_actual_events": {
+          "checksum": 1189,
+          "cpu_ms_per_40_bus_cycles": {
+            "count": 5,
+            "min": 51.9874656,
+            "median": 51.9946592,
+            "max": 52.9552128
+          },
+          "cpu_ms_per_six_motor_bus_cycle": {
+            "count": 5,
+            "min": 1.29968664,
+            "median": 1.29986648,
+            "max": 1.32388032
+          },
+          "wall_ms_per_40_bus_cycles": {
+            "count": 5,
+            "min": 52.05477,
+            "median": 52.0755824,
+            "max": 53.0577726
+          }
+        },
+        "bounded_owned_event_snapshot": {
+          "checksum": 1189,
+          "cpu_ms_per_40_bus_cycles": {
+            "count": 5,
+            "min": 16.2987072,
+            "median": 17.043801600000002,
+            "max": 17.1268608
+          },
+          "cpu_ms_per_six_motor_bus_cycle": {
+            "count": 5,
+            "min": 0.40746768,
+            "median": 0.42609504000000004,
+            "max": 0.42817151999999997
+          },
+          "wall_ms_per_40_bus_cycles": {
+            "count": 5,
+            "min": 16.330304599999998,
+            "median": 17.0805227,
+            "max": 17.1625914
+          }
+        }
+      }
+    },
+    "offline_observer": {
+      "scope": "File-only same-native-model observer revision A/B; no recorded-emitter concurrency",
+      "same_native_model_both_conditions": true,
+      "synthetic_timestamp_translation": true,
+      "repeated_historical_sensor_values": true,
+      "fresh_sensor_reads": false,
+      "CPU_frequency_settings_changed": false,
+      "report_sha256": "e4552856215ff4ac979519653568a23ce3d4d84b4d70df95e64ef2d1ab50631d",
+      "audit_sha256": "d2954bf9c18eabbd3337046584e4272b026cc3b6ee056a88b930b6bef1682000",
+      "package_manifest_sha256": "50814928400f62f0a37ae60e8d105f90657bc509f0a7baf5bc03e87685e5624a",
+      "native_model_sha256": "e87e9944aea8d7c6b8e32d144b8c6f4b37ac2c863c45353c9c228f8c9d0ea07f",
+      "native_library_sha256": "d8ed379d1d2fd01459df35f4063b682d6467129945504791445c65bc756d61bf",
+      "exact_result_and_buffer_equivalence": true,
+      "input_and_output_mutation_isolation": true,
+      "statistics": {
+        "baseline": {
+          "0": {
+            "consume_total": {
+              "wall": {
+                "count": 50,
+                "median_ms": 5.0559805,
+                "p95_ms": 5.314593,
+                "max_ms": 5.811498
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 5.034416,
+                "p95_ms": 5.293152,
+                "max_ms": 5.798016
+              }
+            },
+            "inputs": {
+              "wall": {
+                "count": 50,
+                "median_ms": 1.145301,
+                "p95_ms": 1.180182,
+                "max_ms": 1.245399
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 1.145984,
+                "p95_ms": 1.171296,
+                "max_ms": 1.24704
+              }
+            },
+            "forward": {
+              "wall": {
+                "count": 50,
+                "median_ms": 3.285484,
+                "p95_ms": 3.446847,
+                "max_ms": 3.841574
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 3.272352,
+                "p95_ms": 3.429728,
+                "max_ms": 3.832128
+              }
+            },
+            "output_materialization": {
+              "wall": {
+                "count": 50,
+                "median_ms": 0.1332505,
+                "p95_ms": 0.151074,
+                "max_ms": 0.159395
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 0.136656,
+                "p95_ms": 0.14256,
+                "max_ms": 0.16272
+              }
+            },
+            "other_copy_tensor_checks": {
+              "wall": {
+                "count": 50,
+                "median_ms": 0.4983775,
+                "p95_ms": 0.525289,
+                "max_ms": 0.56513
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 0.48912,
+                "p95_ms": 0.512672,
+                "max_ms": 0.556128
+              }
+            }
+          },
+          "1": {
+            "consume_total": {
+              "wall": {
+                "count": 50,
+                "median_ms": 5.0756925,
+                "p95_ms": 5.418115,
+                "max_ms": 7.799022
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 5.054048,
+                "p95_ms": 5.300096,
+                "max_ms": 6.5784
+              }
+            },
+            "inputs": {
+              "wall": {
+                "count": 50,
+                "median_ms": 1.154229,
+                "p95_ms": 1.191638,
+                "max_ms": 1.284535
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 1.15,
+                "p95_ms": 1.179584,
+                "max_ms": 1.285408
+              }
+            },
+            "forward": {
+              "wall": {
+                "count": 50,
+                "median_ms": 3.276396,
+                "p95_ms": 3.507648,
+                "max_ms": 6.011917
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 3.279216,
+                "p95_ms": 3.470528,
+                "max_ms": 4.769632
+              }
+            },
+            "output_materialization": {
+              "wall": {
+                "count": 50,
+                "median_ms": 0.134515,
+                "p95_ms": 0.152419,
+                "max_ms": 0.480265
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 0.137792,
+                "p95_ms": 0.155872,
+                "max_ms": 0.174432
+              }
+            },
+            "other_copy_tensor_checks": {
+              "wall": {
+                "count": 50,
+                "median_ms": 0.5022485,
+                "p95_ms": 0.522346,
+                "max_ms": 0.621036
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 0.492688,
+                "p95_ms": 0.507616,
+                "max_ms": 0.607136
+              }
+            }
+          }
+        },
+        "candidate": {
+          "0": {
+            "consume_total": {
+              "wall": {
+                "count": 50,
+                "median_ms": 4.422384,
+                "p95_ms": 4.711735,
+                "max_ms": 4.860441
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 4.405056,
+                "p95_ms": 4.640352,
+                "max_ms": 4.832928
+              }
+            },
+            "inputs": {
+              "wall": {
+                "count": 50,
+                "median_ms": 0.522249,
+                "p95_ms": 0.548362,
+                "max_ms": 0.603883
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 0.5236,
+                "p95_ms": 0.537216,
+                "max_ms": 0.605376
+              }
+            },
+            "forward": {
+              "wall": {
+                "count": 50,
+                "median_ms": 3.273324,
+                "p95_ms": 3.5288,
+                "max_ms": 3.650179
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 3.26104,
+                "p95_ms": 3.484032,
+                "max_ms": 3.627008
+              }
+            },
+            "output_materialization": {
+              "wall": {
+                "count": 50,
+                "median_ms": 0.132818,
+                "p95_ms": 0.146402,
+                "max_ms": 0.153315
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 0.136512,
+                "p95_ms": 0.149888,
+                "max_ms": 0.157408
+              }
+            },
+            "other_copy_tensor_checks": {
+              "wall": {
+                "count": 50,
+                "median_ms": 0.497832,
+                "p95_ms": 0.52769,
+                "max_ms": 0.558443
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 0.48888,
+                "p95_ms": 0.501088,
+                "max_ms": 0.535488
+              }
+            }
+          },
+          "1": {
+            "consume_total": {
+              "wall": {
+                "count": 50,
+                "median_ms": 4.405857,
+                "p95_ms": 4.658453,
+                "max_ms": 4.863065
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 4.38912,
+                "p95_ms": 4.642688,
+                "max_ms": 4.850592
+              }
+            },
+            "inputs": {
+              "wall": {
+                "count": 50,
+                "median_ms": 0.5282015,
+                "p95_ms": 0.552459,
+                "max_ms": 0.590347
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 0.525472,
+                "p95_ms": 0.540576,
+                "max_ms": 0.59104
+              }
+            },
+            "forward": {
+              "wall": {
+                "count": 50,
+                "median_ms": 3.254683,
+                "p95_ms": 3.445087,
+                "max_ms": 3.579745
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 3.24392,
+                "p95_ms": 3.448736,
+                "max_ms": 3.569952
+              }
+            },
+            "output_materialization": {
+              "wall": {
+                "count": 50,
+                "median_ms": 0.1326105,
+                "p95_ms": 0.144579,
+                "max_ms": 0.156323
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 0.135792,
+                "p95_ms": 0.147232,
+                "max_ms": 0.154112
+              }
+            },
+            "other_copy_tensor_checks": {
+              "wall": {
+                "count": 50,
+                "median_ms": 0.4977045,
+                "p95_ms": 0.510411,
+                "max_ms": 0.548394
+              },
+              "thread_cpu": {
+                "count": 50,
+                "median_ms": 0.48896,
+                "p95_ms": 0.501984,
+                "max_ms": 0.54144
+              }
+            }
+          }
+        }
+      },
+      "limitations": [
+        "hardware acquisition",
+        "raw-event workload",
+        "snapshot synthesis",
+        "state cloning/parity checks",
+        "file serialization",
+        "motor transmission"
+      ]
+    },
+    "postcheck": {
+      "same_boot": true,
+      "common_and_both_port_locks_reacquired": true,
+      "active_benchmark_processes": 0,
+      "serial_opened_by_postcheck": false,
+      "source_sha256": "353a8397b5bf69541f84f92d17a8e6f635c0d626fbf7f2bbcf32e37d0c31735f"
+    },
+    "next": "Integrate parallel IMU acquisition, one policy and bounded dispatch timing. Do not promote unverified Type2 velocity scale or historical calibration; no full20ms conclusion by adding separate measurements."
+  },
+  "integrated_input_inference_stop_proxy_r1": {
+    "scope": "Three independent single live cycles: parallel front/rear Type2 STOP feedback and I2C IMU, one native policy inference, then12 all-zero STOP proxy transmissions; no learned targets sent",
+    "status": "COMPLETE_MEASURED_ABOVE_20MS",
+    "model_hypothesis": {
+      "h": 0,
+      "command": [
+        0,
+        0,
+        0
+      ],
+      "measured_h": false,
+      "one_reset_before_one_live_tick": true,
+      "continuous_stateful_50hz": false
+    },
+    "allowed_can_types": [
+      0,
+      4
+    ],
+    "total_requests": 108,
+    "total_replies": 108,
+    "uid_replies": 36,
+    "type2_mode0_fault0": 72,
+    "output_allowed": false,
+    "learned_target_sent": false,
+    "motor_enable_sent": false,
+    "full_pipeline_20ms_verified": false,
+    "full_controller_50Hz_verified": false,
+    "calibration_verified": false,
+    "velocity_scale_verified": false,
+    "cpu_frequency_setting_changed": false,
+    "imu_temporarily_configured_and_restored": true,
+    "measurement_clock": "same live host monotonic clock; original request/read intervals retained",
+    "start": "earliest selected input request/read start; also report common release boundary",
+    "end": "last STOP host write return; conservative last STOP reply separately",
+    "host_write_is_not_can_wire_completion": true,
+    "sensor_internal_conversion_time_verified": false,
+    "model_warmup_and_uid_setup_excluded": true,
+    "disk_logging_outside_timed_cycle": true,
+    "manifest_sha256": "0dd9b224d6488f795f97b399e165949df52a01db1fdf05c9102fd464d6dbc65a",
+    "audit_source_sha256": "2565b98372b55ae58e33aa1ee07d01ef61d657ed27fbba997bc3518d5732d23b",
+    "audit_result_sha256": "da0450dbea358b10dfc316e8afd579ff3ad7da7797877e0d0ee2e975605ba9ab",
+    "native_model_sha256": "e87e9944aea8d7c6b8e32d144b8c6f4b37ac2c863c45353c9c228f8c9d0ea07f",
+    "summary": {
+      "acquisition_ms": {
+        "median_ms": 14.483432,
+        "max_ms": 14.658877
+      },
+      "snapshot_build_ms": {
+        "median_ms": 3.671049,
+        "max_ms": 3.803368
+      },
+      "observer_consume_ms": {
+        "median_ms": 9.641826,
+        "max_ms": 9.693425
+      },
+      "proxy_write_span_ms": {
+        "median_ms": 9.467449,
+        "max_ms": 10.054429
+      },
+      "total_to_last_host_write_ms": {
+        "median_ms": 37.779568,
+        "max_ms": 39.089153
+      },
+      "total_to_last_reply_ms": {
+        "median_ms": 40.415833,
+        "max_ms": 41.572135
+      }
+    },
+    "runs": [
+      {
+        "status": "PASS",
+        "run": "01",
+        "hashes": {
+          "report.json": "707f4d3b783acbcf03dd59d73ea11fc193d18637558bb655deadfa43b5b58130",
+          "front.jsonl": "a061acfea4090d09e8fa8026b3a82832f8f15420ceaedcd9024c5b39e0764285",
+          "rear.jsonl": "7da4a6b265bda4222b1995ccc4d9a8e8eb20657f49602e2ff2fd2f7392b7f908"
+        },
+        "canonical_tx": 36,
+        "canonical_rx": 36,
+        "type0_uid": 12,
+        "type4_allzero_stop": 24,
+        "type2_mode0_fault0": 24,
+        "global_uid_gate": true,
+        "policy_ticks": 1,
+        "exact_cycle1_source_provenance": true,
+        "source_times_preserved": true,
+        "all_threads_ports_locks_closed": true,
+        "imu_restored": true,
+        "metrics": {
+          "acquisition_ms": 14.658877,
+          "parallel_release_to_inputs_ms": 15.073117,
+          "input_coordination_ms": 0.371957,
+          "snapshot_build_ms": 3.660668,
+          "observer_consume_ms": 9.351501,
+          "inference_to_proxy_first_write_ms": 0.464787,
+          "proxy_write_span_ms": 8.531926,
+          "proxy_reply_span_ms": 11.342683,
+          "total_to_last_host_write_ms": 37.149169,
+          "total_to_last_reply_ms": 39.959926,
+          "release_to_last_host_write_ms": 37.563409,
+          "release_to_last_reply_ms": 40.374166
+        },
+        "per_bus_phase_timing": {
+          "front": {
+            "1": {
+              "write_span_ms": 10.845192,
+              "reply_span_ms": 13.616775
+            },
+            "2": {
+              "write_span_ms": 8.286399,
+              "reply_span_ms": 10.821232
+            }
+          },
+          "rear": {
+            "1": {
+              "write_span_ms": 11.08806,
+              "reply_span_ms": 13.62568
+            },
+            "2": {
+              "write_span_ms": 8.061214,
+              "reply_span_ms": 10.871971
+            }
+          }
+        },
+        "consume_profile_ms": {
+          "snapshot_copy": 0.537563,
+          "source_validation": 0.318944,
+          "input_conversion": 0.13476,
+          "provenance_serialization": 0.748175,
+          "tensor_conversion": 0.453799,
+          "model_call": 6.548719,
+          "output_conversion_validation": 0.424522,
+          "result_build": 0.03956
+        },
+        "proxy_host_write_under20ms": false,
+        "proxy_reply_under20ms": false
+      },
+      {
+        "status": "PASS",
+        "run": "02",
+        "hashes": {
+          "report.json": "92967b91e66f2424342a8760145dfcffcfb36d8355e799d38378adb5b2e321ac",
+          "front.jsonl": "d2a4f588ced4ffacf7cbcae6d2e714d33d1c825ad5c22b43014d83680dbf3e56",
+          "rear.jsonl": "b7fc8bc9dc27f499988fc945f949b73b54a2ef44191825269c37c9e810f116ef"
+        },
+        "canonical_tx": 36,
+        "canonical_rx": 36,
+        "type0_uid": 12,
+        "type4_allzero_stop": 24,
+        "type2_mode0_fault0": 24,
+        "global_uid_gate": true,
+        "policy_ticks": 1,
+        "exact_cycle1_source_provenance": true,
+        "source_times_preserved": true,
+        "all_threads_ports_locks_closed": true,
+        "imu_restored": true,
+        "metrics": {
+          "acquisition_ms": 14.483432,
+          "parallel_release_to_inputs_ms": 15.584561,
+          "input_coordination_ms": 0.473454,
+          "snapshot_build_ms": 3.671049,
+          "observer_consume_ms": 9.641826,
+          "inference_to_proxy_first_write_ms": 0.628283,
+          "proxy_write_span_ms": 10.054429,
+          "proxy_reply_span_ms": 12.537411,
+          "total_to_last_host_write_ms": 39.089153,
+          "total_to_last_reply_ms": 41.572135,
+          "release_to_last_host_write_ms": 40.190282,
+          "release_to_last_reply_ms": 42.673264
+        },
+        "per_bus_phase_timing": {
+          "front": {
+            "1": {
+              "write_span_ms": 11.846388,
+              "reply_span_ms": 14.483432
+            },
+            "2": {
+              "write_span_ms": 7.398883,
+              "reply_span_ms": 9.80309
+            }
+          },
+          "rear": {
+            "1": {
+              "write_span_ms": 10.974416,
+              "reply_span_ms": 13.467353
+            },
+            "2": {
+              "write_span_ms": 9.822039,
+              "reply_span_ms": 12.305021
+            }
+          }
+        },
+        "consume_profile_ms": {
+          "snapshot_copy": 0.546563,
+          "source_validation": 0.324801,
+          "input_conversion": 0.13268,
+          "provenance_serialization": 0.739933,
+          "tensor_conversion": 0.450983,
+          "model_call": 6.881608,
+          "output_conversion_validation": 0.379794,
+          "result_build": 0.038891
+        },
+        "proxy_host_write_under20ms": false,
+        "proxy_reply_under20ms": false
+      },
+      {
+        "status": "PASS",
+        "run": "03",
+        "hashes": {
+          "report.json": "89505b85b0f10d0a17ea73941b3ae9f1c0366de1e193bb1c6afd2722e563fb5d",
+          "front.jsonl": "799fd5673ceb7d28c9ac19ed4903f438136ac4908e0b945a9db4f43fed5a8a2e",
+          "rear.jsonl": "2b34b31c20351660d5f6d5e991c63a7c1e4bf851aebf0c22d6cd267e5d238d2f"
+        },
+        "canonical_tx": 36,
+        "canonical_rx": 36,
+        "type0_uid": 12,
+        "type4_allzero_stop": 24,
+        "type2_mode0_fault0": 24,
+        "global_uid_gate": true,
+        "policy_ticks": 1,
+        "exact_cycle1_source_provenance": true,
+        "source_times_preserved": true,
+        "all_threads_ports_locks_closed": true,
+        "imu_restored": true,
+        "metrics": {
+          "acquisition_ms": 14.004214,
+          "parallel_release_to_inputs_ms": 15.156497,
+          "input_coordination_ms": 0.417447,
+          "snapshot_build_ms": 3.803368,
+          "observer_consume_ms": 9.693425,
+          "inference_to_proxy_first_write_ms": 0.325361,
+          "proxy_write_span_ms": 9.467449,
+          "proxy_reply_span_ms": 12.103714,
+          "total_to_last_host_write_ms": 37.779568,
+          "total_to_last_reply_ms": 40.415833,
+          "release_to_last_host_write_ms": 38.931851,
+          "release_to_last_reply_ms": 41.568116
+        },
+        "per_bus_phase_timing": {
+          "front": {
+            "1": {
+              "write_span_ms": 11.385137,
+              "reply_span_ms": 13.948136
+            },
+            "2": {
+              "write_span_ms": 9.467449,
+              "reply_span_ms": 12.103714
+            }
+          },
+          "rear": {
+            "1": {
+              "write_span_ms": 9.738941,
+              "reply_span_ms": 12.460314
+            },
+            "2": {
+              "write_span_ms": 8.469123,
+              "reply_span_ms": 10.737458
+            }
+          }
+        },
+        "consume_profile_ms": {
+          "snapshot_copy": 0.538949,
+          "source_validation": 0.325264,
+          "input_conversion": 0.131008,
+          "provenance_serialization": 0.733717,
+          "tensor_conversion": 0.476469,
+          "model_call": 6.921767,
+          "output_conversion_validation": 0.37923,
+          "result_build": 0.038217
+        },
+        "proxy_host_write_under20ms": false,
+        "proxy_reply_under20ms": false
+      }
+    ],
+    "tests": {
+      "mac_pass": 16,
+      "jetson_pass": 15,
+      "jetson_skipped_private_saved_log_fixture": 1
+    },
+    "cleanup": {
+      "all_threads_joined": true,
+      "ports_closed": true,
+      "common_port_and_imu_locks_reacquired": true,
+      "imu_restored": true,
+      "same_boot": true,
+      "active_collection_processes": 0,
+      "postcheck_sha256": "99952fb4be02023b90a93be6887e20dd1b941dd8ffe3488502dcd4be23d9e102"
+    },
+    "limitations": [
+      "STOP proxy is not actual learned-target transport",
+      "Not continuous50Hz;3single cycles only",
+      "Candidate calibration/raw-angle continuity and Type2 velocity remain unverified",
+      "No sensor internal sample-time measurement",
+      "Does not establish worst-case latency bounds"
+    ]
+  }
+}

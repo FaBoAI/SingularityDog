@@ -1,4 +1,4 @@
-"""Operator-moved FR position/velocity observations. No motor commands exist.
+"""Operator-moved selected-leg position/velocity observations. No motor commands exist.
 
 This records one joint at a time through Type0/17 only. It is not a zero/sign
 calibration, a stationary gate, or permission to enable a motor.
@@ -18,7 +18,9 @@ import time
 
 from .can_readonly import ReadOnlyCAN
 
-IDS = (1, 2, 3)
+LEGS = {"FR": ("右前脚", (1, 2, 3)), "FL": ("左前脚", (4, 5, 6)),
+        "RR": ("右後脚", (7, 8, 9)), "RL": ("左後脚", (10, 11, 12))}
+IDS = LEGS["FR"][1]  # Preserve the original default for existing callers.
 NAMES = ("足先側", "中央（上脚）", "付け根")
 
 
@@ -55,9 +57,10 @@ def check_feedback_event(event):
         raise RuntimeError('Received enabled or fault feedback during manual observation')
 
 
-def collect(can, mid, seconds, phase, emit, check, *, clock=time.monotonic, wait=time.sleep):
-    if mid not in IDS or seconds not in (3, 8) or phase not in ('before', 'moving', 'released'):
-        raise ValueError("Only fixed FR manual observation windows are available")
+def collect(can, mid, seconds, phase, emit, check, *, leg="FR", clock=time.monotonic, wait=time.sleep):
+    if (leg not in LEGS or type(mid) is not int or mid not in LEGS[leg][1]
+            or seconds not in (3, 8) or phase not in ('before', 'moving', 'released')):
+        raise ValueError("Only fixed selected-leg manual observation windows are available")
     start, rows, next_poll = clock(), [], clock()
     # A monotonic deadline and independent iteration limit both bound the session.
     for _ in range(int(seconds * 50)):
@@ -142,11 +145,16 @@ def main(argv=None):
     ap.add_argument('--execute-readonly', action='store_true')
     ap.add_argument('--expected-uids', type=Path, required=True)
     ap.add_argument('--output', type=Path, required=True)
-    ap.add_argument('--motor-id', type=int, choices=IDS,
-                    help='Record only one FR joint; previous sessions are not merged or approved')
+    ap.add_argument('--leg', choices=LEGS, default='FR', help='Observe one fixed leg; default FR')
+    ap.add_argument('--motor-id', type=int,
+                    help='Record only one joint in the selected leg; previous sessions are not merged or approved')
     args = ap.parse_args(argv)
-    selected = (args.motor_id,) if args.motor_id is not None else IDS
-    plan = {'ids': list(selected), 'before_seconds_per_joint': 3, 'moving_seconds_per_joint': 8,
+    label, leg_ids = LEGS[args.leg]
+    if args.motor_id is not None and args.motor_id not in leg_ids:
+        ap.error('--motor-id must belong to the selected leg')
+    selected = (args.motor_id,) if args.motor_id is not None else leg_ids
+    plan = {'leg': args.leg, 'ids': list(selected), 'identity_check_ids': list(leg_ids),
+            'before_seconds_per_joint': 3, 'moving_seconds_per_joint': 8,
             'released_seconds_per_joint': 3, 'allowed_can_types': [0, 17],
             'motor_output_available': False, 'calibration_applied': False}
     if not args.execute_readonly:
@@ -190,27 +198,27 @@ def main(argv=None):
                 log.write(json.dumps({'wall_time_ns': time.time_ns(), **event}, allow_nan=False)+'\n')
                 check_feedback_event(event)
             emit({'kind':'manual_motion_plan', **plan})
-            print('右前脚だけを手で確認します。自動駆動・原点変更は行いません。', flush=True)
+            print(f'{label}だけを手で確認します。自動駆動・原点変更は行いません。', flush=True)
             print('支持台上で脚が自由に動き、モーターが脱力していることを確認。別の駆動ツールは終了。', flush=True)
             print('抵抗や引っ掛かりがあれば無理に動かさず q / Ctrl+C。L字にする必要はありません。', flush=True)
             for mid in selected:
-                name = NAMES[mid-1]
-                enter(f'\nID{mid} 右前脚の{name}：手を離して Enter。3秒静止記録した後、合図で8秒手動往復 [Enterまたはy / 終了q]: ')
+                name = NAMES[leg_ids.index(mid)]
+                enter(f'\nID{mid} {label}の{name}：手を離して Enter。3秒静止記録した後、合図で8秒手動往復 [Enterまたはy / 終了q]: ')
                 with ReadOnlyCAN(event_sink=emit) as can:
-                    for i in IDS:
+                    for i in leg_ids:
                         check()
                         r = can.query(i)
                         if not r.get('ok') or r.get('mcu_uid_hex') != expected[str(i)]:
                             raise RuntimeError(f'ID{i} identity mismatch')
                         numeric_query(can, i, 'current', check)
                     print('最初の3秒：手を離したままお待ちください。', flush=True)
-                    before = collect(can, mid, 3, 'before', emit, check)
+                    before = collect(can, mid, 3, 'before', emit, check, leg=args.leg)
                     print('記録開始：指定した関節を手で5〜10°程度、ゆっくり往復してください（8秒）', flush=True)
-                    moving = collect(can, mid, 8, 'moving', emit, check)
+                    moving = collect(can, mid, 8, 'moving', emit, check, leg=args.leg)
                     print('動作記録完了。手を離し、自然に落ち着くまで待ってください。', flush=True)
                     observed = confirm_observed_motion(mid, check)
                     enter('手を離して完全に落ち着いたら Enter。3秒間静止記録します [Enterまたはy / 終了q]: ')
-                    released = collect(can, mid, 3, 'released', emit, check)
+                    released = collect(can, mid, 3, 'released', emit, check, leg=args.leg)
                     if can.parser.discarded_bytes or can.parser.buffer:
                         raise RuntimeError('Incomplete/discarded CAN data')
                 entry = {'operator_observed_motion': observed,

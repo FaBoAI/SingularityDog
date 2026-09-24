@@ -1,0 +1,258 @@
+{
+  "schema": "singularitydog.dual-can-verification.v1",
+  "date": "2026-09-23",
+  "mode": "dual_bus_readonly_checks_and_supported_selected_leg_trials",
+  "bus_ids": {
+    "front": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "rear": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ]
+  },
+  "identity_matches": 12,
+  "inventory_requests": 60,
+  "inventory_replies": 60,
+  "uart_baudrate": 921600,
+  "can_bitrate_verified": false,
+  "duplicate_usb_by_id_detected": true,
+  "binding": "distinct USB physical paths plus motor UID verification",
+  "private_inventory_audit_sha256": "138c4fadcb34a9f5542c7a4d2b4449632892155f1889f995a994d54baa7d402a",
+  "motor_output_sent": true,
+  "policy_inference_calls": 0,
+  "full_controller_50Hz_verified": false,
+  "standing_verified": false,
+  "walking_verified": false,
+  "parallel_timing_trials": [
+    {
+      "status": "COMPLETE_DUAL_CAN_BENCHMARK_NO_OUTPUT",
+      "profile": "r1_line_buffered_log",
+      "cycles_per_bus": 20,
+      "requests": 492,
+      "replies": 492,
+      "front_cycle_ms": {
+        "count": 20,
+        "min": 25.040973,
+        "median": 27.373094000000002,
+        "mean": 27.103672949999996,
+        "p95": 28.3397,
+        "max": 28.627805
+      },
+      "rear_cycle_ms": {
+        "count": 20,
+        "min": 24.832967,
+        "median": 27.75781,
+        "mean": 27.51279305,
+        "p95": 29.103405,
+        "max": 29.430678
+      },
+      "combined_same_number_cycle_span_ms": {
+        "count": 20,
+        "min": 25.545437,
+        "median": 31.249102999999998,
+        "mean": 31.0029211,
+        "p95": 33.778942,
+        "max": 34.412978
+      },
+      "cycles_start_synchronized": false,
+      "includes_bus_start_skew": true,
+      "common_lock_released": true,
+      "producer_threads_exited": true,
+      "source_sha256": {
+        "dual_can_pipeline_benchmark.py": "84c051a8a72d9072741e34c43175ccdcc84efc5ac6599513db195a1b8425865a",
+        "can_pipeline_probe.py": "5868fee5518c2c7dc6b21f56ae533afa0148d6dd87ab3eab476d81d7d02b4566",
+        "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+        "can_timing_probe.py": "be285ae75fc4e5271fceb696bfc6f4590e8b23f54b25380747eb92fe58930a0a",
+        "sensor_pipeline_benchmark.py": "e7fde259aada55a69b65ae87381785166ee5ecad71e05919af3089a117c81e00"
+      },
+      "events_sha256": {
+        "front": "79b345ee249bf7e6facfcb366107a099bd294fa49825ca9c883c9c05bf1dcb8b",
+        "rear": "9d870e4d291cef3686b397b00467c623ddb1346904e309c6e319507757076044"
+      },
+      "summary_sha256": "a3149a99bf9e7cc1104a53148492e6566828d92559c129b5d9ee0b2908b49ea2",
+      "imu_included": false,
+      "inference_included": false,
+      "motor_output_included": false,
+      "twenty_ms_achieved": false,
+      "independent_raw_audit_sha256": "9652a2fa3fb2fb5b83d07724819b4da6c53a4a9aa8b7cf32aba666fb40519c98",
+      "independent_raw_audit": "PASS",
+      "cycles_with_combined_span_at_most_20ms": 0
+    },
+    {
+      "status": "COMPLETE_DUAL_CAN_BENCHMARK_NO_OUTPUT",
+      "profile": "r2_buffered_log",
+      "cycles_per_bus": 20,
+      "requests": 492,
+      "replies": 492,
+      "front_cycle_ms": {
+        "count": 20,
+        "min": 19.2181,
+        "median": 23.8213155,
+        "mean": 23.5961146,
+        "p95": 26.557016,
+        "max": 27.198572
+      },
+      "rear_cycle_ms": {
+        "count": 20,
+        "min": 19.328312,
+        "median": 24.597771,
+        "mean": 24.0440757,
+        "p95": 26.244942,
+        "max": 28.047463
+      },
+      "combined_same_number_cycle_span_ms": {
+        "count": 20,
+        "min": 19.512733,
+        "median": 29.7442185,
+        "mean": 28.666095849999998,
+        "p95": 36.637777,
+        "max": 36.800822
+      },
+      "cycles_start_synchronized": false,
+      "includes_bus_start_skew": true,
+      "cycles_with_combined_span_at_most_20ms": 1,
+      "common_lock_released": true,
+      "producer_threads_exited": true,
+      "source_sha256": {
+        "dual_can_pipeline_benchmark.py": "2bb3bc9181e1c87fa963c3f9bf8ef8149401bf91c8fa2cce158140edf2fb57c7",
+        "can_pipeline_probe.py": "5868fee5518c2c7dc6b21f56ae533afa0148d6dd87ab3eab476d81d7d02b4566",
+        "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+        "can_timing_probe.py": "be285ae75fc4e5271fceb696bfc6f4590e8b23f54b25380747eb92fe58930a0a",
+        "sensor_pipeline_benchmark.py": "e7fde259aada55a69b65ae87381785166ee5ecad71e05919af3089a117c81e00"
+      },
+      "events_sha256": {
+        "front": "bc5da98ea40822d880790d387bd4fbc7c9badcc9d0c02e0e38949db37c4ce576",
+        "rear": "732fcfec9a1611ffefc5c76421665692101bfd6302591c30f70ea509887c5b96"
+      },
+      "summary_sha256": "313ea1a965e3f2d0d9f527fa654b8377de359491e69490aa711fd5d7b90c167f",
+      "events_flush_confirmed": {
+        "front": true,
+        "rear": true
+      },
+      "imu_included": false,
+      "inference_included": false,
+      "motor_output_included": false,
+      "twenty_ms_achieved": false,
+      "independent_raw_audit": "PASS",
+      "independent_raw_audit_sha256": "af4e059adf26db91d0c0c24c8dc6923fdea568506e57ff68633ffb70105f58f7"
+    }
+  ],
+  "current_state": "FL and RR supported bounded relative trials completed and stopped; operator reports no abnormalities; not standing/walking",
+  "after_charge_inventory": {
+    "status": "COMPLETE_DUAL_BUS_READONLY_INVENTORY",
+    "identity_matches": 12,
+    "requests": 60,
+    "replies": 60,
+    "voltage_min_V": 37.054195404052734,
+    "voltage_max_V": 38.3875846862793,
+    "all_currents_A": 0.0,
+    "all_axes_meet_35_to_43V": true,
+    "summary_sha256": "9c6efd0d44d51192483a2c100a822ad03bd3769c268867d340c0076321a66a7a"
+  },
+  "actuation_tests": [
+    {
+      "leg": "FL",
+      "bus": "front",
+      "motor_ids": [
+        4,
+        5,
+        6
+      ],
+      "command_final_offset_deg": {
+        "4": -5.0,
+        "5": -5.0,
+        "6": -5.0
+      },
+      "final_observed_delta_deg": {
+        "4": -4.434159201480721,
+        "5": -1.4220833880752324,
+        "6": -0.6621577039870412
+      },
+      "trajectory_duration_s": 5,
+      "nominal_control_cycle_ms": 50,
+      "status": "MOTION_FINISHED_RESET_CONFIRMED_DUAL_BUS_PRE_POST",
+      "motion_completed": true,
+      "stop_confirmed": true,
+      "all_three_stops_mode0_fault0": true,
+      "operator_observation": "no_abnormal_noise_catching_or_unexpected_motion",
+      "preflight_sweeps": 10,
+      "postflight_sweeps": 5,
+      "preflight_read_requests": 492,
+      "postflight_read_requests": 252,
+      "all12_quiet_checks_passed": true,
+      "port_closed": true,
+      "locks_released": true,
+      "events_flush_confirmed": true,
+      "events_sha256": "78eb1ab74e5b251038ee42deb056a889b4d52c30c3b1098f3831df8074c2c47d",
+      "summary_sha256": "5137e771e52c3301327d86c9637ef0016d5aacad2075473341066cff15e9ec7f",
+      "wrapper_sha256": "40d9bac30f472caba73465d9d6bc900ff6e457b80215b7c66925ae7286fc52bc",
+      "runtime_approved": false,
+      "independent_raw_audit": "PASS",
+      "independent_raw_audit_sha256": "08080ddfbd1c25fe0a528ee0cba72c27f667697c1ffd530d0bea6b33d346cc32",
+      "independent_raw_audit_matched_requests": 1155,
+      "independent_raw_audit_matched_replies": 1155
+    },
+    {
+      "leg": "RR",
+      "bus": "rear",
+      "motor_ids": [
+        7,
+        8,
+        9
+      ],
+      "command_final_offset_deg": {
+        "7": 5.0,
+        "8": 5.0,
+        "9": -5.0
+      },
+      "final_observed_delta_deg": {
+        "7": 4.631989099809846,
+        "8": 4.250108653362783,
+        "9": -4.633055691644907
+      },
+      "trajectory_duration_s": 5,
+      "nominal_control_cycle_ms": 50,
+      "status": "MOTION_FINISHED_RESET_CONFIRMED_DUAL_BUS_PRE_POST",
+      "motion_completed": true,
+      "stop_confirmed": true,
+      "all_three_stops_mode0_fault0": true,
+      "operator_observation": "no_abnormal_noise_catching_or_unexpected_motion",
+      "preflight_sweeps": 10,
+      "postflight_sweeps": 5,
+      "preflight_read_requests": 492,
+      "postflight_read_requests": 252,
+      "all12_quiet_checks_passed": true,
+      "port_closed": true,
+      "locks_released": true,
+      "events_flush_confirmed": true,
+      "events_sha256": "3401f71d8d41fb330c2681354dc8e479fd663eefc9ea0406309a2a90827dc613",
+      "summary_sha256": "e328e9f5a57979e5751c27435096ccfdfa6e2c5a0822b95087aaf76e92c91459",
+      "wrapper_sha256": "40d9bac30f472caba73465d9d6bc900ff6e457b80215b7c66925ae7286fc52bc",
+      "runtime_approved": false,
+      "independent_raw_audit": "PASS",
+      "independent_raw_audit_sha256": "11c6090ca117983737d35f7719d792261a44fa7d776707e75c1932fa28f8040c",
+      "independent_raw_audit_matched_requests": 1155,
+      "independent_raw_audit_matched_replies": 1155
+    }
+  ],
+  "initial_inventory_all_currents_A": 0.0,
+  "initial_inventory_voltage_min_V": 34.73830795288086,
+  "initial_inventory_voltage_max_V": 36.00151824951172,
+  "initial_inventory_below_powered_trial_minimum": [
+    {
+      "motor_id": 2,
+      "voltage_V": 34.73830795288086,
+      "minimum_V": 35.0
+    }
+  ]
+}

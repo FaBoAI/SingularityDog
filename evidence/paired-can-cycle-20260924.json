@@ -1,0 +1,107 @@
+{
+  "schema": "singularitydog.paired-can-readonly-results.v1",
+  "date": "2026-09-24",
+  "conditions": "baseline then paired; one finite 20-cycle run each; same source and boot",
+  "independent_raw_audit": "PASS",
+  "audit_sha256": "6127bf91cb0c7de63aec0cf5ec9926c08130e7ea67bae4beec6dd8df89bf846c",
+  "source_sha256": {
+    "dual_can_pipeline_benchmark.py": "40b208116d1671419261cff5b0b9e2a8fad591ed71bbb776af4613784e5280bd"
+  },
+  "runtime_approved": false,
+  "motor_output_sent": false,
+  "can_bitrate_verified": false,
+  "imu_accessed": false,
+  "inference_calls": 0,
+  "full_controller_50Hz_verified": false,
+  "runs": {
+    "baseline": {
+      "requests": 492,
+      "replies": 492,
+      "tx_types": {
+        "0": 12,
+        "17": 480
+      },
+      "cycles": 20,
+      "acquisition_span_ms": {
+        "count": 20,
+        "min": 18.593311,
+        "median": 31.55892,
+        "mean": 30.613092549999998,
+        "p95": 36.031238,
+        "max": 36.032102
+      },
+      "acquisition_within20ms_cycles": 1,
+      "bus_start_skew_median_ms": 8.342056,
+      "request_start_interval_median_ms": 23.503846,
+      "front_acquisition_median_ms": 23.0395895,
+      "rear_acquisition_median_ms": 22.800123499999998,
+      "all_devices_closed": true,
+      "common_lock_released": true
+    },
+    "paired": {
+      "requests": 492,
+      "replies": 492,
+      "tx_types": {
+        "0": 12,
+        "17": 480
+      },
+      "cycles": 20,
+      "acquisition_span_ms": {
+        "count": 20,
+        "min": 15.995427,
+        "median": 24.338546,
+        "mean": 22.93054695,
+        "p95": 24.983567,
+        "max": 26.631995
+      },
+      "acquisition_within20ms_cycles": 4,
+      "bus_start_skew_median_ms": 0.3076085,
+      "request_start_interval_median_ms": 25.052693,
+      "front_acquisition_median_ms": 23.375685500000003,
+      "rear_acquisition_median_ms": 23.697948500000003,
+      "all_devices_closed": true,
+      "common_lock_released": true,
+      "gate_timing_ms": {
+        "front_gate_wait_ms": {
+          "count": 20,
+          "min": 0.025106,
+          "median": 0.698616,
+          "mean": 0.71004735,
+          "p95": 1.77312,
+          "max": 1.893523
+        },
+        "rear_gate_wait_ms": {
+          "count": 20,
+          "min": 0.022465,
+          "median": 0.070981,
+          "mean": 0.43680544999999993,
+          "p95": 1.375653,
+          "max": 2.354824
+        },
+        "gate_arrival_to_latest_reply_ms": {
+          "count": 20,
+          "min": 17.039065,
+          "median": 25.4879995,
+          "mean": 24.11848865,
+          "p95": 27.375401,
+          "max": 27.897086
+        },
+        "paired_request_start_interval_ms": {
+          "count": 19,
+          "min": 16.42799,
+          "median": 25.052693,
+          "mean": 23.612226210526316,
+          "p95": 27.395454,
+          "max": 27.395454
+        }
+      }
+    }
+  },
+  "limits": [
+    "One short run per condition; no long-run tail guarantee",
+    "Original acquisition span is distinct from cycle period and gate waiting",
+    "No mode/current/voltage query; disabled mode not established by this benchmark",
+    "Same-key late reply from an earlier cycle is not uniquely disambiguated",
+    "CAN baudrate unchanged/unverified; UART 921600 is not CAN bitrate proof"
+  ]
+}

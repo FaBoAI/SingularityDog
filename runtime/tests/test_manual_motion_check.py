@@ -8,6 +8,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from singularitydog_hw import manual_motion_check as module
 from singularitydog_hw.manual_motion_check import collect, identities, main, metrics, numeric_query, check_feedback_event, confirm_observed_motion, wait_for_ready
 
 
@@ -50,12 +51,100 @@ class ManualMotionTests(unittest.TestCase):
             self.assertEqual(main(['--motor-id','3','--expected-uids','missing','--output','unused']),0)
             plan=json.loads(output.getvalue())
             self.assertEqual(plan['ids'],[3])
+            self.assertEqual(plan['leg'],'FR')
+            self.assertEqual(plan['identity_check_ids'],[1,2,3])
             self.assertFalse(plan['motor_output_available'])
             can.assert_not_called()
     def test_selection_cannot_expand_to_other_legs(self):
         for value in ('0','4','all','1,2'):
             with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
                 main(['--motor-id',value,'--expected-uids','missing','--output','unused'])
+    def test_leg_selection_plan_and_single_joint_scope(self):
+        for leg, ids in [('FR',[1,2,3]),('FL',[4,5,6]),('RR',[7,8,9]),('RL',[10,11,12])]:
+            for single in (None,ids[-1]):
+                argv=['--leg',leg,'--expected-uids','missing','--output','unused']
+                if single is not None: argv += ['--motor-id',str(single)]
+                with patch.object(module,'ReadOnlyCAN') as can, contextlib.redirect_stdout(io.StringIO()) as output:
+                    self.assertEqual(main(argv),0)
+                plan=json.loads(output.getvalue())
+                self.assertEqual(plan['ids'],ids if single is None else [single])
+                self.assertEqual(plan['identity_check_ids'],ids)
+                self.assertEqual(plan['allowed_can_types'],[0,17])
+                self.assertEqual([plan[k] for k in ('before_seconds_per_joint','moving_seconds_per_joint','released_seconds_per_joint')],[3,8,3])
+                can.assert_not_called()
+        for leg, mid in [('FL','1'),('FL','7'),('RR','6'),('RL','9'),('FR','4')]:
+            with patch.object(module,'ReadOnlyCAN') as can, contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                main(['--leg',leg,'--motor-id',mid,'--expected-uids','missing','--output','unused'])
+            can.assert_not_called()
+
+    def execute_fl_fixture(self, *, single=True, bad_uid=None, bad_current=None, changed_boot=False):
+        clock=FakeTime(); calls=[]; ports=[]; refs={str(i):f'{i:016x}' for i in range(1,13)}
+        class ObservationCAN:
+            def __init__(self,event_sink):
+                self.parser=SimpleNamespace(discarded_bytes=0,buffer=b''); self.closed=False
+                ports.append(self)
+            def __enter__(self): return self
+            def __exit__(self,*_): self.closed=True
+            def query(self,mid,param=None):
+                calls.append((mid,param)); clock.t += .001
+                if param is None:
+                    return {'ok':True,'mcu_uid_hex':'f'*16 if mid==bad_uid else refs[str(mid)]}
+                value=.02*clock.t if param=='position' else .06 if param=='current' and mid==bad_current else 0.
+                return {'ok':True,'value':value,'monotonic_ns':int(clock.t*1e9)}
+        def fake_read(path,*args,**kwargs):
+            if str(path)=='/proc/sys/kernel/random/boot_id':
+                return 'new-boot' if changed_boot and len(calls)>=6 else 'original-boot'
+            return original_read(path,*args,**kwargs)
+        def fast_collect(*args,**kwargs):
+            return collect(*args,**kwargs,clock=clock.now,wait=clock.sleep)
+        original_read=Path.read_text
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp); uids=root/'uids.json'; uids.write_text(json.dumps(refs)); out=root/'capture'
+            argv=['--execute-readonly','--leg','FL','--expected-uids',str(uids),'--output',str(out)]
+            if single: argv += ['--motor-id','6']
+            with patch.object(module,'ReadOnlyCAN',ObservationCAN), patch.object(module,'collect',side_effect=fast_collect), \
+                 patch.object(module,'fresh_input',return_value='y'), patch('sys.stdin.isatty',return_value=True), \
+                 patch.object(Path,'home',return_value=root), patch.object(Path,'read_text',fake_read), \
+                 patch.object(module.fcntl,'flock',wraps=module.fcntl.flock) as locks, \
+                 contextlib.redirect_stdout(io.StringIO()) as printed:
+                rc=main(argv)
+            summary=json.loads((out/'summary.json').read_text())
+            events=[json.loads(line) for line in (out/'events.jsonl').read_text().splitlines()]
+            lock_names=[Path(c.args[0].name).name for c in locks.call_args_list]
+        self.assertTrue(all(p.closed for p in ports))
+        self.assertEqual(lock_names,['manual-calibration.lock','can-readonly.lock'])
+        return rc,summary,events,calls,printed.getvalue()
+
+    def test_fl_execution_checks_all_three_identities_currents_then_selected_windows(self):
+        for single in (True,False):
+            with self.subTest(single=single):
+                rc,summary,events,calls,printed=self.execute_fl_fixture(single=single)
+                self.assertEqual(rc,0)
+                self.assertEqual(summary['status'],'RECORDED_REVIEW_REQUIRED')
+                self.assertFalse(summary['approved_for_runtime'])
+                self.assertEqual(set(summary['joints']),{'6'} if single else {'4','5','6'})
+                checks=[(mid,param) for mid in (4,5,6) for param in (None,'current')]
+                self.assertEqual(calls[:6],checks)
+                self.assertEqual(sum(param is None for _,param in calls),3 if single else 9)
+                self.assertTrue(all(mid in (4,5,6) and param in (None,'position','velocity','current') for mid,param in calls))
+                samples=[r for r in events if r['kind']=='manual_motion_sample']
+                self.assertEqual({r['motor_id'] for r in samples},{6} if single else {4,5,6})
+                self.assertEqual({r['phase'] for r in samples},{'before','moving','released'})
+                self.assertIn('左前脚',printed); self.assertNotIn('右前脚',printed)
+                for entry in summary['joints'].values():
+                    for phase in ('before','moving','released'):
+                        self.assertIsNone(entry[phase]['stationarity_pass'])
+                        self.assertFalse(entry[phase]['approved_for_runtime'])
+
+    def test_fl_wrong_sibling_identity_current_or_boot_aborts_before_observation(self):
+        for failure in ({'bad_uid':4},{'bad_current':5},{'changed_boot':True}):
+            with self.subTest(failure=failure):
+                rc,summary,events,calls,_=self.execute_fl_fixture(**failure)
+                self.assertEqual(rc,1); self.assertEqual(summary['status'],'INCOMPLETE')
+                self.assertEqual(summary['joints'],{})
+                self.assertTrue(summary['errors'])
+                self.assertFalse(any(param in ('position','velocity') for _,param in calls))
+                self.assertFalse(any(r['kind']=='manual_motion_sample' for r in events))
     def test_blank_and_invalid_answers_retry_without_any_can_read(self):
         with patch('singularitydog_hw.manual_motion_check.fresh_input',side_effect=['','maybe','y']) as prompt, \
              patch('singularitydog_hw.manual_motion_check.ReadOnlyCAN') as can, \
@@ -139,6 +228,9 @@ class ManualMotionTests(unittest.TestCase):
         for mid, seconds, phase in [(4,3,'released'),(1,60,'released'),(1,3,'active')]:
             with self.assertRaises(ValueError):
                 collect(None,mid,seconds,phase,None,None)
+        for mid,leg in [(1,'FL'),(4,'FR'),(6,'RR'),(True,'FR'),(1,'unknown')]:
+            with self.assertRaises(ValueError):
+                collect(None,mid,3,'before',None,None,leg=leg)
 
 
 if __name__=='__main__': unittest.main()

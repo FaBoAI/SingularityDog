@@ -20,6 +20,7 @@ from .can_readonly import ATParser, decode_reply, matches, read_request
 from .rs05_trial_protocol import (Type2Feedback, TrialPhase, decode_type2, enable_request,
     motion_request, stop_request, watchdog_setup_request)
 from .rs05_joint_trial import check_feedback, step5_jog_offset
+from .position_response_evidence import load_position_response_evidence
 
 LEGS = {"FR": (1, 2, 3), "FL": (4, 5, 6), "RR": (7, 8, 9), "RL": (10, 11, 12)}
 DURATION_S, ACTIVE_BUDGET_S, CYCLE_S = 5., 6., .05
@@ -72,11 +73,11 @@ def evaluate_settled_window(samples, centers, *, profile="legacy-rms-v1"):
     This deliberately changes the former instantaneous 0.05 rad/s test to a
     position/time/RMS conjunction. The instantaneous 0.5 rad/s guard remains.
     Both times are required so a delayed measurement cannot look stationary.
+    This pure calculation grants no motor permission. run_leg_trial separately
+    requires the UID-bound evidence file before any position-v2 transport call.
     """
     ids = selected_ids(centers)
     limits = profile_limits(profile)
-    if profile == "position-v2" and ids != LEGS["FR"]:
-        raise ValueError("Position-v2 is restricted to FR")
     report = {"passed": False, "sample_count_required": SETTLED_COUNT,
               "sample_period_s": SETTLED_PERIOD_S, "limits": limits, "profile": profile, "warnings": [],
               "errors": [], "motors": {}, "absolute_rest_proven": False,
@@ -364,30 +365,171 @@ class LegTrialTransport:
 
 
 def run_leg_trial(transport, expected_uids, check_interrupt, emit, *, directions,
-                  clock=time.monotonic, wait=time.sleep, profile="legacy-rms-v1"):
+                  clock=time.monotonic, wait=time.sleep, profile="legacy-rms-v1",
+                  position_response_evidence=None, position_response_evidence_sha256=None):
+    """Original relative5-degree trial; its default path and limits are unchanged."""
+    return _run_leg_trial(transport, expected_uids, check_interrupt, emit,
+        directions=directions, clock=clock, wait=wait, profile=profile,
+        position_response_evidence=position_response_evidence,
+        position_response_evidence_sha256=position_response_evidence_sha256)
+
+
+def run_bounded_pose_trial(transport, expected_uids, check_interrupt, emit, *, absolute_targets,
+                          clock=time.monotonic, wait=time.sleep, profile="position-v2",
+                          position_response_evidence=None, position_response_evidence_sha256=None,
+                          gain_profile="kp3", matched_start_positions=None,
+                          matched_start_tolerance_rad=math.radians(.5), observation_profile=None):
+    """Explicit absolute raw targets within5degrees; no CLI, wrapping or chaining.
+
+    This does not validate a stored L reference's identity/turn continuity or its
+    physical accuracy. The caller must establish those and existing physical
+    readiness. Success describes a finite diagnostic arrival/hold candidate;
+    stop still removes control, and never permits learned-policy deployment or a persistent hold.
+    kp4_diagnostic must be selected explicitly. Its0.5Nm Type2-feedback monitor
+    is a diagnostic abort threshold, not an actuator or physical torque cap.
+    Optional matched_start_positions compares all three fresh disabled raw centers
+    to an explicit fixed reference within the fixed0.5-degree candidate tolerance.
+    A mismatch rejects enable; it never moves the leg back to the reference.
+    rr_hip_kp6_diagnostic is a separate explicit position-v2-only RR diagnostic:
+    matched references are mandatory, ID7/8 targets must equal their references
+    at Kp4, and ID9 must target reference minus4degrees at Kp6. No other target,
+    leg, automatic gain change or CLI selection is permitted for that profile.
+    An additional explicit rr_settling_1s observation profile keeps that same
+    fixed experiment but permits observation of up to2-degree target error for
+    the nominal last1s, aborting if any axis worsens more than0.25degree from the
+    first complete hold batch. The strict1-degree arrival/hold evaluation stays
+    unchanged; observation completion is a distinct status, not target success.
+    """
+    from .bounded_pose_plan import normalize_absolute_targets
     ids = selected_ids(transport.ids)
+    leg = next(name for name in LEGS if LEGS[name] == ids)
+    targets = normalize_absolute_targets(leg, absolute_targets)
+    return _run_leg_trial(transport, expected_uids, check_interrupt, emit,
+        directions=(1, 1, 1), clock=clock, wait=wait, profile=profile,
+        position_response_evidence=position_response_evidence,
+        position_response_evidence_sha256=position_response_evidence_sha256,
+        absolute_targets=targets, gain_profile=gain_profile,
+        matched_start_positions=matched_start_positions,
+        matched_start_tolerance_rad=matched_start_tolerance_rad,
+        observation_profile=observation_profile)
+
+
+def _run_leg_trial(transport, expected_uids, check_interrupt, emit, *, directions,
+                   clock=time.monotonic, wait=time.sleep, profile="legacy-rms-v1",
+                   position_response_evidence=None, position_response_evidence_sha256=None,
+                   absolute_targets=None, gain_profile="kp3", matched_start_positions=None,
+                   matched_start_tolerance_rad=math.radians(.5), observation_profile=None):
+    if observation_profile is not None and (type(observation_profile) is not str
+                                            or observation_profile != "rr_settling_1s"):
+        raise ValueError("Observation profile must be None or explicit rr_settling_1s")
+    settling_observation = observation_profile == "rr_settling_1s"
+    if type(gain_profile) is not str or gain_profile not in ("kp3", "kp4_diagnostic", "rr_hip_kp6_diagnostic"):
+        raise ValueError("Explicit gain_profile must be kp3, kp4_diagnostic or rr_hip_kp6_diagnostic")
+    if absolute_targets is None and gain_profile != "kp3":
+        raise ValueError("Diagnostic gains are available only for explicit bounded absolute targets")
+    if absolute_targets is None and matched_start_positions is not None:
+        raise ValueError("Matched start requires explicit bounded absolute targets")
+    kp4 = gain_profile == "kp4_diagnostic"
+    rr_hip_kp6 = gain_profile == "rr_hip_kp6_diagnostic"
+    if settling_observation and not rr_hip_kp6:
+        raise ValueError("RR settling observation requires the fixed RR hip Kp6 diagnostic")
+    torque_monitor = kp4 or rr_hip_kp6
+    ids = selected_ids(transport.ids)
+    motion_phases = {i: TrialPhase.POSITION_STEP5_KP4 if torque_monitor else TrialPhase.POSITION_STEP5 for i in ids}
+    pose = None
+    if absolute_targets is not None:
+        from . import bounded_pose_plan as pose
+        leg = next(name for name in LEGS if LEGS[name] == ids)
+        absolute_targets = pose.normalize_absolute_targets(leg, absolute_targets)
+        matched_start_tolerance_rad = pose.validate_matched_start_tolerance(matched_start_tolerance_rad)
+        if matched_start_positions is not None:
+            matched_start_positions = pose.normalize_matched_start_positions(leg, matched_start_positions)
+    if rr_hip_kp6:
+        # This profile is an explicit fixed-reference hip experiment, not a
+        # general Kp6 option. Reject scope/target changes before any transport I/O.
+        if ids != (7, 8, 9) or matched_start_positions is None or profile != "position-v2":
+            raise ValueError("RR hip Kp6 requires exact IDs7/8/9, matched references and position-v2 evidence")
+        required_targets = {7: matched_start_positions[7], 8: matched_start_positions[8],
+                            9: matched_start_positions[9] - math.radians(4)}
+        if absolute_targets != required_targets:
+            raise ValueError("RR hip Kp6 requires fixed ID7/8 references and ID9 reference minus4degrees; no recenter/wrap")
+        motion_phases[9] = TrialPhase.POSITION_STEP5_RR_HIP_KP6
     profile_limits(profile)
-    if profile == "position-v2" and ids != LEGS["FR"]:
-        raise ValueError("Position-v2 is restricted to FR")
     expected_uids = validated_uids(expected_uids, ids)
+    response_evidence = None
+    if profile == "position-v2":
+        if position_response_evidence is None:
+            raise ValueError("Position-v2 requires a position-response evidence file")
+        leg = next(name for name in LEGS if LEGS[name] == ids)
+        response_evidence = load_position_response_evidence(
+            position_response_evidence, expected_uids, leg=leg,
+            expected_sha256=position_response_evidence_sha256)
     directions = tuple(directions)
     if len(directions) != 3 or any(type(d) is not int or d not in (-1, 1) for d in directions):
         raise ValueError("Three explicit integer directions -1/+1 are required")
     signs = dict(zip(ids, directions))
     result = {"motor_ids": list(ids), "directions": list(directions), "errors": [],
+              "position_response_evidence": response_evidence,
               "stationarity_profile": profile, "motion_completed": False, "stop_confirmed": False, "joint_calibration_verified": False,
               "watchdog_physical_latency_verified": False, "watchdog_persisted": False, "motors": {}}
+    pose_plan, pose_start_ns, pose_end_ns, pose_hold_start = None, None, None, None
+    pose_requests, pose_samples = {}, []
+    settling_baseline = {}
+    if pose is not None:
+        gain_plan = {"gain_profile": gain_profile, "Kp": None if rr_hip_kp6 else (4. if kp4 else 3.), "Kd": .15,
+                     "torque_feedforward_nm": 0.,
+                     "max_abs_torque_feedback_candidate_nm": .5 if torque_monitor else None,
+                     "physical_torque_cap_verified": False,
+                     "torque_monitor_semantics": "declared-profile Type2 feedback diagnostic abort; not physical cap",
+                     "automatic_gain_increase": False}
+        if rr_hip_kp6:
+            gain_plan.update(Kp_by_motor={7: 4., 8: 4., 9: 6.},
+                             motion_phase_by_motor={i: motion_phases[i].value for i in ids})
+        if settling_observation:
+            gain_plan.update(observation_profile=observation_profile, observation_only=True,
+                max_abs_target_error_observation_rad=pose.SETTLING_MAX_ERROR_RAD,
+                max_abs_error_worsening_observation_rad=pose.SETTLING_MAX_WORSENING_RAD,
+                arrival_threshold_unchanged_rad=pose.ARRIVAL_ERROR_CANDIDATE_RAD)
+            result.update(settling_observation_completed=False, settling_observation_samples=pose_samples)
+        result.update(directions=None, absolute_targets_rad=absolute_targets, trajectory_elapsed=False,
+                      arrival_candidate_met=False, hold_candidate_met=False, **pose.FLAGS, **gain_plan,
+                      request_timestamp_semantics="conservative batch-start lower bound; not individual UART write time",
+                      timestamp_source="monotonic seconds rounded to integer nanoseconds")
+        if matched_start_positions is not None:
+            result.update(matched_start_positions_rad=dict(matched_start_positions),
+                          matched_start_tolerance_rad=matched_start_tolerance_rad,
+                          automatic_repositioning=False)
+    def ns(seconds):
+        return int(round(seconds * 1_000_000_000))
     identified, centers = [], {}
+    def torque_guard(torque, motor_id):
+        if torque_monitor and (type(torque) not in (float, int) or not math.isfinite(torque) or abs(torque) > .5):
+            raise RuntimeError(f"ID{motor_id} Type2 torque feedback exceeds0.5Nm diagnostic monitor or is nonfinite")
     def guard(value, received, motor_id, required_mode=2):
+        torque_guard(value.torque_nm, motor_id)
         check_feedback(value, centers[motor_id], received, clock(), required_mode=required_mode,
                        max_drift_rad=MAX_DRIFT_RAD)
+        if (pose is not None and pose_hold_start is not None and required_mode == 2
+                and received >= pose_hold_start):
+            target = absolute_targets[motor_id]
+            error = abs(value.protocol_position_rad-target)
+            if settling_observation:
+                if not target-pose.SETTLING_MAX_ERROR_RAD <= value.protocol_position_rad <= target+pose.SETTLING_MAX_ERROR_RAD:
+                    raise RuntimeError(f"ID{motor_id} target error exceeds2-degree observation limit")
+                if settling_baseline and error > settling_baseline[motor_id]+pose.SETTLING_MAX_WORSENING_RAD:
+                    raise RuntimeError(f"ID{motor_id} target error worsened over0.25-degree observation limit")
+            elif error > pose.ARRIVAL_ERROR_CANDIDATE_RAD:
+                raise RuntimeError(f"ID{motor_id} bounded pose target error exceeds1-degree candidate")
     def batch(wires, required_mode):
+        requested = clock() if pose is not None else None
         found = transport.feedback_many(wires, ids)
         if set(found) != set(ids):
             raise RuntimeError("Missing selected-leg feedback")
         transport.latest.update(found)
         for i, (value, received) in found.items():
             guard(value, received, i, required_mode)
+        if pose is not None:
+            pose_requests.update({i: requested for i in ids})
         return found
     def neutral(i):
         return motion_request(phase=TrialPhase.ZERO_GAIN, center_rad=centers[i], motor_id=i)
@@ -398,7 +540,7 @@ def run_leg_trial(transport, expected_uids, check_interrupt, emit, *, directions
         position, current, voltage = values
         if abs(current) > .05 or not 35 <= voltage <= 43:
             raise RuntimeError(f"ID{i} current/voltage outside trial envelope")
-        motion_request(phase=TrialPhase.POSITION_STEP5, center_rad=position, motor_id=i)
+        motion_request(phase=motion_phases[i], center_rad=position, motor_id=i)
         return position, current, voltage
     try:
         for i in ids:
@@ -409,6 +551,9 @@ def run_leg_trial(transport, expected_uids, check_interrupt, emit, *, directions
         initial = transport.stop_all(ids)
         if any(not initial[i]["confirmed"] for i in ids):
             raise RuntimeError("Initial all-leg reset/fault confirmation failed")
+        if torque_monitor:
+            for i in ids:
+                torque_guard(initial[i]["feedback"]["torque_nm"], i)
         for i in ids:
             if transport.parameter(i, "run_mode")["value"] != 0:
                 raise RuntimeError(f"ID{i} must already be in operation mode0")
@@ -417,10 +562,21 @@ def run_leg_trial(transport, expected_uids, check_interrupt, emit, *, directions
                 raise RuntimeError(f"ID{i} Type17/Type2 position mismatch; no wrap guessed")
             result["motors"][i] = {"center_rad": centers[i], "initial_current_A": current,
                 "initial_voltage_V": voltage, "target_final_offset_rad": signs[i] * math.radians(5)}
+            if rr_hip_kp6:
+                result["motors"][i].update(Kp=gain_plan["Kp_by_motor"][i], Kd=.15,
+                                          torque_feedforward_nm=0., motion_phase=motion_phases[i].value)
+            if pose is not None:
+                # Reject distant/ambiguous raw targets before watchdog setup,
+                # then repeat against the final fresh disabled references.
+                motion_request(phase=motion_phases[i], center_rad=centers[i],
+                    offset_rad=pose.bounded_offset(centers[i],absolute_targets[i]), motor_id=i)
         transport.feedback_guard = lambda v, t, i: guard(v, t, i, 0)
         batch([neutral(i) for i in ids], 0)
+        # Validate every selected motor's prior watchdog read before changing any
+        # setting. A rejected sibling read must leave all watchdogs untouched.
         for i in ids:
             result["motors"][i]["watchdog_previous_ticks"] = transport.parameter(i, "can_timeout")["value"]
+        for i in ids:
             transport.fresh_boundary()
             transport.send(watchdog_setup_request(phase=TrialPhase.WATCHDOG_SETUP, motor_id=i))
         wait(.015)
@@ -439,6 +595,7 @@ def run_leg_trial(transport, expected_uids, check_interrupt, emit, *, directions
         collection_error = None
         def settled_guard(value, received, motor_id):
             try:
+                torque_guard(value.torque_nm, motor_id)
                 check_feedback(value, centers[motor_id], received, clock(), required_mode=0,
                                max_drift_rad=SETTLED_LIMITS["maximum_center_drift_rad"])
             except Exception as error:
@@ -478,7 +635,37 @@ def run_leg_trial(transport, expected_uids, check_interrupt, emit, *, directions
                 if received != last["received_monotonic_s"] or asdict(value) != last["feedback"]:
                     raise RuntimeError(f"ID{i} feedback changed after fixed settled window; no resampling")
                 settled_guard(*transport.latest[i], i)
+                if pose is not None:
+                    checked = ns(clock())
+                    if not (0 <= checked-ns(pose_requests[i]) <= pose.MAX_AGE_NS
+                            and 0 <= checked-ns(received) <= pose.MAX_AGE_NS):
+                        raise RuntimeError(f"ID{i} bounded pose center request/receive aged before enable")
+            if pose_plan is not None and matched_start_positions is not None:
+                matched = pose.evaluate_matched_start(pose_plan, matched_start_positions,
+                    now_ns=ns(clock()), tolerance_rad=matched_start_tolerance_rad)
+                result["matched_start_check"] = matched
+                if not matched["passed"]:
+                    raise RuntimeError("Matched start rejected: " + "; ".join(matched["errors"]))
         guard_last_disabled()
+        if pose is not None:
+            pose_plan = pose.build_plan(leg,
+                {i: {"position_rad": transport.latest[i][0].protocol_position_rad,
+                     "request_ns": ns(pose_requests[i]), "received_ns": ns(transport.latest[i][1])} for i in ids},
+                absolute_targets, now_ns=ns(clock()))
+            for i, center in zip(ids, pose_plan.centers):
+                centers[i] = center.position_rad
+                offset = pose.bounded_offset(center.position_rad,absolute_targets[i])
+                # Validate the exact codec center/offset used later, before ANY
+                # enable. Do not mix old Type17 centers with fresh Type2 centers.
+                motion_request(phase=motion_phases[i], center_rad=center.position_rad,
+                               offset_rad=offset, motor_id=i)
+                result["motors"][i].update(center_rad=center.position_rad,
+                    target_final_offset_rad=offset)
+            result["bounded_pose_plan"] = {**pose_plan.as_dict(), **gain_plan}
+            if matched_start_positions is not None:
+                result["bounded_pose_plan"].update(matched_start_positions_rad=dict(matched_start_positions),
+                    matched_start_tolerance_rad=matched_start_tolerance_rad, automatic_repositioning=False)
+            guard_last_disabled()
         # No receives occur inside the enable/neutral write burst. Keep checking
         # the final disabled snapshots before EVERY enable, including after a
         # slow previous write/log operation, until all enabled replies arrive.
@@ -494,30 +681,81 @@ def run_leg_trial(transport, expected_uids, check_interrupt, emit, *, directions
                 guard(*transport.latest[i], i)
         transport.pre_send_guard = guard_all
         start = next_send = clock()
+        if pose is not None:
+            pose_start_ns = ns(start)
+            if any(pose_start_ns-c.request_ns > pose.MAX_AGE_NS for c in pose_plan.centers):
+                raise RuntimeError("Bounded pose centers aged before active trajectory; no nonzero command")
         peaks = {i: 0. for i in ids}
         while True:
             check_interrupt()
             now = clock()
             for i in ids:
                 guard(*transport.latest[i], i)
-            if now - start >= DURATION_S:
+            elapsed_ns = ns(now)-pose_start_ns if pose is not None else None
+            if now - start >= DURATION_S or (pose is not None and elapsed_ns >= pose.DURATION_NS):
                 break
             if now > next_send + .02:
                 raise RuntimeError("Control scheduling missed by over20ms")
-            offsets = {i: step5_jog_offset(now - start, signs[i]) for i in ids}
-            found = batch([motion_request(phase=TrialPhase.POSITION_STEP5, center_rad=centers[i],
+            if pose is None:
+                offsets = {i: step5_jog_offset(now - start, signs[i]) for i in ids}
+            else:
+                offsets = pose.offsets_at(pose_plan, elapsed_ns)
+                if elapsed_ns >= pose.RAMP_NS and pose_hold_start is None:
+                    pose_hold_start = now
+            found = batch([motion_request(phase=motion_phases[i], center_rad=centers[i],
                            offset_rad=offsets[i], motor_id=i) for i in ids], 2)
+            if pose is not None and pose_hold_start is not None:
+                pose_samples.append({"sample_index": len(pose_samples), "checked_ns": ns(clock()),
+                    "joints": {i: {"position_rad": value.protocol_position_rad,
+                                   "request_ns": ns(pose_requests[i]), "received_ns": ns(received)}
+                               for i, (value, received) in found.items()}})
+                if settling_observation and not settling_baseline:
+                    # Capture all3 first-hold values atomically, only after a
+                    # complete fresh batch requested in the actual hold interval.
+                    first = pose_samples[-1]
+                    for i, item in first['joints'].items():
+                        if not (pose_start_ns+pose.RAMP_NS <= item['request_ns'] < item['received_ns']
+                                <= first['checked_ns'] <= pose_start_ns+pose.DURATION_NS
+                                and first['checked_ns']-item['request_ns'] <= pose.MAX_AGE_NS):
+                            raise RuntimeError(f"ID{i} first settling batch has invalid or stale hold source")
+                    settling_baseline.update({i: abs(item['position_rad']-absolute_targets[i])
+                                              for i,item in first['joints'].items()})
+                    result['settling_first_hold_batch'] = {'checked_ns': first['checked_ns'],
+                        'joints': {i: dict(item) for i,item in first['joints'].items()},
+                        'abs_target_error_rad': dict(settling_baseline)}
             for i, (value, _) in found.items():
                 delta = value.protocol_position_rad - centers[i]
                 peaks[i] = max(peaks[i], abs(delta))
-                emit({"kind": "leg_trial_motion_sample", "motor_id": i, "elapsed_s": clock()-start,
+                motion_sample = {"kind": "leg_trial_motion_sample", "motor_id": i, "elapsed_s": clock()-start,
                       "target_offset_rad": offsets[i], "observed_offset_rad": delta,
-                      "velocity_rad_s": value.velocity_rad_s, "torque_feedback_nm": value.torque_nm})
+                      "velocity_rad_s": value.velocity_rad_s, "torque_feedback_nm": value.torque_nm}
+                if rr_hip_kp6:
+                    motion_sample.update(gain_profile=gain_profile, Kp=gain_plan["Kp_by_motor"][i],
+                                         Kd=.15, torque_feedforward_nm=0., motion_phase=motion_phases[i].value)
+                if settling_observation:
+                    motion_sample.update(observation_profile=observation_profile,
+                        final_target_error_rad=value.protocol_position_rad-absolute_targets[i],
+                        first_hold_abs_error_rad=settling_baseline.get(i))
+                emit(motion_sample)
             next_send += CYCLE_S
             if clock() > next_send + .02:
                 raise RuntimeError("Control scheduling missed by over20ms")
             wait(max(0., next_send-clock()))
         result["motion_completed"] = True
+        if pose is not None:
+            pose_end_ns = ns(clock())
+            evaluation = pose.evaluate_hold(pose_plan, pose_samples, run_start_ns=pose_start_ns, ended_ns=pose_end_ns)
+            result.update(hold_evaluation=evaluation, trajectory_elapsed=evaluation["elapsed_completed"],
+                          arrival_candidate_met=evaluation["arrival_candidate_met"],
+                          hold_candidate_met=evaluation["hold_candidate_met"])
+            if settling_observation:
+                observation = pose.evaluate_settling_observation(pose_plan, pose_samples,
+                    run_start_ns=pose_start_ns, ended_ns=pose_end_ns)
+                result['settling_observation_evaluation'] = observation
+                if not observation['data_complete']:
+                    raise RuntimeError("Settling observation incomplete: " + "; ".join(observation['errors']))
+            elif not evaluation["hold_candidate_met"]:
+                raise RuntimeError("Bounded pose hold candidate rejected: " + "; ".join(evaluation["errors"]))
         for i in ids:
             delta = transport.latest[i][0].protocol_position_rad - centers[i]
             result["motors"][i].update(peak_observed_delta_rad=peaks[i], final_observed_delta_rad=delta,
@@ -525,6 +763,11 @@ def run_leg_trial(transport, expected_uids, check_interrupt, emit, *, directions
     except BaseException as error:
         result["errors"].append(repr(error))
     finally:
+        if pose is not None and pose_start_ns is not None and pose_end_ns is None:
+            try:
+                pose_end_ns = ns(clock())
+            except BaseException as error:
+                result["errors"].append("Pose timing unavailable: " + repr(error))
         if identified:
             try:
                 result["stops"] = transport.stop_all(identified)
@@ -533,8 +776,32 @@ def run_leg_trial(transport, expected_uids, check_interrupt, emit, *, directions
                     result["errors"].append("STOP_UNCONFIRMED: cut motor power immediately")
             except BaseException as error:
                 result["errors"].append("STOP_UNCONFIRMED: " + repr(error))
+        if pose is not None and pose_plan is not None and pose_start_ns is not None and pose_end_ns is not None and "hold_evaluation" not in result:
+            # Stop comes first. A diagnostic exception cannot bypass stopping.
+            try:
+                evaluation = pose.evaluate_hold(pose_plan, pose_samples, run_start_ns=pose_start_ns,
+                                                ended_ns=pose_end_ns)
+                result.update(hold_evaluation=evaluation, trajectory_elapsed=evaluation["elapsed_completed"],
+                              arrival_candidate_met=evaluation["arrival_candidate_met"],
+                              hold_candidate_met=evaluation["hold_candidate_met"])
+            except BaseException as error:
+                result["errors"].append("Pose diagnostic failed: " + repr(error))
+        if (settling_observation and pose_plan is not None and pose_start_ns is not None
+                and pose_end_ns is not None and 'settling_observation_evaluation' not in result):
+            try:
+                result['settling_observation_evaluation'] = pose.evaluate_settling_observation(
+                    pose_plan, pose_samples, run_start_ns=pose_start_ns, ended_ns=pose_end_ns)
+            except BaseException as error:
+                result['errors'].append('Settling diagnostic failed: ' + repr(error))
     result["status"] = ("MOTION_FINISHED_RESET_CONFIRMED" if result["motion_completed"]
                         and result["stop_confirmed"] and not result["errors"] else "ABORTED")
+    if settling_observation:
+        result['settling_observation_completed'] = bool(result['status'] != 'ABORTED'
+            and result.get('settling_observation_evaluation',{}).get('data_complete'))
+        result['status'] = ('RR_SETTLING_OBSERVATION_COMPLETE_RESET_CONFIRMED'
+            if result['settling_observation_completed'] else 'ABORTED')
+    elif pose is not None and result["status"] != "ABORTED":
+        result["status"] = "BOUNDED_POSE_CANDIDATE_HOLD_RESET_CONFIRMED"
     return result
 
 
@@ -554,10 +821,10 @@ def main(argv=None):
         expected = validated_uids(json.loads(args.expected_uids.read_text()), ids)
         response_evidence = None
         if args.stationarity_profile == "position-v2":
-            if args.leg != "FR" or args.position_response_evidence is None:
-                raise ValueError("Position-v2 requires FR and --position-response-evidence")
-            from .position_response_evidence import load_position_response_evidence
-            response_evidence = load_position_response_evidence(args.position_response_evidence, expected)
+            if args.position_response_evidence is None:
+                raise ValueError("Position-v2 requires selected-leg --position-response-evidence")
+            response_evidence = load_position_response_evidence(
+                args.position_response_evidence, expected, leg=args.leg)
     except (ValueError, OSError) as error:
         ap.error(str(error))
     plan = {"stationarity_profile": args.stationarity_profile,
@@ -591,7 +858,8 @@ def main(argv=None):
         if signals:
             raise InterruptedError(f"signal {signals[0]}")
     sources = [Path(__file__), *(Path(__file__).with_name(n) for n in
-               ("rs05_joint_trial.py", "rs05_trial_protocol.py", "can_readonly.py"))]
+               ("rs05_joint_trial.py", "rs05_trial_protocol.py", "can_readonly.py",
+                "position_response_evidence.py"))]
     report = {"started_at": datetime.datetime.now().astimezone().isoformat(), "plan": plan,
               "source_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sources}}
     try:
@@ -608,7 +876,9 @@ def main(argv=None):
             port.port = "/dev/robstride-usb2can"
             port.open()
             report["result"] = run_leg_trial(LegTrialTransport(port, emit, check_interrupt, ids=ids),
-                expected, check_interrupt, emit, directions=args.directions, profile=args.stationarity_profile)
+                expected, check_interrupt, emit, directions=args.directions, profile=args.stationarity_profile,
+                position_response_evidence=args.position_response_evidence,
+                position_response_evidence_sha256=response_evidence["sha256"] if response_evidence else None)
     except BaseException as error:
         report["host_error"] = repr(error)
     finally:

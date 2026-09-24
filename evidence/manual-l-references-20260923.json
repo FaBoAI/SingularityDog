@@ -1,0 +1,65 @@
+{
+  "schema": "singularitydog.public-manual-l-references.v1",
+  "date": "2026-09-23",
+  "timezone": "Asia/Tokyo",
+  "status": "MANUAL_REFERENCE_CANDIDATES_SAVED_NOT_ACTIVE_CALIBRATION",
+  "method": "Operator positioned one leg at a time; hip lateral link horizontal, thigh vertical, calf horizontal toward face.",
+  "private_anchor_record_sha256": "6241b86fad1e3c55a139fe3a695e00d5bda4e12067df110c78f97c6acf43ce55",
+  "legs": {
+    "FR": {
+      "samples_per_joint": 10,
+      "joint_count": 3,
+      "max_sampling_width_deg": 0.09354627087249463,
+      "read_requests": 492,
+      "read_replies": 492,
+      "all_12_motor_identities_checked": true,
+      "independent_raw_audit": "PASS",
+      "independent_raw_audit_sha256": "5006eb2380005357ea4112d7f24278edf05ed3eb61a0b65e4462bc3e1115c77e"
+    },
+    "FL": {
+      "samples_per_joint": 10,
+      "joint_count": 3,
+      "max_sampling_width_deg": 0.028372605812232967,
+      "read_requests": 492,
+      "read_replies": 492,
+      "all_12_motor_identities_checked": true,
+      "independent_raw_audit": "PASS",
+      "independent_raw_audit_sha256": "8cd4117e262d6830f09ace772d1f67a105843f97fa050133b8d06391eee67dc5"
+    },
+    "RR": {
+      "samples_per_joint": 10,
+      "joint_count": 3,
+      "max_sampling_width_deg": 0.5216898488055739,
+      "read_requests": 492,
+      "read_replies": 492,
+      "all_12_motor_identities_checked": true,
+      "independent_raw_audit": "PASS",
+      "independent_raw_audit_sha256": "1435d623202bc7504024e70123eb5f6478b18cc53fbb24b8d7328c7706b25ce2"
+    },
+    "RL": {
+      "samples_per_joint": 10,
+      "joint_count": 3,
+      "max_sampling_width_deg": 0.24954779151558587,
+      "read_requests": 492,
+      "read_replies": 492,
+      "all_12_motor_identities_checked": true,
+      "independent_raw_audit": "PASS",
+      "independent_raw_audit_sha256": "b6f32a4fdb976aacc66a47a9ba328f075c5365fd219435d87d556cc0ac660683"
+    }
+  },
+  "total_read_requests": 1968,
+  "total_read_replies": 1968,
+  "motor_output_sent": false,
+  "motor_encoder_zero_written": false,
+  "active_calibration_changed": false,
+  "angle_wrapping_applied": false,
+  "four_leg_automatic_hold_performed": false,
+  "approved_for_runtime": false,
+  "limitations": [
+    "Sampling width is not absolute angular accuracy or powered hold performance.",
+    "The operator used visual alignment; small movements occurred during some rear-leg samples.",
+    "One static pose does not independently determine rotation direction.",
+    "Old and new readings include approximately one-turn differences; reconcile after power cycling before control.",
+    "Raw angles, device identifiers, photos, connection details and raw logs remain private."
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schema": "singularitydog.bom.v1",
-  "updated": "2026-09-21",
+  "updated": "2026-09-24",
   "scope_ja": "1台の最新設計候補を整理した構成BOM。購入済み・組立完了・調達可能性を示す表ではない。",
   "status": "design_bom_incomplete_for_procurement",
   "units": {
@@ -443,11 +443,12 @@
     {
       "id": "usb_can",
       "name_ja": "USB-CANアダプター",
-      "quantity_per_robot": 1,
+      "quantity_per_robot": 2,
       "status": "selected_and_used_control_performance_incomplete",
-      "notes_ja": "RobStride USB2CAN / CH340を1台使用。RS05の識別・読み取り・限定駆動を確認。絶縁・全12軸制御性能は未検証。",
+      "notes_ja": "RobStride USB2CAN / CH340を前脚6台・後脚6台の2系統で使用。12軸の通信と脚別限定駆動を確認。絶縁・全12軸の連続制御性能は未検証。",
       "source_ids": [
-        "hardware_bringup"
+        "hardware_bringup",
+        "dual_can_verification_20260923"
       ]
     },
     {
@@ -561,6 +562,13 @@
       "description_ja": "操作者による全RS05の確認と、USB2CAN・GY-ICM20948V2の実機診断",
       "sha256": "76feb2a4d6fc1c2e477cdcd4cabbafa567fc4135a953e34efef7581681eae604",
       "public_path": "docs/hardware-bringup-20260920.md",
+      "source_file_published_by_this_bom": true
+    },
+    {
+      "id": "dual_can_verification_20260923",
+      "description_ja": "前脚・後脚に分割した2台のUSB2CANの通信検証",
+      "sha256": "9ab44b60beae599da692d7bd134e57e3d26f8033bc48ad2d228052e99ae772c2",
+      "public_path": "evidence/dual-can-verification-20260923.json",
       "source_file_published_by_this_bom": true
     }
   ],

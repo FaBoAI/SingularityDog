@@ -1,0 +1,155 @@
+{
+  "schema": "singularitydog.sensor-pipeline-benchmark.v1",
+  "date": "2026-09-23",
+  "motor_output_available": false,
+  "policy_loaded": false,
+  "inference_calls": 0,
+  "full_controller_50Hz_verified": false,
+  "can_bitrate_verified": false,
+  "uart_baudrate": 921600,
+  "profile": {
+    "window": 4,
+    "gap_ms": 0.5,
+    "request_order": "by-parameter",
+    "cycles": 20,
+    "max_seconds": 10,
+    "allowed_can_types": [
+      0,
+      17
+    ]
+  },
+  "integrated_r1": {
+    "status": "COMPLETE_SENSOR_BENCHMARK_NO_OUTPUT",
+    "ticks_completed": 72,
+    "update_comparisons_excluding_initial_baseline": 71,
+    "all24_updated_comparisons": 0,
+    "imu_updated_comparisons": 71,
+    "statistics_ms": {
+      "start_lateness": {
+        "count": 72,
+        "min": 0.142039,
+        "median": 0.567223,
+        "mean": 0.640427875,
+        "p95": 1.140168,
+        "max": 1.325135
+      },
+      "oldest_observation_age": {
+        "count": 72,
+        "min": 73.654981,
+        "median": 82.51657449999999,
+        "mean": 81.88630326388889,
+        "p95": 85.91094,
+        "max": 87.411863
+      },
+      "acquisition_spread": {
+        "count": 72,
+        "min": 72.621975,
+        "median": 81.258096,
+        "mean": 80.58086022222223,
+        "p95": 84.698666,
+        "max": 86.184375
+      }
+    },
+    "updated_motor_key_count": {
+      "count": 71,
+      "min": 5,
+      "median": 6,
+      "mean": 6.014084507042254,
+      "p95": 7,
+      "max": 7
+    },
+    "producer_threads_exited": true,
+    "log_flush_confirmed": true,
+    "dropped_events": 0,
+    "requests": 492,
+    "replies": 492,
+    "cycles_completed": 20,
+    "cycle_statistics_ms": {
+      "count": 20,
+      "min": 69.904643,
+      "median": 78.4730185,
+      "mean": 78.650104,
+      "p95": 85.196793,
+      "max": 85.756074
+    },
+    "imu_restore_status": "restored",
+    "wire_audit_passed": true,
+    "causal_snapshot_audit_passed": true
+  },
+  "can_only_control": {
+    "status": "READONLY_PIPELINE_COMPLETE",
+    "cycles_completed": 20,
+    "requests": 492,
+    "replies": 492,
+    "statistics_ms": {
+      "request_wire_RTT": {
+        "count": 492,
+        "min": 1.625298,
+        "median": 2.6286405000000004,
+        "mean": 2.5637464918699187,
+        "p95": 3.33383,
+        "max": 4.710769
+      },
+      "parameter_wire_RTT": {
+        "count": 480,
+        "min": 1.625298,
+        "median": 2.6138405000000002,
+        "mean": 2.5509921979166665,
+        "p95": 3.33383,
+        "max": 4.710769
+      },
+      "cycle_duration": {
+        "count": 20,
+        "min": 24.675573,
+        "median": 26.023246,
+        "mean": 26.0277788,
+        "p95": 26.573903,
+        "max": 26.711571
+      },
+      "cycle_oldest_newest_spread": {
+        "count": 20,
+        "min": 22.045572,
+        "median": 23.328188,
+        "mean": 23.35450665,
+        "p95": 23.921277,
+        "max": 23.995392
+      }
+    },
+    "wire_audit_passed": true
+  },
+  "integrated_r2": {
+    "status": "INCOMPLETE",
+    "reason": "ID1 identity request had no reply before250ms deadline",
+    "requests": 1,
+    "replies": 0,
+    "cycles_completed": 0,
+    "ticks_completed": 0,
+    "performance_comparison_available": false,
+    "motor_output_available": false,
+    "imu_restore_status": "restored",
+    "producer_threads_exited": true,
+    "log_flush_confirmed": true,
+    "power_state_confirmation_pending": true
+  },
+  "boot_monitor_optimization": {
+    "before": "open/read/close on each check",
+    "after": "one descriptor; pread on every check",
+    "check_frequency_changed": false,
+    "deadline_and_can_profile_changed": false,
+    "microbenchmark_calls_per_case": 2000,
+    "open_read_close_mean_us": 41.2568325,
+    "pread_mean_us": 1.5791205,
+    "real_acquisition_speed_improvement_verified": false
+  },
+  "tests": {
+    "new_sensor_benchmark": 19,
+    "related_suite": 109
+  },
+  "limitations": [
+    "Each completed measurement has20 cycles, not an endurance result.",
+    "Observation scheduling does not imply all24 motor keys refreshed.",
+    "Prior-cycle late same-key CAN replies cannot be completely disambiguated.",
+    "Calibration/initial posture/inference/motor output remain unapproved.",
+    "Two independent buses and their performance have not been tested."
+  ]
+}
