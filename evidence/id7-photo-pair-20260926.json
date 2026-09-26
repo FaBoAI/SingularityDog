@@ -1,0 +1,44 @@
+{
+  "date": "2026-09-26",
+  "joint": "right_rear_distal_id7",
+  "measurement_mode": "read_only_motor_disabled",
+  "source_log": "/home/jetson/singularitydog-logs/RO-id7-photo-pair-20260926-145735-9315",
+  "source_summary_sha256": "0572911ec0b70067fc000962738a92a732d5e7afadf47e9a929407a9de7af656",
+  "boot_id": "c4802c8c-0261-4f5e-b324-bdb5bf2063bf",
+  "photos": {
+    "A": {
+      "file": "IMG_0455.JPG",
+      "local_path": "/Users/akira/Downloads/IMG_0455.JPG",
+      "sha256": "3308fceb18dcc81cb7bcff1e9ad63e0cad2b1ebec25a1637e98b49a4208ec485",
+      "exif_datetime_local": "2026-09-26T14:58:01+09:00",
+      "jetson_ack_local": "2026-09-26T14:58:19.176551+09:00",
+      "median_position_rad": 4.74435567855835,
+      "three_sample_range_deg": 0.014179472716946471
+    },
+    "B": {
+      "file": "IMG_0456.JPG",
+      "local_path": "/Users/akira/Downloads/IMG_0456.JPG",
+      "sha256": "e5278a1059999c743218f9b9f177bca05a2c910759f59f0a783c9dc0edd5cfaf",
+      "exif_datetime_local": "2026-09-26T14:58:45+09:00",
+      "jetson_ack_local": "2026-09-26T14:58:55.837691+09:00",
+      "median_position_rad": 4.136305809020996,
+      "three_sample_range_deg": 0.0
+    }
+  },
+  "raw_position_change_A_to_B_deg": -34.83869125797068,
+  "physical_photo_assessment": {
+    "relative_rotation": "tens of degrees; visual estimates vary roughly 15–40 degrees with perspective",
+    "precision": "not metrological: hand-held camera perspective and visible fixed-part shear prevent an exact angle",
+    "comparison": "raw 0x7019 change of -34.84 degrees is plausible; a 7.75 divisor would imply about 4.5 degrees and is unsupported by these photos"
+  },
+  "verified_rear_ids": [7, 8, 9],
+  "status": "RECORDED_REVIEW_REQUIRED",
+  "approved_for_runtime": false,
+  "calibration_applied": false,
+  "motor_commands_sent": false,
+  "limitations": [
+    "Photo metadata precedes each Jetson acknowledgement; operator was asked to maintain the pose until the reading, but exact synchronous capture was not independently instrumented.",
+    "The photos are held in local Downloads and are identified by SHA-256; they are not embedded in this public-repository evidence file.",
+    "This pair does not establish an exact conversion ratio or clear the standing/deploy gates."
+  ]
+}

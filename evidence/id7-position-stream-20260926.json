@@ -1,0 +1,167 @@
+{
+  "schema": "singularitydog.id7-position-stream-evidence.v1",
+  "date": "2026-09-26",
+  "remote_log_directory": "/home/jetson/singularitydog-logs/RO-id7-position-stream-20260926-142127",
+  "read_only": true,
+  "sent_can_types": [
+    0,
+    17
+  ],
+  "source_device": "/dev/serial/by-path/platform-3610000.usb-usb-0:2.2:1.0-port0",
+  "status": "RECORDED_REVIEW_REQUIRED",
+  "metrics": {
+    "samples": 988,
+    "elapsed_s": 19.740061002,
+    "raw_start_rad": 5.514611721038818,
+    "raw_end_rad": 5.24082088470459,
+    "raw_net_change_deg": -15.687059391308365,
+    "raw_range_deg": 185.93681909590975,
+    "largest_adjacent_change": {
+      "from_sample": 199,
+      "to_sample": 200,
+      "delta_deg": 8.652948093435715,
+      "gap_ms": 19.887541000000002
+    },
+    "adjacent_changes_over_5deg": 96,
+    "interpretation": "Raw telemetry only; no automatic gear-ratio, wrap, or motion approval."
+  },
+  "raw_events_sha256": "608ae22172bf1702252e963345444c36d62889226a8506b068924ad516875f75",
+  "raw_summary_sha256": "3fc920fb688cd256c6c7fb4097919a8e551fd65c392075b322bebe4fe5cc2274",
+  "per_second_position_deg": [
+    {
+      "second": 0,
+      "samples": 51,
+      "min_deg": 315.947,
+      "max_deg": 315.964
+    },
+    {
+      "second": 1,
+      "samples": 50,
+      "min_deg": 315.95,
+      "max_deg": 315.967
+    },
+    {
+      "second": 2,
+      "samples": 50,
+      "min_deg": 315.95,
+      "max_deg": 315.97
+    },
+    {
+      "second": 3,
+      "samples": 50,
+      "min_deg": 238.969,
+      "max_deg": 315.97
+    },
+    {
+      "second": 4,
+      "samples": 49,
+      "min_deg": 248.489,
+      "max_deg": 369.705
+    },
+    {
+      "second": 5,
+      "samples": 51,
+      "min_deg": 214.181,
+      "max_deg": 380.861
+    },
+    {
+      "second": 6,
+      "samples": 50,
+      "min_deg": 302.658,
+      "max_deg": 400.118
+    },
+    {
+      "second": 7,
+      "samples": 49,
+      "min_deg": 219.769,
+      "max_deg": 302.296
+    },
+    {
+      "second": 8,
+      "samples": 51,
+      "min_deg": 305.599,
+      "max_deg": 389.94
+    },
+    {
+      "second": 9,
+      "samples": 50,
+      "min_deg": 223.869,
+      "max_deg": 301.845
+    },
+    {
+      "second": 10,
+      "samples": 50,
+      "min_deg": 278.8,
+      "max_deg": 397.158
+    },
+    {
+      "second": 11,
+      "samples": 49,
+      "min_deg": 252.878,
+      "max_deg": 351.758
+    },
+    {
+      "second": 12,
+      "samples": 50,
+      "min_deg": 274.794,
+      "max_deg": 300.297
+    },
+    {
+      "second": 13,
+      "samples": 51,
+      "min_deg": 300.268,
+      "max_deg": 300.288
+    },
+    {
+      "second": 14,
+      "samples": 50,
+      "min_deg": 300.268,
+      "max_deg": 300.285
+    },
+    {
+      "second": 15,
+      "samples": 49,
+      "min_deg": 300.268,
+      "max_deg": 300.291
+    },
+    {
+      "second": 16,
+      "samples": 50,
+      "min_deg": 300.268,
+      "max_deg": 300.294
+    },
+    {
+      "second": 17,
+      "samples": 51,
+      "min_deg": 300.271,
+      "max_deg": 300.291
+    },
+    {
+      "second": 18,
+      "samples": 50,
+      "min_deg": 300.268,
+      "max_deg": 300.291
+    },
+    {
+      "second": 19,
+      "samples": 37,
+      "min_deg": 300.268,
+      "max_deg": 300.288
+    }
+  ],
+  "operator_report": "During the Enter-cued 20 s observation, operator moved the yellow member and metal output hub relative to the black QDD body; estimated the largest physical angular sweep at approximately 10-30 degrees. This was not instrument-measured.",
+  "conclusion": "ID7 0x7019 changed continuously during the operator-cued window, including 96 adjacent 20 ms samples over 5 deg; largest single step was 8.653 deg. No isolated ~46 deg jump appears. The 185.937 deg total raw span cannot yet be equated to physical load-side motion because the physical sweep has not been measured.",
+  "candidate_gear_ratio_comparison": {
+    "nominal_reduction_ratio": 7.75,
+    "raw_range_deg": 185.93681909590975,
+    "raw_range_divided_by_nominal_deg": 23.992,
+    "interpretation": "24.0 degrees falls within the operator estimate, but official manual states 0x7019 is load-end angle. Candidate only; no control scaling changed."
+  },
+  "read_only_alternative_indices": {
+    "0x3015": "Type17 parameter status 1; unavailable",
+    "0x3016": "Type17 parameter status 1; unavailable",
+    "0x3017": "Type17 parameter status 1; unavailable",
+    "0x7019": "Type17 status 0; position available",
+    "0x701B": "Type17 status 0; velocity available"
+  }
+}

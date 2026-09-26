@@ -1,0 +1,102 @@
+{
+  "schema": "singularitydog.id7-manual-two-pose-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "c4802c8c-0261-4f5e-b324-bdb5bf2063bf",
+  "rear_usb2can_port": "/dev/serial/by-path/platform-3610000.usb-usb-0:2.2:1.0-port0",
+  "method": "With all motors stopped in mode 0, user holds a starting right-rear leg pose A, manually moves its foot-side rotating member and holds pose B, then releases to stable pose C; read-only Type0 identity and Type17 run_mode/position, two position reads for each rear-bus ID 7..12 at each pose. No motor output sent.",
+  "operator_report": "Operator visually estimated 5-10 degrees relative angle between the black QDD body and yellow foot-side rotating member. Operator confirmed the QDD metal output hub rotated with the yellow member. B was held, then released to stable C.",
+  "rows": {
+    "7": {
+      "uid": "278638001473b708",
+      "a_position_rad": 5.228251934051514,
+      "b_position_rad": 4.407670974731445,
+      "a_to_b_deg": -47.016,
+      "a_internal_two_read_deg": 0.008,
+      "b_internal_two_read_deg": -0.003,
+      "c_position_rad": 4.407770156860352,
+      "b_to_c_deg": 0.003,
+      "a_to_c_deg": -47.002,
+      "c_internal_two_read_deg": -0.003
+    },
+    "8": {
+      "uid": "723c38001473b707",
+      "a_position_rad": 0.16453170776367188,
+      "b_position_rad": 0.08446788787841797,
+      "a_to_b_deg": -4.587,
+      "a_internal_two_read_deg": 0.006,
+      "b_internal_two_read_deg": 0.0,
+      "c_position_rad": 0.08446788787841797,
+      "b_to_c_deg": 0.0,
+      "a_to_c_deg": -4.582,
+      "c_internal_two_read_deg": -0.003
+    },
+    "9": {
+      "uid": "814f38001473b707",
+      "a_position_rad": 0.1358814239501953,
+      "b_position_rad": 0.03696393966674805,
+      "a_to_b_deg": -5.668,
+      "a_internal_two_read_deg": 0.011,
+      "b_internal_two_read_deg": 0.003,
+      "c_position_rad": 0.03731060028076172,
+      "b_to_c_deg": 0.023,
+      "a_to_c_deg": -5.636,
+      "c_internal_two_read_deg": -0.009
+    },
+    "10": {
+      "uid": "7d1438001473b707",
+      "a_position_rad": 3.847768783569336,
+      "b_position_rad": 3.847867012023926,
+      "a_to_b_deg": 0.006,
+      "a_internal_two_read_deg": -0.006,
+      "b_internal_two_read_deg": 0.017,
+      "c_position_rad": 3.8476696014404297,
+      "b_to_c_deg": 0.006,
+      "a_to_c_deg": -0.011,
+      "c_internal_two_read_deg": -0.003
+    },
+    "11": {
+      "uid": "aa3638001473b708",
+      "a_position_rad": 0.5262537002563477,
+      "b_position_rad": 0.5263528823852539,
+      "a_to_b_deg": 0.006,
+      "a_internal_two_read_deg": -0.006,
+      "b_internal_two_read_deg": -0.009,
+      "c_position_rad": 0.526402473449707,
+      "b_to_c_deg": -0.006,
+      "a_to_c_deg": 0.003,
+      "c_internal_two_read_deg": 0.003
+    },
+    "12": {
+      "uid": "518638001473b708",
+      "a_position_rad": 1.013960838317871,
+      "b_position_rad": 1.0135650634765625,
+      "a_to_b_deg": -0.023,
+      "a_internal_two_read_deg": 0.006,
+      "b_internal_two_read_deg": -0.011,
+      "c_position_rad": 1.0137624740600586,
+      "b_to_c_deg": 0.0,
+      "a_to_c_deg": -0.006,
+      "c_internal_two_read_deg": -0.003
+    }
+  },
+  "raw_snapshot_sha256": {
+    "A": "d78b44a5c1ee545673b5db66b657085acda454d8d2391f2311c3fad3c41bbce9",
+    "B": "7b4f9ffee58c3f4df46822618d247b5c3a8d299a442e083c16f62764356dca6f",
+    "C": "ebc022cf8381e16d0095dd84d5e0a07c3a4d04f646c74560c23601a8717a1c8f"
+  },
+  "raw_snapshot_jetson_directory": "/home/jetson/singularitydog-logs/RO-id7-two-pose-20260926-r1",
+  "conclusion": "ID7 Type17 position changed about 47 degrees during manual repositioning and remained at that position after release; both black-body/yellow-member visual motion and sensor response were observed, but visual displacement was only estimated at 5-10 degrees. Official RS05 manual calls 0x7019 load-side mechanical angle; do not divide by the 7.75:1 gearbox. The discrepancy remains unresolved. A continuous raw-angle trace during measured physical movement is needed to distinguish smooth change from a discrete jump. No motor output was sent; this does not validate active tracking or standing.",
+  "official_reference": {
+    "source": "RobStride RS05 User Manual 260713, 0x7019 mechPos is accumulated load-end mechanical angle (rad)",
+    "url": "https://github.com/RobStride/Product_Information/blob/main/%E4%BA%A7%E5%93%81%E8%B5%84%E6%96%99/RS05/RS05%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E%E4%B9%A6260713.pdf"
+  },
+  "continuity_followup": {
+    "tool": "runtime/singularitydog_hw/id7_position_stream.py",
+    "remote_log": "/home/jetson/singularitydog-logs/RO-id7-position-stream-20260926-r1",
+    "result": "INCOMPLETE before any position sample: ID7 identity timeout at 250 ms; subsequent read-only 1 s identity checks for IDs 7..12 and 1,4,6 also timed out. Both CH340 devices remain visible. Check QDD power path before retrying.",
+    "motor_output_sent": false,
+    "power_restored": "After the 40V switch was turned On again, read-only Type0 replies returned from ID7 and ID1 with matching UIDs.",
+    "second_log": "/home/jetson/singularitydog-logs/RO-id7-position-stream-20260926-r2",
+    "second_result": "15 s / 738 position samples, only 0.0312 degree range; operator reports visible metal-hub/yellow-member relative rotation during that interval. Timing/observation correspondence unresolved; interactive Enter-cued 20 s repeat prepared as ~/dog-id7-stream."
+  }
+}

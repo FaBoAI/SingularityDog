@@ -1,0 +1,38 @@
+{
+  "date": "2026-09-26",
+  "device": "RS05 ID7, right rear lower joint",
+  "mode": "operator manual motion, motor disabled, read-only CAN Type 0/17",
+  "jetson_log": "/home/jetson/singularitydog-logs/RO-id7-position-velocity-20260926-143818",
+  "events_sha256": "d9fcaebce4518e8f6bc638974764def2859a3fd562d6f207516cab776b60cad2",
+  "sample_csv": "id7-position-velocity-20260926.csv",
+  "sample_csv_sha256": "84355602bdaa758c4907d9503231acab3eae9f8e3aed5f59e06f01725af9f612",
+  "status": "RECORDED_REVIEW_REQUIRED",
+  "operator_observed_motion": true,
+  "runtime_approved": false,
+  "errors": [],
+  "samples": {
+    "before": 150,
+    "moving": 400,
+    "released": 150
+  },
+  "moving": {
+    "duration_s": 7.98001132,
+    "position_range_deg": 197.69436137468307,
+    "position_net_change_deg": 97.85344280461804,
+    "position_total_absolute_change_deg": 971.9684852347771,
+    "velocity_signed_integral_deg": 98.25553748305153,
+    "velocity_absolute_integral_deg": 976.1578472974221,
+    "integral_to_position_net_ratio": 1.0041091520840646,
+    "integral_to_position_total_change_ratio": 1.0043101830216574,
+    "position_derivative_to_velocity_correlation": 0.9993748906280616,
+    "position_derivative_to_velocity_slope": 1.0034420597708744,
+    "median_velocity_sample_delay_ms": 3.5664765,
+    "current_max_abs_A": 0.0
+  },
+  "stationary_position_range_deg": {
+    "before": 0.022703548801122384,
+    "released": 0.01986219010639708
+  },
+  "interpretation": "0x7019 position and 0x701B velocity use a mutually consistent reported angular scale during hand motion. This does not determine whether that scale equals the physical output shaft angle. Do not divide either channel or change runtime calibration based on this result alone.",
+  "next_independent_reference": "Use two stationary photographs of the fixed and rotating hub markers, viewed along the shaft, paired with two position snapshots. No ruler or protractor required."
+}
