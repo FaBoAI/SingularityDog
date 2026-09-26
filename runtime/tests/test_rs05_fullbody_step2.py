@@ -167,6 +167,7 @@ class RawStep2Tests(unittest.TestCase):
     def test_tick_zero_uses_validated_replies_before_peer_batch_finishes(self):
         clock = WorkerClock()
         first_front_reply = threading.Event()
+        rear_ready_for_reply = threading.Event()
         rear_last_write = threading.Event()
         observed = {}
 
@@ -176,13 +177,14 @@ class RawStep2Tests(unittest.TestCase):
                 active = frame.kind == 1 and frame.data[4:8] != bytes(4)
                 if (self.bus_name == 'rear' and active and self.active_batches == 0
                         and frame.destination == 12):
-                    if not first_front_reply.wait(timeout=2):
-                        raise AssertionError('Front reply did not arrive before rear ID12')
                     # As in the physical trace, the earliest Enable reply has
                     # aged out while a fresh front Type2 is still inside its
                     # unfinished six-frame receive batch.
                     clock.wait(max(0., observed['first_enable_at'] + .101 - clock()))
                     observed['old_reply_age'] = clock() - observed['first_enable_at']
+                    rear_ready_for_reply.set()
+                    if not first_front_reply.wait(timeout=2):
+                        raise AssertionError('Front reply did not arrive before rear ID12')
                     self.feedback_guard(self.value(7), clock(), 7)
                     try:
                         super().send(command)
@@ -204,6 +206,12 @@ class RawStep2Tests(unittest.TestCase):
                     original_guard = self.feedback_guard
 
                     def hold_after_first_reply(value, received, mid):
+                        # WorkerClock advances each thread independently. Do
+                        # not publish front's +30ms sample while rear is still
+                        # at its first write; that creates a fictitious future
+                        # timestamp (-30ms age) under unlucky OS scheduling.
+                        if mid == 1 and not rear_ready_for_reply.wait(timeout=2):
+                            raise AssertionError('Rear did not reach its final-write wait')
                         original_guard(value, received, mid)
                         if mid == 1:
                             first_front_reply.set()
@@ -418,6 +426,22 @@ class RawStep2Tests(unittest.TestCase):
             motion_request(phase=step2._motion_phase(review, mid),
                            center_rad=centers[mid], offset_rad=plan[-1][mid]-centers[mid],
                            motor_id=mid)
+
+    def test_interleaved_feedback_selected_only_for_active_front_hip_ten_degrees(self):
+        review = role_group_path('front-hip')
+        review['amplitude_deg'] = 10.
+        clock, buses = self.fixture()
+        result = self.run_trial(clock, buses, review=review)
+        self.assertEqual(result['status'], 'RAW_ROLE_GROUP_STEP1_COMPLETED_RESET_CONFIRMED')
+        self.assertTrue(result['interleaved_feedback'])
+        self.assertTrue(all(bus.interleave_feedback for bus in buses.values()))
+        self.assert_stopped(buses)
+        for other in (reviewed_path(), role_group_path('front-hip'),
+                      role_group_path('front-thigh'), role_group_path('thigh')):
+            self.assertFalse(step2._interleaved_feedback_enabled(other, False))
+        self.assertFalse(step2._interleaved_feedback_enabled(review, True))
+        bad_gain = {**review, 'gain_profile': step2.GAIN_PROFILE}
+        self.assertFalse(step2._interleaved_feedback_enabled(bad_gain, False))
 
     def test_front_hip_held_id9_stable_bias_passes_endpoint_only(self):
         review = role_group_path('front-hip')

@@ -142,7 +142,8 @@ class RoleGroupDirectionTests(unittest.TestCase):
                                 'result': {'status': 'CURRENT_HOLD_COMPLETED_RESET_CONFIRMED'}})
             with patch.object(builder.disabled_base, 'validate_source'), patch.object(
                     builder.disabled_base, 'validate_hold', return_value=self.centers), patch.object(
-                    builder.disabled_base, 'adapt_wrapper', side_effect=lambda text, *_: text):
+                    builder.disabled_base, 'adapt_wrapper', side_effect=lambda text, *_: text), patch.object(
+                    builder, 'validate_frozen_feedback_age'):
                 builder.prepare(source, hold_path, 'front-thigh', prepared,
                                 'front-thigh-toward-face')
                 builder.disabled(source, hold_path, prepared, output)
@@ -174,7 +175,8 @@ class RoleGroupDirectionTests(unittest.TestCase):
                                 'result': {'status': 'CURRENT_HOLD_COMPLETED_RESET_CONFIRMED'}})
             with patch.object(builder.disabled_base, 'validate_source'), patch.object(
                     builder.disabled_base, 'validate_hold', return_value=self.centers), patch.object(
-                    builder.disabled_base, 'adapt_wrapper', side_effect=lambda text, *_: text):
+                    builder.disabled_base, 'adapt_wrapper', side_effect=lambda text, *_: text), patch.object(
+                    builder, 'validate_frozen_feedback_age'):
                 builder.prepare(source, hold_path, 'front-hip', prepared, 'front-hip-mirrored')
                 builder.disabled(source, hold_path, prepared, output)
             candidate = builder.read_json(prepared / 'offline-raw-step2-candidate.json')
@@ -188,6 +190,29 @@ class RoleGroupDirectionTests(unittest.TestCase):
             self.assertEqual(review['raw_direction_by_id'],
                              {str(mid): (1 if mid == 3 else -1 if mid == 6 else 0)
                               for mid in range(1, 13)})
+            self.assertEqual(builder.read_json(output / 'manifest.json')
+                             ['singularitydog_hw/rs05_joint_trial.py'],
+                             builder.sha(builder.RUNTIME / 'rs05_joint_trial.py'))
+
+    def test_frozen_feedback_guard_requires_pinned_125ms_behavior(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / 'frozen'
+            shutil.copytree(builder.RUNTIME, output / 'singularitydog_hw',
+                            ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+            names = ('singularitydog_hw/rs05_fullbody_step2.py',
+                     'singularitydog_hw/rs05_joint_trial.py')
+            manifest = {name: builder.sha(output / name) for name in names}
+            builder.write_json(output / 'active-manifest.json', manifest)
+            builder.validate_frozen_feedback_age(output, 'active-manifest.json')
+
+            guard = output / names[1]
+            guard.write_text(guard.read_text().replace(
+                'now - received_at <= max_age_s',
+                'now - received_at <= MAX_FEEDBACK_AGE_S'))
+            manifest[names[1]] = builder.sha(guard)
+            builder.write_json(output / 'active-manifest.json', manifest)
+            with self.assertRaisesRegex(ValueError, 'Frozen feedback age guard rejected'):
+                builder.validate_frozen_feedback_age(output, 'active-manifest.json')
 
     def test_frozen_front_hip_package_transport_accepts_both_kp12_wires(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -196,8 +221,9 @@ class RoleGroupDirectionTests(unittest.TestCase):
                             ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
             transport = output / 'singularitydog_hw' / 'rs05_bus_transport.py'
             protocol = output / 'singularitydog_hw' / 'rs05_trial_protocol.py'
+            runner = output / 'singularitydog_hw' / 'rs05_fullbody_step2.py'
             manifest = {str(path.relative_to(output)): builder.sha(path)
-                        for path in (transport, protocol)}
+                        for path in (transport, protocol, runner)}
             builder.write_json(output / 'active-manifest.json', manifest)
             builder.validate_frozen_front_hip_transport(output)
 
@@ -206,6 +232,27 @@ class RoleGroupDirectionTests(unittest.TestCase):
             self.assertIn(old, text)
             transport.write_text(text.replace(old, '', 1))
             manifest[str(transport.relative_to(output))] = builder.sha(transport)
+            builder.write_json(output / 'active-manifest.json', manifest)
+            with self.assertRaisesRegex(ValueError, 'rejected before UART'):
+                builder.validate_frozen_front_hip_transport(output)
+
+    def test_frozen_ten_degree_runner_and_transport_select_interleaved_feedback(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / 'frozen'
+            shutil.copytree(builder.RUNTIME, output / 'singularitydog_hw',
+                            ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+            names = ('rs05_bus_transport.py', 'rs05_trial_protocol.py', 'rs05_fullbody_step2.py')
+            manifest = {'singularitydog_hw/'+name: builder.sha(output / 'singularitydog_hw' / name)
+                        for name in names}
+            builder.write_json(output / 'active-manifest.json', manifest)
+            builder.write_json(output / 'step2-active-review.json', {'amplitude_deg': 10.})
+            builder.validate_frozen_front_hip_transport(output)
+            runner = output / 'singularitydog_hw' / 'rs05_fullbody_step2.py'
+            text = runner.read_text()
+            old = "and review.get('amplitude_deg') == 10."
+            self.assertIn(old, text)
+            runner.write_text(text.replace(old, "and review.get('amplitude_deg') == 5.", 1))
+            manifest['singularitydog_hw/rs05_fullbody_step2.py'] = builder.sha(runner)
             builder.write_json(output / 'active-manifest.json', manifest)
             with self.assertRaisesRegex(ValueError, 'rejected before UART'):
                 builder.validate_frozen_front_hip_transport(output)
@@ -226,7 +273,8 @@ class RoleGroupDirectionTests(unittest.TestCase):
                                 'result': {'status': 'CURRENT_HOLD_COMPLETED_RESET_CONFIRMED'}})
             with patch.object(builder.disabled_base, 'validate_source'), patch.object(
                     builder.disabled_base, 'validate_hold', return_value=self.centers), patch.object(
-                    builder.disabled_base, 'adapt_wrapper', side_effect=lambda text, *_: text):
+                    builder.disabled_base, 'adapt_wrapper', side_effect=lambda text, *_: text), patch.object(
+                    builder, 'validate_frozen_feedback_age'):
                 builder.prepare(source, hold_path, 'thigh', prepared, 'mirrored-thigh')
                 result = builder.disabled(source, hold_path, prepared, output)
             review = builder.read_json(output / 'step2-review.json')

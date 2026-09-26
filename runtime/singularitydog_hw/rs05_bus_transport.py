@@ -44,7 +44,11 @@ def selected_bus_ids(ids):
 
 class BusTrialTransport:
     """Independent six-axis transport; the three-axis API remains unchanged."""
-    def __init__(self, serial_port, emit, check_interrupt=lambda: None, *, ids, wait=None):
+    def __init__(self, serial_port, emit, check_interrupt=lambda: None, *, ids, wait=None,
+                 interleave_feedback=False):
+        if type(interleave_feedback) is not bool:
+            raise ValueError('interleave_feedback must be an exact boolean')
+        self.interleave_feedback = interleave_feedback
         self.ids = selected_bus_ids(ids)
         self.bus_name = next(name for name, members in BUS_IDS.items() if members == self.ids)
         if (not callable(getattr(serial_port, 'read', None))
@@ -134,7 +138,7 @@ class BusTrialTransport:
                 self._latch(error)
                 raise
 
-    def receive(self):
+    def receive(self, *, frame_guard=None):
         try:
             chunk = self.serial.read(min(max(self.serial.in_waiting, 1), 2048))
         except BaseException as error:
@@ -145,8 +149,20 @@ class BusTrialTransport:
             return []
         self.log({'kind': 'can_rx_bytes', 'hex': chunk.hex()})
         frames = self.parser.feed(chunk)
+        if frame_guard is not None and self.parser.discarded_bytes:
+            error = RuntimeError('Parser discarded bytes during interleaved feedback')
+            self._latch(error)
+            raise error
         for frame in frames:
             self.log({'kind': 'can_rx_frame', **frame.record()})
+            # An interleaved batch must associate a reply with an already
+            # completed write before publishing it to the all-axis guard.
+            if frame_guard is not None:
+                try:
+                    frame_guard(frame, when)
+                except BaseException as error:
+                    self._latch(error)
+                    raise
             if (frame.kind in (0, 2, 17, 21) and 1 <= frame.source <= 12
                     and frame.source not in self.ids):
                 error = RuntimeError(f'ID{frame.source} reply belongs to another bus')
@@ -225,21 +241,67 @@ class BusTrialTransport:
         wires = tuple(wires)
         if not wires:
             raise ValueError('A nonempty canonical selected-bus command batch is required')
-        for wire in wires:
-            self._validated_wire(wire)
+        frames = [self._validated_wire(wire) for wire in wires]
+        interleaved = (self.interleave_feedback is True
+                       and expected_ids == self.ids
+                       and len(frames) == len(self.ids)
+                       and tuple(frame.destination for frame in frames) == self.ids
+                       and all(frame.kind == 1 for frame in frames))
         try:
             self.fresh_boundary()
-            for wire in wires:
+            found, sent = {}, {}
+            receive_deadline = self.active_deadline
+
+            def match_pending(frame, when):
+                if (frame.kind != 2 or frame.flags != 4 or len(frame.data) != 8
+                        or frame.destination != 0xFD or frame.source not in sent
+                        or frame.source in found):
+                    raise RuntimeError('Unexpected or duplicate interleaved feedback')
+                if (when < sent[frame.source]
+                        or (receive_deadline is not None and when >= receive_deadline)
+                        or not 0 <= time.monotonic() - when <= MAX_FEEDBACK_AGE_S):
+                    raise RuntimeError('Late or stale interleaved feedback')
+                value = accept(frame)
+                if value is None:
+                    raise RuntimeError('Unmatched interleaved feedback')
+                found[frame.source] = (value, when)
+
+            def drain_arrived():
+                # Only read bytes already available. Bound noise/fragmentation
+                # even if a peer continuously supplies bytes. No new TX/retry.
+                for _ in range(128):
+                    self.check_interrupt()
+                    if receive_deadline is not None and time.monotonic() >= receive_deadline:
+                        raise RuntimeError('Active trial deadline reached during receive')
+                    if not self.serial.in_waiting:
+                        return
+                    self.receive(frame_guard=match_pending)
+                raise RuntimeError('Interleaved input backlog')
+
+            for wire, frame in zip(wires, frames):
+                if interleaved:
+                    self.pace_transmit()
+                    drain_arrived()
+                    if self.parser.buffer:
+                        raise RuntimeError('Partial interleaved frame before next command')
                 self.send(wire)
-            batch_completed = time.monotonic()
+                if interleaved:
+                    sent[frame.destination] = self.last_write_finished_s
+                    if frame.destination == self.ids[-1]:
+                        receive_deadline = self.last_write_finished_s + EXCHANGE_TIMEOUT_S
+                        if self.active_deadline is not None:
+                            receive_deadline = min(receive_deadline, self.active_deadline)
+                    drain_arrived()
+            batch_completed = (self.last_write_finished_s if interleaved else time.monotonic())
             reply_deadline = batch_completed + EXCHANGE_TIMEOUT_S
             deadline = reply_deadline
             if self.active_deadline is not None:
                 deadline = min(deadline, self.active_deadline)
-            found = {}
+            receive_deadline = deadline
             while time.monotonic() < deadline:
                 self.check_interrupt()
-                for frame, when in self.receive():
+                received = self.receive(frame_guard=match_pending) if interleaved else self.receive()
+                for frame, when in (() if interleaved else received):
                     if frame.source in expected_ids:
                         value = accept(frame)
                         if value is not None:
@@ -248,6 +310,8 @@ class BusTrialTransport:
                 if now >= deadline:
                     break
                 if set(found) == set(expected_ids) and now - max(t for _, t in found.values()) >= REPLY_QUIET_S:
+                    if interleaved and self.parser.buffer:
+                        raise RuntimeError('Partial interleaved frame after replies')
                     if any(not 0 <= now - when <= MAX_FEEDBACK_AGE_S for _, when in found.values()):
                         raise RuntimeError('Stale selected-bus reply')
                     return found

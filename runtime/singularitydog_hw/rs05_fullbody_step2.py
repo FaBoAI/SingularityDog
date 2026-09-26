@@ -130,6 +130,16 @@ def _gain_profile(review):
     return GAIN_PROFILE
 
 
+def _interleaved_feedback_enabled(review, preflight_only):
+    """Limit the transport experiment to the reviewed front-hip 10 degree path."""
+    return (preflight_only is False
+            and _diagnostic(review) == 'role-group-step1'
+            and review.get('scope') == FRONT_HIP_REVIEW_SCOPE
+            and review.get('role_group') == 'front-hip'
+            and review.get('amplitude_deg') == 10.
+            and review.get('gain_profile') == ROLE_FRONT_HIP_GAIN_PROFILE)
+
+
 def _motion_phase(review, mid):
     if (_diagnostic(review) == 'role-group-step1'
             and review.get('role_group') == 'front-hip'
@@ -375,6 +385,9 @@ def run_fullbody_step2(transports, expected_uids, check_interrupt, emit, *, vali
     ports = [getattr(t.serial, 'port', None) for t in (front, rear)]
     if ports[0] is not None and ports[0] == ports[1]:
         raise ValueError('The same UART cannot serve both buses')
+    interleaved_feedback = _interleaved_feedback_enabled(review, preflight_only)
+    for transport in transports.values():
+        transport.interleave_feedback = interleaved_feedback
 
     abort = threading.Event()
     state_lock, emit_lock = threading.Lock(), threading.Lock()
@@ -877,6 +890,7 @@ def run_fullbody_step2(transports, expected_uids, check_interrupt, emit, *, vali
             'model_mapping_verified': False, 'l_target_replay_allowed': False,
             'continuous_hold_proven': False, 'automatic_retry': False,
             'gain_profile': _gain_profile(review), 'raw_diagnostic_only': True,
+            'interleaved_feedback': interleaved_feedback,
             'diagnostic': diagnostic, 'moving_motor_ids': (
                 [ID7_MOTOR_ID] if diagnostic == 'id7-step1' else
                 sorted(ROLE_GROUP_IDS[review['role_group']]) if diagnostic == 'role-group-step1'

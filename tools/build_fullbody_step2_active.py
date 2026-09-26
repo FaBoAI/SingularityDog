@@ -244,6 +244,11 @@ def adapt_wrapper(text: str, name: str, boot: str) -> str:
     text = text.replace(old_review, new_review)
     text = text.replace('from singularitydog_hw.rs05_fullbody_hold import run_fullbody_hold',
                         'from singularitydog_hw.rs05_fullbody_step2 import run_fullbody_step2')
+    old_proof = '    proof.verify_files(base)\n'
+    require(text.count(old_proof) == 1, 'No singular inherited source proof')
+    text = text.replace(old_proof,
+        "    proof.PINS = {**proof.PINS, 'singularitydog_hw/rs05_joint_trial.py': "
+        "PINS['singularitydog_hw/rs05_joint_trial.py']}\n" + old_proof, 1)
     old_modules = "'rs05_leg_trial', 'current_hold_review', 'rs05_bus_transport', 'rs05_fullbody_hold'"
     new_modules = "'rs05_leg_trial', 'current_hold_review', 'rs05_bus_transport', 'rs05_fullbody_step2', 'fullbody_step10_plan', 'rs05_step2_packet_gate'"
     require(text.count(old_modules) == 1, 'No singular module audit')
@@ -289,7 +294,8 @@ def build(source: Path, disabled_package: Path, preflight_log: Path,
     summary_path, events_path = preflight_log / 'summary.json', preflight_log / 'events.jsonl'
     active_review = make_review(disabled_package, summary_path, events_path, physical_path)
     shutil.copytree(source, output, symlinks=False)
-    for module in ('rs05_fullbody_step2.py', 'fullbody_step10_plan.py',
+    for module in ('rs05_fullbody_step2.py', 'rs05_joint_trial.py',
+                   'fullbody_step10_plan.py',
                    'rs05_step2_packet_gate.py'):
         shutil.copy2(RUNTIME / module, output / 'singularitydog_hw' / module)
     for test in ('test_rs05_fullbody_step2.py', 'test_rs05_step2_packet_gate.py'):

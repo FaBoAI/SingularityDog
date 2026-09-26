@@ -64,6 +64,7 @@ def validate_frozen_front_hip_transport(output: Path) -> None:
     """Exercise both Kp12 front-hip wires through the frozen transport, without I/O."""
     manifest = read_json(output / 'active-manifest.json')
     for name in ('singularitydog_hw/rs05_bus_transport.py',
+                 'singularitydog_hw/rs05_fullbody_step2.py',
                  'singularitydog_hw/rs05_trial_protocol.py'):
         require(manifest.get(name) == sha(output / name),
                 f'Frozen transport source is not pinned: {name}')
@@ -72,8 +73,17 @@ import json, math, pathlib, sys
 sys.path.insert(0, sys.argv[1])
 from singularitydog_hw.rs05_bus_transport import BusTrialTransport, MOTION_PHASES
 from singularitydog_hw.rs05_trial_protocol import TrialPhase, motion_request
+from singularitydog_hw.rs05_fullbody_step2 import (
+    _interleaved_feedback_enabled, ROLE_GROUP_REVIEW_SCHEMA,
+    FRONT_HIP_REVIEW_SCOPE, ROLE_FRONT_HIP_GAIN_PROFILE)
 review_path = pathlib.Path(sys.argv[1]) / 'step2-active-review.json'
 amplitude = json.loads(review_path.read_text())['amplitude_deg'] if review_path.exists() else 5.
+review = {'schema': ROLE_GROUP_REVIEW_SCHEMA, 'scope': FRONT_HIP_REVIEW_SCOPE,
+          'role_group': 'front-hip', 'amplitude_deg': amplitude,
+          'gain_profile': ROLE_FRONT_HIP_GAIN_PROFILE}
+interleave = _interleaved_feedback_enabled(review, False)
+assert interleave is (amplitude == 10.)
+assert _interleaved_feedback_enabled(review, True) is False
 phase = (TrialPhase.POSITION_ROLE_FRONT_HIP_KP12_STEP10 if amplitude == 10.
          else TrialPhase.POSITION_ROLE_FRONT_HIP_KP12)
 assert phase in MOTION_PHASES
@@ -82,7 +92,8 @@ class NoHardware:
     def write(self, data): raise AssertionError('No serial write is permitted')
 for mid, direction in ((3, 1), (6, -1)):
     transport = BusTrialTransport(NoHardware(), lambda event: None,
-                                  ids=(1, 2, 3, 4, 5, 6))
+                                  ids=(1, 2, 3, 4, 5, 6), interleave_feedback=interleave)
+    assert transport.interleave_feedback is interleave
     command = motion_request(phase=phase,
                              center_rad=0., offset_rad=direction*math.radians(amplitude-1e-6),
                              motor_id=mid)
@@ -93,6 +104,39 @@ for mid, direction in ((3, 1), (6, -1)):
                             capture_output=True, text=True, timeout=5)
     require(result.returncode == 0,
             'Frozen front-hip Kp12 command rejected before UART: ' + result.stderr[-500:])
+
+
+def validate_frozen_feedback_age(output: Path, manifest_name: str) -> None:
+    """Check the pinned runner and age guard together without opening a device."""
+    manifest = read_json(output / manifest_name)
+    for name in ('singularitydog_hw/rs05_fullbody_step2.py',
+                 'singularitydog_hw/rs05_joint_trial.py'):
+        require(manifest.get(name) == sha(output / name),
+                f'Frozen feedback guard source is not pinned: {name}')
+    program = """
+import sys
+from types import SimpleNamespace
+sys.path.insert(0, sys.argv[1])
+from singularitydog_hw.rs05_joint_trial import check_feedback
+from singularitydog_hw.rs05_fullbody_step2 import check_feedback as runner_check_feedback
+assert runner_check_feedback is check_feedback
+feedback = SimpleNamespace(protocol_position_rad=0., velocity_rad_s=0.,
+                           temperature_c=30., mode_state=2, fault_bits=0)
+def stale(age, **kwargs):
+    try:
+        check_feedback(feedback, 0., 0., age, **kwargs)
+    except RuntimeError as exc:
+        assert str(exc) == 'Stale feedback'
+    else:
+        raise AssertionError('Stale feedback was accepted')
+stale(.12)
+check_feedback(feedback, 0., 0., .12, max_age_s=.125)
+stale(.126, max_age_s=.125)
+"""
+    result = subprocess.run([sys.executable, '-B', '-c', program, str(output)],
+                            capture_output=True, text=True, timeout=5)
+    require(result.returncode == 0,
+            'Frozen feedback age guard rejected: ' + result.stderr[-500:])
 
 
 def directions_for(group: str, profile: str) -> dict[str, int]:
@@ -241,12 +285,14 @@ def disabled(source: Path, hold_path: Path, prepared: Path, output: Path) -> dic
                       (candidate_path, 'offline-raw-step2-candidate.json')):
         shutil.copy2(src, output / dest)
     for name in ('fullbody_step10_plan.py', 'rs05_fullbody_step2.py',
+                 'rs05_joint_trial.py',
                  'rs05_trial_protocol.py'):
         shutil.copy2(RUNTIME / name, output / 'singularitydog_hw' / name)
     write_json(output / 'step2-review.json', review)
     wrapper = output / 'prepared_fullbody.py'
     text = disabled_base.adapt_wrapper(wrapper.read_text(), output.name, boot)
     manifest = pin_package(output, wrapper.name, 'manifest.json', text)
+    validate_frozen_feedback_age(output, 'manifest.json')
     return {'package': str(output), 'boot_id': boot, 'group': group,
             'direction_profile': profile,
             'disabled_only': True, 'pinned_files': len(manifest),
@@ -363,12 +409,16 @@ def active(source: Path, disabled_package: Path, preflight_log: Path,
                 'source_step2_preflight_events_sha256': sha(events_path),
                 'source_physical_review_sha256': sha(physical_path)}
     shutil.copytree(source, output, symlinks=False)
-    for name in ('rs05_fullbody_step2.py', 'fullbody_step10_plan.py',
+    for name in ('rs05_fullbody_step2.py', 'rs05_joint_trial.py',
+                 'fullbody_step10_plan.py',
                  'rs05_step2_packet_gate.py', 'rs05_trial_protocol.py',
                  'rs05_bus_transport.py', 'i2s_announcement.py'):
         shutil.copy2(RUNTIME / name, output / 'singularitydog_hw' / name)
     shutil.copy2(announcement_wav, output / 'test-start-ja.wav')
-    for name in ('test_rs05_fullbody_step2.py', 'test_rs05_step2_packet_gate.py'):
+    for name in ('test_rs05_fullbody_step2.py', 'test_rs05_step2_packet_gate.py',
+                 'test_rs05_bus_transport.py', 'test_rs05_bus_interleave.py',
+                 'test_rs05_joint_trial.py', 'test_rs05_leg_pacing.py',
+                 'test_rs05_leg_transport.py'):
         shutil.copy2(TESTS / name, output / 'tests' / name)
     for src, dest in ((disabled_package / 'step2-review.json', 'step2-disabled-review.json'),
                       (disabled_package / 'offline-raw-step2-candidate.json', 'offline-raw-step2-candidate.json'),
@@ -405,6 +455,7 @@ def active(source: Path, disabled_package: Path, preflight_log: Path,
     text = text.replace('execute_raw_step2', 'execute_role_group_step1')
     text = attach_announcement(text)
     manifest = pin_package(output, wrapper.name, 'active-manifest.json', text)
+    validate_frozen_feedback_age(output, 'active-manifest.json')
     if group == 'front-hip':
         validate_frozen_front_hip_transport(output)
     return {'package': str(output), 'boot_id': boot, 'group': group,

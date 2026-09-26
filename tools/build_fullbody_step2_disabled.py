@@ -226,7 +226,8 @@ def build(source: Path, hold_path: Path, hold_evidence_path: Path,
     shutil.copy2(hold_path, output / 'current-hold-summary.json')
     shutil.copy2(hold_evidence_path, output / 'fullbody-hold-evidence.json')
     shutil.copy2(candidate_path, output / 'offline-raw-step2-candidate.json')
-    for module in ('fullbody_step10_plan.py', 'rs05_fullbody_step2.py'):
+    for module in ('fullbody_step10_plan.py', 'rs05_fullbody_step2.py',
+                   'rs05_joint_trial.py'):
         shutil.copy2(RUNTIME / module, output / 'singularitydog_hw' / module)
     write_json(output / 'step2-review.json', review)
     wrapper = output / 'prepared_fullbody.py'
