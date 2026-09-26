@@ -14,8 +14,8 @@
       "bytes": 13419
     },
     "README.md": {
-      "sha256": "cee79ef0c8583a45df31f0c8ad7fd938a75368c7a24d700e55cabc9256cde2a1",
-      "bytes": 13900
+      "sha256": "907bde1cbc0b592926b466623b8cd839b6c552336b9fee1f3e18f2e7e8665cba",
+      "bytes": 14649
     },
     "RELEASE_FILES.json": {
       "sha256": "841916a88567469fe566a93041ba97fa679967b530c7683cac11c43ff7976509",
@@ -1522,8 +1522,8 @@
       "bytes": 5181
     },
     "runtime/MANUAL_MOTION_CHECK.md": {
-      "sha256": "da4969eadc1256d542c71a143332cc8b074dbfdce8b15252360197b6afc82d63",
-      "bytes": 3442
+      "sha256": "b2cc03d537be4f4947ee466cd07c47c0f80ed1333a91c8f9656fbedb0e8095b1",
+      "bytes": 3837
     },
     "runtime/MANUAL_START_ALIGNMENT.md": {
       "sha256": "72bef8310e17bc13b2cb378cc01e88199937c0bf6f012d74b8f09de71d232647",
@@ -1566,12 +1566,12 @@
       "bytes": 105
     },
     "runtime/singularitydog_hw/bounded_pose_plan.py": {
-      "sha256": "a61ada6279bbe556bae4ae0e78ba6c36dd830aa524e3613b983f7cb3fee026ad",
-      "bytes": 21947
+      "sha256": "5f81a802ad5e981d06e5cb7915bdecf94b1434eae08fa98615c22bcd35177e53",
+      "bytes": 22560
     },
     "runtime/singularitydog_hw/can_pipeline_probe.py": {
-      "sha256": "d9f59454ab838b9dbefbd726a509982ccbbff5432ac8c50fbc466316ed0d0848",
-      "bytes": 22533
+      "sha256": "e90427613d440d624142a850663682aa7ac3367e0daa2e5a028d8bfc2516b5e0",
+      "bytes": 24705
     },
     "runtime/singularitydog_hw/can_readonly.py": {
       "sha256": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
@@ -1630,8 +1630,8 @@
       "bytes": 22510
     },
     "runtime/singularitydog_hw/manual_motion_check.py": {
-      "sha256": "79df839a653b0218a5a146952cef9bc75843cc3c6acba35e57b60e48f6756c8d",
-      "bytes": 13083
+      "sha256": "eff7c10b1249f955b409bc21b9efbeb56cd5a8a4a5b195da9fbe75754ad4c6fb",
+      "bytes": 14019
     },
     "runtime/singularitydog_hw/manual_start_alignment.py": {
       "sha256": "3230f9dc9edd07dfabca8b8f30d73e031f0c9c0afb594709f8359abecf209a21",
@@ -1642,8 +1642,8 @@
       "bytes": 18252
     },
     "runtime/singularitydog_hw/policy_observer.py": {
-      "sha256": "448855bf79b514f251775b0736130328927c989417d10edfaacff1e7254a216e",
-      "bytes": 23866
+      "sha256": "0e1149e92cb72b9faae351adaf58034503e99d9826bd0a66f0bfe721a3998e1b",
+      "bytes": 24431
     },
     "runtime/singularitydog_hw/policy_observer_live.py": {
       "sha256": "f7245dbcf0d872f4aa06377846d7f8e222bf98f1adc084ee791e80ab7db5da70",
@@ -1678,16 +1678,16 @@
       "bytes": 12505
     },
     "runtime/singularitydog_hw/rs05_joint_trial.py": {
-      "sha256": "376bc3cb59cd5cd2953cb5d37c2da6d4241bacba5fc671f8db70a47afa9080dd",
-      "bytes": 22392
+      "sha256": "fbded43b0199c214ac7db4b216ee856413295425c4a366f3ce1bcfc47bef7f76",
+      "bytes": 22562
     },
     "runtime/singularitydog_hw/rs05_leg_trial.py": {
-      "sha256": "94e0ab550976accce560f1fe4b6d11c5a8ea0f209c1e26d5a344c94a8020706a",
-      "bytes": 54019
+      "sha256": "94177ed553cc556bdcab1f637a58de77dae87fd6065ebf5e166f9f71891428c6",
+      "bytes": 73029
     },
     "runtime/singularitydog_hw/rs05_trial_protocol.py": {
-      "sha256": "d290d108bf2333120d5204760d29e081e7e17bb64755b311f5ea8091eeddf614",
-      "bytes": 11022
+      "sha256": "7119678fa75b8c6ae7b38ccc8a9063e62398c92a48675d9f8847a6057a024dc4",
+      "bytes": 16695
     },
     "runtime/singularitydog_hw/safety.py": {
       "sha256": "a23e5f3f0dec748243c2ac1529569eb9557e53c0fe4aba5d48d62925a6d71eab",
@@ -1698,8 +1698,8 @@
       "bytes": 19877
     },
     "runtime/singularitydog_hw/serial_deadline_reader.py": {
-      "sha256": "b3b0fd2d832fa7e8b2202d96f3f60968187ff7ace3a54dd9e1da1edc65f2c06f",
-      "bytes": 6958
+      "sha256": "38ad57fd46fd5a502594018dd2b8b65d8b83748696ffcc05a0e32c13445e6945",
+      "bytes": 11099
     },
     "runtime/singularitydog_hw/telemetry_snapshot.py": {
       "sha256": "47ff8afe07084a62bafb3093a0e60666ac52d9540d90acfe03d5d5a3c0377610",
@@ -1778,8 +1778,8 @@
       "bytes": 9649
     },
     "runtime/tests/test_manual_motion_check.py": {
-      "sha256": "a3f711f046c6b348a99d08632b01bd177d7982894e3cad61a683acf405c313e5",
-      "bytes": 14794
+      "sha256": "d02b0212a5747adaa0ab2040ab972cfce11fec7bdcd053710594f8eef42dba76",
+      "bytes": 17474
     },
     "runtime/tests/test_manual_start_alignment.py": {
       "sha256": "2679b6437e5605a9cce9458e487c7dca06b648f4f9248ac3cf069501f9a4ea7e",
@@ -1790,8 +1790,8 @@
       "bytes": 12982
     },
     "runtime/tests/test_pipeline_select_receive.py": {
-      "sha256": "7735e38249ce9739ff8e89cc293d394bb3bb36e0b06fa0b7ec8924ef07437086",
-      "bytes": 10125
+      "sha256": "b7c7f062e5846e495f76608a9287d7796b0c581ff574cafd4eff02a9cfa31915",
+      "bytes": 18145
     },
     "runtime/tests/test_policy_observer.py": {
       "sha256": "743306d291127ffc28e868cdaa9886e6d9a00933b3442ba4a1b198559290fc4c",
@@ -1842,16 +1842,16 @@
       "bytes": 39632
     },
     "runtime/tests/test_rs05_joint_trial.py": {
-      "sha256": "814342396071a1ba1a5547e1f0fe7b4befbe34becc57cf007fb30c4d0cb32f39",
-      "bytes": 12354
+      "sha256": "786362018df6bbb03a2bf0e551f71a33aaee858035e14372bcafa74b703fd0ed",
+      "bytes": 12764
     },
     "runtime/tests/test_rs05_leg_pacing.py": {
       "sha256": "64f087dd5d9ca2a6eb4ddc42baf0828b3a782bd3aa3acfbb5eabb3f107c64bab",
       "bytes": 6525
     },
     "runtime/tests/test_rs05_leg_position_gate.py": {
-      "sha256": "b7a1d8df7ca678b9ddb1b06f8cd9688376fa822fc8ab85a026884fb58330214c",
-      "bytes": 10168
+      "sha256": "5e3f4c82d83a5d60dc6f7b1721b25ab78fdc5817ca3aa4b684309fd8a529ac17",
+      "bytes": 11628
     },
     "runtime/tests/test_rs05_leg_settled.py": {
       "sha256": "33b60b93566f6428f36c16c8b36e4da9d0d93cc5d8aecedd49b131e97aaa8b2b",
@@ -1878,8 +1878,8 @@
       "bytes": 19256
     },
     "runtime/tests/test_serial_deadline_reader.py": {
-      "sha256": "c0b7471905d164b96e77e559751ec13781d361e942b59593010873644e684a5f",
-      "bytes": 11464
+      "sha256": "7eb63536415579a555766eb49e758ce813cd9eace81dfab7783f36d6d4d73991",
+      "bytes": 20655
     },
     "runtime/tests/test_step5_jog.py": {
       "sha256": "d7a273ce37d1f8869bc07f35e826062532c0b6e81f3e6c071f649ab3f3c33ef8",
