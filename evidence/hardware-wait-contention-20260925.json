@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "sample_count": 180,
+  "distributions": {
+    "no_workers": {
+      "observer_wall_ns": {
+        "count": 60,
+        "median_ms": 4.0212065,
+        "max_ms": 5.673588
+      },
+      "model_call_ns": {
+        "count": 60,
+        "median_ms": 3.091267,
+        "max_ms": 4.766002
+      }
+    },
+    "r7_poll_2ms": {
+      "observer_wall_ns": {
+        "count": 60,
+        "median_ms": 4.122762,
+        "max_ms": 5.881596
+      },
+      "model_call_ns": {
+        "count": 60,
+        "median_ms": 3.138901,
+        "max_ms": 4.901144
+      }
+    },
+    "single_deadline_wait": {
+      "observer_wall_ns": {
+        "count": 60,
+        "median_ms": 4.120714,
+        "max_ms": 5.720342
+      },
+      "model_call_ns": {
+        "count": 60,
+        "median_ms": 3.1497495,
+        "max_ms": 4.789971
+      }
+    }
+  },
+  "all_outputs_and_states_exact": true,
+  "cpu_restored_parent_watchdog_external": true,
+  "live_sensor_access": false,
+  "full_pipeline_20ms_verified": false,
+  "decision": "Polling removal alone has no demonstrated material median benefit; do not adopt as a 4ms fix.",
+  "audit_script_sha256": "7b74cb0ca12fb043a1532fa914f3232f622d7c3f7ee8cca236acd83996f2c23e",
+  "report_sha256": [
+    "329282b401aa0c8784c432a0975bca4a04542a273c13969c6281019547a8eeb9",
+    "fd41e6554062d6ccc602fc611e4bb23a1fc97a096c6c0a02aa9131fa05f7ed64",
+    "a16b636d8ddc57dff4d6db23b4cbd44a4bbca2b14d55719b11950402b418eefc"
+  ],
+  "conditions": "60saved-input observer calls per condition across3fresh processes,performance729600..1497600kHz; no device access"
+}

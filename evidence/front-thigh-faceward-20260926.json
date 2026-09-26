@@ -1,0 +1,145 @@
+{
+  "schema": "singularitydog.front-thigh-faceward.v1",
+  "date": "2026-09-26",
+  "boot_id": "571b75ad-7576-4ce6-9550-d7094c963953",
+  "firmware": "0.5.0.13",
+  "scope": "supported two front upper-leg raw-motor 10-degree diagnostic, other ten hold; not standing or policy deployment",
+  "direction_by_id": {
+    "2": -1,
+    "5": 1,
+    "8": 0,
+    "11": 0
+  },
+  "physical_direction": "both front upper legs toward dog face; rear upper legs held",
+  "status": "RAW_ROLE_GROUP_STEP1_COMPLETED_RESET_CONFIRMED",
+  "errors": [],
+  "cycles_by_bus": {
+    "front": 180,
+    "rear": 180
+  },
+  "all_12_stop_confirmed": true,
+  "port_closes": {
+    "front": true,
+    "rear": true
+  },
+  "locks_released": true,
+  "motor_results": {
+    "1": {
+      "planned_raw_step_deg": 0.0,
+      "observed_from_fresh_center_deg": 0.022,
+      "endpoint_error_from_fresh_center_deg": -0.022,
+      "peak_abs_feedback_torque_nm": 0.018,
+      "fault_bits": [
+        0
+      ]
+    },
+    "2": {
+      "planned_raw_step_deg": -10.0,
+      "observed_from_fresh_center_deg": -10.067,
+      "endpoint_error_from_fresh_center_deg": 0.067,
+      "peak_abs_feedback_torque_nm": 0.213,
+      "fault_bits": [
+        0
+      ]
+    },
+    "3": {
+      "planned_raw_step_deg": 0.0,
+      "observed_from_fresh_center_deg": 0.242,
+      "endpoint_error_from_fresh_center_deg": -0.242,
+      "peak_abs_feedback_torque_nm": 0.091,
+      "fault_bits": [
+        0
+      ]
+    },
+    "4": {
+      "planned_raw_step_deg": 0.0,
+      "observed_from_fresh_center_deg": -1.407,
+      "endpoint_error_from_fresh_center_deg": 1.407,
+      "peak_abs_feedback_torque_nm": 0.148,
+      "fault_bits": [
+        0
+      ]
+    },
+    "5": {
+      "planned_raw_step_deg": 10.0,
+      "observed_from_fresh_center_deg": 9.385,
+      "endpoint_error_from_fresh_center_deg": 0.615,
+      "peak_abs_feedback_torque_nm": 0.194,
+      "fault_bits": [
+        0
+      ]
+    },
+    "6": {
+      "planned_raw_step_deg": 0.0,
+      "observed_from_fresh_center_deg": -0.044,
+      "endpoint_error_from_fresh_center_deg": 0.044,
+      "peak_abs_feedback_torque_nm": 0.016,
+      "fault_bits": [
+        0
+      ]
+    },
+    "7": {
+      "planned_raw_step_deg": 0.0,
+      "observed_from_fresh_center_deg": 0.022,
+      "endpoint_error_from_fresh_center_deg": -0.022,
+      "peak_abs_feedback_torque_nm": 0.026,
+      "fault_bits": [
+        0
+      ]
+    },
+    "8": {
+      "planned_raw_step_deg": 0.0,
+      "observed_from_fresh_center_deg": 0.132,
+      "endpoint_error_from_fresh_center_deg": -0.132,
+      "peak_abs_feedback_torque_nm": 0.021,
+      "fault_bits": [
+        0
+      ]
+    },
+    "9": {
+      "planned_raw_step_deg": 0.0,
+      "observed_from_fresh_center_deg": 0.088,
+      "endpoint_error_from_fresh_center_deg": -0.088,
+      "peak_abs_feedback_torque_nm": 0.039,
+      "fault_bits": [
+        0
+      ]
+    },
+    "10": {
+      "planned_raw_step_deg": 0.0,
+      "observed_from_fresh_center_deg": -0.176,
+      "endpoint_error_from_fresh_center_deg": 0.176,
+      "peak_abs_feedback_torque_nm": 0.048,
+      "fault_bits": [
+        0
+      ]
+    },
+    "11": {
+      "planned_raw_step_deg": 0.0,
+      "observed_from_fresh_center_deg": -0.044,
+      "endpoint_error_from_fresh_center_deg": 0.044,
+      "peak_abs_feedback_torque_nm": 0.019,
+      "fault_bits": [
+        0
+      ]
+    },
+    "12": {
+      "planned_raw_step_deg": 0.0,
+      "observed_from_fresh_center_deg": 0.0,
+      "endpoint_error_from_fresh_center_deg": 0.0,
+      "peak_abs_feedback_torque_nm": 0.013,
+      "fault_bits": [
+        0
+      ]
+    }
+  },
+  "user_observation": "Both front upper legs moved toward the face, with no carbon-pole/wire contact, abnormal sound, vibration, or snagging.",
+  "audio": "Pinned Japanese announcement gate completed before motor enable; human audibility was separately confirmed in the preceding 12-axis hold trial.",
+  "source_remote_log": "/home/jetson/singularitydog-logs/front-thigh-active-audio-r1",
+  "source_sha256": {
+    "summary": "a73b377189d8cf547a80fab5331460d6df0e0e062b3b4db507e0359038ba03a3",
+    "events": "4d2cf543922c9b13b3ffceae3dbb15624819e39973d50ca981631f8ce111254d",
+    "active_manifest": "0cd9a8cc3b09c9c6a61d9d2df04d6fe2a8735a00474fb5c5f20f442efe97b9f5",
+    "announcement_wav": "9fbb27573610dabda9a4e60745f44dcf17936a4f838b23d199e5b8aa1909182f"
+  }
+}

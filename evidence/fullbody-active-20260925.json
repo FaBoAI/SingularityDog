@@ -1,0 +1,244 @@
+{
+  "schema": "supported-fullbody-hold-observation-v1",
+  "date": "2026-09-25",
+  "package": "fullbody-active-r11",
+  "capture": "Fullbody-current-hold-20260925-r8",
+  "status": "INCOMPLETE",
+  "hold_completed": false,
+  "stop_confirmed": true,
+  "operator_observation": "No abnormality, confirmed by operator",
+  "motor_enable_count": 12,
+  "nonzero_command_counts": {
+    "1": 80,
+    "2": 80,
+    "3": 80,
+    "4": 80,
+    "5": 80,
+    "6": 80,
+    "7": 80,
+    "8": 80,
+    "9": 80,
+    "10": 80,
+    "11": 80,
+    "12": 80
+  },
+  "cycle_s": 0.05,
+  "timing": {
+    "front": {
+      "cycles": 80,
+      "median_ms": 37.086455499775184,
+      "maximum_ms": 47.083401000236336,
+      "initial_tick_ms": 47.083401000236336
+    },
+    "rear": {
+      "cycles": 80,
+      "median_ms": 36.88953050004784,
+      "maximum_ms": 47.854393999841704,
+      "initial_tick_ms": 47.854393999841704
+    }
+  },
+  "motors": {
+    "1": {
+      "samples": 80,
+      "maximum_abs_error_deg": 0.021979337712122585,
+      "final_error_deg": -0.021979337712122585,
+      "maximum_abs_reported_torque_nm": 0.025093461509117176
+    },
+    "2": {
+      "samples": 80,
+      "maximum_abs_error_deg": 0.24177271483233068,
+      "final_error_deg": -0.21979337712020808,
+      "maximum_abs_reported_torque_nm": 0.03180743114366358
+    },
+    "3": {
+      "samples": 80,
+      "maximum_abs_error_deg": 0.28573139025657585,
+      "final_error_deg": -0.2637520525444533,
+      "maximum_abs_reported_torque_nm": 0.021568627450980316
+    },
+    "4": {
+      "samples": 80,
+      "maximum_abs_error_deg": 0.06593801313616421,
+      "final_error_deg": 0.04395867542424517,
+      "maximum_abs_reported_torque_nm": 0.015358205539024894
+    },
+    "5": {
+      "samples": 80,
+      "maximum_abs_error_deg": 0.04395867542404162,
+      "final_error_deg": 0.021979337712122585,
+      "maximum_abs_reported_torque_nm": 0.013847562371251954
+    },
+    "6": {
+      "samples": 80,
+      "maximum_abs_error_deg": 0.021979337711919032,
+      "final_error_deg": 0.0,
+      "maximum_abs_reported_torque_nm": 0.015022507057297574
+    },
+    "7": {
+      "samples": 80,
+      "maximum_abs_error_deg": 0.021979337711919032,
+      "final_error_deg": 0.0,
+      "maximum_abs_reported_torque_nm": 0.020225833524071035
+    },
+    "8": {
+      "samples": 80,
+      "maximum_abs_error_deg": 0.24177271483253424,
+      "final_error_deg": 0.21979337712020808,
+      "maximum_abs_reported_torque_nm": 0.030296787975890638
+    },
+    "9": {
+      "samples": 80,
+      "maximum_abs_error_deg": 0.17583470169616647,
+      "final_error_deg": 0.17583470169616647,
+      "maximum_abs_reported_torque_nm": 0.028114747844663057
+    },
+    "10": {
+      "samples": 80,
+      "maximum_abs_error_deg": 1.2528222495865091,
+      "final_error_deg": -1.2308429118743867,
+      "maximum_abs_reported_torque_nm": 0.10347905699244642
+    },
+    "11": {
+      "samples": 80,
+      "maximum_abs_error_deg": 0.04395867542404162,
+      "final_error_deg": 0.02197933771202081,
+      "maximum_abs_reported_torque_nm": 0.009147783627069472
+    },
+    "12": {
+      "samples": 80,
+      "maximum_abs_error_deg": 0.06593801313616421,
+      "final_error_deg": -0.06593801313616421,
+      "maximum_abs_reported_torque_nm": 0.026268406195162797
+    }
+  },
+  "abort_reason": [
+    "RuntimeError('ID10 final hold error exceeds1-degree candidate')"
+  ],
+  "learned_policy_targets_sent": false,
+  "standing_achieved": false,
+  "walking_achieved": false,
+  "source_sha256": {
+    "summary.json": "f4764013baaa3bdcaee79cd0d2365a449c88e380dd6a49cd8ff87927d00bec7c",
+    "events.jsonl": "672c87f017a81b8712073341c28f386dababff366b6db55c142502db98a290a6"
+  },
+  "followup_id10_kp4": {
+    "package": "fullbody-active-r12",
+    "capture": "Fullbody-current-hold-20260925-r9",
+    "status": "CURRENT_HOLD_COMPLETED_RESET_CONFIRMED",
+    "stop_confirmed": true,
+    "operator_observation": "All legs had no abnormality, confirmed by operator",
+    "gain_profile": "id10-kp4-only",
+    "Kp_by_motor_id": {
+      "1": 3.0,
+      "2": 3.0,
+      "3": 3.0,
+      "4": 3.0,
+      "5": 3.0,
+      "6": 3.0,
+      "7": 3.0,
+      "8": 3.0,
+      "9": 3.0,
+      "10": 4.0,
+      "11": 3.0,
+      "12": 3.0
+    },
+    "Kd": 0.15,
+    "cycle_s": 0.05,
+    "command_counts": {
+      "1": 100,
+      "2": 100,
+      "3": 100,
+      "4": 100,
+      "5": 100,
+      "6": 100,
+      "7": 100,
+      "8": 100,
+      "9": 100,
+      "10": 100,
+      "11": 100,
+      "12": 100
+    },
+    "final_hold": {
+      "1": {
+        "samples": 20,
+        "observed_span_s": 0.9498607810000976,
+        "maximum_abs_error_deg": 0.021979337711919032
+      },
+      "2": {
+        "samples": 20,
+        "observed_span_s": 0.9498607810000976,
+        "maximum_abs_error_deg": 0.06593801313596065
+      },
+      "3": {
+        "samples": 20,
+        "observed_span_s": 0.9498607810000976,
+        "maximum_abs_error_deg": 0.06593801313616421
+      },
+      "4": {
+        "samples": 20,
+        "observed_span_s": 0.9498607810000976,
+        "maximum_abs_error_deg": 0.0879173508482868
+      },
+      "5": {
+        "samples": 20,
+        "observed_span_s": 0.9498607810000976,
+        "maximum_abs_error_deg": 0.021979337712122585
+      },
+      "6": {
+        "samples": 20,
+        "observed_span_s": 0.9498349240002426,
+        "maximum_abs_error_deg": 0.021979337711919032
+      },
+      "7": {
+        "samples": 20,
+        "observed_span_s": 0.9498643650003942,
+        "maximum_abs_error_deg": 0.43958675424102683
+      },
+      "8": {
+        "samples": 20,
+        "observed_span_s": 0.9498643650003942,
+        "maximum_abs_error_deg": 0.9231321839056882
+      },
+      "9": {
+        "samples": 20,
+        "observed_span_s": 0.9498643650003942,
+        "maximum_abs_error_deg": 0.8571941707697275
+      },
+      "10": {
+        "samples": 20,
+        "observed_span_s": 0.9498643650003942,
+        "maximum_abs_error_deg": 0.24177271483253424
+      },
+      "11": {
+        "samples": 20,
+        "observed_span_s": 0.9498643650003942,
+        "maximum_abs_error_deg": 0.0439586754241434
+      },
+      "12": {
+        "samples": 20,
+        "observed_span_s": 0.9500045310005589,
+        "maximum_abs_error_deg": 0.021979337711919032
+      }
+    },
+    "timing": {
+      "front": {
+        "cycles": 100,
+        "maximum_ms": 47.060832000170194,
+        "median_ms": 37.113537000095675
+      },
+      "rear": {
+        "cycles": 100,
+        "maximum_ms": 48.46440799974516,
+        "median_ms": 36.72648149995439
+      }
+    },
+    "learned_policy_targets_sent": false,
+    "standing_achieved": false,
+    "walking_achieved": false,
+    "comparison_limit": "Pose changed during manual L recapture; improvement is not an isolated gain comparison",
+    "source_sha256": {
+      "summary.json": "a2b1b3254f340d442b308695d9cd473398d41b58747a117d5b8298f7e7421989",
+      "events.jsonl": "0c62ba3dec6247a0d8f81b869239c2fe155a0af580acfe948ac0b92c0fb4a977"
+    }
+  }
+}

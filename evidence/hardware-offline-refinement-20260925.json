@@ -1,0 +1,75 @@
+{
+  "status": "PASS",
+  "reports": [
+    {
+      "run": 1,
+      "report_sha256": "4c17d57f9f0dd85be46670aa8462d236d9902db2fd74732d86aa076a1a9b72d6",
+      "status": "OFFLINE_IDLE_REPLAY_EXACT_PARITY_PASS"
+    },
+    {
+      "run": 2,
+      "report_sha256": "3aa33f88f09b7447bfdb4157ebdd47883c7df852afecc939186f783ab5eec42c",
+      "status": "OFFLINE_IDLE_REPLAY_EXACT_PARITY_PASS"
+    },
+    {
+      "run": 3,
+      "report_sha256": "34ea3b55ad190a9b6d98ad09940dfb5fd5a68f75516527c5aeb220b006f1bc49",
+      "status": "COMPLETE_OFFLINE_BUILDER_PARITY"
+    }
+  ],
+  "idle": {
+    "immediate": {
+      "observer_wall_ns": {
+        "count": 24,
+        "median_ms": 4.01267,
+        "max_ms": 4.296775
+      },
+      "model_call_ns": {
+        "count": 24,
+        "median_ms": 3.091409,
+        "max_ms": 3.307239
+      }
+    },
+    "idle_100ms": {
+      "observer_wall_ns": {
+        "count": 24,
+        "median_ms": 4.1383855,
+        "max_ms": 4.557423
+      },
+      "model_call_ns": {
+        "count": 24,
+        "median_ms": 3.192036,
+        "max_ms": 3.504302
+      }
+    },
+    "idle_100ms_rewarm10_reset": {
+      "observer_wall_ns": {
+        "count": 24,
+        "median_ms": 3.856169,
+        "max_ms": 4.032863
+      },
+      "model_call_ns": {
+        "count": 24,
+        "median_ms": 2.86665,
+        "max_ms": 3.035039
+      }
+    }
+  },
+  "builder": {
+    "baseline": {
+      "count": 90,
+      "median_ms": 1.3201215,
+      "max_ms": 2.514351
+    },
+    "candidate": {
+      "count": 90,
+      "median_ms": 1.2641355,
+      "max_ms": 1.496078
+    }
+  },
+  "all_outputs_exact": true,
+  "cpu_restored_parent_watchdog_external": true,
+  "hardware_opened": false,
+  "full_pipeline_20ms_verified": false,
+  "audit_script_sha256": "889c5ee4ebd1474ae05891fbf0ab2f755317bcbcfdad22b6f5c6c7a22d36cfa7"
+}

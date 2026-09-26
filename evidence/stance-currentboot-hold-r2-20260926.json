@@ -1,0 +1,23 @@
+{
+  "schema": "singularitydog.stance-currentboot-hold-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "0bda2b28-6d89-4d02-9d35-fc7542280991",
+  "source_log": "/home/jetson/singularitydog-logs/fullbody-hold-0bda-r2",
+  "summary_sha256": "4dfa36f0015e501988600550d840b359a8eee903a011f5fb30be0028aac6bb7b",
+  "events_sha256": "6f581f78e535d1875d60272610a183777276bebba320b4fc495a63a19d79b26b",
+  "status": "CURRENT_HOLD_COMPLETED_RESET_CONFIRMED",
+  "gain_profile": "id4-id10-kp4",
+  "test_scope": "supported current-position hold; not standing or policy control",
+  "cycles_by_bus": {
+    "front": 100,
+    "rear": 100
+  },
+  "nominal_cycle_ms": 50,
+  "all_12_stop_confirmed": true,
+  "ports_closed": true,
+  "locks_released": true,
+  "errors": [],
+  "operator_observation": "全脚とも異常なし",
+  "standing_completed": false,
+  "learned_policy_sent": false
+}

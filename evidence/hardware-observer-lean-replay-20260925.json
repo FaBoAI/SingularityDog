@@ -1,0 +1,1981 @@
+{
+  "schema": "singularitydog.hardware_observer_lean_replay.v1",
+  "date": "2026-09-25",
+  "status": "FILE_ONLY_FULL_OBSERVER_EXACT_PARITY_PASS",
+  "candidate_only": true,
+  "publication_ready": true,
+  "hardware_opened": false,
+  "fresh_input": false,
+  "source_timestamps_changed": false,
+  "output_allowed": false,
+  "approved_for_runtime": false,
+  "full_pipeline_20ms_verified": false,
+  "public_runtime_source_changed": false,
+  "live_50hz_verified": false,
+  "model_weights_changed": false,
+  "safety_checks_relaxed": false,
+  "comparison_factor": "Pinned original versus previously parity-validated lean model only",
+  "source_bundle": "observer-lean-replay-r1",
+  "observer_source_basis": "integrated-stop-proxy-r5 byte-identical file-only subset",
+  "saved_input_capture": "postfw-cadence-20260925-06-phase",
+  "saved_full_result_parity_passed": true,
+  "source_files_sha256": {
+    "singularitydog_hw/__init__.py": "2344e5418b018be98cbd653b54e9330fbca4ee1d0e35fe01acb3a3ff9bde46c7",
+    "singularitydog_hw/policy_observer.py": "0e1149e92cb72b9faae351adaf58034503e99d9826bd0a66f0bfe721a3998e1b",
+    "singularitydog_hw/policy_shadow.py": "d46181303822563f24572f15ab8af6d3c7ebd82be4d5529b7aa4d38b683a8016",
+    "singularitydog_hw/event_snapshot.py": "1c2c8f01fbcc5fd0175cb31ad246d450aa695ff101374da3488363a47b068758",
+    "calibration.json": "8712f765f4760577a1a3d0612948d23269256cdf35438a72dec8a39529c4029e",
+    "imu-mount-candidate.json": "b9f6814e13141e82efca0fbb64772847ae7ad91434282b8c9b1e038b3c42b420",
+    "imu-fixed-mount-gyro-candidate-r1.json": "facb6cc9b78cf0616b3b3d71e6c633b4f1891ad234e01d85b3bd78349f214631",
+    "saved-report.json": "5176e3802afae8afa57d6df820b18a04c72301c1cf691afb953d1063969123bf"
+  },
+  "harness_sha256": "818a7305ca59aaea8fd790d553f8a36ddf60360175286efef288d209dcf7d9b4",
+  "manifest_sha256": "5e1ddaf41ec690a4ac8d72d0a4d3ba47bd26f408205ac02a1a2cd6bd996304db",
+  "manifest_status_is_preexecution_snapshot": true,
+  "result_sha256": "63dcd3ee14dc2ba4b341c021f67a90f78f50917311d6304fa85639e11971146c",
+  "result_bytes": 1274451,
+  "native_model_sha256": "e87e9944aea8d7c6b8e32d144b8c6f4b37ac2c863c45353c9c228f8c9d0ea07f",
+  "lean_model_sha256": "022fb1bb07661804cc6a5060c39d0c76ddd767efb70a3800155af53f1a31f639",
+  "native_library_sha256": "d8ed379d1d2fd01459df35f4063b682d6467129945504791445c65bc756d61bf",
+  "torch_version": "2.14.0+cpu",
+  "threads": {
+    "intraop": 1,
+    "interop": 1
+  },
+  "execution": {
+    "fresh_processes": 1,
+    "models": 2,
+    "pairs": 40,
+    "total_calls_measured": 80,
+    "alternating_first_model_each_pair": true,
+    "warmup_calls_per_model": 10,
+    "untimed_saved_snapshot_preflight_per_model": 1,
+    "reset_before_each_trial": true,
+    "reset_inside_timing": false,
+    "continuous_state_sequence_measured": false,
+    "first_saved_input_call_timed": false,
+    "cpu_governor_changed": false,
+    "affinity_changed": false
+  },
+  "exact_equivalence": {
+    "full_observer_results_except_timing_equal_each_pair": true,
+    "all_trials_equal_saved_result_except_timing_and_run_counter": true,
+    "input_conversion_provenance_target12_observation74_actor12_compared": true,
+    "all_named_buffers_and_parameters_torch_equal_each_pair": true,
+    "reset_states_exact_each_pair": true,
+    "observer_committed_states_exact_each_pair": true,
+    "snapshot_unchanged_each_trial": true,
+    "saved_source_timestamps_unchanged": true,
+    "state_tensor_names": [
+      "named_buffers:controller.anchor",
+      "named_buffers:controller.elapsed",
+      "named_buffers:controller.filters",
+      "named_buffers:controller.heading_error_rad",
+      "named_buffers:controller.lower",
+      "named_buffers:controller.nominal",
+      "named_buffers:controller.offsets",
+      "named_buffers:controller.origins",
+      "named_buffers:controller.output_anchor",
+      "named_buffers:controller.phase",
+      "named_buffers:controller.previous_clipped",
+      "named_buffers:controller.safe_lower",
+      "named_buffers:controller.safe_upper",
+      "named_buffers:controller.scale",
+      "named_buffers:controller.sensor_q",
+      "named_buffers:controller.sensor_up",
+      "named_buffers:controller.sensor_yaw_rate",
+      "named_buffers:controller.signs",
+      "named_buffers:controller.upper",
+      "named_buffers:controller.yaw_filters",
+      "named_buffers:last_actor_output",
+      "named_buffers:last_observation",
+      "named_parameters:actor.0.bias",
+      "named_parameters:actor.0.weight",
+      "named_parameters:actor.2.bias",
+      "named_parameters:actor.2.weight",
+      "named_parameters:actor.4.bias",
+      "named_parameters:actor.4.weight",
+      "named_parameters:actor.6.bias",
+      "named_parameters:actor.6.weight"
+    ]
+  },
+  "rejections": [
+    {
+      "case": "position_nan",
+      "same_reason": true,
+      "model_rejection": false,
+      "reason": "Invalid bounded JSON snapshot: Nonfinite event number",
+      "post_exception_state_exact": true,
+      "tick_not_committed": true
+    },
+    {
+      "case": "position_range",
+      "same_reason": true,
+      "model_rejection": false,
+      "reason": "Calibrated position outside registered joint range; no clipping",
+      "post_exception_state_exact": true,
+      "tick_not_committed": true
+    },
+    {
+      "case": "velocity_inf",
+      "same_reason": true,
+      "model_rejection": false,
+      "reason": "Invalid bounded JSON snapshot: Nonfinite event number",
+      "post_exception_state_exact": true,
+      "tick_not_committed": true
+    },
+    {
+      "case": "gyro_nan",
+      "same_reason": true,
+      "model_rejection": false,
+      "reason": "Invalid bounded JSON snapshot: Nonfinite event number",
+      "post_exception_state_exact": true,
+      "tick_not_committed": true
+    },
+    {
+      "case": "zero_acceleration",
+      "same_reason": true,
+      "model_rejection": false,
+      "reason": "Invalid acceleration gravity-proxy norm",
+      "post_exception_state_exact": true,
+      "tick_not_committed": true
+    },
+    {
+      "case": "missing_motor",
+      "same_reason": true,
+      "model_rejection": false,
+      "reason": "Missing 24 motor values",
+      "post_exception_state_exact": true,
+      "tick_not_committed": true
+    },
+    {
+      "case": "duplicate_motor",
+      "same_reason": true,
+      "model_rejection": false,
+      "reason": "Duplicate motor key",
+      "post_exception_state_exact": true,
+      "tick_not_committed": true
+    },
+    {
+      "case": "future_motor",
+      "same_reason": true,
+      "model_rejection": false,
+      "reason": "Noncausal motor observation",
+      "post_exception_state_exact": true,
+      "tick_not_committed": true
+    },
+    {
+      "case": "wrong_age",
+      "same_reason": true,
+      "model_rejection": false,
+      "reason": "Invalid motor age",
+      "post_exception_state_exact": true,
+      "tick_not_committed": true
+    },
+    {
+      "case": "missed_tick",
+      "same_reason": true,
+      "model_rejection": false,
+      "reason": "Missed, repeated or out-of-order 20ms tick; no catchup",
+      "post_exception_state_exact": true,
+      "tick_not_committed": true
+    },
+    {
+      "case": "nonfinite_provenance",
+      "same_reason": true,
+      "model_rejection": false,
+      "reason": "Invalid bounded JSON snapshot: Nonfinite event number",
+      "post_exception_state_exact": true,
+      "tick_not_committed": true
+    },
+    {
+      "case": "model_heading_singular",
+      "same_reason": true,
+      "model_rejection": true,
+      "reason": "builtins.ValueError: IMU heading rate singular near vertical pitch",
+      "post_exception_state_exact": true,
+      "tick_not_committed": true
+    }
+  ],
+  "validation": {
+    "local_tests": 4,
+    "local_tests_passed": 4,
+    "local_tests_use_fake_policy": true,
+    "real_policy_executed_on_jetson": true,
+    "all_80_raw_duration_rows_recomputed": true,
+    "all_paired_state_and_result_hashes_independently_rechecked": true,
+    "stage_distribution_values_recomputed": true,
+    "hardware_packages_imported": []
+  },
+  "distributions": {
+    "native": {
+      "wall_ns": {
+        "samples": 40,
+        "median_ms": 6.2311685,
+        "p95_nearest_rank_ms": 6.796903,
+        "max_ms": 7.000207
+      },
+      "thread_cpu_ns": {
+        "samples": 40,
+        "median_ms": 5.974064,
+        "p95_nearest_rank_ms": 6.137312,
+        "max_ms": 6.200352
+      }
+    },
+    "lean": {
+      "wall_ns": {
+        "samples": 40,
+        "median_ms": 5.9574465,
+        "p95_nearest_rank_ms": 6.420376,
+        "max_ms": 6.77703
+      },
+      "thread_cpu_ns": {
+        "samples": 40,
+        "median_ms": 5.711728,
+        "p95_nearest_rank_ms": 5.853216,
+        "max_ms": 5.937312
+      }
+    }
+  },
+  "stage_distributions": {
+    "native": {
+      "snapshot_copy": {
+        "samples": 40,
+        "median_ms": 0.1693985,
+        "p95_nearest_rank_ms": 0.189896,
+        "max_ms": 0.381038
+      },
+      "source_validation": {
+        "samples": 40,
+        "median_ms": 0.1312535,
+        "p95_nearest_rank_ms": 0.143557,
+        "max_ms": 0.160582
+      },
+      "input_conversion": {
+        "samples": 40,
+        "median_ms": 0.050722,
+        "p95_nearest_rank_ms": 0.055171,
+        "max_ms": 0.070915
+      },
+      "provenance_serialization": {
+        "samples": 40,
+        "median_ms": 0.390671,
+        "p95_nearest_rank_ms": 0.423089,
+        "max_ms": 0.434385
+      },
+      "tensor_conversion": {
+        "samples": 40,
+        "median_ms": 0.1062765,
+        "p95_nearest_rank_ms": 0.125765,
+        "max_ms": 0.126021
+      },
+      "model_call": {
+        "samples": 40,
+        "median_ms": 5.096341,
+        "p95_nearest_rank_ms": 5.570391,
+        "max_ms": 5.889859
+      },
+      "output_conversion_validation": {
+        "samples": 40,
+        "median_ms": 0.151686,
+        "p95_nearest_rank_ms": 0.180039,
+        "max_ms": 0.183015
+      },
+      "result_build": {
+        "samples": 40,
+        "median_ms": 0.018113,
+        "p95_nearest_rank_ms": 0.019584,
+        "max_ms": 0.021184
+      }
+    },
+    "lean": {
+      "snapshot_copy": {
+        "samples": 40,
+        "median_ms": 0.169894,
+        "p95_nearest_rank_ms": 0.187111,
+        "max_ms": 0.189799
+      },
+      "source_validation": {
+        "samples": 40,
+        "median_ms": 0.131109,
+        "p95_nearest_rank_ms": 0.147365,
+        "max_ms": 0.159174
+      },
+      "input_conversion": {
+        "samples": 40,
+        "median_ms": 0.050226,
+        "p95_nearest_rank_ms": 0.058786,
+        "max_ms": 0.074083
+      },
+      "provenance_serialization": {
+        "samples": 40,
+        "median_ms": 0.386719,
+        "p95_nearest_rank_ms": 0.423217,
+        "max_ms": 0.427505
+      },
+      "tensor_conversion": {
+        "samples": 40,
+        "median_ms": 0.108516,
+        "p95_nearest_rank_ms": 0.149638,
+        "max_ms": 0.312812
+      },
+      "model_call": {
+        "samples": 40,
+        "median_ms": 4.8002495,
+        "p95_nearest_rank_ms": 5.332654,
+        "max_ms": 5.663515
+      },
+      "output_conversion_validation": {
+        "samples": 40,
+        "median_ms": 0.151126,
+        "p95_nearest_rank_ms": 0.178311,
+        "max_ms": 0.183911
+      },
+      "result_build": {
+        "samples": 40,
+        "median_ms": 0.018112,
+        "p95_nearest_rank_ms": 0.0208,
+        "max_ms": 0.040418
+      }
+    }
+  },
+  "paired_wall_native_minus_lean": {
+    "median_ms": 0.233945,
+    "min_ms": -0.141766,
+    "max_ms": 1.10273,
+    "lean_faster_pairs": 35,
+    "lean_slower_pairs": 5,
+    "equal_pairs": 0
+  },
+  "observer_wall_median_difference_ms": 0.27372200000000024,
+  "timing_scope": "Complete observer.consume(saved snapshot), reset excluded",
+  "timing_excludes": [
+    "model load",
+    "warmup",
+    "reset",
+    "state/output comparisons",
+    "sensor acquisition",
+    "snapshot assembly",
+    "transport",
+    "file I/O"
+  ],
+  "raw_samples": [
+    {
+      "pair": 0,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 5309965,
+      "thread_cpu_ns": 5186560,
+      "stage_durations_ns": {
+        "snapshot_copy": 210728,
+        "source_validation": 159495,
+        "input_conversion": 61378,
+        "provenance_serialization": 430801,
+        "tensor_conversion": 126021,
+        "model_call": 4048124,
+        "output_conversion_validation": 174375,
+        "result_build": 21184
+      }
+    },
+    {
+      "pair": 0,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 4941503,
+      "thread_cpu_ns": 4893888,
+      "stage_durations_ns": {
+        "snapshot_copy": 184199,
+        "source_validation": 137637,
+        "input_conversion": 65506,
+        "provenance_serialization": 427505,
+        "tensor_conversion": 149638,
+        "model_call": 3657773,
+        "output_conversion_validation": 183911,
+        "result_build": 21729
+      }
+    },
+    {
+      "pair": 1,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 4740535,
+      "thread_cpu_ns": 4720800,
+      "stage_durations_ns": {
+        "snapshot_copy": 184135,
+        "source_validation": 159174,
+        "input_conversion": 57826,
+        "provenance_serialization": 423217,
+        "tensor_conversion": 119556,
+        "model_call": 3519016,
+        "output_conversion_validation": 167239,
+        "result_build": 20800
+      }
+    },
+    {
+      "pair": 1,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 4871068,
+      "thread_cpu_ns": 4840736,
+      "stage_durations_ns": {
+        "snapshot_copy": 187847,
+        "source_validation": 134917,
+        "input_conversion": 55171,
+        "provenance_serialization": 411024,
+        "tensor_conversion": 112132,
+        "model_call": 3684398,
+        "output_conversion_validation": 183015,
+        "result_build": 18113
+      }
+    },
+    {
+      "pair": 2,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 4559568,
+      "thread_cpu_ns": 4523680,
+      "stage_durations_ns": {
+        "snapshot_copy": 163975,
+        "source_validation": 130181,
+        "input_conversion": 50177,
+        "provenance_serialization": 380303,
+        "tensor_conversion": 105700,
+        "model_call": 3476775,
+        "output_conversion_validation": 150725,
+        "result_build": 17793
+      }
+    },
+    {
+      "pair": 2,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 4224739,
+      "thread_cpu_ns": 4219968,
+      "stage_durations_ns": {
+        "snapshot_copy": 177479,
+        "source_validation": 128453,
+        "input_conversion": 48866,
+        "provenance_serialization": 387151,
+        "tensor_conversion": 114500,
+        "model_call": 3119129,
+        "output_conversion_validation": 151590,
+        "result_build": 18337
+      }
+    },
+    {
+      "pair": 3,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 3965433,
+      "thread_cpu_ns": 3959072,
+      "stage_durations_ns": {
+        "snapshot_copy": 165991,
+        "source_validation": 147365,
+        "input_conversion": 49218,
+        "provenance_serialization": 381199,
+        "tensor_conversion": 108388,
+        "model_call": 2866959,
+        "output_conversion_validation": 148262,
+        "result_build": 17056
+      }
+    },
+    {
+      "pair": 3,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 4540176,
+      "thread_cpu_ns": 4497664,
+      "stage_durations_ns": {
+        "snapshot_copy": 179366,
+        "source_validation": 128101,
+        "input_conversion": 49506,
+        "provenance_serialization": 379791,
+        "tensor_conversion": 107012,
+        "model_call": 3436773,
+        "output_conversion_validation": 163558,
+        "result_build": 16321
+      }
+    },
+    {
+      "pair": 4,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 4526894,
+      "thread_cpu_ns": 4480608,
+      "stage_durations_ns": {
+        "snapshot_copy": 166022,
+        "source_validation": 131333,
+        "input_conversion": 50594,
+        "provenance_serialization": 380815,
+        "tensor_conversion": 103460,
+        "model_call": 3446949,
+        "output_conversion_validation": 146918,
+        "result_build": 17600
+      }
+    },
+    {
+      "pair": 4,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 4326567,
+      "thread_cpu_ns": 4285536,
+      "stage_durations_ns": {
+        "snapshot_copy": 174087,
+        "source_validation": 128805,
+        "input_conversion": 49154,
+        "provenance_serialization": 380655,
+        "tensor_conversion": 109124,
+        "model_call": 3233757,
+        "output_conversion_validation": 149542,
+        "result_build": 18080
+      }
+    },
+    {
+      "pair": 5,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 4439595,
+      "thread_cpu_ns": 4399296,
+      "stage_durations_ns": {
+        "snapshot_copy": 165062,
+        "source_validation": 152582,
+        "input_conversion": 50242,
+        "provenance_serialization": 378607,
+        "tensor_conversion": 274346,
+        "model_call": 3166939,
+        "output_conversion_validation": 151237,
+        "result_build": 17345
+      }
+    },
+    {
+      "pair": 5,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 4350536,
+      "thread_cpu_ns": 4343680,
+      "stage_durations_ns": {
+        "snapshot_copy": 183047,
+        "source_validation": 131429,
+        "input_conversion": 51042,
+        "provenance_serialization": 379823,
+        "tensor_conversion": 110660,
+        "model_call": 3244062,
+        "output_conversion_validation": 149861,
+        "result_build": 17601
+      }
+    },
+    {
+      "pair": 6,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 4262821,
+      "thread_cpu_ns": 4257152,
+      "stage_durations_ns": {
+        "snapshot_copy": 165415,
+        "source_validation": 143557,
+        "input_conversion": 49442,
+        "provenance_serialization": 381999,
+        "tensor_conversion": 106148,
+        "model_call": 3164986,
+        "output_conversion_validation": 152294,
+        "result_build": 17601
+      }
+    },
+    {
+      "pair": 6,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 4016220,
+      "thread_cpu_ns": 4009984,
+      "stage_durations_ns": {
+        "snapshot_copy": 179366,
+        "source_validation": 127077,
+        "input_conversion": 49378,
+        "provenance_serialization": 385903,
+        "tensor_conversion": 132709,
+        "model_call": 2877776,
+        "output_conversion_validation": 146821,
+        "result_build": 17281
+      }
+    },
+    {
+      "pair": 7,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 6777030,
+      "thread_cpu_ns": 5564032,
+      "stage_durations_ns": {
+        "snapshot_copy": 166599,
+        "source_validation": 133125,
+        "input_conversion": 49634,
+        "provenance_serialization": 403375,
+        "tensor_conversion": 104260,
+        "model_call": 5663515,
+        "output_conversion_validation": 152582,
+        "result_build": 18753
+      }
+    },
+    {
+      "pair": 7,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6796903,
+      "thread_cpu_ns": 6079840,
+      "stage_durations_ns": {
+        "snapshot_copy": 381038,
+        "source_validation": 131845,
+        "input_conversion": 53858,
+        "provenance_serialization": 395120,
+        "tensor_conversion": 110436,
+        "model_call": 5473876,
+        "output_conversion_validation": 151909,
+        "result_build": 17793
+      }
+    },
+    {
+      "pair": 8,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6139117,
+      "thread_cpu_ns": 6066752,
+      "stage_durations_ns": {
+        "snapshot_copy": 189896,
+        "source_validation": 134661,
+        "input_conversion": 52354,
+        "provenance_serialization": 406032,
+        "tensor_conversion": 105764,
+        "model_call": 4994049,
+        "output_conversion_validation": 152550,
+        "result_build": 18208
+      }
+    },
+    {
+      "pair": 8,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 6064394,
+      "thread_cpu_ns": 5769184,
+      "stage_durations_ns": {
+        "snapshot_copy": 189159,
+        "source_validation": 136518,
+        "input_conversion": 50785,
+        "provenance_serialization": 389648,
+        "tensor_conversion": 112708,
+        "model_call": 4937343,
+        "output_conversion_validation": 150373,
+        "result_build": 17633
+      }
+    },
+    {
+      "pair": 9,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 6108492,
+      "thread_cpu_ns": 5563040,
+      "stage_durations_ns": {
+        "snapshot_copy": 165414,
+        "source_validation": 132197,
+        "input_conversion": 74083,
+        "provenance_serialization": 417744,
+        "tensor_conversion": 120965,
+        "model_call": 4946815,
+        "output_conversion_validation": 150086,
+        "result_build": 17536
+      }
+    },
+    {
+      "pair": 9,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6508795,
+      "thread_cpu_ns": 5977216,
+      "stage_durations_ns": {
+        "snapshot_copy": 174247,
+        "source_validation": 127972,
+        "input_conversion": 49122,
+        "provenance_serialization": 377935,
+        "tensor_conversion": 108932,
+        "model_call": 5421746,
+        "output_conversion_validation": 149573,
+        "result_build": 18081
+      }
+    },
+    {
+      "pair": 10,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6619903,
+      "thread_cpu_ns": 6071168,
+      "stage_durations_ns": {
+        "snapshot_copy": 168582,
+        "source_validation": 130693,
+        "input_conversion": 50562,
+        "provenance_serialization": 392687,
+        "tensor_conversion": 102212,
+        "model_call": 5518262,
+        "output_conversion_validation": 154310,
+        "result_build": 18624
+      }
+    },
+    {
+      "pair": 10,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 5814240,
+      "thread_cpu_ns": 5730848,
+      "stage_durations_ns": {
+        "snapshot_copy": 180135,
+        "source_validation": 128677,
+        "input_conversion": 50594,
+        "provenance_serialization": 393967,
+        "tensor_conversion": 109508,
+        "model_call": 4701686,
+        "output_conversion_validation": 149414,
+        "result_build": 18240
+      }
+    },
+    {
+      "pair": 11,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 5818240,
+      "thread_cpu_ns": 5745216,
+      "stage_durations_ns": {
+        "snapshot_copy": 169286,
+        "source_validation": 143238,
+        "input_conversion": 53154,
+        "provenance_serialization": 384943,
+        "tensor_conversion": 103396,
+        "model_call": 4689333,
+        "output_conversion_validation": 152326,
+        "result_build": 17089
+      }
+    },
+    {
+      "pair": 11,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6278034,
+      "thread_cpu_ns": 5798080,
+      "stage_durations_ns": {
+        "snapshot_copy": 177063,
+        "source_validation": 128549,
+        "input_conversion": 49858,
+        "provenance_serialization": 382127,
+        "tensor_conversion": 109796,
+        "model_call": 5179528,
+        "output_conversion_validation": 151590,
+        "result_build": 17312
+      }
+    },
+    {
+      "pair": 12,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6417176,
+      "thread_cpu_ns": 5931072,
+      "stage_durations_ns": {
+        "snapshot_copy": 167303,
+        "source_validation": 131685,
+        "input_conversion": 49602,
+        "provenance_serialization": 392783,
+        "tensor_conversion": 108868,
+        "model_call": 5306989,
+        "output_conversion_validation": 158118,
+        "result_build": 18145
+      }
+    },
+    {
+      "pair": 12,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 5987944,
+      "thread_cpu_ns": 5937312,
+      "stage_durations_ns": {
+        "snapshot_copy": 176519,
+        "source_validation": 130277,
+        "input_conversion": 52130,
+        "provenance_serialization": 384271,
+        "tensor_conversion": 312812,
+        "model_call": 4678005,
+        "output_conversion_validation": 153510,
+        "result_build": 18241
+      }
+    },
+    {
+      "pair": 13,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 6420376,
+      "thread_cpu_ns": 5703968,
+      "stage_durations_ns": {
+        "snapshot_copy": 178055,
+        "source_validation": 138021,
+        "input_conversion": 50818,
+        "provenance_serialization": 409936,
+        "tensor_conversion": 110084,
+        "model_call": 5278348,
+        "output_conversion_validation": 152358,
+        "result_build": 18241
+      }
+    },
+    {
+      "pair": 13,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6590878,
+      "thread_cpu_ns": 5830048,
+      "stage_durations_ns": {
+        "snapshot_copy": 167526,
+        "source_validation": 137798,
+        "input_conversion": 50754,
+        "provenance_serialization": 419696,
+        "tensor_conversion": 125797,
+        "model_call": 5433202,
+        "output_conversion_validation": 156358,
+        "result_build": 17729
+      }
+    },
+    {
+      "pair": 14,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6200815,
+      "thread_cpu_ns": 6096000,
+      "stage_durations_ns": {
+        "snapshot_copy": 168326,
+        "source_validation": 131685,
+        "input_conversion": 50210,
+        "provenance_serialization": 423089,
+        "tensor_conversion": 123237,
+        "model_call": 5048163,
+        "output_conversion_validation": 153158,
+        "result_build": 18688
+      }
+    },
+    {
+      "pair": 14,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 5885859,
+      "thread_cpu_ns": 5789760,
+      "stage_durations_ns": {
+        "snapshot_copy": 176903,
+        "source_validation": 127077,
+        "input_conversion": 58786,
+        "provenance_serialization": 383631,
+        "tensor_conversion": 108516,
+        "model_call": 4779225,
+        "output_conversion_validation": 150469,
+        "result_build": 18273
+      }
+    },
+    {
+      "pair": 15,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 5809025,
+      "thread_cpu_ns": 5743872,
+      "stage_durations_ns": {
+        "snapshot_copy": 167463,
+        "source_validation": 130693,
+        "input_conversion": 49538,
+        "provenance_serialization": 378350,
+        "tensor_conversion": 122085,
+        "model_call": 4687701,
+        "output_conversion_validation": 169831,
+        "result_build": 17344
+      }
+    },
+    {
+      "pair": 15,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6911755,
+      "thread_cpu_ns": 6200352,
+      "stage_durations_ns": {
+        "snapshot_copy": 173127,
+        "source_validation": 160582,
+        "input_conversion": 54914,
+        "provenance_serialization": 404592,
+        "tensor_conversion": 112836,
+        "model_call": 5737182,
+        "output_conversion_validation": 163142,
+        "result_build": 19809
+      }
+    },
+    {
+      "pair": 16,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6089964,
+      "thread_cpu_ns": 5996672,
+      "stage_durations_ns": {
+        "snapshot_copy": 184072,
+        "source_validation": 132965,
+        "input_conversion": 53058,
+        "provenance_serialization": 396687,
+        "tensor_conversion": 105028,
+        "model_call": 4958080,
+        "output_conversion_validation": 157158,
+        "result_build": 18624
+      }
+    },
+    {
+      "pair": 16,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 5968743,
+      "thread_cpu_ns": 5887200,
+      "stage_durations_ns": {
+        "snapshot_copy": 167175,
+        "source_validation": 140709,
+        "input_conversion": 49954,
+        "provenance_serialization": 380143,
+        "tensor_conversion": 127141,
+        "model_call": 4821274,
+        "output_conversion_validation": 155654,
+        "result_build": 18657
+      }
+    },
+    {
+      "pair": 17,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 5812256,
+      "thread_cpu_ns": 5706016,
+      "stage_durations_ns": {
+        "snapshot_copy": 169158,
+        "source_validation": 131910,
+        "input_conversion": 50082,
+        "provenance_serialization": 382542,
+        "tensor_conversion": 104612,
+        "model_call": 4720727,
+        "output_conversion_validation": 151206,
+        "result_build": 16960
+      }
+    },
+    {
+      "pair": 17,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6248465,
+      "thread_cpu_ns": 5974976,
+      "stage_durations_ns": {
+        "snapshot_copy": 165286,
+        "source_validation": 127397,
+        "input_conversion": 50946,
+        "provenance_serialization": 391727,
+        "tensor_conversion": 103748,
+        "model_call": 5162600,
+        "output_conversion_validation": 149093,
+        "result_build": 18081
+      }
+    },
+    {
+      "pair": 18,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6243729,
+      "thread_cpu_ns": 5977024,
+      "stage_durations_ns": {
+        "snapshot_copy": 169991,
+        "source_validation": 131109,
+        "input_conversion": 49762,
+        "provenance_serialization": 385582,
+        "tensor_conversion": 102756,
+        "model_call": 5124998,
+        "output_conversion_validation": 151270,
+        "result_build": 18401
+      }
+    },
+    {
+      "pair": 18,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 6158830,
+      "thread_cpu_ns": 5687680,
+      "stage_durations_ns": {
+        "snapshot_copy": 165574,
+        "source_validation": 127877,
+        "input_conversion": 49602,
+        "provenance_serialization": 390639,
+        "tensor_conversion": 108516,
+        "model_call": 5069252,
+        "output_conversion_validation": 148998,
+        "result_build": 17408
+      }
+    },
+    {
+      "pair": 19,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 6418904,
+      "thread_cpu_ns": 5521088,
+      "stage_durations_ns": {
+        "snapshot_copy": 168614,
+        "source_validation": 128613,
+        "input_conversion": 50082,
+        "provenance_serialization": 379183,
+        "tensor_conversion": 102500,
+        "model_call": 5332654,
+        "output_conversion_validation": 154438,
+        "result_build": 17472
+      }
+    },
+    {
+      "pair": 19,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6313843,
+      "thread_cpu_ns": 5847008,
+      "stage_durations_ns": {
+        "snapshot_copy": 166566,
+        "source_validation": 126117,
+        "input_conversion": 50722,
+        "provenance_serialization": 405488,
+        "tensor_conversion": 105540,
+        "model_call": 5210729,
+        "output_conversion_validation": 149606,
+        "result_build": 18433
+      }
+    },
+    {
+      "pair": 20,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6107468,
+      "thread_cpu_ns": 5996128,
+      "stage_durations_ns": {
+        "snapshot_copy": 164006,
+        "source_validation": 131557,
+        "input_conversion": 49698,
+        "provenance_serialization": 400239,
+        "tensor_conversion": 100484,
+        "model_call": 5013250,
+        "output_conversion_validation": 145350,
+        "result_build": 18496
+      }
+    },
+    {
+      "pair": 20,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 5973638,
+      "thread_cpu_ns": 5823968,
+      "stage_durations_ns": {
+        "snapshot_copy": 172134,
+        "source_validation": 128581,
+        "input_conversion": 49954,
+        "provenance_serialization": 426097,
+        "tensor_conversion": 106980,
+        "model_call": 4842299,
+        "output_conversion_validation": 147238,
+        "result_build": 18560
+      }
+    },
+    {
+      "pair": 21,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 6243121,
+      "thread_cpu_ns": 5728128,
+      "stage_durations_ns": {
+        "snapshot_copy": 168199,
+        "source_validation": 130725,
+        "input_conversion": 50210,
+        "provenance_serialization": 383791,
+        "tensor_conversion": 100580,
+        "model_call": 5160903,
+        "output_conversion_validation": 146278,
+        "result_build": 17216
+      }
+    },
+    {
+      "pair": 21,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6168175,
+      "thread_cpu_ns": 6078400,
+      "stage_durations_ns": {
+        "snapshot_copy": 168166,
+        "source_validation": 127013,
+        "input_conversion": 50082,
+        "provenance_serialization": 396175,
+        "tensor_conversion": 101252,
+        "model_call": 5074276,
+        "output_conversion_validation": 149990,
+        "result_build": 17729
+      }
+    },
+    {
+      "pair": 22,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6355221,
+      "thread_cpu_ns": 5846688,
+      "stage_durations_ns": {
+        "snapshot_copy": 169190,
+        "source_validation": 131174,
+        "input_conversion": 50754,
+        "provenance_serialization": 382126,
+        "tensor_conversion": 101252,
+        "model_call": 5266572,
+        "output_conversion_validation": 151782,
+        "result_build": 17408
+      }
+    },
+    {
+      "pair": 22,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 5780544,
+      "thread_cpu_ns": 5722944,
+      "stage_durations_ns": {
+        "snapshot_copy": 167462,
+        "source_validation": 127749,
+        "input_conversion": 50114,
+        "provenance_serialization": 378319,
+        "tensor_conversion": 116068,
+        "model_call": 4689141,
+        "output_conversion_validation": 150886,
+        "result_build": 18497
+      }
+    },
+    {
+      "pair": 23,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 5767871,
+      "thread_cpu_ns": 5726272,
+      "stage_durations_ns": {
+        "snapshot_copy": 166983,
+        "source_validation": 128165,
+        "input_conversion": 50914,
+        "provenance_serialization": 396783,
+        "tensor_conversion": 101668,
+        "model_call": 4670388,
+        "output_conversion_validation": 149254,
+        "result_build": 18369
+      }
+    },
+    {
+      "pair": 23,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6378711,
+      "thread_cpu_ns": 5866240,
+      "stage_durations_ns": {
+        "snapshot_copy": 177543,
+        "source_validation": 129189,
+        "input_conversion": 52162,
+        "provenance_serialization": 386959,
+        "tensor_conversion": 107236,
+        "model_call": 5242123,
+        "output_conversion_validation": 153446,
+        "result_build": 18976
+      }
+    },
+    {
+      "pair": 24,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6267794,
+      "thread_cpu_ns": 5973152,
+      "stage_durations_ns": {
+        "snapshot_copy": 166662,
+        "source_validation": 132102,
+        "input_conversion": 51042,
+        "provenance_serialization": 380622,
+        "tensor_conversion": 104964,
+        "model_call": 5167464,
+        "output_conversion_validation": 161254,
+        "result_build": 18241
+      }
+    },
+    {
+      "pair": 24,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 6124877,
+      "thread_cpu_ns": 5853216,
+      "stage_durations_ns": {
+        "snapshot_copy": 167431,
+        "source_validation": 130149,
+        "input_conversion": 52930,
+        "provenance_serialization": 398383,
+        "tensor_conversion": 109604,
+        "model_call": 5011618,
+        "output_conversion_validation": 154694,
+        "result_build": 18049
+      }
+    },
+    {
+      "pair": 25,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 6093547,
+      "thread_cpu_ns": 5607296,
+      "stage_durations_ns": {
+        "snapshot_copy": 189799,
+        "source_validation": 132069,
+        "input_conversion": 49538,
+        "provenance_serialization": 387247,
+        "tensor_conversion": 104804,
+        "model_call": 4976225,
+        "output_conversion_validation": 150725,
+        "result_build": 17665
+      }
+    },
+    {
+      "pair": 25,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6238097,
+      "thread_cpu_ns": 6152416,
+      "stage_durations_ns": {
+        "snapshot_copy": 169702,
+        "source_validation": 128709,
+        "input_conversion": 70915,
+        "provenance_serialization": 389039,
+        "tensor_conversion": 107812,
+        "model_call": 5094469,
+        "output_conversion_validation": 154406,
+        "result_build": 18465
+      }
+    },
+    {
+      "pair": 26,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6549245,
+      "thread_cpu_ns": 5996288,
+      "stage_durations_ns": {
+        "snapshot_copy": 168966,
+        "source_validation": 132837,
+        "input_conversion": 51106,
+        "provenance_serialization": 434385,
+        "tensor_conversion": 110660,
+        "model_call": 5391889,
+        "output_conversion_validation": 155334,
+        "result_build": 17760
+      }
+    },
+    {
+      "pair": 26,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 6201071,
+      "thread_cpu_ns": 5436256,
+      "stage_durations_ns": {
+        "snapshot_copy": 178887,
+        "source_validation": 130309,
+        "input_conversion": 49410,
+        "provenance_serialization": 382543,
+        "tensor_conversion": 106980,
+        "model_call": 5100901,
+        "output_conversion_validation": 151046,
+        "result_build": 18592
+      }
+    },
+    {
+      "pair": 27,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 6355670,
+      "thread_cpu_ns": 5598784,
+      "stage_durations_ns": {
+        "snapshot_copy": 167623,
+        "source_validation": 131493,
+        "input_conversion": 49858,
+        "provenance_serialization": 377198,
+        "tensor_conversion": 103556,
+        "model_call": 5270220,
+        "output_conversion_validation": 153766,
+        "result_build": 17281
+      }
+    },
+    {
+      "pair": 27,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 7000207,
+      "thread_cpu_ns": 5879200,
+      "stage_durations_ns": {
+        "snapshot_copy": 177191,
+        "source_validation": 131141,
+        "input_conversion": 52546,
+        "provenance_serialization": 392047,
+        "tensor_conversion": 106405,
+        "model_call": 5889859,
+        "output_conversion_validation": 151142,
+        "result_build": 17601
+      }
+    },
+    {
+      "pair": 28,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6209200,
+      "thread_cpu_ns": 6098144,
+      "stage_durations_ns": {
+        "snapshot_copy": 185512,
+        "source_validation": 131525,
+        "input_conversion": 51586,
+        "provenance_serialization": 381742,
+        "tensor_conversion": 103428,
+        "model_call": 5098213,
+        "output_conversion_validation": 151270,
+        "result_build": 19521
+      }
+    },
+    {
+      "pair": 28,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 6278450,
+      "thread_cpu_ns": 5809088,
+      "stage_durations_ns": {
+        "snapshot_copy": 182279,
+        "source_validation": 129349,
+        "input_conversion": 52418,
+        "provenance_serialization": 399023,
+        "tensor_conversion": 124645,
+        "model_call": 5140103,
+        "output_conversion_validation": 149093,
+        "result_build": 18529
+      }
+    },
+    {
+      "pair": 29,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 6661122,
+      "thread_cpu_ns": 5321664,
+      "stage_durations_ns": {
+        "snapshot_copy": 168390,
+        "source_validation": 145510,
+        "input_conversion": 50434,
+        "provenance_serialization": 395023,
+        "tensor_conversion": 106564,
+        "model_call": 5539190,
+        "output_conversion_validation": 150566,
+        "result_build": 18913
+      }
+    },
+    {
+      "pair": 29,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6519356,
+      "thread_cpu_ns": 5819200,
+      "stage_durations_ns": {
+        "snapshot_copy": 185383,
+        "source_validation": 130789,
+        "input_conversion": 51810,
+        "provenance_serialization": 384431,
+        "tensor_conversion": 104420,
+        "model_call": 5414289,
+        "output_conversion_validation": 146502,
+        "result_build": 19584
+      }
+    },
+    {
+      "pair": 30,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6054474,
+      "thread_cpu_ns": 5980064,
+      "stage_durations_ns": {
+        "snapshot_copy": 167591,
+        "source_validation": 131909,
+        "input_conversion": 50690,
+        "provenance_serialization": 400720,
+        "tensor_conversion": 101923,
+        "model_call": 4948480,
+        "output_conversion_validation": 149701,
+        "result_build": 17953
+      }
+    },
+    {
+      "pair": 30,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 5785664,
+      "thread_cpu_ns": 5729216,
+      "stage_durations_ns": {
+        "snapshot_copy": 181287,
+        "source_validation": 131973,
+        "input_conversion": 50690,
+        "provenance_serialization": 386319,
+        "tensor_conversion": 107588,
+        "model_call": 4682677,
+        "output_conversion_validation": 145638,
+        "result_build": 17953
+      }
+    },
+    {
+      "pair": 31,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 5781055,
+      "thread_cpu_ns": 5731616,
+      "stage_durations_ns": {
+        "snapshot_copy": 170502,
+        "source_validation": 129765,
+        "input_conversion": 50338,
+        "provenance_serialization": 403120,
+        "tensor_conversion": 104228,
+        "model_call": 4669844,
+        "output_conversion_validation": 151206,
+        "result_build": 17057
+      }
+    },
+    {
+      "pair": 31,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6111180,
+      "thread_cpu_ns": 6021056,
+      "stage_durations_ns": {
+        "snapshot_copy": 176679,
+        "source_validation": 140454,
+        "input_conversion": 51330,
+        "provenance_serialization": 382382,
+        "tensor_conversion": 125765,
+        "model_call": 4987489,
+        "output_conversion_validation": 148902,
+        "result_build": 17472
+      }
+    },
+    {
+      "pair": 32,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6224240,
+      "thread_cpu_ns": 6137312,
+      "stage_durations_ns": {
+        "snapshot_copy": 166823,
+        "source_validation": 130949,
+        "input_conversion": 51170,
+        "provenance_serialization": 399023,
+        "tensor_conversion": 104900,
+        "model_call": 5087557,
+        "output_conversion_validation": 180039,
+        "result_build": 18112
+      }
+    },
+    {
+      "pair": 32,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 6023145,
+      "thread_cpu_ns": 5735328,
+      "stage_durations_ns": {
+        "snapshot_copy": 177831,
+        "source_validation": 132581,
+        "input_conversion": 51330,
+        "provenance_serialization": 376014,
+        "tensor_conversion": 101156,
+        "model_call": 4931870,
+        "output_conversion_validation": 153190,
+        "result_build": 18145
+      }
+    },
+    {
+      "pair": 33,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 5838593,
+      "thread_cpu_ns": 5768928,
+      "stage_durations_ns": {
+        "snapshot_copy": 166854,
+        "source_validation": 130565,
+        "input_conversion": 49762,
+        "provenance_serialization": 395055,
+        "tensor_conversion": 105285,
+        "model_call": 4706581,
+        "output_conversion_validation": 150214,
+        "result_build": 40418
+      }
+    },
+    {
+      "pair": 33,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6367030,
+      "thread_cpu_ns": 5891552,
+      "stage_durations_ns": {
+        "snapshot_copy": 166503,
+        "source_validation": 140421,
+        "input_conversion": 49442,
+        "provenance_serialization": 389615,
+        "tensor_conversion": 109124,
+        "model_call": 5260523,
+        "output_conversion_validation": 149734,
+        "result_build": 18113
+      }
+    },
+    {
+      "pair": 34,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6076107,
+      "thread_cpu_ns": 6010304,
+      "stage_durations_ns": {
+        "snapshot_copy": 167974,
+        "source_validation": 130213,
+        "input_conversion": 50690,
+        "provenance_serialization": 378575,
+        "tensor_conversion": 123204,
+        "model_call": 4970656,
+        "output_conversion_validation": 150278,
+        "result_build": 17409
+      }
+    },
+    {
+      "pair": 34,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 5865474,
+      "thread_cpu_ns": 5800448,
+      "stage_durations_ns": {
+        "snapshot_copy": 187111,
+        "source_validation": 140902,
+        "input_conversion": 51362,
+        "provenance_serialization": 380463,
+        "tensor_conversion": 115780,
+        "model_call": 4735735,
+        "output_conversion_validation": 151878,
+        "result_build": 18144
+      }
+    },
+    {
+      "pair": 35,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 6211376,
+      "thread_cpu_ns": 5695328,
+      "stage_durations_ns": {
+        "snapshot_copy": 169095,
+        "source_validation": 132485,
+        "input_conversion": 50050,
+        "provenance_serialization": 382191,
+        "tensor_conversion": 144645,
+        "model_call": 5050243,
+        "output_conversion_validation": 178311,
+        "result_build": 18241
+      }
+    },
+    {
+      "pair": 35,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6218736,
+      "thread_cpu_ns": 6116160,
+      "stage_durations_ns": {
+        "snapshot_copy": 172231,
+        "source_validation": 127813,
+        "input_conversion": 49698,
+        "provenance_serialization": 398639,
+        "tensor_conversion": 108356,
+        "model_call": 5086693,
+        "output_conversion_validation": 154374,
+        "result_build": 19456
+      }
+    },
+    {
+      "pair": 36,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6347797,
+      "thread_cpu_ns": 5861504,
+      "stage_durations_ns": {
+        "snapshot_copy": 169607,
+        "source_validation": 130085,
+        "input_conversion": 49986,
+        "provenance_serialization": 385807,
+        "tensor_conversion": 104068,
+        "model_call": 5250634,
+        "output_conversion_validation": 151302,
+        "result_build": 18593
+      }
+    },
+    {
+      "pair": 36,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 6050890,
+      "thread_cpu_ns": 5757504,
+      "stage_durations_ns": {
+        "snapshot_copy": 168999,
+        "source_validation": 127525,
+        "input_conversion": 50402,
+        "provenance_serialization": 404751,
+        "tensor_conversion": 110116,
+        "model_call": 4882237,
+        "output_conversion_validation": 181511,
+        "result_build": 19329
+      }
+    },
+    {
+      "pair": 37,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 5784512,
+      "thread_cpu_ns": 5717440,
+      "stage_durations_ns": {
+        "snapshot_copy": 167079,
+        "source_validation": 131493,
+        "input_conversion": 50082,
+        "provenance_serialization": 385071,
+        "tensor_conversion": 106020,
+        "model_call": 4694645,
+        "output_conversion_validation": 147910,
+        "result_build": 17889
+      }
+    },
+    {
+      "pair": 37,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6662882,
+      "thread_cpu_ns": 5965728,
+      "stage_durations_ns": {
+        "snapshot_copy": 163751,
+        "source_validation": 127781,
+        "input_conversion": 50050,
+        "provenance_serialization": 399087,
+        "tensor_conversion": 104580,
+        "model_call": 5570391,
+        "output_conversion_validation": 147238,
+        "result_build": 18145
+      }
+    },
+    {
+      "pair": 38,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "native",
+      "wall_ns": 6133165,
+      "thread_cpu_ns": 5853696,
+      "stage_durations_ns": {
+        "snapshot_copy": 170439,
+        "source_validation": 132549,
+        "input_conversion": 50722,
+        "provenance_serialization": 386671,
+        "tensor_conversion": 104612,
+        "model_call": 4998561,
+        "output_conversion_validation": 181575,
+        "result_build": 19136
+      }
+    },
+    {
+      "pair": 38,
+      "order": [
+        "native",
+        "lean"
+      ],
+      "variant": "lean",
+      "wall_ns": 6044810,
+      "thread_cpu_ns": 5556864,
+      "stage_durations_ns": {
+        "snapshot_copy": 173255,
+        "source_validation": 128069,
+        "input_conversion": 49698,
+        "provenance_serialization": 396815,
+        "tensor_conversion": 106980,
+        "model_call": 4944511,
+        "output_conversion_validation": 148774,
+        "result_build": 16801
+      }
+    },
+    {
+      "pair": 39,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "lean",
+      "wall_ns": 5946150,
+      "thread_cpu_ns": 5651232,
+      "stage_durations_ns": {
+        "snapshot_copy": 186632,
+        "source_validation": 132645,
+        "input_conversion": 51074,
+        "provenance_serialization": 387119,
+        "tensor_conversion": 106052,
+        "model_call": 4827450,
+        "output_conversion_validation": 151398,
+        "result_build": 18017
+      }
+    },
+    {
+      "pair": 39,
+      "order": [
+        "lean",
+        "native"
+      ],
+      "variant": "native",
+      "wall_ns": 6167439,
+      "thread_cpu_ns": 6080416,
+      "stage_durations_ns": {
+        "snapshot_copy": 167718,
+        "source_validation": 127237,
+        "input_conversion": 50274,
+        "provenance_serialization": 385487,
+        "tensor_conversion": 118788,
+        "model_call": 5074532,
+        "output_conversion_validation": 145702,
+        "result_build": 17505
+      }
+    }
+  ],
+  "limitations": [
+    "Saved valid snapshot repeated after reset; never fresh telemetry.",
+    "One process and 40 trials per model do not establish worst-case latency.",
+    "Full consume includes profiling overhead and excludes sensor reads, input assembly, transport and file I/O.",
+    "State cloning and hashing before and after calls can affect caches and CPU frequency.",
+    "No live transport workers are active in this harness; do not infer an integrated speedup.",
+    "Continuous-state and broad model-domain parity remain supported by the separate earlier lean suite, not this replay."
+  ],
+  "publication_excludes": [
+    "private_absolute_paths",
+    "connection_addresses",
+    "UIDs",
+    "raw_saved_sensor_values",
+    "model_binaries",
+    "source_contents",
+    "wall_clock_marker_values"
+  ]
+}

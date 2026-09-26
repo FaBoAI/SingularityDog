@@ -1,0 +1,524 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-25",
+  "hardware_output_scope": "reporting switches and all-zero STOP only; no enable or motion; period unchanged",
+  "full_pipeline_20ms_verified": false,
+  "firmware_versions": {
+    "7": {
+      "version_bytes_hex": "00050009",
+      "display_version": "0.5.0.9"
+    },
+    "8": {
+      "version_bytes_hex": "00050009",
+      "display_version": "0.5.0.9"
+    },
+    "9": {
+      "version_bytes_hex": "00050009",
+      "display_version": "0.5.0.9"
+    },
+    "10": {
+      "version_bytes_hex": "00050009",
+      "display_version": "0.5.0.9"
+    },
+    "11": {
+      "version_bytes_hex": "00050009",
+      "display_version": "0.5.0.9"
+    },
+    "12": {
+      "version_bytes_hex": "00050009",
+      "display_version": "0.5.0.9"
+    },
+    "1": {
+      "version_bytes_hex": "00050009",
+      "display_version": "0.5.0.9"
+    },
+    "2": {
+      "version_bytes_hex": "00050009",
+      "display_version": "0.5.0.9"
+    },
+    "3": {
+      "version_bytes_hex": "00050009",
+      "display_version": "0.5.0.9"
+    },
+    "4": {
+      "version_bytes_hex": "00050009",
+      "display_version": "0.5.0.9"
+    },
+    "5": {
+      "version_bytes_hex": "00050009",
+      "display_version": "0.5.0.9"
+    },
+    "6": {
+      "version_bytes_hex": "00050009",
+      "display_version": "0.5.0.9"
+    }
+  },
+  "rs05_conflict_fix_version_reference": "0.5.0.13; association only, causal identity not established",
+  "runs": [
+    {
+      "capture": "active-report-20260925-r5-id3-1s",
+      "summary_sha256": "a90a9a5bce512053f2ab67b8f02cfe19ee50740a1ac6158f7e8dc2fac0380e81",
+      "status": "COMPLETE",
+      "ids": [
+        3
+      ],
+      "timed_interval_completed": true,
+      "failure": null,
+      "activation_type2_ids": [
+        3
+      ],
+      "deactivation_type2_ids": [
+        3
+      ],
+      "periodic_metrics": {
+        "3": {
+          "frame_count": 100,
+          "interarrival_ms": {
+            "p50": 10.009957,
+            "p95": 10.1677863,
+            "p99": 10.365113179999998,
+            "max": 10.597872
+          },
+          "initial_gap_ms": 5.411402,
+          "tail_gap_ms": 4.07398,
+          "max_silence_ms": 10.597872,
+          "present": true,
+          "within_gap_limit": true,
+          "ok": true
+        }
+      },
+      "cleanup": {
+        "ok": true,
+        "quiet_observed": true,
+        "reporting_off_order": [
+          3
+        ],
+        "errors": []
+      },
+      "port_closed": true,
+      "locks_released": true
+    },
+    {
+      "capture": "active-report-20260925-r5-three-id3-first-1s",
+      "summary_sha256": "63eb98e57ea6afb142886ed42612f7fb055e6c0c3b93d469b1a1a89a067319eb",
+      "status": "INCOMPLETE",
+      "ids": [
+        1,
+        2,
+        3
+      ],
+      "timed_interval_completed": true,
+      "failure": null,
+      "activation_type2_ids": [
+        1,
+        2,
+        3
+      ],
+      "deactivation_type2_ids": [
+        2
+      ],
+      "periodic_metrics": {
+        "1": {
+          "frame_count": 100,
+          "interarrival_ms": {
+            "p50": 10.009475,
+            "p95": 10.044128800000001,
+            "p99": 10.18123162,
+            "max": 10.194247
+          },
+          "initial_gap_ms": 4.043727,
+          "tail_gap_ms": 5.409721,
+          "max_silence_ms": 10.194247,
+          "present": true,
+          "within_gap_limit": true,
+          "ok": true
+        },
+        "2": {
+          "frame_count": 100,
+          "interarrival_ms": {
+            "p50": 10.005795,
+            "p95": 10.0737521,
+            "p99": 10.1407801,
+            "max": 10.290088
+          },
+          "initial_gap_ms": 1.585695,
+          "tail_gap_ms": 7.570627,
+          "max_silence_ms": 10.290088,
+          "present": true,
+          "within_gap_limit": true,
+          "ok": true
+        },
+        "3": {
+          "frame_count": 100,
+          "interarrival_ms": {
+            "p50": 10.009475,
+            "p95": 10.044128800000001,
+            "p99": 10.18123162,
+            "max": 10.194247
+          },
+          "initial_gap_ms": 4.043727,
+          "tail_gap_ms": 5.409721,
+          "max_silence_ms": 10.194247,
+          "present": true,
+          "within_gap_limit": true,
+          "ok": true
+        }
+      },
+      "cleanup": {
+        "ok": false,
+        "quiet_observed": false,
+        "reporting_off_order": [
+          3,
+          1,
+          2
+        ],
+        "errors": [
+          "report-off quiet: ReceiverError('deactivation_prefix_deadline_exceeded:3')",
+          "raw quiet: TimeoutError('Could not establish 100ms receive silence')"
+        ]
+      },
+      "port_closed": true,
+      "locks_released": true
+    },
+    {
+      "capture": "active-report-20260925-r5-six-id3-first-1s",
+      "summary_sha256": "da604c661d65a540db3e92f4056a35f35ec5947d3c7ebecbde94b3c870acf6b3",
+      "status": "INCOMPLETE",
+      "ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "timed_interval_completed": false,
+      "failure": "ValueError('Activation feedback sequence incomplete')",
+      "activation_type2_ids": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "deactivation_type2_ids": [],
+      "periodic_metrics": null,
+      "cleanup": {
+        "ok": false,
+        "quiet_observed": false,
+        "reporting_off_order": [
+          3,
+          1,
+          2,
+          4,
+          5,
+          6
+        ],
+        "errors": [
+          "report-off quiet: TimeoutError('Could not establish 100ms receive silence')",
+          "raw quiet: TimeoutError('Could not establish 100ms receive silence')"
+        ]
+      },
+      "port_closed": true,
+      "locks_released": true
+    }
+  ],
+  "separate_recoveries": [
+    {
+      "status": "REPORTING_OFF_RECOVERY_COMPLETE",
+      "ids": [
+        1,
+        3
+      ],
+      "reporting_off_observed": true,
+      "identities_reverified": true,
+      "port_closed": true,
+      "locks_released": true,
+      "transport_poisoned": false
+    },
+    {
+      "status": "REPORTING_OFF_RECOVERY_COMPLETE",
+      "ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "reporting_off_observed": true,
+      "identities_reverified": true,
+      "port_closed": true,
+      "locks_released": true,
+      "transport_poisoned": false
+    }
+  ],
+  "final_check": {
+    "status": "PREFLIGHT_COMPLETE",
+    "summary_sha256": "55718ca9997eef0893382cd4d4e254af54635b153a7266738104e19ba296b2e7",
+    "identities_verified": true,
+    "quiet_verified": true,
+    "stop_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "ports_closed": true,
+    "locks_released": true
+  },
+  "offline_assembly_benchmark": {
+    "kind": "offline_saved_input_assembly_comparison",
+    "output_allowed": false,
+    "execution_platform": {
+      "system": "Linux",
+      "machine": "aarch64",
+      "python_version": "3.12.3"
+    },
+    "hardware_access": false,
+    "model_inference_measured": false,
+    "live_throughput_verified": false,
+    "full_pipeline_20ms_verified": false,
+    "original_timestamps_reused_for_cpu_replay_only": true,
+    "fresh_sample_count_is_not_replay_iteration_count": true,
+    "preparation_required_for_every_new_source_cycle": true,
+    "files_loaded_outside_timed_sections": true,
+    "baseline_adapter_sha256": "41c30f8ec61b74a12e90c6d3ebf43bfa9c0ffda835efc533443e4319ad1f11d2",
+    "captures": [
+      {
+        "original_tick_ns": 5495823446248,
+        "snapshots_exactly_equal": true,
+        "original_source_timestamps_preserved": true,
+        "iterations_per_condition": 100,
+        "timings": {
+          "baseline_assembly": {
+            "wall": {
+              "median_ms": 1.545981,
+              "p95_ms": 1.595486,
+              "min_ms": 1.509949,
+              "max_ms": 1.691712,
+              "samples": 100
+            },
+            "thread_cpu": {
+              "median_ms": 1.5375999999999999,
+              "p95_ms": 1.56832,
+              "min_ms": 1.50672,
+              "max_ms": 1.590592,
+              "samples": 100
+            }
+          },
+          "prepare_immutable_cycle": {
+            "wall": {
+              "median_ms": 1.2773685000000001,
+              "p95_ms": 1.315769,
+              "min_ms": 1.23708,
+              "max_ms": 1.345242,
+              "samples": 100
+            },
+            "thread_cpu": {
+              "median_ms": 1.268608,
+              "p95_ms": 1.294752,
+              "min_ms": 1.23408,
+              "max_ms": 1.31664,
+              "samples": 100
+            }
+          },
+          "prepared_assembly_only": {
+            "wall": {
+              "median_ms": 0.055777,
+              "p95_ms": 0.061921,
+              "min_ms": 0.053697,
+              "max_ms": 0.074401,
+              "samples": 100
+            },
+            "thread_cpu": {
+              "median_ms": 0.053248,
+              "p95_ms": 0.05904,
+              "min_ms": 0.05168,
+              "max_ms": 0.062688,
+              "samples": 100
+            }
+          },
+          "prepare_and_assemble": {
+            "wall": {
+              "median_ms": 1.3301055,
+              "p95_ms": 1.427804,
+              "min_ms": 1.280633,
+              "max_ms": 1.474492,
+              "samples": 100
+            },
+            "thread_cpu": {
+              "median_ms": 1.320816,
+              "p95_ms": 1.36704,
+              "min_ms": 1.278048,
+              "max_ms": 1.47168,
+              "samples": 100
+            }
+          }
+        }
+      },
+      {
+        "original_tick_ns": 5598611547227,
+        "snapshots_exactly_equal": true,
+        "original_source_timestamps_preserved": true,
+        "iterations_per_condition": 100,
+        "timings": {
+          "baseline_assembly": {
+            "wall": {
+              "median_ms": 1.546206,
+              "p95_ms": 1.597662,
+              "min_ms": 1.514749,
+              "max_ms": 1.638495,
+              "samples": 100
+            },
+            "thread_cpu": {
+              "median_ms": 1.536768,
+              "p95_ms": 1.558368,
+              "min_ms": 1.512256,
+              "max_ms": 1.578528,
+              "samples": 100
+            }
+          },
+          "prepare_immutable_cycle": {
+            "wall": {
+              "median_ms": 1.2755285,
+              "p95_ms": 1.332954,
+              "min_ms": 1.236663,
+              "max_ms": 1.418907,
+              "samples": 100
+            },
+            "thread_cpu": {
+              "median_ms": 1.26864,
+              "p95_ms": 1.298176,
+              "min_ms": 1.2336,
+              "max_ms": 1.416032,
+              "samples": 100
+            }
+          },
+          "prepared_assembly_only": {
+            "wall": {
+              "median_ms": 0.055569,
+              "p95_ms": 0.061089,
+              "min_ms": 0.052993,
+              "max_ms": 0.072226,
+              "samples": 100
+            },
+            "thread_cpu": {
+              "median_ms": 0.053312,
+              "p95_ms": 0.058848,
+              "min_ms": 0.050784,
+              "max_ms": 0.060896,
+              "samples": 100
+            }
+          },
+          "prepare_and_assemble": {
+            "wall": {
+              "median_ms": 1.326249,
+              "p95_ms": 1.402299,
+              "min_ms": 1.287161,
+              "max_ms": 1.712321,
+              "samples": 100
+            },
+            "thread_cpu": {
+              "median_ms": 1.317312,
+              "p95_ms": 1.36352,
+              "min_ms": 1.284672,
+              "max_ms": 1.66848,
+              "samples": 100
+            }
+          }
+        }
+      },
+      {
+        "original_tick_ns": 5621835598238,
+        "snapshots_exactly_equal": true,
+        "original_source_timestamps_preserved": true,
+        "iterations_per_condition": 100,
+        "timings": {
+          "baseline_assembly": {
+            "wall": {
+              "median_ms": 1.5458055000000002,
+              "p95_ms": 1.607935,
+              "min_ms": 1.520765,
+              "max_ms": 1.636544,
+              "samples": 100
+            },
+            "thread_cpu": {
+              "median_ms": 1.5365760000000002,
+              "p95_ms": 1.562304,
+              "min_ms": 1.517952,
+              "max_ms": 1.580512,
+              "samples": 100
+            }
+          },
+          "prepare_immutable_cycle": {
+            "wall": {
+              "median_ms": 1.2698805,
+              "p95_ms": 1.320282,
+              "min_ms": 1.237367,
+              "max_ms": 1.377818,
+              "samples": 100
+            },
+            "thread_cpu": {
+              "median_ms": 1.2648,
+              "p95_ms": 1.298624,
+              "min_ms": 1.234176,
+              "max_ms": 1.308384,
+              "samples": 100
+            }
+          },
+          "prepared_assembly_only": {
+            "wall": {
+              "median_ms": 0.055825,
+              "p95_ms": 0.063009,
+              "min_ms": 0.053665,
+              "max_ms": 0.179172,
+              "samples": 100
+            },
+            "thread_cpu": {
+              "median_ms": 0.053376,
+              "p95_ms": 0.059072,
+              "min_ms": 0.051616,
+              "max_ms": 0.175776,
+              "samples": 100
+            }
+          },
+          "prepare_and_assemble": {
+            "wall": {
+              "median_ms": 1.324345,
+              "p95_ms": 1.387003,
+              "min_ms": 1.290329,
+              "max_ms": 1.491228,
+              "samples": 100
+            },
+            "thread_cpu": {
+              "median_ms": 1.316672,
+              "p95_ms": 1.359424,
+              "min_ms": 1.286944,
+              "max_ms": 1.475264,
+              "samples": 100
+            }
+          }
+        }
+      }
+    ],
+    "source_capture_labels": [
+      "20260924/integrated-stop-proxy-r1-captures/01",
+      "20260924/integrated-stop-proxy-r1-captures/02",
+      "20260924/integrated-stop-proxy-r1-captures/03"
+    ],
+    "report_sha256": "209fe12f60d5da1b67ef11b824160f899eebc6661d894a4aabf3c7e428642d21"
+  },
+  "tests": {
+    "local_runtime_tests_passed": 819,
+    "jetson_package_tests_passed": 148
+  }
+}

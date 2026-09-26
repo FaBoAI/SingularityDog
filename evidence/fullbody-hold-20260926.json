@@ -1,0 +1,147 @@
+{
+  "schema": "singularitydog.fullbody-hold-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "c4802c8c-0261-4f5e-b324-bdb5bf2063bf",
+  "first_active_attempt": {
+    "status": "INCOMPLETE",
+    "motor_enable_sent": false,
+    "all_12_stop_confirmed": true,
+    "reason": "front: RuntimeError('FR settled window rejected: ID3: abs_velocity_mean_rad_s exceeds 0.025')",
+    "id3_position_range_deg": 0.0,
+    "id3_velocity_mean_rad_s": 0.03375,
+    "id3_velocity_rms_rad_s": 0.0634,
+    "summary_sha256": "b3519e10df807894d097cda16c26a2379aa3ae118a443371e1b239f371346958",
+    "events_sha256": "10908d4fa76486607765b7d549d577679594bf343de8e59464c8143023e115ad"
+  },
+  "revised_disabled_preflight": {
+    "status": "PREFLIGHT_PASSED_RESET_CONFIRMED",
+    "motor_enable_sent": false,
+    "motion_gain_sent": false,
+    "all_12_stop_confirmed": true,
+    "cycles_per_bus": {
+      "front": 20,
+      "rear": 20
+    },
+    "summary_sha256": "1d9197cecd0287cec9cf633bc08913b59d73abf55d4e5ad0767e109da9726e82",
+    "events_sha256": "e5522bec8d13ca16b745be48f7fc2ba9187d904263e2d0f7fcdf741f0228c439"
+  },
+  "revised_active_hold": {
+    "status": "CURRENT_HOLD_COMPLETED_RESET_CONFIRMED",
+    "gain_profile": "id4-id10-kp4",
+    "duration_target_s": 5.0,
+    "cycles_per_bus": {
+      "front": {
+        "count": 100,
+        "median_due_to_complete_ms": 36.612,
+        "max_due_to_complete_ms": 47.496,
+        "deadline_overruns": 0
+      },
+      "rear": {
+        "count": 100,
+        "median_due_to_complete_ms": 37.168,
+        "max_due_to_complete_ms": 48.52,
+        "deadline_overruns": 0
+      }
+    },
+    "min_initial_motor_voltage_v": 36.844,
+    "all_12_stop_confirmed": true,
+    "trial_device_closed": true,
+    "locks_released": true,
+    "errors": [],
+    "final_window_by_id": {
+      "1": {
+        "gain_kp": 3.0,
+        "final_window_mean_error_deg": -0.014,
+        "final_window_max_abs_error_deg": 0.022,
+        "center_rad": 5.839531,
+        "stop_confirmed": true
+      },
+      "2": {
+        "gain_kp": 3.0,
+        "final_window_mean_error_deg": -0.019,
+        "final_window_max_abs_error_deg": 0.022,
+        "center_rad": 4.534483,
+        "stop_confirmed": true
+      },
+      "3": {
+        "gain_kp": 3.0,
+        "final_window_mean_error_deg": 0.099,
+        "final_window_max_abs_error_deg": 0.11,
+        "center_rad": 5.511159,
+        "stop_confirmed": true
+      },
+      "4": {
+        "gain_kp": 4.0,
+        "final_window_mean_error_deg": 0.001,
+        "final_window_max_abs_error_deg": 0.022,
+        "center_rad": 5.22767,
+        "stop_confirmed": true
+      },
+      "5": {
+        "gain_kp": 3.0,
+        "final_window_mean_error_deg": -0.038,
+        "final_window_max_abs_error_deg": 0.044,
+        "center_rad": 3.483003,
+        "stop_confirmed": true
+      },
+      "6": {
+        "gain_kp": 3.0,
+        "final_window_mean_error_deg": 0.036,
+        "final_window_max_abs_error_deg": 0.044,
+        "center_rad": 5.552589,
+        "stop_confirmed": true
+      },
+      "7": {
+        "gain_kp": 3.0,
+        "final_window_mean_error_deg": -0.024,
+        "final_window_max_abs_error_deg": 0.044,
+        "center_rad": 4.657623,
+        "stop_confirmed": true
+      },
+      "8": {
+        "gain_kp": 3.0,
+        "final_window_mean_error_deg": 0.043,
+        "final_window_max_abs_error_deg": 0.044,
+        "center_rad": 0.283297,
+        "stop_confirmed": true
+      },
+      "9": {
+        "gain_kp": 3.0,
+        "final_window_mean_error_deg": -0.132,
+        "final_window_max_abs_error_deg": 0.132,
+        "center_rad": 0.123331,
+        "stop_confirmed": true
+      },
+      "10": {
+        "gain_kp": 4.0,
+        "final_window_mean_error_deg": 0.031,
+        "final_window_max_abs_error_deg": 0.044,
+        "center_rad": 3.846667,
+        "stop_confirmed": true
+      },
+      "11": {
+        "gain_kp": 3.0,
+        "final_window_mean_error_deg": -0.015,
+        "final_window_max_abs_error_deg": 0.022,
+        "center_rad": 0.527274,
+        "stop_confirmed": true
+      },
+      "12": {
+        "gain_kp": 3.0,
+        "final_window_mean_error_deg": 0.005,
+        "final_window_max_abs_error_deg": 0.022,
+        "center_rad": 1.012927,
+        "stop_confirmed": true
+      }
+    },
+    "operator_visual_feedback": "異常なし",
+    "summary_sha256": "127f94021cf2468cf0d616a27418a9ae74cf97194a62d60f590405295a41e998",
+    "events_sha256": "f75a442ca2e37c443fc576eec66d03bc3ae677a771b934499540f66697715788"
+  },
+  "limitations": [
+    "Current-position hold only; no standing-direction targets sent.",
+    "No learned-policy targets sent.",
+    "ID4 posture changed between the first read-only snapshot and hold; gain effect is not isolated.",
+    "ID8 and ID9 raw angles crossed an approximately 2pi turn boundary relative to the previous plan; mapping must be revalidated before a stance command."
+  ]
+}

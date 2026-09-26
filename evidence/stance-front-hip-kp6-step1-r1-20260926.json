@@ -1,0 +1,35 @@
+{
+  "schema": "singularitydog.stance-front-hip-step-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "0bda2b28-6d89-4d02-9d35-fc7542280991",
+  "source_log": "/home/jetson/singularitydog-logs/front-hip-kp6-step1-0bda-r1",
+  "summary_sha256": "061d04c3ae229f6371fe7d875e0f4e8af1a22d101dbeb10e2139f899c74f8dbf",
+  "events_sha256": "ece5a973f23fdec2e106fcc5f5267ef08c0480a73ac565e3fb99da3eab961a05",
+  "status": "INCOMPLETE",
+  "result_status": "ABORTED",
+  "test_scope": "supported front-hip raw bounded diagnostic; other 10 joints hold",
+  "moving_motor_ids": [3, 6],
+  "moving_motor_kp": 6,
+  "commanded_final_offset_deg_by_id": {
+    "3": 5,
+    "6": -5
+  },
+  "motor_enable_sent": true,
+  "motion_gain_sent": false,
+  "trajectory_cycles_by_bus": {
+    "front": 0,
+    "rear": 0
+  },
+  "errors": [
+    "front: ValueError('Noncanonical selected-bus trial command')",
+    "rear: BrokenBarrierError()"
+  ],
+  "interpretation": "Frozen transport rejected the Kp6 trajectory command before the first active trajectory cycle; no motion-gain command was sent.",
+  "all_12_stop_confirmed": true,
+  "ports_closed": true,
+  "locks_released": true,
+  "five_degree_target_reached": false,
+  "ten_degree_cumulative_target_reached": false,
+  "standing_completed": false,
+  "learned_policy_sent": false
+}

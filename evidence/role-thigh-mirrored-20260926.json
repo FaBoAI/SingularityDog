@@ -1,0 +1,76 @@
+{
+  "schema": "singularitydog.role-thigh-mirrored.v1",
+  "date": "2026-09-26",
+  "boot_id": "571b75ad-7576-4ce6-9550-d7094c963953",
+  "firmware": "0.5.0.13",
+  "scope": "supported four upper-leg raw motor ±10 degree diagnostic, not standing or learned-policy deploy",
+  "direction_by_id": {
+    "2": 1,
+    "5": -1,
+    "8": 1,
+    "11": -1
+  },
+  "physical_direction": "all four upper legs toward dog rear",
+  "status": "ABORTED",
+  "reason": [
+    "front: RuntimeError('ID2 final raw step error exceeds diagnostic limit')"
+  ],
+  "cycles_by_bus": {
+    "front": 180,
+    "rear": 180
+  },
+  "all_12_stop_confirmed": true,
+  "port_closes": {
+    "front": true,
+    "rear": true
+  },
+  "locks_released": true,
+  "motor_results": {
+    "2": {
+      "planned_raw_step_deg": 10.0,
+      "observed_from_fresh_center_deg": 3.275,
+      "endpoint_error_from_fresh_center_deg": 6.725,
+      "peak_abs_feedback_torque_nm": 1.531,
+      "fault_bits": [
+        0
+      ]
+    },
+    "5": {
+      "planned_raw_step_deg": -10.0,
+      "observed_from_fresh_center_deg": -3.495,
+      "endpoint_error_from_fresh_center_deg": -6.505,
+      "peak_abs_feedback_torque_nm": 1.485,
+      "fault_bits": [
+        0
+      ]
+    },
+    "8": {
+      "planned_raw_step_deg": 10.0,
+      "observed_from_fresh_center_deg": 9.429,
+      "endpoint_error_from_fresh_center_deg": 0.571,
+      "peak_abs_feedback_torque_nm": 0.154,
+      "fault_bits": [
+        0
+      ]
+    },
+    "11": {
+      "planned_raw_step_deg": -10.0,
+      "observed_from_fresh_center_deg": -9.627,
+      "endpoint_error_from_fresh_center_deg": -0.373,
+      "peak_abs_feedback_torque_nm": 0.126,
+      "fault_bits": [
+        0
+      ]
+    }
+  },
+  "user_observation": "Rear legs moved okay. Both front legs struck their own carbon pole partway through the sweep and could not continue. User judged the stop normal because the path is obstructed.",
+  "interpretation": "Front-leg tracking failure is explained by observed mechanical collision; increasing gains or torque for this path is not appropriate.",
+  "audio": "Pinned Japanese announcement played by program before motor enable; prior 12-axis hold trial had user-confirmed audible and understandable speech.",
+  "source_remote_log": "/home/jetson/singularitydog-logs/role-thigh-active-audio-r11",
+  "source_sha256": {
+    "summary": "a2922dd45fca7d099b6a29f27f189988e5bde58285ea67b9420dce575bbd5e45",
+    "events": "40844d3fd44eaba75b8ceca57b9e34b70d9c4538fd436ee2f468f62c99ec016b",
+    "active_manifest": "78fceb6722cf386f22b8da55c54636cc0bd18b022e28f86dddb662432fcf2d34",
+    "announcement_wav": "9fbb27573610dabda9a4e60745f44dcf17936a4f838b23d199e5b8aa1909182f"
+  }
+}

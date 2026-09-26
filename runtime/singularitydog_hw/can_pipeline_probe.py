@@ -74,6 +74,8 @@ class PipelineCAN:
         self.receive_mode, self.deadline_reader = receive_mode, None
         self._receive_wake_ns = None
         self.read_profile = {"calls": 0, "wall_ns": 0, "thread_cpu_ns": 0}
+        self.failed_read_evidence = None
+        self.failed_read_evidence_emit_error = None
         self.started_ns = clock()
         self.deadline_ns = self.started_ns + int(max_seconds*1e9)
         self.raw_port, self.serial = serial_port, None
@@ -126,6 +128,7 @@ class PipelineCAN:
     def _read_chunk(self, timeout_s):
         """Preserve RX time and, in select mode, the scheduler's absolute wake."""
         started, cpu_started = self.clock(), time.thread_time_ns()
+        failure = None
         try:
             self.check_budget()
             now = self.clock()
@@ -137,19 +140,58 @@ class PipelineCAN:
                 wake = min(nearest, started + max(0, int(timeout_s*1e9)))
                 if self._receive_wake_ns is not None:
                     wake = min(wake, self._receive_wake_ns)
-                return self.deadline_reader.read_until(wake, nearest)
+                try:
+                    return self.deadline_reader.read_until(wake, nearest)
+                except BaseException as error:
+                    self._save_failed_read(error, started)
+                    raise
             read_timeout = min(timeout_s, max(0., (nearest-now)/1e9))
             if self.raw_port.timeout != read_timeout:
                 self.raw_port.timeout = read_timeout
             chunk = self.serial.read(min(max(self.raw_port.in_waiting, 1), 4096))
             return chunk, self.clock()
+        except BaseException as error:
+            failure = error
+            raise
         finally:
-            self.read_profile["calls"] += 1
-            self.read_profile["wall_ns"] += self.clock()-started
-            self.read_profile["thread_cpu_ns"] += time.thread_time_ns()-cpu_started
+            try:
+                self.read_profile["calls"] += 1
+                self.read_profile["wall_ns"] += self.clock()-started
+                self.read_profile["thread_cpu_ns"] += time.thread_time_ns()-cpu_started
+            except BaseException as error:
+                if failure is None:
+                    raise
+                self.read_profile["profiling_error_type"] = type(error).__name__
+
+    def _save_failed_read(self, error, started):
+        """Keep one bounded rejected chunk; never parse it or replace its error."""
+        try:
+            evidence = getattr(error, "serial_read_evidence", None)
+            if evidence is None:
+                return
+            self.rx_bytes += len(evidence.data)
+            row = {"kind": ("pipeline_rx_bytes" if evidence.received_ns is not None
+                            else "pipeline_rx_error_evidence"),
+                   "read_started_ns": started,
+                   "syscall_read_started_ns": evidence.read_started_ns,
+                   "received_ns": evidence.received_ns,
+                   "hex": evidence.data.hex(), "rejected": True,
+                   "error_type": type(error).__name__}
+            if evidence.received_ns is not None:
+                row["monotonic_ns"] = evidence.received_ns
+            # The reader bounds chunks to4096 bytes. This single detached record
+            # survives a full/failed event sink and is included in the report.
+            self.failed_read_evidence = row
+            self.emit(dict(row))
+        except BaseException as evidence_error:
+            self.failed_read_evidence_emit_error = type(evidence_error).__name__
 
     def receiver_profile(self):
         return {"mode": self.receive_mode, "read_wrapper": dict(self.read_profile),
+                "failed_read_evidence": (dict(self.failed_read_evidence)
+                                         if self.failed_read_evidence is not None else None),
+                "failed_read_evidence_emit_failed": self.failed_read_evidence_emit_error is not None,
+                "failed_read_evidence_emit_error_type": self.failed_read_evidence_emit_error,
                 "deadline_reader": self.deadline_reader.stats() if self.deadline_reader else None}
 
     def check_budget(self):

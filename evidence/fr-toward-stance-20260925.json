@@ -1,0 +1,276 @@
+{
+  "date": "2026-09-25",
+  "scope": "supported FR bounded relative movement only",
+  "standing_verified": false,
+  "learned_policy_output_sent": false,
+  "cycle_ms": 50,
+  "attempts": [
+    {
+      "capture": "FR-toward-stance-20260925-r1",
+      "gain_profile": "kp3",
+      "status": "INCOMPLETE",
+      "runner_status": "ABORTED",
+      "errors": [
+        "RuntimeError('Unexpected motor mode or fault')"
+      ],
+      "enable_sent": true,
+      "active_gain_sent": false,
+      "stop_confirmed": true,
+      "metrics": {},
+      "operator_observation": "not recorded in this summary",
+      "summary_sha256": "e27303c076e832150e302da39217e3abc461f7055802b56de541039005686117",
+      "events_sha256": "8874a23e06fc3c3d208fb89492057fc04941f2d467d4677b1cc740a3c272a671"
+    },
+    {
+      "capture": "FR-toward-stance-20260925-r2",
+      "gain_profile": "kp3",
+      "status": "INCOMPLETE",
+      "runner_status": "ABORTED",
+      "errors": [
+        "RuntimeError('Leg stationary window rejected: ID3: velocity_RMS_rad_s exceeds 0.05')"
+      ],
+      "enable_sent": false,
+      "active_gain_sent": false,
+      "stop_confirmed": true,
+      "metrics": {},
+      "operator_observation": "not recorded in this summary",
+      "summary_sha256": "f4afaddf23154ff31d7b5393760a7452a3e762a802c17155849b8fd65f45620e",
+      "events_sha256": "5684958e78eafb8ab47452290b8240fbbe87f2d5e81e0d24d6aa3f9981cc1941"
+    },
+    {
+      "capture": "FR-toward-stance-20260925-r3",
+      "gain_profile": "kp3",
+      "status": "INCOMPLETE",
+      "runner_status": "ABORTED",
+      "errors": [
+        "RuntimeError('ID3 bounded pose target error exceeds1-degree candidate')"
+      ],
+      "enable_sent": true,
+      "active_gain_sent": true,
+      "stop_confirmed": true,
+      "metrics": {
+        "1": {
+          "complete_motion_samples": 80,
+          "active_commands": 81,
+          "last_elapsed_s": 3.968840865999482,
+          "last_target_delta_deg": 4.010559253382078,
+          "last_observed_delta_deg": 4.5717022441052135,
+          "last_tracking_error_deg": 0.5611429907231354,
+          "max_abs_logged_torque_Nm": 0.07376974135957859
+        },
+        "2": {
+          "complete_motion_samples": 80,
+          "active_commands": 81,
+          "last_elapsed_s": 3.96890374800023,
+          "last_target_delta_deg": 4.012462368858208,
+          "last_observed_delta_deg": 3.758466748759731,
+          "last_tracking_error_deg": -0.25399562009847704,
+          "max_abs_logged_torque_Nm": 0.12597085526817775
+        },
+        "3": {
+          "complete_motion_samples": 80,
+          "active_commands": 81,
+          "last_elapsed_s": 3.9689553010002783,
+          "last_target_delta_deg": 4.019052772314615,
+          "last_observed_delta_deg": 2.6155411877332244,
+          "last_tracking_error_deg": -1.4035115845813908,
+          "max_abs_logged_torque_Nm": 0.11120012207217478
+        }
+      },
+      "operator_observation": "動きが見えた。異常なし",
+      "summary_sha256": "6c77845562571b4436af67bb8fb33936db8434d33993140a7290438d7bf7e346",
+      "events_sha256": "245c5005c591d6adcc322c9c42b04869deaeaa2f4a023967a32bc7f79b64bbc1"
+    },
+    {
+      "capture": "FR-toward-stance-20260925-r4",
+      "gain_profile": "fr_hip_kp6_diagnostic",
+      "status": "INCOMPLETE",
+      "runner_status": "ABORTED",
+      "errors": [
+        "RuntimeError('ID2 bounded pose target error exceeds1-degree candidate')"
+      ],
+      "enable_sent": true,
+      "active_gain_sent": true,
+      "stop_confirmed": true,
+      "metrics": {
+        "1": {
+          "complete_motion_samples": 80,
+          "active_commands": 81,
+          "last_elapsed_s": 3.969011954999587,
+          "last_target_delta_deg": 4.029666739360847,
+          "last_observed_delta_deg": 4.483784893257334,
+          "last_tracking_error_deg": 0.45411815389648674,
+          "max_abs_logged_torque_Nm": 0.04876020447089324
+        },
+        "2": {
+          "complete_motion_samples": 80,
+          "active_commands": 81,
+          "last_elapsed_s": 3.9691025499996613,
+          "last_target_delta_deg": 4.007104441897946,
+          "last_observed_delta_deg": 0.8791735084818502,
+          "last_tracking_error_deg": -3.1279309334160956,
+          "max_abs_logged_torque_Nm": 0.20083161669337013
+        },
+        "3": {
+          "complete_motion_samples": 80,
+          "active_commands": 81,
+          "last_elapsed_s": 3.9691741679998813,
+          "last_target_delta_deg": 4.014894307653703,
+          "last_observed_delta_deg": 2.8133552271417166,
+          "last_tracking_error_deg": -1.2015390805119865,
+          "max_abs_logged_torque_Nm": 0.1593728542000461
+        }
+      },
+      "operator_observation": "動きが見えた。異常なし",
+      "summary_sha256": "3c5fb2e6364d2330d43342ee375c8e5c4bef12b01243dd15eb4f23e21a4cde15",
+      "events_sha256": "b9afa43ffd522f17fd9bdcab776ae7bfe7069e23474f99015e16b5c7bd0f2a51"
+    },
+    {
+      "capture": "FR-toward-stance-20260925-r5",
+      "gain_profile": "fr_step4_kp12_diagnostic",
+      "status": "INCOMPLETE",
+      "runner_status": "ABORTED",
+      "errors": [
+        "RuntimeError('ID2 Type2 torque feedback exceeds0.5Nm diagnostic monitor or is nonfinite')"
+      ],
+      "enable_sent": true,
+      "active_gain_sent": true,
+      "stop_confirmed": true,
+      "metrics": {
+        "1": {
+          "complete_motion_samples": 61,
+          "active_commands": 62,
+          "last_elapsed_s": 3.01892955799849,
+          "last_target_delta_deg": 3.429450960364803,
+          "last_observed_delta_deg": 2.5496031745972636,
+          "last_tracking_error_deg": -0.8798477857675392,
+          "max_abs_logged_torque_Nm": 0.055642023346303304
+        },
+        "2": {
+          "complete_motion_samples": 61,
+          "active_commands": 62,
+          "last_elapsed_s": 3.0190080239990493,
+          "last_target_delta_deg": 3.416051121433451,
+          "last_observed_delta_deg": 1.3846982758588375,
+          "last_tracking_error_deg": -2.031352845574613,
+          "max_abs_logged_torque_Nm": 0.49557488364995805
+        },
+        "3": {
+          "complete_motion_samples": 61,
+          "active_commands": 62,
+          "last_elapsed_s": 3.019075513999269,
+          "last_target_delta_deg": 3.4223639139452513,
+          "last_observed_delta_deg": 3.099086617398496,
+          "last_tracking_error_deg": -0.32327729654675524,
+          "max_abs_logged_torque_Nm": 0.14191653315022545
+        }
+      },
+      "operator_observation": "振動はなかった。目標前に停止したとの指摘",
+      "summary_sha256": "0a22c9f1bf449f80b0490a7c7681747bdeccd4c5d38eb092e1c202d8f9fad4e0",
+      "events_sha256": "5147432d77922caa586dbacfc453a6609fc2d4b659903b76d17b36c49be59ea0"
+    },
+    {
+      "capture": "FR-toward-stance-20260925-r6",
+      "gain_profile": "not independently verified in this evidence update",
+      "status": "INCOMPLETE",
+      "runner_status": "ABORTED_BEFORE_MOTION",
+      "reason": "ID1 abs mean reported velocity slightly exceeded prior 0.025 rad/s stationary gate",
+      "active_gain_sent": false,
+      "stop_confirmed": null,
+      "metrics": {
+        "id1_position_range_rad_approx": 0.0003836,
+        "id1_velocity_mean_rad_s_approx": -0.02736
+      },
+      "operator_observation": "no completed movement trial",
+      "summary_sha256": null,
+      "events_sha256": null,
+      "source_note": "Numbers from reviewed r6 diagnostic; original log hashes unavailable in this evidence update",
+      "stop_confirmation_note": "Original r6 run record not available in this evidence update; no stop result asserted"
+    },
+    {
+      "capture": "FR-toward-stance-20260925-r7",
+      "gain_profile": "fr_step4_kp12_peak_burst_diagnostic",
+      "status": "INCOMPLETE",
+      "runner_status": "ABORTED",
+      "reason": "ID2 target error exceeded 1-degree arrival candidate before final 1-second hold",
+      "active_gain_sent": true,
+      "stop_confirmed": true,
+      "post_all12_quiet_confirmed": true,
+      "metrics": {
+        "complete_motion_samples_per_motor": 80,
+        "last_elapsed_s_approx": 3.9687,
+        "last_observed_delta_deg_approx": {
+          "1": 4.308,
+          "2": 2.6595,
+          "3": 3.8024
+        },
+        "id2_target_error_deg_approx": 1.343,
+        "id2_max_abs_logged_torque_Nm_approx": 0.341,
+        "id2_samples_above_1Nm": 0
+      },
+      "operator_observation": "Markerless trial: later direct answer said physical movement was not visually discernible; do not infer physical linkage motion solely from encoder feedback",
+      "summary_sha256": null,
+      "events_sha256": null,
+      "source_note": "Reviewed r7 log audit; original log hashes unavailable in this evidence update"
+    },
+    {
+      "capture": "FR-settling-20260925-r10",
+      "gain_profile": "fr_step4_kp12_peak_burst_diagnostic",
+      "status": "INCOMPLETE",
+      "runner_status": "ABORTED",
+      "errors": [
+        "RuntimeError('ID2 target error exceeds2-degree observation limit')"
+      ],
+      "active_gain_sent": true,
+      "stop_confirmed": true,
+      "post_all12_quiet_confirmed": true,
+      "motion_completed": false,
+      "settling_observation_completed": false,
+      "arrival_candidate_met": false,
+      "hold_candidate_met": false,
+      "metrics": {
+        "1": {
+          "complete_motion_samples": 80,
+          "last_elapsed_s": 3.968662247998509,
+          "last_target_delta_deg": 4.011945538000268,
+          "last_observed_delta_deg": 4.329929529272883,
+          "last_tracking_error_target_minus_observed_deg": -0.31798399127261434,
+          "max_abs_logged_torque_Nm": 0.06336308842603167
+        },
+        "2": {
+          "complete_motion_samples": 80,
+          "last_elapsed_s": 3.9687536739984353,
+          "last_target_delta_deg": 4.003514787454515,
+          "last_observed_delta_deg": 1.4945949644190435,
+          "last_tracking_error_target_minus_observed_deg": 2.5089198230354715,
+          "max_abs_logged_torque_Nm": 0.6212939650568394
+        },
+        "3": {
+          "complete_motion_samples": 80,
+          "last_elapsed_s": 3.96884932499961,
+          "last_target_delta_deg": 4.008031584642544,
+          "last_observed_delta_deg": 3.5386733716393195,
+          "last_tracking_error_target_minus_observed_deg": 0.469358213003225,
+          "max_abs_logged_torque_Nm": 0.11925688563363046
+        }
+      },
+      "operator_observation": "Visual marker on rotating ID2 link moved relative to fixed marker; no noise, vibration, or snagging reported. This is not a 4-degree target success.",
+      "summary_sha256": "54363789d7c2f41e3530408ce7e57fe9a489134300fcad9331195da6d57a0206",
+      "events_sha256": "0380f0e89956a2e72d549b4eb51f05f234f39230d217d5c51fca95a1301e0509",
+      "source_note": "Copied Jetson trial record; metrics computed from 80 leg_trial_motion_sample events per motor"
+    }
+  ],
+  "required_nominal_pose_max_joint_travel_deg": 71.866,
+  "estimated_max_foot_endpoint_displacement_mm": 180.1,
+  "prepared_unverified": [
+    {
+      "package": "fr-toward-stance-r11",
+      "gain_profile": "fr_step4_thigh_kp18_peak_burst_diagnostic",
+      "id2_Kp": 18,
+      "other_joint_gains_unchanged_from_r10": true,
+      "run_status": "NO_VERIFIED_TRIAL_RESULT",
+      "reason": "Shared SSH was lost and Jetson unexpectedly rebooted; no valid powered-run record is counted here",
+      "motor_motion_or_stop_not_inferred": true
+    }
+  ]
+}

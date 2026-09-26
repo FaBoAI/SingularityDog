@@ -1,0 +1,360 @@
+{
+  "schema": "singularitydog.native_policy_lean.v1",
+  "date": "2026-09-25",
+  "status": "FILE_ONLY_LEAN_POLICY_EXACT_PARITY_PASS",
+  "publication_ready": true,
+  "candidate_only": true,
+  "hardware_opened": false,
+  "output_allowed": false,
+  "approved_for_runtime": false,
+  "public_runtime_source_changed": false,
+  "integrated_hardware_evaluation_completed": false,
+  "full_pipeline_20ms_verified": false,
+  "model_weights_changed": false,
+  "safety_checks_relaxed": false,
+  "scope": "Deployment forward omits unused diagnostic tensor/dictionary creation only. Original core methods and diagnostic API retained. Same native projection custom op and intermediate public dtype casts.",
+  "source_audit": {
+    "method": "Independent AST comparison without importing candidate or PyTorch",
+    "original_methods_unchanged": true,
+    "added_core_methods": [
+      "_step_inputs",
+      "step_target"
+    ],
+    "retained_step_prefix_equal": true,
+    "four_retained_return_values_and_casts_equal": true,
+    "projection_state_and_postcheck_prefix_equal": true,
+    "returned_target_expression_equal": true,
+    "deployment_changes_only_import_and_target_call": true,
+    "retained_core_method_count": 12
+  },
+  "source_bundle": "native-policy-lean-r1",
+  "source_files_sha256": {
+    "README.md": "5bb7dcbdbd76bf6c5506d1334fd4dce8ff6ef9eae45529a64fdb25754d17a9ed",
+    "compare_lean_policy.py": "3150d102ee121b41be88a6598e644c353100a0c8d30ff7d7d9b1a5f05654da48",
+    "lean_swing_core.py": "76f9af18a2d031dc690021a94ba5418ba308056c471e27a854b724805722018e",
+    "lean_swing_deployment.py": "701c6419f5b0be85c750ad516f54477bed0980b552e346a79e5f85d6fcf48a8d",
+    "native_swing_core.py": "ee46d6d6ba931a27814f015f81bea1cc3dd0054c0cd15b0006928c3d1692d4c2",
+    "native_swing_deployment.py": "07f4ec75ffc51b0b8e645a37fc9cd29bc8144bbcc0a48deac1c3b6a1b5d746d3"
+  },
+  "source_manifest_sha256": "614fc78b6597ed2abc07d244ffc05afcebc59c350eae0b14ff72fbbe4c7b0b25",
+  "source_manifest_status_is_preexecution_snapshot": true,
+  "result_capture_index_sha256": "969bef6cebb2a11745f0fff43c21b2ddaf5777b6f6df2d8bf1f906acbc671a2d",
+  "result_files": {
+    "lean-inlined-graph.txt": {
+      "sha256": "caa916c63f6b4eae3644114988316c2bca4ffbcc4e11284d4594ee97a762e44a",
+      "bytes": 109981
+    },
+    "lean-last-executed-optimized-graph.txt": {
+      "sha256": "fee7ad6cdb7ed01d82d76591f3cc7e4df4b37d7f0fb5f5eb5ec353cc3279e2d3",
+      "bytes": 101098
+    },
+    "lean_policy_fileonly.pt": {
+      "sha256": "022fb1bb07661804cc6a5060c39d0c76ddd767efb70a3800155af53f1a31f639",
+      "bytes": 194326
+    },
+    "lean_saved_reloaded-inlined-graph.txt": {
+      "sha256": "8b222e59785da52638adfd0aa204200a0538b189f35bf922c22183131b1442d9",
+      "bytes": 110071
+    },
+    "pinned_native-inlined-graph.txt": {
+      "sha256": "f67cc4809b1f18d681a3855d9fa43a7cea8af16ab4dbb7d158f0c0ba3ca23afc",
+      "bytes": 149978
+    },
+    "pinned_native-last-executed-optimized-graph.txt": {
+      "sha256": "5a6ee9837eee6f0a09f9c7e5a61269150fc28a476649ff9d3843ad78d790afa0",
+      "bytes": 141287
+    },
+    "rebuilt_native-inlined-graph.txt": {
+      "sha256": "34d4146fe27927ef057ab20eec886fc47c915788808b500de8b9aea29c9446e6",
+      "bytes": 136990
+    },
+    "report.json": {
+      "sha256": "7344155c093625eb1d89dad2e473f1b2d40297d9579b3587c556e53c3f316c91",
+      "bytes": 14510
+    }
+  },
+  "result_files_verified": 8,
+  "native_model_sha256": "e87e9944aea8d7c6b8e32d144b8c6f4b37ac2c863c45353c9c228f8c9d0ea07f",
+  "native_library_sha256": "d8ed379d1d2fd01459df35f4063b682d6467129945504791445c65bc756d61bf",
+  "candidate_artifact_sha256": "022fb1bb07661804cc6a5060c39d0c76ddd767efb70a3800155af53f1a31f639",
+  "candidate_artifact_bytes": 194326,
+  "harness_sha256": "3150d102ee121b41be88a6598e644c353100a0c8d30ff7d7d9b1a5f05654da48",
+  "torch_version": "2.14.0+cpu",
+  "threads": {
+    "intraop": 1,
+    "interop": 1
+  },
+  "timing_input_source": "saved_report_values",
+  "timing_input_report_sha256": "21352251bf38a7add6efbb4b221b4703d255072f542cd59999edeec253f7539e",
+  "saved_input_capture": "postfw-integrated-20260925-02-baseline-pose",
+  "saved_inputs_not_fresh_telemetry": true,
+  "equivalence": {
+    "frames": 240,
+    "reset_before": [
+      0,
+      125,
+      240
+    ],
+    "models": [
+      "pinned_native",
+      "rebuilt_native",
+      "lean",
+      "lean_saved_reloaded"
+    ],
+    "all_buffers_and_parameters_compared_each_tick": true,
+    "max_errors": {
+      "named_buffers:last_observation": 0.0,
+      "named_buffers:last_actor_output": 0.0,
+      "named_buffers:controller.output_anchor": 0.0,
+      "named_buffers:controller.phase": 0.0,
+      "named_buffers:controller.elapsed": 0.0,
+      "named_buffers:controller.filters": 0.0,
+      "named_buffers:controller.yaw_filters": 0.0,
+      "named_buffers:controller.heading_error_rad": 0.0,
+      "named_buffers:controller.sensor_yaw_rate": 0.0,
+      "named_buffers:controller.previous_clipped": 0.0,
+      "named_buffers:controller.origins": 0.0,
+      "named_buffers:controller.anchor": 0.0,
+      "named_buffers:controller.offsets": 0.0,
+      "named_buffers:controller.signs": 0.0,
+      "named_buffers:controller.nominal": 0.0,
+      "named_buffers:controller.lower": 0.0,
+      "named_buffers:controller.upper": 0.0,
+      "named_buffers:controller.scale": 0.0,
+      "named_buffers:controller.safe_lower": 0.0,
+      "named_buffers:controller.safe_upper": 0.0,
+      "named_buffers:controller.sensor_q": 0.0,
+      "named_buffers:controller.sensor_up": 0.0,
+      "named_parameters:actor.0.weight": 0.0,
+      "named_parameters:actor.0.bias": 0.0,
+      "named_parameters:actor.2.weight": 0.0,
+      "named_parameters:actor.2.bias": 0.0,
+      "named_parameters:actor.4.weight": 0.0,
+      "named_parameters:actor.4.bias": 0.0,
+      "named_parameters:actor.6.weight": 0.0,
+      "named_parameters:actor.6.bias": 0.0,
+      "target": 0.0,
+      "observation74": 0.0,
+      "actor12": 0.0,
+      "continuous_target": 0.0
+    }
+  },
+  "rejections": [
+    {
+      "case": "gyro_nan",
+      "same_reason": true
+    },
+    {
+      "case": "gyro_inf",
+      "same_reason": true
+    },
+    {
+      "case": "gyro_shape",
+      "same_reason": true
+    },
+    {
+      "case": "gravity_nan",
+      "same_reason": true
+    },
+    {
+      "case": "gravity_inf",
+      "same_reason": true
+    },
+    {
+      "case": "gravity_shape",
+      "same_reason": true
+    },
+    {
+      "case": "command_nan",
+      "same_reason": true
+    },
+    {
+      "case": "command_inf",
+      "same_reason": true
+    },
+    {
+      "case": "command_shape",
+      "same_reason": true
+    },
+    {
+      "case": "q_nan",
+      "same_reason": true
+    },
+    {
+      "case": "q_inf",
+      "same_reason": true
+    },
+    {
+      "case": "q_shape",
+      "same_reason": true
+    },
+    {
+      "case": "dq_nan",
+      "same_reason": true
+    },
+    {
+      "case": "dq_inf",
+      "same_reason": true
+    },
+    {
+      "case": "dq_shape",
+      "same_reason": true
+    },
+    {
+      "case": "h_nan",
+      "same_reason": true
+    },
+    {
+      "case": "h_inf",
+      "same_reason": true
+    },
+    {
+      "case": "h_shape",
+      "same_reason": true
+    },
+    {
+      "case": "gravity_norm",
+      "same_reason": true
+    },
+    {
+      "case": "gravity_heading_singular",
+      "same_reason": true
+    },
+    {
+      "case": "mixed_command",
+      "same_reason": true
+    },
+    {
+      "case": "translation_and_yaw",
+      "same_reason": true
+    },
+    {
+      "case": "forward_limit",
+      "same_reason": true
+    },
+    {
+      "case": "yaw_limit",
+      "same_reason": true
+    },
+    {
+      "case": "negative_h",
+      "same_reason": true
+    },
+    {
+      "case": "excess_h",
+      "same_reason": true
+    }
+  ],
+  "exception_state_comparison_in_harness": true,
+  "input_mutation_check_in_harness": true,
+  "graph_summary": {
+    "pinned_native": {
+      "sha256": "f67cc4809b1f18d681a3855d9fa43a7cea8af16ab4dbb7d158f0c0ba3ca23afc",
+      "node_count": 1134,
+      "diagnostic_name_occurrences": {
+        "l13_target_joint_margin_rad": 1,
+        "physical_clip_delta_rad": 1,
+        "filter_state_after": 2,
+        "l13_constraint_reason_bits": 1
+      },
+      "custom_projection_occurrences": 1
+    },
+    "rebuilt_native": {
+      "sha256": "34d4146fe27927ef057ab20eec886fc47c915788808b500de8b9aea29c9446e6",
+      "node_count": 1134,
+      "diagnostic_name_occurrences": {
+        "l13_target_joint_margin_rad": 1,
+        "physical_clip_delta_rad": 1,
+        "filter_state_after": 2,
+        "l13_constraint_reason_bits": 1
+      },
+      "custom_projection_occurrences": 1
+    },
+    "lean": {
+      "sha256": "caa916c63f6b4eae3644114988316c2bca4ffbcc4e11284d4594ee97a762e44a",
+      "node_count": 937,
+      "diagnostic_name_occurrences": {
+        "l13_target_joint_margin_rad": 0,
+        "physical_clip_delta_rad": 0,
+        "filter_state_after": 0,
+        "l13_constraint_reason_bits": 0
+      },
+      "custom_projection_occurrences": 1
+    },
+    "lean_saved_reloaded": {
+      "sha256": "8b222e59785da52638adfd0aa204200a0538b189f35bf922c22183131b1442d9",
+      "node_count": 937,
+      "diagnostic_name_occurrences": {
+        "l13_target_joint_margin_rad": 0,
+        "physical_clip_delta_rad": 0,
+        "filter_state_after": 0,
+        "l13_constraint_reason_bits": 0
+      },
+      "custom_projection_occurrences": 1
+    }
+  },
+  "warmed_reset_before_each_forward_timing": {
+    "pinned_native": {
+      "samples": 60,
+      "median_ms": 3.154908,
+      "p95_ms": 3.403378,
+      "max_ms": 3.554454
+    },
+    "lean": {
+      "samples": 60,
+      "median_ms": 2.8373165,
+      "p95_ms": 3.139819,
+      "max_ms": 3.312144
+    }
+  },
+  "warmed_continuous_120tick_forward_timing": {
+    "pinned_native": {
+      "samples": 120,
+      "median_ms": 3.1466995,
+      "p95_ms": 3.403858,
+      "max_ms": 3.474835
+    },
+    "lean": {
+      "samples": 120,
+      "median_ms": 2.859301,
+      "p95_ms": 3.117452,
+      "max_ms": 3.956511
+    }
+  },
+  "timing_labels": {
+    "cold_first_call_measured": false,
+    "warmed_reset": "Each measured forward follows untimed reset; compiled/JIT warm state retained.",
+    "warmed_continuous": "One untimed reset before120 repeated-input ticks; controller state advances normally.",
+    "warmup_per_model": 20,
+    "first_call_and_compilation_excluded": true,
+    "comparison_and_finiteness_checks_outside_timed_regions": true
+  },
+  "timing_scope": "CPU forward only; no observer conversion, sensor I/O, transport or realtime claim",
+  "timing_excludes": [
+    "compilation",
+    "cold_first_call",
+    "reset",
+    "input_tensor_creation",
+    "tensor_equality_checks",
+    "observer_validation_and_conversion",
+    "sensor_io",
+    "can_transport",
+    "file_io"
+  ],
+  "timing_uses_interleaved_alternating_order": true,
+  "continuous_maximum_regressed": true,
+  "raw_per_sample_timing_values_saved": false,
+  "distribution_recomputed_by_auditor": false,
+  "model_execution_repeated_by_auditor": false,
+  "audit_basis": "Pinned source and artifact hashes; independent AST and graph consistency checks; execution harness and saved PASS summary inspection. Model execution was performed by the coordinator on Jetson, not repeated by this auditor.",
+  "comparison_limit": "CPU forward-only serial execution differs from integrated model host call6.86–10.72ms with active workers; do not subtract or infer integration gain.",
+  "publication_excludes": [
+    "private_paths",
+    "connection_addresses",
+    "UIDs",
+    "raw_saved_sensor_values",
+    "source_files",
+    "model_binary",
+    "graph_text_with_local_paths"
+  ]
+}

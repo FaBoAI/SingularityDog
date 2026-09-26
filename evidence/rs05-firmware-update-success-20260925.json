@@ -1,0 +1,3678 @@
+{
+  "active_reporting_regression_verified": false,
+  "all12_updated": true,
+  "baseline": {
+    "capture": "firmware-20260925-r5-before-backup-all12",
+    "files_sha256": {
+      "front-raw.json": "6d04d6d440d6eed17c30a996c49a0ea0acb51fa70ef5e9740b68aa65e01e9cb4",
+      "front-tx.json": "a6c6173e000305a2828b05d4820455019e1bd20d24c0b40349cc5d4271e88515",
+      "rear-raw.json": "331286496ea13ff176e9595ceab51a553256721b16d58071bd43927d41e1bcb2",
+      "rear-tx.json": "69867fcb1e17196a4fe399f54c8a470a4897ea531aafc693ed97cc6d07b00179",
+      "summary.json": "208ede0cb419cd9c613697feb409ee864bf79d96d8b332e09861860e501594c3"
+    }
+  },
+  "baseline_manifest_files_verified": 60,
+  "baseline_manifest_sha256": "98e66ee76cf1f43cf8cdfb512f1aa29bdd436568e35934c4330f9f41a76b10d1",
+  "baseline_source_bundle": "rs05-fw-0.5.0.13-r4",
+  "capture_chronology_verified": true,
+  "frozen_manifest_files_verified": 60,
+  "frozen_manifest_sha256": "5dfd4230c54c9092408e8928e69982db4ebe8b6e1c1e76919f19a3716594b103",
+  "full_nvm_preservation_verified": false,
+  "image_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+  "last_id": 12,
+  "motion_authorized_by_audit": false,
+  "physical_can_timing_verified": false,
+  "position_comparison_basis": "common r5-before-backup-all12; direct unwrapped value difference",
+  "quiet_evidence_basis": "saved success flags plus empty raw parser; empty-read timestamps unavailable",
+  "source_files_verified_per_run": 47,
+  "status": "AUDIT_COMPLETE",
+  "updated_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "updates": [
+    {
+      "after_versions": {
+        "1": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "10": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "11": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "12": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "2": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "3": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "4": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "5": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "6": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "7": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "8": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "9": [
+          0,
+          5,
+          0,
+          9
+        ]
+      },
+      "all12_parameter_comparisons": {
+        "1": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.008496755327495862,
+          "position_delta_rad": 0.00014829635620117188,
+          "voltage_after_v": 37.93142318725586,
+          "voltage_before_v": 37.966514587402344
+        },
+        "10": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008496755327495862,
+          "position_delta_rad": -0.00014829635620117188,
+          "voltage_after_v": 37.545440673828125,
+          "voltage_before_v": 37.58053207397461
+        },
+        "11": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.68579864501953,
+          "voltage_before_v": 37.720890045166016
+        },
+        "12": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.68579864501953,
+          "voltage_before_v": 37.720890045166016
+        },
+        "2": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0028413586947253046,
+          "position_delta_rad": 4.9591064453125e-05,
+          "voltage_after_v": 37.159461975097656,
+          "voltage_before_v": 37.22964096069336
+        },
+        "3": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028140379380452536,
+          "position_delta_rad": -4.9114227294921875e-05,
+          "voltage_after_v": 38.49285125732422,
+          "voltage_before_v": 38.56303024291992
+        },
+        "4": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.65071105957031,
+          "voltage_before_v": 37.720890045166016
+        },
+        "5": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.82615661621094,
+          "voltage_before_v": 37.861244201660156
+        },
+        "6": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.966514587402344,
+          "voltage_before_v": 38.00160217285156
+        },
+        "7": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.510353088378906,
+          "voltage_before_v": 37.545440673828125
+        },
+        "8": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.79106521606445,
+          "voltage_before_v": 37.82615661621094
+        },
+        "9": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008496755327495862,
+          "position_delta_rad": -0.00014829635620117188,
+          "voltage_after_v": 37.79106521606445,
+          "voltage_before_v": 37.79106521606445
+        }
+      },
+      "all12_stop_mode0_fault0": true,
+      "all12_uid_match": true,
+      "evidence": [
+        {
+          "capture": "firmware-20260925-r5-id01",
+          "files_sha256": {
+            "ota-raw.json": "69e09b38fcedf540899a0dcd1ef1fae6da7c42c14a9005a05ea5bd62eaec8cbc",
+            "ota-tx.json": "3fc9bc1195a46ecfd8ba3f8670f2dce10ebd6697daa7f78f70c0d10ab7e7c6e2",
+            "preflight-raw.json": "f12df697dfdfb1cfa85598893d845a9e84f13a3d121f4a978c1c4720d2ce936e",
+            "preflight-tx.json": "9b59fe012e300c433644beafd72c4ba78fdfb71658aff00acc6c6544cf3068ea",
+            "preflight.json": "f022ba3cd2b247ee288999dfef3c38f60a3c2e181cd1461003950690501bc549",
+            "progress.json": "1d35edf62cf244c828ec3c5ab246ebac46293e9b6275da847e7929df8de476a6",
+            "summary.json": "7cffe67983f8441b17d57056f13977b615f09b4029084922ef68872ca52f8afd",
+            "update-intent.json": "5bde8f815806da3ffabedee4c1de178f3234244baf6bb960c52846a7f16f38de"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id01-all12",
+          "files_sha256": {
+            "front-raw.jsonl": "6ce8a63503a87d980f88a96be65b2ecf69219b982494ec8001a6d0a9af8f21b5",
+            "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "front-tx.json": "b85d67cfc50f072831168bba6d39bffb2b0681b4546b20e2e2cdd745d55ca8b7",
+            "rear-raw.jsonl": "20785e4ebf2a5efb85cc5483e0af1bd380d4826537327e896ab0ded04ae93d71",
+            "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "rear-tx.json": "24f656e87ebb5c6c2ef0e64c4d2750ce265ac1f55214bfd840f4bf3669356638",
+            "summary.json": "1e8e787f77613b9704c6fe62b8ce0875103eb4a3cf915862f5cfccf02d3be19d"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id01-backup-all12",
+          "files_sha256": {
+            "front-raw.json": "05ae762efd903a7eaed843a4e3d88a71ebe6c33db6f3a1522fb9a5e1f8a7ee52",
+            "front-tx.json": "ffd83396da04db8fd690d5a64a461f84f52594d172b42ab69e83ad14df068210",
+            "rear-raw.json": "38edc7975b421665c5162a170f817dfd63b959c8c0c3787704668fa8a6627e6b",
+            "rear-tx.json": "adb1804017dbcbfe9f96dd7fc1c8b14d0588b93643067ca4290cebbab6e53f45",
+            "summary.json": "6344b7aa2483357b20d471f3799fc49b478be2eca6b7f068c05b5c269c029c92"
+          }
+        }
+      ],
+      "motor_id": 1,
+      "ota": {
+        "ack_frames": 11701,
+        "all_ack_identity_status_match": true,
+        "data_packets": 11698,
+        "data_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+        "first_write_to_end_ack_s": 71.872395868,
+        "locks_released": true,
+        "port_closed": true,
+        "reported_elapsed_s": 71.986069922,
+        "residual_bytes": 0,
+        "start_ack_ms": 2029.490384,
+        "start_attempt_limit": 1,
+        "start_transmit_attempts": 1,
+        "tx_frames": 11701,
+        "uid_match": true
+      }
+    },
+    {
+      "after_versions": {
+        "1": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "10": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "11": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "12": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "2": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "3": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "4": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "5": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "6": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "7": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "8": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "9": [
+          0,
+          5,
+          0,
+          9
+        ]
+      },
+      "all12_parameter_comparisons": {
+        "1": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.861244201660156,
+          "voltage_before_v": 37.966514587402344
+        },
+        "10": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028140379380452536,
+          "position_delta_rad": -4.9114227294921875e-05,
+          "voltage_after_v": 37.47526550292969,
+          "voltage_before_v": 37.58053207397461
+        },
+        "11": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008524076084175913,
+          "position_delta_rad": -0.000148773193359375,
+          "voltage_after_v": 37.61561965942383,
+          "voltage_before_v": 37.720890045166016
+        },
+        "12": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.58053207397461,
+          "voltage_before_v": 37.720890045166016
+        },
+        "2": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.011365434778901218,
+          "position_delta_rad": -0.0001983642578125,
+          "voltage_after_v": 37.08928298950195,
+          "voltage_before_v": 37.22964096069336
+        },
+        "3": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028140379380452536,
+          "position_delta_rad": -4.9114227294921875e-05,
+          "voltage_after_v": 38.422672271728516,
+          "voltage_before_v": 38.56303024291992
+        },
+        "4": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.61561965942383,
+          "voltage_before_v": 37.720890045166016
+        },
+        "5": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.011338114022221167,
+          "position_delta_rad": -0.00019788742065429688,
+          "voltage_after_v": 37.79106521606445,
+          "voltage_before_v": 37.861244201660156
+        },
+        "6": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.93142318725586,
+          "voltage_before_v": 38.00160217285156
+        },
+        "7": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.47526550292969,
+          "voltage_before_v": 37.545440673828125
+        },
+        "8": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.011310793265541116,
+          "position_delta_rad": 0.00019741058349609375,
+          "voltage_after_v": 37.720890045166016,
+          "voltage_before_v": 37.82615661621094
+        },
+        "9": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008496755327495862,
+          "position_delta_rad": -0.00014829635620117188,
+          "voltage_after_v": 37.720890045166016,
+          "voltage_before_v": 37.79106521606445
+        }
+      },
+      "all12_stop_mode0_fault0": true,
+      "all12_uid_match": true,
+      "evidence": [
+        {
+          "capture": "firmware-20260925-r5-id02-retry3",
+          "files_sha256": {
+            "ota-raw.json": "c19d6701c387d03db68ae2b3986affa0ecec317ae382b7feb02f137991b8c9fc",
+            "ota-tx.json": "a23f784456cc46a5983a0fdb600e8191b39bccd6ac9dc404831cb99925454808",
+            "preflight-raw.json": "6b77631fc253d40de7f31a32c2f0618e99a2d33eeafb87736fa1dc30326bc1de",
+            "preflight-tx.json": "54d82e97215a848600bbf04d83953a591cbd70c5cc1e2f24e1df55b7c7a80b4f",
+            "preflight.json": "27092577d3c301102804ef801d6b3b6ab37f4bb82d4efc8a91e7957ab4c30846",
+            "progress.json": "2d4e5bdd27a15e52a915772a94957f37ab52d132e85fd5a1922e0e431ff80eef",
+            "summary.json": "7c5c34d7c5ab2f9979e8bf9a242a374cb5aec424e54eea4bec4fb7dc5cf76ba1",
+            "update-intent.json": "436fbb80b101cd38b962d652904d6c97ddf9aa2ca0c2efb598eaf2604b83bf5d"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id02-all12",
+          "files_sha256": {
+            "front-raw.jsonl": "ce4a41ee72db66d1ca4ad9c01e60eaa4c16ab84b30c9028599beb32e1dc77499",
+            "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "front-tx.json": "fb4f4323b9930ab8e892726ad5526ab90e6c89d767024c10d6efeadefe8b452a",
+            "rear-raw.jsonl": "4d3f07629bb4f80cec79293684ec62c00dd58ea44f2a4dfc54df3e7514e9e5cc",
+            "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "rear-tx.json": "28f5f834df69ce61ac5ab88c1c426e6512ba3e1c5d7745a11aa1fbffe0ce543e",
+            "summary.json": "3ec241707a31e03974cc57cde0aec6b56c7f5e42dc101de441b12fba1fec87c6"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id02-backup-all12",
+          "files_sha256": {
+            "front-raw.json": "8224d5b7c382e3b20c9c166b503e6134eeeb9d6e13df2ace625d15b67297736c",
+            "front-tx.json": "28055e79ea3df66e062024c1343d01b7c5c6c4651814282fc76210f672751e74",
+            "rear-raw.json": "70c73691b9eb6a946a40f53f61c7656e687dd907293e4004cd7aaf196567d32c",
+            "rear-tx.json": "76c52fb48393b5d03646e5f34b4fca6d6b694ab46541dbc0831486d55eb23e66",
+            "summary.json": "b41fe250173ca46d77148a21dd78abbaabdb8ede42b9efcaaa82b9895ed6450a"
+          }
+        }
+      ],
+      "motor_id": 2,
+      "ota": {
+        "ack_frames": 11701,
+        "all_ack_identity_status_match": true,
+        "data_packets": 11698,
+        "data_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+        "first_write_to_end_ack_s": 71.950290045,
+        "locks_released": true,
+        "port_closed": true,
+        "reported_elapsed_s": 72.065293382,
+        "residual_bytes": 0,
+        "start_ack_ms": 2050.101661,
+        "start_attempt_limit": 3,
+        "start_transmit_attempts": 1,
+        "tx_frames": 11701,
+        "uid_match": true
+      }
+    },
+    {
+      "after_versions": {
+        "1": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "10": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "11": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "12": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "2": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "3": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "4": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "5": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "6": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "7": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "8": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "9": [
+          0,
+          5,
+          0,
+          9
+        ]
+      },
+      "all12_parameter_comparisons": {
+        "1": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.82615661621094,
+          "voltage_before_v": 37.966514587402344
+        },
+        "10": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028140379380452536,
+          "position_delta_rad": -4.9114227294921875e-05,
+          "voltage_after_v": 37.47526550292969,
+          "voltage_before_v": 37.58053207397461
+        },
+        "11": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.61561965942383,
+          "voltage_before_v": 37.720890045166016
+        },
+        "12": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.005628075876090507,
+          "position_delta_rad": 9.822845458984375e-05,
+          "voltage_after_v": 37.545440673828125,
+          "voltage_before_v": 37.720890045166016
+        },
+        "2": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.011365434778901218,
+          "position_delta_rad": -0.0001983642578125,
+          "voltage_after_v": 37.054195404052734,
+          "voltage_before_v": 37.22964096069336
+        },
+        "3": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005655396632770558,
+          "position_delta_rad": -9.870529174804688e-05,
+          "voltage_after_v": 38.3875846862793,
+          "voltage_before_v": 38.56303024291992
+        },
+        "4": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.61561965942383,
+          "voltage_before_v": 37.720890045166016
+        },
+        "5": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.755977630615234,
+          "voltage_before_v": 37.861244201660156
+        },
+        "6": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.861244201660156,
+          "voltage_before_v": 38.00160217285156
+        },
+        "7": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.011365434778901218,
+          "position_delta_rad": -0.0001983642578125,
+          "voltage_after_v": 37.4401741027832,
+          "voltage_before_v": 37.545440673828125
+        },
+        "8": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.008524076084175913,
+          "position_delta_rad": 0.000148773193359375,
+          "voltage_after_v": 37.68579864501953,
+          "voltage_before_v": 37.82615661621094
+        },
+        "9": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.005655396632770558,
+          "position_delta_rad": 9.870529174804688e-05,
+          "voltage_after_v": 37.65071105957031,
+          "voltage_before_v": 37.79106521606445
+        }
+      },
+      "all12_stop_mode0_fault0": true,
+      "all12_uid_match": true,
+      "evidence": [
+        {
+          "capture": "firmware-20260925-r5-id03",
+          "files_sha256": {
+            "ota-raw.json": "db557754162c818dd22441ef45758400578c406b0a6d3eb0b1b4542abfcd89d9",
+            "ota-tx.json": "97b3991c5758b7e8234e73900939a9fa1d9a917afce58cd55c727572c2c3f3d1",
+            "preflight-raw.json": "f8087ab9f5bcafb488f00d7b250776975d394810ccab9299de366da3b18e303c",
+            "preflight-tx.json": "06bf6cae118518ae098f65ab820cff12791a4b41fe0b07e175fffba831da7009",
+            "preflight.json": "08d0950376c07091588175fab07bb24db9b9f1ad3fef9d41bffa4d4651fc8ffe",
+            "progress.json": "de98dadbc473e79dd7e0b9a9bb05c47b289e0b54b16c1d32abce8da8608f61f9",
+            "summary.json": "ba3a9478ec2a1e18ca6b2bdc910814599c6c7958f5f55896c309ebcb51a3484a",
+            "update-intent.json": "f7be6013d09ae1349b6c26f5b02e31cbfd7bc162d708657c257577281bc661d5"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id03-all12",
+          "files_sha256": {
+            "front-raw.jsonl": "ca1589a9b7b3ced638398b56f398a93bac3e0008a9386531e062c734331efe6a",
+            "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "front-tx.json": "5b8c189f3be3294e9ce1f560f760d23c7c29159318bb223b5bf2abece9f4e9fc",
+            "rear-raw.jsonl": "062e72a37d235d3f8a37b2456bfa3148ce8c7721ea73b480f7444df9f224f335",
+            "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "rear-tx.json": "e21de5dbd04bc23cda87772e82985f9b05e888acbb4754e524b16072cbbc31b5",
+            "summary.json": "2379dabf359a96b335cc17244eb9cdb040726178a76559807055932fcde11b21"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id03-backup-all12",
+          "files_sha256": {
+            "front-raw.json": "c73a47ed67a0561e56b2a79f39502385cbeb53bc38a05fa84a75d6a308f8b7d3",
+            "front-tx.json": "bbeb70e20e9f90819c2fef27446b4f262edc81e76dc7a37ebe6b5c767b18bbe6",
+            "rear-raw.json": "6134a73d79d19537cc76eb7b40d292be962c4a8db45c82f7bf5c622179cfc640",
+            "rear-tx.json": "77df6af2f58ad9233bde0d5f4502063cc1004ece68f6c46e2f1e70fbd1307764",
+            "summary.json": "97e776b96761b05e4456422cae87ca8eeae2cd421d296e4303fbe8b505a6017d"
+          }
+        }
+      ],
+      "motor_id": 3,
+      "ota": {
+        "ack_frames": 11701,
+        "all_ack_identity_status_match": true,
+        "data_packets": 11698,
+        "data_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+        "first_write_to_end_ack_s": 74.468005491,
+        "locks_released": true,
+        "port_closed": true,
+        "reported_elapsed_s": 74.582507215,
+        "residual_bytes": 0,
+        "start_ack_ms": 1573.834093,
+        "start_attempt_limit": 3,
+        "start_transmit_attempts": 2,
+        "tx_frames": 11702,
+        "uid_match": true
+      }
+    },
+    {
+      "after_versions": {
+        "1": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "10": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "11": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "12": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "2": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "3": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "4": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "5": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "6": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "7": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "8": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "9": [
+          0,
+          5,
+          0,
+          9
+        ]
+      },
+      "all12_parameter_comparisons": {
+        "1": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.79106521606445,
+          "voltage_before_v": 37.966514587402344
+        },
+        "10": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008496755327495862,
+          "position_delta_rad": -0.00014829635620117188,
+          "voltage_after_v": 37.4401741027832,
+          "voltage_before_v": 37.58053207397461
+        },
+        "11": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0027867171813652026,
+          "position_delta_rad": -4.863739013671875e-05,
+          "voltage_after_v": 37.58053207397461,
+          "voltage_before_v": 37.720890045166016
+        },
+        "12": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.510353088378906,
+          "voltage_before_v": 37.720890045166016
+        },
+        "2": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.011365434778901218,
+          "position_delta_rad": -0.0001983642578125,
+          "voltage_after_v": 37.01910400390625,
+          "voltage_before_v": 37.22964096069336
+        },
+        "3": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008496755327495862,
+          "position_delta_rad": -0.00014829635620117188,
+          "voltage_after_v": 38.35249328613281,
+          "voltage_before_v": 38.56303024291992
+        },
+        "4": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.008496755327495862,
+          "position_delta_rad": 0.00014829635620117188,
+          "voltage_after_v": 37.510353088378906,
+          "voltage_before_v": 37.720890045166016
+        },
+        "5": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008524076084175913,
+          "position_delta_rad": -0.000148773193359375,
+          "voltage_after_v": 37.720890045166016,
+          "voltage_before_v": 37.861244201660156
+        },
+        "6": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.861244201660156,
+          "voltage_before_v": 38.00160217285156
+        },
+        "7": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.011365434778901218,
+          "position_delta_rad": -0.0001983642578125,
+          "voltage_after_v": 37.3699951171875,
+          "voltage_before_v": 37.545440673828125
+        },
+        "8": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.65071105957031,
+          "voltage_before_v": 37.82615661621094
+        },
+        "9": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.65071105957031,
+          "voltage_before_v": 37.79106521606445
+        }
+      },
+      "all12_stop_mode0_fault0": true,
+      "all12_uid_match": true,
+      "evidence": [
+        {
+          "capture": "firmware-20260925-r5-id04",
+          "files_sha256": {
+            "ota-raw.json": "09c5cb0843957cc38fddd014aa41479a488b70f651f4ec2598c1f8c0109a043d",
+            "ota-tx.json": "763e014aa6fe8c27cc04618de381bc712029d9c4c7f3aefa5443bf83d4d8dc47",
+            "preflight-raw.json": "54e3866544175b2168244f57d453ac946c046e4a462a12d949f806f244ca00c4",
+            "preflight-tx.json": "4eac4ccd9c536034eb18efb48027e25aad4135437100f5311e521a881e224a54",
+            "preflight.json": "365f69e5e2508867a15b9b879d6f54b5620da242bde7874ad78822afc0da4265",
+            "progress.json": "3707e8f09758fafde433fd4683089e45c578ea95f7ae09f04896209fa37ed7ba",
+            "summary.json": "11ebdf7cc6657a113d47fa10f89c04b4f74264ff716af0605283647a2b7397b4",
+            "update-intent.json": "c0215be915b1ff2728478b63f7a23fc2b478ab9fdac78360e2e5d963b61eb19f"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id04-all12",
+          "files_sha256": {
+            "front-raw.jsonl": "7007b522b9c667fb07b4d4e70ed479bde36cb19d82ec7dee0d3f985e6206acd7",
+            "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "front-tx.json": "b300ec835c84e24d1ac44912d79644bd6bfde96ad6e8e496dea778d87f98fe44",
+            "rear-raw.jsonl": "9f25bd2954bd4d27ba66fe184a8a36b867ee5c1764e887c8f788fb822b745654",
+            "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "rear-tx.json": "bcb32f238e6ba18204e6dd6138861c51799fe19ade3812f1f39868caed95e272",
+            "summary.json": "4358ce5cce5fafb186b4702c7b72e1763fac53fdc4a86f8f90e01407f680cd9a"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id04-backup-all12",
+          "files_sha256": {
+            "front-raw.json": "624e59bb1322d24a843a6e7f4f27a04066913d2b04fa725811dabb8bbcbd2d6a",
+            "front-tx.json": "7f68ad0beb2b0e6c93c7b55f72ece40a9eb8bc644b2a8c49ac6b6cc95b6692bf",
+            "rear-raw.json": "4b7407f9486d0f32592505cb6966cb89c0a324609d1c9048ab9eb32bf35f771c",
+            "rear-tx.json": "a6f605e3d381ff05142099f624f98c31828034b38bcb263c5f831b61dba94603",
+            "summary.json": "ff910f37804b5519a9b6f477fcf00250e29fa42ada283c6bd64b1042dbd2f5b0"
+          }
+        }
+      ],
+      "motor_id": 4,
+      "ota": {
+        "ack_frames": 11701,
+        "all_ack_identity_status_match": true,
+        "data_packets": 11698,
+        "data_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+        "first_write_to_end_ack_s": 74.651797834,
+        "locks_released": true,
+        "port_closed": true,
+        "reported_elapsed_s": 74.796757943,
+        "residual_bytes": 0,
+        "start_ack_ms": 1615.183596,
+        "start_attempt_limit": 3,
+        "start_transmit_attempts": 2,
+        "tx_frames": 11702,
+        "uid_match": true
+      }
+    },
+    {
+      "after_versions": {
+        "1": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "10": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "11": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "12": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "2": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "3": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "4": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "5": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "6": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "7": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "8": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "9": [
+          0,
+          5,
+          0,
+          9
+        ]
+      },
+      "all12_parameter_comparisons": {
+        "1": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0028413586947253046,
+          "position_delta_rad": 4.9591064453125e-05,
+          "voltage_after_v": 37.79106521606445,
+          "voltage_before_v": 37.966514587402344
+        },
+        "10": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.011338114022221167,
+          "position_delta_rad": -0.00019788742065429688,
+          "voltage_after_v": 37.405086517333984,
+          "voltage_before_v": 37.58053207397461
+        },
+        "11": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008524076084175913,
+          "position_delta_rad": -0.000148773193359375,
+          "voltage_after_v": 37.545440673828125,
+          "voltage_before_v": 37.720890045166016
+        },
+        "12": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.47526550292969,
+          "voltage_before_v": 37.720890045166016
+        },
+        "2": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008578717597536015,
+          "position_delta_rad": -0.00014972686767578125,
+          "voltage_after_v": 36.98401641845703,
+          "voltage_before_v": 37.22964096069336
+        },
+        "3": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.014179472716946471,
+          "position_delta_rad": -0.0002474784851074219,
+          "voltage_after_v": 38.317405700683594,
+          "voltage_before_v": 38.56303024291992
+        },
+        "4": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.47526550292969,
+          "voltage_before_v": 37.720890045166016
+        },
+        "5": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.65071105957031,
+          "voltage_before_v": 37.861244201660156
+        },
+        "6": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.82615661621094,
+          "voltage_before_v": 38.00160217285156
+        },
+        "7": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.3699951171875,
+          "voltage_before_v": 37.545440673828125
+        },
+        "8": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.008524076084175913,
+          "position_delta_rad": 0.000148773193359375,
+          "voltage_after_v": 37.61561965942383,
+          "voltage_before_v": 37.82615661621094
+        },
+        "9": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028140379380452536,
+          "position_delta_rad": -4.9114227294921875e-05,
+          "voltage_after_v": 37.61561965942383,
+          "voltage_before_v": 37.79106521606445
+        }
+      },
+      "all12_stop_mode0_fault0": true,
+      "all12_uid_match": true,
+      "evidence": [
+        {
+          "capture": "firmware-20260925-r5-id05",
+          "files_sha256": {
+            "ota-raw.json": "ed6469a178221e27a5f7e2651a6dcb0cf876212ebdf083207ac066beb3ece05d",
+            "ota-tx.json": "5b6324893332e9e3de44b4eeba709a910a565f5dd93508a06cb989738590ec55",
+            "preflight-raw.json": "9691534d0797da57ef670b9b3d640f9391b30ca2172e50722d5964d2862dbf63",
+            "preflight-tx.json": "0caeb6ba1db45e0374feb516675db2df7d7b0a89e3a0d4450647b8267149aaab",
+            "preflight.json": "1aedf63521bd25001cee687ca002285d1f301a19748cd8b8b1d67f65301f8b28",
+            "progress.json": "389a1027f8c223410234fb69d9aadb4b30814f34c54386e67644d371bcce23a0",
+            "summary.json": "02c740515e2fe968cc29c7ebac8e4982add62fdbd395ed3703392e089a6ea1e6",
+            "update-intent.json": "2142285f149a0f080c81aec0cab6a7a94c0a4535d2c2ef0fa274ab1861655ead"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id05-all12",
+          "files_sha256": {
+            "front-raw.jsonl": "f097fd4018bb7c3e194ee91dfb958a08e338e91b1ba597fa5205436628dae0b6",
+            "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "front-tx.json": "2333efdf5cadf7c53c944fa8661650e82c74d6b240770972afee1442fbfd0031",
+            "rear-raw.jsonl": "c76533e695ad23fad3c346844f5c31dc046c281032c394820853ae84139622b6",
+            "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "rear-tx.json": "dd1eebead7658cd815080f87b9f7a21d5c21670478eff497c4b2fbdf799ac6f6",
+            "summary.json": "832f8dab4db200d32111819af25647521786c2f79c51705e9b255cfbaaf293b1"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id05-backup-all12",
+          "files_sha256": {
+            "front-raw.json": "7c651f5e879f6bb939009799afaad894c33c9b300bed2876b26ff0349b9970d6",
+            "front-tx.json": "c25b39f1f4e71b29780936aaa24a7701a633db146e5d03bb72a1da7446f23e9b",
+            "rear-raw.json": "4102bb46a65a365f401b739653dcca76a3e80cf83fedb394fe01d10d1a6d7159",
+            "rear-tx.json": "409f16ae365dba5d893be1f8a9a4b3ada5c70fda88e65193d9cb49a07c69ea79",
+            "summary.json": "f0d1c4cfa18a39f540ec72fd1c80954d1ae9be2c70ed56a22febae50ce37d0aa"
+          }
+        }
+      ],
+      "motor_id": 5,
+      "ota": {
+        "ack_frames": 11701,
+        "all_ack_identity_status_match": true,
+        "data_packets": 11698,
+        "data_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+        "first_write_to_end_ack_s": 75.36766529,
+        "locks_released": true,
+        "port_closed": true,
+        "reported_elapsed_s": 75.523439492,
+        "residual_bytes": 0,
+        "start_ack_ms": 1902.459257,
+        "start_attempt_limit": 3,
+        "start_transmit_attempts": 2,
+        "tx_frames": 11702,
+        "uid_match": true
+      }
+    },
+    {
+      "after_versions": {
+        "1": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "10": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "11": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "12": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "2": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "3": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "4": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "5": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "6": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "7": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "8": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "9": [
+          0,
+          5,
+          0,
+          9
+        ]
+      },
+      "all12_parameter_comparisons": {
+        "1": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.755977630615234,
+          "voltage_before_v": 37.966514587402344
+        },
+        "10": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.011338114022221167,
+          "position_delta_rad": -0.00019788742065429688,
+          "voltage_after_v": 37.3699951171875,
+          "voltage_before_v": 37.58053207397461
+        },
+        "11": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0027867171813652026,
+          "position_delta_rad": -4.863739013671875e-05,
+          "voltage_after_v": 37.510353088378906,
+          "voltage_before_v": 37.720890045166016
+        },
+        "12": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0027867171813652026,
+          "position_delta_rad": 4.863739013671875e-05,
+          "voltage_after_v": 37.47526550292969,
+          "voltage_before_v": 37.720890045166016
+        },
+        "2": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.011365434778901218,
+          "position_delta_rad": -0.0001983642578125,
+          "voltage_after_v": 36.94892501831055,
+          "voltage_before_v": 37.22964096069336
+        },
+        "3": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028140379380452536,
+          "position_delta_rad": -4.9114227294921875e-05,
+          "voltage_after_v": 38.28231430053711,
+          "voltage_before_v": 38.56303024291992
+        },
+        "4": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.47526550292969,
+          "voltage_before_v": 37.720890045166016
+        },
+        "5": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.61561965942383,
+          "voltage_before_v": 37.861244201660156
+        },
+        "6": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.79106521606445,
+          "voltage_before_v": 38.00160217285156
+        },
+        "7": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.005628075876090507,
+          "position_delta_rad": 9.822845458984375e-05,
+          "voltage_after_v": 37.33490753173828,
+          "voltage_before_v": 37.545440673828125
+        },
+        "8": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.005682717389450609,
+          "position_delta_rad": 9.918212890625e-05,
+          "voltage_after_v": 37.58053207397461,
+          "voltage_before_v": 37.82615661621094
+        },
+        "9": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.58053207397461,
+          "voltage_before_v": 37.79106521606445
+        }
+      },
+      "all12_stop_mode0_fault0": true,
+      "all12_uid_match": true,
+      "evidence": [
+        {
+          "capture": "firmware-20260925-r5-id06",
+          "files_sha256": {
+            "ota-raw.json": "5ee4ebca3a03d62ad790e76e6aa4fe935766ff3f1b863fc6e9c97cb66160c1b0",
+            "ota-tx.json": "0cec586cd6ab497d09c1b9e0b34dcedef134d3d40a3482703333c0da4fe79b6a",
+            "preflight-raw.json": "dda94cf50593dd1fb08ca94231b04ca537f59470205c93cfa4a43f62931ec1d8",
+            "preflight-tx.json": "9524ba5a08a477b23f76b0fefa553b6a63a3c3fd8f25f63c0a02a08356f12465",
+            "preflight.json": "ef754443eea3b40cbdfa5216dccbcca27073a59b7cf55f64155f7fe4c865d8cf",
+            "progress.json": "146acac51a6e32c82304f17629187478f207831ba012648606412bcd7e47f371",
+            "summary.json": "feb153dc3fcbb0798190dde6c1091614f4dfcbe0fed6dc54f479e929821b2b61",
+            "update-intent.json": "5d05615fc2881c373a49e64047ad8e4ac797af806f1ec799e857d6e4b5ec8272"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id06-all12",
+          "files_sha256": {
+            "front-raw.jsonl": "88eaefddd4b01f3b1b9319b88e3bc6cff7ba15ee8de1fbcab24896cef4dece6d",
+            "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "front-tx.json": "a37c1e18bbaec3421fb5b377ff8f044b8e0269981f106dcc01ba0884d187539c",
+            "rear-raw.jsonl": "1fcc51129d97cf046ece94a56f3fdc117720fdbf17f72502f4fae9842c822295",
+            "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "rear-tx.json": "2e37e986b0402f2251afbd71863198e344f4e74bb0cacc4651322390d0ba2c50",
+            "summary.json": "126a2f63ad1d9584078c57d12922eb42f7e1eb680ee8d3331ab1113279f990b8"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id06-backup-all12",
+          "files_sha256": {
+            "front-raw.json": "4bf6f0eb71fac52d7b3e26fbce7122e14b328f904abbfdb5d514445848e7eef9",
+            "front-tx.json": "396efac5e0a890c9ad684dc36b04abc6bcbc3a938b9afef33cef8145d440ba2f",
+            "rear-raw.json": "2429107b1938d88dd7bd5722184c042391753d77aaec2628921ddbe34bed3e3d",
+            "rear-tx.json": "b108107f48870a3e635888e18c2c8bee3eee6ee0e0fa1d334b564bb183d1741a",
+            "summary.json": "49c7ebb9c528b9ff4230239be3542b8bfba8a366d776f77590aa1cab46a93990"
+          }
+        }
+      ],
+      "motor_id": 6,
+      "ota": {
+        "ack_frames": 11701,
+        "all_ack_identity_status_match": true,
+        "data_packets": 11698,
+        "data_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+        "first_write_to_end_ack_s": 74.850998078,
+        "locks_released": true,
+        "port_closed": true,
+        "reported_elapsed_s": 75.01667806,
+        "residual_bytes": 0,
+        "start_ack_ms": 1516.919698,
+        "start_attempt_limit": 3,
+        "start_transmit_attempts": 2,
+        "tx_frames": 11702,
+        "uid_match": true
+      }
+    },
+    {
+      "after_versions": {
+        "1": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "10": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "11": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "12": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "2": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "3": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "4": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "5": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "6": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "7": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "8": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "9": [
+          0,
+          5,
+          0,
+          9
+        ]
+      },
+      "all12_parameter_comparisons": {
+        "1": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.720890045166016,
+          "voltage_before_v": 37.966514587402344
+        },
+        "10": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005655396632770558,
+          "position_delta_rad": -9.870529174804688e-05,
+          "voltage_after_v": 37.33490753173828,
+          "voltage_before_v": 37.58053207397461
+        },
+        "11": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.011310793265541116,
+          "position_delta_rad": -0.00019741058349609375,
+          "voltage_after_v": 37.47526550292969,
+          "voltage_before_v": 37.720890045166016
+        },
+        "12": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.4401741027832,
+          "voltage_before_v": 37.720890045166016
+        },
+        "2": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.00573735890281071,
+          "position_delta_rad": -0.00010013580322265625,
+          "voltage_after_v": 36.94892501831055,
+          "voltage_before_v": 37.22964096069336
+        },
+        "3": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 38.24722671508789,
+          "voltage_before_v": 38.56303024291992
+        },
+        "4": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.4401741027832,
+          "voltage_before_v": 37.720890045166016
+        },
+        "5": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005669057011110584,
+          "position_delta_rad": -9.894371032714844e-05,
+          "voltage_after_v": 37.58053207397461,
+          "voltage_before_v": 37.861244201660156
+        },
+        "6": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008524076084175913,
+          "position_delta_rad": -0.000148773193359375,
+          "voltage_after_v": 37.755977630615234,
+          "voltage_before_v": 38.00160217285156
+        },
+        "7": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.2998161315918,
+          "voltage_before_v": 37.545440673828125
+        },
+        "8": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.008524076084175913,
+          "position_delta_rad": 0.000148773193359375,
+          "voltage_after_v": 37.545440673828125,
+          "voltage_before_v": 37.82615661621094
+        },
+        "9": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.545440673828125,
+          "voltage_before_v": 37.79106521606445
+        }
+      },
+      "all12_stop_mode0_fault0": true,
+      "all12_uid_match": true,
+      "evidence": [
+        {
+          "capture": "firmware-20260925-r5-id07",
+          "files_sha256": {
+            "ota-raw.json": "60ff56cfe8a3a9172a198f09a603e8ec8964a2502acedfa08b074c91feb7c3e9",
+            "ota-tx.json": "942ca34a5d3bdcf691efb6bf14a0985a253e717e18d0b339044cd908df914ffd",
+            "preflight-raw.json": "e83a6f6751c3fcf8910ff397adfa175081b58d3a4f3a25d21307e69e04a52364",
+            "preflight-tx.json": "a1512de386753ef3e7001757155dc7ed4c48f882515e676403a5d0a5de0670ec",
+            "preflight.json": "f7d32543d749a518f714c2dfd444ac4d354b7c2190ead226ec1b7cbab50234cd",
+            "progress.json": "71b7c92671d85eea088a1bf1d312931772858d65c199ca7eaaebbf7b6fbadd95",
+            "summary.json": "fa6c7de1c0cebe91b9815c436e93ef0227b5ad34f97951eefbf43922a8b5e814",
+            "update-intent.json": "26f9d18a855d57e3412002f85c17272dc68feab89d09e655e13adf226a50165d"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id07-all12",
+          "files_sha256": {
+            "front-raw.jsonl": "ca434665d2fccf57f589eb450b7503d07a0ecb011e106837705601183d58d4f3",
+            "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "front-tx.json": "a464da3bc0acc58d979cce91f3c9ac5735dc069bd02b36bafadc430f56edde6c",
+            "rear-raw.jsonl": "a876c72cba8d0deb81f88335406d7444d46b8503bf674f79e41d345e17fc4ee1",
+            "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "rear-tx.json": "354ea36d7310603ae2e7410f3eb2e84046e761ac453ac38e8406a40aa7875417",
+            "summary.json": "2e4f59765b3ffc016b978bdbc2f66849e5a675c369ef728fcd3d8bf3745e0fc7"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id07-backup-all12",
+          "files_sha256": {
+            "front-raw.json": "17428e2df774957fa6d3857ed9a471bc055b70c0c4fe796142e333abd0fcd27c",
+            "front-tx.json": "8304f0906b96f7c776eee64fb1ccc74679319414249414f6247eff448d3fae96",
+            "rear-raw.json": "f8edc199004c97a0f7d7c0a3752539d9e75aec443966dbc66e28cd5abc86b35b",
+            "rear-tx.json": "4f2d6ea011c9568c9977cb3e580b8f016e569fb6f7d649561cf8317f05647436",
+            "summary.json": "eac82bd8d2de64cb9844e4b463e97a7376eae5135da7234a6f17a6ab51d9acaf"
+          }
+        }
+      ],
+      "motor_id": 7,
+      "ota": {
+        "ack_frames": 11701,
+        "all_ack_identity_status_match": true,
+        "data_packets": 11698,
+        "data_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+        "first_write_to_end_ack_s": 74.557962171,
+        "locks_released": true,
+        "port_closed": true,
+        "reported_elapsed_s": 74.669386623,
+        "residual_bytes": 0,
+        "start_ack_ms": 1590.796509,
+        "start_attempt_limit": 3,
+        "start_transmit_attempts": 2,
+        "tx_frames": 11702,
+        "uid_match": true
+      }
+    },
+    {
+      "after_versions": {
+        "1": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "10": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "11": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "12": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "2": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "3": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "4": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "5": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "6": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "7": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "8": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "9": [
+          0,
+          5,
+          0,
+          9
+        ]
+      },
+      "all12_parameter_comparisons": {
+        "1": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.68579864501953,
+          "voltage_before_v": 37.966514587402344
+        },
+        "10": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028140379380452536,
+          "position_delta_rad": -4.9114227294921875e-05,
+          "voltage_after_v": 37.2998161315918,
+          "voltage_before_v": 37.58053207397461
+        },
+        "11": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.4401741027832,
+          "voltage_before_v": 37.720890045166016
+        },
+        "12": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.405086517333984,
+          "voltage_before_v": 37.720890045166016
+        },
+        "2": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008578717597536015,
+          "position_delta_rad": -0.00014972686767578125,
+          "voltage_after_v": 36.91383743286133,
+          "voltage_before_v": 37.22964096069336
+        },
+        "3": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.014179472716946471,
+          "position_delta_rad": -0.0002474784851074219,
+          "voltage_after_v": 38.212135314941406,
+          "voltage_before_v": 38.56303024291992
+        },
+        "4": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.005655396632770558,
+          "position_delta_rad": 9.870529174804688e-05,
+          "voltage_after_v": 37.405086517333984,
+          "voltage_before_v": 37.720890045166016
+        },
+        "5": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028550190730653297,
+          "position_delta_rad": -4.982948303222656e-05,
+          "voltage_after_v": 37.58053207397461,
+          "voltage_before_v": 37.861244201660156
+        },
+        "6": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0028140379380452536,
+          "position_delta_rad": 4.9114227294921875e-05,
+          "voltage_after_v": 37.720890045166016,
+          "voltage_before_v": 38.00160217285156
+        },
+        "7": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.005628075876090507,
+          "position_delta_rad": 9.822845458984375e-05,
+          "voltage_after_v": 37.26472854614258,
+          "voltage_before_v": 37.545440673828125
+        },
+        "8": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0028413586947253046,
+          "position_delta_rad": 4.9591064453125e-05,
+          "voltage_after_v": 37.61561965942383,
+          "voltage_before_v": 37.82615661621094
+        },
+        "9": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008496755327495862,
+          "position_delta_rad": -0.00014829635620117188,
+          "voltage_after_v": 37.510353088378906,
+          "voltage_before_v": 37.79106521606445
+        }
+      },
+      "all12_stop_mode0_fault0": true,
+      "all12_uid_match": true,
+      "evidence": [
+        {
+          "capture": "firmware-20260925-r5-id08",
+          "files_sha256": {
+            "ota-raw.json": "8e286fc82419a95108b57106d44488e53c4f999b9b79d9df46344c75e90f041d",
+            "ota-tx.json": "c0a7c5d0246c69852df0bcadbf7c985d7eb7d5b9a9510b5a1cbcc4284d551d30",
+            "preflight-raw.json": "b954dba52c9925678580a13c93da01e8b9d3aeb9503422ec9114ce3a02214c57",
+            "preflight-tx.json": "7ddbdb45ed7f40d2a2115b7fe833d1b1fa5531198595da92b7c2d6a3b7f3f70a",
+            "preflight.json": "76a64b553b888ddbabc24da824f50669a7ec57fa3179df7f76e298d8546766e2",
+            "progress.json": "9e0d1c083fc7bcd85eb5678d82861261d2c789abb01f33b7404e91f051ea2dcc",
+            "summary.json": "54f8137964a9a426980e66dd2933c25ce91a0d0132e5d429359440f8c0916e18",
+            "update-intent.json": "2a136ca0bc9587b3ab1470361518b3bac715e0c6be383614f327d74b81d3b021"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id08-all12",
+          "files_sha256": {
+            "front-raw.jsonl": "acccea2a709789ef3a5c18e34c6103fcf2d0a10d61aeb99c6737e22534a9e99a",
+            "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "front-tx.json": "7a5a3279d605861bd5f256bf41ef0a6f816c8768e4d75019e821874feb762362",
+            "rear-raw.jsonl": "866dfad80b910ac5d2ef9bf17f798d93db8f27e36a077e3901339f34317a0b8d",
+            "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "rear-tx.json": "53b46ad7c57354119db1f6abd47e099f7a8998daf97bc422ac73e9beedca981f",
+            "summary.json": "70f2fc15bd837e2c8d40696e063bc0e97ceda4fd3965d1020c2e79f7ef4f85ff"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id08-backup-all12",
+          "files_sha256": {
+            "front-raw.json": "0d76da9f1abfed4bc06f57fd54e31457f9cc4eb5faacc1e3c9c93bb101a77f3e",
+            "front-tx.json": "887c370572a735d7957b3c471c6a59eabfe5884e7372c9aebcaf0aab2c152e84",
+            "rear-raw.json": "54e874519eabf4832b22c6cf7a1931b4710532e23bcd3079f4426b8955199a22",
+            "rear-tx.json": "70d15e378baecea26a212f1e7c5fabf59fd3629c79b485b9fe4976fb130b087c",
+            "summary.json": "a8981740e6764e25671d086762b0b61036d95b51f745f3f091d709020d7a6810"
+          }
+        }
+      ],
+      "motor_id": 8,
+      "ota": {
+        "ack_frames": 11701,
+        "all_ack_identity_status_match": true,
+        "data_packets": 11698,
+        "data_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+        "first_write_to_end_ack_s": 74.535686564,
+        "locks_released": true,
+        "port_closed": true,
+        "reported_elapsed_s": 74.648256328,
+        "residual_bytes": 0,
+        "start_ack_ms": 1561.355815,
+        "start_attempt_limit": 3,
+        "start_transmit_attempts": 2,
+        "tx_frames": 11702,
+        "uid_match": true
+      }
+    },
+    {
+      "after_versions": {
+        "1": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "10": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "11": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "12": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "2": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "3": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "4": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "5": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "6": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "7": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "8": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "9": [
+          0,
+          5,
+          0,
+          13
+        ]
+      },
+      "all12_parameter_comparisons": {
+        "1": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.005655396632770558,
+          "position_delta_rad": 9.870529174804688e-05,
+          "voltage_after_v": 37.65071105957031,
+          "voltage_before_v": 37.966514587402344
+        },
+        "10": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028140379380452536,
+          "position_delta_rad": -4.9114227294921875e-05,
+          "voltage_after_v": 37.26472854614258,
+          "voltage_before_v": 37.58053207397461
+        },
+        "11": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0027867171813652026,
+          "position_delta_rad": -4.863739013671875e-05,
+          "voltage_after_v": 37.405086517333984,
+          "voltage_before_v": 37.720890045166016
+        },
+        "12": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.3699951171875,
+          "voltage_before_v": 37.720890045166016
+        },
+        "2": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.011365434778901218,
+          "position_delta_rad": -0.0001983642578125,
+          "voltage_after_v": 36.878746032714844,
+          "voltage_before_v": 37.22964096069336
+        },
+        "3": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 38.17704772949219,
+          "voltage_before_v": 38.56303024291992
+        },
+        "4": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.3699951171875,
+          "voltage_before_v": 37.720890045166016
+        },
+        "5": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028550190730653297,
+          "position_delta_rad": -4.982948303222656e-05,
+          "voltage_after_v": 37.545440673828125,
+          "voltage_before_v": 37.861244201660156
+        },
+        "6": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.68579864501953,
+          "voltage_before_v": 38.00160217285156
+        },
+        "7": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.22964096069336,
+          "voltage_before_v": 37.545440673828125
+        },
+        "8": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.58053207397461,
+          "voltage_before_v": 37.82615661621094
+        },
+        "9": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.011338114022221167,
+          "position_delta_rad": -0.00019788742065429688,
+          "voltage_after_v": 37.545440673828125,
+          "voltage_before_v": 37.79106521606445
+        }
+      },
+      "all12_stop_mode0_fault0": true,
+      "all12_uid_match": true,
+      "evidence": [
+        {
+          "capture": "firmware-20260925-r5-id09",
+          "files_sha256": {
+            "ota-raw.json": "789cc88a1aeceb9372fb7f8a84c5040fb32d87a448e16f5780e715a231e6c1c1",
+            "ota-tx.json": "f02496fe0b763ab1f0ba3825527ab451e7f79e779bdf5656f6f3193f93cac8be",
+            "preflight-raw.json": "fec3c28b01926a73e81ac9037758a17464fa5b548413d6567a0c26c97fb0015d",
+            "preflight-tx.json": "791c837a52721f0490d874b40a52bbd4b6c0ed0d98d8b14b55e269f3ecf82f11",
+            "preflight.json": "7e342b618d9bf208517cd8d7e909be1740a8d74deaf31762a59e44d53aef6135",
+            "progress.json": "ca3c041830dfbbfcd35f60bca3c1e65b78a83981f125ca93b8ee78f50351a787",
+            "summary.json": "9744c839152e1566dad3c320507316062be0d07000ecaf58c646bfb1b78a081a",
+            "update-intent.json": "aac6aac37422e7ab82142fc4b19d8ef55eacacc047d8714d413c0cccf7270777"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id09-all12",
+          "files_sha256": {
+            "front-raw.jsonl": "61eb12cdfee336b863054d8f5638caafe06a5f508f2abb7e4790d896eff0aaa0",
+            "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "front-tx.json": "29ffd1c9fde04fe34c62c6af8290a065ea4ad700ffce37738e0e9824b2960add",
+            "rear-raw.jsonl": "dc29a7ce0e624c093398ee51c15cbd678999bda446951dcabdca3e79d9eb2b98",
+            "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "rear-tx.json": "807cb242f794266fdce9f6f6197a57575338d1949f4e64bcc314b1ae2e2ebd99",
+            "summary.json": "8eba978a842304c36169144b92ad355fff4e82573ff337538146da7692ab73a3"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id09-backup-all12",
+          "files_sha256": {
+            "front-raw.json": "ed4261c84be7f625bbb62dfc80905e08b347fbd447508eec47faa23102381d1c",
+            "front-tx.json": "952606b2b6bdc968677363fbb7490f27b7f0e9c81a8cbb4dea5a32979b11871d",
+            "rear-raw.json": "053bcb0df38a8072dbf16dea660f757d5c70066e57a071447aa9f81ecfe3a525",
+            "rear-tx.json": "1d8d0ff50e054edb8820d43d24b8621c8baffa66b75c5040e1beda3c5f761521",
+            "summary.json": "70381b100acc3ce35779d9e49b1a3e265c64e1e7a28e1873f82bd3c4e211f886"
+          }
+        }
+      ],
+      "motor_id": 9,
+      "ota": {
+        "ack_frames": 11701,
+        "all_ack_identity_status_match": true,
+        "data_packets": 11698,
+        "data_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+        "first_write_to_end_ack_s": 74.590118347,
+        "locks_released": true,
+        "port_closed": true,
+        "reported_elapsed_s": 74.702034109,
+        "residual_bytes": 0,
+        "start_ack_ms": 1566.537527,
+        "start_attempt_limit": 3,
+        "start_transmit_attempts": 2,
+        "tx_frames": 11702,
+        "uid_match": true
+      }
+    },
+    {
+      "after_versions": {
+        "1": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "10": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "11": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "12": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "2": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "3": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "4": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "5": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "6": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "7": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "8": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "9": [
+          0,
+          5,
+          0,
+          13
+        ]
+      },
+      "all12_parameter_comparisons": {
+        "1": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.65071105957031,
+          "voltage_before_v": 37.966514587402344
+        },
+        "10": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028140379380452536,
+          "position_delta_rad": -4.9114227294921875e-05,
+          "voltage_after_v": 37.22964096069336,
+          "voltage_before_v": 37.58053207397461
+        },
+        "11": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.405086517333984,
+          "voltage_before_v": 37.720890045166016
+        },
+        "12": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.33490753173828,
+          "voltage_before_v": 37.720890045166016
+        },
+        "2": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.014206793473626522,
+          "position_delta_rad": -0.000247955322265625,
+          "voltage_after_v": 36.843658447265625,
+          "voltage_before_v": 37.22964096069336
+        },
+        "3": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 38.17704772949219,
+          "voltage_before_v": 38.56303024291992
+        },
+        "4": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.3699951171875,
+          "voltage_before_v": 37.720890045166016
+        },
+        "5": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0028140379380452536,
+          "position_delta_rad": 4.9114227294921875e-05,
+          "voltage_after_v": 37.545440673828125,
+          "voltage_before_v": 37.861244201660156
+        },
+        "6": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.014179472716946471,
+          "position_delta_rad": -0.0002474784851074219,
+          "voltage_after_v": 37.65071105957031,
+          "voltage_before_v": 38.00160217285156
+        },
+        "7": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.22964096069336,
+          "voltage_before_v": 37.545440673828125
+        },
+        "8": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.014206793473626522,
+          "position_delta_rad": 0.000247955322265625,
+          "voltage_after_v": 37.545440673828125,
+          "voltage_before_v": 37.82615661621094
+        },
+        "9": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.510353088378906,
+          "voltage_before_v": 37.79106521606445
+        }
+      },
+      "all12_stop_mode0_fault0": true,
+      "all12_uid_match": true,
+      "evidence": [
+        {
+          "capture": "firmware-20260925-r5-id10",
+          "files_sha256": {
+            "ota-raw.json": "c38906a22b671b0ba7731ddde793451b3625ab1233f1e0e4e738d9bfdf2b19a1",
+            "ota-tx.json": "e869fe102c54199f7894dcef5e37e71d42f8f9b8c0ea01effcbda0a4c7667e24",
+            "preflight-raw.json": "55b3679db9c9cea56d3ba06f1a373f610172be97681a9d81c0d527e3b6864b90",
+            "preflight-tx.json": "8dee42006d14f8d5e0f5a9a0ee3efd0dda703eaeea5fe4f2af32e0bfb0b80cf1",
+            "preflight.json": "56efeedffcedea9cae82f3ff09f1d9da88fdb1c1f72ac7e98f26194cd499ae17",
+            "progress.json": "a66501bcd12ec68ecfc85f894ca6f58cea959bae3c055098aebbead5e86e5d6a",
+            "summary.json": "deed8781ef6f9ba99f8cb1d0e426c581c1fe8d1e238648dc4c4cec966d8e19f6",
+            "update-intent.json": "8e23d28b27e0bc1f61a9dc8d408957a7f998f3a3b1b7212dbcb5487dc03cc254"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id10-all12",
+          "files_sha256": {
+            "front-raw.jsonl": "1c21870bd329bf94f0a95872a64a9a556038b0eb7e8d9bd1c384c5df3d0b63d8",
+            "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "front-tx.json": "3ff6f172e323b70eac6c63cda3160cd2887992b2d7ed8f9d43b23aefe1cde734",
+            "rear-raw.jsonl": "79bfc5d4bb2571d8b0f0f78d6abae419533130599ac7fb9c2a2a5771a18cd743",
+            "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "rear-tx.json": "853fbabf28c37d27fe58ed720379a98f76271ac43b3cdc71fe0c0d63a2e51fa6",
+            "summary.json": "5e84a68753db52c78808ecdbf3aa1a9c6d77e344b9053b30c2edb5ae8c2aac62"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id10-backup-all12",
+          "files_sha256": {
+            "front-raw.json": "cb89115a32e11c2079238cc1329a887ee9cfa2f0f8b936bcb6a446792e3bfc08",
+            "front-tx.json": "0f2826a90279b1f3cef8ea0d80eb49851a45f24e5c8a7b237e0777f633508aee",
+            "rear-raw.json": "abdc3d9144ea31428916fd3c25bd2fec1c85d25a9da299f8603f1f3a3cd2e85c",
+            "rear-tx.json": "cc0173f1afd3286f67a20c0105802a3a574432bb772e4ef2c5550b7d308755b2",
+            "summary.json": "a6f71f3bf1774f788e9a3664a126284fe97478885d44484bc5619be0df5cd361"
+          }
+        }
+      ],
+      "motor_id": 10,
+      "ota": {
+        "ack_frames": 11701,
+        "all_ack_identity_status_match": true,
+        "data_packets": 11698,
+        "data_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+        "first_write_to_end_ack_s": 74.698064776,
+        "locks_released": true,
+        "port_closed": true,
+        "reported_elapsed_s": 74.814067626,
+        "residual_bytes": 0,
+        "start_ack_ms": 1714.809639,
+        "start_attempt_limit": 3,
+        "start_transmit_attempts": 2,
+        "tx_frames": 11702,
+        "uid_match": true
+      }
+    },
+    {
+      "after_versions": {
+        "1": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "10": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "11": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "12": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "2": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "3": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "4": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "5": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "6": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "7": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "8": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "9": [
+          0,
+          5,
+          0,
+          13
+        ]
+      },
+      "all12_parameter_comparisons": {
+        "1": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0028413586947253046,
+          "position_delta_rad": 4.9591064453125e-05,
+          "voltage_after_v": 37.61561965942383,
+          "voltage_before_v": 37.966514587402344
+        },
+        "10": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005655396632770558,
+          "position_delta_rad": -9.870529174804688e-05,
+          "voltage_after_v": 37.22964096069336,
+          "voltage_before_v": 37.58053207397461
+        },
+        "11": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0027867171813652026,
+          "position_delta_rad": -4.863739013671875e-05,
+          "voltage_after_v": 37.3699951171875,
+          "voltage_before_v": 37.720890045166016
+        },
+        "12": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.33490753173828,
+          "voltage_before_v": 37.720890045166016
+        },
+        "2": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008578717597536015,
+          "position_delta_rad": -0.00014972686767578125,
+          "voltage_after_v": 36.843658447265625,
+          "voltage_before_v": 37.22964096069336
+        },
+        "3": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008496755327495862,
+          "position_delta_rad": -0.00014829635620117188,
+          "voltage_after_v": 38.14196014404297,
+          "voltage_before_v": 38.56303024291992
+        },
+        "4": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.33490753173828,
+          "voltage_before_v": 37.720890045166016
+        },
+        "5": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.008483094949155837,
+          "position_delta_rad": 0.0001480579376220703,
+          "voltage_after_v": 37.47526550292969,
+          "voltage_before_v": 37.861244201660156
+        },
+        "6": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008524076084175913,
+          "position_delta_rad": -0.000148773193359375,
+          "voltage_after_v": 37.65071105957031,
+          "voltage_before_v": 38.00160217285156
+        },
+        "7": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.194549560546875,
+          "voltage_before_v": 37.545440673828125
+        },
+        "8": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.008524076084175913,
+          "position_delta_rad": 0.000148773193359375,
+          "voltage_after_v": 37.545440673828125,
+          "voltage_before_v": 37.82615661621094
+        },
+        "9": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.008524076084175913,
+          "position_delta_rad": 0.000148773193359375,
+          "voltage_after_v": 37.47526550292969,
+          "voltage_before_v": 37.79106521606445
+        }
+      },
+      "all12_stop_mode0_fault0": true,
+      "all12_uid_match": true,
+      "evidence": [
+        {
+          "capture": "firmware-20260925-r5-id11",
+          "files_sha256": {
+            "ota-raw.json": "5790bb23254beea926e8f82f091d8c8c7778ae4cce1137d56c3eb581d4d0e320",
+            "ota-tx.json": "74a99416f93e75ccdc63317a597b865ebe46d1760f37790100ef9ca4a1b40d22",
+            "preflight-raw.json": "9d7858901b4abf76884f10758244b830141af68369c877e0fa6242960d7db3ce",
+            "preflight-tx.json": "95187aec3f9a30897b14715e1991eebfd62e57255ea51a47141f65868514b520",
+            "preflight.json": "cdb60a46e13bda4d0cbb295843f7205c676e0c43b8634dae50476d6bdd4b42d0",
+            "progress.json": "e36d78ee9e189585f241e1cf5b3e2bef563a03161d261f4d0924e68d560621c3",
+            "summary.json": "53b552a777bf3c4a139135dc5236ff4e757be31eda7276b5e889141bf2839b4e",
+            "update-intent.json": "1746581efd3d395ad76d21ca9d95464c9ef2039ac14b4558e0680e8b27e21e41"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id11-all12",
+          "files_sha256": {
+            "front-raw.jsonl": "beaadcef266ae91d4881b5452225dab6ab812f2725a1f25c9f481fd98e82086e",
+            "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "front-tx.json": "e10a9d2c328304baf921ae4eb00f9eba91ef6c5a3df4b6487f2bd77134655612",
+            "rear-raw.jsonl": "ae61b68bd304217c358c71b5b7b8b0c36e07e5d9eaecac818b1e77963cd97617",
+            "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "rear-tx.json": "4f4d8cd5cbd759b1919f9964660c0ce58fc1e674e1364f77166208eb1bdde654",
+            "summary.json": "f4b972725b480c6d9cefbad81a47b74a8de54081b1bfb26d8f949c658a560429"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id11-backup-all12",
+          "files_sha256": {
+            "front-raw.json": "e29f6cea7899e7e3d9aed153a284e7ee65fea5f9b2f5f6bc54bf471247fdc7c3",
+            "front-tx.json": "89d26728e40a40fac90b0cc5a46c819d6cdd7299b185949646e49c6043518bae",
+            "rear-raw.json": "46dd567056fe1606383c9381ffc50718a0142f4ac0a7ba2445b83d36ba229d59",
+            "rear-tx.json": "d2dba9e04ec4fdbed6b07e28a938d5f8dffe213662a83a676067b9f14e619291",
+            "summary.json": "ea0022c7ca735f4d5f4e712b3c8f2a061e42cb38b8f39b20312047818cc9c2af"
+          }
+        }
+      ],
+      "motor_id": 11,
+      "ota": {
+        "ack_frames": 11701,
+        "all_ack_identity_status_match": true,
+        "data_packets": 11698,
+        "data_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+        "first_write_to_end_ack_s": 71.864226451,
+        "locks_released": true,
+        "port_closed": true,
+        "reported_elapsed_s": 71.978472236,
+        "residual_bytes": 0,
+        "start_ack_ms": 1934.330161,
+        "start_attempt_limit": 3,
+        "start_transmit_attempts": 1,
+        "tx_frames": 11701,
+        "uid_match": true
+      }
+    },
+    {
+      "after_versions": {
+        "1": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "10": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "11": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "12": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "2": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "3": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "4": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "5": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "6": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "7": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "8": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "9": [
+          0,
+          5,
+          0,
+          13
+        ]
+      },
+      "all12_parameter_comparisons": {
+        "1": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005682717389450609,
+          "position_delta_rad": -9.918212890625e-05,
+          "voltage_after_v": 37.58053207397461,
+          "voltage_before_v": 37.966514587402344
+        },
+        "10": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0028413586947253046,
+          "position_delta_rad": 4.9591064453125e-05,
+          "voltage_after_v": 37.194549560546875,
+          "voltage_before_v": 37.58053207397461
+        },
+        "11": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008524076084175913,
+          "position_delta_rad": -0.000148773193359375,
+          "voltage_after_v": 37.33490753173828,
+          "voltage_before_v": 37.720890045166016
+        },
+        "12": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.005628075876090507,
+          "position_delta_rad": 9.822845458984375e-05,
+          "voltage_after_v": 37.2998161315918,
+          "voltage_before_v": 37.720890045166016
+        },
+        "2": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028960002080854062,
+          "position_delta_rad": -5.054473876953125e-05,
+          "voltage_after_v": 36.808570861816406,
+          "voltage_before_v": 37.22964096069336
+        },
+        "3": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028140379380452536,
+          "position_delta_rad": -4.9114227294921875e-05,
+          "voltage_after_v": 38.106868743896484,
+          "voltage_before_v": 38.56303024291992
+        },
+        "4": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.2998161315918,
+          "voltage_before_v": 37.720890045166016
+        },
+        "5": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.005669057011110584,
+          "position_delta_rad": -9.894371032714844e-05,
+          "voltage_after_v": 37.47526550292969,
+          "voltage_before_v": 37.861244201660156
+        },
+        "6": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.0,
+          "position_delta_rad": 0.0,
+          "voltage_after_v": 37.61561965942383,
+          "voltage_before_v": 38.00160217285156
+        },
+        "7": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.0028413586947253046,
+          "position_delta_rad": -4.9591064453125e-05,
+          "voltage_after_v": 37.194549560546875,
+          "voltage_before_v": 37.545440673828125
+        },
+        "8": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": 0.008524076084175913,
+          "position_delta_rad": 0.000148773193359375,
+          "voltage_after_v": 37.510353088378906,
+          "voltage_before_v": 37.82615661621094
+        },
+        "9": {
+          "current_after_a": 0.0,
+          "current_before_a": 0.0,
+          "known_settings": {
+            "can_timeout": 0,
+            "run_mode": 0,
+            "zero_state": 0
+          },
+          "known_settings_match_baseline": true,
+          "position_delta_deg": -0.008496755327495862,
+          "position_delta_rad": -0.00014829635620117188,
+          "voltage_after_v": 37.4401741027832,
+          "voltage_before_v": 37.79106521606445
+        }
+      },
+      "all12_stop_mode0_fault0": true,
+      "all12_uid_match": true,
+      "evidence": [
+        {
+          "capture": "firmware-20260925-r5-id12",
+          "files_sha256": {
+            "ota-raw.json": "e2596d81442ff9349b71b772e99c94a4d7b7bd08dc86851e62637b5647bfaa0d",
+            "ota-tx.json": "c574d3b88c68fcd590e0871870d384d0e3eb69982faa8e58b52bd71a8bf44090",
+            "preflight-raw.json": "45abdf4a888938e6a04009c9126b6b9d81b8d22d546132d71031c91992024ba5",
+            "preflight-tx.json": "7c9bd00c512866c05ae119c7ecffb8dd1189476df45f081069089da136403e4f",
+            "preflight.json": "86c4cbb49049cb31e03982e49ddd5e415138f4e480dd04542586a059fbec6faa",
+            "progress.json": "6b55e63bb94b2f9243ab895d57e6261b5b2ab59ca932ff0c6373b0c94026369a",
+            "summary.json": "8b3c5da2c40515bf537bdca727b1f1782e55cd7f48646d1844fc02176c2c42d2",
+            "update-intent.json": "ba76d2cf47189c3dff4f6d36b8788dec939e4bc87407a478b35a705423d1ed8d"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id12-all12",
+          "files_sha256": {
+            "front-raw.jsonl": "5aae9441fbb870b60a11f89903de59c3c5a6a3eeb5efaed848dd385b91228291",
+            "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "front-tx.json": "defa44875438a3d498844332728254ecb0a18f6cca400979aa336a11939d7d93",
+            "rear-raw.jsonl": "996ba7f2d0f11063e553de284bd6f0d0c0fd7b8b4ec1b768fb75b2549f950484",
+            "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "rear-tx.json": "fa24ca734401267f1e21bb96a0caf1d4f83c610d9d41468dc4a9c65c82e3c487",
+            "summary.json": "69b21b456bc7daaf6d55efc62bc381cafa488451d321564413910a56aa796ad0"
+          }
+        },
+        {
+          "capture": "firmware-20260925-r5-after-id12-backup-all12",
+          "files_sha256": {
+            "front-raw.json": "9254a0c450dc05d841075ae542b387b3fff66e508312755a7ecef9c8d66cd39d",
+            "front-tx.json": "506e18f3a447b889818bcfd125a6c10adc8d261878181d1a0cec1f5dd3184bf0",
+            "rear-raw.json": "854bb3808e7fd8587c32e34925abceb4884d5b97a4615060b1ae57a3bee89573",
+            "rear-tx.json": "6d5f818cde6b48ec6f8fc92b765b704ff1f389c5cd35029db36ee58a706b97df",
+            "summary.json": "64ce85e145027e3e2fddc246c0a667bbba9d7fa522d0dae38932e3ddad02b076"
+          }
+        }
+      ],
+      "motor_id": 12,
+      "ota": {
+        "ack_frames": 11701,
+        "all_ack_identity_status_match": true,
+        "data_packets": 11698,
+        "data_sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+        "first_write_to_end_ack_s": 74.528881492,
+        "locks_released": true,
+        "port_closed": true,
+        "reported_elapsed_s": 74.641692288,
+        "residual_bytes": 0,
+        "start_ack_ms": 1558.34529,
+        "start_attempt_limit": 3,
+        "start_transmit_attempts": 2,
+        "tx_frames": 11702,
+        "uid_match": true
+      }
+    }
+  ],
+  "zero_calibration_preservation_verified": false,
+  "record_date": "2026-09-25",
+  "final_hardware_status": "ALL12_RS05_0_5_0_13_VERIFIED_STOPPED",
+  "auditor_sha256": "705b28b70b9b47383dea31dca429f75754e0da896a1fa0707060654afdbb62af",
+  "validation": {
+    "local_runtime_tests_passed": 943,
+    "frozen_r5_jetson_tests_passed": 222
+  },
+  "official_image_url": "https://github.com/RobStride/Product_Information/releases/download/V26.04.07/rs05_0.5.0.13.bin"
+}

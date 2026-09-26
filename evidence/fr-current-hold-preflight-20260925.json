@@ -1,0 +1,159 @@
+{
+  "date": "2026-09-25",
+  "scope": "read-only preflight for supported right-front current-reference hold",
+  "status": "BLOCKED_BY_PREEXISTING_35V_TRIAL_FLOOR",
+  "raw_wrapper_status": "INCOMPLETE",
+  "errors": [
+    "RuntimeError('ID1 voltage outside35..43V')"
+  ],
+  "elapsed_s": 5.80261379600006,
+  "all12_identity_queries_succeeded": true,
+  "typed_tx_counts": {
+    "0": 12,
+    "17": 480
+  },
+  "motor_enable_sent": false,
+  "motion_gain_sent": false,
+  "configuration_write_sent": false,
+  "stop_command_sent": false,
+  "learned_policy_target_sent": false,
+  "serial_ports_closed": true,
+  "locks_released": true,
+  "motors": [
+    {
+      "can_id": 1,
+      "samples_per_parameter": 10,
+      "voltage_min_V": 31.860992431640625,
+      "voltage_max_V": 31.860992431640625,
+      "max_abs_current_A": 0.0,
+      "position_span_rad": 0.0002474784851074219
+    },
+    {
+      "can_id": 2,
+      "samples_per_parameter": 10,
+      "voltage_min_V": 31.264476776123047,
+      "voltage_max_V": 31.264476776123047,
+      "max_abs_current_A": 0.0,
+      "position_span_rad": 0.00014781951904296875
+    },
+    {
+      "can_id": 3,
+      "samples_per_parameter": 10,
+      "voltage_min_V": 32.28206253051758,
+      "voltage_max_V": 32.28206253051758,
+      "max_abs_current_A": 0.0,
+      "position_span_rad": 0.00029754638671875
+    },
+    {
+      "can_id": 4,
+      "samples_per_parameter": 10,
+      "voltage_min_V": 31.580278396606445,
+      "voltage_max_V": 31.580278396606445,
+      "max_abs_current_A": 0.0,
+      "position_span_rad": 0.00014829635620117188
+    },
+    {
+      "can_id": 5,
+      "samples_per_parameter": 10,
+      "voltage_min_V": 31.790813446044922,
+      "voltage_max_V": 31.790813446044922,
+      "max_abs_current_A": 0.0,
+      "position_span_rad": 0.00019788742065429688
+    },
+    {
+      "can_id": 6,
+      "samples_per_parameter": 10,
+      "voltage_min_V": 31.896081924438477,
+      "voltage_max_V": 31.896081924438477,
+      "max_abs_current_A": 0.0,
+      "position_span_rad": 0.000247955322265625
+    },
+    {
+      "can_id": 7,
+      "samples_per_parameter": 10,
+      "voltage_min_V": 31.475011825561523,
+      "voltage_max_V": 31.475011825561523,
+      "max_abs_current_A": 0.0,
+      "position_span_rad": 0.0002474784851074219
+    },
+    {
+      "can_id": 8,
+      "samples_per_parameter": 10,
+      "voltage_min_V": 31.72063636779785,
+      "voltage_max_V": 31.72063636779785,
+      "max_abs_current_A": 0.0,
+      "position_span_rad": 0.00024700164794921875
+    },
+    {
+      "can_id": 9,
+      "samples_per_parameter": 10,
+      "voltage_min_V": 31.72063636779785,
+      "voltage_max_V": 31.75572395324707,
+      "max_abs_current_A": 0.0,
+      "position_span_rad": 0.00019788742065429688
+    },
+    {
+      "can_id": 10,
+      "samples_per_parameter": 10,
+      "voltage_min_V": 31.510099411010742,
+      "voltage_max_V": 31.545188903808594,
+      "max_abs_current_A": 0.0,
+      "position_span_rad": 0.00034618377685546875
+    },
+    {
+      "can_id": 11,
+      "samples_per_parameter": 10,
+      "voltage_min_V": 31.615367889404297,
+      "voltage_max_V": 31.615367889404297,
+      "max_abs_current_A": 0.0,
+      "position_span_rad": 0.00019741058349609375
+    },
+    {
+      "can_id": 12,
+      "samples_per_parameter": 10,
+      "voltage_min_V": 31.615367889404297,
+      "voltage_max_V": 31.65045738220215,
+      "max_abs_current_A": 0.0,
+      "position_span_rad": 0.00034618377685546875
+    }
+  ],
+  "evidence_sha256": {
+    "raw_events": "1d4e2dfd9d59e686c620c38c5e833a69520df5ab7741a9521d59201e7afcf1d2",
+    "raw_summary": "c721656bc20fec1816f42fa16c052d0b828d4dd00744aae409b182d1b8e7e5e1",
+    "prepared_wrapper": "1deccb1956d97a3bc52102b0e2ae3a25afbf1198e2603a69bf69a9b3d5784e39"
+  },
+  "validation": {
+    "local_wrapper_tests_passed": 32,
+    "local_copied_runtime_tests_passed": 170,
+    "jetson_wrapper_tests_passed": 32,
+    "jetson_copied_runtime_tests_passed": 170
+  },
+  "next_trial": {
+    "selected_can_ids": [
+      1,
+      2,
+      3
+    ],
+    "source": "fresh last quiet Type17 positions, revalidated against disabled Type2 centers",
+    "maximum_initial_reference_difference_deg": 0.5,
+    "kp": 3.0,
+    "kd": 0.15,
+    "feedforward_torque_Nm": 0.0,
+    "trajectory_duration_s": 5,
+    "ramp_s": 4,
+    "nominal_final_hold_s": 1,
+    "watchdog_requested_ticks": 4000,
+    "watchdog_requested_ms": 200,
+    "watchdog_physical_stop_latency_verified": false,
+    "watchdog_restored_by_existing_runner": false,
+    "automatic_retry": false,
+    "automatic_next_leg": false,
+    "executed": false
+  },
+  "operator_status": "User reports charging; no further motor I/O while charging",
+  "public_data_omits": [
+    "hardware UIDs",
+    "network addresses",
+    "raw serial logs"
+  ]
+}

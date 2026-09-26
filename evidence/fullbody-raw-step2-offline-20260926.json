@@ -1,0 +1,239 @@
+{
+  "schema": "singularitydog.offline-raw-step2-review.v1",
+  "status": "OFFLINE_CANDIDATE_ONLY",
+  "output_allowed": false,
+  "executed": false,
+  "boot_id": "c4802c8c-0261-4f5e-b324-bdb5bf2063bf",
+  "hold_status": "CURRENT_HOLD_COMPLETED_RESET_CONFIRMED",
+  "hold_gain_profile": "id4-id10-kp4",
+  "calibration_source_status": "MANUAL_NOMINAL_CANDIDATES_ONLY",
+  "calibration_approved_for_runtime": false,
+  "calibration_motor_power_cycle_continuity_verified": false,
+  "calibration_sha256": "8712f765f4760577a1a3d0612948d23269256cdf35438a72dec8a39529c4029e",
+  "prior_direction_source_sha256": "7a473703b55eab3ce870388d7ddd40222376a52f18c222b735fa8dca950ec556",
+  "current_hold_source_sha256": "494a4b820390df0203709fa2dd54e611ff166bc719d31e2734a8e556dc8095b4",
+  "plan_ramp_s": 8.0,
+  "plan_endpoint_hold_s": 1.0,
+  "plan_period_s": 0.05,
+  "sample_count": 180,
+  "model_offset_wrap_applied": false,
+  "rows": [
+    {
+      "id": 1,
+      "leg": "FR",
+      "joint": "calf",
+      "start_raw_rad": 5.839531,
+      "candidate_end_raw_rad": 5.874438,
+      "candidate_raw_step_deg": 2,
+      "candidate_start_model_deg": -73.946,
+      "candidate_end_model_deg": -71.946,
+      "model_limits_deg": [
+        -126.051,
+        -4.584
+      ],
+      "start_model_range_distance_deg": 0,
+      "end_model_range_distance_deg": 0,
+      "moves_toward_or_within_model_range": true
+    },
+    {
+      "id": 2,
+      "leg": "FR",
+      "joint": "thigh",
+      "start_raw_rad": 4.534483,
+      "candidate_end_raw_rad": 4.56939,
+      "candidate_raw_step_deg": 2,
+      "candidate_start_model_deg": -0.211,
+      "candidate_end_model_deg": 1.789,
+      "model_limits_deg": [
+        -51.566,
+        68.755
+      ],
+      "start_model_range_distance_deg": 0,
+      "end_model_range_distance_deg": 0,
+      "moves_toward_or_within_model_range": true
+    },
+    {
+      "id": 3,
+      "leg": "FR",
+      "joint": "hip",
+      "start_raw_rad": 5.511159,
+      "candidate_end_raw_rad": 5.546066,
+      "candidate_raw_step_deg": 2,
+      "candidate_start_model_deg": 43.122,
+      "candidate_end_model_deg": 41.122,
+      "model_limits_deg": [
+        -28.648,
+        28.648
+      ],
+      "start_model_range_distance_deg": 14.475,
+      "end_model_range_distance_deg": 12.475,
+      "moves_toward_or_within_model_range": true
+    },
+    {
+      "id": 4,
+      "leg": "FL",
+      "joint": "calf",
+      "start_raw_rad": 5.22767,
+      "candidate_end_raw_rad": 5.192763,
+      "candidate_raw_step_deg": -2,
+      "candidate_start_model_deg": -52.667,
+      "candidate_end_model_deg": -50.667,
+      "model_limits_deg": [
+        -126.051,
+        -4.584
+      ],
+      "start_model_range_distance_deg": 0,
+      "end_model_range_distance_deg": 0,
+      "moves_toward_or_within_model_range": true
+    },
+    {
+      "id": 5,
+      "leg": "FL",
+      "joint": "thigh",
+      "start_raw_rad": 3.483003,
+      "candidate_end_raw_rad": 3.448096,
+      "candidate_raw_step_deg": -2,
+      "candidate_start_model_deg": 2.496,
+      "candidate_end_model_deg": 4.496,
+      "model_limits_deg": [
+        -51.566,
+        68.755
+      ],
+      "start_model_range_distance_deg": 0,
+      "end_model_range_distance_deg": 0,
+      "moves_toward_or_within_model_range": true
+    },
+    {
+      "id": 6,
+      "leg": "FL",
+      "joint": "hip",
+      "start_raw_rad": 5.552589,
+      "candidate_end_raw_rad": 5.517682,
+      "candidate_raw_step_deg": -2,
+      "candidate_start_model_deg": -31.336,
+      "candidate_end_model_deg": -29.336,
+      "model_limits_deg": [
+        -28.648,
+        28.648
+      ],
+      "start_model_range_distance_deg": 2.688,
+      "end_model_range_distance_deg": 0.688,
+      "moves_toward_or_within_model_range": true
+    },
+    {
+      "id": 7,
+      "leg": "RR",
+      "joint": "calf",
+      "start_raw_rad": 4.657623,
+      "candidate_end_raw_rad": 4.69253,
+      "candidate_raw_step_deg": 2,
+      "candidate_start_model_deg": -92.735,
+      "candidate_end_model_deg": -90.735,
+      "model_limits_deg": [
+        -126.051,
+        -4.584
+      ],
+      "start_model_range_distance_deg": 0,
+      "end_model_range_distance_deg": 0,
+      "moves_toward_or_within_model_range": true
+    },
+    {
+      "id": 8,
+      "leg": "RR",
+      "joint": "thigh",
+      "start_raw_rad": 0.283297,
+      "candidate_end_raw_rad": 0.318204,
+      "candidate_raw_step_deg": 2,
+      "candidate_start_model_deg": 11.316,
+      "candidate_end_model_deg": 13.316,
+      "model_limits_deg": [
+        -51.566,
+        68.755
+      ],
+      "start_model_range_distance_deg": 0,
+      "end_model_range_distance_deg": 0,
+      "moves_toward_or_within_model_range": true
+    },
+    {
+      "id": 9,
+      "leg": "RR",
+      "joint": "hip",
+      "start_raw_rad": 0.123331,
+      "candidate_end_raw_rad": 0.088424,
+      "candidate_raw_step_deg": -2,
+      "candidate_start_model_deg": 40.882,
+      "candidate_end_model_deg": 38.882,
+      "model_limits_deg": [
+        -28.648,
+        28.648
+      ],
+      "start_model_range_distance_deg": 12.234,
+      "end_model_range_distance_deg": 10.234,
+      "moves_toward_or_within_model_range": true
+    },
+    {
+      "id": 10,
+      "leg": "RL",
+      "joint": "calf",
+      "start_raw_rad": 3.846667,
+      "candidate_end_raw_rad": 3.881574,
+      "candidate_raw_step_deg": 2,
+      "candidate_start_model_deg": -116.05,
+      "candidate_end_model_deg": -114.05,
+      "model_limits_deg": [
+        -126.051,
+        -4.584
+      ],
+      "start_model_range_distance_deg": 0,
+      "end_model_range_distance_deg": 0,
+      "moves_toward_or_within_model_range": true
+    },
+    {
+      "id": 11,
+      "leg": "RL",
+      "joint": "thigh",
+      "start_raw_rad": 0.527274,
+      "candidate_end_raw_rad": 0.492367,
+      "candidate_raw_step_deg": -2,
+      "candidate_start_model_deg": 4.149,
+      "candidate_end_model_deg": 6.149,
+      "model_limits_deg": [
+        -51.566,
+        68.755
+      ],
+      "start_model_range_distance_deg": 0,
+      "end_model_range_distance_deg": 0,
+      "moves_toward_or_within_model_range": true
+    },
+    {
+      "id": 12,
+      "leg": "RL",
+      "joint": "hip",
+      "start_raw_rad": 1.012927,
+      "candidate_end_raw_rad": 1.047834,
+      "candidate_raw_step_deg": 2,
+      "candidate_start_model_deg": -31.487,
+      "candidate_end_model_deg": -29.487,
+      "model_limits_deg": [
+        -28.648,
+        28.648
+      ],
+      "start_model_range_distance_deg": 2.839,
+      "end_model_range_distance_deg": 0.839,
+      "moves_toward_or_within_model_range": true
+    }
+  ],
+  "candidate_model_outside_end_ids": [
+    3,
+    6,
+    9,
+    12
+  ],
+  "all_candidate_model_range_distance_nonincreasing": true,
+  "limitations": [
+    "Previous raw directions and calibration offsets are candidates; they are not approved for runtime.",
+    "The current hold centers are not a new live read and may have moved after STOP.",
+    "Mechanical sweep and physical pose direction remain unverified.",
+    "The offline path does not authorize motor output or learned policy handoff."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "boot_id": "0bda2b28-6d89-4d02-9d35-fc7542280991",
+  "capture_status": "PREFLIGHT_COMPLETE",
+  "capture_summary_sha256": "07a8333ce14adefa08ba57550c79eed0ed74a5f7f0f613dd6a1dbb8c514e6963",
+  "disabled_preflight_status": "PREFLIGHT_PASSED_RESET_CONFIRMED",
+  "disabled_preflight_summary_sha256": "59aeb5fe559f6abd7a9739a9f977c40cdacfdb50e5e8539c0cd20f3da5bce9cd",
+  "hold_status": "INCOMPLETE",
+  "hold_result_status": "ABORTED",
+  "hold_summary_sha256": "76585c1f9f9329142079b941aa2b9558363496d170f28c366d6aea48eb0be6f7",
+  "hold_events_sha256": "a8051485054284fe286bf92dbb3b28ded2c287d48a7b74bd181dc65a92a274d5",
+  "errors": [
+    "front: InterruptedError('Peer or parent requested all-bus abort')",
+    "rear: RuntimeError('ID9 final hold error exceeds1-degree candidate')"
+  ],
+  "cycle_count_by_bus": {
+    "front": 80,
+    "rear": 80
+  },
+  "stop_confirmed_all_12": true,
+  "motor_enable_sent": true,
+  "motion_gain_sent": true,
+  "ports_closed": true,
+  "locks_released": true,
+  "id9_last20_error_deg_mean": -1.041820607550967,
+  "id9_last20_error_deg_min": -1.0550082101781184,
+  "id9_last20_error_deg_max": -1.0330288724661993,
+  "id9_last20_error_span_deg": 0.021979337711919067,
+  "id9_last20_torque_nm_max_abs": 0.07763027389944277,
+  "id9_last20_time_span_s": 0.9492144170000074,
+  "operator_observation": "No visible movement reported; abnormal sound/vibration and speech audibility not answered",
+  "standing_completed": false,
+  "learned_policy_sent": false
+}

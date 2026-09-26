@@ -1,0 +1,41 @@
+{
+  "schema": "singularitydog.fullbody-hold-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "7b3c1809-d0ff-4b97-b412-ab5de0a167f6",
+  "source": {
+    "kind": "Jetson summary values read by the coordinating agent and relayed for documentation",
+    "receiver_summary": "Jetson: receiver-r2 summary",
+    "disabled_summary": "/home/jetson/singularitydog-logs/fullbody-disabled-20260926-r18/summary.json",
+    "active_summary": "/home/jetson/singularitydog-logs/fullbody-active-20260926-r18/summary.json",
+    "raw_summaries_copied_to_repository": false
+  },
+  "receiver": {
+    "all_12_uids_confirmed": true,
+    "all_12_stop_confirmed": true,
+    "motor_voltage_range_v": [40.70, 42.14],
+    "faults_reported": false
+  },
+  "disabled_preflight": {
+    "status": "PASS",
+    "cycles_per_bus": {"front": 20, "rear": 20},
+    "all_12_stop_confirmed": true,
+    "positive_gain_sent": false
+  },
+  "active_current_position_hold": {
+    "status": "CURRENT_HOLD_COMPLETED_RESET_CONFIRMED",
+    "duration_target_s": 5.0,
+    "cycles_per_bus": {"front": 100, "rear": 100},
+    "gain_profile": "ID4 and ID10 Kp4; all other axes Kp3",
+    "worst_last_20_cycle_abs_position_error_deg": 0.11,
+    "worst_last_20_cycle_motor_id": 9,
+    "all_12_stop_confirmed": true,
+    "ports_closed": true,
+    "locks_released": true,
+    "errors": [],
+    "operator_visual_feedback": "異常なし"
+  },
+  "limitations": [
+    "Current-position hold only; no standing-direction trajectory or learned-policy target was sent.",
+    "The raw Jetson summary files are not included in this evidence record."
+  ]
+}

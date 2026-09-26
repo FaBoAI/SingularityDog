@@ -28,13 +28,16 @@ STEP5_DURATION_S = 5.0
 STEP5_ACTIVE_BUDGET_S = 6.0
 
 
-def check_feedback(feedback, center, received_at, now, *, required_mode=2, max_drift_rad=MAX_DRIFT_RAD):
+def check_feedback(feedback, center, received_at, now, *, required_mode=2,
+                   max_drift_rad=MAX_DRIFT_RAD, max_age_s=MAX_FEEDBACK_AGE_S):
     """Checks precede the next nonzero-gain frame; no modulo normalization."""
+    if not math.isfinite(max_age_s) or max_age_s <= 0:
+        raise ValueError("Feedback age limit must be positive and finite")
     values = (feedback.protocol_position_rad, feedback.velocity_rad_s,
               feedback.temperature_c, center, received_at, now)
     if not all(math.isfinite(x) for x in values):
         raise RuntimeError("Nonfinite feedback or time")
-    if not 0 <= now - received_at <= MAX_FEEDBACK_AGE_S:
+    if not 0 <= now - received_at <= max_age_s:
         raise RuntimeError("Stale feedback")
     if feedback.mode_state != required_mode or feedback.fault_bits:
         raise RuntimeError("Unexpected motor mode or fault")

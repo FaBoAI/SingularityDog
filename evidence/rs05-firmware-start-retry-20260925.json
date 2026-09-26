@@ -1,0 +1,25 @@
+{
+  "schema": "singularitydog.rs05-firmware-start-retry.v1",
+  "date": "2026-09-25",
+  "revision": "r4",
+  "status": "LATE_START_ACK_ABORT_BEFORE_INFO",
+  "start_attempt_limit": 3,
+  "actual_start_writes": 1,
+  "start_timeout_seconds": 2,
+  "start_ack_delay_ms": 2030.555749,
+  "ack": {
+    "type": 11,
+    "source_id": 1,
+    "destination_host": 253,
+    "status": 0,
+    "data_hex": "0000000000000000"
+  },
+  "info_frames_sent": 0,
+  "firmware_body_bytes_sent": 0,
+  "end_frames_sent": 0,
+  "port_closed": true,
+  "locks_released": true,
+  "operator_power_cycle_confirmed": true,
+  "next_change": "START ACK deadline 3s, one START attempt; INFO/DATA/END remain 2s.",
+  "summary_sha256": "95f4c358385276b73b5541b88a39ceff1fa0b63be658958d80b8d353d5e2061c"
+}

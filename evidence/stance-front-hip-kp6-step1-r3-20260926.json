@@ -1,0 +1,44 @@
+{
+  "schema": "singularitydog.stance-front-hip-step-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "0bda2b28-6d89-4d02-9d35-fc7542280991",
+  "source_log": "/home/jetson/singularitydog-logs/front-hip-kp6-step1-0bda-r3",
+  "summary_sha256": "1fe997db90c41699759796a30eb95618b94372216c999872f784d6520bd9c95c",
+  "events_sha256": "bce995f6716d2412bc01395a36090a78900ec9ee5ba7f2024f02b2c1cd1e72f9",
+  "status": "INCOMPLETE",
+  "result_status": "ABORTED",
+  "test_scope": "supported front-hip raw bounded diagnostic; other 10 joints hold",
+  "moving_motor_ids": [3, 6],
+  "moving_motor_kp": 6,
+  "commanded_final_offset_deg_by_id": {
+    "3": 5,
+    "6": -5
+  },
+  "trajectory_cycles_by_bus": {
+    "front": 85,
+    "rear": 85
+  },
+  "last_completed_tick": 84,
+  "observed_offset_at_abort_deg_by_id": {
+    "3": 1.495,
+    "6": -0.703
+  },
+  "max_abs_feedback_torque_nm_by_id": {
+    "3": 0.141,
+    "6": 0.257
+  },
+  "errors": [
+    "front: InterruptedError('Peer or parent requested all-bus abort')",
+    "rear: RuntimeError('ID6 raw step tracking error exceeded limit')"
+  ],
+  "interpretation": "Kp6 trajectory frames were accepted, but ID6 exceeded the 2-degree live tracking limit before reaching 5 degrees. The error label is quoted from the multi-bus summary; ID6 belongs to the front motor set.",
+  "all_12_stop_confirmed": true,
+  "ports_closed": true,
+  "locks_released": true,
+  "operator_observation": "両方動いた・異常なし",
+  "five_degree_target_reached": false,
+  "ten_degree_cumulative_target_reached": false,
+  "collision_free_full_path_verified": false,
+  "standing_completed": false,
+  "learned_policy_sent": false
+}

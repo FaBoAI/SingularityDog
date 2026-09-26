@@ -1,0 +1,6 @@
+*.so
+*.dylib
+*.o
+__pycache__/
+build/
+build-record.json

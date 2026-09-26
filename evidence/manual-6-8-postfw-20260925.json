@@ -1,0 +1,129 @@
+{
+  "date": "2026-09-25",
+  "scope": "post-firmware manual response diagnostic for ID6 and ID8",
+  "capture_completed": true,
+  "motor_enable_or_motion_command_sent": false,
+  "runtime_profile_changed": false,
+  "calibration_changed": false,
+  "learned_policy_executed_on_robot": false,
+  "physical_large_motion_confirmation": "User confirmed: 大きく動かしました",
+  "operator_confirmed_motion_in_cli": true,
+  "raw_bytes_frames_parameters_samples_verified": true,
+  "copies_verified_against_remote_sha256": true,
+  "independent_review_agrees": true,
+  "audit_sha256": "5a1fad4e58dfea0d5e919e75ec567a536bbda5b1afcbc2e3c216a717ba42a50e",
+  "motors": {
+    "6": {
+      "source_sha256": {
+        "events.jsonl": "006df87f2e263514fd48b5de390c13e256e611c7072c0ab047ff3ee416a9f581",
+        "summary.json": "497af082ce8cf5e1b998e699fd70a080b6052bb4b59bd2bc115396104287b620"
+      },
+      "tx_type_counts": {
+        "0": 3,
+        "17": 2103
+      },
+      "moving_position_range_deg": 68.45259299397468,
+      "moving_position_velocity_correlation": 0.9910903131700145,
+      "moving_max_adjacent_position_step_deg": 2.5261864456642362,
+      "static": {
+        "before": {
+          "samples": 150,
+          "duration_s": 2.98003835,
+          "position_range_deg": 0.031200304128618246,
+          "position_net_change_deg": 0.0,
+          "position_unique_values": 10,
+          "position_OLS_rad_s": 1.6541222799827435e-05,
+          "velocity_mean_rad_s": -0.0028290792756403486,
+          "velocity_RMS_rad_s": 0.05210298910128583,
+          "max_abs_velocity_rad_s": 0.16754759848117828,
+          "max_position_gap_s": 0.02027268700000029,
+          "approved_for_runtime": false,
+          "stationarity_pass": null,
+          "fixed_proxy_windows": 50,
+          "legacy_proxy_numeric_pass_count": 22,
+          "position_v2_proxy_numeric_pass_count": 50,
+          "maximum_absolute_proxy_velocity_mean_rad_s": 0.019754385797395593
+        },
+        "released": {
+          "samples": 150,
+          "duration_s": 2.979893856,
+          "position_range_deg": 0.028358945433892942,
+          "position_net_change_deg": -0.008524076084175913,
+          "position_unique_values": 10,
+          "position_OLS_rad_s": -1.9662577390156495e-05,
+          "velocity_mean_rad_s": -0.004791836527486642,
+          "velocity_RMS_rad_s": 0.04995139919628648,
+          "max_abs_velocity_rad_s": 0.15043072402477264,
+          "max_position_gap_s": 0.020277305999999995,
+          "approved_for_runtime": false,
+          "stationarity_pass": null,
+          "fixed_proxy_windows": 50,
+          "legacy_proxy_numeric_pass_count": 25,
+          "position_v2_proxy_numeric_pass_count": 49,
+          "maximum_absolute_proxy_velocity_mean_rad_s": 0.025037438453485567
+        }
+      }
+    },
+    "8": {
+      "source_sha256": {
+        "events.jsonl": "72e0c41f39370c5af0842f42bf15187a885a5a3e574162f75ff536d7c4f901ba",
+        "summary.json": "f01b9d050e74bf863d5717ffbca74de2c455ad49d490e715d069db9aed3417ad"
+      },
+      "tx_type_counts": {
+        "0": 3,
+        "17": 2103
+      },
+      "moving_position_range_deg": 144.19736915342176,
+      "moving_position_velocity_correlation": 0.9952554641339304,
+      "moving_max_adjacent_position_step_deg": 9.83525383876492,
+      "static": {
+        "before": {
+          "samples": 150,
+          "duration_s": 2.979955623,
+          "position_range_deg": 0.025462945225807537,
+          "position_net_change_deg": 0.011310793265541116,
+          "position_unique_values": 10,
+          "position_OLS_rad_s": 2.110506809049534e-06,
+          "velocity_mean_rad_s": 0.0024256068308992932,
+          "velocity_RMS_rad_s": 0.04545120796025298,
+          "max_abs_velocity_rad_s": 0.12250964343547821,
+          "max_position_gap_s": 0.020266799000000058,
+          "approved_for_runtime": false,
+          "stationarity_pass": null,
+          "fixed_proxy_windows": 50,
+          "legacy_proxy_numeric_pass_count": 34,
+          "position_v2_proxy_numeric_pass_count": 46,
+          "maximum_absolute_proxy_velocity_mean_rad_s": 0.030163489636920747
+        },
+        "released": {
+          "samples": 150,
+          "duration_s": 2.979886704,
+          "position_range_deg": 0.022676228044442335,
+          "position_net_change_deg": 0.0028413586947253046,
+          "position_unique_values": 9,
+          "position_OLS_rad_s": 2.523738924474517e-06,
+          "velocity_mean_rad_s": 0.004331301675798992,
+          "velocity_RMS_rad_s": 0.03914366356153275,
+          "max_abs_velocity_rad_s": 0.11892829835414886,
+          "max_position_gap_s": 0.020242693000000145,
+          "approved_for_runtime": false,
+          "stationarity_pass": null,
+          "fixed_proxy_windows": 50,
+          "legacy_proxy_numeric_pass_count": 46,
+          "position_v2_proxy_numeric_pass_count": 49,
+          "maximum_absolute_proxy_velocity_mean_rad_s": 0.027123928823996158
+        }
+      }
+    }
+  },
+  "interpretation": {
+    "position_velocity_consistent": true,
+    "static_velocity_jitter_is_plausible": true,
+    "physical_angular_accuracy_proven": false,
+    "all_v2_proxy_windows_pass": false,
+    "type17_proxies_are_live_type2_guard_approval": false,
+    "next": "Obtain operator confirmation of large physical movements, then review narrowly scoped current-reference hold stationarity; retain fresh mode/fault/temperature/velocity/position guards and all stop conditions. No automatic retry or threshold change."
+  },
+  "replacement_profile_prepared": "current-hold-reviewed-v1",
+  "replacement_profile_hardware_executed": false
+}

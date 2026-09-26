@@ -1,0 +1,28 @@
+{
+  "schema": "singularitydog.id7-step1-active-prestart-abort.v1",
+  "date": "2026-09-26",
+  "boot_id": "c4802c8c-0261-4f5e-b324-bdb5bf2063bf",
+  "package": "id7-step1-active-20260926-r8",
+  "status": "INCOMPLETE",
+  "reason": "FR settled window rejected: ID1: abs_velocity_mean_rad_s exceeds 0.025",
+  "id1_static_window": {
+    "sample_count": 21,
+    "position_count_min": 48088,
+    "position_count_max": 48089,
+    "first_position_count": 48089,
+    "last_position_count": 48088,
+    "position_range_rad": 0.000383611810480744,
+    "OLS_slope_rad_s": -0.00010961122397474185,
+    "velocity_mean_rad_s": -0.036948631592714776,
+    "velocity_RMS_rad_s": 0.06777025719424516
+  },
+  "motor_enable_sent": false,
+  "motion_gain_sent": false,
+  "cycles_per_bus": {"front": 0, "rear": 0},
+  "all_12_stop_confirmed": true,
+  "trial_device_closed": true,
+  "summary_sha256": "984afc2bdac365ce7e88dbbfd9b9ed1688cc4b5f56486703cd753067e590203d",
+  "events_sha256": "541cc4abd93b4120a5786622b6d6880d4129cd67f94148b8ddd9d944922f6f04",
+  "local_log_directory": "/private/tmp/fabo-robotdog-id7-step1-active-20260926-r8",
+  "conclusion": "The ID7 movement did not start. ID1 Type2 velocity implied much larger motion than the independently reported position, which moved by only one encoder count. Re-evaluate the static preflight only; keep the active motion limits unchanged."
+}

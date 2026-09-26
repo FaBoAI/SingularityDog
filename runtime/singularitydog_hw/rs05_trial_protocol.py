@@ -18,6 +18,10 @@ POSITION_STEP5_KP4 is an explicitly selected diagnostic with the same5-degree
 bound and Kd=0.15, changing Kp only to4.0. There is no automatic escalation.
 POSITION_STEP5_RR_HIP_KP6 permits Kp=6.0 only for explicit motor ID9, with the
 same bounds and Kd. The runner additionally requires the fixed RR hip-only plan.
+POSITION_ROLE_FRONT_HIP_KP6 permits Kp=6.0 only for front-hip IDs3/6, with
+the same 5-degree bound and Kd; the role-group runner fixes their signed plan.
+POSITION_ROLE_FRONT_HIP_KP12 selects Kp=12.0 only for the same two IDs and
+5-degree bound; it requires a separate reviewed role-group package.
 These are trial choices, not vendor safety
 limits or automatic gain tuning. No gain set or zero velocity/torque reference imposes a physical
 speed or total torque cap. Even nominal zero has uint16 quantization bias.
@@ -49,6 +53,13 @@ VISIBLE_KP = 3.0
 VISIBLE_KD = 0.15
 STEP5_KP4_DIAGNOSTIC_KP = 4.0
 STEP5_RR_HIP_KP6_DIAGNOSTIC_KP = 6.0
+STEP5_FR_HIP_KP6_DIAGNOSTIC_KP = 6.0
+ROLE_FRONT_HIP_KP6_DIAGNOSTIC_KP = 6.0
+ROLE_FRONT_HIP_KP12_DIAGNOSTIC_KP = 12.0
+FR_CURRENT_KP12_DIAGNOSTIC_KP = 12.0
+FR_STEP4_KP12_DIAGNOSTIC_KP = 12.0
+FR_STEP4_THIGH_KP18_DIAGNOSTIC_KP = 18.0
+FR_STEP4_MAX_OFFSET_RAD = math.radians(4.5)
 
 
 class TrialPhase(Enum):
@@ -61,7 +72,19 @@ class TrialPhase(Enum):
     POSITION_VISIBLE = "position_visible"
     POSITION_STEP5 = "position_step5"
     POSITION_STEP5_KP4 = "position_step5_kp4"
+    POSITION_ROLE_THIGH_KP6 = "position_role_thigh_kp6"
+    POSITION_ROLE_THIGH_KP12 = "position_role_thigh_kp12"
+    POSITION_ROLE_HIP_HOLD_KP12 = "position_role_hip_hold_kp12"
     POSITION_STEP5_RR_HIP_KP6 = "position_step5_rr_hip_kp6"
+    POSITION_STEP5_FR_HIP_KP6 = "position_step5_fr_hip_kp6"
+    POSITION_ROLE_FRONT_HIP_KP6 = "position_role_front_hip_kp6"
+    POSITION_ROLE_FRONT_HIP_KP12 = "position_role_front_hip_kp12"
+    POSITION_ROLE_FRONT_HIP_KP12_STEP10 = "position_role_front_hip_kp12_step10"
+    POSITION_CURRENT_FR_THIGH_KP12 = "position_current_fr_thigh_kp12"
+    POSITION_CURRENT_FR_HIP_KP12 = "position_current_fr_hip_kp12"
+    POSITION_STEP4_FR_THIGH_KP12 = "position_step4_fr_thigh_kp12"
+    POSITION_STEP4_FR_THIGH_KP18 = "position_step4_fr_thigh_kp18"
+    POSITION_STEP4_FR_HIP_KP12 = "position_step4_fr_hip_kp12"
     STOP = "stop"
 
 
@@ -154,17 +177,47 @@ def motion_request(*, phase, center_rad, offset_rad=0.0, motor_id=MOTOR_ID):
     reference. This function cannot check freshness, sign, support, or calibration.
     No modulo conversion or unwrapping is performed. POSITION and POSITION_STEP2
     require +/-1 degree headroom; POSITION_VISIBLE requires +/-3 degrees and
-    All POSITION_STEP5 phases require +/-5 degrees headroom. Each phase must be explicitly selected; no
+    All POSITION_STEP5 phases require +/-5 degrees headroom; the explicitly
+    selected four-thigh diagnostic allows +/-10 degrees. Each phase must be explicitly selected; no
     measurement or unsuccessful motion automatically changes gains or bounds.
     """
     _selected_id(motor_id)
     if type(phase) is not TrialPhase or phase not in (
             TrialPhase.ZERO_GAIN, TrialPhase.POSITION, TrialPhase.POSITION_STEP2,
             TrialPhase.POSITION_VISIBLE, TrialPhase.POSITION_STEP5, TrialPhase.POSITION_STEP5_KP4,
-            TrialPhase.POSITION_STEP5_RR_HIP_KP6):
+            TrialPhase.POSITION_ROLE_THIGH_KP6, TrialPhase.POSITION_ROLE_THIGH_KP12,
+            TrialPhase.POSITION_ROLE_HIP_HOLD_KP12,
+            TrialPhase.POSITION_STEP5_RR_HIP_KP6, TrialPhase.POSITION_STEP5_FR_HIP_KP6,
+            TrialPhase.POSITION_ROLE_FRONT_HIP_KP6,
+            TrialPhase.POSITION_ROLE_FRONT_HIP_KP12,
+            TrialPhase.POSITION_ROLE_FRONT_HIP_KP12_STEP10,
+            TrialPhase.POSITION_CURRENT_FR_THIGH_KP12, TrialPhase.POSITION_CURRENT_FR_HIP_KP12,
+            TrialPhase.POSITION_STEP4_FR_THIGH_KP12, TrialPhase.POSITION_STEP4_FR_THIGH_KP18,
+            TrialPhase.POSITION_STEP4_FR_HIP_KP12):
         raise ValueError("Motion requires an explicit zero-gain or position trial phase")
     if phase is TrialPhase.POSITION_STEP5_RR_HIP_KP6 and motor_id != 9:
         raise ValueError("RR hip Kp6 diagnostic requires explicit motor ID9")
+    if phase is TrialPhase.POSITION_STEP5_FR_HIP_KP6 and motor_id != 3:
+        raise ValueError("FR hip Kp6 diagnostic requires explicit motor ID3")
+    if phase in (TrialPhase.POSITION_ROLE_FRONT_HIP_KP6,
+                 TrialPhase.POSITION_ROLE_FRONT_HIP_KP12,
+                 TrialPhase.POSITION_ROLE_FRONT_HIP_KP12_STEP10) and motor_id not in (3, 6):
+        raise ValueError("Front-hip pair diagnostic requires motor ID3 or ID6")
+    if phase is TrialPhase.POSITION_ROLE_THIGH_KP6 and motor_id not in (2, 5, 8, 11):
+        raise ValueError("Role-thigh Kp6 diagnostic requires an upper-leg motor ID")
+    if phase is TrialPhase.POSITION_ROLE_THIGH_KP12 and motor_id not in (2, 5, 8, 11):
+        raise ValueError("Role-thigh Kp12 diagnostic requires an upper-leg motor ID")
+    if phase is TrialPhase.POSITION_ROLE_HIP_HOLD_KP12 and motor_id not in (3, 6, 9, 12):
+        raise ValueError("Role-hip Kp12 hold requires a hip motor ID")
+    current_id = {TrialPhase.POSITION_CURRENT_FR_THIGH_KP12: 2,
+                  TrialPhase.POSITION_CURRENT_FR_HIP_KP12: 3}.get(phase)
+    if current_id is not None and motor_id != current_id:
+        raise ValueError("FR current Kp12 phase requires its exact selected motor ID")
+    step4_id = {TrialPhase.POSITION_STEP4_FR_THIGH_KP12: 2,
+                TrialPhase.POSITION_STEP4_FR_THIGH_KP18: 2,
+                TrialPhase.POSITION_STEP4_FR_HIP_KP12: 3}.get(phase)
+    if step4_id is not None and motor_id != step4_id:
+        raise ValueError("FR step4 diagnostic phase requires its exact selected motor ID")
     center = _number(center_rad, "center_rad")
     offset = _number(offset_rad, "offset_rad")
     if not POSITION_MIN <= center <= POSITION_MAX:
@@ -172,8 +225,22 @@ def motion_request(*, phase, center_rad, offset_rad=0.0, motor_id=MOTOR_ID):
     max_offset = {TrialPhase.POSITION_VISIBLE: VISIBLE_MAX_OFFSET_RAD,
                   TrialPhase.POSITION_STEP5: STEP5_MAX_OFFSET_RAD,
                   TrialPhase.POSITION_STEP5_KP4: STEP5_MAX_OFFSET_RAD,
-                  TrialPhase.POSITION_STEP5_RR_HIP_KP6: STEP5_MAX_OFFSET_RAD}.get(phase, MAX_OFFSET_RAD)
-    if abs(offset) > max_offset:
+                  TrialPhase.POSITION_ROLE_THIGH_KP6: math.radians(10.),
+                  TrialPhase.POSITION_ROLE_THIGH_KP12: math.radians(10.),
+                  TrialPhase.POSITION_ROLE_HIP_HOLD_KP12: 0.,
+                  TrialPhase.POSITION_STEP5_RR_HIP_KP6: STEP5_MAX_OFFSET_RAD,
+                  TrialPhase.POSITION_STEP5_FR_HIP_KP6: STEP5_MAX_OFFSET_RAD,
+                  TrialPhase.POSITION_ROLE_FRONT_HIP_KP6: STEP5_MAX_OFFSET_RAD,
+                  TrialPhase.POSITION_ROLE_FRONT_HIP_KP12: STEP5_MAX_OFFSET_RAD,
+                  TrialPhase.POSITION_ROLE_FRONT_HIP_KP12_STEP10: math.radians(10.),
+                  TrialPhase.POSITION_CURRENT_FR_THIGH_KP12: 0.,
+                  TrialPhase.POSITION_CURRENT_FR_HIP_KP12: 0.,
+                  TrialPhase.POSITION_STEP4_FR_THIGH_KP12: FR_STEP4_MAX_OFFSET_RAD,
+                  TrialPhase.POSITION_STEP4_FR_THIGH_KP18: FR_STEP4_MAX_OFFSET_RAD,
+                  TrialPhase.POSITION_STEP4_FR_HIP_KP12: FR_STEP4_MAX_OFFSET_RAD}.get(phase, MAX_OFFSET_RAD)
+    if abs(offset) > max_offset + (1e-12 if phase in (
+            TrialPhase.POSITION_ROLE_THIGH_KP6,
+            TrialPhase.POSITION_ROLE_THIGH_KP12) else 0.):
         raise ValueError("Trial offset exceeds the selected phase's bound")
     if phase is TrialPhase.ZERO_GAIN:
         if offset != 0.0:
@@ -187,8 +254,27 @@ def motion_request(*, phase, center_rad, offset_rad=0.0, motor_id=MOTOR_ID):
             kp, kd = VISIBLE_KP, VISIBLE_KD
         elif phase is TrialPhase.POSITION_STEP5_KP4:
             kp, kd = STEP5_KP4_DIAGNOSTIC_KP, VISIBLE_KD
+        elif phase is TrialPhase.POSITION_ROLE_THIGH_KP6:
+            kp, kd = 6.0, VISIBLE_KD
+        elif phase is TrialPhase.POSITION_ROLE_THIGH_KP12:
+            kp, kd = 12.0, VISIBLE_KD
+        elif phase is TrialPhase.POSITION_ROLE_HIP_HOLD_KP12:
+            kp, kd = 12.0, VISIBLE_KD
         elif phase is TrialPhase.POSITION_STEP5_RR_HIP_KP6:
             kp, kd = STEP5_RR_HIP_KP6_DIAGNOSTIC_KP, VISIBLE_KD
+        elif phase is TrialPhase.POSITION_STEP5_FR_HIP_KP6:
+            kp, kd = STEP5_FR_HIP_KP6_DIAGNOSTIC_KP, VISIBLE_KD
+        elif phase is TrialPhase.POSITION_ROLE_FRONT_HIP_KP6:
+            kp, kd = ROLE_FRONT_HIP_KP6_DIAGNOSTIC_KP, VISIBLE_KD
+        elif phase in (TrialPhase.POSITION_ROLE_FRONT_HIP_KP12,
+                      TrialPhase.POSITION_ROLE_FRONT_HIP_KP12_STEP10):
+            kp, kd = ROLE_FRONT_HIP_KP12_DIAGNOSTIC_KP, VISIBLE_KD
+        elif current_id is not None:
+            kp, kd = FR_CURRENT_KP12_DIAGNOSTIC_KP, VISIBLE_KD
+        elif phase is TrialPhase.POSITION_STEP4_FR_THIGH_KP18:
+            kp, kd = FR_STEP4_THIGH_KP18_DIAGNOSTIC_KP, VISIBLE_KD
+        elif step4_id is not None:
+            kp, kd = FR_STEP4_KP12_DIAGNOSTIC_KP, VISIBLE_KD
         elif phase is TrialPhase.POSITION_STEP2:
             kp, kd = STEP2_KP, STEP2_KD
         else:

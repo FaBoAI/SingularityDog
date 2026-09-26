@@ -1,0 +1,184 @@
+{
+  "date": "2026-09-25",
+  "scope": "front six actuators; one individual all-zero Type4 STOP per actuator; wait for reply before next",
+  "runs_per_condition": 1,
+  "motion_command_sent": false,
+  "firmware_flashed": false,
+  "active_reporting_enabled": false,
+  "full_pipeline_20ms_verified": false,
+  "continuous_50hz_verified": false,
+  "tests": {
+    "local_runtime_passed": 856,
+    "jetson_frozen_r7_passed": 135
+  },
+  "conditions": [
+    {
+      "revision": "r6",
+      "capture_name": "stop-guard-20260925-r6-front-g1-A",
+      "summary_sha256": "10da1449cfe0bd7ae8b26de0bc45d63897065e44688cfa5e2f71586bc444e704",
+      "frozen_manifest_sha256": "5dd725af765de50f0dacdd14e8b20749ba967ffd5e15ad972eed2631b2b57f75",
+      "status": "COMPLETE_STOP_BATCH_EXPERIMENT",
+      "first_host_write_start_to_last_host_write_end_ms": 34.824663,
+      "first_host_write_start_to_last_reply_ms": 38.281372,
+      "reply_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "final_quiet_observed": true,
+      "port_closed": true,
+      "locks_released": true,
+      "raw_bytes": 102,
+      "residual_hex": "",
+      "discarded_bytes": 0,
+      "single_request_rtt_median_ms": 3.484053,
+      "single_request_rtt_max_ms": 3.531143
+    },
+    {
+      "revision": "r7",
+      "capture_name": "stop-guard-20260925-r7-front-g1-B",
+      "summary_sha256": "aff0498a28d4bd3b029bd43749c4415225e87cebddac109ae2eb8bb0ed646da3",
+      "frozen_manifest_sha256": "098592f50b3de971dead1049283ada092794451ef3e49b1b7ef9a5461664d384",
+      "status": "COMPLETE_STOP_BATCH_EXPERIMENT",
+      "first_host_write_start_to_last_host_write_end_ms": 27.154647,
+      "first_host_write_start_to_last_reply_ms": 30.223376,
+      "reply_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "final_quiet_observed": true,
+      "port_closed": true,
+      "locks_released": true,
+      "raw_bytes": 102,
+      "residual_hex": "",
+      "discarded_bytes": 0,
+      "single_request_rtt_median_ms": 3.2501425,
+      "single_request_rtt_max_ms": 3.701932
+    }
+  ],
+  "single_pair_observed_difference": {
+    "host_ms": 7.670016,
+    "reply_ms": 8.057996,
+    "reply_percent": 21.0493918556524,
+    "repeatability_verified": false
+  },
+  "final_all12": {
+    "status": "PREFLIGHT_COMPLETE",
+    "summary_sha256": "817bfff4b21deac91b2f9dcb397c423b7c5ac6977bf5401ee77dc5ce8764f1b5",
+    "version_bytes_by_id": {
+      "7": [
+        0,
+        5,
+        0,
+        9
+      ],
+      "8": [
+        0,
+        5,
+        0,
+        9
+      ],
+      "9": [
+        0,
+        5,
+        0,
+        9
+      ],
+      "10": [
+        0,
+        5,
+        0,
+        9
+      ],
+      "11": [
+        0,
+        5,
+        0,
+        9
+      ],
+      "12": [
+        0,
+        5,
+        0,
+        9
+      ],
+      "1": [
+        0,
+        5,
+        0,
+        9
+      ],
+      "2": [
+        0,
+        5,
+        0,
+        9
+      ],
+      "3": [
+        0,
+        5,
+        0,
+        9
+      ],
+      "4": [
+        0,
+        5,
+        0,
+        9
+      ],
+      "5": [
+        0,
+        5,
+        0,
+        9
+      ],
+      "6": [
+        0,
+        5,
+        0,
+        9
+      ]
+    },
+    "version_bytes_display": "0.5.0.9",
+    "voltage_range_v": [
+      37.58053207397461,
+      38.87883377075195
+    ],
+    "all_ports_closed": true,
+    "common_locks_released": true,
+    "both_final_quiet_observed": true,
+    "no_settings_attempted": true
+  },
+  "limitations": [
+    "One A then one B, not a statistical performance qualification",
+    "Measurements exclude preflight, final quiet, IMU, inference, learned targets and physical CAN transmit timestamps",
+    "This wait-for-each-reply probe differs from prior pipelined window4 integrated benchmark",
+    "Firmware and UART bitrate unchanged; only boot guard implementation changed"
+  ],
+  "independent_audit": {
+    "status": "PASS",
+    "total_tx_frames": 120,
+    "total_rx_frames": 120,
+    "type2_mode0_fault0_frames": 48,
+    "residual_or_discarded_bytes": 0,
+    "capture_hashes_matched": 17,
+    "each_summary_source_hashes_matched": 44,
+    "each_frozen_manifest_files_matched": 52,
+    "changes_only": [
+      "README.md",
+      "singularitydog_hw/active_report_probe.py",
+      "singularitydog_hw/stop_batch_experiment.py",
+      "tests/test_active_report_probe.py",
+      "tests/test_stop_batch_experiment.py"
+    ],
+    "final_preflight_quiet_duration_independently_recomputed": false,
+    "final_preflight_quiet_verification": "summary flags and matching tested implementation; empty reads and full quiet timestamps not retained"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "schema": "singularitydog.stance-front-hip-step-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "0bda2b28-6d89-4d02-9d35-fc7542280991",
+  "source_log": "/home/jetson/singularitydog-logs/front-hip-step1-0bda-r1",
+  "summary_sha256": "5cdcd4ae25e35a82a40fde29b37838aedacb45394709f2382d74e544c3111d83",
+  "events_sha256": "614474fc6635e197b085f54b4a18cd60eeacf58559d6eaf807b2d8e95d956948",
+  "status": "INCOMPLETE",
+  "result_status": "ABORTED",
+  "gain_profile": "id4-id10-kp4",
+  "test_scope": "supported front-hip raw bounded diagnostic; other 10 joints hold",
+  "moving_motor_ids": [3, 6],
+  "commanded_final_offset_deg_by_id": {
+    "3": 5,
+    "6": -5
+  },
+  "cycles_by_bus": {
+    "front": 76,
+    "rear": 76
+  },
+  "last_completed_tick": 75,
+  "commanded_offset_at_last_tick_deg_by_id": {
+    "3": 2.208,
+    "6": -2.208
+  },
+  "observed_offset_at_abort_deg_by_id": {
+    "3": 0.549,
+    "6": -0.176
+  },
+  "id6_tracking_error_at_abort_deg": 2.032,
+  "live_tracking_limit_deg": 2,
+  "max_abs_feedback_torque_nm_by_id": {
+    "3": 0.110,
+    "6": 0.136
+  },
+  "errors": [
+    "front: RuntimeError('ID6 raw step tracking error exceeded limit')",
+    "rear: InterruptedError('Peer or parent requested all-bus abort')"
+  ],
+  "all_12_stop_confirmed": true,
+  "ports_closed": true,
+  "locks_released": true,
+  "operator_observation": "動きは見えなかった",
+  "five_degree_target_reached": false,
+  "ten_degree_cumulative_target_reached": false,
+  "collision_free_full_path_verified": false,
+  "standing_completed": false,
+  "learned_policy_sent": false
+}

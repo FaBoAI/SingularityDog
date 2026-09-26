@@ -1,0 +1,31 @@
+{
+  "schema": "singularitydog.stance-front-hip-step10-rebase-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "0bda2b28-6d89-4d02-9d35-fc7542280991",
+  "current_hold_rebase": {
+    "source_log": "/home/jetson/singularitydog-logs/current-hold-rebase-0bda-r1",
+    "status": "COMPLETED",
+    "cycles_by_bus": {"front": 100, "rear": 100},
+    "all_12_stop_confirmed": true,
+    "operator_observation": "no physical anomaly reported"
+  },
+  "new_basis_disabled_preflight": {
+    "source_log": "/private/tmp/front-hip-kp12-step10-disabled-rebase-0bda-r1",
+    "status": "PASSED",
+    "scope": "10-degree front-hip step from the new basis",
+    "motor_enable_sent": false,
+    "motion_gain_sent": false
+  },
+  "first_new_basis_active_attempt": {
+    "source_log": "/home/jetson/singularitydog-logs/front-hip-kp12-step10-rebase-0bda-r1",
+    "status": "ABORTED",
+    "phase": "packet gate after Enable, before trajectory",
+    "abort_reason": "Unexpected zero-gain command after Enable",
+    "motion_gain_sent": false,
+    "all_12_stop_confirmed": true,
+    "ten_degree_trajectory_completed": false
+  },
+  "packet_gate_fix_status": "LOCAL_TESTS_PASSED_NO_ACTIVE_RETEST_ON_THIS_BOOT",
+  "standing_completed": false,
+  "walking_completed": false
+}

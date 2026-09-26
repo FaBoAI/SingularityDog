@@ -1,0 +1,27 @@
+{
+  "schema": "singularitydog.raw-step2-physical-review.v1",
+  "boot_id": "c4802c8c-0261-4f5e-b324-bdb5bf2063bf",
+  "scope": "supported-all12-current-raw-plus-minus-2deg-diagnostic-only",
+  "raw_direction_by_id": {
+    "1": 1, "2": 1, "3": 1,
+    "4": -1, "5": -1, "6": -1,
+    "7": 1, "8": 1, "9": -1,
+    "10": 1, "11": -1, "12": 1
+  },
+  "raw_direction_reviewed_for_diagnostic": true,
+  "swept_clearance_verified": true,
+  "support_stand_verified": true,
+  "feet_clear_verified": true,
+  "hands_clear_verified": true,
+  "physical_cutoff_ready": true,
+  "user_observation": "User confirmed the robot remains on its support, all four feet and links/wiring have room for a 2-degree sweep, hands are clear, and 40V can be switched off immediately. The user also reported ID8/ID9 did not physically turn a full revolution.",
+  "direction_review_scope": "The twelve signed raw directions were checked against the offline diagnostic candidate only. Their physical joint or standing direction has not been calibrated.",
+  "old_raw_target_reused": false,
+  "calibration_verified": false,
+  "model_mapping_verified": false,
+  "standing_allowed": false,
+  "learned_policy_allowed": false,
+  "automatic_retry_allowed": false,
+  "physical_stop_time_verified": false,
+  "requires_fresh_pre_run_confirmation": true
+}

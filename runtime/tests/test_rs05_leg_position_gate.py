@@ -52,6 +52,30 @@ class PositionGateTests(unittest.TestCase):
     def test_frozen_position_does_not_mask_reported_constant_velocity(self):
         self.assertFalse(self.evaluate(samples(velocity=lambda t: .06))["passed"])
 
+    def test_small_signed_velocity_bias_with_stationary_position_passes(self):
+        # A physical ID1 window had only 0.000384 rad of position variation,
+        # despite a -0.02736 rad/s signed velocity estimate. Position drift,
+        # the six-sample tail, and per-sample feedback guards still apply.
+        rows = samples(position=lambda t: .000384 if round(t*10) % 2 else 0.,
+                       velocity=lambda t: -.02736)
+        report = self.evaluate(rows)
+        self.assertTrue(report['passed'])
+        self.assertAlmostEqual(report['limits']['abs_velocity_mean_rad_s'], .05)
+        self.assertLessEqual(report['motors'][1]['position_range_rad'], .0003841)
+
+    def test_signed_bias_over_new_limit_and_real_creep_still_fail(self):
+        high_bias = self.evaluate(samples(velocity=lambda t: .051))
+        self.assertFalse(high_bias['passed'])
+        self.assertTrue(any('abs_velocity_mean_rad_s' in error
+                            for error in high_bias['errors']))
+        # The same biased velocity as the physical window must not hide actual
+        # displacement across the 2-second observation.
+        creep = self.evaluate(samples(position=lambda t: .0006*t,
+                                           velocity=lambda t: -.02736))
+        self.assertFalse(creep['passed'])
+        self.assertTrue(any('position_range_rad' in error or 'abs_OLS_slope_rad_s' in error
+                            for error in creep['errors']))
+
     def test_creep_returning_oscillation_and_late_motion_rejected(self):
         for position in (lambda t: .0006*t,
                          lambda t: .0006*math.sin(math.pi*t),

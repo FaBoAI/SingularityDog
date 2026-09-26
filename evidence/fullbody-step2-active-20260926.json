@@ -1,0 +1,46 @@
+{
+  "schema": "singularitydog.fullbody-raw-step2-active-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "c4802c8c-0261-4f5e-b324-bdb5bf2063bf",
+  "frozen_package": "fullbody-step2-active-20260926-r2",
+  "active_manifest_sha256": "e629c4e308599a8ee4b297f9e7f5b4dff166e02dd6a1b5dd5d3a0b55175f0a32",
+  "status": "ABORTED",
+  "abort_reason": "ID7 raw step excursion exceeded2.5deg",
+  "trial_scope": "supported raw-motor diagnostic; maximum commanded amplitude 2 degrees; no learned policy or standing command",
+  "commanded_trajectory": {
+    "motor_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    "ramp_duration_s": 8.0,
+    "planned_endpoint_hold_s": 1.0,
+    "cycle_s": 0.05,
+    "kp": "ID4 and ID10: 4; all other IDs: 3",
+    "kd": 0.15,
+    "feedforward_torque_nm": 0.0
+  },
+  "last_completed_cycle_count_per_bus": {"front": 154, "rear": 154},
+  "packet_gate_progress": {"front_completed_ticks": 154, "rear_completed_ticks": 155},
+  "id7": {
+    "start_raw_rad": 4.657622796978714,
+    "target_at_abort_deg_from_start": 1.999,
+    "last_completed_feedback_deg_from_start": 1.648,
+    "first_limit_crossing_feedback_deg_from_start": 2.615541,
+    "excursion_limit_deg": 2.5,
+    "reported_speed_at_limit_crossing_rad_s": 0.1366,
+    "reported_fault_bits_at_limit_crossing": 0,
+    "final_stop_feedback_deg_from_start": 2.616
+  },
+  "last_completed_feedback_deg_from_start": {
+    "1": 2.132, "2": 0.176, "3": 0.747,
+    "4": -0.484, "5": -1.978, "6": -0.110,
+    "7": 1.648, "8": 1.648, "9": -0.703,
+    "10": 0.901, "11": -0.967, "12": 0.132
+  },
+  "all_12_stop_confirmed": true,
+  "trial_device_closed": true,
+  "locks_released": true,
+  "operator_observation": "Movement visible; no abnormal noise, vibration, snagging, or unexpected movement reported",
+  "post_stop_manual_inspection": "With 40V Off, the operator found no large play or snagging at the ID7 yellow member, screws, or wiring; 40V was subsequently turned On",
+  "summary_sha256": "ea31f8cef0ff17211565f1a4e6604eb57c8fa05e697f03fe8fa95eb2884e6775",
+  "events_sha256": "36704f184ccc70128129cf018ef173a50f080f6fe27a5f0ac156beb7e61a848a",
+  "local_log_directory": "/private/tmp/fabo-robotdog-fullbody-step2-active-20260926-r2",
+  "conclusion": "This is a stopped diagnostic, not a completed 2-degree move. ID7 exceeded the finite excursion guard, while several other axes did not approach their approximately 2-degree targets. Increasing only the excursion guard would not establish full-body tracking or standing readiness."
+}

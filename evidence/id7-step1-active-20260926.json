@@ -1,0 +1,29 @@
+{
+  "schema": "singularitydog.id7-step1-active-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "c4802c8c-0261-4f5e-b324-bdb5bf2063bf",
+  "frozen_package": "id7-step1-active-20260926-r9",
+  "status": "ABORTED",
+  "trial_scope": "Support-stand raw-motor diagnostic: ID7 commanded from its fresh center toward +1 degree over 8 seconds, with the other 11 axes held at their fresh centers; no standing trajectory or learned-policy command",
+  "motor_enable_sent": true,
+  "motion_gain_sent": true,
+  "cycle_count_per_bus": {"front": 160, "rear": 160},
+  "id7": {
+    "center_raw_rad": 5.228053559166856,
+    "commanded_endpoint_raw_rad": 5.245506851686799,
+    "commanded_endpoint_deg_from_center": 1.0,
+    "measured_range_deg_from_center_during_active_cycles": [-0.021979337711919032, 0.021979337712122585],
+    "last_measured_deg_from_center": 0.0,
+    "maximum_abs_type2_torque_feedback_nm": 0.07091630426489637,
+    "fault_bits_seen": [0],
+    "abort_reason": "ID7 final raw step error exceeds diagnostic limit of 0.5 degree"
+  },
+  "all_12_stop_confirmed": true,
+  "trial_device_closed": true,
+  "locks_released": true,
+  "operator_observation": "The right-rear foot-side rotating member visibly moved; no abnormal noise, vibration, or snagging reported",
+  "interpretation_limit": "Visible motion and the approximately stationary ID7 encoder report disagree. The amount and reference of the visible movement were not measured. This trial does not establish a completed one-degree joint rotation, a torque limit, or standing readiness.",
+  "summary_sha256": "e098755a9aadaabd51043d42f4a0678d9e70e5ff54c81b442197d3db3c520a20",
+  "events_sha256": "380a5cb8d4a6665fac35f9d1b8ca566cae0dcb2b3cbc7ee15a504e4cacdd7b77",
+  "local_log_directory": "/private/tmp/fabo-robotdog-id7-step1-active-20260926-r9"
+}

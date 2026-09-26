@@ -1,0 +1,52 @@
+{
+  "date": "2026-09-25",
+  "capture": "FR-current-load-20260925-r1",
+  "scope": "supported FR constant current-position hold; no added movement",
+  "cycle_ms": 50,
+  "duration_s": 5,
+  "status": "FR_CURRENT_LOAD_CANDIDATE_RESET_CONFIRMED_DUAL_BUS_PRE_POST",
+  "errors": [],
+  "stop_confirmed": true,
+  "all12_after_quiet": true,
+  "operator_observation": "異常なし",
+  "metrics": {
+    "1": {
+      "active_commands": 100,
+      "complete_samples": 100,
+      "constant_position_command": true,
+      "Kp": 3.0,
+      "Kd": 0.15,
+      "final_window_max_error_deg": 0.05880155354375029,
+      "final_window_samples": 20,
+      "final_window_observed_span_ms": 949.996914,
+      "max_abs_torque_feedback_Nm": 0.022240024414434956
+    },
+    "2": {
+      "active_commands": 100,
+      "complete_samples": 100,
+      "constant_position_command": true,
+      "Kp": 12.0,
+      "Kd": 0.15,
+      "final_window_max_error_deg": 0.12331567907885221,
+      "final_window_samples": 20,
+      "final_window_observed_span_ms": 949.996914,
+      "max_abs_torque_feedback_Nm": 0.030800335698481618
+    },
+    "3": {
+      "active_commands": 100,
+      "complete_samples": 100,
+      "constant_position_command": true,
+      "Kp": 12.0,
+      "Kd": 0.15,
+      "final_window_max_error_deg": 0.28730051847686744,
+      "final_window_samples": 20,
+      "final_window_observed_span_ms": 950.037811,
+      "max_abs_torque_feedback_Nm": 0.07930876630807937
+    }
+  },
+  "standing_verified": false,
+  "learned_policy_output_sent": false,
+  "physical_torque_cap_verified": false,
+  "summary_sha256": "83dffc912c27e9087cc8ab52d6b5c95ef7ac0d252fc1280689f251c6db77660f",
+  "events_sha256": "05e03c1dea545f9b7e9cd7c54796790f27ad6ad12611993f22951a1ceec70e35"
+}

@@ -1,0 +1,620 @@
+{
+  "date": "2026-09-25",
+  "status": "INTEGRATED_STOP_PROXY_COMPARISON_COMPLETE_20MS_NOT_REACHED",
+  "new_live_timing_samples": 15,
+  "new_live_cpu_change_executed": true,
+  "stop_pacing_upload_verified": true,
+  "prior_end_to_end_stop_proxy_ms": {
+    "median": 31.759404,
+    "max": 33.225689,
+    "completed_phase_samples": 3
+  },
+  "full_pipeline_20ms_verified": false,
+  "learned_targets_sent": false,
+  "can_types_allowed": [
+    0,
+    4
+  ],
+  "max_writes_per_invocation": 48,
+  "cycles_per_condition": 3,
+  "fixed_supervised_conditions": [
+    {
+      "window": 2,
+      "gap_ms": 1.0
+    },
+    {
+      "window": 2,
+      "gap_ms": 0.8
+    },
+    {
+      "window": 2,
+      "gap_ms": 0.5
+    }
+  ],
+  "stop_after_first_incomplete": true,
+  "offline_tests": {
+    "transport": {
+      "run": 89,
+      "skipped": 1,
+      "failures": 0
+    },
+    "supervisor_and_raw_evidence": {
+      "run": 37,
+      "skipped": 0,
+      "failures": 0
+    }
+  },
+  "artifacts": {
+    "stop-pacing-comparison-r1": {
+      "manifest_sha256": "7b1300c7092675872e8c928ea54d4a031fa2b8ce90651b4f68cba2fd1a696ac1",
+      "files": 33,
+      "sources": {
+        "condition_transport.py": "57f8a1464ab75be7c8804a5d9e83b47559b183e071e75b3e9587058619629d1c",
+        "guard_cadence.py": "cf43be96940544c1fc32ba026f8ea8effba870945a135cc4bd36eef01713959c",
+        "test_pacing.py": "a3ffe4dbaf0668b3bdc50b445fce22cc0d9ec40793b8f5ed988494fc4fdd7196"
+      }
+    },
+    "cpu-stop-pacing-r1": {
+      "manifest_sha256": "ec2798d5826558e447c4de15eeaaa0e985f9ddb3571c6b8c94f3d9614fa79b7f",
+      "files": 7,
+      "sources": {
+        "cpu_governor_profile.py": "e15cd688d45cfdc027073a74cd476d4177449d190cb60f300b3927b6a5c6e16f",
+        "profile_concurrency.py": "186164d12e7e170cbcba2642cb23ab154510eff2d796d40354397a00e7c36ca7",
+        "test_child_validation.py": "ee83e175d3fa391009e11ade35fa38fcf30d49d942666652d6d0483d3db7c5e4"
+      }
+    },
+    "stop-pacing-comparison-r2": {
+      "manifest_sha256": "d30ea1f01297662b0d1679065ce47236561c61eca0dae8696d3d626c95684407",
+      "files": 33,
+      "sources": {
+        "condition_transport.py": "4ab91418c46c81950f24887b853755ba43879d37ca9c0ca76cfc4f8f32edee7f",
+        "integrated.py": "b6e06cdd6e44994f2240b1dcb9c68a434566589f735729f0c5296c612ff6742b"
+      }
+    },
+    "cpu-stop-pacing-r2": {
+      "manifest_sha256": "1fc7124f1d677f0c039986d696c66ac7d64c5cbb31c545e99e8ae8e1b73ea072",
+      "files": 7,
+      "sources": {
+        "cpu_governor_profile.py": "66e94710e07d825e2f1aefd338cd0bc30130604fb5c721e63f44a4464015328d",
+        "profile_concurrency.py": "f2925a092108521ef759c3786e45d1f313fdd535d90f543fbcb978c8e26cdf6b"
+      }
+    },
+    "cpu-stop-pacing-r3": {
+      "manifest_sha256": "6b424834c3cd76656e2fbd68d92be87acdf446e2cb6c553cb86c587f5a0410d4",
+      "files": 7,
+      "sources": {
+        "cpu_governor_profile.py": "3c7887bc4c97df93bfa87afdd55b08133227761e9317c7c8c6216a4f9b3230ba",
+        "profile_concurrency.py": "15990d464146afe4e471eac858a9a0cc504d8367332a5c77d8e4ac309aa4dcab"
+      }
+    },
+    "integrated-stop-proxy-r5": {
+      "manifest_sha256": "cce41e335134c567b082ae7e9d6f5c4796985f46d4e0fbfa5397d3bfd318dfb4",
+      "files": 30,
+      "sources": {
+        "condition_transport.py": "0b218d6634a5f7d6f868079f165f3ba20ba2f5e88a7567e03017a0555ed961e1",
+        "integrated.py": "a62a7b97e1d6124ac273367b690a8ca3fa7d55faf2d98d763465a5f937e5d98c"
+      }
+    },
+    "cpu-integrated-phase-r3": {
+      "manifest_sha256": "c31c5f3808e93f84f99d06038f87e129d3618d40d9310dfc8d21f20f3db94976",
+      "files": 7,
+      "sources": {
+        "cpu_governor_profile.py": "466936b34267a00be8c92dd7fef628bf0d581c8d728b467933f0b5b7bffa815b",
+        "profile_concurrency.py": "9680d110f99d02c30598450cebcde5c44fe9735ce3598ce05a1f334de5b1a1fd"
+      }
+    }
+  },
+  "transport_experiments": [
+    {
+      "revision": 2,
+      "run": 1,
+      "status": "CONDITION_COMPLETE",
+      "window": 2,
+      "gap_ms": 1.0,
+      "source_manifest": "d30ea1f01297662b0d1679065ce47236561c61eca0dae8696d3d626c95684407",
+      "workers": {
+        "front": {
+          "tx": 24,
+          "rx": 24,
+          "gaps_ms": {
+            "count": 15,
+            "median": 1.130262,
+            "min": 1.045077,
+            "max": 2.958075
+          },
+          "rtt_ms": {
+            "count": 18,
+            "median": 2.8882975,
+            "min": 2.189932,
+            "max": 4.392216
+          },
+          "missing": [],
+          "max_pending": 2
+        },
+        "rear": {
+          "tx": 24,
+          "rx": 24,
+          "gaps_ms": {
+            "count": 15,
+            "median": 1.146647,
+            "min": 1.03042,
+            "max": 3.2056
+          },
+          "rtt_ms": {
+            "count": 18,
+            "median": 3.0165085,
+            "min": 2.195979,
+            "max": 4.439
+          },
+          "missing": [],
+          "max_pending": 2
+        }
+      },
+      "acquisition_ms": {
+        "count": 3,
+        "median": 11.477349,
+        "min": 11.367299,
+        "max": 11.60196
+      },
+      "host_write_span_ms": {
+        "count": 3,
+        "median": 8.629932,
+        "min": 8.51185,
+        "max": 8.654413
+      }
+    },
+    {
+      "revision": 2,
+      "run": 2,
+      "status": "CONDITION_COMPLETE",
+      "window": 2,
+      "gap_ms": 0.8,
+      "source_manifest": "d30ea1f01297662b0d1679065ce47236561c61eca0dae8696d3d626c95684407",
+      "workers": {
+        "front": {
+          "tx": 24,
+          "rx": 24,
+          "gaps_ms": {
+            "count": 15,
+            "median": 0.971123,
+            "min": 0.91861,
+            "max": 3.14355
+          },
+          "rtt_ms": {
+            "count": 18,
+            "median": 2.9155625,
+            "min": 1.837445,
+            "max": 4.296341
+          },
+          "missing": [],
+          "max_pending": 2
+        },
+        "rear": {
+          "tx": 24,
+          "rx": 24,
+          "gaps_ms": {
+            "count": 15,
+            "median": 0.936915,
+            "min": 0.835088,
+            "max": 2.803128
+          },
+          "rtt_ms": {
+            "count": 18,
+            "median": 2.8656414999999997,
+            "min": 1.83562,
+            "max": 4.349559
+          },
+          "missing": [],
+          "max_pending": 2
+        }
+      },
+      "acquisition_ms": {
+        "count": 3,
+        "median": 10.589715,
+        "min": 10.456881,
+        "max": 10.884153
+      },
+      "host_write_span_ms": {
+        "count": 3,
+        "median": 7.801308,
+        "min": 7.663609,
+        "max": 7.956255
+      }
+    },
+    {
+      "revision": 2,
+      "run": 3,
+      "status": "INCOMPLETE",
+      "window": 2,
+      "gap_ms": 0.5,
+      "source_manifest": "d30ea1f01297662b0d1679065ce47236561c61eca0dae8696d3d626c95684407",
+      "workers": {
+        "front": {
+          "tx": 12,
+          "rx": 11,
+          "gaps_ms": {
+            "count": 5,
+            "median": 3.061629,
+            "min": 0.647533,
+            "max": 3.213728
+          },
+          "rtt_ms": {
+            "count": 5,
+            "median": 2.923482,
+            "min": 2.87561,
+            "max": 3.116126
+          },
+          "missing": [
+            2
+          ],
+          "max_pending": 2
+        },
+        "rear": {
+          "tx": 12,
+          "rx": 11,
+          "gaps_ms": {
+            "count": 5,
+            "median": 2.946395,
+            "min": 0.630605,
+            "max": 3.106462
+          },
+          "rtt_ms": {
+            "count": 5,
+            "median": 2.91273,
+            "min": 2.822328,
+            "max": 3.137375
+          },
+          "missing": [
+            8
+          ],
+          "max_pending": 2
+        }
+      }
+    },
+    {
+      "revision": 3,
+      "run": 1,
+      "status": "CONDITION_COMPLETE",
+      "window": 3,
+      "gap_ms": 0.8,
+      "source_manifest": "d30ea1f01297662b0d1679065ce47236561c61eca0dae8696d3d626c95684407",
+      "workers": {
+        "front": {
+          "tx": 24,
+          "rx": 24,
+          "gaps_ms": {
+            "count": 15,
+            "median": 0.943171,
+            "min": 0.868416,
+            "max": 1.136906
+          },
+          "rtt_ms": {
+            "count": 18,
+            "median": 2.4258505,
+            "min": 1.958569,
+            "max": 3.349725
+          },
+          "missing": [],
+          "max_pending": 3
+        },
+        "rear": {
+          "tx": 24,
+          "rx": 24,
+          "gaps_ms": {
+            "count": 15,
+            "median": 0.941859,
+            "min": 0.878657,
+            "max": 1.16238
+          },
+          "rtt_ms": {
+            "count": 18,
+            "median": 2.457244,
+            "min": 1.766242,
+            "max": 3.415263
+          },
+          "missing": [],
+          "max_pending": 3
+        }
+      },
+      "acquisition_ms": {
+        "count": 3,
+        "median": 8.719525,
+        "min": 8.673796,
+        "max": 8.728806
+      },
+      "host_write_span_ms": {
+        "count": 3,
+        "median": 5.941342,
+        "min": 5.842522,
+        "max": 5.955262
+      }
+    },
+    {
+      "revision": 3,
+      "run": 2,
+      "status": "CONDITION_COMPLETE",
+      "window": 4,
+      "gap_ms": 0.8,
+      "source_manifest": "d30ea1f01297662b0d1679065ce47236561c61eca0dae8696d3d626c95684407",
+      "workers": {
+        "front": {
+          "tx": 24,
+          "rx": 24,
+          "gaps_ms": {
+            "count": 15,
+            "median": 0.946211,
+            "min": 0.8656,
+            "max": 1.263823
+          },
+          "rtt_ms": {
+            "count": 18,
+            "median": 2.5874875,
+            "min": 1.800931,
+            "max": 3.543523
+          },
+          "missing": [],
+          "max_pending": 3
+        },
+        "rear": {
+          "tx": 24,
+          "rx": 24,
+          "gaps_ms": {
+            "count": 15,
+            "median": 0.935715,
+            "min": 0.854976,
+            "max": 1.062184
+          },
+          "rtt_ms": {
+            "count": 18,
+            "median": 2.505485,
+            "min": 1.963402,
+            "max": 3.370078
+          },
+          "missing": [],
+          "max_pending": 3
+        }
+      },
+      "acquisition_ms": {
+        "count": 3,
+        "median": 8.785576,
+        "min": 8.687525,
+        "max": 8.979821
+      },
+      "host_write_span_ms": {
+        "count": 3,
+        "median": 5.978047,
+        "min": 5.814745,
+        "max": 6.376333
+      }
+    },
+    {
+      "revision": 3,
+      "run": 3,
+      "status": "CONDITION_COMPLETE",
+      "window": 2,
+      "gap_ms": 0.8,
+      "source_manifest": "d30ea1f01297662b0d1679065ce47236561c61eca0dae8696d3d626c95684407",
+      "workers": {
+        "front": {
+          "tx": 24,
+          "rx": 24,
+          "gaps_ms": {
+            "count": 15,
+            "median": 0.940707,
+            "min": 0.85504,
+            "max": 2.845226
+          },
+          "rtt_ms": {
+            "count": 18,
+            "median": 2.869083,
+            "min": 1.95268,
+            "max": 4.068631
+          },
+          "missing": [],
+          "max_pending": 2
+        },
+        "rear": {
+          "tx": 24,
+          "rx": 24,
+          "gaps_ms": {
+            "count": 15,
+            "median": 0.983461,
+            "min": 0.853024,
+            "max": 3.035729
+          },
+          "rtt_ms": {
+            "count": 18,
+            "median": 2.9025714999999996,
+            "min": 1.839492,
+            "max": 4.17193
+          },
+          "missing": [],
+          "max_pending": 2
+        }
+      },
+      "acquisition_ms": {
+        "count": 3,
+        "median": 10.553863,
+        "min": 10.550215,
+        "max": 10.811377
+      },
+      "host_write_span_ms": {
+        "count": 3,
+        "median": 7.906565,
+        "min": 7.72803,
+        "max": 8.04481
+      }
+    }
+  ],
+  "raw_audit_sha256": "d03ce421cf24296c651e783bce1aab23f55c3603bade17c1f7598d8dd2143c10",
+  "recovery_after_missing_reply": "All12 preflight complete; original firmware/identity checks passed",
+  "cpu_restoration": {
+    "parent_confirmed": true,
+    "independent_watchdog_confirmed": true,
+    "external_readback_confirmed": true,
+    "governor": "schedutil",
+    "min_khz": 729600,
+    "max_khz": 1497600
+  },
+  "chosen_for_next_test": {
+    "window": 3,
+    "gap_ms": 0.8,
+    "reason": "All3 cycles complete; actual cap3; cap4 brought no clear benefit"
+  },
+  "integrated_candidate": {
+    "uploaded_and_hash_verified": true,
+    "hardware_execution_count": 3,
+    "local_tests": {
+      "run": 67,
+      "skipped": 1
+    },
+    "jetson_offline_tests": {
+      "run": 67,
+      "skipped": 2
+    },
+    "supervisor_tests": 57,
+    "posture_available": true,
+    "execution_state": "ALL_THREE_COMPLETE"
+  },
+  "scope": "Live QDD+IMU input, original model inference, all-zero STOP transport proxy. Three complete finite diagnostics; no learned targets, continuous50Hz or20msclaim.",
+  "next_software_test": "Saved-input full observer lean comparison completed separately; fresh integrated run still uses original model.",
+  "integrated_results": {
+    "runs": [
+      {
+        "run": 1,
+        "report_sha256": "363e62f758530b7d951c86975cf60aa36c457813c862025a0f3673f15e438ebb",
+        "metrics": {
+          "earliest_source_start_ns": 2205403416521,
+          "last_input_reply_or_read_ns": 2205412456479,
+          "first_proxy_write_ns": 2205421758462,
+          "last_proxy_write_return_ns": 2205427984169,
+          "last_proxy_reply_ns": 2205430850998,
+          "acquisition_ms": 9.039958,
+          "parallel_release_to_inputs_ms": 9.462374,
+          "input_coordination_ms": 0.241577,
+          "snapshot_build_ms": 1.701824,
+          "observer_consume_ms": 6.851267,
+          "observer_consume_thread_cpu_ms": 6.441632,
+          "inference_to_proxy_first_write_ms": 0.431504,
+          "proxy_write_span_ms": 6.225707,
+          "proxy_reply_span_ms": 9.092536,
+          "total_to_last_host_write_ms": 24.567648,
+          "total_to_last_reply_ms": 27.434477,
+          "release_to_last_host_write_ms": 24.990064,
+          "release_to_last_reply_ms": 27.856893,
+          "proxy_host_write_under20ms": false,
+          "proxy_reply_under20ms": false,
+          "timing_excludes_model_warmup_and_uid": true,
+          "timed_source_host_timestamps": true,
+          "host_write_is_not_can_wire_completion": true,
+          "sensor_internal_sample_times_verified": false,
+          "actual_learned_target_transport_measured": false
+        },
+        "model_call_ms": 5.410668,
+        "writes": 36,
+        "replies": 36
+      },
+      {
+        "run": 2,
+        "report_sha256": "1878bc7f0fa6dc806c6cd002a50a8f7b7d2e562ef9f0f43f6badfcdb6de3d277",
+        "metrics": {
+          "earliest_source_start_ns": 2209423644110,
+          "last_input_reply_or_read_ns": 2209432717027,
+          "first_proxy_write_ns": 2209440912152,
+          "last_proxy_write_return_ns": 2209447311401,
+          "last_proxy_reply_ns": 2209450103794,
+          "acquisition_ms": 9.072917,
+          "parallel_release_to_inputs_ms": 9.516998,
+          "input_coordination_ms": 0.237833,
+          "snapshot_build_ms": 1.64307,
+          "observer_consume_ms": 5.724888,
+          "observer_consume_thread_cpu_ms": 5.668,
+          "inference_to_proxy_first_write_ms": 0.515987,
+          "proxy_write_span_ms": 6.399249,
+          "proxy_reply_span_ms": 9.191642,
+          "total_to_last_host_write_ms": 23.667291,
+          "total_to_last_reply_ms": 26.459684,
+          "release_to_last_host_write_ms": 24.111372,
+          "release_to_last_reply_ms": 26.903765,
+          "proxy_host_write_under20ms": false,
+          "proxy_reply_under20ms": false,
+          "timing_excludes_model_warmup_and_uid": true,
+          "timed_source_host_timestamps": true,
+          "host_write_is_not_can_wire_completion": true,
+          "sensor_internal_sample_times_verified": false,
+          "actual_learned_target_transport_measured": false
+        },
+        "model_call_ms": 4.30669,
+        "writes": 36,
+        "replies": 36
+      },
+      {
+        "run": 3,
+        "report_sha256": "28283964183ca0c26842ce23f6d9d34dd97d02b662ad1dd3c8a67a8c1c40de3c",
+        "metrics": {
+          "earliest_source_start_ns": 2213458095422,
+          "last_input_reply_or_read_ns": 2213468214842,
+          "first_proxy_write_ns": 2213476512914,
+          "last_proxy_write_return_ns": 2213483132363,
+          "last_proxy_reply_ns": 2213486045656,
+          "acquisition_ms": 10.11942,
+          "parallel_release_to_inputs_ms": 10.46292,
+          "input_coordination_ms": 0.100964,
+          "snapshot_build_ms": 1.630526,
+          "observer_consume_ms": 6.023363,
+          "observer_consume_thread_cpu_ms": 5.79088,
+          "inference_to_proxy_first_write_ms": 0.441552,
+          "proxy_write_span_ms": 6.619449,
+          "proxy_reply_span_ms": 9.532742,
+          "total_to_last_host_write_ms": 25.036941,
+          "total_to_last_reply_ms": 27.950234,
+          "release_to_last_host_write_ms": 25.380441,
+          "release_to_last_reply_ms": 28.293734,
+          "proxy_host_write_under20ms": false,
+          "proxy_reply_under20ms": false,
+          "timing_excludes_model_warmup_and_uid": true,
+          "timed_source_host_timestamps": true,
+          "host_write_is_not_can_wire_completion": true,
+          "sensor_internal_sample_times_verified": false,
+          "actual_learned_target_transport_measured": false
+        },
+        "model_call_ms": 4.616525,
+        "writes": 36,
+        "replies": 36
+      }
+    ],
+    "distributions": {
+      "acquisition_ms": {
+        "median_ms": 9.072917,
+        "max_ms": 10.11942
+      },
+      "snapshot_build_ms": {
+        "median_ms": 1.64307,
+        "max_ms": 1.701824
+      },
+      "observer_consume_ms": {
+        "median_ms": 6.023363,
+        "max_ms": 6.851267
+      },
+      "proxy_write_span_ms": {
+        "median_ms": 6.399249,
+        "max_ms": 6.619449
+      },
+      "total_to_last_host_write_ms": {
+        "median_ms": 24.567648,
+        "max_ms": 25.036941
+      },
+      "total_to_last_reply_ms": {
+        "median_ms": 27.434477,
+        "max_ms": 27.950234
+      }
+    },
+    "raw_bytes_frames_timestamps_verified": true,
+    "audit_sha256": "906599c4a0fd21248a3a39201fa6d1bef7f991a39df541f1997e31b5f28efdea",
+    "cpu_restored_parent_watchdog_external": true,
+    "cpu_condition": "performance within unchanged729600..1497600kHz bounds; restoredschedutil",
+    "native_model_unchanged": true,
+    "lean_model_used": false,
+    "previous_complete_result_is_historical_not_controlled_single_factor_AB": true
+  }
+}

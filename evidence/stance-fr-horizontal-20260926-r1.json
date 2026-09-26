@@ -1,0 +1,202 @@
+{
+  "boot_id": "efb58334-b54d-49dd-a1ce-bd94bbea31d8",
+  "read_only": true,
+  "motor_enable_sent": false,
+  "motors": {
+    "1": {
+      "uid_match": true,
+      "position_last_rad": 6.204606056213379,
+      "position_range_rad": 0.0002474784851074219,
+      "current_max_abs_A": 0.0,
+      "voltage_V": [
+        39.545528411865234,
+        39.58061599731445
+      ],
+      "can_timeout_ticks": [
+        4000,
+        4000,
+        4000
+      ]
+    },
+    "2": {
+      "uid_match": true,
+      "position_last_rad": 4.542958736419678,
+      "position_range_rad": 9.822845458984375e-05,
+      "current_max_abs_A": 0.0,
+      "voltage_V": [
+        38.773563385009766,
+        38.773563385009766
+      ],
+      "can_timeout_ticks": [
+        4000,
+        4000,
+        4000
+      ]
+    },
+    "3": {
+      "uid_match": true,
+      "position_last_rad": 6.323761940002441,
+      "position_range_rad": 0.00039577484130859375,
+      "current_max_abs_A": 0.0,
+      "voltage_V": [
+        40.14204406738281,
+        40.14204406738281
+      ],
+      "can_timeout_ticks": [
+        4000,
+        4000,
+        4000
+      ]
+    },
+    "4": {
+      "uid_match": true,
+      "position_last_rad": 4.901860237121582,
+      "position_range_rad": 9.918212890625e-05,
+      "current_max_abs_A": 0.0,
+      "voltage_V": [
+        39.26481246948242,
+        39.26481246948242
+      ],
+      "can_timeout_ticks": [
+        4000,
+        4000,
+        4000
+      ]
+    },
+    "5": {
+      "uid_match": true,
+      "position_last_rad": 3.4789695739746094,
+      "position_range_rad": 0.00014853477478027344,
+      "current_max_abs_A": 0.0,
+      "voltage_V": [
+        39.47534942626953,
+        39.51043701171875
+      ],
+      "can_timeout_ticks": [
+        4000,
+        4000,
+        4000
+      ]
+    },
+    "6": {
+      "uid_match": true,
+      "position_last_rad": 5.6699395179748535,
+      "position_range_rad": 0.00019788742065429688,
+      "current_max_abs_A": 0.0,
+      "voltage_V": [
+        39.58061599731445,
+        39.58061599731445
+      ],
+      "can_timeout_ticks": [
+        4000,
+        4000,
+        4000
+      ]
+    },
+    "7": {
+      "uid_match": true,
+      "position_last_rad": 5.091134071350098,
+      "position_range_rad": 9.918212890625e-05,
+      "current_max_abs_A": 0.0,
+      "voltage_V": [
+        39.1595458984375,
+        39.1595458984375
+      ],
+      "can_timeout_ticks": [
+        4000,
+        4000,
+        4000
+      ]
+    },
+    "8": {
+      "uid_match": true,
+      "position_last_rad": 0.2838859558105469,
+      "position_range_rad": 0.000247955322265625,
+      "current_max_abs_A": 0.0,
+      "voltage_V": [
+        39.51043701171875,
+        39.51043701171875
+      ],
+      "can_timeout_ticks": [
+        4000,
+        4000,
+        4000
+      ]
+    },
+    "9": {
+      "uid_match": true,
+      "position_last_rad": 0.16161251068115234,
+      "position_range_rad": 9.870529174804688e-05,
+      "current_max_abs_A": 0.0,
+      "voltage_V": [
+        39.44025802612305,
+        39.44025802612305
+      ],
+      "can_timeout_ticks": [
+        4000,
+        4000,
+        4000
+      ]
+    },
+    "10": {
+      "uid_match": true,
+      "position_last_rad": 3.5245447158813477,
+      "position_range_rad": 4.863739013671875e-05,
+      "current_max_abs_A": 0.0,
+      "voltage_V": [
+        39.124454498291016,
+        39.124454498291016
+      ],
+      "can_timeout_ticks": [
+        4000,
+        4000,
+        4000
+      ]
+    },
+    "11": {
+      "uid_match": true,
+      "position_last_rad": 0.5271949768066406,
+      "position_range_rad": 0.0001468658447265625,
+      "current_max_abs_A": 0.0,
+      "voltage_V": [
+        39.26481246948242,
+        39.26481246948242
+      ],
+      "can_timeout_ticks": [
+        4000,
+        4000,
+        4000
+      ]
+    },
+    "12": {
+      "uid_match": true,
+      "position_last_rad": 1.0152473449707031,
+      "position_range_rad": 0.000148773193359375,
+      "current_max_abs_A": 0.0,
+      "voltage_V": [
+        39.26481246948242,
+        39.26481246948242
+      ],
+      "can_timeout_ticks": [
+        4000,
+        4000,
+        4000
+      ]
+    }
+  },
+  "ports": {
+    "front": {
+      "path": "/dev/serial/by-path/platform-3610000.usb-usb-0:2.4:1.0-port0",
+      "resolved": "/dev/ttyUSB1",
+      "tx_count": 96
+    },
+    "rear": {
+      "path": "/dev/serial/by-path/platform-3610000.usb-usb-0:2.2:1.0-port0",
+      "resolved": "/dev/ttyUSB0",
+      "tx_count": 96
+    }
+  },
+  "errors": [],
+  "status": "READ_ONLY_COMPLETE",
+  "completed_wall_time_ns": 1790422499110202802
+}

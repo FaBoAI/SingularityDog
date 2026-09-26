@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from singularitydog_hw import manual_motion_check as module
-from singularitydog_hw.manual_motion_check import collect, identities, main, metrics, numeric_query, check_feedback_event, confirm_observed_motion, wait_for_ready
+from singularitydog_hw.manual_motion_check import collect, identities, main, metrics, numeric_query, check_feedback_event, confirm_observed_motion, selected_port, wait_for_ready
 
 
 class FakeTime:
@@ -53,6 +53,7 @@ class ManualMotionTests(unittest.TestCase):
             self.assertEqual(plan['ids'],[3])
             self.assertEqual(plan['leg'],'FR')
             self.assertEqual(plan['identity_check_ids'],[1,2,3])
+            self.assertEqual(plan['port'],module.DEFAULT_FRONT_PORT)
             self.assertFalse(plan['motor_output_available'])
             can.assert_not_called()
     def test_selection_cannot_expand_to_other_legs(self):
@@ -63,12 +64,16 @@ class ManualMotionTests(unittest.TestCase):
         for leg, ids in [('FR',[1,2,3]),('FL',[4,5,6]),('RR',[7,8,9]),('RL',[10,11,12])]:
             for single in (None,ids[-1]):
                 argv=['--leg',leg,'--expected-uids','missing','--output','unused']
+                if leg in ('RR','RL'):
+                    argv += ['--port',f'/dev/serial/by-path/{leg.lower()}-usb2can']
                 if single is not None: argv += ['--motor-id',str(single)]
                 with patch.object(module,'ReadOnlyCAN') as can, contextlib.redirect_stdout(io.StringIO()) as output:
                     self.assertEqual(main(argv),0)
                 plan=json.loads(output.getvalue())
                 self.assertEqual(plan['ids'],ids if single is None else [single])
                 self.assertEqual(plan['identity_check_ids'],ids)
+                self.assertEqual(plan['port'], (f'/dev/serial/by-path/{leg.lower()}-usb2can'
+                                                if leg in ('RR','RL') else module.DEFAULT_FRONT_PORT))
                 self.assertEqual(plan['allowed_can_types'],[0,17])
                 self.assertEqual([plan[k] for k in ('before_seconds_per_joint','moving_seconds_per_joint','released_seconds_per_joint')],[3,8,3])
                 can.assert_not_called()
@@ -77,11 +82,28 @@ class ManualMotionTests(unittest.TestCase):
                 main(['--leg',leg,'--motor-id',mid,'--expected-uids','missing','--output','unused'])
             can.assert_not_called()
 
-    def execute_fl_fixture(self, *, single=True, bad_uid=None, bad_current=None, changed_boot=False):
+    def test_rear_leg_requires_explicit_by_path_port_before_any_hardware(self):
+        invalid = (None, 'rear-usb2can', '/dev/ttyUSB1', '/dev/serial/by-path/..',
+                   '/dev/serial/by-path/../ttyUSB1')
+        for port in invalid:
+            argv=['--leg','RR','--motor-id','7','--expected-uids','missing','--output','unused']
+            if port is not None:
+                argv += ['--port',port]
+            with self.subTest(port=port), patch.object(module,'ReadOnlyCAN') as can, \
+                 contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                main(argv)
+            can.assert_not_called()
+        self.assertEqual(selected_port('RR','/dev/serial/by-path/rear-usb2can'),
+                         '/dev/serial/by-path/rear-usb2can')
+
+    def execute_fl_fixture(self, *, single=True, bad_uid=None, bad_current=None,
+                           changed_boot=False, leg='FL', motor_id=None, port=None):
         clock=FakeTime(); calls=[]; ports=[]; refs={str(i):f'{i:016x}' for i in range(1,13)}
+        leg_ids=module.LEGS[leg][1]
         class ObservationCAN:
-            def __init__(self,event_sink):
+            def __init__(self,port,event_sink):
                 self.parser=SimpleNamespace(discarded_bytes=0,buffer=b''); self.closed=False
+                self.port=port
                 ports.append(self)
             def __enter__(self): return self
             def __exit__(self,*_): self.closed=True
@@ -100,8 +122,9 @@ class ManualMotionTests(unittest.TestCase):
         original_read=Path.read_text
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp); uids=root/'uids.json'; uids.write_text(json.dumps(refs)); out=root/'capture'
-            argv=['--execute-readonly','--leg','FL','--expected-uids',str(uids),'--output',str(out)]
-            if single: argv += ['--motor-id','6']
+            argv=['--execute-readonly','--leg',leg,'--expected-uids',str(uids),'--output',str(out)]
+            if port is not None: argv += ['--port',port]
+            if single: argv += ['--motor-id',str(motor_id if motor_id is not None else leg_ids[-1])]
             with patch.object(module,'ReadOnlyCAN',ObservationCAN), patch.object(module,'collect',side_effect=fast_collect), \
                  patch.object(module,'fresh_input',return_value='y'), patch('sys.stdin.isatty',return_value=True), \
                  patch.object(Path,'home',return_value=root), patch.object(Path,'read_text',fake_read), \
@@ -112,8 +135,30 @@ class ManualMotionTests(unittest.TestCase):
             events=[json.loads(line) for line in (out/'events.jsonl').read_text().splitlines()]
             lock_names=[Path(c.args[0].name).name for c in locks.call_args_list]
         self.assertTrue(all(p.closed for p in ports))
+        self.assertTrue(all(p.port == (port or module.DEFAULT_FRONT_PORT) for p in ports))
         self.assertEqual(lock_names,['manual-calibration.lock','can-readonly.lock'])
         return rc,summary,events,calls,printed.getvalue()
+
+    def test_id7_uses_explicit_rear_port_and_checks_rear_bus_identities(self):
+        rear_port='/dev/serial/by-path/rear-usb2can'
+        rc,summary,events,calls,_=self.execute_fl_fixture(
+            leg='RR',motor_id=7,port=rear_port)
+        self.assertEqual(rc,0)
+        self.assertEqual(summary['plan']['port'],rear_port)
+        self.assertEqual(summary['plan']['ids'],[7])
+        self.assertEqual(calls[:6],[(mid,param) for mid in (7,8,9)
+                                    for param in (None,'current')])
+        self.assertEqual({row['motor_id'] for row in events
+                          if row['kind']=='manual_motion_sample'},{7})
+        self.assertTrue(all(mid in (7,8,9) for mid,_ in calls))
+
+        rc,summary,events,calls,_=self.execute_fl_fixture(
+            leg='RR',motor_id=7,port=rear_port,bad_uid=8)
+        self.assertEqual(rc,1)
+        self.assertEqual(summary['status'],'INCOMPLETE')
+        self.assertEqual(summary['joints'],{})
+        self.assertFalse(any(row['kind']=='manual_motion_sample' for row in events))
+        self.assertFalse(any(parameter in ('position','velocity') for _,parameter in calls))
 
     def test_fl_execution_checks_all_three_identities_currents_then_selected_windows(self):
         for single in (True,False):

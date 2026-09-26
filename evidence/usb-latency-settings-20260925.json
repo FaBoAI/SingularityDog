@@ -1,0 +1,196 @@
+{
+  "kernel": "6.8.12-1021-tegra",
+  "ports": {
+    "ttyUSB0": {
+      "driver": "ch341-uart",
+      "latency_paths": {
+        "/sys/class/tty/ttyUSB0/device/latency_timer": false,
+        "/sys/bus/usb-serial/devices/ttyUSB0/latency_timer": false,
+        "/sys/devices/platform/bus@0/3610000.usb/usb1/1-2/1-2.2/1-2.2:1.0/ttyUSB0/latency_timer": false
+      },
+      "power": {
+        "control": "on",
+        "runtime_status": "active",
+        "autosuspend_delay_ms": "2000"
+      },
+      "usb_speed": "12",
+      "endpoints": [
+        {
+          "name": "ep_02",
+          "type": "Bulk",
+          "direction": "out",
+          "wMaxPacketSize": "0020",
+          "bInterval": "00"
+        },
+        {
+          "name": "ep_81",
+          "type": "Interrupt",
+          "direction": "in",
+          "wMaxPacketSize": "0008",
+          "bInterval": "01"
+        },
+        {
+          "name": "ep_82",
+          "type": "Bulk",
+          "direction": "in",
+          "wMaxPacketSize": "0020",
+          "bInterval": "00"
+        }
+      ]
+    },
+    "ttyUSB1": {
+      "driver": "ch341-uart",
+      "latency_paths": {
+        "/sys/class/tty/ttyUSB1/device/latency_timer": false,
+        "/sys/bus/usb-serial/devices/ttyUSB1/latency_timer": false,
+        "/sys/devices/platform/bus@0/3610000.usb/usb1/1-2/1-2.4/1-2.4:1.0/ttyUSB1/latency_timer": false
+      },
+      "power": {
+        "control": "on",
+        "runtime_status": "active",
+        "autosuspend_delay_ms": "2000"
+      },
+      "usb_speed": "12",
+      "endpoints": [
+        {
+          "name": "ep_02",
+          "type": "Bulk",
+          "direction": "out",
+          "wMaxPacketSize": "0020",
+          "bInterval": "00"
+        },
+        {
+          "name": "ep_81",
+          "type": "Interrupt",
+          "direction": "in",
+          "wMaxPacketSize": "0008",
+          "bInterval": "01"
+        },
+        {
+          "name": "ep_82",
+          "type": "Bulk",
+          "direction": "in",
+          "wMaxPacketSize": "0020",
+          "bInterval": "00"
+        }
+      ]
+    }
+  },
+  "can0": {
+    "driver": "mttcan",
+    "device": "/sys/devices/platform/bus@0/c310000.mttcan",
+    "operstate": "down",
+    "tx_queue_len": "10"
+  },
+  "setting_changes": [],
+  "status": "READ_ONLY_SETTINGS_INSPECTED",
+  "source_capture_sha256": "ee5c6a0a07696a6156c42d357bb3d10ac618b6686c81ae38bb3e0ff22a4a3583",
+  "interpretation": {
+    "usb_can_transport": "CH340 serial AT frames via ttyUSB0 and ttyUSB1",
+    "can0_is_usb_adapter": false,
+    "txqueuelen_applicable_to_current_transport": false,
+    "latency_timer_attribute_available": false,
+    "autosuspend_disabled_on_both_devices": true,
+    "performance_improvement_from_settings_measured": false
+  },
+  "references": [
+    "https://docs.kernel.org/networking/can.html",
+    "https://github.com/torvalds/linux/blob/v6.8/drivers/usb/serial/ch341.c",
+    "https://github.com/torvalds/linux/blob/v6.8/drivers/usb/serial/ftdi_sio.c"
+  ],
+  "upstream_low_latency_review": {
+    "source_version": "upstream Linux stable v6.8.12 (FTDI comparison reviewed at v6.8)",
+    "scope": "CH341 source SHA-256 matches the actual module build source; USB serial and TTY core behavior is upstream source analysis, not a binary verification of the whole Jetson kernel.",
+    "ch341_get_serial_callback": false,
+    "ch341_set_serial_callback": false,
+    "tiocgserial_without_driver_callback": "TTY core zero-initializes serial_struct; USB serial core fills line, close_delay and closing_wait and returns success. flags remains zero.",
+    "tiocsserial_without_driver_callback": "USB serial core only handles close_delay and closing_wait and ignores serial_struct.flags. With unchanged close timings, success does not mean low_latency was applied.",
+    "close_timing_permission_check": "Changing close_delay or closing_wait requires CAP_SYS_ADMIN.",
+    "setserial_low_latency_effect_for_upstream_ch341": "No low_latency behavior is implemented.",
+    "tty_flip_buffer_push": "Always queues system_unbound_wq work in v6.8.12; no low_latency direct-flush branch.",
+    "ftdi_distinction": "ftdi_sio implements driver callbacks and explicitly maps ASYNC_LOW_LATENCY to its hardware latency timer value 1.",
+    "ch341_small_packet_handling": {
+      "function": "ch341_set_baudrate_lcr",
+      "register": "CH341_REG_PRESCALER",
+      "bit": 7,
+      "set_condition": "priv->version > 0x27",
+      "purpose_in_upstream_comment": "Prevent CH341A buffering until a full 32-byte endpoint packet.",
+      "version_caveat": "At least one version 0x27 device appears to invert this bit.",
+      "not_lcr_bit_7": true,
+      "runtime_register_value_verified": false,
+      "additional_optimization_if_already_applied": false
+    },
+    "remaining_measurement": "Distinguish USB completion, TTY delivery and application receive timestamps before selecting a change.",
+    "performance_improvement_measured": false,
+    "setting_changes": [],
+    "references": [
+      "https://github.com/gregkh/linux/blob/v6.8.12/drivers/tty/tty_io.c#L2623",
+      "https://github.com/gregkh/linux/blob/v6.8.12/drivers/usb/serial/usb-serial.c#L439",
+      "https://github.com/gregkh/linux/blob/v6.8.12/drivers/usb/serial/ch341.c#L838",
+      "https://github.com/gregkh/linux/blob/v6.8.12/drivers/tty/tty_buffer.c#L528",
+      "https://github.com/torvalds/linux/blob/v6.8/drivers/usb/serial/ftdi_sio.c#L1377",
+      "https://github.com/gregkh/linux/blob/v6.8.12/drivers/usb/serial/ch341.c#L239"
+    ],
+    "downloaded_source_checks": [
+      {
+        "path": "drivers/usb/serial/ch341.c",
+        "sha256": "b286d49dd1f2a3a8f96188888b4df7869f65c4d9bead51d5291d50150b235951",
+        "bytes": 22421,
+        "url": "https://raw.githubusercontent.com/gregkh/linux/v6.8.12/drivers/usb/serial/ch341.c",
+        "byte_identical_to_previously_reviewed_v6_8": true
+      },
+      {
+        "path": "drivers/usb/serial/usb-serial.c",
+        "sha256": "530906e2227192839f6b382c1cb8658ece5a83653a421c33d57393bb791a0250",
+        "bytes": 41733,
+        "url": "https://raw.githubusercontent.com/gregkh/linux/v6.8.12/drivers/usb/serial/usb-serial.c",
+        "byte_identical_to_previously_reviewed_v6_8": true
+      },
+      {
+        "path": "drivers/tty/tty_io.c",
+        "sha256": "56688a615471e7c32e452831fa2b688745063b90d13235c471897dd4eaf5040d",
+        "bytes": 91989,
+        "url": "https://raw.githubusercontent.com/gregkh/linux/v6.8.12/drivers/tty/tty_io.c",
+        "byte_identical_to_previously_reviewed_v6_8": true
+      },
+      {
+        "path": "drivers/tty/tty_buffer.c",
+        "sha256": "17680e804c4c499e75cdb7f0228bdd20774d5722910e0c93de1ebb27a9311f43",
+        "bytes": 16581,
+        "url": "https://raw.githubusercontent.com/gregkh/linux/v6.8.12/drivers/tty/tty_buffer.c",
+        "byte_identical_to_previously_reviewed_v6_8": true
+      }
+    ]
+  },
+  "actual_ch341_module_audit": {
+    "kernel_release": "6.8.12-1021-tegra",
+    "source_scope": "Upstream Linux stable v6.8.12 driver; externally built against installed exact NVIDIA headers; no claim of NVIDIA source equivalence",
+    "module_sha256": "27c8f86b7fe0316bd56bb6161ac8e10dd3e0ae65b135b60bf71960bc345e23dc",
+    "build_artifact_sha256": "27c8f86b7fe0316bd56bb6161ac8e10dd3e0ae65b135b60bf71960bc345e23dc",
+    "module_matches_build_artifact": true,
+    "module_build_id": "4c4cea54eb05c74cbe1ef4ebb96b2c66c55b7d63",
+    "loaded_build_id": "4c4cea54eb05c74cbe1ef4ebb96b2c66c55b7d63",
+    "loaded_build_id_matches_module": true,
+    "build_source_sha256": "b286d49dd1f2a3a8f96188888b4df7869f65c4d9bead51d5291d50150b235951",
+    "official_download_sha256": "b286d49dd1f2a3a8f96188888b4df7869f65c4d9bead51d5291d50150b235951",
+    "build_source_matches_official_download": true,
+    "official_source_url": "https://raw.githubusercontent.com/gregkh/linux/v6.8.12/drivers/usb/serial/ch341.c",
+    "callbacks_present": {
+      "get_serial": false,
+      "set_serial": false,
+      "ioctl": false
+    },
+    "low_latency_text_present": false,
+    "source_audit_sha256": "d0ac68a112ed88a67e0a4d3da8bd951c66431129534d4e99c1a4d0c972d3837c",
+    "conclusion": "The actual driver build source does not expose setserial low_latency support.",
+    "runtime_callback_table_read": false,
+    "chip_version_read": false,
+    "runtime_prescaler_register_read": false,
+    "setserial_run": false,
+    "tiocgserial_run": false,
+    "tiocsserial_run": false,
+    "setting_changes": [],
+    "performance_improvement_measured": false,
+    "only_read_files": true
+  }
+}

@@ -22,6 +22,21 @@ LEGS = {"FR": ("右前脚", (1, 2, 3)), "FL": ("左前脚", (4, 5, 6)),
         "RR": ("右後脚", (7, 8, 9)), "RL": ("左後脚", (10, 11, 12))}
 IDS = LEGS["FR"][1]  # Preserve the original default for existing callers.
 NAMES = ("足先側", "中央（上脚）", "付け根")
+DEFAULT_FRONT_PORT = '/dev/robstride-usb2can'
+BY_PATH_DIR = Path('/dev/serial/by-path')
+
+
+def selected_port(leg, port):
+    """Require an explicit stable USB path for either rear-bus leg."""
+    if port is None:
+        if leg in ('RR', 'RL'):
+            raise ValueError('Rear-leg observation requires --port /dev/serial/by-path/<rear-device>')
+        return DEFAULT_FRONT_PORT
+    if (type(port) is not str or not port or port != str(Path(port))
+            or not Path(port).is_absolute() or Path(port).parent != BY_PATH_DIR
+            or Path(port).name in ('.', '..')):
+        raise ValueError('--port must be an absolute /dev/serial/by-path device name')
+    return port
 
 
 def identities(value):
@@ -148,12 +163,18 @@ def main(argv=None):
     ap.add_argument('--leg', choices=LEGS, default='FR', help='Observe one fixed leg; default FR')
     ap.add_argument('--motor-id', type=int,
                     help='Record only one joint in the selected leg; previous sessions are not merged or approved')
+    ap.add_argument('--port', help='Explicit /dev/serial/by-path device; required for RR and RL')
     args = ap.parse_args(argv)
     label, leg_ids = LEGS[args.leg]
     if args.motor_id is not None and args.motor_id not in leg_ids:
         ap.error('--motor-id must belong to the selected leg')
+    try:
+        port = selected_port(args.leg, args.port)
+    except ValueError as error:
+        ap.error(str(error))
     selected = (args.motor_id,) if args.motor_id is not None else leg_ids
     plan = {'leg': args.leg, 'ids': list(selected), 'identity_check_ids': list(leg_ids),
+            'port': port,
             'before_seconds_per_joint': 3, 'moving_seconds_per_joint': 8,
             'released_seconds_per_joint': 3, 'allowed_can_types': [0, 17],
             'motor_output_available': False, 'calibration_applied': False}
@@ -204,7 +225,7 @@ def main(argv=None):
             for mid in selected:
                 name = NAMES[leg_ids.index(mid)]
                 enter(f'\nID{mid} {label}の{name}：手を離して Enter。3秒静止記録した後、合図で8秒手動往復 [Enterまたはy / 終了q]: ')
-                with ReadOnlyCAN(event_sink=emit) as can:
+                with ReadOnlyCAN(port=port, event_sink=emit) as can:
                     for i in leg_ids:
                         check()
                         r = can.query(i)

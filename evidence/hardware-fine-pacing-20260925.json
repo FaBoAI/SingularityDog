@@ -1,0 +1,360 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-25",
+  "status": "RAW_TIMING_CLEANUP_VALIDATED_WITH_METADATA_DISCREPANCY",
+  "audit_mode": "offline_saved_capture_only",
+  "validator_source_sha256": "a5b9599b8985243c2371ea18fb1b57549d24d1fb760fb8604f92c39f197ae04c",
+  "capture_index_sha256": "b8e71597a26e75ebc4b42c7fc554f91928e7083c25d49dee995a0beea525a814",
+  "indexed_files_verified": 26,
+  "artifacts": {
+    "cpu-stop-pacing-r4": {
+      "manifest_sha256": "194451fe35ff245855046632e6f45c87e03b191648841e7dedb8070ca1fccf42",
+      "files": 7
+    },
+    "stop-pacing-comparison-r3": {
+      "manifest_sha256": "a0a977be14e80d2efcf9f11e76154e809149b23ac92c77656ebd22997297dbf7",
+      "files": 33
+    }
+  },
+  "completed_conditions": 3,
+  "incomplete_conditions": 0,
+  "completed_cycles": 9,
+  "total_tx": 144,
+  "total_rx": 144,
+  "uid_replies": 36,
+  "stop_feedback_mode0_fault0": 108,
+  "raw_rx_bytes": 2448,
+  "conditions": [
+    {
+      "run": 1,
+      "status": "CONDITION_COMPLETE",
+      "window": 3,
+      "gap_ms": 0.8,
+      "cycles_completed": 3,
+      "tx": 48,
+      "rx": 48,
+      "report_sha256": "684cc4242551a05aedefd6129e8050edd327671c60b3232ee7a7bbbced28aba3",
+      "events_sha256": {
+        "front": "97e76e348e3e9b9a224a61bd7abc915c51c90d261202319f4557e311b007d3a2",
+        "rear": "208737f03d0e99ba5ae81154ab6df6d1a7e4d6e6505647b69056219089d27eb5"
+      },
+      "samples": [
+        {
+          "cycle": 1,
+          "acquisition_ms": 8.792337,
+          "host_write_span_ms": 6.031932
+        },
+        {
+          "cycle": 2,
+          "acquisition_ms": 8.684237,
+          "host_write_span_ms": 5.937624
+        },
+        {
+          "cycle": 3,
+          "acquisition_ms": 8.70043,
+          "host_write_span_ms": 5.928728
+        }
+      ],
+      "acquisition_ms": {
+        "count": 3,
+        "min": 8.684237,
+        "median": 8.70043,
+        "max": 8.792337
+      },
+      "host_write_span_ms": {
+        "count": 3,
+        "min": 5.928728,
+        "median": 5.937624,
+        "max": 6.031932
+      },
+      "workers": {
+        "front": {
+          "tx": 24,
+          "rx": 24,
+          "rx_bytes": 408,
+          "stop_feedback_mode0_fault0": 18,
+          "missing": [],
+          "max_pending": 3,
+          "minimum_gap_violations": 0,
+          "stop_cycle_gaps_ms": {
+            "count": 15,
+            "min": 0.930077,
+            "median": 0.953918,
+            "max": 1.224518
+          },
+          "stop_rtt_ms": {
+            "count": 18,
+            "min": 1.999166,
+            "median": 2.5349585,
+            "max": 3.39793
+          }
+        },
+        "rear": {
+          "tx": 24,
+          "rx": 24,
+          "rx_bytes": 408,
+          "stop_feedback_mode0_fault0": 18,
+          "missing": [],
+          "max_pending": 3,
+          "minimum_gap_violations": 0,
+          "stop_cycle_gaps_ms": {
+            "count": 15,
+            "min": 0.876187,
+            "median": 0.925853,
+            "max": 1.015391
+          },
+          "stop_rtt_ms": {
+            "count": 18,
+            "min": 1.984701,
+            "median": 2.4695485,
+            "max": 3.241349
+          }
+        }
+      },
+      "raw_validation_passed": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "run": 2,
+      "status": "CONDITION_COMPLETE",
+      "window": 3,
+      "gap_ms": 0.7,
+      "cycles_completed": 3,
+      "tx": 48,
+      "rx": 48,
+      "report_sha256": "c02032970fc9f78fc8089eda47b28122715c08730503355fde4e8aa817f40da1",
+      "events_sha256": {
+        "front": "a08dc9b2dd76fa5e9f52ffe06c730d164b034ae30c8d5fb7acc15481eca35df9",
+        "rear": "eaddee3da4546c8d3f12512d62515ba651d7c8c3d03ac4f60f1493e8b800954a"
+      },
+      "samples": [
+        {
+          "cycle": 1,
+          "acquisition_ms": 8.625164,
+          "host_write_span_ms": 5.783923
+        },
+        {
+          "cycle": 2,
+          "acquisition_ms": 8.412005,
+          "host_write_span_ms": 5.661103
+        },
+        {
+          "cycle": 3,
+          "acquisition_ms": 8.159421,
+          "host_write_span_ms": 5.326533
+        }
+      ],
+      "acquisition_ms": {
+        "count": 3,
+        "min": 8.159421,
+        "median": 8.412005,
+        "max": 8.625164
+      },
+      "host_write_span_ms": {
+        "count": 3,
+        "min": 5.326533,
+        "median": 5.661103,
+        "max": 5.783923
+      },
+      "workers": {
+        "front": {
+          "tx": 24,
+          "rx": 24,
+          "rx_bytes": 408,
+          "stop_feedback_mode0_fault0": 18,
+          "missing": [],
+          "max_pending": 3,
+          "minimum_gap_violations": 0,
+          "stop_cycle_gaps_ms": {
+            "count": 15,
+            "min": 0.783417,
+            "median": 0.849819,
+            "max": 1.166565
+          },
+          "stop_rtt_ms": {
+            "count": 18,
+            "min": 1.733846,
+            "median": 2.588,
+            "max": 3.404714
+          }
+        },
+        "rear": {
+          "tx": 24,
+          "rx": 24,
+          "rx_bytes": 408,
+          "stop_feedback_mode0_fault0": 18,
+          "missing": [],
+          "max_pending": 3,
+          "minimum_gap_violations": 0,
+          "stop_cycle_gaps_ms": {
+            "count": 15,
+            "min": 0.82345,
+            "median": 0.843387,
+            "max": 1.209574
+          },
+          "stop_rtt_ms": {
+            "count": 18,
+            "min": 1.704885,
+            "median": 2.5339825,
+            "max": 3.158594
+          }
+        }
+      },
+      "raw_validation_passed": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "run": 3,
+      "status": "CONDITION_COMPLETE",
+      "window": 3,
+      "gap_ms": 0.6,
+      "cycles_completed": 3,
+      "tx": 48,
+      "rx": 48,
+      "report_sha256": "93bb8432b751f8cc24d2f965150440b0cb7113f5e4e131748c7b145c2fc148a8",
+      "events_sha256": {
+        "front": "a15d0218126cd1ced4afe9f3cd588fd745c4ba9783db04e972aa91271c123037",
+        "rear": "93831e613ebe9f6a4e311ec5c61a6a1df0b47657f8a724ed607b9a6b1683728f"
+      },
+      "samples": [
+        {
+          "cycle": 1,
+          "acquisition_ms": 8.095228,
+          "host_write_span_ms": 5.331462
+        },
+        {
+          "cycle": 2,
+          "acquisition_ms": 7.723439,
+          "host_write_span_ms": 5.014971
+        },
+        {
+          "cycle": 3,
+          "acquisition_ms": 7.638637,
+          "host_write_span_ms": 4.918104
+        }
+      ],
+      "acquisition_ms": {
+        "count": 3,
+        "min": 7.638637,
+        "median": 7.723439,
+        "max": 8.095228
+      },
+      "host_write_span_ms": {
+        "count": 3,
+        "min": 4.918104,
+        "median": 5.014971,
+        "max": 5.331462
+      },
+      "workers": {
+        "front": {
+          "tx": 24,
+          "rx": 24,
+          "rx_bytes": 408,
+          "stop_feedback_mode0_fault0": 18,
+          "missing": [],
+          "max_pending": 3,
+          "minimum_gap_violations": 0,
+          "stop_cycle_gaps_ms": {
+            "count": 15,
+            "min": 0.729366,
+            "median": 0.756984,
+            "max": 1.132963
+          },
+          "stop_rtt_ms": {
+            "count": 18,
+            "min": 1.577649,
+            "median": 2.376602,
+            "max": 3.267846
+          }
+        },
+        "rear": {
+          "tx": 24,
+          "rx": 24,
+          "rx_bytes": 408,
+          "stop_feedback_mode0_fault0": 18,
+          "missing": [],
+          "max_pending": 3,
+          "minimum_gap_violations": 0,
+          "stop_cycle_gaps_ms": {
+            "count": 15,
+            "min": 0.721846,
+            "median": 0.732023,
+            "max": 1.220262
+          },
+          "stop_rtt_ms": {
+            "count": 18,
+            "min": 1.578545,
+            "median": 2.3519615,
+            "max": 3.070624
+          }
+        }
+      },
+      "raw_validation_passed": true,
+      "cleanup_confirmed": true
+    }
+  ],
+  "cpu_restoration": {
+    "parent": true,
+    "independent_watchdog": true,
+    "external_readback": true,
+    "original_governor": "schedutil",
+    "temporary_governor": "performance",
+    "restored_governor": "schedutil",
+    "frequency_bounds_khz": [
+      729600,
+      1497600
+    ],
+    "frequency_bounds_unchanged": true
+  },
+  "metadata_discrepancies": [
+    {
+      "kind": "STALE_SUPERVISOR_CONDITION_LABELS",
+      "severity": "reporting_metadata_only",
+      "recorded_pending_windows": [
+        3,
+        4,
+        2
+      ],
+      "recorded_gap_ms_sequence": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "validated_pending_windows": [
+        3,
+        3,
+        3
+      ],
+      "validated_gap_ms_sequence": [
+        0.8,
+        0.7,
+        0.6
+      ],
+      "resolution": "Preserved original records. Conditions are established by pinned child code, per-run outer plans, summaries, and reconciled raw events; supervisor condition labels are not used as execution evidence."
+    }
+  ],
+  "raw_validation_errors": [],
+  "full_pipeline_20ms_verified": false,
+  "learned_targets_sent": false,
+  "private_audit_sha256": "387cc6c64fd1cfa012d93c0541619de5a170bf782eb996febede7d2f29ac2832",
+  "allowed_can_types": [
+    0,
+    4
+  ],
+  "individual_write_bytes": 17,
+  "imu_access": false,
+  "inference": false,
+  "log_snapshot_mode": "owned",
+  "scope": "Finite disabled-state transport acquisition only; excludes IMU, policy inference, and downstream output. Canonical all-zero Type4 STOP follows Type0 identity verification.",
+  "metrics_definition": {
+    "acquisition_ms": "Earliest STOP write start to latest of all twelve Type2 host receive timestamps, each cycle.",
+    "host_write_span_ms": "Earliest STOP write start to final STOP host write return, each cycle.",
+    "stop_cycle_gaps_ms": "Previous host write return to next host write start within each six-motor STOP cycle; UID and cycle boundaries excluded from distribution, included in minimum-gap validation."
+  },
+  "limitations": [
+    "Three cycles per condition, executed sequentially, do not establish long-duration reliability or p99 latency.",
+    "Host write return is not CAN wire transmission completion; host receive time is not sensor-internal sample time.",
+    "The earlier 0.5 ms / window 2 condition lost replies and remains a separate failed result; this run does not invalidate it.",
+    "The 0.6 ms result is transport-only and does not demonstrate a complete 20 ms learned controller."
+  ]
+}

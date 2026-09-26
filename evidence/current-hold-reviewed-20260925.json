@@ -1,0 +1,742 @@
+{
+  "date": "2026-09-25",
+  "profile": "current-hold-reviewed-v1",
+  "scope": "Single supported FL or RR current-reference 5-second test",
+  "active_package_revision": "r4",
+  "prepared_and_deployed": true,
+  "hardware_motion_executed_with_this_profile": true,
+  "hardware_active_control_completed_legs": [
+    "FL",
+    "RR"
+  ],
+  "operator_hands_off_pending": false,
+  "operator_readiness_required_separately_for_each_run": true,
+  "source_sha256": {
+    "singularitydog_hw/__init__.py": "2344e5418b018be98cbd653b54e9330fbca4ee1d0e35fe01acb3a3ff9bde46c7",
+    "singularitydog_hw/bounded_pose_plan.py": "a61ada6279bbe556bae4ae0e78ba6c36dd830aa524e3613b983f7cb3fee026ad",
+    "singularitydog_hw/can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+    "singularitydog_hw/current_hold_review.py": "145702687dd438bd7177a275760cde742ddead863032cd5a901cfde60b063c29",
+    "singularitydog_hw/joint_observation.py": "27ea198a8651d167ec8032f339a5cd9ca0ca5379dd40b6a3b8ccaaa671204f23",
+    "singularitydog_hw/joint_snapshot.py": "84a0145e08836aad275951c9024399361ce5a710e955a8eb97d7511af41ef027",
+    "singularitydog_hw/pose_record.py": "28bbea91d7ee4a76a690015e748a24c42abb525f87701c3c65885a34d3d45829",
+    "singularitydog_hw/position_response_evidence.py": "53462fa7a82a83675ddf85fffbe4a78915a6259c3da6f3ae922495c6b099a6d0",
+    "singularitydog_hw/rs05_joint_trial.py": "376bc3cb59cd5cd2953cb5d37c2da6d4241bacba5fc671f8db70a47afa9080dd",
+    "singularitydog_hw/rs05_leg_trial.py": "94e09293d6559f1d00c7be77f71757edf5562571b388efb532c1bdd0a976f1d9",
+    "singularitydog_hw/rs05_trial_protocol.py": "d290d108bf2333120d5204760d29e081e7e17bb64755b311f5ea8091eeddf614"
+  },
+  "wrapper_sha256": "4ced9d603304fc5318bd3e405687a9523a500ed3d10f07662a4c35eeae05eff0",
+  "manifest_sha256": "f271c9b0a370873fa800914c8082cc4e5430c33212b52397701f261be6fe3675",
+  "manifest_file_count": 50,
+  "tests": {
+    "r4_Mac_and_Jetson": {
+      "wrapper": 38,
+      "runtime": 191,
+      "total": 229,
+      "passed": true
+    }
+  },
+  "reviewed_ids": {
+    "FL": [
+      5,
+      6
+    ],
+    "RR": [
+      8
+    ]
+  },
+  "stationarity": {
+    "FL": {
+      "4": "legacy-rms-v1",
+      "5": "legacy-rms-v1",
+      "6": "position-v2"
+    },
+    "RR": {
+      "7": "legacy-rms-v1",
+      "8": "position-v2",
+      "9": "legacy-rms-v1"
+    },
+    "r4_change": "FL ID5 and ID6 use existing position-v2 gates only after both complete pinned reviews validate. ID4 remains legacy-rms-v1. RR unchanged."
+  },
+  "current_boot_requalification": {
+    "r2_boot_mismatch_detected_before_hardware_io": true,
+    "new_qualified_boot_for_r3": true,
+    "current_boot_manual_response_retested": false,
+    "manual_capture_boot_record_preserved_separately": true,
+    "historical_manual_UID_and_firmware_response_only": true,
+    "historical_raw_positions_used_as_targets": false,
+    "new_before_target_sweeps": 10,
+    "new_Type2_stationarity_samples_per_motor": 21,
+    "review_file_sha256": {
+      "6": "90ff0f0386ab30737e086750928aec4613b0d6b496b3cda54b0ac5c5821361b8",
+      "8": "4bda902662a14189b82eb124b41d4cf03c5f3ac4c048c44f8105fab182ede614"
+    }
+  },
+  "fresh_version_probe": {
+    "ids": [
+      6,
+      8
+    ],
+    "version_bytes": [
+      0,
+      5,
+      0,
+      13
+    ],
+    "mode": 0,
+    "fault": 0,
+    "same_boot_as_manual_recording": false,
+    "same_boot_as_r3_trials": true,
+    "identities_verified": true,
+    "motor_enable_sent": false,
+    "motion_target_sent": false,
+    "configuration_change_attempted": false,
+    "summary_sha256": "cd9f00a5dae8812e154e9cf410fc0836f77a9a917f76dc1b9a19f3edfe6b722a"
+  },
+  "trials": {
+    "FL": {
+      "status": "RAW_WIRE_HOLD_AND_STOP_AUDIT_PASS",
+      "tx_types": {
+        "0": 27,
+        "17": 747,
+        "4": 6,
+        "1": 369,
+        "18": 3,
+        "3": 3
+      },
+      "raw_frames_verified": 1155,
+      "enabled_ids": {
+        "4": 1,
+        "5": 1,
+        "6": 1
+      },
+      "nonzero_gain_counts": {
+        "4": 100,
+        "5": 100,
+        "6": 100
+      },
+      "hold": {
+        "4": {
+          "samples": 20,
+          "observed_span_s": 0.95017391,
+          "maximum_gap_ms": 50.166259,
+          "max_abs_target_error_deg": 0.33822040038803336,
+          "final_error_deg": 0.33822040038803336
+        },
+        "5": {
+          "samples": 20,
+          "observed_span_s": 0.95017391,
+          "maximum_gap_ms": 50.166259,
+          "max_abs_target_error_deg": 0.18190176819112747,
+          "final_error_deg": -0.18190176819112747
+        },
+        "6": {
+          "samples": 20,
+          "observed_span_s": 0.950548152,
+          "maximum_gap_ms": 50.518357,
+          "max_abs_target_error_deg": 0.08994233091495368,
+          "final_error_deg": -0.08994233091495368
+        }
+      },
+      "all_selected_stop_confirmed": true,
+      "output_allowed": false,
+      "physical_standing_verified": false,
+      "operator_observation": "User explicitly confirmed 左前脚も異常なし",
+      "source_sha256": {
+        "events.jsonl": "f862022aa05605fec2bd5cd73ae5191486d91fa021de9db441f22fbc64a24bbd",
+        "summary.json": "30328956ece657745294b992f23de9fd32bea2630662dee5783d0320449e591d"
+      },
+      "elapsed_s": 14.851232400000072,
+      "wrapper_status": "ONE_LEG_CURRENT_REFERENCE_FINAL_HOLD_CANDIDATE_RESET_CONFIRMED_DUAL_BUS_PRE_POST",
+      "runner_status": "BOUNDED_POSE_CANDIDATE_HOLD_RESET_CONFIRMED",
+      "nominal_total_diagnostic_s": 5,
+      "nominal_final_hold_s": 1,
+      "motor_enable_sent": true,
+      "motion_gain_sent": true,
+      "settled_effective_profiles": {
+        "4": "legacy-rms-v1",
+        "5": "position-v2",
+        "6": "position-v2"
+      },
+      "settled_window": {
+        "4": {
+          "sample_count": 21,
+          "errors": [],
+          "warnings": [],
+          "span_s": 2.000031759999956,
+          "maximum_gap_s": 0.10361567299992203,
+          "position_range_rad": 0.0003836118104842967,
+          "OLS_slope_rad_s": 7.490296580125678e-05,
+          "velocity_RMS_rad_s": 0.03942851452816652,
+          "max_abs_velocity_rad_s": 0.09079118028534339
+        },
+        "5": {
+          "sample_count": 21,
+          "errors": [],
+          "warnings": [
+            "velocity_RMS_rad_s exceeds legacy .05; position-v2 uses stricter position, tail and signed-mean gates"
+          ],
+          "span_s": 2.000031759999956,
+          "maximum_gap_s": 0.10361567299992203,
+          "position_range_rad": 0.0003836118104842967,
+          "OLS_slope_rad_s": 1.997079229258363e-05,
+          "velocity_RMS_rad_s": 0.050399065594441336,
+          "max_abs_velocity_rad_s": 0.13351644159609322,
+          "velocity_mean_rad_s": 0.003378783419982767,
+          "tail_span_s": 0.4999797039999976,
+          "tail_position_range_rad": 0.0003836118104842967,
+          "tail_OLS_slope_rad_s": 0.0003287440761761233
+        },
+        "6": {
+          "sample_count": 21,
+          "errors": [],
+          "warnings": [],
+          "span_s": 2.0002082599999085,
+          "maximum_gap_s": 0.10340506800002913,
+          "position_range_rad": 0.0003836118104878494,
+          "OLS_slope_rad_s": 5.480937998391445e-05,
+          "velocity_RMS_rad_s": 0.04235155857566757,
+          "max_abs_velocity_rad_s": 0.07400625619897738,
+          "velocity_mean_rad_s": -0.0027974873477276674,
+          "tail_span_s": 0.5001041739999437,
+          "tail_position_range_rad": 0.0003836118104878494,
+          "tail_OLS_slope_rad_s": 5.1308382479687954e-08
+        }
+      }
+    },
+    "RR": {
+      "wrapper_status": "ONE_LEG_CURRENT_REFERENCE_FINAL_HOLD_CANDIDATE_RESET_CONFIRMED_DUAL_BUS_PRE_POST",
+      "runner_status": "BOUNDED_POSE_CANDIDATE_HOLD_RESET_CONFIRMED",
+      "outcome": "FINAL_HOLD_CANDIDATE_PASSED_AND_RESET_CONFIRMED",
+      "private_record_sha256": {
+        "summary.json": "0313a995544df5cba6718030a902367615a85edf09ec777f2adfe4582eb0dccb",
+        "events.jsonl": "188f3d91e8ae657816dc6d163920141c5bc7540c2291ad9e56996f005f763ab7"
+      },
+      "errors": [],
+      "motion_completed": true,
+      "hold_candidate_met": true,
+      "stop_confirmed": true,
+      "typed_tx_counts_all_phases": {
+        "0": 27,
+        "17": 747,
+        "4": 6,
+        "1": 369,
+        "18": 3,
+        "3": 3
+      },
+      "typed_tx_counts_trial_only": {
+        "0": 3,
+        "4": 6,
+        "17": 27,
+        "1": 369,
+        "18": 3,
+        "3": 3
+      },
+      "enable_count_by_id": {
+        "7": 1,
+        "8": 1,
+        "9": 1
+      },
+      "nonzero_gain_Type1_count_by_id": {
+        "7": 100,
+        "8": 100,
+        "9": 100
+      },
+      "raw_TX_and_Type2_feedback_independently_redecoded": true,
+      "settled_window": {
+        "passed": true,
+        "motors": {
+          "7": {
+            "profile": "legacy-rms-v1",
+            "samples": 21,
+            "passed": true,
+            "errors": [],
+            "position_range_deg": 0.021979337712122585,
+            "velocity_RMS_rad_s": 0.04755573061839835,
+            "velocity_mean_rad_s": -0.004032741501269754
+          },
+          "8": {
+            "profile": "position-v2",
+            "samples": 21,
+            "passed": true,
+            "errors": [],
+            "position_range_deg": 0.0,
+            "velocity_RMS_rad_s": 0.048330464969523416,
+            "velocity_mean_rad_s": -0.02110831362376331
+          },
+          "9": {
+            "profile": "legacy-rms-v1",
+            "samples": 21,
+            "passed": true,
+            "errors": [],
+            "position_range_deg": 0.021979337711919032,
+            "velocity_RMS_rad_s": 0.040230235225037755,
+            "velocity_mean_rad_s": 0.0067212358354495905
+          }
+        }
+      },
+      "final_stop": {
+        "7": {
+          "confirmed": true,
+          "mode": 0,
+          "fault": 0,
+          "matched_fresh_raw_reply": true
+        },
+        "8": {
+          "confirmed": true,
+          "mode": 0,
+          "fault": 0,
+          "matched_fresh_raw_reply": true
+        },
+        "9": {
+          "confirmed": true,
+          "mode": 0,
+          "fault": 0,
+          "matched_fresh_raw_reply": true
+        }
+      },
+      "dual_bus_all12_captures": {
+        "before": {
+          "status": "COMPLETE_DUAL_BUS_QUIET_CAPTURE",
+          "sweeps": 10,
+          "tx_count": 492,
+          "all_identities_matched": true,
+          "all_serial_contexts_closed": true
+        },
+        "after": {
+          "status": "COMPLETE_DUAL_BUS_QUIET_CAPTURE",
+          "sweeps": 5,
+          "tx_count": 252,
+          "all_identities_matched": true,
+          "all_serial_contexts_closed": true
+        }
+      },
+      "final_hold": {
+        "executed": true,
+        "nominal_interval_s": 1,
+        "five_second_continuous_hold_proven": false,
+        "metrics_independently_recomputed_from_raw_Type2": true,
+        "motors": {
+          "7": {
+            "samples": 20,
+            "observed_span_s": 0.949948334,
+            "maximum_source_gap_ms": 50.209446,
+            "max_abs_target_error_deg": 0.016982598160684072,
+            "final_target_error_deg": -0.016982598160684072
+          },
+          "8": {
+            "samples": 20,
+            "observed_span_s": 0.949948334,
+            "maximum_source_gap_ms": 50.209446,
+            "max_abs_target_error_deg": 0.11900880142826947,
+            "final_target_error_deg": 0.11900880142826947
+          },
+          "9": {
+            "samples": 20,
+            "observed_span_s": 0.950027473,
+            "maximum_source_gap_ms": 50.39515,
+            "max_abs_target_error_deg": 0.07518312182156099,
+            "final_target_error_deg": -0.07518312182156099
+          }
+        },
+        "maximum_request_to_receive_ms": 16.123522,
+        "all_samples_mode": 2,
+        "all_samples_fault": 0
+      },
+      "serial_closed": true,
+      "locks_released": true,
+      "events_flushed": true,
+      "operator_confirmation": {
+        "source": "explicit_user_followup",
+        "statement": "右後脚も異常なし",
+        "abnormality_reported": false
+      }
+    }
+  },
+  "unchanged": {
+    "Kp": 3,
+    "Kd": 0.15,
+    "nominal_feedforward_torque_Nm": 0,
+    "cycle_s": 0.05,
+    "ramp_s": 4,
+    "nominal_final_hold_s": 1,
+    "matched_start_max_deg": 0.5,
+    "active_center_drift_guard_deg": 7,
+    "final_hold_error_guard_deg": 1,
+    "stop_after_trial": true,
+    "automatic_retry": false
+  },
+  "constraints": [
+    "Exact raw target equals fixed quiet before-capture reference for all3 selected joints",
+    "Evidence SHA, UID, boot, manual source files and firmware capture pinned",
+    "No relative jog, model target, increased gains, other reviewed IDs or learning authorization",
+    "New whole21 Type2 window and unchanged mode/fault/temperature/freshness/instantaneous speed guards required",
+    "Existing current-hold scope does not prove load-bearing standing or physical cutoff time"
+  ],
+  "not_performed": {
+    "whole_body_standing": true,
+    "load_bearing_stance_test": true,
+    "learned_model_target_transmission": true
+  },
+  "physical_angle_calibration_verified": false,
+  "automatic_next_action_authorized": false,
+  "preparation_history": {
+    "r2": {
+      "status": "PREPARED_AND_DEPLOYED_NOT_EXECUTED",
+      "hardware_motion_executed_with_this_revision": false,
+      "operator_hands_off_pending_at_preparation": true,
+      "wrapper_sha256": "6f0b604706f573bf0eb2b4b74f51d292524361d711263065f23136c4057a652d",
+      "manifest_sha256": "121beeb95a92eac935c45fafb5a350e7fe5df38ac6fae402bf69f7c6b4c5e74c",
+      "manifest_file_count": 40,
+      "tests_local_and_jetson": {
+        "wrapper": 36,
+        "runtime": 180
+      },
+      "fresh_version_probe": {
+        "ids": [
+          6,
+          8
+        ],
+        "version_bytes": [
+          0,
+          5,
+          0,
+          13
+        ],
+        "mode": 0,
+        "fault": 0,
+        "same_boot_as_manual_recording": true,
+        "summary_sha256": "8bae48a3f4509dd5ff2929df13cd6c914af87c545d5b42bec34ef93a2a0380a9"
+      },
+      "python_cache_excluded_from_transfer": true,
+      "superseded_after_boot_change": true
+    }
+  },
+  "privacy": {
+    "raw_logs_published": false,
+    "motor_UIDs_published": false,
+    "public_data": "Aggregate results and SHA256 references only"
+  },
+  "r3_execution_history": {
+    "active_package_revision": "r3",
+    "source_sha256": {
+      "rs05_leg_trial.py": "7c97df48c18f52d628ee6c6ae8cd74938973fdd36dba64e45ce5c3169a389cfe",
+      "current_hold_review.py": "6d61b76ea75502378511bb410eb0fad64eca1a1da8d746abf640703bc469f96e"
+    },
+    "wrapper_sha256": "3117f16093613a6fb65b84bca7bcf2dd40dd95013a1a9ffc43a688449098468a",
+    "manifest_sha256": "36dde7be6883c8ffd40d695ea8cce4da8f0c591ec83237ddbfb63466fc9c7a8e",
+    "manifest_file_count": 40,
+    "tests": {
+      "r3_wrapper": {
+        "local_passed": 36,
+        "jetson_passed": 36
+      },
+      "runtime": {
+        "revision_tested": "r2",
+        "local_passed": 180,
+        "jetson_passed": 180,
+        "repeated_on_r3": false,
+        "r2_r3_runtime_11_files_byte_identical": true,
+        "interpretation": "Prior passing checks on identical runtime sources; not a new r3 runtime test run"
+      }
+    },
+    "reviewed_ids": [
+      6,
+      8
+    ],
+    "stationarity": {
+      "FL": {
+        "4": "legacy-rms-v1",
+        "5": "legacy-rms-v1",
+        "6": "position-v2"
+      },
+      "RR": {
+        "7": "legacy-rms-v1",
+        "8": "position-v2",
+        "9": "legacy-rms-v1"
+      },
+      "r4_change": "FL ID5 and ID6 use existing position-v2 gates only after both complete pinned reviews validate. ID4 remains legacy-rms-v1. RR unchanged."
+    },
+    "trials": {
+      "FL": {
+        "status": "RAW_WIRE_HOLD_AND_STOP_AUDIT_PASS",
+        "tx_types": {
+          "0": 27,
+          "17": 747,
+          "4": 6,
+          "1": 369,
+          "18": 3,
+          "3": 3
+        },
+        "raw_frames_verified": 1155,
+        "enabled_ids": {
+          "4": 1,
+          "5": 1,
+          "6": 1
+        },
+        "nonzero_gain_counts": {
+          "4": 100,
+          "5": 100,
+          "6": 100
+        },
+        "hold": {
+          "4": {
+            "samples": 20,
+            "observed_span_s": 0.95017391,
+            "maximum_gap_ms": 50.166259,
+            "max_abs_target_error_deg": 0.33822040038803336,
+            "final_error_deg": 0.33822040038803336
+          },
+          "5": {
+            "samples": 20,
+            "observed_span_s": 0.95017391,
+            "maximum_gap_ms": 50.166259,
+            "max_abs_target_error_deg": 0.18190176819112747,
+            "final_error_deg": -0.18190176819112747
+          },
+          "6": {
+            "samples": 20,
+            "observed_span_s": 0.950548152,
+            "maximum_gap_ms": 50.518357,
+            "max_abs_target_error_deg": 0.08994233091495368,
+            "final_error_deg": -0.08994233091495368
+          }
+        },
+        "all_selected_stop_confirmed": true,
+        "output_allowed": false,
+        "physical_standing_verified": false,
+        "operator_observation": "User explicitly confirmed 左前脚も異常なし",
+        "source_sha256": {
+          "events.jsonl": "f862022aa05605fec2bd5cd73ae5191486d91fa021de9db441f22fbc64a24bbd",
+          "summary.json": "30328956ece657745294b992f23de9fd32bea2630662dee5783d0320449e591d"
+        },
+        "elapsed_s": 14.851232400000072,
+        "wrapper_status": "ONE_LEG_CURRENT_REFERENCE_FINAL_HOLD_CANDIDATE_RESET_CONFIRMED_DUAL_BUS_PRE_POST",
+        "runner_status": "BOUNDED_POSE_CANDIDATE_HOLD_RESET_CONFIRMED",
+        "nominal_total_diagnostic_s": 5,
+        "nominal_final_hold_s": 1,
+        "motor_enable_sent": true,
+        "motion_gain_sent": true,
+        "settled_effective_profiles": {
+          "4": "legacy-rms-v1",
+          "5": "position-v2",
+          "6": "position-v2"
+        },
+        "settled_window": {
+          "4": {
+            "sample_count": 21,
+            "errors": [],
+            "warnings": [],
+            "span_s": 2.000031759999956,
+            "maximum_gap_s": 0.10361567299992203,
+            "position_range_rad": 0.0003836118104842967,
+            "OLS_slope_rad_s": 7.490296580125678e-05,
+            "velocity_RMS_rad_s": 0.03942851452816652,
+            "max_abs_velocity_rad_s": 0.09079118028534339
+          },
+          "5": {
+            "sample_count": 21,
+            "errors": [],
+            "warnings": [
+              "velocity_RMS_rad_s exceeds legacy .05; position-v2 uses stricter position, tail and signed-mean gates"
+            ],
+            "span_s": 2.000031759999956,
+            "maximum_gap_s": 0.10361567299992203,
+            "position_range_rad": 0.0003836118104842967,
+            "OLS_slope_rad_s": 1.997079229258363e-05,
+            "velocity_RMS_rad_s": 0.050399065594441336,
+            "max_abs_velocity_rad_s": 0.13351644159609322,
+            "velocity_mean_rad_s": 0.003378783419982767,
+            "tail_span_s": 0.4999797039999976,
+            "tail_position_range_rad": 0.0003836118104842967,
+            "tail_OLS_slope_rad_s": 0.0003287440761761233
+          },
+          "6": {
+            "sample_count": 21,
+            "errors": [],
+            "warnings": [],
+            "span_s": 2.0002082599999085,
+            "maximum_gap_s": 0.10340506800002913,
+            "position_range_rad": 0.0003836118104878494,
+            "OLS_slope_rad_s": 5.480937998391445e-05,
+            "velocity_RMS_rad_s": 0.04235155857566757,
+            "max_abs_velocity_rad_s": 0.07400625619897738,
+            "velocity_mean_rad_s": -0.0027974873477276674,
+            "tail_span_s": 0.5001041739999437,
+            "tail_position_range_rad": 0.0003836118104878494,
+            "tail_OLS_slope_rad_s": 5.1308382479687954e-08
+          }
+        }
+      },
+      "RR": {
+        "wrapper_status": "ONE_LEG_CURRENT_REFERENCE_FINAL_HOLD_CANDIDATE_RESET_CONFIRMED_DUAL_BUS_PRE_POST",
+        "runner_status": "BOUNDED_POSE_CANDIDATE_HOLD_RESET_CONFIRMED",
+        "outcome": "FINAL_HOLD_CANDIDATE_PASSED_AND_RESET_CONFIRMED",
+        "private_record_sha256": {
+          "summary.json": "0313a995544df5cba6718030a902367615a85edf09ec777f2adfe4582eb0dccb",
+          "events.jsonl": "188f3d91e8ae657816dc6d163920141c5bc7540c2291ad9e56996f005f763ab7"
+        },
+        "errors": [],
+        "motion_completed": true,
+        "hold_candidate_met": true,
+        "stop_confirmed": true,
+        "typed_tx_counts_all_phases": {
+          "0": 27,
+          "17": 747,
+          "4": 6,
+          "1": 369,
+          "18": 3,
+          "3": 3
+        },
+        "typed_tx_counts_trial_only": {
+          "0": 3,
+          "4": 6,
+          "17": 27,
+          "1": 369,
+          "18": 3,
+          "3": 3
+        },
+        "enable_count_by_id": {
+          "7": 1,
+          "8": 1,
+          "9": 1
+        },
+        "nonzero_gain_Type1_count_by_id": {
+          "7": 100,
+          "8": 100,
+          "9": 100
+        },
+        "raw_TX_and_Type2_feedback_independently_redecoded": true,
+        "settled_window": {
+          "passed": true,
+          "motors": {
+            "7": {
+              "profile": "legacy-rms-v1",
+              "samples": 21,
+              "passed": true,
+              "errors": [],
+              "position_range_deg": 0.021979337712122585,
+              "velocity_RMS_rad_s": 0.04755573061839835,
+              "velocity_mean_rad_s": -0.004032741501269754
+            },
+            "8": {
+              "profile": "position-v2",
+              "samples": 21,
+              "passed": true,
+              "errors": [],
+              "position_range_deg": 0.0,
+              "velocity_RMS_rad_s": 0.048330464969523416,
+              "velocity_mean_rad_s": -0.02110831362376331
+            },
+            "9": {
+              "profile": "legacy-rms-v1",
+              "samples": 21,
+              "passed": true,
+              "errors": [],
+              "position_range_deg": 0.021979337711919032,
+              "velocity_RMS_rad_s": 0.040230235225037755,
+              "velocity_mean_rad_s": 0.0067212358354495905
+            }
+          }
+        },
+        "final_stop": {
+          "7": {
+            "confirmed": true,
+            "mode": 0,
+            "fault": 0,
+            "matched_fresh_raw_reply": true
+          },
+          "8": {
+            "confirmed": true,
+            "mode": 0,
+            "fault": 0,
+            "matched_fresh_raw_reply": true
+          },
+          "9": {
+            "confirmed": true,
+            "mode": 0,
+            "fault": 0,
+            "matched_fresh_raw_reply": true
+          }
+        },
+        "dual_bus_all12_captures": {
+          "before": {
+            "status": "COMPLETE_DUAL_BUS_QUIET_CAPTURE",
+            "sweeps": 10,
+            "tx_count": 492,
+            "all_identities_matched": true,
+            "all_serial_contexts_closed": true
+          },
+          "after": {
+            "status": "COMPLETE_DUAL_BUS_QUIET_CAPTURE",
+            "sweeps": 5,
+            "tx_count": 252,
+            "all_identities_matched": true,
+            "all_serial_contexts_closed": true
+          }
+        },
+        "final_hold": {
+          "executed": true,
+          "nominal_interval_s": 1,
+          "five_second_continuous_hold_proven": false,
+          "metrics_independently_recomputed_from_raw_Type2": true,
+          "motors": {
+            "7": {
+              "samples": 20,
+              "observed_span_s": 0.949948334,
+              "maximum_source_gap_ms": 50.209446,
+              "max_abs_target_error_deg": 0.016982598160684072,
+              "final_target_error_deg": -0.016982598160684072
+            },
+            "8": {
+              "samples": 20,
+              "observed_span_s": 0.949948334,
+              "maximum_source_gap_ms": 50.209446,
+              "max_abs_target_error_deg": 0.11900880142826947,
+              "final_target_error_deg": 0.11900880142826947
+            },
+            "9": {
+              "samples": 20,
+              "observed_span_s": 0.950027473,
+              "maximum_source_gap_ms": 50.39515,
+              "max_abs_target_error_deg": 0.07518312182156099,
+              "final_target_error_deg": -0.07518312182156099
+            }
+          },
+          "maximum_request_to_receive_ms": 16.123522,
+          "all_samples_mode": 2,
+          "all_samples_fault": 0
+        },
+        "serial_closed": true,
+        "locks_released": true,
+        "events_flushed": true,
+        "operator_confirmation": {
+          "source": "explicit_user_followup",
+          "statement": "右後脚も異常なし",
+          "abnormality_reported": false
+        }
+      }
+    }
+  },
+  "manual_ID5_review": {
+    "source_sha256": {
+      "events.jsonl": "4c4bd09ec4f1ea281424af579f037f23447a9257e5de4308fedbdc6127e490ef",
+      "summary.json": "40d825c89128206b8fade1074405a4f9a9d852a348705c86405e298dbad9e8b5"
+    },
+    "audit_sha256": "01dc1c760e5ea9a1c7508e80d7ae3dcf4c4d277473cd039d5bd853c480f28367",
+    "position_span_deg": 124.89825984220053,
+    "position_velocity_correlation": 0.9970840242998464,
+    "samples": 700,
+    "physical_large_movement_user_confirmed": true,
+    "before_window_proxy_pass": {
+      "legacy": 30,
+      "position_v2": 50,
+      "total_overlapping_windows": 50
+    },
+    "released_window_proxy_pass": {
+      "legacy": 49,
+      "position_v2": 45,
+      "total_overlapping_windows": 50
+    },
+    "not_independent_physical_angle_measurement": true
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "schema": "singularitydog.stance-current-verification.v1",
+  "date": "2026-09-26",
+  "boot_id": "1743e35c-3b44-4fa6-88a9-855b5b62e214",
+  "initial_no_motion_capture": {
+    "source_on_jetson": "/home/jetson/singularitydog-logs/current-verification-1743-r1",
+    "local_copy": "/private/tmp/fabo-postboot-20260925/current-verification-1743-r1",
+    "source_status": "PREFLIGHT_COMPLETE",
+    "front": {
+      "ids": [1, 2, 3, 4, 5, 6],
+      "status": "PREFLIGHT_COMPLETE",
+      "identities_verified": true,
+      "port_closed": true
+    },
+    "rear": {
+      "ids": [7, 8, 9, 10, 11, 12],
+      "status": "PREFLIGHT_COMPLETE",
+      "identities_verified": true,
+      "port_closed": true
+    },
+    "motor_enabling_available": false,
+    "motion_command_available": false,
+    "common_locks_released": true,
+    "coordinator_errors": [],
+    "files_sha256": {
+      "summary.json": "cf9c9ed67f3de0b4ab162d12679c7008ce8a16c9ff81f490834738efd2b61e52",
+      "front-tx.json": "877c352e72e9cfc92227772b342a83f312d29f0ed17e615c8662a5c540f69773",
+      "front-raw.jsonl": "f333119a663d5df520978e7d7a5c38a9d99829744ae86fac9b03e91e0fd97341",
+      "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rear-tx.json": "f46d45eb455f13123a083885de84fced9eef8d3bf6fa8cabff6cc7d7c3ac144d",
+      "rear-raw.jsonl": "8cdd16559946ac67b041b4caad9c2fe2e00f850309e035cd1a6666d788779567",
+      "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "hold_package_stop_first_audit": {
+    "passed": false,
+    "reason": "The older no-motion probe sent STOP per ID; the current hold-package builder requires all-axis STOP first.",
+    "capture_accepted_as_hold_package_source": false,
+    "superseded_by": "/home/jetson/singularitydog-logs/current-verification-1743-r2"
+  },
+  "stop_first_no_motion_capture": {
+    "source_on_jetson": "/home/jetson/singularitydog-logs/current-verification-1743-r2",
+    "local_copy": "/private/tmp/fabo-postboot-20260925/current-verification-1743-r2",
+    "source_status": "PREFLIGHT_COMPLETE",
+    "front": {
+      "ids": [1, 2, 3, 4, 5, 6],
+      "status": "PREFLIGHT_COMPLETE",
+      "identities_verified": true,
+      "port_closed": true
+    },
+    "rear": {
+      "ids": [7, 8, 9, 10, 11, 12],
+      "status": "PREFLIGHT_COMPLETE",
+      "identities_verified": true,
+      "port_closed": true
+    },
+    "motor_enabling_available": false,
+    "motion_command_available": false,
+    "common_locks_released": true,
+    "coordinator_errors": [],
+    "accepted_as_disabled_hold_package_source": true,
+    "files_sha256": {
+      "summary.json": "9d8dc4c50151d12086779420438d6ea854de4433b6fb9e82dbddb384820433dc",
+      "front-tx.json": "084ae9c1bb51d87b450390739da913a80ec47ef39eeaf8aa9e1bf7d924d95357",
+      "front-raw.jsonl": "214b7614ab016d3f80dea78204f01749caaa77cdd3c9ce197883b6994645802b",
+      "front-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rear-tx.json": "45ed732684d90e978a8f61ac7f8b7e00e9bc65d3d609358c72adb091afe665af",
+      "rear-raw.jsonl": "457ef9b735809882d0a626e6cdcddb748f2b41f080fbebede6b291c198c8557a",
+      "rear-samples.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "disabled_hold_package": {
+    "local_package": "/private/tmp/fabo-postboot-20260925/fullbody-disabled-1743-r2",
+    "files_transferred_to_jetson": 140,
+    "files_with_matching_sha256_after_transfer": 140,
+    "manifest_sha256": "102f16f4b2c5994fa33a168dc683e2162954dca637a5ad7be2616e57874be6cf",
+    "review_sha256": "ee7b8867a8559643c9cf412ea2a3c2cdb69209a8c35787028f9c5efac854bcb8",
+    "review_supported_hold_authorized": false,
+    "jetson_preflight_log": "/home/jetson/singularitydog-logs/fullbody-disabled-1743-r2",
+    "local_preflight_log": "/private/tmp/fabo-postboot-20260925/fullbody-disabled-log-1743-r2",
+    "preflight_status": "PREFLIGHT_PASSED_RESET_CONFIRMED",
+    "errors": [],
+    "motor_enable_sent": false,
+    "motion_gain_sent": false,
+    "summary_sha256": "e38cc6fd5935584868cb06d9711642b1697088487376bfd8a8073d9b08e3f3ed"
+  },
+  "packet_gate_fix": {
+    "status": "LOCAL_TESTS_PASSED",
+    "full_suite_command": "PYTHONPATH=runtime python3 -B -m unittest discover -s runtime/tests",
+    "full_suite_run": 1195,
+    "full_suite_skipped": 1,
+    "full_suite_failures": 0,
+    "active_hardware_retest_on_this_boot": false
+  },
+  "active_hold_on_this_boot": {
+    "source_on_jetson": "/home/jetson/singularitydog-logs/current-hold-1743-r1",
+    "local_copy": "/private/tmp/fabo-postboot-20260925/current-hold-1743-r1",
+    "summary_sha256": "9e47db8c8a1f66bcfdec5090e86a21bf04191398b5cac879dbf708561fb324cb",
+    "status": "CURRENT_HOLD_COMPLETED_RESET_CONFIRMED",
+    "gain_profile": "id4-id10-kp4",
+    "cycles_by_bus": {"front": 100, "rear": 100},
+    "motion_completed": true,
+    "all_12_stop_confirmed": true,
+    "front_and_rear_ports_closed": true,
+    "locks_released": true,
+    "operator_observation": "no physical anomaly reported",
+    "standing_or_load_transfer_proven": false
+  },
+  "front_hip_10_degree_disabled_package": {
+    "local_package": "/private/tmp/fabo-postboot-20260925/front-hip-kp12-step10-disabled-1743-r1",
+    "files_transferred_to_jetson": 146,
+    "files_with_matching_sha256_after_transfer": 146,
+    "manifest_sha256": "eff32ebf616de6671961683bfb1d84fa377a5e6a80f19e3fb6a0e3b31fd351dc",
+    "step2_review_sha256": "6d5450212e35ee28b46b4fa91e104df46796d6243f2f279e28be84276e4a72ca",
+    "review_supported_step_authorized": false,
+    "jetson_preflight_log": "/home/jetson/singularitydog-logs/front-hip-kp12-step10-disabled-1743-r1",
+    "preflight_status": "PREFLIGHT_PASSED_RESET_CONFIRMED",
+    "motor_enable_sent": false,
+    "motion_gain_sent": false,
+    "preflight_summary_sha256": "51b7fad1a323715a15a29042d19b84b3426c99ab11a53eaa4dbeebea336ba3d5"
+  },
+  "front_hip_10_degree_active_on_this_boot": {
+    "attempted": true,
+    "source_on_jetson": "/home/jetson/singularitydog-logs/front-hip-kp12-step10-1743-r1",
+    "local_copy": "/private/tmp/front-hip-kp12-step10-1743-r1",
+    "summary_sha256": "f8ec95e0f8ec711e7bc0bcfd130f22e7c5ed7b7f0672bea1031aa53f82783214",
+    "events_sha256": "18b43fb58fdc6616dfe823621c85578406fb99b334657d108fa246e2878e9c24",
+    "wrapper_status": "INCOMPLETE",
+    "trajectory_status": "ABORTED",
+    "front_abort_reason": "Stale feedback",
+    "rear_abort_reason": "Peer or parent requested all-bus abort",
+    "motor_enable_sent": true,
+    "motion_gain_sent": true,
+    "first_tick_active_frames_by_bus": {"front": 4, "rear": 4},
+    "completed_ticks_by_bus": {"front": 0, "rear": 0},
+    "id7_feedback_age_ms_at_first_active_tx": 82.3,
+    "id7_feedback_age_ms_by_fourth_rear_tx": 100.2,
+    "minimum_tx_spacing_ms": 5.0,
+    "all_12_stop_confirmed": true,
+    "front_and_rear_ports_closed": true,
+    "locks_released": true,
+    "operator_observation": "no visible motion, anomaly, or contact reported",
+    "trajectory_completed": false,
+    "target_reached": false,
+    "first_tick_freshness_fix_status": "LOCAL_TESTS_PASSED_HARDWARE_RETEST_PENDING",
+    "first_tick_freshness_limit_ms": 125,
+    "regular_freshness_limit_ms": 100
+  },
+  "standing_completed": false,
+  "walking_completed": false
+}

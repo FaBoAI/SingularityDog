@@ -1,0 +1,213 @@
+{
+  "schema": "singularitydog.rs05-firmware-update-attempt.v1",
+  "date": "2026-09-25",
+  "status": "START_TIMEOUT_RECOVERED_BASELINE_UNCHANGED",
+  "target_model": "RS05",
+  "target_version": "0.5.0.13",
+  "update_completed": false,
+  "target_version_verified": false,
+  "attempted_motor_ids": [
+    1
+  ],
+  "firmware": {
+    "bytes": 93584,
+    "sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+    "data_packets_planned": 11698
+  },
+  "package": {
+    "revision": "r2",
+    "manifest_sha256": "ee3b3a298ccbec688eb865268671f75b9898e91a501da33690bf023c343e8c2a",
+    "files_verified": 59
+  },
+  "preupdate": {
+    "motor_count": 12,
+    "version_bytes": [
+      0,
+      5,
+      0,
+      9
+    ],
+    "backup_complete": true,
+    "backup_requests": 96,
+    "parameters_per_motor": 7,
+    "full_nvm_backup": false,
+    "external_calibration_candidate_archived": true,
+    "calibration_promoted": false
+  },
+  "ota": {
+    "start_host_write_attempts": 1,
+    "start_host_write_returned_bytes": 17,
+    "start_can_type": 11,
+    "acknowledgement_received": false,
+    "ack_deadline_seconds": 2,
+    "transfer_elapsed_seconds": 2.102346631,
+    "received_bytes": 0,
+    "info_frames_sent": 0,
+    "data_frames_sent": 0,
+    "firmware_body_bytes_sent": 0,
+    "end_frames_sent": 0,
+    "bootloader_entry_attempted": true,
+    "bootloader_entry_confirmed": false,
+    "automatic_retry": false,
+    "automatic_cleanup_transmissions_after_ota": false,
+    "port_closed": true,
+    "locks_released": true
+  },
+  "recovery": {
+    "operator_confirmed_40v_power_cycle": true,
+    "jetson_same_boot": true,
+    "single_id_then_all12": true,
+    "identity_count_verified": 12,
+    "stop_replies_verified": 12,
+    "versions_by_id": {
+      "1": {
+        "version_bytes": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "mode_state": 0,
+        "fault_bits": 0
+      },
+      "2": {
+        "version_bytes": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "mode_state": 0,
+        "fault_bits": 0
+      },
+      "3": {
+        "version_bytes": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "mode_state": 0,
+        "fault_bits": 0
+      },
+      "4": {
+        "version_bytes": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "mode_state": 0,
+        "fault_bits": 0
+      },
+      "5": {
+        "version_bytes": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "mode_state": 0,
+        "fault_bits": 0
+      },
+      "6": {
+        "version_bytes": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "mode_state": 0,
+        "fault_bits": 0
+      },
+      "7": {
+        "version_bytes": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "mode_state": 0,
+        "fault_bits": 0
+      },
+      "8": {
+        "version_bytes": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "mode_state": 0,
+        "fault_bits": 0
+      },
+      "9": {
+        "version_bytes": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "mode_state": 0,
+        "fault_bits": 0
+      },
+      "10": {
+        "version_bytes": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "mode_state": 0,
+        "fault_bits": 0
+      },
+      "11": {
+        "version_bytes": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "mode_state": 0,
+        "fault_bits": 0
+      },
+      "12": {
+        "version_bytes": [
+          0,
+          5,
+          0,
+          9
+        ],
+        "mode_state": 0,
+        "fault_bits": 0
+      }
+    },
+    "initial_and_final_quiet_observed": true,
+    "all_ports_closed": true,
+    "locks_released": true,
+    "all_settings_or_zero_preservation_verified": false
+  },
+  "validation": {
+    "local_full_suite_before_final_wrapper_edit": 921,
+    "affected_wrapper_tests_after_edit": 9,
+    "jetson_r2_tests": 200,
+    "independent_capture_audit_files": 31,
+    "independent_source_hash_matches": 282,
+    "independent_start_uid_and_at_encoding_match": true
+  },
+  "private_capture_summary_sha256": {
+    "firmware-20260925-r2-before-all12": "31e765940f2741708aaebf82352521cceecdbb1472e22fd600b21c31ab965da6",
+    "firmware-20260925-r2-backup-all12": "dd1fba692169316639406c0a84255a486b915449f7896b8cdcc38f94e18fc026",
+    "firmware-20260925-r2-id01": "75abd71f98eeb9d15339befa2551e1a468c8c5784f0c22ae23cafd3e25d7805f",
+    "firmware-20260925-r2-after-powercycle-id01": "d02802bcca19846d8949976aae844bb65c884f89a8458813b60afb2842248e86",
+    "firmware-20260925-r2-after-powercycle-all12": "9c0900a3aa8c85688b071934dff79d91af8b5cfbc556561713863aedfd70e9ba"
+  },
+  "limitations": [
+    "Host write completion is not CAN wire delivery confirmation.",
+    "No cause of the missing START acknowledgement has been established.",
+    "No firmware-body data was sent; version 0.5.0.13 remains unverified.",
+    "Post-recovery checks do not prove preservation of all motor NVM settings or zero offsets.",
+    "No actuator enabling or motion command was sent.",
+    "No manufacturer message has been sent."
+  ],
+  "next_requirement": "Establish the RS05 baseline bootloader START requirements and a supported OTA transport before another firmware attempt."
+}

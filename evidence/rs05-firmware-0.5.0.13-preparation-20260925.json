@@ -1,0 +1,133 @@
+{
+  "schema": "singularitydog.rs05-firmware-update-preparation.v1",
+  "prepared_date": "2026-09-25",
+  "status": "ASSET_VERIFIED_UPDATE_PATH_UNVERIFIED",
+  "status_scope": "Historical preparation snapshot; status, flashed and flash_attempts describe preparation only. Latest hardware results are referenced separately below.",
+  "target_model": "RS05",
+  "baseline": {
+    "firmware_version": "0.5.0.9",
+    "motor_count": 12,
+    "source": "docs/hardware-active-reporting-20260925.md",
+    "source_run": "r5 version inventory",
+    "new_hardware_probe_in_this_preparation": false,
+    "latest_reconfirmation": {
+      "source": "evidence/hardware-stop-guard-20260925.json",
+      "run": "r7 final all12 preflight",
+      "summary_sha256": "817bfff4b21deac91b2f9dcb397c423b7c5ac6977bf5401ee77dc5ce8764f1b5",
+      "version_bytes": [
+        0,
+        5,
+        0,
+        9
+      ],
+      "motor_count": 12,
+      "bootloader_entered": false
+    }
+  },
+  "target_version": "0.5.0.13",
+  "flashed": false,
+  "flash_attempts": 0,
+  "bootloader_entered_in_this_preparation": false,
+  "hardware_communication_in_this_preparation": false,
+  "manufacturer_questions_sent": false,
+  "firmware_asset": {
+    "release_tag": "V26.04.07",
+    "release_published_at": "2026-04-09T10:14:03Z",
+    "release_url": "https://github.com/RobStride/Product_Information/releases/tag/V26.04.07",
+    "url": "https://github.com/RobStride/Product_Information/releases/download/V26.04.07/rs05_0.5.0.13.bin",
+    "filename": "rs05_0.5.0.13.bin",
+    "bytes": 93584,
+    "sha256": "3a4dfc1e9ad0ff2116b7b876c1fced3b8d23cf705e5d6366e5a286bac3989047",
+    "locally_recomputed_sha256_matches": true,
+    "private_manifest_matches": true,
+    "github_digest_matches": true,
+    "included_in_public_repository": false
+  },
+  "sources": {
+    "release_notes": "https://github.com/RobStride/Product_Information/releases/download/V26.04.07/update.pdf",
+    "ota_commit": "6ad12f50006273b7ea4eea88980f927d97c22f0d",
+    "ota_python": {
+      "url": "https://github.com/RobStride/Product_Information/blob/6ad12f50006273b7ea4eea88980f927d97c22f0d/OTA/OTA.py",
+      "sha256": "fc43f55afeb1fc754f42a856ad3512ea89eef22be91c9ce99e7d0304de450233",
+      "transport": "python-can SocketCAN can0 at 1000000 bit/s",
+      "ch340_at_serial_supported_by_this_source": false,
+      "executed": false
+    },
+    "ota_pdf_with_qt_reference": {
+      "url": "https://github.com/RobStride/Product_Information/blob/6ad12f50006273b7ea4eea88980f927d97c22f0d/OTA/OTA%20Agreement%20Description%20-%20EN_20251114102200.pdf",
+      "sha256": "55efa6fdeb1392c23275c710d6bc726389251f57c2d8703c93ab06dbc8b75d12"
+    },
+    "rs05_manual": "https://github.com/RobStride/Product_Information/blob/0f4ad74fdb67023e75bbcbeebecd6f1a003ce000/Product%20Literature/RS05/RS05User%20Manual260713.pdf",
+    "motorstudio_linux": {
+      "release_url": "https://github.com/RobStride/MotorStudio/releases/tag/v1%2C0%2C1",
+      "asset_url": "https://github.com/RobStride/MotorStudio/releases/download/v1%2C0%2C1/motor_tool.AppImage",
+      "elf_machine": 62,
+      "architecture": "x86_64",
+      "native_jetson_arm64": false,
+      "executed": false
+    }
+  },
+  "unresolved_scope": "Issues recorded at preparation time. Subsequent r5 CH340 transfer succeeded on all 12 motors; this historical list is not the current hardware status or proof that all protocol and NVM questions are resolved.",
+  "unresolved": [
+    {
+      "topic": "failure_status",
+      "pdf_and_qt": "0x0F",
+      "python": "0xF0"
+    },
+    {
+      "topic": "type13_data_acknowledgement",
+      "pdf_table": "Type11",
+      "python": "Type13"
+    },
+    {
+      "topic": "packet_index_width",
+      "pdf_table": "bit15..8",
+      "qt_and_python": "16-bit index"
+    },
+    {
+      "topic": "target_identity_validation",
+      "finding": "Official Python UID discovery does not compare source motor ID or previously recorded UID."
+    },
+    {
+      "topic": "current_transport",
+      "finding": "No verified CH340 AT serial updater for the current ARM64 host; SocketCAN reference and x86-64 GUI require additional conditions."
+    },
+    {
+      "topic": "recovery_and_isolation",
+      "finding": "Bootloader retransmission rules, bounded recovery, other devices on the same bus, and parameter preservation require confirmation."
+    }
+  ],
+  "before_after_comparison_plan": [
+    "Verify exact target CAN ID and privately recorded UID before entering bootloader.",
+    "Save firmware, addressing, bitrate, mode, zero/offset/angle convention, communication timeout, limits, and reporting configuration; retain unread items as unknown.",
+    "After a verified update procedure, compare identity, version 0.5.0.13, STOP mode/fault, parameters, and angle continuity, including the specified restart procedure.",
+    "Do not bulk-restore an old parameter table, factory-reset, or automatically run magnetic/cogging calibration.",
+    "Compare reporting ON/OFF and STOP/quiet behavior in the same single/three/six-motor conditions before expanding scope."
+  ],
+  "limitations": [
+    "Asset verification is not a firmware update or validated flashing route.",
+    "The published active-reporting fix does not prove resolution of the observed OFF failures.",
+    "No motor UID, private IP, private filesystem path, or raw hardware log is published here."
+  ],
+  "record_scope": "Historical asset-preparation snapshot before the subsequent ID1 OTA START attempt.",
+  "subsequent_hardware_attempt": "evidence/rs05-firmware-update-attempt-20260925.json",
+  "latest_hardware_status": "ALL12_RS05_0_5_0_13_VERIFIED_STOPPED",
+  "latest_success_report": "docs/rs05-firmware-update-success-20260925.md",
+  "latest_success_evidence": "evidence/rs05-firmware-update-success-20260925.json",
+  "latest_hardware_result": {
+    "firmware_version": "0.5.0.13",
+    "motor_count": 12,
+    "uid_match_count": 12,
+    "stop_mode0_fault0_count": 12,
+    "known_settings_compared": [
+      "run_mode",
+      "can_timeout",
+      "zero_state"
+    ],
+    "known_settings_match_all12": true,
+    "final_max_abs_position_delta_deg_rounded": 0.008524,
+    "full_nvm_preservation_verified": false,
+    "active_reporting_regression_verified": false,
+    "full_pipeline_20ms_verified": false
+  }
+}

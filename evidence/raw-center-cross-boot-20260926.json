@@ -1,0 +1,142 @@
+{
+  "schema": "singularitydog.raw-center-cross-boot-audit.v1",
+  "status": "OFFLINE_COMPARISON_ONLY",
+  "old_boot_id": "ac5c430a-15f2-486c-97f5-1e301a10a960",
+  "current_boot_id": "c4802c8c-0261-4f5e-b324-bdb5bf2063bf",
+  "old_source": "evidence/stand10-geometry-20260926.json",
+  "current_source": "evidence/fullbody-hold-20260926.json",
+  "angle_wrapping_applied": false,
+  "model_calibration_verified": false,
+  "motor_output_allowed": false,
+  "rows": [
+    {
+      "id": 1,
+      "leg": "FR",
+      "joint": "calf",
+      "old_boot_raw_rad": 5.839172,
+      "current_boot_hold_center_raw_rad": 5.839531,
+      "raw_difference_deg": 0.021,
+      "difference_plus_2pi_deg": 360.021,
+      "near_negative_full_turn": false
+    },
+    {
+      "id": 2,
+      "leg": "FR",
+      "joint": "thigh",
+      "old_boot_raw_rad": 4.533754,
+      "current_boot_hold_center_raw_rad": 4.534483,
+      "raw_difference_deg": 0.042,
+      "difference_plus_2pi_deg": 360.042,
+      "near_negative_full_turn": false
+    },
+    {
+      "id": 3,
+      "leg": "FR",
+      "joint": "hip",
+      "old_boot_raw_rad": 5.51194,
+      "current_boot_hold_center_raw_rad": 5.511159,
+      "raw_difference_deg": -0.045,
+      "difference_plus_2pi_deg": 359.955,
+      "near_negative_full_turn": false
+    },
+    {
+      "id": 4,
+      "leg": "FL",
+      "joint": "calf",
+      "old_boot_raw_rad": 5.470472,
+      "current_boot_hold_center_raw_rad": 5.22767,
+      "raw_difference_deg": -13.912,
+      "difference_plus_2pi_deg": 346.088,
+      "near_negative_full_turn": false
+    },
+    {
+      "id": 5,
+      "leg": "FL",
+      "joint": "thigh",
+      "old_boot_raw_rad": 3.404843,
+      "current_boot_hold_center_raw_rad": 3.483003,
+      "raw_difference_deg": 4.478,
+      "difference_plus_2pi_deg": 364.478,
+      "near_negative_full_turn": false
+    },
+    {
+      "id": 6,
+      "leg": "FL",
+      "joint": "hip",
+      "old_boot_raw_rad": 5.553209,
+      "current_boot_hold_center_raw_rad": 5.552589,
+      "raw_difference_deg": -0.036,
+      "difference_plus_2pi_deg": 359.964,
+      "near_negative_full_turn": false
+    },
+    {
+      "id": 7,
+      "leg": "RR",
+      "joint": "calf",
+      "old_boot_raw_rad": 4.653257,
+      "current_boot_hold_center_raw_rad": 4.657623,
+      "raw_difference_deg": 0.25,
+      "difference_plus_2pi_deg": 360.25,
+      "near_negative_full_turn": false
+    },
+    {
+      "id": 8,
+      "leg": "RR",
+      "joint": "thigh",
+      "old_boot_raw_rad": 6.567615,
+      "current_boot_hold_center_raw_rad": 0.283297,
+      "raw_difference_deg": -360.065,
+      "difference_plus_2pi_deg": -0.065,
+      "near_negative_full_turn": true
+    },
+    {
+      "id": 9,
+      "leg": "RR",
+      "joint": "hip",
+      "old_boot_raw_rad": 6.40531,
+      "current_boot_hold_center_raw_rad": 0.123331,
+      "raw_difference_deg": -359.931,
+      "difference_plus_2pi_deg": 0.069,
+      "near_negative_full_turn": true
+    },
+    {
+      "id": 10,
+      "leg": "RL",
+      "joint": "calf",
+      "old_boot_raw_rad": 3.848065,
+      "current_boot_hold_center_raw_rad": 3.846667,
+      "raw_difference_deg": -0.08,
+      "difference_plus_2pi_deg": 359.92,
+      "near_negative_full_turn": false
+    },
+    {
+      "id": 11,
+      "leg": "RL",
+      "joint": "thigh",
+      "old_boot_raw_rad": 0.603745,
+      "current_boot_hold_center_raw_rad": 0.527274,
+      "raw_difference_deg": -4.381,
+      "difference_plus_2pi_deg": 355.619,
+      "near_negative_full_turn": false
+    },
+    {
+      "id": 12,
+      "leg": "RL",
+      "joint": "hip",
+      "old_boot_raw_rad": 1.017177,
+      "current_boot_hold_center_raw_rad": 1.012927,
+      "raw_difference_deg": -0.243,
+      "difference_plus_2pi_deg": 359.757,
+      "near_negative_full_turn": false
+    }
+  ],
+  "near_negative_full_turn_ids": [
+    8,
+    9
+  ],
+  "findings": [
+    "ID8 and ID9 current reported raw angles differ from old raw angles by approximately -2pi. This is a numeric comparison, not proof of physical pose continuity or a calibration offset.",
+    "Several other IDs moved between boots, particularly ID4, ID5 and ID11. The old starting targets must not be reused.",
+    "No model angles or stand-path clearance can be certified from this comparison."
+  ]
+}

@@ -1,0 +1,378 @@
+{
+  "status": "OFFLINE_GEOMETRY_ONLY",
+  "boot_id": "ac5c430a-15f2-486c-97f5-1e301a10a960",
+  "current_read_status": "READ_ONLY_COMPLETE",
+  "current_read_only": true,
+  "motor_enable_sent": false,
+  "source_sha256": {
+    "postboot-r14-summary.json": "fd056609205758574815a722a5b6c436f0b2f2890c3c04be47e13a9aca07f73c",
+    "path.json": "9364b98312d984f46921fcb5bf559ca95a01d4e156c3ea73f582879496e317c1",
+    "fabo_robotdog_d17_hardware_r1.urdf": "ba77462679268455d547848e76925dcc1f75a9b497fe4814c92ac1e7492496c8"
+  },
+  "joint_rows": [
+    {
+      "id": 1,
+      "leg": "FR",
+      "joint": "calf",
+      "urdf_joint": "FR_calf_joint",
+      "start_raw_rad": 5.83917236328125,
+      "target_raw_rad": 6.013705288480683,
+      "raw_step_deg": 10.0,
+      "r13_to_r14_start_change_deg": 0.0014432815487368078,
+      "start_model_deg": -71.39552092736906,
+      "end_model_deg": -61.39552092736908,
+      "model_limits_deg": [
+        -126.05071492878112,
+        -4.583662361046586
+      ],
+      "end_model_in_range": true,
+      "end_model_violation_deg": 0.0,
+      "remaining_to_nominal_raw_deg": 17.424358651047754,
+      "raw_protocol_range_pass": true,
+      "crosses_raw_2pi": false
+    },
+    {
+      "id": 2,
+      "leg": "FR",
+      "joint": "thigh",
+      "urdf_joint": "FR_thigh_joint",
+      "start_raw_rad": 4.533753871917725,
+      "target_raw_rad": 4.708286797117157,
+      "raw_step_deg": 10.0,
+      "r13_to_r14_start_change_deg": 0.0021594621735889015,
+      "start_model_deg": 0.6718720482758143,
+      "end_model_deg": 10.671872048275803,
+      "model_limits_deg": [
+        -51.56620156177409,
+        68.75493541569878
+      ],
+      "end_model_in_range": true,
+      "end_model_violation_deg": 0.0,
+      "remaining_to_nominal_raw_deg": 11.31370908988486,
+      "raw_protocol_range_pass": true,
+      "crosses_raw_2pi": false
+    },
+    {
+      "id": 3,
+      "leg": "FR",
+      "joint": "hip",
+      "urdf_joint": "FR_hip_joint",
+      "start_raw_rad": 5.511939525604248,
+      "target_raw_rad": 5.686472450803681,
+      "raw_step_deg": 10.0,
+      "r13_to_r14_start_change_deg": 0.04471650836563067,
+      "start_model_deg": 41.74521462214749,
+      "end_model_deg": 31.745214622147504,
+      "model_limits_deg": [
+        -28.64788975654116,
+        28.64788975654116
+      ],
+      "end_model_in_range": false,
+      "end_model_violation_deg": 3.097324865606342,
+      "remaining_to_nominal_raw_deg": 15.701035894644065,
+      "raw_protocol_range_pass": true,
+      "crosses_raw_2pi": false
+    },
+    {
+      "id": 4,
+      "leg": "FL",
+      "joint": "calf",
+      "urdf_joint": "FL_calf_joint",
+      "start_raw_rad": 5.47047233581543,
+      "target_raw_rad": 5.295939410615997,
+      "raw_step_deg": -10.0,
+      "r13_to_r14_start_change_deg": -2.02346772683315,
+      "start_model_deg": -65.05041179221062,
+      "end_model_deg": -55.05041179221063,
+      "model_limits_deg": [
+        -126.05071492878112,
+        -4.583662361046586
+      ],
+      "end_model_in_range": true,
+      "end_model_violation_deg": 0.0,
+      "remaining_to_nominal_raw_deg": -11.079249515889307,
+      "raw_protocol_range_pass": true,
+      "crosses_raw_2pi": false
+    },
+    {
+      "id": 5,
+      "leg": "FL",
+      "joint": "thigh",
+      "urdf_joint": "FL_thigh_joint",
+      "start_raw_rad": 3.404843330383301,
+      "target_raw_rad": 3.230310405183868,
+      "raw_step_deg": -10.0,
+      "r13_to_r14_start_change_deg": 0.0055408709723787095,
+      "start_model_deg": 4.748948567639825,
+      "end_model_deg": 14.748948567639815,
+      "model_limits_deg": [
+        -51.56620156177409,
+        68.75493541569878
+      ],
+      "end_model_in_range": true,
+      "end_model_violation_deg": 0.0,
+      "remaining_to_nominal_raw_deg": -7.2366325705208485,
+      "raw_protocol_range_pass": true,
+      "crosses_raw_2pi": false
+    },
+    {
+      "id": 6,
+      "leg": "FL",
+      "joint": "hip",
+      "urdf_joint": "FL_hip_joint",
+      "start_raw_rad": 5.553208827972412,
+      "target_raw_rad": 5.378675902772979,
+      "raw_step_deg": -10.0,
+      "r13_to_r14_start_change_deg": 0.013525546897668833,
+      "start_model_deg": -32.6839851408851,
+      "end_model_deg": -22.683985140885106,
+      "model_limits_deg": [
+        -28.64788975654116,
+        28.64788975654116
+      ],
+      "end_model_in_range": true,
+      "end_model_violation_deg": 0.0,
+      "remaining_to_nominal_raw_deg": -6.639806413381669,
+      "raw_protocol_range_pass": true,
+      "crosses_raw_2pi": false
+    },
+    {
+      "id": 7,
+      "leg": "RR",
+      "joint": "calf",
+      "urdf_joint": "RR_calf_joint",
+      "start_raw_rad": 4.653256893157959,
+      "target_raw_rad": 4.827789818357392,
+      "raw_step_deg": 10.0,
+      "r13_to_r14_start_change_deg": -0.008375147856772486,
+      "start_model_deg": -87.2781969365066,
+      "end_model_deg": -77.2781969365066,
+      "model_limits_deg": [
+        -126.05071492878112,
+        -4.583662361046586
+      ],
+      "end_model_in_range": true,
+      "end_model_violation_deg": 0.0,
+      "remaining_to_nominal_raw_deg": 33.30703466018528,
+      "raw_protocol_range_pass": true,
+      "crosses_raw_2pi": false
+    },
+    {
+      "id": 8,
+      "leg": "RR",
+      "joint": "thigh",
+      "urdf_joint": "RR_thigh_joint",
+      "start_raw_rad": 6.567615032196045,
+      "target_raw_rad": 6.742147957395478,
+      "raw_step_deg": 10.0,
+      "r13_to_r14_start_change_deg": 0.021350850149944575,
+      "start_model_deg": 11.712135181171066,
+      "end_model_deg": 21.712135181171053,
+      "model_limits_deg": [
+        -51.56620156177409,
+        68.75493541569878
+      ],
+      "end_model_in_range": true,
+      "end_model_violation_deg": 0.0,
+      "remaining_to_nominal_raw_deg": 0.27344595698960944,
+      "raw_protocol_range_pass": true,
+      "crosses_raw_2pi": false
+    },
+    {
+      "id": 9,
+      "leg": "RR",
+      "joint": "hip",
+      "urdf_joint": "RR_hip_joint",
+      "start_raw_rad": 6.405310153961182,
+      "target_raw_rad": 6.230777228761749,
+      "raw_step_deg": -10.0,
+      "r13_to_r14_start_change_deg": -0.06869116574545775,
+      "start_model_deg": 46.7861674371837,
+      "end_model_deg": 36.786167437183714,
+      "model_limits_deg": [
+        -28.64788975654116,
+        28.64788975654116
+      ],
+      "end_model_in_range": false,
+      "end_model_violation_deg": 8.138277680642553,
+      "remaining_to_nominal_raw_deg": -20.741988709680275,
+      "raw_protocol_range_pass": true,
+      "crosses_raw_2pi": true
+    },
+    {
+      "id": 10,
+      "leg": "RL",
+      "joint": "calf",
+      "urdf_joint": "RL_calf_joint",
+      "start_raw_rad": 3.8480653762817383,
+      "target_raw_rad": 4.022598301481171,
+      "raw_step_deg": 10.0,
+      "r13_to_r14_start_change_deg": 0.05811710611822071,
+      "start_model_deg": -115.83696638475743,
+      "end_model_deg": -105.83696638475745,
+      "model_limits_deg": [
+        -126.05071492878112,
+        -4.583662361046586
+      ],
+      "end_model_in_range": true,
+      "end_model_violation_deg": 0.0,
+      "remaining_to_nominal_raw_deg": 61.865804108436116,
+      "raw_protocol_range_pass": true,
+      "crosses_raw_2pi": false
+    },
+    {
+      "id": 11,
+      "leg": "RL",
+      "joint": "thigh",
+      "urdf_joint": "RL_thigh_joint",
+      "start_raw_rad": 0.6037445068359375,
+      "target_raw_rad": 0.4292115816365045,
+      "raw_step_deg": -10.0,
+      "r13_to_r14_start_change_deg": 0.007524256003233352,
+      "start_model_deg": -0.0028413586947253046,
+      "end_model_deg": 9.997158641305276,
+      "model_limits_deg": [
+        -51.56620156177409,
+        68.75493541569878
+      ],
+      "end_model_in_range": true,
+      "end_model_violation_deg": 0.0,
+      "remaining_to_nominal_raw_deg": -11.988422496855387,
+      "raw_protocol_range_pass": true,
+      "crosses_raw_2pi": false
+    },
+    {
+      "id": 12,
+      "leg": "RL",
+      "joint": "hip",
+      "urdf_joint": "RL_hip_joint",
+      "start_raw_rad": 1.017176628112793,
+      "target_raw_rad": 1.191709553312226,
+      "raw_step_deg": 10.0,
+      "r13_to_r14_start_change_deg": -0.04224480870118182,
+      "start_model_deg": -30.228723379562272,
+      "end_model_deg": -20.228723379562272,
+      "model_limits_deg": [
+        -28.64788975654116,
+        28.64788975654116
+      ],
+      "end_model_in_range": true,
+      "end_model_violation_deg": 0.0,
+      "remaining_to_nominal_raw_deg": 4.184544652058833,
+      "raw_protocol_range_pass": true,
+      "crosses_raw_2pi": false
+    }
+  ],
+  "foot_centers": {
+    "FR": {
+      "start_body_mm": [
+        266.8653416738145,
+        -51.481983683013766,
+        -161.69709029562028
+      ],
+      "end_displacement_mm": [
+        -41.1952574195365,
+        -10.928562105750654,
+        -36.860924453012814
+      ],
+      "sampled_displacement_range_mm": [
+        [
+          -41.1952574195365,
+          -10.928562105750654,
+          -36.860924453012814
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "FL": {
+      "start_body_mm": [
+        249.30250971838547,
+        67.18361414163272,
+        -185.25179998482866
+      ],
+      "end_displacement_mm": [
+        -47.23550318503011,
+        21.818936461181035,
+        -30.938028402839933
+      ],
+      "sampled_displacement_range_mm": [
+        [
+          -47.23550318503011,
+          0.0,
+          -30.938028402839933
+        ],
+        [
+          0.0,
+          21.818936461181035,
+          0.0
+        ]
+      ]
+    },
+    "RR": {
+      "start_body_mm": [
+        -63.14708064472718,
+        -46.38703789670185,
+        -147.58063961454636
+      ],
+      "end_displacement_mm": [
+        -37.272699421436215,
+        -7.474093728177866,
+        -34.3745432305119
+      ],
+      "sampled_displacement_range_mm": [
+        [
+          -37.272699421436215,
+          -7.474093728177866,
+          -34.3745432305119
+        ],
+        [
+          0.0,
+          0.01575074316979841,
+          0.0
+        ]
+      ]
+    },
+    "RL": {
+      "start_body_mm": [
+        -46.992109161523324,
+        131.2150629601279,
+        -90.7129232614792
+      ],
+      "end_displacement_mm": [
+        -9.462580748660299,
+        2.1969017304006577,
+        -30.848390467652365
+      ],
+      "sampled_displacement_range_mm": [
+        [
+          -9.462580748660299,
+          -0.5036574225116552,
+          -30.848390467652365
+        ],
+        [
+          0.0,
+          2.1969017304006577,
+          0.0
+        ]
+      ]
+    }
+  },
+  "all_raw_protocol_range_pass": true,
+  "end_model_outside_ids": [
+    3,
+    9
+  ],
+  "raw_2pi_crossings": [
+    9
+  ],
+  "limitations": [
+    "Start positions are read-only values from one prior capture, not an execution-time snapshot.",
+    "Manual calibration offsets and nominal-stand target are candidates; absolute accuracy is unmeasured.",
+    "URDF FK samples foot centers only; link swept volumes, support, cables, self-collision, motor torque and dynamics are not certified.",
+    "No motor commands sent or runtime guard changed."
+  ]
+}

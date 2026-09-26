@@ -6,9 +6,60 @@ This is not the motor's sampling timestamp. The caller exclusively owns the
 serial object and closes it; this class neither transmits nor closes the fd.
 """
 import errno
+from dataclasses import dataclass
 import os
 import select
 import time
+
+
+@dataclass(frozen=True)
+class ReceivedChunk:
+    """Rejected receive evidence, never a successful read or parsed reply.
+
+    read_started_ns is the clock immediately before os.read, not the caller's
+    broader select/read interval. None means no valid completion clock could
+    be obtained; callers must keep that record outside timestamped RX streams.
+    """
+
+    data: bytes
+    read_started_ns: int
+    received_ns: int | None
+
+    def record(self):
+        return {"read_started_ns": self.read_started_ns,
+                "received_ns": self.received_ns, "hex": self.data.hex()}
+
+
+def record_failed_read(error, *, report, raw_log, raw_bytes, read_started_ns,
+                       max_raw_bytes, max_raw_chunks):
+    """Retain one failed read in a bounded probe log, without parsing it.
+
+    Call only from the read_until exception handler, then re-raise that error.
+    Missing timestamps use a separate diagnostic list. Storage failures and
+    exhausted budgets are recorded, and never replace the original exception.
+    The byte count includes rejected and unlogged bytes as well as normal RX.
+    """
+    evidence = getattr(error, "serial_read_evidence", None)
+    if not isinstance(evidence, ReceivedChunk):
+        return raw_bytes
+    raw_bytes += len(evidence.data)
+    report["rejected_receive_chunks"] = report.get("rejected_receive_chunks", 0) + 1
+    report["rejected_receive_bytes"] = report.get("rejected_receive_bytes", 0) + len(evidence.data)
+    other = report.get("unclocked_receive_evidence", [])
+    if raw_bytes > max_raw_bytes or len(raw_log) + len(other) >= max_raw_chunks:
+        report["raw_log_overflow"] = True
+        report["unlogged_receive_bytes"] = report.get("unlogged_receive_bytes", 0) + len(evidence.data)
+        return raw_bytes
+    try:
+        if evidence.received_ns is None:
+            report.setdefault("unclocked_receive_evidence", []).append(evidence.record())
+        else:
+            raw_log.append((read_started_ns, evidence.received_ns, evidence.data))
+    except BaseException as storage_error:
+        report["receive_evidence_storage_failed"] = True
+        report["receive_evidence_storage_error_type"] = type(storage_error).__name__
+        report["unlogged_receive_bytes"] = report.get("unlogged_receive_bytes", 0) + len(evidence.data)
+    return raw_bytes
 
 
 class DeadlineSerialReader:
@@ -19,6 +70,11 @@ class DeadlineSerialReader:
     Setup sets PySerial's timeout to zero once and requires a nonblocking fd.
     Do not change that fd/configuration or share its reads during this lifetime.
     Counters measure host elapsed time, including syscall scheduling delays.
+    A post-read exception keeps its original type/identity and carries immutable
+    ``serial_read_evidence``. ``last_failed_read`` also retains the latest such
+    chunk (at most4096 bytes); use the exception attribute for per-call logging,
+    since cleanup reads can replace the diagnostic slot. Normal reads are not
+    duplicated there. This class never turns rejected bytes into successful RX.
     """
 
     CHUNK_SIZE = 4096
@@ -27,6 +83,7 @@ class DeadlineSerialReader:
     def __init__(self, raw_serial, *, clock=time.monotonic_ns, check=lambda: None):
         self.raw_serial, self.clock, self.check = raw_serial, clock, check
         self._last_now = None
+        self.last_failed_read = None
         self._stats = {name: 0 for name in (
             "read_until_calls", "select_calls", "select_wait_ns", "read_calls",
             "read_wall_ns", "bytes_received", "select_eintr", "read_eintr",
@@ -84,6 +141,18 @@ class DeadlineSerialReader:
         from causing an unbounded retry loop. Received bytes at/after the hard
         deadline are rejected, even if the OS read itself succeeded.
         """
+        self._failed_read_for_call = None
+        try:
+            return self._read_until(wait_deadline_ns, hard_deadline_ns)
+        except BaseException as error:
+            # Guards may reuse an exception instance during cleanup. Its old
+            # chunk must not be mistaken for new bytes on a pre-read failure.
+            if (self._failed_read_for_call is None
+                    and isinstance(getattr(error, "serial_read_evidence", None), ReceivedChunk)):
+                BaseException.__delattr__(error, "serial_read_evidence")
+            raise
+
+    def _read_until(self, wait_deadline_ns, hard_deadline_ns):
         wake = self._validate_ns(wait_deadline_ns, "wait_deadline_ns")
         hard = self._validate_ns(hard_deadline_ns, "hard_deadline_ns")
         self._stats["read_until_calls"] += 1
@@ -150,11 +219,24 @@ class DeadlineSerialReader:
                     raise RuntimeError("Too many transient serial reads") from exc
                 continue
             # Capture immediately after os.read, before counters or callbacks.
-            received_ns = self._now()
-            self._stats["read_wall_ns"] += received_ns - started
-            self._stats["bytes_received"] += len(chunk)
-            self._guard(hard)
-            if not chunk:
-                self._stats["eof_events"] += 1
-                raise EOFError("Serial peer closed or returned EOF")
+            received_ns = None
+            try:
+                received_ns = self._now()
+                self._stats["read_wall_ns"] += received_ns - started
+                self._stats["bytes_received"] += len(chunk)
+                self._guard(hard)
+                if not chunk:
+                    self._stats["eof_events"] += 1
+                    raise EOFError("Serial peer closed or returned EOF")
+            except BaseException as error:
+                if chunk:
+                    if received_ns is None:
+                        self._stats["bytes_received"] += len(chunk)
+                    evidence = ReceivedChunk(bytes(chunk), started, received_ns)
+                    self.last_failed_read = evidence
+                    self._failed_read_for_call = evidence
+                    # Bypass custom exception __setattr__ without changing the
+                    # original cancellation/deadline exception or its traceback.
+                    BaseException.__setattr__(error, "serial_read_evidence", evidence)
+                raise
             return chunk, received_ns

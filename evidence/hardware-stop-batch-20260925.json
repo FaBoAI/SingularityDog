@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-25",
+  "scope": "STOP-only single pass, each group waits for all of its replies; not the prior window4 pipeline",
+  "enable_or_motion_sent": false,
+  "full_pipeline_20ms_verified": false,
+  "runs": [
+    {
+      "group_size": 1,
+      "status": "COMPLETE_STOP_BATCH_EXPERIMENT",
+      "write_groups": [
+        [
+          1
+        ],
+        [
+          2
+        ],
+        [
+          3
+        ],
+        [
+          4
+        ],
+        [
+          5
+        ],
+        [
+          6
+        ]
+      ],
+      "complete_uart_writes": true,
+      "reply_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "host_write_span_ms": 35.183453,
+      "last_observed_reply_ms": 38.62423,
+      "last_all6_reply_ms": 38.62423,
+      "failure": null,
+      "quiet_observed": true,
+      "port_closed": true,
+      "locks_released": true,
+      "summary_sha256": "49f86cb5134efb8d4dd20c72a3218b24bc82be20b1d90d580ece5a2c49421368"
+    },
+    {
+      "group_size": 2,
+      "status": "COMPLETE_STOP_BATCH_EXPERIMENT",
+      "write_groups": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "complete_uart_writes": true,
+      "reply_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "host_write_span_ms": 16.990865,
+      "last_observed_reply_ms": 21.714804,
+      "last_all6_reply_ms": 21.714804,
+      "failure": null,
+      "quiet_observed": true,
+      "port_closed": true,
+      "locks_released": true,
+      "summary_sha256": "aa8a376109ec0c2f823c183b90d5e3410595c7c151a7c3cfe03bdb07c02c12a9"
+    },
+    {
+      "group_size": 3,
+      "status": "INCOMPLETE",
+      "write_groups": [
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "complete_uart_writes": true,
+      "reply_ids": [
+        1,
+        2
+      ],
+      "host_write_span_ms": 0.088708,
+      "last_observed_reply_ms": 4.855784,
+      "last_all6_reply_ms": null,
+      "failure": "TimeoutError('Missing STOP feedback before group deadline')",
+      "quiet_observed": false,
+      "port_closed": true,
+      "locks_released": true,
+      "summary_sha256": "6cf4e729eff66f51aaafffa77167bedde04fd7462b4709988954623d45621b5a"
+    }
+  ],
+  "six_frame_condition_executed": false,
+  "both_buses_batch_condition_executed": false,
+  "postcheck": {
+    "status": "INCOMPLETE",
+    "failure_by_scope": {
+      "front": "TimeoutError('No unambiguous identity reply from ID1')",
+      "rear": "BrokenBarrierError()"
+    },
+    "ports_closed": true,
+    "locks_released": true
+  },
+  "recovery_state": "ALL12_REVERIFIED_AFTER_OPERATOR_USB_RECONNECT_AND_40V_POWER_CYCLE",
+  "tests": {
+    "local_runtime_passed": 844,
+    "jetson_r6_passed": 123
+  },
+  "recovery": {
+    "status": "PREFLIGHT_COMPLETE",
+    "all12_identity_verified": true,
+    "all12_stop_mode0_fault0": true,
+    "both_buses_final_quiet_100ms": true,
+    "ports_closed": true,
+    "locks_released": true,
+    "same_jetson_boot": true,
+    "summary_sha256": "bfc37b3413c35d0152c9dd2e72a95c9ba4a23fa08988fba991427e17f95f2a2c",
+    "settings_changed": false,
+    "enable_or_motion_sent": false,
+    "failure_cause_isolated": false
+  },
+  "rx_chunk_observations": [
+    {
+      "group_size": 2,
+      "first_chunk_bytes": 32,
+      "tail_chunk_bytes": 2,
+      "completion_gap_ms": 2.643487,
+      "next_read_entry_gap_ms": 1.377954,
+      "second_read_call_ms": 1.265533
+    },
+    {
+      "group_size": 2,
+      "first_chunk_bytes": 32,
+      "tail_chunk_bytes": 2,
+      "completion_gap_ms": 2.523481,
+      "next_read_entry_gap_ms": 1.28131,
+      "second_read_call_ms": 1.242171
+    },
+    {
+      "group_size": 2,
+      "first_chunk_bytes": 32,
+      "tail_chunk_bytes": 2,
+      "completion_gap_ms": 2.515577,
+      "next_read_entry_gap_ms": 1.273277,
+      "second_read_call_ms": 1.2423
+    },
+    {
+      "group_size": 3,
+      "first_chunk_bytes": 32,
+      "tail_chunk_bytes": 2,
+      "completion_gap_ms": 2.587132,
+      "next_read_entry_gap_ms": 1.337312,
+      "second_read_call_ms": 1.24982
+    }
+  ],
+  "usb_descriptor": {
+    "usb_id": "1a86:7523",
+    "driver": "ch341-uart",
+    "usb_speed_mbps": 12,
+    "bulk_in_endpoint": "0x82",
+    "bulk_out_endpoint": "0x02",
+    "bulk_max_packet_bytes": 32,
+    "both_adapters_on_same_hub": true,
+    "sha256": "684d8fbe03757e989685a6ab38f42926970b22af8d6a7baa6322ebb59ee5d51c"
+  },
+  "host_guard_cpu_replay": {
+    "samples_per_operation": 100,
+    "warmup_per_operation": 10,
+    "boot_read_median_ms": 0.060626,
+    "boot_read_max_ms": 0.124996,
+    "binding_check_median_ms": 0.0720185,
+    "binding_check_max_ms": 0.11466,
+    "serial_opened": false,
+    "isolated_run_not_cycle_timing": true
+  },
+  "guard_path_audit": {
+    "normal_no_retry_path": true,
+    "previous_receive_to_next_read_entry_checks": 4,
+    "next_read_entry_to_os_read_checks": 4,
+    "each_check_contains": [
+      "boot_read",
+      "binding_check"
+    ],
+    "isolated_median_times_four_ms": 0.530578,
+    "actual_in_cycle_guard_time_measured": false,
+    "source": "static review of frozen r6 call path"
+  }
+}

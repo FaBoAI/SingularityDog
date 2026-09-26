@@ -1,0 +1,793 @@
+{
+  "schema": "singularitydog.hardware_integrated_lean.v1",
+  "date": "2026-09-25",
+  "status": "INTEGRATED_STOP_PROXY_COMPLETE_20MS_NOT_REACHED",
+  "live_input_acquisition": true,
+  "actual_policy_inference": true,
+  "model_variant": "lean",
+  "frozen_model_used": false,
+  "learned_targets_sent": false,
+  "motion_command_sent": false,
+  "motor_enabling_available": false,
+  "output_allowed": false,
+  "approved_for_runtime": false,
+  "full_pipeline_20ms_verified": false,
+  "full_controller_50Hz_verified": false,
+  "completed_runs": 3,
+  "incomplete_runs_in_this_capture": 0,
+  "writes": 108,
+  "replies": 108,
+  "identity_replies": 36,
+  "stop_feedback_mode0_fault0": 72,
+  "allowed_can_types": [
+    0,
+    4
+  ],
+  "individual_write_bytes": 17,
+  "automatic_retry": false,
+  "configuration": {
+    "payload": "integrated-stop-proxy-r7",
+    "supervisor": "cpu-integrated-phase-r5",
+    "input_builder": "prepared",
+    "snapshot_ownership": "single-use-collector-handoff",
+    "pending_window_per_bus": 3,
+    "minimum_write_return_to_next_start_ms": 0.6,
+    "guard_sharing": "worker",
+    "boot_check_cadence": "phase",
+    "warmup_calls": 10,
+    "policy_model_sha256": "022fb1bb07661804cc6a5060c39d0c76ddd767efb70a3800155af53f1a31f639",
+    "baseline_native_model_sha256": "e87e9944aea8d7c6b8e32d144b8c6f4b37ac2c863c45353c9c228f8c9d0ea07f",
+    "native_library_sha256": "d8ed379d1d2fd01459df35f4063b682d6467129945504791445c65bc756d61bf",
+    "calibration_sha256": "8712f765f4760577a1a3d0612948d23269256cdf35438a72dec8a39529c4029e",
+    "calibration_and_native_library_changed": false
+  },
+  "scope_of_source_changes": {
+    "baseline_payload": "integrated-stop-proxy-r5",
+    "changed_runtime_files": [
+      "integrated.py",
+      "singularitydog_hw/policy_observer.py"
+    ],
+    "changes": [
+      "Select the existing fixed-hash non-frozen lean model.",
+      "Use single-use owned snapshot handoff instead of a second whole-snapshot copy.",
+      "Reduce minimum write gap from 0.8 ms to 0.6 ms while keeping pending cap 3."
+    ],
+    "other_runtime_bytes_identical": true,
+    "owned_observer_matches_reviewed_candidate_bytes": true,
+    "dynamic_validation_full_snapshot_digest_and_output_checks_retained": true
+  },
+  "provenance": {
+    "private_audit_sha256": "c493297f6d18a5edbd827e6cb23f808ea12b4aa42319dbca97ed3be1ad08c086",
+    "private_audit_script_sha256": "417f2a376de27fb7e09f4cc7906694880cd4d619f4e0a113e1129a2060651cf3",
+    "capture_index_sha256": "ff3f6795cc34754354ee933cb99781d424b07d28784ec387c2e7dab2338035e9",
+    "indexed_capture_files_verified": 29,
+    "payload_manifest_sha256": "eb676ded31bc7bc764712b63960e2a9fe0ad40be71d4bad9b7df8df7445eca71",
+    "supervisor_manifest_sha256": "dc6389a5350ae78d724bc3dd7746232332f32fb4b048a396b0a6ed63c2c168b7",
+    "validator_sha256": "7cbfc751dc005c95ff2d1a552fc4f509b44834f9be660f252ebf85e0dd19e8ac",
+    "integrated_source_sha256": "0982bc925c1233472c43f1a1e17323611dea9b83b953ddf12b2fdd4512981da1",
+    "observer_source_sha256": "9eddf99dbd1511ce337aeae785e27e40b1583de60c1670c7e4d2c73c39293e8a",
+    "source_status_files_are_preexecution_snapshots": true,
+    "completion_evidence": "Current captured reports, raw events, outer validations, and CPU restoration records"
+  },
+  "runs": [
+    {
+      "run": 1,
+      "status": "COMPLETE_INTEGRATED_STOP_PROXY",
+      "report_sha256": "c49a0fb9872071ec783bd736e981710ca95bf902843371f6a49f62dc3f577b74",
+      "outer_validation_sha256": "6d291f85ff5429cb9079ea37b47de58f91719dcff978e2747ed67fc6ee980dff",
+      "outer_provenance_sha256": "ff807484623b477820540125c9924e0b2b71d43df3c3e57c793a71b44b02475e",
+      "model_variant": "lean",
+      "snapshot_ownership": "single-use-collector-handoff",
+      "pacing": {
+        "pending_window": 3,
+        "min_gap_ms": 0.6
+      },
+      "metrics": {
+        "acquisition_ms": 8.580357,
+        "parallel_release_to_inputs_ms": 9.030193,
+        "input_coordination_ms": 0.250855,
+        "snapshot_build_ms": 1.686828,
+        "observer_consume_ms": 5.009126,
+        "observer_consume_thread_cpu_ms": 4.940896,
+        "inference_to_proxy_first_write_ms": 0.430987,
+        "proxy_write_span_ms": 5.329326,
+        "proxy_reply_span_ms": 8.16169,
+        "total_to_last_host_write_ms": 21.362041,
+        "total_to_last_reply_ms": 24.194405,
+        "release_to_last_host_write_ms": 21.811877,
+        "release_to_last_reply_ms": 24.644241,
+        "proxy_host_write_under20ms": false,
+        "proxy_reply_under20ms": false,
+        "timing_excludes_model_warmup_and_uid": true,
+        "timed_source_host_timestamps": true,
+        "host_write_is_not_can_wire_completion": true,
+        "sensor_internal_sample_times_verified": false,
+        "actual_learned_target_transport_measured": false
+      },
+      "relative_event_ns": {
+        "earliest_source_start_ns": 0,
+        "last_input_reply_or_read_ns": 8580357,
+        "first_proxy_write_ns": 16032715,
+        "last_proxy_write_return_ns": 21362041,
+        "last_proxy_reply_ns": 24194405
+      },
+      "relative_event_origin": "Earliest input acquisition start set to zero for publication; original timestamps preserved in hashed private report.",
+      "consume_section_durations_ns": {
+        "snapshot_handoff": 13792,
+        "source_validation": 156612,
+        "input_conversion": 82082,
+        "provenance_serialization": 468781,
+        "tensor_conversion": 211270,
+        "model_call": 3729539,
+        "output_conversion_validation": 239878,
+        "result_build": 24801
+      },
+      "consume_section_profile_total_ns": 4926755,
+      "model_call_ms": 3.729539,
+      "snapshot_handoff_ms": 0.013792,
+      "snapshot_canonical_json_sha256": "14806ffca0093010229deda42adcc1c2093c3a067d9fb2a2d3750b7b914aa2b2",
+      "workers": {
+        "front": {
+          "writes": 18,
+          "replies": 18,
+          "identity_replies": 6,
+          "stop_feedback_mode0_fault0": 12,
+          "raw_receive_bytes": 306,
+          "maximum_pending_recomputed": 3,
+          "minimum_write_return_to_next_start_ms": 0.733364,
+          "minimum_gap_violations": 0,
+          "residual_bytes": 0,
+          "device_closed": true,
+          "guard_closed": true,
+          "events_sha256": "c3b9a9f14a6a8398c474f391482c212e74c68a9789348225848d9b627c1de11a"
+        },
+        "rear": {
+          "writes": 18,
+          "replies": 18,
+          "identity_replies": 6,
+          "stop_feedback_mode0_fault0": 12,
+          "raw_receive_bytes": 306,
+          "maximum_pending_recomputed": 3,
+          "minimum_write_return_to_next_start_ms": 0.740468,
+          "minimum_gap_violations": 0,
+          "residual_bytes": 0,
+          "device_closed": true,
+          "guard_closed": true,
+          "events_sha256": "517098ddbc95af1340507cdf0cbec40d1909accdcfbf40c68442079c59a4df17"
+        }
+      },
+      "writes": 36,
+      "replies": 36,
+      "imu_restored": true,
+      "all_workers_joined": true,
+      "common_lock_released": true,
+      "raw_validation_passed": true
+    },
+    {
+      "run": 2,
+      "status": "COMPLETE_INTEGRATED_STOP_PROXY",
+      "report_sha256": "d170721c18a82cc50aced9113595fe6e1313ec3e9967b494594830ba087f1a00",
+      "outer_validation_sha256": "26f7545dc7ba4dfb6fbc081576b7ece7258febef575134aecf6067af9293187d",
+      "outer_provenance_sha256": "6d82abdfbd6723db5935ff7a2f73fe1a080df1a5b4a18307ca854c245f4b5386",
+      "model_variant": "lean",
+      "snapshot_ownership": "single-use-collector-handoff",
+      "pacing": {
+        "pending_window": 3,
+        "min_gap_ms": 0.6
+      },
+      "metrics": {
+        "acquisition_ms": 7.842481,
+        "parallel_release_to_inputs_ms": 8.235772,
+        "input_coordination_ms": 0.214789,
+        "snapshot_build_ms": 1.70539,
+        "observer_consume_ms": 7.256002,
+        "observer_consume_thread_cpu_ms": 6.217248,
+        "inference_to_proxy_first_write_ms": 0.40657,
+        "proxy_write_span_ms": 5.660855,
+        "proxy_reply_span_ms": 8.503459,
+        "total_to_last_host_write_ms": 23.192745,
+        "total_to_last_reply_ms": 26.035349,
+        "release_to_last_host_write_ms": 23.586036,
+        "release_to_last_reply_ms": 26.42864,
+        "proxy_host_write_under20ms": false,
+        "proxy_reply_under20ms": false,
+        "timing_excludes_model_warmup_and_uid": true,
+        "timed_source_host_timestamps": true,
+        "host_write_is_not_can_wire_completion": true,
+        "sensor_internal_sample_times_verified": false,
+        "actual_learned_target_transport_measured": false
+      },
+      "relative_event_ns": {
+        "earliest_source_start_ns": 0,
+        "last_input_reply_or_read_ns": 7842481,
+        "first_proxy_write_ns": 17531890,
+        "last_proxy_write_return_ns": 23192745,
+        "last_proxy_reply_ns": 26035349
+      },
+      "relative_event_origin": "Earliest input acquisition start set to zero for publication; original timestamps preserved in hashed private report.",
+      "consume_section_durations_ns": {
+        "snapshot_handoff": 13504,
+        "source_validation": 155780,
+        "input_conversion": 74658,
+        "provenance_serialization": 436652,
+        "tensor_conversion": 217958,
+        "model_call": 5992735,
+        "output_conversion_validation": 252999,
+        "result_build": 26081
+      },
+      "consume_section_profile_total_ns": 7170367,
+      "model_call_ms": 5.992735,
+      "snapshot_handoff_ms": 0.013504,
+      "snapshot_canonical_json_sha256": "88dc33c7b9805034c40ace2bd4e81f5e37e25df2f3ee92b1dc3c3318f228fcc7",
+      "workers": {
+        "front": {
+          "writes": 18,
+          "replies": 18,
+          "identity_replies": 6,
+          "stop_feedback_mode0_fault0": 12,
+          "raw_receive_bytes": 306,
+          "maximum_pending_recomputed": 3,
+          "minimum_write_return_to_next_start_ms": 0.731412,
+          "minimum_gap_violations": 0,
+          "residual_bytes": 0,
+          "device_closed": true,
+          "guard_closed": true,
+          "events_sha256": "66a79cf182b8dccaabe30825f4696c6a9f9d4652271ed7cd90fe8388b3b04623"
+        },
+        "rear": {
+          "writes": 18,
+          "replies": 18,
+          "identity_replies": 6,
+          "stop_feedback_mode0_fault0": 12,
+          "raw_receive_bytes": 306,
+          "maximum_pending_recomputed": 3,
+          "minimum_write_return_to_next_start_ms": 0.728915,
+          "minimum_gap_violations": 0,
+          "residual_bytes": 0,
+          "device_closed": true,
+          "guard_closed": true,
+          "events_sha256": "717d98b54e3cfbaef38c00a9d8967899e654023f957ad52c6534d6c67d34c2c6"
+        }
+      },
+      "writes": 36,
+      "replies": 36,
+      "imu_restored": true,
+      "all_workers_joined": true,
+      "common_lock_released": true,
+      "raw_validation_passed": true
+    },
+    {
+      "run": 3,
+      "status": "COMPLETE_INTEGRATED_STOP_PROXY",
+      "report_sha256": "c08c7230e467741426eff9a8c143afd6e07686096dce4a9b31319c082c3c21df",
+      "outer_validation_sha256": "00b64444db16fbe3ed03d3437087d891319704b00b85e186a993467a8a4739dc",
+      "outer_provenance_sha256": "baa68fdd0e79210de06500baaa14a705e3b760631c8419aa7d5b52c96fc766a6",
+      "model_variant": "lean",
+      "snapshot_ownership": "single-use-collector-handoff",
+      "pacing": {
+        "pending_window": 3,
+        "min_gap_ms": 0.6
+      },
+      "metrics": {
+        "acquisition_ms": 8.119608,
+        "parallel_release_to_inputs_ms": 8.575364,
+        "input_coordination_ms": 0.204326,
+        "snapshot_build_ms": 1.67166,
+        "observer_consume_ms": 6.547022,
+        "observer_consume_thread_cpu_ms": 6.298016,
+        "inference_to_proxy_first_write_ms": 0.42622,
+        "proxy_write_span_ms": 5.202826,
+        "proxy_reply_span_ms": 8.042294,
+        "total_to_last_host_write_ms": 22.283121,
+        "total_to_last_reply_ms": 25.122589,
+        "release_to_last_host_write_ms": 22.738877,
+        "release_to_last_reply_ms": 25.578345,
+        "proxy_host_write_under20ms": false,
+        "proxy_reply_under20ms": false,
+        "timing_excludes_model_warmup_and_uid": true,
+        "timed_source_host_timestamps": true,
+        "host_write_is_not_can_wire_completion": true,
+        "sensor_internal_sample_times_verified": false,
+        "actual_learned_target_transport_measured": false
+      },
+      "relative_event_ns": {
+        "earliest_source_start_ns": 0,
+        "last_input_reply_or_read_ns": 8119608,
+        "first_proxy_write_ns": 17080295,
+        "last_proxy_write_return_ns": 22283121,
+        "last_proxy_reply_ns": 25122589
+      },
+      "relative_event_origin": "Earliest input acquisition start set to zero for publication; original timestamps preserved in hashed private report.",
+      "consume_section_durations_ns": {
+        "snapshot_handoff": 13376,
+        "source_validation": 154820,
+        "input_conversion": 73794,
+        "provenance_serialization": 426283,
+        "tensor_conversion": 215558,
+        "model_call": 5302829,
+        "output_conversion_validation": 253255,
+        "result_build": 23424
+      },
+      "consume_section_profile_total_ns": 6463339,
+      "model_call_ms": 5.302829,
+      "snapshot_handoff_ms": 0.013376,
+      "snapshot_canonical_json_sha256": "116418fe021ffd6694759c5eb451d64efd6aa7786694db139097f9ceaeeb1ec3",
+      "workers": {
+        "front": {
+          "writes": 18,
+          "replies": 18,
+          "identity_replies": 6,
+          "stop_feedback_mode0_fault0": 12,
+          "raw_receive_bytes": 306,
+          "maximum_pending_recomputed": 3,
+          "minimum_write_return_to_next_start_ms": 0.732339,
+          "minimum_gap_violations": 0,
+          "residual_bytes": 0,
+          "device_closed": true,
+          "guard_closed": true,
+          "events_sha256": "83009c39dc14e26135543aff409033ee576c3dc6168a989dcc23acc065bfa6bb"
+        },
+        "rear": {
+          "writes": 18,
+          "replies": 18,
+          "identity_replies": 6,
+          "stop_feedback_mode0_fault0": 12,
+          "raw_receive_bytes": 306,
+          "maximum_pending_recomputed": 3,
+          "minimum_write_return_to_next_start_ms": 0.731668,
+          "minimum_gap_violations": 0,
+          "residual_bytes": 0,
+          "device_closed": true,
+          "guard_closed": true,
+          "events_sha256": "dd9771d9fc55162ab3e96818e2d239dd9386a50bcc772e95718b12b4705d521b"
+        }
+      },
+      "writes": 36,
+      "replies": 36,
+      "imu_restored": true,
+      "all_workers_joined": true,
+      "common_lock_released": true,
+      "raw_validation_passed": true
+    }
+  ],
+  "distributions": {
+    "acquisition_ms": {
+      "median_ms": 8.119608,
+      "max_ms": 8.580357
+    },
+    "snapshot_build_ms": {
+      "median_ms": 1.686828,
+      "max_ms": 1.70539
+    },
+    "observer_consume_ms": {
+      "median_ms": 6.547022,
+      "max_ms": 7.256002
+    },
+    "proxy_write_span_ms": {
+      "median_ms": 5.329326,
+      "max_ms": 5.660855
+    },
+    "total_to_last_host_write_ms": {
+      "median_ms": 22.283121,
+      "max_ms": 23.192745
+    },
+    "total_to_last_reply_ms": {
+      "median_ms": 25.122589,
+      "max_ms": 26.035349
+    }
+  },
+  "consume_section_distributions": {
+    "snapshot_handoff": {
+      "median_ms": 0.013504,
+      "max_ms": 0.013792
+    },
+    "source_validation": {
+      "median_ms": 0.15578,
+      "max_ms": 0.156612
+    },
+    "input_conversion": {
+      "median_ms": 0.074658,
+      "max_ms": 0.082082
+    },
+    "provenance_serialization": {
+      "median_ms": 0.436652,
+      "max_ms": 0.468781
+    },
+    "tensor_conversion": {
+      "median_ms": 0.215558,
+      "max_ms": 0.217958
+    },
+    "model_call": {
+      "median_ms": 5.302829,
+      "max_ms": 5.992735
+    },
+    "output_conversion_validation": {
+      "median_ms": 0.252999,
+      "max_ms": 0.253255
+    },
+    "result_build": {
+      "median_ms": 0.024801,
+      "max_ms": 0.026081
+    }
+  },
+  "historical_comparison": {
+    "prior_complete_runs": 3,
+    "prior_distributions": {
+      "acquisition_ms": {
+        "median_ms": 9.072917,
+        "max_ms": 10.11942
+      },
+      "snapshot_build_ms": {
+        "median_ms": 1.64307,
+        "max_ms": 1.701824
+      },
+      "observer_consume_ms": {
+        "median_ms": 6.023363,
+        "max_ms": 6.851267
+      },
+      "proxy_write_span_ms": {
+        "median_ms": 6.399249,
+        "max_ms": 6.619449
+      },
+      "total_to_last_host_write_ms": {
+        "median_ms": 24.567648,
+        "max_ms": 25.036941
+      },
+      "total_to_last_reply_ms": {
+        "median_ms": 27.434477,
+        "max_ms": 27.950234
+      }
+    },
+    "prior_audit_sha256": "906599c4a0fd21248a3a39201fa6d1bef7f991a39df541f1997e31b5f28efdea",
+    "total_to_last_host_write_median_improvement_ms": 2.284527,
+    "total_to_last_host_write_maximum_improvement_ms": 1.844196,
+    "controlled_single_factor_comparison": false,
+    "paired_same_input_comparison": false,
+    "observer_median_improved": false
+  },
+  "remaining_to_20ms": {
+    "median_excess_ms": 2.283121,
+    "maximum_excess_ms": 3.192745
+  },
+  "cpu_restoration": {
+    "temporary_governor": "performance",
+    "original_and_restored_governor": "schedutil",
+    "frequency_bounds_khz": [
+      729600,
+      1497600
+    ],
+    "frequency_bounds_unchanged": true,
+    "parent_restored_and_readback_verified": true,
+    "independent_watchdog_restored_and_readback_verified": true,
+    "external_readback_verified": true,
+    "parent_final_sha256": "2fd6fa1391b6ff34c830ef6764212341d009194cd141f089b16bca900ffb4afc",
+    "watchdog_sha256": "350841c34206a9fb96b440086ea5fe35407d24687799563c2293f050062b6a87",
+    "external_readback_sha256": "680e529f1079b09b4c8e4efd486c517a40cc33c47f036f057a0251055706ebbd"
+  },
+  "launch_preparation": {
+    "predecessor": "cpu-integrated-phase-r4",
+    "predecessor_target_test_failure": "Serialized AST hash compared across Python versions; failed before live runtime execution.",
+    "portable_successor": "cpu-integrated-phase-r5",
+    "portable_change": "Parse pinned baseline and candidate source with the same interpreter for AST comparison.",
+    "all_supervisor_and_launcher_function_class_asts_unchanged_from_r4": true,
+    "preparation_local_tests": {
+      "supervisor_run": 61,
+      "supervisor_failed": 0,
+      "payload_run": 108,
+      "payload_failed": 0,
+      "payload_skipped": 1
+    },
+    "preparation_status_not_misrepresented_as_live_result": true
+  },
+  "independent_saved_capture_audit": {
+    "status": "PASS",
+    "hardware_access_during_audit": false,
+    "all_capture_index_hashes_and_source_manifests_verified": true,
+    "raw_bytes_frames_uid_and_reply_timestamps_reconciled": true,
+    "all_13_duration_metrics_recomputed": true,
+    "causal_whole_cycle_order_verified": true,
+    "snapshot_digest_recomputed": true,
+    "profile_section_sums_and_marker_bounds_verified": true,
+    "lean_owned_gap_and_pending_window_verified": true,
+    "outer_validation_and_provenance_verified": true,
+    "count_and_mode_fault_verified": true,
+    "imu_workers_devices_guards_and_locks_cleanup_verified": true,
+    "cpu_original_applied_parent_watchdog_external_verified": true,
+    "runtime_source_delta_reviewed": true
+  },
+  "limitations": [
+    "Three finite single-cycle runs do not demonstrate continuous 50 Hz reliability or p99 latency.",
+    "Host write return is not CAN wire completion; STOP proxy is not learned-target motion output.",
+    "Model, ownership, and pacing changed together; the measured difference is not attributable to lean alone.",
+    "snapshot_handoff is ownership transfer time after eliminating a redundant copy, not a faster copy measurement.",
+    "Source acquisition times remain host bounds; sensor-internal sample times and calibration remain unverified.",
+    "Section medians and maxima must not be summed to reconstruct the total."
+  ],
+  "saved_input_followup": {
+    "status": "CURRENT_R5_REPLAY_NATIVE_LEAN_EXACT_PARITY_PASS",
+    "result_sha256": "96b67b2e6c0956565847e6aa77e594373bce8e653d6bf9c0f7777693253a0f9f",
+    "harness_sha256": "453411b76169df8785c935fef2628f77a97d24f30f5ca3658cbc570408e428b1",
+    "scope": "Six fresh processes, saved inputs only; no sensor acquisition or transport; schedutil not integrated performance governor. Ten warmups then eleven reset-before-call observer replays each.",
+    "parity": [
+      {
+        "saved": "01",
+        "all_11_full_outputs_exact": true,
+        "all_parameters_buffers_and_committed_observer_state_exact": true
+      },
+      {
+        "saved": "02",
+        "all_11_full_outputs_exact": true,
+        "all_parameters_buffers_and_committed_observer_state_exact": true
+      },
+      {
+        "saved": "03",
+        "all_11_full_outputs_exact": true,
+        "all_parameters_buffers_and_committed_observer_state_exact": true
+      }
+    ],
+    "timing_summary": {
+      "01": {
+        "native": {
+          "first_observer_ms": 4.914111,
+          "first_model_call_ms": 3.739713,
+          "subsequent_observer": {
+            "samples": 10,
+            "median_ms": 4.34024,
+            "p95_nearest_rank_ms": 4.887646,
+            "max_ms": 4.887646
+          },
+          "subsequent_model_call": {
+            "samples": 10,
+            "median_ms": 3.39004,
+            "p95_nearest_rank_ms": 3.706784,
+            "max_ms": 3.706784
+          },
+          "raw_observer_ms": [
+            4.914111,
+            4.887646,
+            4.286703,
+            4.345424,
+            4.401202,
+            4.18142,
+            4.219725,
+            4.194829,
+            4.637144,
+            4.335056,
+            4.469459
+          ],
+          "raw_model_call_ms": [
+            3.739713,
+            3.627614,
+            3.330198,
+            3.387,
+            3.440889,
+            3.231315,
+            3.291349,
+            3.24562,
+            3.706784,
+            3.39308,
+            3.517051
+          ]
+        },
+        "lean": {
+          "first_observer_ms": 4.264462,
+          "first_model_call_ms": 3.066319,
+          "subsequent_observer": {
+            "samples": 10,
+            "median_ms": 4.02148,
+            "p95_nearest_rank_ms": 4.263087,
+            "max_ms": 4.263087
+          },
+          "subsequent_model_call": {
+            "samples": 10,
+            "median_ms": 3.053151,
+            "p95_nearest_rank_ms": 3.193522,
+            "max_ms": 3.193522
+          },
+          "raw_observer_ms": [
+            4.264462,
+            4.263087,
+            3.921733,
+            4.134347,
+            3.997288,
+            3.868548,
+            3.911973,
+            4.045672,
+            3.904293,
+            4.153515,
+            4.073769
+          ],
+          "raw_model_call_ms": [
+            3.066319,
+            3.064367,
+            2.954348,
+            3.193522,
+            3.041935,
+            2.921547,
+            3.00075,
+            3.091248,
+            2.954444,
+            3.179218,
+            3.146609
+          ]
+        }
+      },
+      "02": {
+        "lean": {
+          "first_observer_ms": 4.579382,
+          "first_model_call_ms": 3.440473,
+          "subsequent_observer": {
+            "samples": 10,
+            "median_ms": 4.0768895,
+            "p95_nearest_rank_ms": 4.663448,
+            "max_ms": 4.663448
+          },
+          "subsequent_model_call": {
+            "samples": 10,
+            "median_ms": 3.133057,
+            "p95_nearest_rank_ms": 3.47849,
+            "max_ms": 3.47849
+          },
+          "raw_observer_ms": [
+            4.579382,
+            4.663448,
+            4.207277,
+            4.219501,
+            4.085418,
+            3.854692,
+            4.189389,
+            4.041705,
+            4.068361,
+            3.84394,
+            3.882629
+          ],
+          "raw_model_call_ms": [
+            3.440473,
+            3.47849,
+            3.26018,
+            3.23714,
+            3.123153,
+            2.925548,
+            3.269237,
+            3.117649,
+            3.142961,
+            2.933452,
+            2.95566
+          ]
+        },
+        "native": {
+          "first_observer_ms": 4.909407,
+          "first_model_call_ms": 3.741441,
+          "subsequent_observer": {
+            "samples": 10,
+            "median_ms": 4.4409305,
+            "p95_nearest_rank_ms": 5.179014,
+            "max_ms": 5.179014
+          },
+          "subsequent_model_call": {
+            "samples": 10,
+            "median_ms": 3.506651,
+            "p95_nearest_rank_ms": 3.798018,
+            "max_ms": 3.798018
+          },
+          "raw_observer_ms": [
+            4.909407,
+            5.179014,
+            4.428818,
+            4.478036,
+            4.556342,
+            4.476467,
+            4.375153,
+            4.326736,
+            4.132331,
+            4.300976,
+            4.453043
+          ],
+          "raw_model_call_ms": [
+            3.741441,
+            3.798018,
+            3.483578,
+            3.529724,
+            3.621118,
+            3.536891,
+            3.441913,
+            3.374679,
+            3.187603,
+            3.380024,
+            3.538043
+          ]
+        }
+      },
+      "03": {
+        "native": {
+          "first_observer_ms": 4.714777,
+          "first_model_call_ms": 3.597629,
+          "subsequent_observer": {
+            "samples": 10,
+            "median_ms": 4.4263385,
+            "p95_nearest_rank_ms": 4.88467,
+            "max_ms": 4.88467
+          },
+          "subsequent_model_call": {
+            "samples": 10,
+            "median_ms": 3.4745055,
+            "p95_nearest_rank_ms": 3.617725,
+            "max_ms": 3.617725
+          },
+          "raw_observer_ms": [
+            4.714777,
+            4.88467,
+            4.48002,
+            4.494996,
+            4.56447,
+            4.406226,
+            4.367217,
+            4.352464,
+            4.446451,
+            4.371313,
+            4.34088
+          ],
+          "raw_model_call_ms": [
+            3.597629,
+            3.586301,
+            3.520955,
+            3.491578,
+            3.617725,
+            3.456986,
+            3.446617,
+            3.409369,
+            3.505275,
+            3.457433,
+            3.396727
+          ]
+        },
+        "lean": {
+          "first_observer_ms": 4.527348,
+          "first_model_call_ms": 3.418232,
+          "subsequent_observer": {
+            "samples": 10,
+            "median_ms": 4.118282,
+            "p95_nearest_rank_ms": 4.732731,
+            "max_ms": 4.732731
+          },
+          "subsequent_model_call": {
+            "samples": 10,
+            "median_ms": 3.1639055,
+            "p95_nearest_rank_ms": 3.322198,
+            "max_ms": 3.322198
+          },
+          "raw_observer_ms": [
+            4.527348,
+            4.732731,
+            4.127018,
+            4.080617,
+            4.261486,
+            4.074377,
+            4.105418,
+            4.175212,
+            4.135019,
+            4.068233,
+            4.109546
+          ],
+          "raw_model_call_ms": [
+            3.418232,
+            3.322198,
+            3.193459,
+            3.143729,
+            3.317845,
+            3.149777,
+            3.146961,
+            3.24226,
+            3.172754,
+            3.155057,
+            3.141586
+          ]
+        }
+      }
+    },
+    "hardware_opened": false,
+    "source_timestamps_changed": false,
+    "cpu_settings_written": false,
+    "initial_harness_failure": "r1 stopped after first native replay because mixed string/tuple source keys could not be sorted; r2 only fixed typed bookkeeping serialization. No runtime robot code or model changes."
+  }
+}

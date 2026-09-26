@@ -1,0 +1,276 @@
+{
+  "schema": "singularitydog.role-thigh-10deg-kp12.v1",
+  "date": "2026-09-26",
+  "boot_id": "7b3c1809-d0ff-4b97-b412-ab5de0a167f6",
+  "firmware": "0.5.0.13",
+  "test_scope": "supported, raw-motor +10-degree upper-leg diagnostic; not a standing or policy command",
+  "moving_upper_leg_ids": [
+    2,
+    5,
+    8,
+    11
+  ],
+  "upper_leg_kp": 12,
+  "held_hip_ids": [
+    3,
+    6,
+    9,
+    12
+  ],
+  "held_hip_kp": 12,
+  "feedback_torque_monitor_nm": {
+    "upper_leg": 1.8,
+    "hip": 1.3
+  },
+  "user_observation": {
+    "r8": "Some upper legs moved, no anomaly; right-front ID2 appeared smaller.",
+    "r9": "Right-side IDs 2 and 8 moved backward; left-side IDs 5 and 11 moved toward the face; no anomaly."
+  },
+  "interpretation": "Raw +10 degrees has opposite fore-aft physical effects on the two sides. The measured diagnostic does not verify zero, standing pose, or learned policy handoff.",
+  "runs": [
+    {
+      "run": "r8",
+      "status": "ABORTED",
+      "errors_by_bus": {
+        "front": [
+          "RuntimeError('ID2 final raw step error exceeds diagnostic limit')"
+        ],
+        "rear": []
+      },
+      "active_duration_s": 8.991,
+      "cycles_by_bus": {
+        "front": 180,
+        "rear": 180
+      },
+      "all_12_stop_confirmed": true,
+      "ports_closed": {
+        "front": true,
+        "rear": true
+      },
+      "locks_released": true,
+      "log_sha256": {
+        "summary": "b6d4717f298767903c60a9aa4c5b9d9f31624d9a7fda0a9776d765895e0f1f4c",
+        "events": "947401a8c0a2fb6db314c549ecf60f2dbc11cc6a1e4667e9d412d8d6608ec12e"
+      },
+      "motor_results": [
+        {
+          "id": 1,
+          "active_samples": 180,
+          "last_delta_deg": 0.066,
+          "maximum_delta_deg": 0.066,
+          "minimum_delta_deg": 0.022,
+          "peak_abs_feedback_torque_nm": 0.024
+        },
+        {
+          "id": 2,
+          "active_samples": 180,
+          "last_delta_deg": 3.209,
+          "maximum_delta_deg": 3.209,
+          "minimum_delta_deg": 0.0,
+          "peak_abs_feedback_torque_nm": 1.539
+        },
+        {
+          "id": 3,
+          "active_samples": 180,
+          "last_delta_deg": 0.44,
+          "maximum_delta_deg": 0.44,
+          "minimum_delta_deg": 0.022,
+          "peak_abs_feedback_torque_nm": 0.129
+        },
+        {
+          "id": 4,
+          "active_samples": 180,
+          "last_delta_deg": 0.088,
+          "maximum_delta_deg": 0.11,
+          "minimum_delta_deg": 0.022,
+          "peak_abs_feedback_torque_nm": 0.016
+        },
+        {
+          "id": 5,
+          "active_samples": 180,
+          "last_delta_deg": 9.539,
+          "maximum_delta_deg": 9.539,
+          "minimum_delta_deg": 0.0,
+          "peak_abs_feedback_torque_nm": 0.196
+        },
+        {
+          "id": 6,
+          "active_samples": 180,
+          "last_delta_deg": 0.022,
+          "maximum_delta_deg": 0.022,
+          "minimum_delta_deg": 0.0,
+          "peak_abs_feedback_torque_nm": 0.017
+        },
+        {
+          "id": 7,
+          "active_samples": 180,
+          "last_delta_deg": -0.022,
+          "maximum_delta_deg": 0.0,
+          "minimum_delta_deg": -0.022,
+          "peak_abs_feedback_torque_nm": 0.027
+        },
+        {
+          "id": 8,
+          "active_samples": 180,
+          "last_delta_deg": 9.649,
+          "maximum_delta_deg": 9.671,
+          "minimum_delta_deg": 0.022,
+          "peak_abs_feedback_torque_nm": 0.189
+        },
+        {
+          "id": 9,
+          "active_samples": 180,
+          "last_delta_deg": -0.066,
+          "maximum_delta_deg": -0.022,
+          "minimum_delta_deg": -0.066,
+          "peak_abs_feedback_torque_nm": 0.022
+        },
+        {
+          "id": 10,
+          "active_samples": 180,
+          "last_delta_deg": -0.637,
+          "maximum_delta_deg": -0.022,
+          "minimum_delta_deg": -0.637,
+          "peak_abs_feedback_torque_nm": 0.072
+        },
+        {
+          "id": 11,
+          "active_samples": 180,
+          "last_delta_deg": 9.693,
+          "maximum_delta_deg": 9.693,
+          "minimum_delta_deg": 0.0,
+          "peak_abs_feedback_torque_nm": 0.184
+        },
+        {
+          "id": 12,
+          "active_samples": 180,
+          "last_delta_deg": -0.022,
+          "maximum_delta_deg": 0.0,
+          "minimum_delta_deg": -0.022,
+          "peak_abs_feedback_torque_nm": 0.013
+        }
+      ]
+    },
+    {
+      "run": "r9",
+      "status": "RAW_ROLE_GROUP_STEP1_COMPLETED_RESET_CONFIRMED",
+      "errors_by_bus": {
+        "front": [],
+        "rear": []
+      },
+      "active_duration_s": 8.991,
+      "cycles_by_bus": {
+        "front": 180,
+        "rear": 180
+      },
+      "all_12_stop_confirmed": true,
+      "ports_closed": {
+        "front": true,
+        "rear": true
+      },
+      "locks_released": true,
+      "log_sha256": {
+        "summary": "857441e40bf3560407874e6e910f8f615345442449bec233094d49e74e138b11",
+        "events": "cb8584b97d1bac940c9ee4b120af5ff366463976c1359d96894e6f92ba38f0c5"
+      },
+      "motor_results": [
+        {
+          "id": 1,
+          "active_samples": 180,
+          "last_delta_deg": 0.022,
+          "maximum_delta_deg": 0.066,
+          "minimum_delta_deg": 0.0,
+          "peak_abs_feedback_torque_nm": 0.029
+        },
+        {
+          "id": 2,
+          "active_samples": 180,
+          "last_delta_deg": 6.858,
+          "maximum_delta_deg": 6.88,
+          "minimum_delta_deg": 0.176,
+          "peak_abs_feedback_torque_nm": 0.76
+        },
+        {
+          "id": 3,
+          "active_samples": 180,
+          "last_delta_deg": 0.11,
+          "maximum_delta_deg": 0.132,
+          "minimum_delta_deg": -0.066,
+          "peak_abs_feedback_torque_nm": 0.05
+        },
+        {
+          "id": 4,
+          "active_samples": 180,
+          "last_delta_deg": 0.066,
+          "maximum_delta_deg": 0.066,
+          "minimum_delta_deg": 0.022,
+          "peak_abs_feedback_torque_nm": 0.015
+        },
+        {
+          "id": 5,
+          "active_samples": 180,
+          "last_delta_deg": 9.451,
+          "maximum_delta_deg": 9.473,
+          "minimum_delta_deg": -0.044,
+          "peak_abs_feedback_torque_nm": 0.188
+        },
+        {
+          "id": 6,
+          "active_samples": 180,
+          "last_delta_deg": 0.022,
+          "maximum_delta_deg": 0.044,
+          "minimum_delta_deg": -0.022,
+          "peak_abs_feedback_torque_nm": 0.019
+        },
+        {
+          "id": 7,
+          "active_samples": 180,
+          "last_delta_deg": -0.022,
+          "maximum_delta_deg": 0.0,
+          "minimum_delta_deg": -0.022,
+          "peak_abs_feedback_torque_nm": 0.023
+        },
+        {
+          "id": 8,
+          "active_samples": 180,
+          "last_delta_deg": 9.693,
+          "maximum_delta_deg": 9.693,
+          "minimum_delta_deg": 0.044,
+          "peak_abs_feedback_torque_nm": 0.193
+        },
+        {
+          "id": 9,
+          "active_samples": 180,
+          "last_delta_deg": -0.11,
+          "maximum_delta_deg": -0.044,
+          "minimum_delta_deg": -0.132,
+          "peak_abs_feedback_torque_nm": 0.041
+        },
+        {
+          "id": 10,
+          "active_samples": 180,
+          "last_delta_deg": 0.088,
+          "maximum_delta_deg": 0.088,
+          "minimum_delta_deg": 0.0,
+          "peak_abs_feedback_torque_nm": 0.018
+        },
+        {
+          "id": 11,
+          "active_samples": 180,
+          "last_delta_deg": 9.693,
+          "maximum_delta_deg": 9.693,
+          "minimum_delta_deg": 0.022,
+          "peak_abs_feedback_torque_nm": 0.186
+        },
+        {
+          "id": 12,
+          "active_samples": 180,
+          "last_delta_deg": -0.044,
+          "maximum_delta_deg": 0.0,
+          "minimum_delta_deg": -0.066,
+          "peak_abs_feedback_torque_nm": 0.035
+        }
+      ]
+    }
+  ]
+}

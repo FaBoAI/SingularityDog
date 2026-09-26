@@ -1,0 +1,26 @@
+{
+  "schema": "singularitydog.id7-step1-active-prestart-abort.v1",
+  "date": "2026-09-26",
+  "boot_id": "c4802c8c-0261-4f5e-b324-bdb5bf2063bf",
+  "package": "id7-step1-active-20260926-r1",
+  "status": "INCOMPLETE",
+  "reason": "RR settled window rejected: ID8: abs_velocity_mean_rad_s exceeds 0.025",
+  "id8_static_window": {
+    "sample_count": 21,
+    "span_s": 1.9998137570000836,
+    "position_range_rad": 0.00038361181048252035,
+    "position_net_change_rad": 0.0,
+    "OLS_slope_rad_s": -0.00001992865412703068,
+    "velocity_mean_rad_s": 0.02822919050888828,
+    "velocity_RMS_rad_s": 0.05226102292732262
+  },
+  "motor_enable_sent": false,
+  "motion_gain_sent": false,
+  "cycles_per_bus": {"front": 0, "rear": 0},
+  "all_12_stop_confirmed": true,
+  "trial_device_closed": true,
+  "summary_sha256": "94f2d7be292e4531eab0b6103f60b400abefcd4d36ac6baa1c9d5ee98b3b3e10",
+  "events_sha256": "dca835022586c95730f60821693471f4f8bb3e9e40a7863722983eae8fead847",
+  "local_log_directory": "/private/tmp/fabo-robotdog-id7-step1-active-20260926-r1",
+  "conclusion": "The ID7 one-degree movement did not start. ID8 Type2 velocity mean disagreed with its encoder position, which toggled by one count and returned to its starting value. Recheck stationarity without changing motion-time limits."
+}

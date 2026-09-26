@@ -1,0 +1,642 @@
+{
+  "status": "MEASURED_AUDITED_STOP_PROXY_20MS_NOT_MET",
+  "candidate": "r8-after-uid-warmup",
+  "hardware_measurement_executed": true,
+  "learned_target_sent": false,
+  "full_pipeline_20ms_verified": false,
+  "source_manifest_sha256": "1365c2beee17cad48875c86889694d81be5c7c0220a1c937f3d2a4d53463ee1b",
+  "collector_sha256": "afb50da66fa1a537af787ef85a3b211cbb718f8c0f3e29910914e3a6c2727a99",
+  "supervisor_manifest_sha256": "6c3ae86a065cbcefe7165489dee3931ee5292b7f1f14f03cc82599e78fcd685b",
+  "warmup_calls": 10,
+  "warmup_phase": "after-uid",
+  "pending_window": 3,
+  "gap_ms": 0.6,
+  "payload_tests_local": {
+    "run": 116,
+    "passed": 115,
+    "skipped": 1
+  },
+  "payload_tests_target": {
+    "run": 116,
+    "passed": 114,
+    "skipped": 2
+  },
+  "supervisor_tests_local_target": {
+    "run": 65,
+    "passed": 65
+  },
+  "scope": "Three fresh-input finite STOP-proxy cycles. Exactly10existing warmups moved after UID/IMU setup and before acquisition. No enable or learned target; hostwrite is not CAN-wire completion.",
+  "raw_evidence_audit": {
+    "status": "PASS",
+    "runs": [
+      {
+        "run": 1,
+        "report_sha256": "135fcdd7f5b764f9b23f6a571809e311e044056819fd4951f70029abbcb6b802",
+        "metrics": {
+          "earliest_source_start_ns": 5459372297341,
+          "last_input_reply_or_read_ns": 5459380406023,
+          "first_proxy_write_ns": 5459387665657,
+          "last_proxy_write_return_ns": 5459393530851,
+          "last_proxy_reply_ns": 5459396367413,
+          "acquisition_ms": 8.108682,
+          "parallel_release_to_inputs_ms": 8.581719,
+          "input_coordination_ms": 0.203878,
+          "snapshot_build_ms": 1.879575,
+          "observer_consume_ms": 4.491681,
+          "observer_consume_thread_cpu_ms": 4.465024,
+          "inference_to_proxy_first_write_ms": 0.581137,
+          "proxy_write_span_ms": 5.865194,
+          "proxy_reply_span_ms": 8.701756,
+          "total_to_last_host_write_ms": 21.23351,
+          "total_to_last_reply_ms": 24.070072,
+          "release_to_last_host_write_ms": 21.706547,
+          "release_to_last_reply_ms": 24.543109,
+          "proxy_host_write_under20ms": false,
+          "proxy_reply_under20ms": false,
+          "timing_excludes_model_warmup_and_uid": true,
+          "timed_source_host_timestamps": true,
+          "host_write_is_not_can_wire_completion": true,
+          "sensor_internal_sample_times_verified": false,
+          "actual_learned_target_transport_measured": false
+        },
+        "model_call_ms": 3.360801,
+        "writes": 36,
+        "replies": 36
+      },
+      {
+        "run": 2,
+        "report_sha256": "1964edceb17aa0f2324cd3c00fee898893d3792a1bf1d81f212eb4d175bcb557",
+        "metrics": {
+          "earliest_source_start_ns": 5463414042908,
+          "last_input_reply_or_read_ns": 5463422616084,
+          "first_proxy_write_ns": 5463429649055,
+          "last_proxy_write_return_ns": 5463435196511,
+          "last_proxy_reply_ns": 5463437985520,
+          "acquisition_ms": 8.573176,
+          "parallel_release_to_inputs_ms": 9.141192,
+          "input_coordination_ms": 0.231303,
+          "snapshot_build_ms": 1.80834,
+          "observer_consume_ms": 4.444768,
+          "observer_consume_thread_cpu_ms": 4.41136,
+          "inference_to_proxy_first_write_ms": 0.443885,
+          "proxy_write_span_ms": 5.547456,
+          "proxy_reply_span_ms": 8.336465,
+          "total_to_last_host_write_ms": 21.153603,
+          "total_to_last_reply_ms": 23.942612,
+          "release_to_last_host_write_ms": 21.721619,
+          "release_to_last_reply_ms": 24.510628,
+          "proxy_host_write_under20ms": false,
+          "proxy_reply_under20ms": false,
+          "timing_excludes_model_warmup_and_uid": true,
+          "timed_source_host_timestamps": true,
+          "host_write_is_not_can_wire_completion": true,
+          "sensor_internal_sample_times_verified": false,
+          "actual_learned_target_transport_measured": false
+        },
+        "model_call_ms": 3.255486,
+        "writes": 36,
+        "replies": 36
+      },
+      {
+        "run": 3,
+        "report_sha256": "df45d91a56320bda42b67531fa633e6e15e758459eb2401e33e7aa899e041ec0",
+        "metrics": {
+          "earliest_source_start_ns": 5467437196469,
+          "last_input_reply_or_read_ns": 5467445827950,
+          "first_proxy_write_ns": 5467453231492,
+          "last_proxy_write_return_ns": 5467459061868,
+          "last_proxy_reply_ns": 5467461778779,
+          "acquisition_ms": 8.631481,
+          "parallel_release_to_inputs_ms": 9.184521,
+          "input_coordination_ms": 0.224519,
+          "snapshot_build_ms": 1.803092,
+          "observer_consume_ms": 4.75745,
+          "observer_consume_thread_cpu_ms": 4.666528,
+          "inference_to_proxy_first_write_ms": 0.497838,
+          "proxy_write_span_ms": 5.830376,
+          "proxy_reply_span_ms": 8.547287,
+          "total_to_last_host_write_ms": 21.865399,
+          "total_to_last_reply_ms": 24.58231,
+          "release_to_last_host_write_ms": 22.418439,
+          "release_to_last_reply_ms": 25.13535,
+          "proxy_host_write_under20ms": false,
+          "proxy_reply_under20ms": false,
+          "timing_excludes_model_warmup_and_uid": true,
+          "timed_source_host_timestamps": true,
+          "host_write_is_not_can_wire_completion": true,
+          "sensor_internal_sample_times_verified": false,
+          "actual_learned_target_transport_measured": false
+        },
+        "model_call_ms": 3.514725,
+        "writes": 36,
+        "replies": 36
+      }
+    ],
+    "distributions": {
+      "acquisition_ms": {
+        "median_ms": 8.573176,
+        "max_ms": 8.631481
+      },
+      "snapshot_build_ms": {
+        "median_ms": 1.80834,
+        "max_ms": 1.879575
+      },
+      "observer_consume_ms": {
+        "median_ms": 4.491681,
+        "max_ms": 4.75745
+      },
+      "proxy_write_span_ms": {
+        "median_ms": 5.830376,
+        "max_ms": 5.865194
+      },
+      "total_to_last_host_write_ms": {
+        "median_ms": 21.23351,
+        "max_ms": 21.865399
+      },
+      "total_to_last_reply_ms": {
+        "median_ms": 24.070072,
+        "max_ms": 24.58231
+      }
+    },
+    "cpu_restored_parent_watchdog_external": true,
+    "full_pipeline_20ms_verified": false,
+    "actual_learned_target_sent": false,
+    "raw_bytes_frames_timestamps_verified": true,
+    "audit_script_sha256": "0a418a83d7f8d3978a7a1ca6e26b50522b66926cd35b4f679f71de9593027489"
+  },
+  "baseline_host_write_total_ms": {
+    "median": 22.283121,
+    "max": 23.192745
+  },
+  "cpu_restoration_confirmed": true,
+  "current_host_write_total_ms": {
+    "median_ms": 21.23351,
+    "max_ms": 21.865399
+  },
+  "remaining_to20ms": {
+    "median_ms": 1.233509999999999,
+    "max_ms": 1.865399
+  },
+  "captured_archive_sha256": "a356411b423dc37e76626b3d4661bb334d6bd6cc7d953d5576dab63c42cb0703",
+  "source_review": {
+    "supervisor_functions_ast_unchanged_from_r5": 19,
+    "manifests_and_pins_verified": true
+  },
+  "independent_capture_review": {
+    "result": "PASS",
+    "raw_frames_chronology_and_restoration_verified": true,
+    "timing_recomputed_without_discrepancy": true
+  },
+  "transport_wait_accounting": {
+    "status": "EXACT_ACCOUNTING_PASS",
+    "gap_ms": 0.6,
+    "pending_window": 3,
+    "runs": [
+      {
+        "run": 1,
+        "source_report_sha256": "135fcdd7f5b764f9b23f6a571809e311e044056819fd4951f70029abbcb6b802",
+        "stages": {
+          "front_acquisition": {
+            "write_span_ms": 5.216247,
+            "write_call_total_ms": 0.609361,
+            "enforced_gaps_ms": 3.0,
+            "observed_window_wait_ms": 0.225303,
+            "host_excess_ms": 1.381583,
+            "last_write_to_last_reply_ms": 2.749199,
+            "slots": [
+              {
+                "motor_id": 2,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.143926
+              },
+              {
+                "motor_id": 3,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.661381
+              },
+              {
+                "motor_id": 4,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.15951
+              },
+              {
+                "motor_id": 5,
+                "window_wait_ms": 0.225303,
+                "host_excess_ms": 0.274856
+              },
+              {
+                "motor_id": 6,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.14191
+              }
+            ]
+          },
+          "front_proxy": {
+            "write_span_ms": 5.796776,
+            "write_call_total_ms": 0.549009,
+            "enforced_gaps_ms": 3.0,
+            "observed_window_wait_ms": 0.312059,
+            "host_excess_ms": 1.935708,
+            "last_write_to_last_reply_ms": 2.836562,
+            "slots": [
+              {
+                "motor_id": 2,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.379676
+              },
+              {
+                "motor_id": 3,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.687909
+              },
+              {
+                "motor_id": 4,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.197367
+              },
+              {
+                "motor_id": 5,
+                "window_wait_ms": 0.312059,
+                "host_excess_ms": 0.466317
+              },
+              {
+                "motor_id": 6,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.204439
+              }
+            ]
+          },
+          "rear_acquisition": {
+            "write_span_ms": 4.908526,
+            "write_call_total_ms": 0.721237,
+            "enforced_gaps_ms": 3.0,
+            "observed_window_wait_ms": 0.187159,
+            "host_excess_ms": 1.00013,
+            "last_write_to_last_reply_ms": 2.685294,
+            "slots": [
+              {
+                "motor_id": 8,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.149302
+              },
+              {
+                "motor_id": 9,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.347131
+              },
+              {
+                "motor_id": 10,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.131573
+              },
+              {
+                "motor_id": 11,
+                "window_wait_ms": 0.187159,
+                "host_excess_ms": 0.240391
+              },
+              {
+                "motor_id": 12,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.131733
+              }
+            ]
+          },
+          "rear_proxy": {
+            "write_span_ms": 5.625891,
+            "write_call_total_ms": 1.143139,
+            "enforced_gaps_ms": 3.0,
+            "observed_window_wait_ms": 0.187446,
+            "host_excess_ms": 1.295306,
+            "last_write_to_last_reply_ms": 2.7652,
+            "slots": [
+              {
+                "motor_id": 8,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.193846
+              },
+              {
+                "motor_id": 9,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.473439
+              },
+              {
+                "motor_id": 10,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.161718
+              },
+              {
+                "motor_id": 11,
+                "window_wait_ms": 0.187446,
+                "host_excess_ms": 0.298217
+              },
+              {
+                "motor_id": 12,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.168086
+              }
+            ]
+          }
+        }
+      },
+      {
+        "run": 2,
+        "source_report_sha256": "1964edceb17aa0f2324cd3c00fee898893d3792a1bf1d81f212eb4d175bcb557",
+        "stages": {
+          "front_acquisition": {
+            "write_span_ms": 5.223703,
+            "write_call_total_ms": 0.944955,
+            "enforced_gaps_ms": 3.0,
+            "observed_window_wait_ms": 0.226488,
+            "host_excess_ms": 1.05226,
+            "last_write_to_last_reply_ms": 2.780209,
+            "slots": [
+              {
+                "motor_id": 2,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.190327
+              },
+              {
+                "motor_id": 3,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.17007
+              },
+              {
+                "motor_id": 4,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.231224
+              },
+              {
+                "motor_id": 5,
+                "window_wait_ms": 0.226488,
+                "host_excess_ms": 0.265288
+              },
+              {
+                "motor_id": 6,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.195351
+              }
+            ]
+          },
+          "front_proxy": {
+            "write_span_ms": 5.486302,
+            "write_call_total_ms": 0.635633,
+            "enforced_gaps_ms": 3.0,
+            "observed_window_wait_ms": 0.208631,
+            "host_excess_ms": 1.642038,
+            "last_write_to_last_reply_ms": 2.789009,
+            "slots": [
+              {
+                "motor_id": 2,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.3559
+              },
+              {
+                "motor_id": 3,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.249241
+              },
+              {
+                "motor_id": 4,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.34998
+              },
+              {
+                "motor_id": 5,
+                "window_wait_ms": 0.208631,
+                "host_excess_ms": 0.446669
+              },
+              {
+                "motor_id": 6,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.240248
+              }
+            ]
+          },
+          "rear_acquisition": {
+            "write_span_ms": 5.637411,
+            "write_call_total_ms": 1.291078,
+            "enforced_gaps_ms": 3.0,
+            "observed_window_wait_ms": 0.0,
+            "host_excess_ms": 1.346333,
+            "last_write_to_last_reply_ms": 2.763536,
+            "slots": [
+              {
+                "motor_id": 8,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.309754
+              },
+              {
+                "motor_id": 9,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.608451
+              },
+              {
+                "motor_id": 10,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.205879
+              },
+              {
+                "motor_id": 11,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.067539
+              },
+              {
+                "motor_id": 12,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.15471
+              }
+            ]
+          },
+          "rear_proxy": {
+            "write_span_ms": 5.295065,
+            "write_call_total_ms": 1.142305,
+            "enforced_gaps_ms": 3.0,
+            "observed_window_wait_ms": 0.061203,
+            "host_excess_ms": 1.091557,
+            "last_write_to_last_reply_ms": 2.807249,
+            "slots": [
+              {
+                "motor_id": 8,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.165942
+              },
+              {
+                "motor_id": 9,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.297338
+              },
+              {
+                "motor_id": 10,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.174742
+              },
+              {
+                "motor_id": 11,
+                "window_wait_ms": 0.061203,
+                "host_excess_ms": 0.269224
+              },
+              {
+                "motor_id": 12,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.184311
+              }
+            ]
+          }
+        }
+      },
+      {
+        "run": 3,
+        "source_report_sha256": "df45d91a56320bda42b67531fa633e6e15e758459eb2401e33e7aa899e041ec0",
+        "stages": {
+          "front_acquisition": {
+            "write_span_ms": 5.910091,
+            "write_call_total_ms": 1.417993,
+            "enforced_gaps_ms": 3.0,
+            "observed_window_wait_ms": 0.357467,
+            "host_excess_ms": 1.134631,
+            "last_write_to_last_reply_ms": 2.72139,
+            "slots": [
+              {
+                "motor_id": 2,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.162934
+              },
+              {
+                "motor_id": 3,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.351676
+              },
+              {
+                "motor_id": 4,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.183415
+              },
+              {
+                "motor_id": 5,
+                "window_wait_ms": 0.357467,
+                "host_excess_ms": 0.26644
+              },
+              {
+                "motor_id": 6,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.170166
+              }
+            ]
+          },
+          "front_proxy": {
+            "write_span_ms": 5.762502,
+            "write_call_total_ms": 0.532878,
+            "enforced_gaps_ms": 3.0,
+            "observed_window_wait_ms": 0.300794,
+            "host_excess_ms": 1.92883,
+            "last_write_to_last_reply_ms": 2.716911,
+            "slots": [
+              {
+                "motor_id": 2,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.354171
+              },
+              {
+                "motor_id": 3,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.704198
+              },
+              {
+                "motor_id": 4,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.197911
+              },
+              {
+                "motor_id": 5,
+                "window_wait_ms": 0.300794,
+                "host_excess_ms": 0.455438
+              },
+              {
+                "motor_id": 6,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.217112
+              }
+            ]
+          },
+          "rear_acquisition": {
+            "write_span_ms": 5.60925,
+            "write_call_total_ms": 1.451594,
+            "enforced_gaps_ms": 3.0,
+            "observed_window_wait_ms": 0.0,
+            "host_excess_ms": 1.157656,
+            "last_write_to_last_reply_ms": 2.550122,
+            "slots": [
+              {
+                "motor_id": 8,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.160822
+              },
+              {
+                "motor_id": 9,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.525376
+              },
+              {
+                "motor_id": 10,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.147286
+              },
+              {
+                "motor_id": 11,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.17903
+              },
+              {
+                "motor_id": 12,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.145142
+              }
+            ]
+          },
+          "rear_proxy": {
+            "write_span_ms": 5.587009,
+            "write_call_total_ms": 1.123169,
+            "enforced_gaps_ms": 3.0,
+            "observed_window_wait_ms": 0.184151,
+            "host_excess_ms": 1.279689,
+            "last_write_to_last_reply_ms": 2.725519,
+            "slots": [
+              {
+                "motor_id": 8,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.174038
+              },
+              {
+                "motor_id": 9,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.479487
+              },
+              {
+                "motor_id": 10,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.170454
+              },
+              {
+                "motor_id": 11,
+                "window_wait_ms": 0.184151,
+                "host_excess_ms": 0.287848
+              },
+              {
+                "motor_id": 12,
+                "window_wait_ms": 0.0,
+                "host_excess_ms": 0.167862
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "caveats": [
+      "Observed reply timestamps precede decoding and validation; host_excess includes required checks, audit copying, receive handling and scheduling. It is not a guaranteed removable cost.",
+      "Reply tail is host-observed and cannot distinguish adapter, CAN, motor, USB or host scheduling delays.",
+      "Per-bus costs overlap; never sum front and rear to predict whole-pipeline gains."
+    ],
+    "script_sha256": "04d20325a884713c63ed660cff1883eed4a65420cd8d637b896cc72fb524b220",
+    "formula": "For write i>0: paced=previous write finish+0.6ms; slot=sorted prior receive times[i-3] when i>=3; legal=max(paced,slot). Window wait=legal-paced; host excess=actual write start-legal. Sum all write durations+5 gaps+window waits+host excess equals per-bus write span."
+  }
+}

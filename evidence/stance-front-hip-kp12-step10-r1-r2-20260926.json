@@ -1,0 +1,43 @@
+{
+  "schema": "singularitydog.stance-front-hip-step10-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "0bda2b28-6d89-4d02-9d35-fc7542280991",
+  "test_scope": "supported 10-degree mirrored front-hip raw step; ID3 and ID6 move with Kp12, other 10 joints hold",
+  "moving_motor_ids": [3, 6],
+  "commanded_final_offset_deg_by_id": {"3": 10, "6": -10},
+  "planned_trajectory_cycles_per_bus": 180,
+  "trials": [
+    {
+      "run": "r1",
+      "source_log": "/private/tmp/front-hip-kp12-step10-0bda-r1",
+      "summary_sha256": "1c293ce6b9924e734c25d6c3d056497d39e1222c784a54c90f32abd520048349",
+      "events_sha256": "e4373c502f498c715ab8ae262d92bb1a830c10f23a8222115089b0159981b1d8",
+      "status": "INCOMPLETE",
+      "result_status": "ABORTED",
+      "completed_trajectory_cycles_by_bus": {"front": 105, "rear": 105},
+      "last_completed_tick": 104,
+      "abort_reason": "front: Position departed from trial center beyond selected threshold (old shared 7-degree drift guard)",
+      "last_logged_valid_offset_deg_by_id": {"3": 6.880, "6": -6.902},
+      "all_12_stop_confirmed": true,
+      "ports_closed": true,
+      "locks_released": true,
+      "operator_observation": "両方動いた・異常なし"
+    },
+    {
+      "run": "r2",
+      "source_log": "/private/tmp/front-hip-kp12-step10-0bda-r2",
+      "summary_sha256": "746218a7c9e5948ee3b234c9373e38733caac1c382816d2467d89787b1a73aab",
+      "events_sha256": "e763a3c4b42de6f61783c7f21c4d9b56e2d58a8579f476e63313c1d36e720cc9",
+      "status": "INCOMPLETE",
+      "result_status": "ABORTED",
+      "completed_trajectory_cycles_by_bus": {"front": 0, "rear": 0},
+      "abort_reason": "rear: Stale feedback (>100 ms limit) before cycle 0 completed",
+      "all_12_stop_confirmed": true,
+      "ports_closed": true,
+      "locks_released": true
+    }
+  ],
+  "ten_degree_trajectory_completed": false,
+  "standing_completed": false,
+  "learned_policy_sent": false
+}

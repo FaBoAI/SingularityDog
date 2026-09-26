@@ -1,0 +1,32 @@
+{
+  "schema": "singularitydog.id7-raw-step1-disabled-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "c4802c8c-0261-4f5e-b324-bdb5bf2063bf",
+  "status": "PREFLIGHT_PASSED_RESET_CONFIRMED",
+  "frozen_package": "id7-step1-disabled-20260926-r1",
+  "manifest_sha256": "c613acaae1e6a5e1db23b768187ddb3975cad42bc127bbf1fb4727961daf681c",
+  "source_readonly_summary_sha256": "2c76a8507725078379e577b5d16568ee4fde7d63a3f226bc50edeed803438a06",
+  "preflight_only": true,
+  "motor_enable_sent": false,
+  "motion_gain_sent": false,
+  "cycles_per_bus": {"front": 20, "rear": 20},
+  "transmitted_type_counts": {"0": 12, "1_zero_gain": 504, "4": 24, "17": 144, "18": 12},
+  "minimum_motor_voltage_v": 35.966,
+  "all_12_stop_confirmed": true,
+  "trial_device_closed": true,
+  "locks_released": true,
+  "errors": [],
+  "summary_sha256": "72f28ebb5d6b3c64042f74dfafda346af39563fca5fd59a4e2c3181235335356",
+  "events_sha256": "1a312b2676e316fbaee2e1365be1b18c18156175db102624f2c8c96a2fb929e0",
+  "local_log_directory": "/private/tmp/fabo-robotdog-id7-step1-disabled-20260926-r1",
+  "operator_observations": {
+    "id7_yellow_member_screws_wiring_manual_inspection": "no large play or snagging",
+    "support_hands_off_immediate_40v_cutoff": true,
+    "id7_1_5_degree_swept_clearance": true
+  },
+  "limits": [
+    "No motor enable or nonzero-gain motion occurred in this preflight.",
+    "The active one-degree test has not been proven by this result.",
+    "The direction is diagnostic; neither standing nor model calibration is verified."
+  ]
+}

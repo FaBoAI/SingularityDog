@@ -1,0 +1,378 @@
+{
+  "date": "2026-09-25",
+  "scope": "one leg per supported current-reference diagnostic; no learned policy targets",
+  "learned_policy_executed_on_robot": false,
+  "full_body_standing_tested": false,
+  "ground_load_bearing_tested": false,
+  "gains": {
+    "Kp": 3,
+    "Kd": 0.15,
+    "nominal_feedforward_torque_Nm": 0
+  },
+  "nominal_trial_s": 5,
+  "nominal_final_hold_s": 1,
+  "cycle_s": 0.05,
+  "trials": [
+    {
+      "leg": "FR",
+      "ids": [
+        1,
+        2,
+        3
+      ],
+      "status": "BOUNDED_POSE_CANDIDATE_HOLD_RESET_CONFIRMED",
+      "wrapper_status": "FR_CURRENT_REFERENCE_FINAL_HOLD_CANDIDATE_RESET_CONFIRMED_DUAL_BUS_PRE_POST",
+      "motor_enable_sent": true,
+      "motion_gain_sent": true,
+      "enabled_ids": [
+        1,
+        2,
+        3
+      ],
+      "motion_gain_ids": [
+        1,
+        2,
+        3
+      ],
+      "motion_completed": true,
+      "hold_candidate_met": true,
+      "errors": [],
+      "typed_tx_counts": {
+        "0": 27,
+        "17": 747,
+        "4": 6,
+        "1": 369,
+        "18": 3,
+        "3": 3
+      },
+      "selected_initial_voltage_V": {
+        "1": 40.49293518066406,
+        "2": 39.61570358276367,
+        "3": 41.01927185058594
+      },
+      "stationary_window": {
+        "1": {
+          "sample_count": 21,
+          "span_s": 2.0000530130000698,
+          "position_range_rad": 0.0003836118104842967,
+          "OLS_slope_rad_s": 9.973948977836094e-06,
+          "velocity_RMS_rad_s": 0.03268161160495089,
+          "max_abs_velocity_rad_s": 0.06485084306095956,
+          "errors": []
+        },
+        "2": {
+          "sample_count": 21,
+          "span_s": 2.0000530130000698,
+          "position_range_rad": 0.0,
+          "OLS_slope_rad_s": 0.0,
+          "velocity_RMS_rad_s": 0.03878778421424798,
+          "max_abs_velocity_rad_s": 0.07705806057831666,
+          "errors": []
+        },
+        "3": {
+          "sample_count": 21,
+          "span_s": 2.000189463999959,
+          "position_range_rad": 0.0003836118104842967,
+          "OLS_slope_rad_s": -2.988365185121954e-05,
+          "velocity_RMS_rad_s": 0.04314522089901711,
+          "max_abs_velocity_rad_s": 0.08468757152666484,
+          "errors": []
+        }
+      },
+      "hold": {
+        "1": {
+          "samples": 20,
+          "span_s": 0.94984826,
+          "max_abs_received_target_error_deg": 0.021662127530783042,
+          "final_received_target_error_deg": -0.00031721018113598995
+        },
+        "2": {
+          "samples": 20,
+          "span_s": 0.94984826,
+          "max_abs_received_target_error_deg": 0.00977652335419585,
+          "final_received_target_error_deg": -0.00977652335419585
+        },
+        "3": {
+          "samples": 20,
+          "span_s": 0.949913734,
+          "max_abs_received_target_error_deg": 0.037834920604105246,
+          "final_received_target_error_deg": 0.037834920604105246
+        }
+      },
+      "stop_reply_confirmed_for_all_selected_ids": true,
+      "watchdog_readback_ticks": 4000,
+      "watchdog_restored": false,
+      "watchdog_physical_stop_latency_verified": false,
+      "ports_closed_and_locks_released": true,
+      "elapsed_s": 14.846981181000046,
+      "source_sha256": {
+        "events": "9f5249c60ad356cbaa32536b3c765c673ecb51b983aa2604fd8d71de4ea011b8",
+        "summary": "afff4a80a467ab0169a6956e05b267d430ea7b8c1dd24f2980f69fd624fd1726",
+        "wrapper": "1deccb1956d97a3bc52102b0e2ae3a25afbf1198e2603a69bf69a9b3d5784e39"
+      }
+    },
+    {
+      "leg": "FL",
+      "ids": [
+        4,
+        5,
+        6
+      ],
+      "status": "ABORTED",
+      "wrapper_status": "INCOMPLETE",
+      "motor_enable_sent": false,
+      "motion_gain_sent": false,
+      "enabled_ids": [],
+      "motion_gain_ids": [],
+      "motion_completed": false,
+      "hold_candidate_met": false,
+      "errors": [
+        "RuntimeError('Leg stationary window rejected: ID6: velocity_RMS_rad_s exceeds 0.05')"
+      ],
+      "typed_tx_counts": {
+        "0": 27,
+        "17": 747,
+        "4": 6,
+        "1": 66,
+        "18": 3
+      },
+      "selected_initial_voltage_V": {
+        "4": 40.036773681640625,
+        "5": 40.247310638427734,
+        "6": 40.38766860961914
+      },
+      "stationary_window": {
+        "4": {
+          "sample_count": 21,
+          "span_s": 2.000330016999669,
+          "position_range_rad": 0.0,
+          "OLS_slope_rad_s": 0.0,
+          "velocity_RMS_rad_s": 0.04825929534101904,
+          "max_abs_velocity_rad_s": 0.14877546349278958,
+          "errors": []
+        },
+        "5": {
+          "sample_count": 21,
+          "span_s": 2.000330016999669,
+          "position_range_rad": 0.0,
+          "OLS_slope_rad_s": 0.0,
+          "velocity_RMS_rad_s": 0.03290139058651233,
+          "max_abs_velocity_rad_s": 0.058747234302281015,
+          "errors": []
+        },
+        "6": {
+          "sample_count": 21,
+          "span_s": 2.0002003499998864,
+          "position_range_rad": 0.0,
+          "OLS_slope_rad_s": 0.0,
+          "velocity_RMS_rad_s": 0.05031099087970537,
+          "max_abs_velocity_rad_s": 0.09384298466468266,
+          "errors": [
+            "velocity_RMS_rad_s exceeds 0.05"
+          ]
+        }
+      },
+      "hold": {},
+      "stop_reply_confirmed_for_all_selected_ids": true,
+      "watchdog_readback_ticks": 4000,
+      "watchdog_restored": false,
+      "watchdog_physical_stop_latency_verified": false,
+      "ports_closed_and_locks_released": true,
+      "elapsed_s": 9.78060686400022,
+      "source_sha256": {
+        "events": "5c8a5ded1efac4fa3dd8330d7c7ed595ed58ea1b5aa9895a329075d70b829961",
+        "summary": "84d448553a6d5bb3ede3a42f38615284090dd93a9728b79f8b8d3a1b79e4ff2f",
+        "wrapper": "d343c870f974bff632a1ed5b3217237dbd72e9bac4da65c4cd4e7b938cec6e03"
+      }
+    },
+    {
+      "leg": "RR",
+      "ids": [
+        7,
+        8,
+        9
+      ],
+      "status": "ABORTED",
+      "wrapper_status": "INCOMPLETE",
+      "motor_enable_sent": false,
+      "motion_gain_sent": false,
+      "enabled_ids": [],
+      "motion_gain_ids": [],
+      "motion_completed": false,
+      "hold_candidate_met": false,
+      "errors": [
+        "RuntimeError('Leg stationary window rejected: ID8: velocity_RMS_rad_s exceeds 0.05')"
+      ],
+      "typed_tx_counts": {
+        "0": 27,
+        "17": 747,
+        "4": 6,
+        "1": 66,
+        "18": 3
+      },
+      "selected_initial_voltage_V": {
+        "7": 39.861328125,
+        "8": 40.14204406738281,
+        "9": 40.14204406738281
+      },
+      "stationary_window": {
+        "7": {
+          "sample_count": 21,
+          "span_s": 2.000398400999984,
+          "position_range_rad": 0.0,
+          "OLS_slope_rad_s": 0.0,
+          "velocity_RMS_rad_s": 0.04593332507325263,
+          "max_abs_velocity_rad_s": 0.0831616693369952,
+          "errors": []
+        },
+        "8": {
+          "sample_count": 21,
+          "span_s": 2.000398400999984,
+          "position_range_rad": 0.00038361181048252035,
+          "OLS_slope_rad_s": -9.932758168016662e-06,
+          "velocity_RMS_rad_s": 0.06111709738072163,
+          "max_abs_velocity_rad_s": 0.15182726787212886,
+          "errors": [
+            "velocity_RMS_rad_s exceeds 0.05"
+          ]
+        },
+        "9": {
+          "sample_count": 21,
+          "span_s": 2.000065464999807,
+          "position_range_rad": 0.000383611810480744,
+          "OLS_slope_rad_s": -9.892891480460947e-06,
+          "velocity_RMS_rad_s": 0.043237635168571445,
+          "max_abs_velocity_rad_s": 0.10147249561303084,
+          "errors": []
+        }
+      },
+      "hold": {},
+      "stop_reply_confirmed_for_all_selected_ids": true,
+      "watchdog_readback_ticks": 4000,
+      "watchdog_restored": false,
+      "watchdog_physical_stop_latency_verified": false,
+      "ports_closed_and_locks_released": true,
+      "elapsed_s": 9.776745882999876,
+      "source_sha256": {
+        "events": "8e07c2dd447de6b704a662658917bb27c349be384660a31b09c5960e715fcd2b",
+        "summary": "186d129a48f1ec090ef3737f6987dce8d348477da7f305ea35cd2b8bc473bd4a",
+        "wrapper": "d343c870f974bff632a1ed5b3217237dbd72e9bac4da65c4cd4e7b938cec6e03"
+      }
+    },
+    {
+      "leg": "RL",
+      "ids": [
+        10,
+        11,
+        12
+      ],
+      "status": "BOUNDED_POSE_CANDIDATE_HOLD_RESET_CONFIRMED",
+      "wrapper_status": "ONE_LEG_CURRENT_REFERENCE_FINAL_HOLD_CANDIDATE_RESET_CONFIRMED_DUAL_BUS_PRE_POST",
+      "motor_enable_sent": true,
+      "motion_gain_sent": true,
+      "enabled_ids": [
+        10,
+        11,
+        12
+      ],
+      "motion_gain_ids": [
+        10,
+        11,
+        12
+      ],
+      "motion_completed": true,
+      "hold_candidate_met": true,
+      "errors": [],
+      "typed_tx_counts": {
+        "0": 27,
+        "17": 747,
+        "4": 6,
+        "1": 369,
+        "18": 3,
+        "3": 3
+      },
+      "selected_initial_voltage_V": {
+        "10": 39.82624053955078,
+        "11": 40.036773681640625,
+        "12": 40.001686096191406
+      },
+      "stationary_window": {
+        "10": {
+          "sample_count": 21,
+          "span_s": 2.000381171000299,
+          "position_range_rad": 0.0003836118104878494,
+          "OLS_slope_rad_s": -2.989562780493211e-05,
+          "velocity_RMS_rad_s": 0.033641195805492935,
+          "max_abs_velocity_rad_s": 0.06485084306095956,
+          "errors": []
+        },
+        "11": {
+          "sample_count": 21,
+          "span_s": 2.000381171000299,
+          "position_range_rad": 0.00038361181048252035,
+          "OLS_slope_rad_s": -3.487503078502896e-05,
+          "velocity_RMS_rad_s": 0.04763027946848174,
+          "max_abs_velocity_rad_s": 0.09231708247501302,
+          "errors": []
+        },
+        "12": {
+          "sample_count": 21,
+          "span_s": 2.000297839999803,
+          "position_range_rad": 0.0,
+          "OLS_slope_rad_s": 0.0,
+          "velocity_RMS_rad_s": 0.03223755893733421,
+          "max_abs_velocity_rad_s": 0.06790264744029884,
+          "errors": []
+        }
+      },
+      "hold": {
+        "10": {
+          "samples": 20,
+          "span_s": 0.949946091,
+          "max_abs_received_target_error_deg": 0.09003783397488495,
+          "final_received_target_error_deg": -0.09003783397488495
+        },
+        "11": {
+          "samples": 20,
+          "span_s": 0.949946091,
+          "max_abs_received_target_error_deg": 0.052681052101187814,
+          "final_received_target_error_deg": -0.052681052101187814
+        },
+        "12": {
+          "samples": 20,
+          "span_s": 0.950142287,
+          "max_abs_received_target_error_deg": 0.03578559931267945,
+          "final_received_target_error_deg": -0.03578559931267945
+        }
+      },
+      "stop_reply_confirmed_for_all_selected_ids": true,
+      "watchdog_readback_ticks": 4000,
+      "watchdog_restored": false,
+      "watchdog_physical_stop_latency_verified": false,
+      "ports_closed_and_locks_released": true,
+      "elapsed_s": 14.802866189999804,
+      "source_sha256": {
+        "events": "5e09cb4f21370471b2eebeb4a14e7e691fda63df17635875a482dc75dbe71a31",
+        "summary": "0c090e1bee8cd111eb3b8e38a8ae8e547c69de8022a3517af770b02f58796328",
+        "wrapper": "d343c870f974bff632a1ed5b3217237dbd72e9bac4da65c4cd4e7b938cec6e03"
+      }
+    }
+  ],
+  "operator_observation": {
+    "FR": "No abnormality; user confirmed",
+    "RL": "Awaiting user observation"
+  },
+  "next_step": "All four legs have individually passed short final-hold criteria. Latest FL r4 passed, stopped, operator confirmed no abnormality. All-body standing and learned-policy drive not performed; resolve current L calibration branch mismatch in RR ID8/9.",
+  "validation": {
+    "FR_wrapper_tests_local_and_jetson": 32,
+    "one_leg_wrapper_tests_local_and_jetson": 36,
+    "unchanged_runtime_tests_local_and_jetson": 170,
+    "manual_diagnostic_tests_local_and_jetson": 26
+  },
+  "limits": [
+    "Received-angle target error is not independent physical-angle accuracy",
+    "Small-current-reference holds do not establish load-bearing standing",
+    "Pure diagnostic helper output_allowed flags are not execution logs; actual typed TX determines whether motors were enabled"
+  ],
+  "followup_evidence": "current-hold-reviewed-20260925.json"
+}

@@ -165,6 +165,13 @@ class TrialTests(unittest.TestCase):
                 check_feedback(fb, 0, when, now)
         check_feedback(feedback(), 0, 10, 10.01)
 
+    def test_feedback_age_override_is_bounded_and_default_stays_at_100ms(self):
+        with self.assertRaisesRegex(RuntimeError, 'Stale feedback'):
+            check_feedback(feedback(), 0, 10., 10.12)
+        check_feedback(feedback(), 0, 10., 10.12, max_age_s=.125)
+        with self.assertRaisesRegex(RuntimeError, 'Stale feedback'):
+            check_feedback(feedback(), 0, 10., 10.126, max_age_s=.125)
+
     def test_trajectory_boundaries_and_peak(self):
         self.assertEqual(trajectory_offset(0), 0)
         self.assertEqual(trajectory_offset(MAX_DURATION_S), 0)

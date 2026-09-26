@@ -1,0 +1,32 @@
+{
+  "schema": "singularitydog.postboot-preflight-summary.v1",
+  "date": "2026-09-26",
+  "boot_id": "b8d725b0-e1ae-486d-8624-301127f22431",
+  "source_on_jetson": "/home/jetson/singularitydog-logs/postboot-preflight-20260926-r1/summary.json",
+  "scope": "two-bus disabled-state preflight; no motor enable or motion target",
+  "status": "INCOMPLETE",
+  "front": {
+    "ids": [1, 2, 3, 4, 5, 6],
+    "identities_verified": true,
+    "status": "INCOMPLETE",
+    "reason": "cancelled when rear bus failed voltage gate",
+    "stop_observations": 0,
+    "port_closed": true,
+    "transport_poisoned": false
+  },
+  "rear": {
+    "ids": [7, 8, 9, 10, 11, 12],
+    "identities_verified": true,
+    "status": "INCOMPLETE",
+    "id7_voltage_v": 32.84349060058594,
+    "trial_voltage_min_v": 35.0,
+    "stop_observations": 0,
+    "port_closed": true,
+    "transport_poisoned": false
+  },
+  "configuration_change_attempted": false,
+  "motor_enable_available": false,
+  "motion_command_available": false,
+  "both_port_locks_released": true,
+  "next_action": "Charge or replace the 40 V battery, then rerun the full same-boot identity, voltage, fault, and STOP preflight. Do not count this incomplete run as a pass."
+}

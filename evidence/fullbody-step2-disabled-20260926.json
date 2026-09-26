@@ -1,0 +1,35 @@
+{
+  "schema": "singularitydog.fullbody-raw-step2-disabled-evidence.v1",
+  "date": "2026-09-26",
+  "boot_id": "c4802c8c-0261-4f5e-b324-bdb5bf2063bf",
+  "status": "PREFLIGHT_PASSED_RESET_CONFIRMED",
+  "preflight_only": true,
+  "motor_enable_sent": false,
+  "motion_gain_sent": false,
+  "cycles_per_bus": {"front": 20, "rear": 20},
+  "cycle_due_to_complete_ms": {
+    "front_median": 35.861,
+    "front_max": 36.585,
+    "rear_median": 36.483,
+    "rear_max": 36.836
+  },
+  "transmitted_wire_count": 696,
+  "transmitted_type_counts": {"0": 12, "1_zero_gain": 504, "4": 24, "17": 144, "18": 12},
+  "all_12_stop_confirmed": true,
+  "trial_device_closed": true,
+  "locks_released": true,
+  "errors": [],
+  "summary_sha256": "3d9a4af736e9978816fc1abe189c17de695fbd310516ec7fe3937fd1889ca333",
+  "events_sha256": "e0ebcab3a219fa547990163b1a51816e9bd3205fb4064e98e270a47ea1d71c73",
+  "local_log_directory": "/private/tmp/fabo-robotdog-fullbody-step2-disabled-20260926-r2",
+  "operator_observations": {
+    "id8_id9_full_physical_revolution_since_prior_reading": false,
+    "support_hands_off_and_immediate_40v_cutoff_confirmed": true,
+    "all_four_leg_links_feet_and_wiring_two_degree_sweep_clearance_confirmed": true
+  },
+  "limits": [
+    "No motor enable or nonzero-gain motion occurred in this preflight.",
+    "Raw directions remain diagnostic candidates rather than approved model calibration.",
+    "Passing this preflight does not establish standing or learned-policy readiness."
+  ]
+}

@@ -15,6 +15,7 @@ import time
 import weakref
 
 from . import policy_shadow as shadow
+from .event_snapshot import snapshot_event
 
 DT_NS = 20_000_000
 _EXPECTED_MOTOR_KEYS = frozenset((i, p) for i in range(1, 13)
@@ -49,6 +50,19 @@ def _stamp(value, label):
 def _digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"),
                                     allow_nan=False).encode()).hexdigest()
+
+
+def _snapshot_copy(snapshot):
+    """Own the finite JSON input without arbitrary deepcopy dispatch/hooks.
+
+    This only changes copying: _inputs still validates every dynamic field,
+    timestamp and calibrated range, and the full input digest is recomputed.
+    Oversized, cyclic or non-JSON inputs fail before model execution.
+    """
+    try:
+        return snapshot_event(snapshot)
+    except (TypeError, ValueError) as error:
+        raise ObserverError("Invalid bounded JSON snapshot: " + str(error)) from error
 
 
 def _mount(candidate):
@@ -285,7 +299,7 @@ class StatefulPolicyObserver:
             if self._profile_consume:
                 self._last_consume_profile = None
                 profile = _ConsumeProfile(self._profile_clock)
-            snapshot = copy.deepcopy(snapshot)
+            snapshot = _snapshot_copy(snapshot)
             if profile is not None:
                 profile.next("source_validation")
             inputs, provenance, selected_sources = self._inputs(snapshot, profile)

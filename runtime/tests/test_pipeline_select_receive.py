@@ -1,9 +1,11 @@
 """Pipeline scheduling/guard integration; real POSIX reader tests live separately."""
+from contextlib import contextmanager
 import unittest
 from unittest.mock import patch
 
 from singularitydog_hw.can_pipeline_probe import PipelineCAN
 from singularitydog_hw.can_readonly import read_request
+from singularitydog_hw import serial_deadline_reader as reader_module
 from test_can_pipeline_probe import Clock, Serial, UIDS, wire
 
 
@@ -136,7 +138,7 @@ class PipelineSelectReceiveTests(unittest.TestCase):
         self.assertTrue(port.closed)
 
     def test_select_collection_keeps_identity_matching_and_readonly_counts(self):
-        probe, port, _, _ = self.fixture()
+        probe, port, events, _ = self.fixture()
         with probe:
             report = probe.collect(UIDS)
         self.assertEqual(report["status"], "READONLY_PIPELINE_COMPLETE")
@@ -150,6 +152,12 @@ class PipelineSelectReceiveTests(unittest.TestCase):
         self.assertEqual(port.read_timeouts, [])
         self.assertEqual(port.write_timeout_settings, [])
         self.assertFalse(report["full_controller_50Hz_verified"])
+        raw = [event for event in events if event["kind"] == "pipeline_rx_bytes"]
+        self.assertEqual(sum(len(bytes.fromhex(event["hex"])) for event in raw), 36 * 17)
+        self.assertEqual(report["rx_bytes"], 36 * 17)
+        self.assertTrue(all(not event.get("rejected") for event in raw))
+        self.assertIsNone(report["receiver_profile"]["failed_read_evidence"])
+        self.assertFalse(report["receiver_profile"]["failed_read_evidence_emit_failed"])
         self.assertTrue(port.closed)
 
     def test_serial_baseline_does_not_construct_select_reader(self):
@@ -210,6 +218,142 @@ class PipelineSelectReceiveTests(unittest.TestCase):
         self.assertTrue(probe.poisoned)
         self.assertTrue(port.closed)
         self.assertEqual(len(port.writes), 1)
+        self.assertEqual(report["rx_bytes"], 0)
+        self.assertIsNone(report["receiver_profile"]["failed_read_evidence"])
+
+
+class PipelineRejectedReadTests(unittest.TestCase):
+    """Run the real receiver/guard path with fake syscalls, never a device."""
+
+    @contextmanager
+    def fixture(self, original_error, *, unknown_timestamp=False, logger_failure=False,
+                profiling_failure=False):
+        clock = Clock()
+        port = Serial(clock)
+        port.fileno = lambda: 45
+        events, state = [], {"read_done": False}
+
+        def emit(event):
+            if logger_failure and event.get("rejected"):
+                event["hex"] = "changed by failed sink"
+                raise RuntimeError("Bounded event sink full")
+            events.append(event)
+
+        def check():
+            if state["read_done"] and not unknown_timestamp:
+                raise original_error
+
+        def ready(*_):
+            clock.advance(50_000)
+            return [45], [], []
+
+        def read(fd, size):
+            self.assertEqual((fd, size), (45, 4096))
+            state["syscall_started_ns"] = clock()
+            when, chunk = port.queue.pop(0)
+            clock.advance(max(0, when - clock()) + 100)
+            state.update(read_done=True, received_ns=clock(), chunk=chunk)
+            return chunk
+
+        def reader_clock():
+            if state["read_done"] and unknown_timestamp:
+                raise original_error
+            return clock()
+
+        def profile_clock():
+            if state["read_done"] and profiling_failure:
+                raise ValueError("Profiling clock unavailable")
+            return clock()
+
+        probe = PipelineCAN(emit, serial_port=port, clock=clock, receive_mode="select",
+                            check_interrupt=check)
+        with patch.object(reader_module.os, "get_blocking", return_value=False), \
+             patch.object(reader_module.select, "select", side_effect=ready), \
+             patch.object(reader_module.os, "read", side_effect=read), probe:
+            self.assertIsInstance(probe.deadline_reader, reader_module.DeadlineSerialReader)
+            probe.deadline_reader.clock = reader_clock
+            probe.clock = profile_clock
+            yield probe, port, events, state
+        self.assertTrue(port.closed)
+
+    def test_real_post_read_timeout_and_keyboard_interrupt_keep_original_and_raw_bytes(self):
+        for error in (TimeoutError("post-read timeout"), KeyboardInterrupt("cancelled after read")):
+            with self.subTest(error=type(error).__name__), self.fixture(error) as (probe, port, events, state):
+                probe._send((1, "position"), 1)
+                with self.assertRaises(type(error)) as caught:
+                    probe._receive(.003, UIDS)
+                self.assertIs(caught.exception, error)
+                self.assertEqual(error.serial_read_evidence.data, state["chunk"])
+                raw = [event for event in events if event["kind"] == "pipeline_rx_bytes"]
+                self.assertEqual(len(raw), 1)
+                self.assertTrue(raw[0]["rejected"])
+                self.assertEqual(raw[0]["hex"], state["chunk"].hex())
+                self.assertEqual(raw[0]["monotonic_ns"], state["received_ns"])
+                self.assertEqual(raw[0]["syscall_read_started_ns"], state["syscall_started_ns"])
+                self.assertLess(raw[0]["read_started_ns"], raw[0]["syscall_read_started_ns"])
+                self.assertEqual(probe.rx_bytes, len(state["chunk"]))
+                self.assertEqual(probe.replies, 0)
+                self.assertEqual(bytes(probe.parser.buffer), b"")
+                self.assertFalse(probe.rows[0]["ok"])
+                self.assertFalse(any(e["kind"] in ("pipeline_rx_frame", "pipeline_reply") for e in events))
+                self.assertEqual(len(port.writes), 1)
+
+    def test_unknown_receive_timestamp_uses_error_evidence_without_normal_raw_event(self):
+        error = ValueError("receive clock invalid")
+        with self.fixture(error, unknown_timestamp=True) as (probe, _, events, state):
+            probe._send((1, "position"), 1)
+            with self.assertRaises(ValueError) as caught:
+                probe._receive(.003, UIDS)
+            self.assertIs(caught.exception, error)
+            self.assertIsNone(error.serial_read_evidence.received_ns)
+            self.assertFalse(any(e["kind"] == "pipeline_rx_bytes" for e in events))
+            evidence, = [e for e in events if e["kind"] == "pipeline_rx_error_evidence"]
+            self.assertIsNone(evidence["received_ns"])
+            self.assertNotIn("monotonic_ns", evidence)
+            self.assertEqual(evidence["hex"], state["chunk"].hex())
+            self.assertEqual(probe.rx_bytes, 17)
+            self.assertEqual(probe.replies, 0)
+
+    def test_failed_event_sink_retains_detached_evidence_and_original_exception(self):
+        for unknown in (False, True):
+            error = KeyboardInterrupt("original receive failure")
+            with self.subTest(unknown_timestamp=unknown), self.fixture(
+                    error, unknown_timestamp=unknown, logger_failure=True) as (probe, _, _, state):
+                probe._send((1, "position"), 1)
+                with self.assertRaises(KeyboardInterrupt) as caught:
+                    probe._receive(.003, UIDS)
+                self.assertIs(caught.exception, error)
+                profile = probe.receiver_profile()
+                self.assertTrue(profile["failed_read_evidence_emit_failed"])
+                self.assertEqual(profile["failed_read_evidence_emit_error_type"], "RuntimeError")
+                self.assertEqual(profile["failed_read_evidence"]["hex"], state["chunk"].hex())
+                profile["failed_read_evidence"]["hex"] = "changed by report consumer"
+                self.assertEqual(probe.receiver_profile()["failed_read_evidence"]["hex"], state["chunk"].hex())
+                self.assertEqual(probe.replies, 0)
+
+    def test_collection_saves_rejected_bytes_in_incomplete_report_without_retry(self):
+        for error in (TimeoutError("post-read timeout"), KeyboardInterrupt("cancelled after read")):
+            with self.subTest(error=type(error).__name__), self.fixture(error) as (probe, port, _, state):
+                report = probe.collect(UIDS)
+                self.assertEqual(report["status"], "INCOMPLETE")
+                self.assertIn(repr(error), report["errors"])
+                self.assertEqual(report["rx_bytes"], 17)
+                self.assertEqual(report["replies"], 0)
+                self.assertFalse(report["identities_verified"])
+                self.assertEqual(report["receiver_profile"]["failed_read_evidence"]["hex"], state["chunk"].hex())
+                self.assertEqual(len(port.writes), 1)
+                self.assertTrue(probe.poisoned)
+
+    def test_profiling_clock_failure_does_not_replace_post_read_exception(self):
+        error = TimeoutError("original post-read timeout")
+        with self.fixture(error, profiling_failure=True) as (probe, _, _, state):
+            probe._send((1, "position"), 1)
+            with self.assertRaises(TimeoutError) as caught:
+                probe._receive(.003, UIDS)
+            self.assertIs(caught.exception, error)
+            profile = probe.receiver_profile()
+            self.assertEqual(profile["read_wrapper"]["profiling_error_type"], "ValueError")
+            self.assertEqual(profile["failed_read_evidence"]["hex"], state["chunk"].hex())
 
 
 if __name__ == "__main__":

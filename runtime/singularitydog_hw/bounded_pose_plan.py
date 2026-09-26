@@ -253,6 +253,17 @@ def evaluate_settling_observation(plan, samples, *, run_start_ns, ended_ns):
     """
     if type(plan) is not PosePlan or plan.leg != 'RR' or plan.ids != (7,8,9):
         raise ValueError('Settling observation requires an explicit RR plan')
+    return _evaluate_settling_observation(plan, samples, run_start_ns=run_start_ns, ended_ns=ended_ns)
+
+
+def evaluate_fr_settling_observation(plan, samples, *, run_start_ns, ended_ns):
+    """Evaluate a finite FR diagnostic without treating 2-degree error as arrival."""
+    if type(plan) is not PosePlan or plan.leg != 'FR' or plan.ids != (1,2,3):
+        raise ValueError('FR settling observation requires an explicit FR plan')
+    return _evaluate_settling_observation(plan, samples, run_start_ns=run_start_ns, ended_ns=ended_ns)
+
+
+def _evaluate_settling_observation(plan, samples, *, run_start_ns, ended_ns):
     checked = _evaluate_hold_samples(plan, samples, run_start_ns=run_start_ns, ended_ns=ended_ns,
                                      settling_observation=True)
     errors = list(checked['errors'])

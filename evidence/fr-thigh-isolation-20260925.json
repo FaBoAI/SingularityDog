@@ -1,0 +1,43 @@
+{
+  "date": "2026-09-25",
+  "capture": "FR-thigh-isolation-20260925-r1",
+  "scope": "supported FR ID2only2degree target; sibling fixedreference hold",
+  "cycle_ms": 50,
+  "duration_s": 5,
+  "status": "FR_THIGH_ISOLATION_CANDIDATE_RESET_CONFIRMED_DUAL_BUS_PRE_POST",
+  "errors": [],
+  "stop_confirmed": true,
+  "all12_after_quiet": true,
+  "operator_observation": "動きが見えた。異常なし",
+  "metrics": {
+    "1": {
+      "samples": 100,
+      "target_delta_deg": 0.015535806998605121,
+      "observed_delta_deg": -0.13187602627232842,
+      "final_window_max_error_deg": 0.14741183327093352,
+      "peak_torque_feedback_Nm": 0.021568627450980316,
+      "Kp": 3.0
+    },
+    "2": {
+      "samples": 100,
+      "target_delta_deg": 2.0048796057060114,
+      "observed_delta_deg": 2.263871784340688,
+      "final_window_max_error_deg": 0.2589921786346762,
+      "peak_torque_feedback_Nm": 0.12681010147249605,
+      "Kp": 12.0
+    },
+    "3": {
+      "samples": 100,
+      "target_delta_deg": 0.005742815850195457,
+      "observed_delta_deg": 0.04395867542404162,
+      "final_window_max_error_deg": 0.03821585957384616,
+      "peak_torque_feedback_Nm": 0.026436255436026457,
+      "Kp": 12.0
+    }
+  },
+  "standing_verified": false,
+  "learned_policy_output_sent": false,
+  "physical_torque_cap_verified": false,
+  "summary_sha256": "7a645b0598a365bcb9a80daab2bbbd4b2cc0dcb80d5692f729cc7b0fcaa74a28",
+  "events_sha256": "97173853734fa9b829efb90ced2ad3de45dbec6667354e1a403cccf709824325"
+}
