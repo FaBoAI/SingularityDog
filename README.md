@@ -16,7 +16,7 @@ SingularityDogは、**GPT-6 Astraを開発エージェントに据え、人と�
 
 2026-09-26時点。**第37回まで評価済み。実機はRS05全12軸を公式FW 0.5.0.13へ更新し、前後2系統のCANで12軸の現在位置保持と全軸停止を確認しました。** I2Sスピーカーの試験開始音声も確認済みです。実入力・推論・STOP代理送信の単発計測は中央値20.063msまで短縮しましたが、連続20ms制御の達成を示すものではありません。学習済みモデルによる実機起立・歩行は未実施です。前進の最終目標は40cm/sです。
 
-**[9月25〜26日の実機結果・残件](docs/2026-09-25-26-hardware-status.md)** · [支持付き立位までの短縮手順](docs/fast-track-standing-20260927.md) · [9月24日までの成果・課題・次の手順](docs/hardware-summary-20260924.md) · [20ms化の実測と改善方針](docs/control-20ms-strategy-20260924.md)
+**[立位前のまとめテストと所要時間](docs/prestand-test-checklist-20260927.md)** · [9月25〜26日の実機結果・残件](docs/2026-09-25-26-hardware-status.md) · [支持付き立位までの短縮手順](docs/fast-track-standing-20260927.md) · [9月24日までの成果・課題・次の手順](docs/hardware-summary-20260924.md) · [20ms化の実測と改善方針](docs/control-20ms-strategy-20260924.md)
 
 **[Deployまでの全体計画（9月22日）：課題・事前準備・実機試験の順序と完了条件](docs/deployment-roadmap-20260922.md)**
 

@@ -1,25 +1,32 @@
-# 前脚付け根10°試験の連続準備と記録
+# 前脚付け根10°試験のまとめ実施と記録
 
 `tools/front_hip_test_session.py`は、**同一起動の証拠を一つのセッションに集める非駆動CLI**。保持→無効化preflight→現物の経路確認→有効化試験の順序を固定する。パッケージの作成とログの取込みを一括化し、転送・モーター駆動・40 V操作・物理確認の承認は行わない。試験を自動で再実行する機能ではない。
 
 同じ入力でコマンドを再実行すると、保存済み段階を検証してその結果を返す。別のhold、起動ID、ログ、レビューを同じセッションへ混ぜた場合は止まる。失敗時は新しい起動や姿勢に切り替えない限り、失敗した段階から再開できる。完成した各段階の`*-receipt.json`と`session.json`にはSHA-256が残る。未完成のパッケージは自動削除せず、原因を調べてから新しいセッションを使う。
 
+現場では次の**まとまり**で扱う。時刻は準備済みで一度で通る場合の作業枠見積もりで、実測所要時間ではない。詳細と立位までの残件は[まとめテスト表](prestand-test-checklist-20260927.md)に記載する。
+
+|まとまり|一度に進める内容|目安|
+|---|---|---:|
+|現起動の基準|全12軸保持ツールの開始時検査でUID・生角・電圧・故障・watchdogを取り、5秒保持・STOPまで1回で実施。IMU静止値は別ストリームで同じ作業枠に保存し、後続はhold結果を再利用する。|8〜15分|
+|前脚付け根|同一起動のpreflightと現物の全経路確認を済ませ、**1秒保持→5°→10°を同一Enableで1回**実施。途中でSTOP・脱力して5°を2回繰り返す手順ではない。|10〜20分|
+|終了判定と次の姿勢|結果・全12軸STOPをまとめて取り込み、姿勢が変わった後の上脚経路を40 V Offで現物確認する。|10〜20分|
+
+2つ目のまとまりは、preflightと有効化試験を一つの無停止駆動として実行する意味ではない。preflight後の物理レビューと実行直前の状態確認は必須。このCLIはIMUを読み取らず、そのログを取り込む機能もない。IMU記録は別ストリームで同じ作業枠に保管して照合する。FW版数は保持reviewにある既存記録とのUID対応であり、保持ツールは毎回ライブ版数を再照会しない。試験が止まった場合は失敗区間のログを保持し、未確認の姿勢・経路へ自動で次の指令を送らない。連続profileは**模擬試験まで完了、実機未実施**である。
+
 `SESSION`はMac上の新しいディレクトリ、`SOURCE_DISABLED`は現起動で凍結した無効化ソース、`HOLD`は同一起動で全12軸の5秒保持とSTOPを終えた`summary.json`を指す。以下はパスを各自の実ファイルに置き換える。
 
-```sh
-python3 -B tools/front_hip_test_session.py create \
-  --session "$SESSION" --source-disabled "$SOURCE_DISABLED" \
-  --hold-summary "$HOLD"
-python3 -B tools/front_hip_test_session.py status --session "$SESSION"
-```
-
-上の`create`は従来の単発10°。今回の**最初の1秒保持→5°へ移動・保持→10°へ移動・保持を同一Enableで行い最後にSTOP**する試験には、新しいセッションを作り、`create`に`--continuous-5-10`を明示する。単発と連続のパッケージ・レビュー・ログは同じセッションに混在できない。
+今回の**最初の1秒保持→5°へ移動・保持→10°へ移動・保持を同一Enableで行い最後にSTOP**する試験を先に準備する。`create`に`--continuous-5-10`を明示し、同じ起動のhold結果を渡す。
 
 ```sh
 python3 -B tools/front_hip_test_session.py create \
   --session "$CONTINUOUS_SESSION" --source-disabled "$SOURCE_DISABLED" \
   --hold-summary "$HOLD" --continuous-5-10
+SESSION="$CONTINUOUS_SESSION"
+python3 -B tools/front_hip_test_session.py status --session "$SESSION"
 ```
+
+従来の単発10°を調べる場合だけ`--continuous-5-10`を省略し、別の新しいセッションを使う。単発と連続のパッケージ・レビュー・ログは同じセッションに混在できない。
 
 `$SESSION/front-hip-step10-disabled`をJetsonへ別途転送する。実行する場合は現起動のJetson上で、支持台・脚/配線の離隔・即時40 V Offを確認し、既存の凍結launcherを**1回だけ**起動する。`LOG`は`/home/jetson/singularitydog-logs`の直下に作る新規ディレクトリ名にする。
 
