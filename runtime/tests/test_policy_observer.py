@@ -14,6 +14,7 @@ from unittest.mock import Mock, patch
 
 from singularitydog_hw import policy_observer as observer
 from singularitydog_hw import policy_shadow as shadow
+from singularitydog_hw.angle_branch_comparison import StaticBranchComparison, TWO_PI
 from singularitydog_hw.telemetry_snapshot import TelemetrySnapshotBuffer
 
 
@@ -64,6 +65,44 @@ def snapshot(tick=1_000_000_000, *, calib=None, buffer=None):
     buffer.ingest_imu(accel_m_s2=[0., 0., -10.], gyro_rad_s=[.11, .22, .33],
                       read_started_ns=tick-2_000_000, read_finished_ns=tick-1_500_000)
     return buffer.snapshot(tick).as_dict()
+
+
+def reviewed_branch_snapshot(tick=1_000_000_000, *, current_raw=6.262798309326172,
+                             reference_raw=-.04319906234741211, calib=None):
+    """Synthetic read-only tick with caller-attested quiet power-epoch evidence."""
+    s = snapshot(tick, calib=calib)
+    position = {str(row["motor_id"]): row["value"] for row in s["motors"]
+                if row["parameter"] == "position"}
+    position["3"] = current_raw
+    next(row for row in s["motors"] if row["motor_id"] == 3
+         and row["parameter"] == "position")["value"] = current_raw
+    reference = dict(position)
+    reference["3"] = reference_raw
+    uids = (calib or calibration())["identities"]
+    def capture(epoch, digit, raw):
+        return {"boot_id": "synthetic-jetson-boot", "motor_power_epoch": epoch,
+                "uid_read_boot_id": "synthetic-jetson-boot",
+                "uid_read_motor_power_epoch": epoch,
+                "capture_sha256": digit*64, "uid_capture_sha256": digit*63+"f",
+                "uids_by_id": dict(uids), "raw_rad_by_id": raw,
+                "disabled_zero_current_by_id": {str(i): True for i in range(1, 13)},
+                "motor_output_allowed": False}
+    old_capture = capture("observed-motor-epoch-1", "a", reference)
+    new_capture = capture("observed-motor-epoch-2", "b", position)
+    no_turn = {"motor_supply_off_on_observed": True,
+               "reference_capture_sha256": old_capture["capture_sha256"],
+               "current_capture_sha256": new_capture["capture_sha256"],
+               "evidence_sha256": "e"*64,
+               "no_full_physical_turn_by_id": {"3": True},
+               "physical_pose_observation_by_id": {"3": "marked shaft did not make a full turn"}}
+    review = StaticBranchComparison(old_capture, new_capture, no_turn)
+    bound = review.validated_current_binding()
+    s["source_flags"] = {"power_epoch_branch_capture": {
+        **bound, "uid_read_boot_id": bound["boot_id"],
+        "uid_read_motor_power_epoch": bound["motor_power_epoch"],
+        "motor_supply_off_on_observed": True,
+        "disabled_zero_current_by_id": {str(i): True for i in range(1, 13)}}}
+    return s, review
 
 
 class Tensor:
@@ -375,6 +414,128 @@ class ObserverTests(unittest.TestCase):
         self.assertEqual(result["provenance"]["raw_accel_norm_m_s2"], 10.)
         self.assertFalse(result["provenance"]["accel_scale_corrected"])
         self.assertTrue(result["provenance"]["gyro_bias_hypothesis"]["applied_as_hypothesis"])
+
+    def test_reviewed_power_epoch_branch_changes_only_observation_input(self):
+        source, review = reviewed_branch_snapshot()
+        unchanged = copy.deepcopy(source)
+        baseline = make(max_ticks=1)
+        baseline.reset_run(source["tick_ns"], warmup_completed=True)
+        with self.assertRaisesRegex(observer.ObserverError, "joint range"):
+            baseline.consume(source)
+        policy = Policy()
+        run = make(policy, max_ticks=1, power_epoch_branch_comparison=review)
+        run.reset_run(source["tick_ns"], warmup_completed=True)
+        result = run.consume(source)
+        self.assertEqual(source, unchanged)
+        q_index = shadow.CAN_ORDER.index(3)
+        equivalent_raw = 6.262798309326172-TWO_PI
+        self.assertAlmostEqual(policy.calls[0][3][q_index], -equivalent_raw+.03)
+        self.assertAlmostEqual(result["inputs"]["q_model_rad"][q_index], -equivalent_raw+.03)
+        self.assertTrue(shadow.LOWER[q_index] <= result["inputs"]["q_model_rad"][q_index]
+                        <= shadow.UPPER[q_index])
+        branch = result["provenance"]["power_epoch_branch_overlay"]
+        self.assertEqual(branch["raw_position_rad_by_id"]["3"], 6.262798309326172)
+        self.assertAlmostEqual(branch["comparison_position_rad_by_id"]["3"], equivalent_raw)
+        self.assertEqual(branch["reviewed_capture_binding"]["reviewed_branch_turns_by_id"],
+                         {"3": 1})
+        self.assertEqual(branch["reviewed_capture_binding"]["motor_power_epoch"],
+                         "observed-motor-epoch-2")
+        self.assertFalse(result["output_allowed"])
+        self.assertFalse(result["motor_output_available"])
+        self.assertFalse(result["approved_for_runtime"])
+        self.assertFalse(branch["motor_output_allowed"])
+        self.assertEqual(result["q_target_rad_diagnostic_only"], [0., .4, -.8]*4)
+
+    def test_power_epoch_branch_profile_and_returned_provenance_are_independent(self):
+        source, review = reviewed_branch_snapshot()
+        run = make(power_epoch_branch_comparison=review)
+        run.reset_run(source["tick_ns"], warmup_completed=True)
+        first = run.consume(source)
+        first_branch = first["provenance"]["power_epoch_branch_overlay"]
+        first_branch["reviewed_capture_binding"]["uids_by_id"]["3"] = "f"*16
+        review.validated_current_binding()["raw_rad_by_id"]["3"] = 123.
+        later, _ = reviewed_branch_snapshot(source["tick_ns"]+observer.DT_NS)
+        second = run.consume(later)
+        self.assertEqual(second["provenance"]["power_epoch_branch_overlay"]
+                         ["reviewed_capture_binding"]["uids_by_id"]["3"],
+                         calibration()["identities"]["3"])
+        self.assertAlmostEqual(second["provenance"]["power_epoch_branch_overlay"]
+                               ["comparison_position_rad_by_id"]["3"],
+                               6.262798309326172-TWO_PI)
+
+    def test_power_epoch_branch_rejects_missing_or_mismatched_capture_proof(self):
+        changes = {
+            "missing": lambda s: s["source_flags"].clear(),
+            "boot": lambda s: s["source_flags"]["power_epoch_branch_capture"].update(
+                boot_id="other-boot"),
+            "epoch": lambda s: s["source_flags"]["power_epoch_branch_capture"].update(
+                motor_power_epoch="other-epoch"),
+            "capture": lambda s: s["source_flags"]["power_epoch_branch_capture"].update(
+                capture_sha256="c"*64),
+            "uid_capture": lambda s: s["source_flags"]["power_epoch_branch_capture"].update(
+                uid_capture_sha256="c"*64),
+            "evidence": lambda s: s["source_flags"]["power_epoch_branch_capture"].update(
+                evidence_sha256="c"*64),
+            "uid": lambda s: s["source_flags"]["power_epoch_branch_capture"]
+                ["uids_by_id"].update({"3": "f"*16}),
+            "stale_uid_read": lambda s: s["source_flags"]["power_epoch_branch_capture"].update(
+                uid_read_motor_power_epoch="observed-motor-epoch-1"),
+            "not_quiet": lambda s: s["source_flags"]["power_epoch_branch_capture"]
+                ["disabled_zero_current_by_id"].update({"3": False}),
+            "no_off_on": lambda s: s["source_flags"]["power_epoch_branch_capture"].update(
+                motor_supply_off_on_observed=False),
+        }
+        for label, change in changes.items():
+            with self.subTest(label=label):
+                source, review = reviewed_branch_snapshot()
+                change(source)
+                policy = Policy()
+                run = make(policy, max_ticks=1, power_epoch_branch_comparison=review)
+                run.reset_run(source["tick_ns"], warmup_completed=True)
+                with self.assertRaises(observer.ObserverError):
+                    run.consume(source)
+                self.assertEqual(policy.calls, [])
+                self.assertEqual(run.ticks_completed, 0)
+                self.assertEqual(run.status, "INCOMPLETE")
+        source, review = reviewed_branch_snapshot()
+        wrong_calibration = calibration()
+        wrong_calibration["identities"]["3"] = "f"*16
+        with self.assertRaisesRegex(observer.ObserverError, "UIDs do not match"):
+            make(calibration=wrong_calibration, power_epoch_branch_comparison=review)
+        with self.assertRaisesRegex(observer.ObserverError, "StaticBranchComparison"):
+            make(power_epoch_branch_comparison=review.comparison())
+
+    def test_power_epoch_branch_rejects_raw_discontinuity_and_retains_range_gate(self):
+        source, review = reviewed_branch_snapshot()
+        policy = Policy()
+        run = make(policy, power_epoch_branch_comparison=review)
+        run.reset_run(source["tick_ns"], warmup_completed=True)
+        run.consume(source)
+        later, _ = reviewed_branch_snapshot(source["tick_ns"]+observer.DT_NS)
+        next(row for row in later["motors"] if row["motor_id"] == 3
+             and row["parameter"] == "position")["value"] += TWO_PI
+        with self.assertRaisesRegex(observer.ObserverError, "discontinuity|static capture"):
+            run.consume(later)
+        self.assertEqual(len(policy.calls), 1)
+        self.assertEqual(run.ticks_completed, 1)
+        self.assertEqual(run.status, "INCOMPLETE")
+
+        current_raw, reference_raw = TWO_PI-.46, -.46
+        source, review = reviewed_branch_snapshot(current_raw=current_raw,
+                                                   reference_raw=reference_raw)
+        policy = Policy()
+        run = make(policy, power_epoch_branch_comparison=review)
+        run.reset_run(source["tick_ns"], warmup_completed=True)
+        self.assertAlmostEqual(run.consume(source)["inputs"]["q_model_rad"]
+                               [shadow.CAN_ORDER.index(3)], .49)
+        later, _ = reviewed_branch_snapshot(source["tick_ns"]+observer.DT_NS,
+                                             current_raw=current_raw,
+                                             reference_raw=reference_raw)
+        next(row for row in later["motors"] if row["motor_id"] == 3
+             and row["parameter"] == "position")["value"] -= .03
+        with self.assertRaisesRegex(observer.ObserverError, "joint range"):
+            run.consume(later)
+        self.assertEqual(len(policy.calls), 1)
 
     def test_h_instances_are_separate_and_not_measurements(self):
         a, b = make(h_hypothesis=0), make(h_hypothesis=1)

@@ -15,6 +15,8 @@ import time
 import weakref
 
 from . import policy_shadow as shadow
+from .angle_branch_comparison import (IDS as BRANCH_IDS, MAX_STATIC_POSE_DELTA_RAD,
+                                      StaticBranchComparison, TWO_PI)
 from .event_snapshot import snapshot_event
 
 DT_NS = 20_000_000
@@ -115,6 +117,101 @@ def _bias(candidate):
                 "approved_for_runtime", "calibration_verified", "absolute_level_verified")}}
 
 
+def _power_epoch_branch_overlay(candidate, calibration):
+    """Freeze one reviewed static comparison for observation input only.
+
+    The comparison constructor checked caller-attested Off/On, quiet disabled
+    zero-current, no-full-turn and fresh UID evidence. Those assertions do not
+    prove physical STOP. A tick still needs an explicit binding to that capture
+    and power epoch.
+    """
+    if candidate is None:
+        return None
+    _require(type(candidate) is StaticBranchComparison,
+             "Require a reviewed StaticBranchComparison for branch overlay")
+    try:
+        binding = candidate.validated_current_binding()
+        comparison = candidate.comparison()
+    except ValueError as error:
+        raise ObserverError("Invalid static branch comparison: " + str(error)) from error
+    _require(binding["motor_output_allowed"] is False
+             and binding["approved_for_runtime"] is False
+             and comparison["motor_output_allowed"] is False
+             and comparison["approved_for_runtime"] is False
+             and comparison["raw_targets_changed"] is False
+             and comparison["status"] == "STATIC_BRANCH_COMPARISON_ONLY",
+             "Branch review must be diagnostic only")
+    _require(comparison["current_boot_id"] == binding["boot_id"]
+             and comparison["current_motor_power_epoch"] == binding["motor_power_epoch"]
+             and comparison["current_capture_sha256"] == binding["capture_sha256"],
+             "Branch capture binding mismatch")
+    _require(binding["uids_by_id"] == calibration["identities"],
+             "Branch UIDs do not match calibrated motor identities")
+    turns = binding["reviewed_branch_turns_by_id"]
+    _require(type(turns) is dict and bool(turns) and set(turns).issubset(BRANCH_IDS)
+             and all(type(k) is int and abs(k) <= 1 for k in turns.values()),
+             "Invalid reviewed branch turns")
+    rows = comparison["rows"]
+    _require(type(rows) is dict and set(rows) == set(BRANCH_IDS)
+             and set(binding["raw_rad_by_id"]) == set(BRANCH_IDS),
+             "Incomplete static branch comparison")
+    for mid in BRANCH_IDS:
+        row = rows[mid]
+        _require(row["uid"] == binding["uids_by_id"][mid]
+                 and row["current_raw_rad"] == binding["raw_rad_by_id"][mid]
+                 and row["branch_reviewed"] is (mid in turns)
+                 and row["branch_turns_for_comparison"] == turns.get(mid, 0),
+                 "Static comparison and validated binding disagree")
+    return {"binding": copy.deepcopy(binding),
+            "reference_raw_rad_by_id": {mid: rows[mid]["reference_raw_rad"] for mid in BRANCH_IDS}}
+
+
+def _branch_observation(snapshot, values, overlay, previous_raw):
+    """Check a tick against the same quiet capture; return comparison copies."""
+    flags = snapshot.get("source_flags")
+    _require(type(flags) is dict, "Branch overlay requires snapshot source flags")
+    source = flags.get("power_epoch_branch_capture")
+    _require(type(source) is dict, "Missing power-epoch branch capture evidence")
+    binding = overlay["binding"]
+    for key in ("boot_id", "motor_power_epoch", "capture_sha256",
+                "uid_capture_sha256", "evidence_sha256", "uids_by_id", "raw_rad_by_id"):
+        _require(source.get(key) == binding[key], "Branch capture evidence mismatch: " + key)
+    _require(source.get("uid_read_boot_id") == binding["boot_id"]
+             and source.get("uid_read_motor_power_epoch") == binding["motor_power_epoch"],
+             "Branch UIDs were not freshly read in the bound boot and motor power epoch")
+    _require(source.get("motor_output_allowed") is False
+             and source.get("motor_supply_off_on_observed") is True,
+             "Branch capture needs read-only motor power-cycle evidence")
+    disabled = source.get("disabled_zero_current_by_id")
+    _require(type(disabled) is dict and set(disabled) == set(BRANCH_IDS)
+             and all(disabled[mid] is True for mid in BRANCH_IDS),
+             "Branch capture needs twelve disabled zero-current assertions")
+    raw = {mid: values[(int(mid), "position")] for mid in BRANCH_IDS}
+    adjusted = {}
+    turns = binding["reviewed_branch_turns_by_id"]
+    for mid in BRANCH_IDS:
+        current = raw[mid]
+        if previous_raw is not None:
+            _require(abs(current-previous_raw[mid]) <= MAX_STATIC_POSE_DELTA_RAD,
+                     "ID" + mid + " within-epoch raw angle discontinuity")
+        _require(abs(current-binding["raw_rad_by_id"][mid]) <= MAX_STATIC_POSE_DELTA_RAD,
+                 "ID" + mid + " differs from the reviewed static capture")
+        equivalent = current-turns.get(mid, 0)*TWO_PI
+        if mid in turns:
+            _require(abs(equivalent-overlay["reference_raw_rad_by_id"][mid])
+                     <= MAX_STATIC_POSE_DELTA_RAD,
+                     "ID" + mid + " no longer matches the reviewed static reference")
+        adjusted[mid] = equivalent
+    provenance = {"kind": "power_epoch_static_branch_observation_only",
+                  "formula": "q_model = sign * (raw - branch_turns * 2*pi) + offset",
+                  "reviewed_capture_binding": copy.deepcopy(binding),
+                  "raw_position_rad_by_id": dict(raw),
+                  "comparison_position_rad_by_id": adjusted,
+                  "static_pose_max_delta_rad": MAX_STATIC_POSE_DELTA_RAD,
+                  "motor_output_allowed": False, "approved_for_runtime": False}
+    return adjusted, provenance, raw
+
+
 def _tensor_row(value, count, label):
     rows = value.detach().cpu().tolist()
     _require(isinstance(rows, list) and len(rows) == 1, "Invalid " + label + " batch")
@@ -163,7 +260,8 @@ class StatefulPolicyObserver:
     def __init__(self, policy, calibration, *, imu_mount_candidate,
                  h_hypothesis, command, max_ticks, max_age_ns, max_spread_ns,
                  torch_module=None, gyro_bias_candidate=None,
-                 profile_consume=False, monotonic_ns=None):
+                 profile_consume=False, monotonic_ns=None,
+                 power_epoch_branch_comparison=None):
         _require(type(profile_consume) is bool, "profile_consume must be an explicit boolean")
         _require(monotonic_ns is None or callable(monotonic_ns),
                  "monotonic_ns must be a callable clock")
@@ -175,6 +273,8 @@ class StatefulPolicyObserver:
         _require(type(max_ticks) is int and 1 <= max_ticks <= 30_000, "max_ticks must be 1..30000")
         self._calibration = copy.deepcopy(calibration)
         self._rows = shadow.validate_calibration(self._calibration)
+        self._branch_overlay = _power_epoch_branch_overlay(power_epoch_branch_comparison,
+                                                           self._calibration)
         self._mount = _mount(imu_mount_candidate)
         self._bias = _bias(gyro_bias_candidate)
         # Private validated configuration is fixed for the observer's lifetime.
@@ -213,6 +313,7 @@ class StatefulPolicyObserver:
         self.ticks_completed = 0
         self._next_tick_ns = None
         self._last_sources = {}
+        self._last_branch_raw = None
 
     def _flags(self):
         return {"motor_output_available": False, "output_allowed": False,
@@ -244,6 +345,7 @@ class StatefulPolicyObserver:
         self.failure = None
         self._next_tick_ns = None
         self._last_sources = {}
+        self._last_branch_raw = None
         self._last_consume_profile = None
         self.status = "INCOMPLETE"
         try:
@@ -302,7 +404,7 @@ class StatefulPolicyObserver:
             snapshot = _snapshot_copy(snapshot)
             if profile is not None:
                 profile.next("source_validation")
-            inputs, provenance, selected_sources = self._inputs(snapshot, profile)
+            inputs, provenance, selected_sources, branch_raw = self._inputs(snapshot, profile)
             if profile is not None:
                 profile.next("tensor_conversion")
             tensor = lambda x: self._torch.tensor([x], dtype=self._torch.float32)
@@ -331,6 +433,7 @@ class StatefulPolicyObserver:
                 self._last_consume_profile = profile.finish(complete=True)
                 result["consume_profile"] = copy.deepcopy(self._last_consume_profile)
             self._last_sources = selected_sources
+            self._last_branch_raw = branch_raw
             self.ticks_completed += 1
             self._next_tick_ns += DT_NS
             return result
@@ -413,8 +516,15 @@ class StatefulPolicyObserver:
                  "Stale observation or excessive acquisition spread")
         if profile is not None:
             profile.next("input_conversion")
-        q = [sign*values[(i, "position")]+offset
-             for i, sign, offset in self._ordered_calibration]
+        branch_provenance, branch_raw = None, None
+        if self._branch_overlay is not None:
+            adjusted, branch_provenance, branch_raw = _branch_observation(
+                snapshot, values, self._branch_overlay, self._last_branch_raw)
+            q = [sign*adjusted[str(i)]+offset
+                 for i, sign, offset in self._ordered_calibration]
+        else:
+            q = [sign*values[(i, "position")]+offset
+                 for i, sign, offset in self._ordered_calibration]
         dq = [sign*values[(i, "velocity")] for i, sign, _ in self._ordered_calibration]
         _require(all(shadow.finite(x) for x in q+dq), "Nonfinite calibrated input")
         _require(all(lo <= value <= hi for value, lo, hi in zip(q, shadow.LOWER, shadow.UPPER)),
@@ -448,4 +558,7 @@ class StatefulPolicyObserver:
             "gravity_source": "negative normalized specific force; hypothesis only, not validated fusion",
             "command_source": "explicit configured diagnostic command",
             "model_can_order_candidate": list(self._can_order)}
-        return (gyro_body, gravity, list(self._command), q, dq, [self._h]*12), provenance, selected_sources
+        if branch_provenance is not None:
+            provenance["power_epoch_branch_overlay"] = branch_provenance
+        return ((gyro_body, gravity, list(self._command), q, dq, [self._h]*12),
+                provenance, selected_sources, branch_raw)

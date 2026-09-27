@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+runtime_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+PYTHONPATH="$runtime_dir${PYTHONPATH:+:$PYTHONPATH}" \
+    exec python3 -m singularitydog_hw.box_pose_alignment --execute-readonly "$@"
