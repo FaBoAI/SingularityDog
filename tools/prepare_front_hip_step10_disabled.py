@@ -13,7 +13,8 @@ import re
 import build_role_group_step as builder
 
 
-def prepare(source: Path, hold: Path, output_root: Path, tag: str) -> dict:
+def prepare(source: Path, hold: Path, output_root: Path, tag: str,
+            *, continuous_5_10: bool = False) -> dict:
     if re.fullmatch(r'[a-z0-9][a-z0-9-]{0,47}', tag) is None:
         raise ValueError('Tag must be 1-48 lowercase letters, digits or hyphens')
     if output_root.is_symlink():
@@ -29,14 +30,18 @@ def prepare(source: Path, hold: Path, output_root: Path, tag: str) -> dict:
         raise ValueError('Output root cannot be inside the frozen source')
     prepared = output_root / f'{tag}-prepared'
     disabled = output_root / f'{tag}-disabled'
+    options = ({'continuous_profile': builder.CONTINUOUS_FRONT_HIP_PROFILE}
+               if continuous_5_10 else {})
     candidate = builder.prepare(source, hold, 'front-hip', prepared,
-                                'front-hip-mirrored', 10.)
+                                'front-hip-mirrored', 10., **options)
     package = builder.disabled(source, hold, prepared, disabled)
     return {'prepared': str(prepared), 'disabled_package': str(disabled),
             'boot_id': candidate['boot_id'],
             'candidate_sha256': candidate['candidate_sha256'],
             'manifest_sha256': package['manifest_sha256'],
-            'disabled_only': True}
+            'disabled_only': True,
+            'continuous_profile': (builder.CONTINUOUS_FRONT_HIP_PROFILE
+                                   if continuous_5_10 else None)}
 
 
 def main(argv=None) -> int:
@@ -45,9 +50,11 @@ def main(argv=None) -> int:
     parser.add_argument('--current-hold-summary', type=Path, required=True)
     parser.add_argument('--output-root', type=Path, required=True)
     parser.add_argument('--tag', required=True)
+    parser.add_argument('--continuous-5-10', action='store_true',
+                        help='Opt in to one initial hold, then 5° and 10° without an intervening STOP')
     args = parser.parse_args(argv)
     result = prepare(args.source_disabled, args.current_hold_summary,
-                     args.output_root, args.tag)
+                     args.output_root, args.tag, continuous_5_10=args.continuous_5_10)
     print(json.dumps(result, indent=2))
     return 0
 

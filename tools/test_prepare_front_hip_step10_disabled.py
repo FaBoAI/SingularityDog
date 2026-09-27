@@ -43,6 +43,29 @@ class PrepareFrontHipStep10DisabledTests(unittest.TestCase):
                         command.prepare(source, hold, root, 'front-hip-step10-r1')
                 candidate.assert_not_called()
 
+    def test_continuous_option_is_explicit_and_keeps_disabled_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            source = base / 'source'
+            source.mkdir()
+            hold = base / 'hold.json'
+            hold.write_text('{}')
+            root = base / 'new-output'
+            source, hold, root = source.resolve(), hold.resolve(), root.resolve()
+            with patch.object(command.builder, 'prepare', return_value={
+                    'boot_id': 'boot', 'candidate_sha256': 'a' * 64}) as candidate, patch.object(
+                    command.builder, 'disabled', return_value={
+                        'manifest_sha256': 'b' * 64}):
+                result = command.prepare(source, hold, root, 'continuous-r1',
+                                         continuous_5_10=True)
+            candidate.assert_called_once_with(
+                source, hold, 'front-hip', root / 'continuous-r1-prepared',
+                'front-hip-mirrored', 10.,
+                continuous_profile=command.builder.CONTINUOUS_FRONT_HIP_PROFILE)
+            self.assertTrue(result['disabled_only'])
+            self.assertEqual(result['continuous_profile'],
+                             command.builder.CONTINUOUS_FRONT_HIP_PROFILE)
+
 
 if __name__ == '__main__':
     unittest.main()

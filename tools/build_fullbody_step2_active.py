@@ -145,6 +145,14 @@ def verify_step2_sources(base, expected):
             'clearance_reference_preflight_summary_sha256': sha(base / 'step2-preflight/summary.json'),
             'start_tolerance_clearance_verified_deg': 3.,
             'start_tolerance_clearance_note': note}
+        if disabled.get('continuous_profile') is not None:
+            require(disabled.get('continuous_profile') == 'front-hip-hold1s-step5-step10-v1'
+                    and disabled.get('continuous_waypoints_deg') == [5.0, 10.0]
+                    and physical.get('continuous_profile') == disabled['continuous_profile']
+                    and physical.get('continuous_waypoints_deg') == [5.0, 10.0]
+                    and physical.get('continuous_19s_reviewed') is True,
+                    'Continuous front-hip 19-second review is missing')
+            clearance_extra['continuous_19s_reviewed'] = True
     require(disabled['boot_id'] == active['boot_id'] == physical['boot_id'] == BOOT
             and disabled['motor_uids'] == active['motor_uids'] == expected
             and disabled['supported_step_authorized'] is False

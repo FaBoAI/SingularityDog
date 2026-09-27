@@ -52,6 +52,12 @@ def prepare(disabled_package: Path, preflight_log: Path, output: Path) -> dict:
         **{flag: False for flag in role.FLAGS},
         'confirmation_note': '',
     }
+    if review.get('continuous_profile') == role.CONTINUOUS_FRONT_HIP_PROFILE:
+        role.require(review.get('continuous_waypoints_deg') == role.CONTINUOUS_FRONT_HIP_WAYPOINTS,
+                     'Unexpected continuous waypoint review')
+        draft['continuous_profile'] = role.CONTINUOUS_FRONT_HIP_PROFILE
+        draft['continuous_waypoints_deg'] = list(role.CONTINUOUS_FRONT_HIP_WAYPOINTS)
+        draft['continuous_19s_reviewed'] = False
     role.write_json(output, draft)
     return {'draft': str(output), 'boot_id': review['boot_id'],
             'reference_axes': len(reference), 'preflight_summary_sha256': role.sha(summary_path),

@@ -11,8 +11,8 @@ import time
 
 from .can_readonly import ATParser, PARAMETERS, read_request
 from .rs05_bus_transport import BUS_IDS
-from .rs05_fullbody_step2 import (ACTIVE_TICKS, ALL_IDS, _diagnostic,
-                                  _motion_phase, _plan, _review)
+from .rs05_fullbody_step2 import (ALL_IDS, _check_front_hip_clearance_start, _diagnostic,
+                                  _motion_phase, _plan, _review, _trajectory_limits)
 from .rs05_trial_protocol import (TrialPhase, enable_request, motion_request,
                                   stop_request, watchdog_setup_request)
 
@@ -30,9 +30,10 @@ class Step2PacketState:
                 'Explicit active raw-diagnostic review required')
         # The same validation used by the trajectory runner must pass before
         # any port is opened. In particular, old raw targets are forbidden.
-        _review(review.get('motor_uids'), review, False)
-        self.diagnostic = _diagnostic(review)
-        self.review, self.clock = review, clock
+        _, self.review = _review(review.get('motor_uids'), review, False)
+        self.diagnostic = _diagnostic(self.review)
+        self.clock = clock
+        self._active_ticks, self._active_budget_s = _trajectory_limits(self.review)
         self.lock = threading.RLock()
         self._centers = {}
         self._plan = None
@@ -60,7 +61,11 @@ class Step2PacketState:
             proposed = {**self._centers, **centers}
             proposed_buses = self._bound_buses | {bus}
             try:
-                plan = _plan(proposed, self.review) if proposed_buses == set(BUS_IDS) else None
+                plan = None
+                if proposed_buses == set(BUS_IDS):
+                    _check_front_hip_clearance_start(proposed, self.review)
+                    plan = _plan(proposed, self.review)
+                    require(len(plan) == self._active_ticks, 'Fixed plan length changed')
             except BaseException:
                 self._terminal = True
                 raise
@@ -79,6 +84,8 @@ class Step2PacketState:
                     'next_motor_index_by_bus': dict(self._next_motor_index),
                     'first_enable_monotonic_s': self._first_enable,
                     'first_active_monotonic_s': self._first_active,
+                    'active_ticks': self._active_ticks,
+                    'active_budget_s': self._active_budget_s,
                     'terminal': self._terminal}
 
     def allow(self, wire, bus):
@@ -148,7 +155,7 @@ class Step2PacketState:
                     'No active command before all twelve Enable and zero-gain replies')
             tick = self._next_tick[bus]
             index = self._next_motor_index[bus]
-            require(tick < ACTIVE_TICKS and index < len(BUS_IDS[bus]),
+            require(tick < self._active_ticks and index < len(BUS_IDS[bus]),
                     'Finite raw-step packet budget exhausted')
             required_mid = BUS_IDS[bus][index]
             require(mid == required_mid, 'Raw-step six-axis order changed')
@@ -159,7 +166,7 @@ class Step2PacketState:
             require(wire == expected, 'Raw-step packet differs from exact frozen trajectory')
             if self._first_active is None:
                 self._first_active = now
-            require(0 <= now - self._first_active < 10.5,
+            require(0 <= now - self._first_active < self._active_budget_s,
                     'Finite raw-step transmission budget expired')
             if index + 1 == len(BUS_IDS[bus]):
                 self._next_tick[bus] = tick + 1

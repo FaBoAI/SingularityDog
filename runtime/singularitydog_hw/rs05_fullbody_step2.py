@@ -54,6 +54,10 @@ ROLE_FRONT_THIGH_GAIN_PROFILE = 'role-front-thigh-kp12-front2-hip-kp12-all4-id4-
 ROLE_FRONT_HIP_GAIN_PROFILE = 'role-front-hip-kp12-front2-id4-id10-kp4'
 CYCLE_S, RAMP_TICKS, END_HOLD_TICKS, PREFLIGHT_TICKS = .05, 160, 20, 20
 ACTIVE_TICKS = RAMP_TICKS + END_HOLD_TICKS
+CONTINUOUS_PROFILE = 'front-hip-hold1s-step5-step10-v1'
+CONTINUOUS_TICKS = 380
+CONTINUOUS_ACTIVE_BUDGET_S = 20.5
+CONTINUOUS_HOLD_END_TICKS = (19, 199, 379)
 MAX_AMPLITUDE_DEG = 2.
 MAX_START_MISMATCH_RAD = math.radians(.5)
 ROLE_GROUP_MAX_START_MISMATCH_RAD = math.radians(60.)
@@ -144,6 +148,26 @@ def _interleaved_feedback_enabled(review, preflight_only):
             and review.get('gain_profile') == ROLE_FRONT_HIP_GAIN_PROFILE)
 
 
+def _continuous_profile(review):
+    """An explicit fixed extension of the reviewed outward 0-to-10-degree path."""
+    keys = ('continuous_profile', 'continuous_waypoints_deg', 'continuous_19s_reviewed')
+    if not any(key in review for key in keys):
+        return False
+    waypoints = review.get('continuous_waypoints_deg')
+    if (review.get('continuous_profile') != CONTINUOUS_PROFILE
+            or not _interleaved_feedback_enabled(review, False)
+            or type(waypoints) is not list or len(waypoints) != 2
+            or any(type(value) not in (int, float) for value in waypoints)
+            or waypoints != [5., 10.]):
+        raise ValueError('Require the explicit front-hip hold1s/5deg/10deg continuous profile')
+    return True
+
+
+def _trajectory_limits(review):
+    return ((CONTINUOUS_TICKS, CONTINUOUS_ACTIVE_BUDGET_S) if _continuous_profile(review)
+            else (ACTIVE_TICKS, ACTIVE_BUDGET_S))
+
+
 def _motion_phase(review, mid):
     if (_diagnostic(review) == 'role-group-step1'
             and review.get('role_group') == 'front-hip'
@@ -229,6 +253,7 @@ def _plan(centers, review):
     This proves only a bounded raw-motor excursion. It does not claim a model
     coordinate or that the direction reaches a valid standing pose.
     """
+    continuous = _continuous_profile(review)
     starts = _exact_id_map(review.get('start_raw_rad_by_id'), 'start_raw_rad_by_id', _real)
     diagnostic = _diagnostic(review)
     if diagnostic in ('id7-step1', 'role-group-step1'):
@@ -279,6 +304,15 @@ def _plan(centers, review):
         motion_request(phase=_motion_phase(review, mid),
                        center_rad=center, offset_rad=end-center, motor_id=mid)
         targets[mid] = end
+    if continuous:
+        # Keep legacy frozen packages independent of the opt-in planner.
+        from .continuous_front_hip_plan import build_front_hip_continuous_plan
+        plan = build_front_hip_continuous_plan(centers, review['continuous_waypoints_deg'])
+        if (len(plan) != CONTINUOUS_TICKS or plan.initial_hold_end_tick != 19
+                or plan.segment_end_ticks != CONTINUOUS_HOLD_END_TICKS[1:]
+                or plan.samples[0] != centers or plan.samples[-1] != targets):
+            raise ValueError('Continuous planner differs from the fixed reviewed profile')
+        return plan.samples
     samples = []
     for tick in range(ACTIVE_TICKS):
         fraction = quintic_fraction(min(tick/RAMP_TICKS, 1.))
@@ -331,6 +365,9 @@ def _review(expected_uids, value, preflight_only):
         raise ValueError('Explicit boolean preflight is required')
     value = deepcopy(value)
     diagnostic = _diagnostic(value)
+    if (_continuous_profile(value) and not preflight_only
+            and value.get('continuous_19s_reviewed') is not True):
+        raise ValueError('Explicit physical review of the continuous 19-second path is required')
     if (type(value) is not dict
             or value.get('motor_ids') != list(ALL_IDS)
             or any(type(i) is not int for i in value.get('motor_ids', []))
@@ -409,6 +446,8 @@ def run_fullbody_step2(transports, expected_uids, check_interrupt, emit, *, vali
     """
     expected, review = _review(expected_uids, validated_review, preflight_only)
     diagnostic = _diagnostic(review)
+    continuous = _continuous_profile(review)
+    active_ticks, active_budget_s = _trajectory_limits(review)
 
     def motion_phase(mid):
         return _motion_phase(review, mid)
@@ -790,7 +829,7 @@ def run_fullbody_step2(transports, expected_uids, check_interrupt, emit, *, vali
                 ticks, mode = PREFLIGHT_TICKS, 0
             else:
                 # Enabling twelve devices is bounded by the preparation
-                # deadline, not charged against the nine-second trajectory.
+                # deadline, not charged against the finite active trajectory.
                 # Both workers start the active budget at their shared epoch.
                 t.active_deadline = prep_deadline
                 # Each Enable is followed by a center-bound zero-gain frame.
@@ -817,13 +856,24 @@ def run_fullbody_step2(transports, expected_uids, check_interrupt, emit, *, vali
                 t.pre_send_guard = lambda: all_guard(2)
                 wire_stage = 'trajectory'
                 start = sync('active_raw_step_start')
-                active_budget = start + ACTIVE_BUDGET_S
+                active_budget = start + active_budget_s
                 active_previous.update({mid: (value.protocol_position_rad, received)
                                         for mid, (value, received) in t.latest.items() if mid in ids})
                 t.active_deadline = active_budget
-                ticks, mode = ACTIVE_TICKS, 2
+                ticks, mode = active_ticks, 2
             report['start_monotonic_s'] = start
             final_hold = {mid: [] for mid in ids}
+            hold_checks = []
+
+            def check_hold(samples, target, label):
+                for mid, observations in samples.items():
+                    times = [row[0] for row in observations]
+                    if (len(times) != END_HOLD_TICKS or times[-1] - times[0] < MIN_OBSERVED_HOLD_NS / 1e9
+                            or any(not 0 < b-a <= MAX_HOLD_GAP_NS / 1e9 for a, b in zip(times, times[1:]))):
+                        raise RuntimeError(f'ID{mid} {label} hold observation coverage failed')
+                    if abs(observations[-1][1] - target[mid]) > _limits(review, mid)[2]:
+                        raise RuntimeError(f'ID{mid} {label} raw step error exceeds diagnostic limit')
+
             for tick in range(ticks):
                 due, deadline = start + tick * CYCLE_S, start + (tick + 1) * CYCLE_S
                 until(due)
@@ -850,23 +900,28 @@ def run_fullbody_step2(transports, expected_uids, check_interrupt, emit, *, vali
                 if clock() > deadline:
                     raise RuntimeError('Fullbody cycle missed50ms including replies/logging')
                 report['cycle_count'] += 1
-                if not preflight_only and tick >= RAMP_TICKS:
+                in_hold = (any(end-END_HOLD_TICKS < tick <= end for end in CONTINUOUS_HOLD_END_TICKS)
+                           if continuous else tick >= RAMP_TICKS)
+                if not preflight_only and in_hold:
                     for mid, (value, received) in found.items():
                         final_hold[mid].append((received, value.protocol_position_rad))
+                if not preflight_only and continuous and tick in CONTINUOUS_HOLD_END_TICKS:
+                    # Both workers must pass their six-axis endpoint check
+                    # before the common cycle barrier permits the next stage.
+                    hold_check = {'end_tick': tick, 'samples': final_hold, 'confirmed': False}
+                    hold_checks.append(hold_check)
+                    report['continuous_hold_checks'] = hold_checks
+                    check_hold(final_hold, plan[tick], f'continuous tick{tick}')
+                    hold_check['confirmed'] = True
+                    if tick != CONTINUOUS_HOLD_END_TICKS[-1]:
+                        final_hold = {mid: [] for mid in ids}
                 sync(f'cycle_{tick}_complete')
                 if clock() > deadline:
                     raise RuntimeError('Peer cycle/barrier missed50ms')
             until(start + ticks * CYCLE_S)
             if not preflight_only:
-                for mid, samples in final_hold.items():
-                    times = [row[0] for row in samples]
-                    if (len(times) != END_HOLD_TICKS or times[-1] - times[0] < MIN_OBSERVED_HOLD_NS / 1e9
-                            or any(not 0 < b - a <= MAX_HOLD_GAP_NS / 1e9 for a, b in zip(times, times[1:]))):
-                        raise RuntimeError(f'ID{mid} final hold observation coverage failed')
                 report['final_hold_samples'] = final_hold
-                for mid, samples in final_hold.items():
-                    if abs(samples[-1][1] - plan[-1][mid]) > _limits(review, mid)[2]:
-                        raise RuntimeError(f'ID{mid} final raw step error exceeds diagnostic limit')
+                check_hold(final_hold, plan[-1], 'final')
             check()
             report['completed'] = True
             report['stage'] = 'completed'
@@ -926,6 +981,8 @@ def run_fullbody_step2(transports, expected_uids, check_interrupt, emit, *, vali
     completed_label = {'id7-step1': 'RAW_ID7_STEP1_COMPLETED_RESET_CONFIRMED',
                        'role-group-step1': 'RAW_ROLE_GROUP_STEP1_COMPLETED_RESET_CONFIRMED',
                        'fullbody-step2': 'RAW_STEP2_COMPLETED_RESET_CONFIRMED'}[diagnostic]
+    if continuous:
+        completed_label = 'RAW_FRONT_HIP_CONTINUOUS_COMPLETED_RESET_CONFIRMED'
     return {'status': ('PREFLIGHT_PASSED_RESET_CONFIRMED' if preflight_only else
                        completed_label) if complete else 'ABORTED',
             'preflight_only': preflight_only, 'preflight_completed': complete and preflight_only,
@@ -936,12 +993,17 @@ def run_fullbody_step2(transports, expected_uids, check_interrupt, emit, *, vali
             'continuous_hold_proven': False, 'automatic_retry': False,
             'gain_profile': _gain_profile(review), 'raw_diagnostic_only': True,
             'interleaved_feedback': interleaved_feedback,
+            'continuous_profile': CONTINUOUS_PROFILE if continuous else None,
+            'continuous_waypoints_deg': [5., 10.] if continuous else None,
+            'active_ticks': active_ticks, 'active_duration_s': active_ticks*CYCLE_S,
+            'active_budget_s': active_budget_s,
+            'initial_hold_s': 1. if continuous else 0.,
             'diagnostic': diagnostic, 'moving_motor_ids': (
                 [ID7_MOTOR_ID] if diagnostic == 'id7-step1' else
                 sorted(ROLE_GROUP_IDS[review['role_group']]) if diagnostic == 'role-group-step1'
                 else list(ALL_IDS)),
-            'amplitude_deg': review['amplitude_deg'], 'ramp_s': RAMP_TICKS*CYCLE_S,
-            'endpoint_hold_s': END_HOLD_TICKS*CYCLE_S,
+            'amplitude_deg': review['amplitude_deg'], 'ramp_s': RAMP_TICKS*CYCLE_S*(2 if continuous else 1),
+            'endpoint_hold_s': END_HOLD_TICKS*CYCLE_S*(2 if continuous else 1),
             'Kp': 0. if preflight_only else None,
             'Kp_by_motor_id': {mid: 0. if preflight_only else (
                 12. if _motion_phase(review, mid) in (

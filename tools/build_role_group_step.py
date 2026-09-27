@@ -32,6 +32,9 @@ DIRECTION_PROFILES = ('raw-plus', 'mirrored-thigh', 'front-thigh-toward-face',
 THIGH_GROUPS = frozenset(('thigh', 'front-thigh'))
 FLAGS = disabled_base.REQUIRED_FLAGS
 CLEARANCE_START_TOLERANCE_DEG = 3.
+CONTINUOUS_FRONT_HIP_PROFILE = 'front-hip-hold1s-step5-step10-v1'
+CONTINUOUS_FRONT_HIP_WAYPOINTS = [5.0, 10.0]
+CONTINUOUS_FRONT_HIP_TICKS = 380
 require, sha, read_json, write_json = (disabled_base.require, disabled_base.sha,
                                       disabled_base.read_json, disabled_base.write_json)
 
@@ -178,6 +181,12 @@ def validate_candidate_directions(candidate: dict, group: str, centers: dict) ->
             and (amplitude in (5., 10.) if group == 'front-hip'
                  else amplitude == amplitude_for(group)),
             'Unsupported role-group amplitude')
+    if ('continuous_profile' in candidate or 'continuous_waypoints_deg' in candidate):
+        require(group == 'front-hip' and profile == 'front-hip-mirrored'
+                and amplitude == 10.
+                and candidate.get('continuous_profile') == CONTINUOUS_FRONT_HIP_PROFILE
+                and candidate.get('continuous_waypoints_deg') == CONTINUOUS_FRONT_HIP_WAYPOINTS,
+                'Unsupported continuous front-hip candidate')
     for row in rows:
         mid = row['id']
         expected = amplitude * directions[str(mid)]
@@ -190,13 +199,18 @@ def validate_candidate_directions(candidate: dict, group: str, centers: dict) ->
 
 
 def prepare(source: Path, hold_path: Path, group: str, directory: Path,
-            direction_profile: str = 'raw-plus', amplitude_deg: float | None = None) -> dict:
+            direction_profile: str = 'raw-plus', amplitude_deg: float | None = None,
+            continuous_profile: str | None = None) -> dict:
     disabled_base.validate_source(source)
     require(group in GROUPS and not directory.exists(), 'Use one fresh known role group directory')
     directions = directions_for(group, direction_profile)
     amplitude = amplitude_for(group) if amplitude_deg is None else amplitude_deg
     require(amplitude in ((5., 10.) if group == 'front-hip' else
                           (amplitude_for(group),)), 'Unsupported role-group amplitude')
+    require(continuous_profile is None or
+            (continuous_profile == CONTINUOUS_FRONT_HIP_PROFILE
+             and group == 'front-hip' and direction_profile == 'front-hip-mirrored'
+             and amplitude == 10.), 'Unsupported continuous front-hip profile')
     hold = read_json(hold_path)
     boot = read_json(source / 'fullbody-review.json')['boot_id']
     uids = read_json(source / 'fullbody-review.json')['motor_uids']
@@ -221,6 +235,9 @@ def prepare(source: Path, hold_path: Path, group: str, directory: Path,
                  'raw_direction_by_id': directions,
                  'current_hold_source_sha256': sha(directory / 'fullbody-hold-evidence.json'),
                  'rows': rows}
+    if continuous_profile is not None:
+        candidate['continuous_profile'] = continuous_profile
+        candidate['continuous_waypoints_deg'] = list(CONTINUOUS_FRONT_HIP_WAYPOINTS)
     write_json(directory / 'offline-raw-step2-candidate.json', candidate)
     return {'boot_id': boot, 'group': group, 'direction_profile': direction_profile,
             'moving_motor_ids': list(GROUPS[group]),
@@ -280,14 +297,19 @@ def disabled(source: Path, hold_path: Path, prepared: Path, output: Path) -> dic
         'offline_candidate_hold_provenance_verified': True,
         'offline_hold_evidence_sha256': sha(evidence_path),
     }
+    if candidate.get('continuous_profile') == CONTINUOUS_FRONT_HIP_PROFILE:
+        review['continuous_profile'] = CONTINUOUS_FRONT_HIP_PROFILE
+        review['continuous_waypoints_deg'] = list(CONTINUOUS_FRONT_HIP_WAYPOINTS)
     shutil.copytree(source, output, symlinks=False)
     for src, dest in ((hold_path, 'current-hold-summary.json'),
                       (evidence_path, 'fullbody-hold-evidence.json'),
                       (candidate_path, 'offline-raw-step2-candidate.json')):
         shutil.copy2(src, output / dest)
-    for name in ('fullbody_step10_plan.py', 'rs05_fullbody_step2.py',
-                 'rs05_joint_trial.py',
-                 'rs05_trial_protocol.py'):
+    modules = ['fullbody_step10_plan.py', 'rs05_fullbody_step2.py',
+               'rs05_joint_trial.py', 'rs05_trial_protocol.py']
+    if candidate.get('continuous_profile') == CONTINUOUS_FRONT_HIP_PROFILE:
+        modules.append('continuous_front_hip_plan.py')
+    for name in modules:
         shutil.copy2(RUNTIME / name, output / 'singularitydog_hw' / name)
     write_json(output / 'step2-review.json', review)
     wrapper = output / 'prepared_fullbody.py'
@@ -344,6 +366,16 @@ def validate_active_directions(review: dict, candidate: dict, physical: dict,
             and physical.get('raw_direction_by_id') == directions
             and physical.get('scope') == scope,
             'Candidate, disabled review and physical review must agree on exact raw directions')
+    continuous = review.get('continuous_profile')
+    if (continuous is not None or candidate.get('continuous_profile') is not None
+            or physical.get('continuous_profile') is not None):
+        require(continuous == candidate.get('continuous_profile')
+                == physical.get('continuous_profile') == CONTINUOUS_FRONT_HIP_PROFILE
+                and review.get('continuous_waypoints_deg')
+                    == candidate.get('continuous_waypoints_deg')
+                    == physical.get('continuous_waypoints_deg')
+                    == CONTINUOUS_FRONT_HIP_WAYPOINTS,
+                'Continuous front-hip profile differs across candidate and reviews')
     return profile
 
 
@@ -393,10 +425,15 @@ def front_hip_step10_clearance_extras(review: dict, physical: dict,
             and physical['start_tolerance_clearance_verified_deg'] == CLEARANCE_START_TOLERANCE_DEG
             and type(note) is str and bool(note.strip()),
             'Front-hip 10-degree physical review must cover the preflight pose +/-3 degrees')
-    return {'clearance_reference_raw_rad_by_id': reference,
+    extras = {'clearance_reference_raw_rad_by_id': reference,
             'clearance_reference_preflight_summary_sha256': sha(summary_path),
             'start_tolerance_clearance_verified_deg': CLEARANCE_START_TOLERANCE_DEG,
             'start_tolerance_clearance_note': note}
+    if review.get('continuous_profile') == CONTINUOUS_FRONT_HIP_PROFILE:
+        require(physical.get('continuous_19s_reviewed') is True,
+                'Continuous 19-second test must be explicitly reviewed')
+        extras['continuous_19s_reviewed'] = True
+    return extras
 
 
 def active(source: Path, disabled_package: Path, preflight_log: Path,
@@ -449,16 +486,24 @@ def active(source: Path, disabled_package: Path, preflight_log: Path,
                 'source_step2_preflight_events_sha256': sha(events_path),
                 'source_physical_review_sha256': sha(physical_path)}
     shutil.copytree(source, output, symlinks=False)
-    for name in ('rs05_fullbody_step2.py', 'rs05_joint_trial.py',
-                 'fullbody_step10_plan.py',
-                 'rs05_step2_packet_gate.py', 'rs05_trial_protocol.py',
-                 'rs05_bus_transport.py', 'i2s_announcement.py'):
+    modules = ['rs05_fullbody_step2.py', 'rs05_joint_trial.py',
+               'fullbody_step10_plan.py', 'rs05_step2_packet_gate.py',
+               'rs05_trial_protocol.py', 'rs05_bus_transport.py',
+               'i2s_announcement.py']
+    continuous = review.get('continuous_profile') == CONTINUOUS_FRONT_HIP_PROFILE
+    if continuous:
+        modules.append('continuous_front_hip_plan.py')
+    for name in modules:
         shutil.copy2(RUNTIME / name, output / 'singularitydog_hw' / name)
     shutil.copy2(announcement_wav, output / 'test-start-ja.wav')
-    for name in ('test_rs05_fullbody_step2.py', 'test_rs05_step2_packet_gate.py',
+    tests = ['test_rs05_fullbody_step2.py', 'test_rs05_step2_packet_gate.py',
                  'test_rs05_bus_transport.py', 'test_rs05_bus_interleave.py',
                  'test_rs05_joint_trial.py', 'test_rs05_leg_pacing.py',
-                 'test_rs05_leg_transport.py'):
+                 'test_rs05_leg_transport.py']
+    if continuous:
+        tests.append('test_continuous_front_hip_plan.py')
+        tests.append('test_rs05_front_hip_continuous_runtime.py')
+    for name in tests:
         shutil.copy2(TESTS / name, output / 'tests' / name)
     for src, dest in ((disabled_package / 'step2-review.json', 'step2-disabled-review.json'),
                       (disabled_package / 'offline-raw-step2-candidate.json', 'offline-raw-step2-candidate.json'),
@@ -484,8 +529,9 @@ def active(source: Path, disabled_package: Path, preflight_log: Path,
         "('singularitydog_hw/rs05_trial_protocol.py', "
         "'singularitydog_hw/rs05_bus_transport.py')}}\n"
         + old, 1)
-    text = text.replace('RAW_STEP2_COMPLETED_RESET_CONFIRMED',
-                        'RAW_ROLE_GROUP_STEP1_COMPLETED_RESET_CONFIRMED')
+    label = ('RAW_FRONT_HIP_CONTINUOUS_COMPLETED_RESET_CONFIRMED'
+             if continuous else 'RAW_ROLE_GROUP_STEP1_COMPLETED_RESET_CONFIRMED')
+    text = text.replace('RAW_STEP2_COMPLETED_RESET_CONFIRMED', label)
     axis_count = len(GROUPS[group])
     text = text.replace('all-twelve raw 2-degree diagnostic',
                         f'{axis_count}-axis raw {approved["amplitude_deg"]:g}-degree diagnostic')
@@ -494,6 +540,21 @@ def active(source: Path, disabled_package: Path, preflight_log: Path,
     text = text.replace('--execute-raw-step2', '--execute-role-group-step1')
     text = text.replace('execute_raw_step2', 'execute_role_group_step1')
     text = attach_announcement(text)
+    if continuous:
+        import_line = '        from singularitydog_hw.rs05_fullbody_step2 import run_fullbody_step2\n'
+        require(text.count(import_line) == 1, 'Continuous wrapper lost runner import')
+        text = text.replace(import_line,
+                            import_line + '        from singularitydog_hw import continuous_front_hip_plan\n',
+                            1)
+        old_ticks = "{'front': 180, 'rear': 180}"
+        require(text.count(old_ticks) == 1, 'Continuous wrapper lost exact 180-tick audit')
+        text = text.replace(old_ticks,
+                            f"{{'front': {CONTINUOUS_FRONT_HIP_TICKS}, 'rear': {CONTINUOUS_FRONT_HIP_TICKS}}}",
+                            1)
+        module_audit = "'rs05_step2_packet_gate', 'i2s_announcement'"
+        require(text.count(module_audit) == 1, 'Continuous module audit is missing')
+        text = text.replace(module_audit,
+                            module_audit + ", 'continuous_front_hip_plan'", 1)
     manifest = pin_package(output, wrapper.name, 'active-manifest.json', text)
     validate_frozen_feedback_age(output, 'active-manifest.json')
     if group == 'front-hip':
@@ -514,6 +575,7 @@ def main(argv=None):
     p.add_argument('--direction-profile', choices=DIRECTION_PROFILES,
                    default='raw-plus')
     p.add_argument('--amplitude-deg', type=float)
+    p.add_argument('--continuous-front-hip-5-10', action='store_true')
     p.add_argument('--output', type=Path, required=True)
     p = sub.add_parser('disabled')
     p.add_argument('--source-disabled', type=Path, required=True)
@@ -531,7 +593,9 @@ def main(argv=None):
     if args.stage == 'prepare':
         result = prepare(args.source_disabled, args.current_hold_summary,
                          args.group, args.output, args.direction_profile,
-                         args.amplitude_deg)
+                         args.amplitude_deg,
+                         CONTINUOUS_FRONT_HIP_PROFILE
+                         if args.continuous_front_hip_5_10 else None)
     elif args.stage == 'disabled':
         result = disabled(args.source_disabled, args.current_hold_summary,
                           args.prepared, args.output)

@@ -61,6 +61,33 @@ class RoleGroupDirectionTests(unittest.TestCase):
                               for mid in (2, 5, 8, 11)], [10., -10., 10., -10.])
             builder.validate_candidate_directions(candidate, 'thigh', self.centers)
 
+    def test_continuous_front_hip_candidate_requires_exact_opt_in(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            source = base / 'source'
+            source.mkdir()
+            hold_path = base / 'hold.json'
+            builder.write_json(source / 'fullbody-review.json',
+                               {'boot_id': 'boot', 'motor_uids': {str(i): f'u{i}'
+                                                                 for i in range(1, 13)}})
+            builder.write_json(hold_path, {'status': 'CURRENT_HOLD_COMPLETED_RESET_CONFIRMED'})
+            with patch.object(builder.disabled_base, 'validate_source'), patch.object(
+                    builder.disabled_base, 'validate_hold', return_value=self.centers):
+                builder.prepare(source, hold_path, 'front-hip', base / 'prepared',
+                                'front-hip-mirrored', 10.,
+                                builder.CONTINUOUS_FRONT_HIP_PROFILE)
+                with self.assertRaisesRegex(ValueError, 'Unsupported continuous'):
+                    builder.prepare(source, hold_path, 'front-hip', base / 'invalid',
+                                    'front-hip-mirrored', 5.,
+                                    builder.CONTINUOUS_FRONT_HIP_PROFILE)
+            candidate = builder.read_json(base / 'prepared' / 'offline-raw-step2-candidate.json')
+            self.assertEqual(candidate['continuous_profile'], builder.CONTINUOUS_FRONT_HIP_PROFILE)
+            self.assertEqual(candidate['continuous_waypoints_deg'], [5., 10.])
+            builder.validate_candidate_directions(candidate, 'front-hip', self.centers)
+            candidate['continuous_waypoints_deg'] = [10., 5.]
+            with self.assertRaisesRegex(ValueError, 'Unsupported continuous'):
+                builder.validate_candidate_directions(candidate, 'front-hip', self.centers)
+
     def test_mirrored_profile_rejects_wrong_group_and_changed_sign(self):
         with self.assertRaisesRegex(ValueError, 'only for the four upper-leg'):
             builder.directions_for('toe', 'mirrored-thigh')
@@ -343,6 +370,24 @@ class RoleGroupDirectionTests(unittest.TestCase):
                 wrong['raw_direction_by_id']['9'] = 1
             with self.subTest(change=change), self.assertRaisesRegex(ValueError, 'exact raw directions'):
                 builder.validate_active_directions(review, candidate, wrong, self.centers)
+
+    def test_continuous_candidate_cannot_be_downgraded_by_dropping_review_profile(self):
+        candidate = self.prepared_candidate('front-hip-mirrored', 'front-hip')
+        candidate['amplitude_deg'] = 10.
+        candidate['continuous_profile'] = builder.CONTINUOUS_FRONT_HIP_PROFILE
+        candidate['continuous_waypoints_deg'] = [5., 10.]
+        for row in candidate['rows']:
+            mid = row['id']
+            step = 10. * candidate['raw_direction_by_id'][str(mid)]
+            row['candidate_raw_step_deg'] = step
+            row['candidate_end_raw_rad'] = self.centers[str(mid)] + math.radians(step)
+        review = {'role_group': 'front-hip', 'direction_profile': 'front-hip-mirrored',
+                  'raw_direction_by_id': candidate['raw_direction_by_id'], 'amplitude_deg': 10.}
+        physical = {'direction_profile': 'front-hip-mirrored',
+                    'raw_direction_by_id': copy.deepcopy(candidate['raw_direction_by_id']),
+                    'scope': 'supported-front-hip-current-raw-mirrored-10deg-diagnostic-only'}
+        with self.assertRaisesRegex(ValueError, 'Continuous front-hip profile differs'):
+            builder.validate_active_directions(review, candidate, physical, self.centers)
 
     def test_preflight_must_belong_to_exact_disabled_role_package(self):
         with tempfile.TemporaryDirectory() as tmp:
