@@ -40,10 +40,11 @@ def reviewed_path(*, authorized=True, amplitude=2.):
     }
 
 
-def role_group_path(group='thigh', *, authorized=True):
+def role_group_path(group='thigh', *, authorized=True, amplitude=None):
     review = reviewed_path(authorized=authorized,
-                           amplitude=10. if group in ('thigh', 'front-thigh') else
-                                     5. if group == 'front-hip' else 1.)
+                           amplitude=(amplitude if amplitude is not None else
+                                      10. if group in ('thigh', 'front-thigh') else
+                                      5. if group == 'front-hip' else 1.))
     review.update(schema=step2.ROLE_GROUP_REVIEW_SCHEMA,
                   scope=(step2.FRONT_THIGH_REVIEW_SCOPE if group == 'front-thigh'
                          else step2.FRONT_HIP_REVIEW_SCOPE if group == 'front-hip'
@@ -61,6 +62,11 @@ def role_group_path(group='thigh', *, authorized=True):
                                        if group == 'front-hip' else
                                        {str(i): (1 if i in step2.ROLE_GROUP_IDS[group] else 0)
                                         for i in step2.ALL_IDS}))
+    if group == 'front-hip' and amplitude == 10. and authorized:
+        review.update(clearance_reference_raw_rad_by_id=review['start_raw_rad_by_id'].copy(),
+                      clearance_reference_preflight_summary_sha256='c' * 64,
+                      start_tolerance_clearance_verified_deg=3.,
+                      start_tolerance_clearance_note='All twelve starts within ±3° clear the sweep.')
     return review
 
 
@@ -406,8 +412,7 @@ class RawStep2Tests(unittest.TestCase):
         self.assert_stopped(buses)
 
     def test_front_hip_ten_degree_single_trajectory(self):
-        review = role_group_path('front-hip')
-        review['amplitude_deg'] = 10.
+        review = role_group_path('front-hip', amplitude=10.)
         centers = {i: .5 + .1*i for i in step2.ALL_IDS}
         plan = step2._plan(centers, review)
         self.assertEqual(len(plan), 180)
@@ -427,9 +432,38 @@ class RawStep2Tests(unittest.TestCase):
                            center_rad=centers[mid], offset_rad=plan[-1][mid]-centers[mid],
                            motor_id=mid)
 
+    def test_front_hip_ten_degree_requires_physical_pose_envelope_before_io(self):
+        review = role_group_path('front-hip', amplitude=10.)
+        del review['start_tolerance_clearance_verified_deg']
+        clock, buses = self.fixture()
+        with self.assertRaisesRegex(ValueError, 'clearance start envelope'):
+            self.run_trial(clock, buses, review=review)
+        self.assertTrue(all(not bus.calls for bus in buses.values()))
+
+    def test_front_hip_ten_degree_fresh_pose_must_match_all_twelve_reviewed_axes(self):
+        for mid in (3, 8):
+            review = role_group_path('front-hip', amplitude=10.)
+            review['clearance_reference_raw_rad_by_id'][str(mid)] += math.radians(3.1)
+            clock, buses = self.fixture()
+            with self.subTest(mid=mid):
+                result = self.run_trial(clock, buses, review=review)
+                self.assertEqual(result['status'], 'ABORTED', result['errors'])
+                self.assertTrue(any(f'ID{mid} start left the physically reviewed clearance envelope'
+                                    in error for error in result['errors']))
+                self.assertFalse(any(frame.kind == 3 or
+                                     frame.kind == 1 and frame.data[4:8] != bytes(4)
+                                     for bus in buses.values() for _, frame, _ in bus.frames))
+                self.assertTrue(result['stop_confirmed'])
+                self.assert_stopped(buses)
+
+    def test_front_hip_ten_degree_2_9_degree_start_variation_remains_valid(self):
+        review = role_group_path('front-hip', amplitude=10.)
+        review['clearance_reference_raw_rad_by_id']['8'] += math.radians(2.9)
+        centers = {i: .5 + .1*i for i in step2.ALL_IDS}
+        step2._check_front_hip_clearance_start(centers, review)
+
     def test_interleaved_feedback_selected_only_for_active_front_hip_ten_degrees(self):
-        review = role_group_path('front-hip')
-        review['amplitude_deg'] = 10.
+        review = role_group_path('front-hip', amplitude=10.)
         clock, buses = self.fixture()
         result = self.run_trial(clock, buses, review=review)
         self.assertEqual(result['status'], 'RAW_ROLE_GROUP_STEP1_COMPLETED_RESET_CONFIRMED')
@@ -442,6 +476,46 @@ class RawStep2Tests(unittest.TestCase):
         self.assertFalse(step2._interleaved_feedback_enabled(review, True))
         bad_gain = {**review, 'gain_profile': step2.GAIN_PROFILE}
         self.assertFalse(step2._interleaved_feedback_enabled(bad_gain, False))
+
+    def test_initial_mode2_gate_uses_first_cycle_age_bound_after_serial_enables(self):
+        class SerialEnableBus(FakeBus):
+            def __init__(self, *args, final_delay, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.final_delay = final_delay
+
+            def feedback_many(self, commands, expected_ids):
+                commands = tuple(commands)
+                first = ATParser().feed(commands[0])[0]
+                found = super().feedback_many(commands, expected_ids)
+                if first.kind == 3:
+                    # Five ordinary 18ms transitions plus a 31ms/54ms final
+                    # transition leave the first mode2 reply 103ms/126ms old.
+                    # Every individual reply is within the 80ms transport
+                    # budget and every pre-Enable check is within 100ms.
+                    self.clock.wait(self.final_delay if first.destination == self.ids[-1] else .018)
+                    found = {mid: (value, self.clock()) for mid, (value, _) in found.items()}
+                    self.latest.update(found)
+                return found
+
+        for amplitude, final_delay, succeeds in ((10., .031, True),
+                                                  (10., .054, False), (5., .031, False)):
+            clock = WorkerClock()
+            buses = {name: SerialEnableBus(name, clock, final_delay=final_delay)
+                     for name in BUS_IDS}
+            review = role_group_path('front-hip', amplitude=amplitude)
+            with self.subTest(amplitude=amplitude, final_delay=final_delay):
+                result = self.run_trial(clock, buses, review=review)
+                self.assertEqual(result['status'],
+                    'RAW_ROLE_GROUP_STEP1_COMPLETED_RESET_CONFIRMED' if succeeds else 'ABORTED',
+                    result['errors'])
+                if succeeds:
+                    self.assertTrue(all(row['cycle_count'] == 180 for row in result['workers'].values()))
+                else:
+                    self.assertTrue(any('Stale feedback' in error for error in result['errors']))
+                    self.assertFalse(any(frame.kind == 1 and frame.data[4:8] != bytes(4)
+                                         for bus in buses.values() for _, frame, _ in bus.frames))
+                self.assertTrue(result['stop_confirmed'])
+                self.assert_stopped(buses)
 
     def test_front_hip_held_id9_stable_bias_passes_endpoint_only(self):
         review = role_group_path('front-hip')

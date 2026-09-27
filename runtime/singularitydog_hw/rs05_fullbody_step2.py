@@ -57,6 +57,10 @@ ACTIVE_TICKS = RAMP_TICKS + END_HOLD_TICKS
 MAX_AMPLITUDE_DEG = 2.
 MAX_START_MISMATCH_RAD = math.radians(.5)
 ROLE_GROUP_MAX_START_MISMATCH_RAD = math.radians(60.)
+# The front-hip 10-degree path was checked from one physical pose. The later
+# settled start must stay in the explicitly reviewed +/-3-degree envelope on
+# every joint, including the ten held joints whose pose affects clearance.
+FRONT_HIP_CLEARANCE_START_TOLERANCE_DEG = 3.
 MAX_TRACKING_ERROR_RAD = math.radians(2.)
 MAX_EXCURSION_RAD = math.radians(2.5)
 MAX_FEEDBACK_TORQUE_NM = .8
@@ -286,6 +290,40 @@ def _plan(centers, review):
     return tuple(samples)
 
 
+def _front_hip_step10(review):
+    return (review.get('schema') == ROLE_GROUP_REVIEW_SCHEMA
+            and review.get('role_group') == 'front-hip'
+            and review.get('amplitude_deg') == 10.)
+
+
+def _front_hip_clearance_reference(review):
+    """Validate the physical pose envelope pinned to the disabled preflight."""
+    reference = _exact_id_map(review.get('clearance_reference_raw_rad_by_id'),
+                              'clearance_reference_raw_rad_by_id', _real)
+    if (review.get('start_tolerance_clearance_verified_deg')
+            != FRONT_HIP_CLEARANCE_START_TOLERANCE_DEG
+            or type(review.get('start_tolerance_clearance_verified_deg')) is bool
+            or not _digest(review.get('clearance_reference_preflight_summary_sha256'))
+            or type(review.get('start_tolerance_clearance_note')) is not str
+            or not review['start_tolerance_clearance_note'].strip()):
+        raise ValueError('Front-hip 10-degree clearance start envelope was not reviewed')
+    return reference
+
+
+def _check_front_hip_clearance_start(centers, review):
+    """Reject a changed absolute swept corridor before any Enable command."""
+    if not _front_hip_step10(review):
+        return
+    reference = _front_hip_clearance_reference(review)
+    if set(centers) != set(ALL_IDS):
+        raise ValueError('No complete twelve-axis fresh start for clearance')
+    bound = math.radians(FRONT_HIP_CLEARANCE_START_TOLERANCE_DEG)
+    for mid in ALL_IDS:
+        if abs(_real(centers[mid], f'ID{mid} fresh clearance center')
+               - reference[mid]) > bound:
+            raise ValueError(f'ID{mid} start left the physically reviewed clearance envelope')
+
+
 def _review(expected_uids, value, preflight_only):
     """Require an independently reviewed, same-boot path before any I/O."""
     expected = _expected_identities(expected_uids, ALL_IDS)
@@ -334,6 +372,8 @@ def _review(expected_uids, value, preflight_only):
                               str(mid): (1 if mid == 3 else -1 if mid == 6 else 0)
                               for mid in ALL_IDS}):
             raise ValueError('Front hips require exact mirrored raw directions')
+        if not preflight_only and _front_hip_step10(value):
+            _front_hip_clearance_reference(value)
     physical_flags = ('raw_direction_reviewed_for_diagnostic',
                       'swept_clearance_verified', 'support_stand_verified',
                       'feet_clear_verified', 'hands_clear_verified', 'physical_cutoff_ready')
@@ -618,7 +658,7 @@ def run_fullbody_step2(transports, expected_uids, check_interrupt, emit, *, vali
             motion_request(phase=motion_phase(mid), center_rad=values['position'], motor_id=mid)
             return values
 
-        def all_guard(mode, *, disabled=False):
+        def all_guard(mode, *, disabled=False, first_cycle=False):
             check()
             with state_lock:
                 source = dict(shared['disabled'] if disabled else shared['latest'])
@@ -639,7 +679,7 @@ def run_fullbody_step2(transports, expected_uids, check_interrupt, emit, *, vali
                 check_feedback(value, all_centers[mid], received, now, required_mode=required_mode,
                                max_drift_rad=(SETTLED_LIMITS['maximum_center_drift_rad']
                                               if disabled else _drift_limit(review, mid)),
-                               max_age_s=(.125 if wire_stage == 'trajectory'
+                               max_age_s=(.125 if (wire_stage == 'trajectory' or first_cycle)
                                           and last_completed_tick is None
                                           else MAX_FEEDBACK_AGE_S))
                 if (((diagnostic == 'id7-step1' and mid == ID7_MOTOR_ID)
@@ -735,6 +775,8 @@ def run_fullbody_step2(transports, expected_uids, check_interrupt, emit, *, vali
             all_guard(0, disabled=True)
             with state_lock:
                 fresh_centers = dict(shared['centers'])
+            if not preflight_only:
+                _check_front_hip_clearance_start(fresh_centers, review)
             plan = _plan(fresh_centers, review)
             with state_lock:
                 if shared['plan'] is None:
@@ -768,7 +810,10 @@ def run_fullbody_step2(transports, expected_uids, check_interrupt, emit, *, vali
                 t.pre_enable_guard = None
                 sync('all_enables_confirmed')
                 t.feedback_guard = guard_and_publish_active
-                all_guard(2)
+                # The first-cycle bound also covers the initial mode2 gate:
+                # serialized Enable/neutral pairs can age the earliest reply
+                # before the first active frame. All other gates are unchanged.
+                all_guard(2, first_cycle=interleaved_feedback)
                 t.pre_send_guard = lambda: all_guard(2)
                 wire_stage = 'trajectory'
                 start = sync('active_raw_step_start')

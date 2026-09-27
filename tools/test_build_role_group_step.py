@@ -374,6 +374,41 @@ class RoleGroupDirectionTests(unittest.TestCase):
                                                                              'exact role-group'):
                         builder.validate_role_group_preflight(disabled, summary_path,
                                                               events_path, 'boot')
+
+    def test_front_hip_ten_degree_clearance_binds_all_preflight_centers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            summary = Path(tmp) / 'summary.json'
+            builder.write_json(summary, {'result': {'workers': {
+                'front': {'centers': {str(i): self.centers[str(i)] for i in range(1, 7)}},
+                'rear': {'centers': {str(i): self.centers[str(i)] for i in range(7, 13)}}}}})
+            physical = {
+                'clearance_reference_raw_rad_by_id': dict(self.centers),
+                'clearance_reference_preflight_summary_sha256': builder.sha(summary),
+                'start_tolerance_clearance_verified_deg': 3.,
+                'start_tolerance_clearance_note': 'All twelve joints clear through the 10° sweep '
+                                                  'from every start within ±3° of this pose.',
+            }
+            review = {'role_group': 'front-hip', 'amplitude_deg': 10.}
+            extras = builder.front_hip_step10_clearance_extras(review, physical, summary)
+            self.assertEqual(extras['clearance_reference_raw_rad_by_id'], self.centers)
+            self.assertEqual(extras['start_tolerance_clearance_verified_deg'], 3.)
+            self.assertEqual(builder.front_hip_step10_clearance_extras(
+                {'role_group': 'front-hip', 'amplitude_deg': 5.}, {}, summary), {})
+            for change in ('held_axis', 'moving_axis', 'summary_hash', 'margin', 'note'):
+                wrong = copy.deepcopy(physical)
+                if change == 'held_axis':
+                    wrong['clearance_reference_raw_rad_by_id']['8'] += .1
+                elif change == 'moving_axis':
+                    wrong['clearance_reference_raw_rad_by_id']['3'] += .1
+                elif change == 'summary_hash':
+                    wrong['clearance_reference_preflight_summary_sha256'] = 'a' * 64
+                elif change == 'margin':
+                    wrong['start_tolerance_clearance_verified_deg'] = 5.
+                else:
+                    wrong['start_tolerance_clearance_note'] = ' '
+                with self.subTest(change=change), self.assertRaisesRegex(
+                        ValueError, 'physical review must cover'):
+                    builder.front_hip_step10_clearance_extras(review, wrong, summary)
     def test_audio_gate_keeps_nested_active_runner_valid(self):
         wrapper = ("def run():\n"
                    "    from singularitydog_hw.rs05_fullbody_step2 import run_fullbody_step2\n"

@@ -278,12 +278,33 @@ class BusTrialTransport:
                     self.receive(frame_guard=match_pending)
                 raise RuntimeError('Interleaved input backlog')
 
+            def finish_partial():
+                nonlocal receive_deadline
+                if not self.parser.buffer:
+                    return
+                # USB/UART reads may split a valid reply across the next
+                # transmit slot. Wait for its tail before any further write,
+                # without extending the active or existing reply budget.
+                previous_deadline = receive_deadline
+                receive_deadline = self.last_write_finished_s + EXCHANGE_TIMEOUT_S
+                if previous_deadline is not None:
+                    receive_deadline = min(receive_deadline, previous_deadline)
+                try:
+                    while self.parser.buffer:
+                        self.check_interrupt()
+                        if time.monotonic() >= receive_deadline:
+                            raise RuntimeError('Partial interleaved frame deadline before next command')
+                        self.receive(frame_guard=match_pending)
+                    if time.monotonic() >= receive_deadline:
+                        raise RuntimeError('Partial interleaved frame deadline before next command')
+                finally:
+                    receive_deadline = previous_deadline
+
             for wire, frame in zip(wires, frames):
                 if interleaved:
                     self.pace_transmit()
                     drain_arrived()
-                    if self.parser.buffer:
-                        raise RuntimeError('Partial interleaved frame before next command')
+                    finish_partial()
                 self.send(wire)
                 if interleaved:
                     sent[frame.destination] = self.last_write_finished_s

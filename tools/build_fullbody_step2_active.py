@@ -121,12 +121,36 @@ def verify_step2_sources(base, expected):
     flags = ('raw_direction_reviewed_for_diagnostic', 'swept_clearance_verified',
              'support_stand_verified', 'feet_clear_verified', 'hands_clear_verified',
              'physical_cutoff_ready')
+    clearance_extra = {}
+    if disabled.get('role_group') == 'front-hip' and disabled.get('amplitude_deg') == 10.:
+        workers = summary.get('result', {}).get('workers', {})
+        require(type(workers) is dict and set(workers) == {'front', 'rear'},
+                'Front-hip 10-degree preflight lacks measured buses')
+        reference = {}
+        for bus, ids in (('front', range(1, 7)), ('rear', range(7, 13))):
+            centers = workers[bus].get('centers', {})
+            require(type(centers) is dict and set(centers) == {str(i) for i in ids},
+                    'Front-hip 10-degree preflight lacks measured centers')
+            reference.update(centers)
+        note = physical.get('start_tolerance_clearance_note')
+        require(physical.get('clearance_reference_raw_rad_by_id') == reference
+                and physical.get('clearance_reference_preflight_summary_sha256')
+                    == sha(base / 'step2-preflight/summary.json')
+                and type(physical.get('start_tolerance_clearance_verified_deg')) in (int, float)
+                and physical['start_tolerance_clearance_verified_deg'] == 3.
+                and type(note) is str and bool(note.strip()),
+                'Front-hip 10-degree path is not tied to the physical +/-3-degree pose')
+        clearance_extra = {
+            'clearance_reference_raw_rad_by_id': reference,
+            'clearance_reference_preflight_summary_sha256': sha(base / 'step2-preflight/summary.json'),
+            'start_tolerance_clearance_verified_deg': 3.,
+            'start_tolerance_clearance_note': note}
     require(disabled['boot_id'] == active['boot_id'] == physical['boot_id'] == BOOT
             and disabled['motor_uids'] == active['motor_uids'] == expected
             and disabled['supported_step_authorized'] is False
             and all(disabled[k] is False and physical[k] is True for k in flags)
             and physical['raw_direction_by_id'] == disabled['raw_direction_by_id']
-            and active == {**disabled, **{k: True for k in flags},
+            and active == {**disabled, **{k: True for k in flags}, **clearance_extra,
                            'supported_step_authorized': True,
                            'source_disabled_step2_review_sha256': sha(base / 'step2-disabled-review.json'),
                            'source_step2_preflight_summary_sha256': sha(base / 'step2-preflight/summary.json'),

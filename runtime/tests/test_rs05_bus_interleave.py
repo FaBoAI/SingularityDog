@@ -31,6 +31,27 @@ class ArrivingSerial(TimedSerial):
         return len(self.rx)
 
 
+class SplitReplySerial(TimedSerial):
+    """Keep the first reply's CRLF until after the next 5ms transmit slot."""
+    def __init__(self, clock, *, tail_delay=.007):
+        super().__init__(clock, duration=.001)
+        self.tail_delay, self.tail, self.tail_due = tail_delay, b'', None
+
+    def write(self, data):
+        count = super().write(data)
+        if len(self.sent) == 1:
+            self.rx, self.tail = self.rx[:-2], self.rx[-2:]
+            self.tail_due = self.clock() + self.tail_delay
+        return count
+
+    @property
+    def in_waiting(self):
+        if self.tail_due is not None and self.clock() >= self.tail_due:
+            self.rx += self.tail
+            self.tail, self.tail_due = b'', None
+        return len(self.rx)
+
+
 class InterleavedBusTests(BusFixture):
     def run_batch(self, transport):
         return transport.feedback_many([motion(mid, active=True) for mid in transport.ids],
@@ -123,6 +144,74 @@ class InterleavedBusTests(BusFixture):
         port.read = lambda count: original_read(min(count, 3))
         with patch(CLOCK_PATCH, clock):
             self.assertEqual(set(self.run_batch(t)), set(t.ids))
+
+    def test_split_reply_tail_after_pacing_completes_before_next_write(self):
+        for bus, ids in BUSES.items():
+            clock = FakeClock()
+            port = SplitReplySerial(clock)
+            t = BusTrialTransport(port, lambda _: None, ids=ids, wait=clock.wait,
+                                  interleave_feedback=True)
+            t.active_deadline = clock() + .05
+            published = []
+            t.feedback_guard = lambda value, when, mid: published.append((mid, when))
+            with self.subTest(bus=bus), patch(CLOCK_PATCH, clock):
+                found = self.run_batch(t)
+            self.assertEqual(set(found), set(ids))
+            self.assertEqual([mid for mid, _ in published], list(ids))
+            self.assertGreaterEqual(found[ids[0]][1], port.finishes[0] + .007)
+            self.assertGreaterEqual(port.starts[1], found[ids[0]][1])
+            self.assertLess(clock(), t.active_deadline)
+            self.assertFalse(t.parser.buffer)
+            self.assert_gaps(port)
+
+    def test_split_reply_wait_keeps_deadline_and_cancellation_before_next_write(self):
+        for failure in ('deadline', 'cancel'):
+            clock = FakeClock()
+            port = SplitReplySerial(clock)
+            t = BusTrialTransport(port, lambda _: None, ids=BUSES['front'], wait=clock.wait,
+                                  interleave_feedback=True)
+            cutoff = clock() + .007
+            if failure == 'deadline':
+                t.active_deadline = cutoff
+            else:
+                def check():
+                    if clock() >= cutoff:
+                        raise InterruptedError('cancelled while awaiting reply tail')
+                t.check_interrupt = check
+            published = []
+            t.feedback_guard = lambda value, when, mid: published.append(mid)
+            with self.subTest(failure=failure), patch(CLOCK_PATCH, clock):
+                with self.assertRaises((RuntimeError, InterruptedError)):
+                    self.run_batch(t)
+                self.assertEqual(len(port.sent), 1)
+                self.assertFalse(published)
+                self.assertIsNotNone(t.fault_latched)
+                t.stop_all()
+            self.assertEqual([frame.destination for frame in port.sent if frame.kind == 4],
+                             list(t.ids))
+            self.assert_gaps(port)
+
+    def test_fault_in_split_reply_still_prevents_next_write(self):
+        clock = FakeClock()
+        port = SplitReplySerial(clock)
+        port.responder = lambda frame: feedback(frame.destination, fault=1)
+        t = BusTrialTransport(port, lambda _: None, ids=BUSES['front'], wait=clock.wait,
+                              interleave_feedback=True)
+        with patch(CLOCK_PATCH, clock), self.assertRaisesRegex(RuntimeError, 'fault'):
+            self.run_batch(t)
+        self.assertEqual(len(port.sent), 1)
+        self.assertIsNotNone(t.fault_latched)
+
+    def test_missing_split_tail_has_bounded_reply_wait_without_active_deadline(self):
+        clock = FakeClock()
+        port = SplitReplySerial(clock, tail_delay=1.)
+        t = BusTrialTransport(port, lambda _: None, ids=BUSES['front'], wait=clock.wait,
+                              interleave_feedback=True)
+        with patch(CLOCK_PATCH, clock), self.assertRaisesRegex(RuntimeError, 'Partial.*deadline'):
+            self.run_batch(t)
+        self.assertEqual(len(port.sent), 1)
+        self.assertGreaterEqual(clock(), port.finishes[0] + EXCHANGE_TIMEOUT_S)
+        self.assertLessEqual(clock(), port.finishes[0] + EXCHANGE_TIMEOUT_S + .001 + 1e-12)
 
     def test_slow_logger_does_not_refresh_received_timestamp(self):
         clock, port, t = self.fixture()

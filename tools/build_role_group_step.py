@@ -31,6 +31,7 @@ DIRECTION_PROFILES = ('raw-plus', 'mirrored-thigh', 'front-thigh-toward-face',
                       'front-hip-mirrored')
 THIGH_GROUPS = frozenset(('thigh', 'front-thigh'))
 FLAGS = disabled_base.REQUIRED_FLAGS
+CLEARANCE_START_TOLERANCE_DEG = 3.
 require, sha, read_json, write_json = (disabled_base.require, disabled_base.sha,
                                       disabled_base.read_json, disabled_base.write_json)
 
@@ -360,6 +361,44 @@ def validate_role_group_preflight(disabled_package: Path, summary_path: Path,
             'Disabled preflight does not belong to this exact role-group package')
 
 
+def front_hip_step10_preflight_centers(summary_path: Path) -> dict[str, float]:
+    """Read all twelve starts from one completed disabled preflight summary."""
+    summary = read_json(summary_path)
+    workers = summary.get('result', {}).get('workers', {})
+    require(type(workers) is dict and set(workers) == {'front', 'rear'},
+            'Front-hip 10-degree preflight lacks both measured buses')
+    reference = {}
+    for bus, ids in (('front', range(1, 7)), ('rear', range(7, 13))):
+        centers = workers[bus].get('centers', {})
+        require(type(centers) is dict and set(centers) == {str(mid) for mid in ids},
+                f'Front-hip 10-degree preflight lacks six {bus} centers')
+        for mid in ids:
+            angle = centers[str(mid)]
+            require(type(angle) in (int, float) and math.isfinite(angle),
+                    f'ID{mid} preflight clearance center is invalid')
+            reference[str(mid)] = angle
+    return reference
+
+
+def front_hip_step10_clearance_extras(review: dict, physical: dict,
+                                      summary_path: Path) -> dict:
+    """Bind physical 10-degree clearance to all twelve measured preflight starts."""
+    if review.get('role_group') != 'front-hip' or review.get('amplitude_deg') != 10.:
+        return {}
+    reference = front_hip_step10_preflight_centers(summary_path)
+    note = physical.get('start_tolerance_clearance_note')
+    require(physical.get('clearance_reference_raw_rad_by_id') == reference
+            and physical.get('clearance_reference_preflight_summary_sha256') == sha(summary_path)
+            and type(physical.get('start_tolerance_clearance_verified_deg')) in (int, float)
+            and physical['start_tolerance_clearance_verified_deg'] == CLEARANCE_START_TOLERANCE_DEG
+            and type(note) is str and bool(note.strip()),
+            'Front-hip 10-degree physical review must cover the preflight pose +/-3 degrees')
+    return {'clearance_reference_raw_rad_by_id': reference,
+            'clearance_reference_preflight_summary_sha256': sha(summary_path),
+            'start_tolerance_clearance_verified_deg': CLEARANCE_START_TOLERANCE_DEG,
+            'start_tolerance_clearance_note': note}
+
+
 def active(source: Path, disabled_package: Path, preflight_log: Path,
            physical_path: Path, output: Path,
            announcement_wav: Path = DEFAULT_ANNOUNCEMENT_WAV) -> dict:
@@ -386,6 +425,7 @@ def active(source: Path, disabled_package: Path, preflight_log: Path,
     profile = validate_active_directions(review, candidate, physical, centers)
     summary_path, events_path = preflight_log / 'summary.json', preflight_log / 'events.jsonl'
     validate_role_group_preflight(disabled_package, summary_path, events_path, boot)
+    clearance_extras = front_hip_step10_clearance_extras(review, physical, summary_path)
     require(review['supported_step_authorized'] is False
             and review['offline_candidate_hold_provenance_verified'] is True
             and all(review[flag] is False for flag in FLAGS)
@@ -402,7 +442,7 @@ def active(source: Path, disabled_package: Path, preflight_log: Path,
             and physical.get('automatic_retry_allowed') is False
             and physical.get('requires_fresh_pre_run_confirmation') is True,
             'Physical review must match this exact role-group raw scope')
-    approved = {**review, **{flag: True for flag in FLAGS},
+    approved = {**review, **{flag: True for flag in FLAGS}, **clearance_extras,
                 'supported_step_authorized': True,
                 'source_disabled_step2_review_sha256': sha(disabled_package / 'step2-review.json'),
                 'source_step2_preflight_summary_sha256': sha(summary_path),

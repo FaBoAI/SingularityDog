@@ -1,0 +1,119 @@
+{
+  "schema": "singularitydog.historical-stance-route-review.v1",
+  "status": "BLOCKED_FOR_ACTUATION_REVIEW_ONLY",
+  "output_allowed": false,
+  "live_runner_available": false,
+  "collision_clearance_verified": false,
+  "calibration_verified": false,
+  "start_angle_rebase_can_invalidate_clearance": true,
+  "current_boot_id": "efb58334-b54d-49dd-a1ce-bd94bbea31d8",
+  "historical_target_boot_id": "ac5c430a-15f2-486c-97f5-1e301a10a960",
+  "same_boot": false,
+  "known_contact_motor_ids": [
+    2,
+    5
+  ],
+  "raw_turn_ambiguous_motor_ids": [
+    8,
+    9
+  ],
+  "review_interval_deg": 10.0,
+  "stages": [
+    {
+      "stage": "front_hips_first",
+      "motor_ids": [
+        3,
+        6
+      ],
+      "historical_delta_deg_by_id": {
+        "3": 25.681,
+        "6": -16.617
+      },
+      "largest_abs_delta_deg": 25.681,
+      "review_intervals_at_most_10deg": 3,
+      "blockers": [
+        "target_is_from_another_boot"
+      ]
+    },
+    {
+      "stage": "rear_hips",
+      "motor_ids": [
+        9,
+        12
+      ],
+      "historical_delta_deg_by_id": {
+        "9": 328.303,
+        "12": 14.372
+      },
+      "largest_abs_delta_deg": 328.303,
+      "review_intervals_at_most_10deg": 33,
+      "blockers": [
+        "target_is_from_another_boot",
+        "raw_turn_ambiguity_no_automatic_wrapping"
+      ]
+    },
+    {
+      "stage": "front_thighs_after_clearance_review",
+      "motor_ids": [
+        2,
+        5
+      ],
+      "historical_delta_deg_by_id": {
+        "2": 21.214,
+        "5": -21.81
+      },
+      "largest_abs_delta_deg": 21.81,
+      "review_intervals_at_most_10deg": 3,
+      "blockers": [
+        "target_is_from_another_boot",
+        "known_carbon_clamp_contact_in_direct_route",
+        "hip_first_full_swept_clearance_unverified"
+      ]
+    },
+    {
+      "stage": "rear_thighs",
+      "motor_ids": [
+        8,
+        11
+      ],
+      "historical_delta_deg_by_id": {
+        "8": 370.401,
+        "11": -17.642
+      },
+      "largest_abs_delta_deg": 370.401,
+      "review_intervals_at_most_10deg": 38,
+      "blockers": [
+        "target_is_from_another_boot",
+        "raw_turn_ambiguity_no_automatic_wrapping"
+      ]
+    },
+    {
+      "stage": "calves",
+      "motor_ids": [
+        1,
+        4,
+        7,
+        10
+      ],
+      "historical_delta_deg_by_id": {
+        "1": 6.492,
+        "4": 11.505,
+        "7": 18.216,
+        "10": 90.399
+      },
+      "largest_abs_delta_deg": 90.399,
+      "review_intervals_at_most_10deg": 10,
+      "blockers": [
+        "target_is_from_another_boot"
+      ]
+    }
+  ],
+  "required_before_motor_route": [
+    "Capture all 12 current raw angles and UID on the execution boot",
+    "Recheck full swept clearance after every start-angle rebase, even on the same boot",
+    "Establish current calibration and raw turns without automatic wrapping",
+    "Recompute nominal target from the current geometry and calibration",
+    "Verify the complete hip-first/front-thigh swept path on the assembled robot",
+    "Use a separately reviewed finite all-axis runner with STOP/watchdog"
+  ]
+}
