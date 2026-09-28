@@ -7,6 +7,7 @@ import math
 import unittest
 
 from singularitydog_hw import motor_power_epoch_manifest as epoch
+from singularitydog_hw.angle_calibration_audit import AxisCalibration, EpochAngleMap
 
 
 IDS = tuple(str(i) for i in range(1, 13))
@@ -103,6 +104,9 @@ class EpochManifestTests(unittest.TestCase):
         self.assertEqual(result["status"], "OPERATOR_ATTESTED_REVIEW_REQUIRED")
         self.assertNotEqual(result["reference_snapshot"]["motor_power_epoch"],
                             result["current_snapshot"]["motor_power_epoch"])
+        self.assertEqual(result["current_snapshot"]["monotonic_ns"], 2300)
+        self.assertEqual(result["current_snapshot"]["epoch_evidence_sha256"],
+                         result["source_sha256"]["operator_events"])
         self.assertEqual(result["branch_comparison"]["rows"]["3"]
                          ["branch_turns_for_comparison"], 1)
         self.assertFalse(result["branch_comparison"]["rows"]["9"]["branch_reviewed"])
@@ -118,6 +122,22 @@ class EpochManifestTests(unittest.TestCase):
         result = self.build(reference=reference, current=current, operator_events=proof)
         self.assertEqual(result["branch_comparison"]["rows"]["3"]
                          ["branch_turns_for_comparison"], 1)
+
+    def test_manifest_snapshot_has_epoch_angle_map_provenance_shape(self):
+        result = self.build()
+        # Synthetic reviewed evidence checks schema compatibility only; the
+        # generated manifest and angle map still do not authorize output.
+        axes = {int(mid): AxisCalibration(int(mid), UIDS[mid], 1, 0., -.5, 1.8, .01,
+                                         "a" * 64, True, True, True,
+                                         "b" * 64, "b" * 64, "b" * 64)
+                for mid in IDS}
+        mapped = EpochAngleMap(axes, result["current_snapshot"],
+                               max_speed_rad_s=1., noise_margin_rad=.01,
+                               max_sample_gap_s=.1)
+        report = mapped.report()
+        self.assertEqual(report["turns_by_id"]["3"], 1)
+        self.assertEqual(report["turns_by_id"]["9"], 0)
+        self.assertFalse(report["output_allowed"])
 
     def test_malformed_event_and_capture_chronology_rejected(self):
         bad_events = copy.deepcopy(self.events)

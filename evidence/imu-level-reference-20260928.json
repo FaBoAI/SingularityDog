@@ -1,0 +1,46 @@
+{
+  "schema": "singularitydog.imu-external-level-review.v1",
+  "status": "EXTERNAL_LEVEL_COMPARISON_RECORDED",
+  "approved_for_runtime": false,
+  "samples": 971,
+  "R_body_from_sensor": [
+    [
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      -1.0
+    ]
+  ],
+  "direction_mean_vector_error_deg": 0.12257806091924502,
+  "direction_sample_error_max_deg": 0.2951040867944787,
+  "corrected_gyro_norm_max_rad_s": 0.0042654992226187,
+  "combined_error_bound_deg": null,
+  "restore_status": "restored",
+  "operator_reference": "Bubble level centered in fore-aft and left-right on body-parallel flat surface; 40V Off and stationary on box",
+  "raw_accel_norm_m_s2": {
+    "accel_norm_min_m_s2": 10.652472935359786,
+    "accel_norm_max_m_s2": 10.726660146646852,
+    "accel_norm_mean_m_s2": 10.68674791304347,
+    "gravity_norm_deviation_percent": 8.974501109384668
+  },
+  "capture_hashes": {
+    "summary.json": "5b943204275df3235a945a6bc3b8597264d6fcf86ca206d36080cdaaf2ba7ab8",
+    "events.jsonl": "debbacd49961aae22ba05fae4b68cfa0d8ce03693921677f41f1223dfa57ac1c",
+    "level-review.json": "871fd94a696f548fef44b7f6e8aad4481fb18752b9e533e3bf10cc77612f7fd2",
+    "combined-review.json": "1af4422d933c18879c37e3e4f5364ef29f396cde029b796411c53a14a6e79512"
+  },
+  "old_pitch_roll_gates_passed": true,
+  "current_yaw_gates_passed": true,
+  "limits": "Relative-to-operator-level comparison; bubble-level accuracy unspecified; no accelerometer scale/bias fitted; not complete runtime or movement approval.",
+  "analysis_source_sha256": "3c4017b2531ffe3e7beff6cd43a3988a5ddbe57474620d031a276d709f5bae34",
+  "offline_direction_tests_passed": 3
+}

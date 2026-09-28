@@ -113,6 +113,22 @@ class IMUTests(unittest.TestCase):
         self.assertEqual(sample["wall_time_ns"], 123456789)
         driver.close()
 
+    def test_four_g_range_uses_verified_register_and_restores_previous_range(self):
+        bus = FakeBus()
+        driver = imu.ICM20948(bus, accel_range_g=4, sleep=lambda _: None)
+        original_accel = bus.banks[2][0x14]
+        with driver:
+            self.assertEqual(driver.configuration["accel_range_g"], 4)
+            self.assertEqual(driver.configuration["registers"]["bank2:0x14"], 0x23)
+            bus.sample((8192, 0, 0, 0, 0, 0))
+            self.assertEqual(driver.read_sample()["accel_m_s2"][0], 9.80665)
+        self.assertEqual(bus.banks[2][0x14], original_accel)
+        self.assertEqual(driver.restore_status, "restored")
+
+    def test_invalid_accel_range_rejected_before_opening_bus(self):
+        with self.assertRaisesRegex(ValueError, "accel range"):
+            imu.ICM20948(accel_range_g=3)
+
     def test_temperature_signed_and_disabled(self):
         bus, driver = self.make_driver()
         driver.start()

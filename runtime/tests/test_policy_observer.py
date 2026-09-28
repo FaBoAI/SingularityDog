@@ -254,6 +254,137 @@ class ObserverTests(unittest.TestCase):
                 self.assertEqual(hashlib.sha256(encoded).hexdigest(), golden[h])
                 self.assertEqual(run.finish()["status"], "COMPLETE_NO_OUTPUT_DIAGNOSTIC")
 
+    def test_owned_snapshot_flags_and_static_provenance_have_no_mutable_aliases(self):
+        def mutable_ids(value):
+            if isinstance(value, dict):
+                return [id(value)]+[item for child in value.values() for item in mutable_ids(child)]
+            if isinstance(value, (list, tuple)):
+                own = [id(value)] if isinstance(value, list) else []
+                return own+[item for child in value for item in mutable_ids(child)]
+            return []
+
+        shared = [{"unverified": True}]
+        cal, imu_mount, bias = calibration(), mount(), bias_candidate()
+        cal["source_notes"] = {"first": shared, "second": shared}
+        clock = iter(range(100, 1000, 10))
+        run = make(calibration=cal, imu_mount_candidate=imu_mount,
+                   gyro_bias_candidate=bias, profile_consume=True,
+                   monotonic_ns=lambda: next(clock))
+        run.reset_run(1_000_000_000, warmup_completed=True)
+        source = snapshot()
+        source["source_flags"] = {"first": shared, "second": shared,
+                                 "gyro": source["imu"]["gyro_rad_s"]}
+        original = copy.deepcopy(source)
+        owned = []
+        clone = observer._snapshot_copy
+        def capture(value):
+            result = clone(value)
+            owned.append(result)
+            return result
+        with patch.object(observer, "_snapshot_copy", side_effect=capture):
+            first = run.consume(source)
+        self.assertIs(first["provenance"]["snapshot_source_flags"], owned[0]["source_flags"])
+        first_ids = mutable_ids(first)
+        self.assertEqual(len(first_ids), len(set(first_ids)))
+        internals = (run._calibration, run._calibration_source_flags, run._mount,
+                     run._bias, run._last_sources, run._last_consume_profile)
+        for value in (*internals, source, cal, imu_mount, bias):
+            self.assertTrue(set(first_ids).isdisjoint(mutable_ids(value)))
+        self.assertEqual(source, original)
+        self.assertEqual(first["provenance"]["snapshot_canonical_json_sha256"],
+                         observer._digest(source))
+
+        frozen = copy.deepcopy(first)
+        second = run.consume(snapshot(1_020_000_000))
+        self.assertTrue(set(first_ids).isdisjoint(mutable_ids(second)))
+        first["provenance"]["snapshot_source_flags"]["first"][0]["unverified"] = False
+        first["provenance"]["snapshot_source_flags"]["gyro"][0] = 999.
+        first["provenance"]["calibration_source_flags"]["source_notes"]["first"].clear()
+        first["consume_profile"]["excludes"].clear()
+        self.assertEqual(first["provenance"]["snapshot_source_flags"]["second"], shared)
+        self.assertEqual(first["provenance"]["raw_gyro_rad_s"], frozen["provenance"]["raw_gyro_rad_s"])
+        self.assertEqual(first["provenance"]["calibration_source_flags"]["source_notes"]["second"], shared)
+        self.assertEqual(source, original)
+        self.assertEqual(second["provenance"]["calibration_source_flags"],
+                         frozen["provenance"]["calibration_source_flags"])
+        self.assertEqual(second["consume_profile"], run._last_consume_profile)
+        self.assertEqual(run._calibration_source_flags["source_notes"]["first"], shared)
+
+    def test_static_json_fast_copy_preserves_legacy_metadata_acceptance(self):
+        nested = [False]
+        for _ in range(25):
+            nested = [nested]
+        cases = ("x"*90_000, {1: ["numeric JSON key"]}, nested)
+        for slot in range(3):
+            for index, metadata in enumerate(cases):
+                if slot == 1 and index != 0:
+                    continue  # Mount provenance already requires string fields.
+                with self.subTest(slot=slot, metadata=index):
+                    cal, imu_mount, bias = calibration(), mount(), bias_candidate()
+                    destinations = (cal, imu_mount["provenance"], bias["provenance"]["a"])
+                    destinations[slot]["legacy_metadata"] = metadata
+                    clocks = [iter(range(100, 1000, 10)) for _ in range(2)]
+                    runs = [make(calibration=cal, imu_mount_candidate=imu_mount,
+                                 gyro_bias_candidate=bias, profile_consume=True,
+                                 monotonic_ns=lambda clock=clock: next(clock))
+                            for clock in clocks]
+                    self.assertIs(runs[1]._static_provenance_copiers[slot], copy.deepcopy)
+                    # Force the original three per-tick static copy operations
+                    # in the reference, leaving all validation/model work equal.
+                    runs[0]._static_provenance_copiers = (copy.deepcopy,)*3
+                    for run in runs:
+                        run.reset_run(1_000_000_000, warmup_completed=True)
+                    expected, actual = [run.consume(snapshot()) for run in runs]
+                    self.assertEqual(actual, expected)
+                    self.assertEqual(runs[1]._policy.calls, runs[0]._policy.calls)
+                    self.assertEqual(runs[1].summary(), runs[0].summary())
+                    keys = ("calibration_source_flags", "imu_mount_candidate", "gyro_bias_hypothesis")
+                    original = copy.deepcopy(actual)
+                    actual["provenance"][keys[slot]].clear()
+                    next_source = snapshot(1_020_000_000)
+                    expected_next, actual_next = [run.consume(next_source) for run in runs]
+                    self.assertEqual(actual_next, expected_next)
+                    self.assertEqual(actual_next["provenance"][keys[slot]],
+                                     original["provenance"][keys[slot]])
+
+        ordinary = make(gyro_bias_candidate=bias_candidate())
+        self.assertEqual(ordinary._static_provenance_copiers, (observer.snapshot_event,)*3)
+
+    def test_frozen_static_copy_matches_per_tick_validation_and_owns_every_record(self):
+        shared = [{"source": "same mutable original"}]
+        cal, imu_mount, bias = calibration(), mount(), bias_candidate()
+        cal["source_notes"] = {"first": shared, "second": shared,
+                               "tuple_shape": ("candidate", {"values": [1, 2]})}
+        bias["provenance"]["a"]["nested"] = {"owned": ["a"]}
+        clocks = [iter(range(100, 1000, 10)) for _ in range(2)]
+        runs = [make(calibration=cal, imu_mount_candidate=imu_mount,
+                     gyro_bias_candidate=bias, profile_consume=True,
+                     monotonic_ns=lambda clock=clock: next(clock)) for clock in clocks]
+        # Force the prior per-tick bounded copy on one otherwise identical run.
+        runs[0]._static_provenance_blobs = (None,)*3
+        for run in runs:run.reset_run(1_000_000_000, warmup_completed=True)
+        saved = []
+        for index in range(2):
+            source = snapshot(1_000_000_000+index*observer.DT_NS)
+            source["source_flags"] = {"sequence": index, "nested": ["fresh", index]}
+            source["imu"]["gyro_rad_s"][0] += index*.013
+            before = copy.deepcopy(source)
+            expected, actual = [run.consume(source) for run in runs]
+            self.assertEqual(actual, expected)
+            self.assertEqual(actual["provenance"]["snapshot_canonical_json_sha256"],
+                             observer._digest(source))
+            self.assertEqual(source,before)
+            self.assertIsInstance(actual["provenance"]["calibration_source_flags"]
+                                  ["source_notes"]["tuple_shape"],tuple)
+            saved.append(copy.deepcopy(actual))
+            actual["provenance"]["calibration_source_flags"]["source_notes"]["first"].clear()
+            actual["provenance"]["gyro_bias_hypothesis"]["source"]["a"]["nested"]["owned"].clear()
+        self.assertEqual(runs[0].finish(),runs[1].finish())
+        self.assertEqual(saved[0]["provenance"]["calibration_source_flags"]["source_notes"]
+                         ["second"],shared)
+        self.assertEqual(saved[1]["provenance"]["calibration_source_flags"]["source_notes"]
+                         ["first"],shared)
+
     def test_profiling_is_opt_in_and_default_does_not_read_the_clock(self):
         clock = Mock(side_effect=AssertionError("clock must not be read"))
         o = make(monotonic_ns=clock)
@@ -302,10 +433,22 @@ class ObserverTests(unittest.TestCase):
         o.reset_run(1_000_000_000, warmup_completed=True)
         result = o.consume(snapshot())
         result["consume_profile"]["durations_ns"]["model_call"] = 999
+        result["consume_profile"]["excludes"].clear()
         summary = o.summary()
         self.assertEqual(summary["last_consume_profile"]["durations_ns"]["model_call"], 1)
+        self.assertEqual(len(summary["last_consume_profile"]["excludes"]), 4)
         summary["last_consume_profile"]["durations_ns"].clear()
+        summary["last_consume_profile"]["excludes"].append("caller mutation")
         self.assertEqual(len(o.summary()["last_consume_profile"]["durations_ns"]), 8)
+        self.assertEqual(len(o.summary()["last_consume_profile"]["excludes"]), 4)
+        next_result = o.consume(snapshot(1_020_000_000))
+        result["consume_profile"]["excludes"].append("old record mutation")
+        self.assertEqual(next_result["consume_profile"], o._last_consume_profile)
+        self.assertIsNot(next_result["consume_profile"], o._last_consume_profile)
+        self.assertIsNot(next_result["consume_profile"]["durations_ns"],
+                         o._last_consume_profile["durations_ns"])
+        self.assertIsNot(next_result["consume_profile"]["excludes"],
+                         o._last_consume_profile["excludes"])
         o.invalidate("caller cancelled")
         o.prepare_run(warmup_completed=True)
         self.assertIsNone(o.summary()["last_consume_profile"])

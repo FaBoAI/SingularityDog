@@ -1,0 +1,55 @@
+{
+  "schema": "native-step-fusion-short-replay-r1",
+  "phase": "timing",
+  "status": "PASS_FILE_ONLY",
+  "hardware_opened": false,
+  "output_allowed": false,
+  "approved_for_runtime": false,
+  "live_50hz_verified": false,
+  "environment": {
+    "system": "Linux",
+    "machine": "aarch64",
+    "torch_version": "2.14.0+cpu",
+    "cxx11_abi": true
+  },
+  "step_source_sha256": "69b34790df67f00314c638199efba99abc0469969cfda52e31f4a48ad8a6332d",
+  "baseline_manifest_sha256": "477d3f83b5f2177b22d5dda69e3884d7e22622a6fefdf7d578d8bd64121609de",
+  "candidate_model_sha256": "7401bf982aff06c9394f36c26acf8c295fe1dd15826e6732e789e979e159113b",
+  "candidate_library_sha256": "e05aecc5cd0168e67a4dd26f084eb9ae86ce55d3ce73bac1daa8564b2ee6ebe0",
+  "records_sha256": "617d85a521338d9108f10218336b1ce9e33ea21aa2aa711e76cd3a995dbc910d",
+  "timing": {
+    "cached": {
+      "wall": {
+        "count": 500,
+        "median_ms": 2.224958,
+        "p95_ms": 2.301954,
+        "p99_ms": 2.505422,
+        "max_ms": 5.335118
+      },
+      "thread_cpu": {
+        "count": 500,
+        "median_ms": 2.209568,
+        "p95_ms": 2.27504,
+        "p99_ms": 2.4408,
+        "max_ms": 4.167584
+      }
+    },
+    "step_fused_cached": {
+      "wall": {
+        "count": 500,
+        "median_ms": 2.124489,
+        "p95_ms": 2.197468,
+        "p99_ms": 2.411625,
+        "max_ms": 3.951808
+      },
+      "thread_cpu": {
+        "count": 500,
+        "median_ms": 2.110912,
+        "p95_ms": 2.17504,
+        "p99_ms": 2.340608,
+        "max_ms": 3.8296
+      }
+    }
+  },
+  "view_manifest_sha256": "1dca46f5e531da20fa43de40a1e399508c3b9479cd84da23826275646054b5f1"
+}

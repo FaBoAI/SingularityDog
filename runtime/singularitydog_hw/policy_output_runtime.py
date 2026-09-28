@@ -1,0 +1,929 @@
+"""Supported, finite learned-policy output coordinator.
+
+This module does not open devices. Each bus has a single executor/FD owner.
+During active operation Type1 replies provide telemetry; STOP is never used as
+a polling instruction. An independent host timer cancels acquisition and queues
+STOP on both owners if a model/IMU call stalls. Process/kernel failure still
+requires the independently tested actuator watchdog and physical support.
+"""
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import asdict
+import gc
+import math
+import os
+import threading
+import time
+
+from . import can_readonly as codec
+from . import rs05_trial_protocol as protocol
+from . import motor_version_probe as versions
+from . import policy_shadow as shadow
+from .policy_live_profile import (SCHEMA_V3, telemetry_settings, validate_cadence_sources,
+                                  execution_settings, local_characterization_settings)
+from .policy_observer import _TARGET_LOWER, _TARGET_UPPER
+from .native_diagnostic_transport import exchange_evidence
+from .policy_motion_envelope import AxisLimits, MotionSample, PolicyMotionEnvelope
+from .angle_calibration_audit import (AngleEvidenceError, UNKNOWN_EPOCHS,
+                                      resolve_unique_numeric_branch)
+
+IDS=tuple(range(1,13))
+BUSES={'front':tuple(range(1,7)), 'rear':tuple(range(7,13))}
+PERIOD_NS=20_000_000
+V3_VOLTAGE_MAX_AGE_NS=126_000_000
+MODEL_TARGET_LIMITS_BY_ID={mid:(lower,upper) for mid,lower,upper in
+                          zip(shadow.CAN_ORDER,_TARGET_LOWER,_TARGET_UPPER)}
+
+
+def need(condition,message):
+    if not condition:raise RuntimeError(message)
+
+
+def checked_voltage_rows(rows,ids,profile,now_ns):
+    """Validate a complete set of direct voltage replies before caching it."""
+    values={}
+    for i in ids:
+        need((i,'voltage') in rows,f'ID{i} voltage reply missing')
+        reply,started,received=rows[i,'voltage']
+        need(0<started<=received<=now_ns,f'ID{i} voltage reply noncausal')
+        voltage=reply.get('value')
+        need(type(voltage) in (int,float) and math.isfinite(voltage) and
+             profile['voltage_min_v']<=voltage<=profile['voltage_max_v'],f'ID{i} voltage outside profile')
+        values[i]=(voltage,received)
+    return values
+
+
+def checked_voltage_cache(cache,profile,now_ns):
+    """Return the worst age/value, or fail before a V3 Type1 command."""
+    need(set(cache)==set(IDS),'All-axis voltage cache incomplete')
+    maximum_age=0;minimum_voltage=math.inf
+    for i in IDS:
+        voltage,received=cache[i]
+        need(type(received) is int and 0<received<=now_ns,f'ID{i} voltage timestamp noncausal')
+        age=now_ns-received
+        need(age<=V3_VOLTAGE_MAX_AGE_NS,f'ID{i} voltage stale')
+        need(type(voltage) in (int,float) and math.isfinite(voltage) and
+             profile['voltage_min_v']<=voltage<=profile['voltage_max_v'],f'ID{i} voltage outside profile')
+        maximum_age=max(maximum_age,age);minimum_voltage=min(minimum_voltage,voltage)
+    return maximum_age,minimum_voltage
+
+
+def _start_interval_metrics(cycles):
+    intervals=[right['begin_ns']-left['begin_ns']
+               for left,right in zip(cycles,cycles[1:])]
+    return {'start_interval_count':len(intervals),
+            'start_intervals_over_20ms':sum(value>PERIOD_NS for value in intervals),
+            'start_intervals_over_21ms':sum(value>PERIOD_NS+1_000_000 for value in intervals),
+            'max_start_interval_ms':max(intervals,default=0)/1e6,
+            'strict_start_interval_20ms_met':bool(intervals) and all(value<=PERIOD_NS for value in intervals)}
+
+
+class _PendingCycleTiming:
+    """One reused scalar record; materialize failure evidence only after STOP."""
+    _fields=('index','release_ns','begin_ns','previous_candidate_ns','previous_sample_start_ns',
+             'hold_checked_ns','acquisition_complete_ns','sample_start_ns','policy_call_begin_ns',
+             'policy_call_return_ns','target_ready_ns','voltage_join_complete_ns','candidate_ns',
+             'output_submit_ns','output_return_ns','cycle_end_ns')
+    __slots__=(*_fields,'active','stage')
+
+    def __init__(self):
+        self.active=False;self.stage=None
+        for name in self._fields:setattr(self,name,None)
+
+    def begin(self,index,release,begun,previous_candidate,previous_sample):
+        for name in self._fields:setattr(self,name,None)
+        self.index=index;self.release_ns=release;self.begin_ns=begun
+        self.previous_candidate_ns=previous_candidate;self.previous_sample_start_ns=previous_sample
+        self.stage='before_feedback_hold';self.active=True
+
+    def snapshot(self,profile):
+        result={name:getattr(self,name) for name in self._fields}
+        result.update(schema='singularitydog.failed-policy-cycle-timing.v1',stage=self.stage,
+            gap_limit_ms=profile.get('max_sample_gap_ms',profile['hard_cycle_ms']),
+            sample_age_limit_ms=profile['max_sample_age_ms'],hard_cycle_limit_ms=profile['hard_cycle_ms'],
+            command_gap_basis='validated_target_computation_not_transport_write')
+        for name,new,old in (
+                ('command_interval_ms',self.candidate_ns,self.previous_candidate_ns),
+                ('sample_interval_ms',self.sample_start_ns,self.previous_sample_start_ns),
+                ('candidate_sample_age_ms',self.candidate_ns,self.sample_start_ns),
+                ('policy_call_ms',self.policy_call_return_ns,self.policy_call_begin_ns),
+                ('voltage_join_ms',self.voltage_join_complete_ns,self.target_ready_ns)):
+            result[name]=None if new is None or old is None else (new-old)/1e6
+        return result
+
+
+def decode_records(result):
+    records,_=result
+    rows={}
+    for r in records:
+        need(r.written==r.received==17 and 0<r.start_ns<=r.finish_ns<=r.received_ns<r.deadline_ns,
+             'Incomplete or noncausal motor transaction')
+        txs=codec.ATParser().feed(bytes(r.tx));rxs=codec.ATParser().feed(bytes(r.rx))
+        need(len(txs)==len(rxs)==1,'Invalid native frame')
+        tx,rx=txs[0],rxs[0];mid=tx.destination
+        if tx.kind==4 and tx.data==versions.VERSION_PAYLOAD:
+            value=versions.decode_version(rx,mid)
+            value.update(request_started_monotonic_ns=r.start_ns,received_monotonic_ns=r.received_ns)
+            key=(mid,'version')
+        elif tx.kind in (1,3,4,18):
+            value=protocol.decode_type2(rx,motor_id=mid)
+            key=(mid,'feedback')
+        else:
+            name='identity' if tx.kind==0 else next((name for name,(idx,_,_) in codec.PARAMETERS.items()
+                if tx.data[:2]==idx.to_bytes(2,'little')),None)
+            need(name is not None,'Unexpected parameter')
+            value=codec.decode_reply(rx,mid,None if name=='identity' else name)
+            need(value['ok'],'Parameter or identity rejected')
+            key=(mid,name)
+        need(key not in rows,'Duplicate transaction')
+        rows[key]=(value,r.start_ns,r.received_ns)
+    return rows
+
+
+class BusWorkers:
+    """One owner per bus; emergency scheduling prevents subsequent active work."""
+    def __init__(self,sessions,cancel_io,clock=time.monotonic_ns):
+        need(set(sessions)==set(BUSES) and sessions['front'] is not sessions['rear'],'Two independent buses required')
+        self.sessions=sessions;self.cancel_io=cancel_io;self.clock=clock
+        self.pools={s:ThreadPoolExecutor(max_workers=1,thread_name_prefix='policy-'+s) for s in BUSES}
+        self.lock=threading.Lock();self.aborted=threading.Event();self.reason=None
+        self.stop_futures=None;self.journal=[]
+
+    def _exchange(self,scope,wires,timeout_ns,send_only=False,label='preflight'):
+        need(not self.aborted.is_set(),'Output cancelled')
+        try:
+            result=(self.sessions[scope].send_only if send_only else self.sessions[scope].exchange)(
+                wires,timeout_ns=timeout_ns)
+            self.journal.append((scope,result,None,label))
+            return result
+        except BaseException as error:
+            if hasattr(error,'records') and hasattr(error,'stats'):
+                self.journal.append((scope,(error.records,error.stats),str(error),label))
+            # Notify the other owner immediately; do not wait for the main
+            # thread to collect a slower future on the other bus first.
+            self.emergency(type(error).__name__+': '+str(error))
+            raise
+
+    def submit(self,wires,*,timeout_ns,send_only=False,label='preflight'):
+        with self.lock:
+            need(not self.aborted.is_set(),'Output cancelled before submission')
+            return {s:self.pools[s].submit(self._exchange,s,w,timeout_ns,send_only,label) for s,w in wires.items()}
+
+    def collect(self,futures):
+        results={};failure=None
+        for s,f in futures.items():
+            try:results[s]=f.result()
+            except BaseException as e:
+                failure=failure or e
+                self.emergency(type(e).__name__+': '+str(e))
+        if failure:raise failure
+        return results
+
+    def _voltage(self,scope,wires,ids,profile,timeout_ns):
+        """The existing bus owner receives and validates before returning.
+
+        A bad voltage aborts the other owner while inference is still running;
+        the main thread must join both proofs before sending another Type1.
+        """
+        try:
+            result=self._exchange(scope,wires,timeout_ns,label='overlapped_voltage')
+            checked=checked_voltage_rows(decode_records(result),ids,profile,self.clock())
+            return result,checked,self.clock()
+        except BaseException as error:
+            self.emergency(type(error).__name__+': '+str(error))
+            raise
+
+    def submit_voltage(self,ids_by_bus,profile,*,timeout_ns):
+        with self.lock:
+            need(not self.aborted.is_set(),'Output cancelled before voltage submission')
+            return {scope:self.pools[scope].submit(self._voltage,scope,
+                [codec.read_request(mid,'voltage')],(mid,),profile,timeout_ns)
+                for scope,mid in ids_by_bus.items()}
+
+    def exchange(self,wires,*,timeout_ns=100_000_000,send_only=False,label='preflight'):
+        return self.collect(self.submit(wires,timeout_ns=timeout_ns,send_only=send_only,label=label))
+
+    def emergency(self,reason):
+        with self.lock:
+            if self.stop_futures is not None:return
+            self.reason=str(reason);self.aborted.set()
+            try:self.cancel_io()
+            finally:
+                # Queued on the same owners: never race a writer on its FD.
+                self.stop_futures={s:self.pools[s].submit(self.sessions[s].emergency_stop) for s in BUSES}
+
+    def finish_stops(self):
+        self.emergency('normal completion')
+        result={}
+        for s,f in self.stop_futures.items():
+            try:result[s]=f.result(timeout=1.)
+            except BaseException as error:
+                result[s]={'confirmed_ids':[],'unconfirmed_ids':list(BUSES[s]),'error':repr(error)}
+        return result
+
+    def close(self):
+        for pool in self.pools.values():pool.shutdown(wait=True,cancel_futures=False)
+
+
+class OutputWatchdog:
+    """Host supervision is separate from the model and IMU worker."""
+    def __init__(self,workers,timeout_ns,clock=time.monotonic_ns):
+        self.workers=workers;self.timeout_ns=timeout_ns;self.clock=clock
+        self.lock=threading.Lock();self.deadline=None;self.closed=threading.Event()
+        self.thread=threading.Thread(target=self._run,name='policy-output-watchdog',daemon=True)
+        self.thread.start()
+    def kick(self):
+        with self.lock:self.deadline=self.clock()+self.timeout_ns
+    def _run(self):
+        while not self.closed.wait(.002):
+            with self.lock:deadline=self.deadline
+            if deadline is not None and self.clock()>=deadline:
+                self.workers.emergency('Host output heartbeat expired');return
+    def close(self):self.closed.set();self.thread.join()
+
+
+def _worker_affinities(workers,imu_pool,check):
+    """Read each existing I/O owner's mask from that thread, not the caller."""
+    if not hasattr(os,'sched_getaffinity'):raise RuntimeError('Thread affinity is unavailable')
+    futures={scope:workers.pools[scope].submit(lambda:(threading.get_native_id(),sorted(os.sched_getaffinity(0))))
+             for scope in BUSES}
+    futures['imu']=imu_pool.submit(lambda:(threading.get_native_id(),sorted(os.sched_getaffinity(0))))
+    values={scope:future.result(timeout=1.) for scope,future in futures.items()}
+    check()
+    need(len({tid for tid,_ in values.values()})==3,'I/O worker threads are not distinct')
+    return {scope:{'native_tid':tid,'cpus':mask} for scope,(tid,mask) in values.items()}
+
+
+def _transition_worker_affinities(workers,imu_pool,originals,target=None):
+    """Apply/read back on each same owner; restoration must work after abort.
+
+    This submits only affinity work directly to the existing pools, never motor
+    work. A partial setup failure therefore still restores every original owner.
+    """
+    def transition(scope):
+        row={'native_tid':threading.get_native_id(),'cpus':None,'error':None}
+        try:
+            need(row['native_tid']==originals[scope]['native_tid'],
+                 scope+' I/O owner changed during affinity transition')
+            wanted=set(originals[scope]['cpus']) if target is None else set(target)
+            os.sched_setaffinity(0,wanted)
+            row['cpus']=sorted(os.sched_getaffinity(0))
+            need(set(row['cpus'])==wanted,scope+' I/O worker affinity readback differs')
+        except BaseException as error:row['error']=type(error).__name__+': '+str(error)
+        return row
+    pools={**workers.pools,'imu':imu_pool};futures={};rows={}
+    for scope,pool in pools.items():
+        try:futures[scope]=pool.submit(transition,scope)
+        except BaseException as error:
+            rows[scope]={'native_tid':None,'cpus':None,'error':type(error).__name__+': '+str(error)}
+    for scope,future in futures.items():
+        try:rows[scope]=future.result(timeout=1.)
+        except BaseException as error:
+            rows[scope]={'native_tid':None,'cpus':None,'error':type(error).__name__+': '+str(error)}
+    return rows
+
+
+def rows_from_pair(pair):
+    rows={}
+    for scope,result in pair.items():
+        current=decode_records(result)
+        need(all(mid in BUSES[scope] for mid,_ in current),'Cross-bus response')
+        need(not rows.keys()&current.keys(),'Duplicate cross-bus response')
+        rows.update(current)
+    return rows
+
+
+def _read(workers,parameters,*,label='preflight'):
+    return workers.exchange({s:[codec.read_request(i,p) for p in parameters for i in ids]
+                             for s,ids in BUSES.items()},label=label)
+
+
+def preflight(workers,profile,*,firmware_evidence=None,local_characterization=None):
+    """All static checks and watchdog readback complete before any enable."""
+    epoch=profile.get('motor_power_epoch')
+    need(type(epoch) is str and epoch.strip() not in UNKNOWN_EPOCHS,
+         'Explicit current motor-power epoch required')
+    reviewed=profile.get('watchdog_by_id')
+    need(type(reviewed) is dict and set(reviewed)=={str(i) for i in IDS},
+         'Twelve tested raw firmware fingerprints required')
+    for i in IDS:
+        row=reviewed[str(i)]
+        fingerprint=row.get('version_bytes_hex') if type(row) is dict else None
+        need(type(fingerprint) is str and len(fingerprint)==8 and
+             all(c in '0123456789abcdef' for c in fingerprint),f'ID{i} tested raw firmware fingerprint missing/invalid')
+    rows=rows_from_pair(_read(workers,[None]))
+    for i in IDS:need(rows[i,'identity'][0]['mcu_uid_hex']==profile['axes'][str(i)]['uid'],f'ID{i} UID mismatch')
+    stopped=rows_from_pair(workers.exchange({s:[protocol.stop_request(phase=protocol.TrialPhase.STOP,motor_id=i)
+        for i in ids] for s,ids in BUSES.items()}))
+    for i in IDS:
+        f=stopped[i,'feedback'][0]
+        need(f.mode_state==0 and f.fault_bits==0,f'ID{i} initial STOP/fault not clear')
+    current_versions=rows_from_pair(workers.exchange(
+        {s:[versions.version_request(i) for i in ids] for s,ids in BUSES.items()},
+        timeout_ns=250_000_000,label='firmware_version'))
+    for i in IDS:
+        value=current_versions[i,'version'][0]
+        if firmware_evidence is not None:
+            firmware_evidence[str(i)]={**value,'uid':rows[i,'identity'][0]['mcu_uid_hex'],
+                'expected_version_bytes_hex':reviewed[str(i)]['version_bytes_hex'],
+                'matches_tested_firmware':value['version_bytes_hex']==reviewed[str(i)]['version_bytes_hex']}
+    for i in IDS:
+        need(current_versions[i,'version'][0]['version_bytes_hex']==reviewed[str(i)]['version_bytes_hex'],
+             f'ID{i} fresh firmware bytes differ from tested watchdog firmware')
+    modes=rows_from_pair(_read(workers,['run_mode','voltage']))
+    for i in IDS:
+        need(modes[i,'run_mode'][0]['value']==0,f'ID{i} MIT mode is not configured')
+        need(profile['voltage_min_v']<=modes[i,'voltage'][0]['value']<=profile['voltage_max_v'],f'ID{i} supply voltage')
+    watchdog_acks=rows_from_pair(workers.exchange({s:[protocol.watchdog_setup_request(
+        phase=protocol.TrialPhase.WATCHDOG_SETUP,motor_id=i) for i in ids] for s,ids in BUSES.items()},
+        label='watchdog_setup'))
+    for i in IDS:
+        f=watchdog_acks[i,'feedback'][0]
+        need(f.mode_state==0 and f.fault_bits==0,f'ID{i} watchdog setup acknowledgement')
+    timeouts=rows_from_pair(_read(workers,['can_timeout'],label='watchdog_initial_readback'))
+    for i in IDS:need(timeouts[i,'can_timeout'][0]['value']==protocol.WATCHDOG_TICKS,f'ID{i} watchdog readback')
+    direct=rows_from_pair(_read(workers,['position','velocity']))
+    stopped=rows_from_pair(workers.exchange({s:[protocol.stop_request(phase=protocol.TrialPhase.STOP,motor_id=i)
+        for i in ids] for s,ids in BUSES.items()}))
+    offsets={};starts={};turns_by_id={}
+    for i in IDS:
+        a=profile['axes'][str(i)];raw=direct[i,'position'][0]['value'];f=stopped[i,'feedback'][0]
+        need(f.mode_state==0 and f.fault_bits==0,f'ID{i} preflight mode/fault')
+        # Local characterization has unknown absolute-zero uncertainty. Its
+        # independently bounded encoder/numerical margin only resolves the
+        # local branch; it is never an absolute-angle accuracy claim.
+        margin=(local_characterization['numerical_position_margin_rad']
+                if local_characterization is not None else a['uncertainty_rad'])
+        # This branch remains fixed for both telemetry and inverse commands.
+        try:
+            branch=resolve_unique_numeric_branch(
+                raw,sign=a['sign'],offset_rad=a['offset_rad'],
+                lower_rad=a['physical_lower_rad'],upper_rad=a['physical_upper_rad'],
+                uncertainty_rad=margin)
+        except (AngleEvidenceError, KeyError) as error:
+            raise RuntimeError(f'ID{i} ambiguous/out-of-range initial encoder branch: {error}') from error
+        need(abs(raw-f.protocol_position_rad)<=profile.get('type2_position_tolerance_rad',.02),
+             f'ID{i} Type17/Type2 branch or scale mismatch')
+        need(abs(direct[i,'velocity'][0]['value'])<=a['max_measured_velocity_rad_s'],f'ID{i} initial velocity')
+        turns_by_id[i]=branch['turns']
+        offsets[i]=a['offset_rad']-a['sign']*branch['turns']*2*math.pi
+        starts[i]=f.protocol_position_rad
+    return offsets,starts,stopped,turns_by_id
+
+
+def feedback_sample(rows,profile,offsets,*,now_ns,previous=None,required_mode=2):
+    q=[];v=[];tau=[];temp=[];times=[];raw={}
+    for i in IDS:
+        need((i,'feedback') in rows,f'ID{i} missing feedback')
+        f,start,end=rows[i,'feedback'];a=profile['axes'][str(i)]
+        need(0<start<=end<=now_ns and now_ns-start<=profile['max_sample_age_ms']*1e6,f'ID{i} stale feedback')
+        need(f.mode_state==required_mode and f.fault_bits==0,f'ID{i} fault/mode')
+        if previous is not None:
+            old,_,oldend=previous[i,'feedback']
+            need(end>oldend,f'ID{i} repeated feedback')
+            dt=(end-oldend)/1e9
+            need(abs(f.protocol_position_rad-old.protocol_position_rad)<=a['max_measured_velocity_rad_s']*dt+.01,
+                 f'ID{i} raw position discontinuity')
+        raw[i]=f.protocol_position_rad
+        q.append(a['sign']*raw[i]+offsets[i]);v.append(a['sign']*f.velocity_rad_s)
+        tau.append(f.torque_nm);temp.append(f.temperature_c);times.append(start)
+    return MotionSample(tuple(q),tuple(v),tuple(tau),tuple(temp),min(times)/1e9)
+
+
+def validate_measured(sample,profile,*,initial=None):
+    """Hard feedback limits before enable, inference, and command reuse."""
+    for i in IDS:
+        a=profile['axes'][str(i)];k=i-1
+        need(a['lower_rad']<=sample.q_model_rad[k]<=a['upper_rad'],f'ID{i} measured joint limit')
+        need(abs(sample.torque_nm[k])<=a['max_measured_torque_nm'],f'ID{i} measured torque')
+        need(abs(sample.velocity_rad_s[k])<=a['max_measured_velocity_rad_s'],f'ID{i} measured velocity')
+        need(sample.temperature_c[k]<=a['max_temperature_c'],f'ID{i} measured temperature')
+        if initial is not None:
+            need(abs(sample.q_model_rad[k]-initial.q_model_rad[k])<=a['max_displacement_from_start_rad'],
+                 f'ID{i} measured trial displacement')
+
+
+def validate_imu_metadata(value,now,profile,*,previous=0):
+    begin=value.get('read_started_monotonic_ns');end=value.get('read_finished_monotonic_ns')
+    need(type(begin) is int and type(end) is int and 0<begin<=end<=now and begin>previous,
+         'Repeated or noncausal IMU sample')
+    need(now-begin<=profile['max_sample_age_ms']*1e6,'Stale IMU')
+    for key in ('accel_m_s2','gyro_rad_s'):
+        vector=value.get(key)
+        need(isinstance(vector,(list,tuple)) and len(vector)==3 and
+             all(type(v) in (int,float) and math.isfinite(v) for v in vector),'Invalid IMU vector')
+    return begin
+
+
+def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lambda:None,
+                         announce=lambda:None,stop_requested=None,clock=time.monotonic_ns,sleep=time.sleep,
+                         encode_motion=None,supervision=None,startup_model=None,
+                         main_thread_cpu=None,pre_cycle_policy_warmup_calls=None,
+                         post_pin_policy_prime_calls=None,defer_gc_during_cycles=False,
+                         exclude_policy_cpu_from_workers=False):
+    """Requires a validated profile; caller opens/closes owned resources.
+
+    Normal completion ramps down only while supported. Faults bypass ramps and
+    try STOP on both buses. The report never treats a lost USB reply as STOP.
+    Raw logs are buffered, then returned after owners have stopped.
+    """
+    if encode_motion is None:
+        from .native_active_transport import encode_motion
+    need(profile.get('output_allowed') is True,'Reviewed supported output profile required')
+    local_characterization=local_characterization_settings(profile)
+    need(local_characterization is None or supervision is None,
+         'Local characterization requires the supported-only runner')
+    r22=(main_thread_cpu is not None or pre_cycle_policy_warmup_calls is not None or
+         post_pin_policy_prime_calls is not None)
+    need(type(exclude_policy_cpu_from_workers) is bool,
+         'I/O worker CPU exclusion selection must be a bool')
+    need(not exclude_policy_cpu_from_workers or r22 and supervision is None,
+         'I/O worker CPU exclusion requires explicit R22 supported-only output')
+    need(r22 or startup_model is None,'Startup model requires an explicit R22 selection')
+    need(not r22 or (type(main_thread_cpu) is int and main_thread_cpu==4 and
+         type(pre_cycle_policy_warmup_calls) is int and pre_cycle_policy_warmup_calls==10 and
+         (post_pin_policy_prime_calls is None or
+          type(post_pin_policy_prime_calls) is int and post_pin_policy_prime_calls==10) and
+         startup_model is not None and
+         (policy is startup_model or getattr(policy,'model',None) is startup_model) and
+         all(callable(getattr(startup_model,name,None)) for name in
+             ('pre_pin_warmup','post_pin_prime','finish_startup'))),
+         'R22 startup requires pre-pin warmup 10, main CPU4 and an explicit startup model')
+    need(type(defer_gc_during_cycles) is bool,'GC deferral selection must be a bool')
+    if defer_gc_during_cycles:
+        need(gc.isenabled(),'Automatic GC is already disabled before supported output')
+    cadence=telemetry_settings(profile)
+    execution=execution_settings(profile)
+    validate_cadence_sources(profile)
+    workers=BusWorkers(sessions,cancel_io,clock)
+    watcher=OutputWatchdog(workers,PERIOD_NS+int(profile['hard_cycle_ms']*1e6),clock)
+    imu_pool=ThreadPoolExecutor(max_workers=1,thread_name_prefix='policy-imu')
+    stop_requested=stop_requested or threading.Event()
+    report={'status':'ABORTED','errors':[],'cycles':[],'motor_enable_sent':False,'motor_enable_attempted':False,
+            'learned_targets_sent':False,'learned_targets_attempted':False,'scope':'supported_characterization_only',
+            'full_controller_50Hz_verified':False,'normal_ramp_completed':False,
+            'stop_is_physical_torque_cap':False,'firmware_versions_by_id':{},
+            'firmware_versions_match_watchdog_review':False,
+            'telemetry_cadence':cadence,
+            'execution_settings':execution,
+            'cadence_source_sha256':dict(profile.get('cadence_source_sha256',{})),
+            'after_announcement_watchdog_verified':False,
+            'after_announcement_watchdog_readback_by_id':{}}
+    if local_characterization is not None:
+        report['local_characterization']={**local_characterization,
+            'raw_policy_target_limits':'learned_model',
+            'blended_target_limits':'reviewed_local_physical_envelope'}
+    v3=profile['schema']==SCHEMA_V3
+    voltage_overlap=execution['voltage_overlap']
+    voltage_cache={}
+    if v3:
+        report['voltage_guard']={'maximum_age_ms':V3_VOLTAGE_MAX_AGE_NS/1e6,
+            'pre_enable_refresh_by_id':{},'latest_by_id':{},
+            'checks_before_type1':0,'maximum_checked_age_ms':0.,
+            'minimum_checked_voltage_v':None}
+    original_affinity=None;original_worker_masks=None;worker_restore_required=False
+    report['worker_affinity']={'enabled':exclude_policy_cpu_from_workers,
+        'excluded_cpu':4 if exclude_policy_cpu_from_workers else None,'target_mask':None,
+        'workers_before':None,'workers_during':None,'workers_after':None,
+        'restored':None,'restore_errors':[]}
+    if r22:
+        report['main_thread_affinity']={'requested_cpu':4,'before':None,'during':None,
+            'worker_masks_before_pin':None,'worker_masks_after_pin':None,'restored':None}
+        report['setup_policy_warmup']={'iterations':10,'begin_ns':None,'end_ns':None,
+            'complete':False,'position':'after_worker_startup_before_main_thread_affinity'}
+        if post_pin_policy_prime_calls is not None:
+            report['setup_policy_prime']={'iterations':10,'begin_ns':None,'end_ns':None,
+                'complete':False,'reused_input_buffers':True,'policy_reset_after':False,
+                'sensor_cycles':0,'motor_writes':0}
+    gc_restore_required=False
+    if defer_gc_during_cycles:
+        report['cycle_gc_defer']={'before_enabled':None,'during_enabled':None,'after_enabled':None,
+            'before_threshold':None,'after_threshold':None,'restored':None,'restore_attempts':0,
+            'restore_errors':[]}
+    previous=None;last_imu=0;pending_timing=_PendingCycleTiming()
+    def safety_check():
+        check();need(not workers.aborted.is_set(),workers.reason or 'Output aborted')
+    def require_voltage_before_type1():
+        if not v3:return
+        maximum_age,minimum_voltage=checked_voltage_cache(voltage_cache,profile,clock())
+        guard=report['voltage_guard']
+        guard['checks_before_type1']+=1
+        guard['maximum_checked_age_ms']=max(guard['maximum_checked_age_ms'],maximum_age/1e6)
+        old=guard['minimum_checked_voltage_v']
+        guard['minimum_checked_voltage_v']=minimum_voltage if old is None else min(old,minimum_voltage)
+    def read_imu():
+        deadline=clock()+int(profile['max_sample_age_ms']*1e6)
+        while clock()<deadline:
+            safety_check();sample=imu_read()
+            if sample is not None:return sample
+            sleep(.0005)
+        raise TimeoutError('Fresh IMU deadline')
+    def wires_for(command,offsets):
+        raws={i:(command.q_model_rad[i-1]-offsets[i])/profile['axes'][str(i)]['sign'] for i in IDS}
+        result={s:[encode_motion(i,raws[i],command.kp[i-1],command.kd[i-1]) for i in ids] for s,ids in BUSES.items()}
+        for wires in result.values():
+            for wire in wires:
+                frame=codec.ATParser().feed(wire)[0];i=frame.destination;a=profile['axes'][str(i)]
+                raw=int.from_bytes(frame.data[:2],'big')*25.14/65535-12.57
+                q=a['sign']*raw+offsets[i]
+                need(a['lower_rad']<=q<=a['upper_rad'],f'ID{i} quantized target outside physical range')
+                need(abs(q-initial_sample.q_model_rad[i-1])<=a['max_displacement_from_start_rad'],
+                     f'ID{i} quantized target outside trial displacement')
+                estimated=command.kp[i-1]*(q-command.q_model_rad[i-1])+command.estimated_pd_torque_nm[i-1]
+                need(abs(estimated)<=a['max_estimated_pd_torque_nm'],f'ID{i} quantized estimated PD torque')
+        return result
+    try:
+        offsets,starts,initial,turns_by_id=preflight(
+            workers,profile,firmware_evidence=report['firmware_versions_by_id'],
+            local_characterization=local_characterization)
+        report['firmware_versions_match_watchdog_review']=True
+        report['fixed_offsets_rad_by_id']=offsets;report['initial_raw_rad_by_id']=starts
+        report['fixed_branch_turns_by_id']=turns_by_id
+        report['fixed_branch_motor_power_epoch']=profile['motor_power_epoch']
+        safety_check();announce();safety_check()
+        report['announcement_completed_ns']=clock()
+        # V3 intentionally removes rotating timeout-parameter drift polling.
+        # Recheck all twelve after speech, before obtaining the final pose/IMU.
+        # This is not after-STOP parameter verification or an active re-arm.
+        if cadence['after_announcement_all_axis_timeout_readback']:
+            timeouts=rows_from_pair(_read(workers,['can_timeout'],label='watchdog_pre_enable_readback'))
+            for i in IDS:
+                value,started,received=timeouts[i,'can_timeout']
+                need(value['value']==protocol.WATCHDOG_TICKS,f'ID{i} pre-enable watchdog readback')
+                need(started>=report['announcement_completed_ns'],f'ID{i} watchdog read predates announcement')
+                report['after_announcement_watchdog_readback_by_id'][str(i)]={
+                    'value_ticks':value['value'],'request_started_ns':started,'received_ns':received}
+            report['after_announcement_watchdog_verified']=True
+            safety_check()
+        if r22:
+            if not hasattr(os,'sched_getaffinity') or not hasattr(os,'sched_setaffinity'):
+                raise RuntimeError('Main-thread affinity is unavailable')
+            original_affinity=set(os.sched_getaffinity(0))
+            affinity=report['main_thread_affinity']
+            affinity['before']=sorted(original_affinity)
+            need(4 in original_affinity and len(original_affinity)>=2,
+                 'CPU4 unavailable or main thread already pinned')
+            need(not exclude_policy_cpu_from_workers or len(original_affinity-{4})>=3,
+                 'I/O worker CPU exclusion requires at least three other available CPUs')
+            before=_worker_affinities(workers,imu_pool,safety_check)
+            affinity['worker_masks_before_pin']=before
+            need(all(set(row['cpus'])==original_affinity for row in before.values()),
+                 'I/O workers did not start with the full main-thread CPU mask')
+            warmup=report['setup_policy_warmup'];warmup['begin_ns']=clock()
+            try:
+                safety_check();startup_model.pre_pin_warmup();safety_check()
+                warmup['complete']=True
+            finally:warmup['end_ns']=clock()
+            os.sched_setaffinity(0,{4})
+            affinity['during']=sorted(os.sched_getaffinity(0))
+            need(affinity['during']==[4],'Main-thread CPU4 affinity was not applied')
+            after=_worker_affinities(workers,imu_pool,safety_check)
+            affinity['worker_masks_after_pin']=after
+            need(all(set(row['cpus'])==original_affinity and
+                     row['native_tid']==before[scope]['native_tid']
+                     for scope,row in after.items()),
+                 'I/O worker affinity changed during main-thread pin')
+            if exclude_policy_cpu_from_workers:
+                state=report['worker_affinity'];original_worker_masks=before
+                target=original_affinity-{4};state['target_mask']=sorted(target)
+                state['workers_before']=before;worker_restore_required=True
+                safety_check()
+                state['workers_during']=_transition_worker_affinities(
+                    workers,imu_pool,original_worker_masks,target)
+                failures=[row['error'] for row in state['workers_during'].values() if row['error']]
+                need(not failures,'I/O worker affinity setup failed: '+str(failures))
+                safety_check()
+            if post_pin_policy_prime_calls is not None:
+                prime=report['setup_policy_prime'];prime['begin_ns']=clock()
+                try:
+                    safety_check();startup_model.post_pin_prime();safety_check()
+                    prime['complete']=True
+                finally:prime['end_ns']=clock()
+            startup_model.finish_startup();safety_check()
+            if post_pin_policy_prime_calls is not None:
+                report['setup_policy_prime']['policy_reset_after']=True
+        # Speech may take seconds; recapture before enabling, on the same branch.
+        current=rows_from_pair(workers.exchange({s:[protocol.stop_request(phase=protocol.TrialPhase.STOP,motor_id=i)
+            for i in ids] for s,ids in BUSES.items()},label='pre_enable_pose'))
+        for i in IDS:need(abs(current[i,'feedback'][0].protocol_position_rad-starts[i])<=.02,
+                          f'ID{i} moved during preparation; recapture required')
+        initial_sample=feedback_sample(current,profile,offsets,now_ns=clock(),required_mode=0)
+        validate_measured(initial_sample,profile)
+        pre_enable_imu=read_imu();pre_enable_now=clock()
+        last_imu=validate_imu_metadata(pre_enable_imu,pre_enable_now,profile)
+        if v3:report['pre_enable_imu']=pre_enable_imu
+        need(pre_enable_now/1e9-initial_sample.monotonic_s<=profile['max_sample_age_ms']/1000,
+             'Initial motor samples became stale during IMU acquisition')
+        if hasattr(policy,'validate_inputs'):policy.validate_inputs(initial_sample,pre_enable_imu,pre_enable_now)
+        limits=tuple(AxisLimits(**{key:profile['axes'][str(i)][key] for key in AxisLimits.__dataclass_fields__}) for i in IDS)
+        max_stop_s=max(a.max_command_velocity_rad_s/a.max_command_acceleration_rad_s2 for a in limits)+profile['stop_duration_s']
+        need(profile['startup_duration_s']+profile['policy_ramp_s']+max_stop_s+.04<profile['duration_s'],
+             'Duration must include startup, policy ramp, braking and gain ramp')
+        if profile.get('start_pose_bounds'):
+            for i in IDS:
+                lo,hi=profile['start_pose_bounds'][str(i)]
+                need(lo<=initial_sample.q_model_rad[i-1]<=hi,f'ID{i} outside reviewed starting posture')
+        if v3:
+            # The earlier all-axis voltage read predates speech and model warmup.
+            # Refresh after final pose/IMU validation, immediately before enable.
+            fresh_voltage=rows_from_pair(_read(workers,['voltage'],label='voltage_pre_enable_refresh'))
+            voltage_cache.update(checked_voltage_rows(fresh_voltage,IDS,profile,clock()))
+            report['voltage_guard']['pre_enable_refresh_by_id']={str(i):{
+                'value_v':voltage_cache[i][0],'received_ns':voltage_cache[i][1]} for i in IDS}
+            need(clock()/1e9-initial_sample.monotonic_s<=profile['max_sample_age_ms']/1000,
+                 'Initial motor samples became stale during voltage refresh')
+        # Finite zero-gain transition: every enabled pair is checked before the next.
+        watcher.kick()
+        for index in range(6):
+            safety_check()
+            require_voltage_before_type1()
+            report['motor_enable_attempted']=True
+            reply=rows_from_pair(workers.exchange({s:[protocol.enable_request(phase=protocol.TrialPhase.ENABLE,motor_id=ids[index])]
+                for s,ids in BUSES.items()},timeout_ns=int(profile['hard_cycle_ms']*1e6)))
+            for (i,_),(f,_,_) in reply.items():need(f.mode_state in (0,2) and f.fault_bits==0,'Enable transition failed')
+            require_voltage_before_type1()
+            reply=rows_from_pair(workers.exchange({s:[encode_motion(ids[index],starts[ids[index]],0.,0.)]
+                for s,ids in BUSES.items()},timeout_ns=int(profile['hard_cycle_ms']*1e6)))
+            for (i,_),(f,_,_) in reply.items():need(f.mode_state==2 and f.fault_bits==0,'Zero-gain transition failed')
+            watcher.kick()
+        last_wires={s:[encode_motion(i,starts[i],0.,0.) for i in ids] for s,ids in BUSES.items()}
+        require_voltage_before_type1()
+        fresh_zero=rows_from_pair(workers.exchange(last_wires,timeout_ns=int(profile['hard_cycle_ms']*1e6)))
+        initial_sample=feedback_sample(fresh_zero,profile,offsets,now_ns=clock())
+        validate_measured(initial_sample,profile)
+        last_command_ns=clock();last_sample_ns=min(row[1] for row in fresh_zero.values())
+        envelope=PolicyMotionEnvelope(limits,initial_sample,now_s=last_command_ns/1e9,
+            startup_duration_s=profile['startup_duration_s'],stop_duration_s=profile['stop_duration_s'],
+            max_sample_age_s=profile['max_sample_age_ms']/1000,
+            max_sample_gap_s=profile.get('max_sample_gap_ms',profile['hard_cycle_ms'])/1000)
+        watcher.kick();previous=fresh_zero
+        if defer_gc_during_cycles:
+            state=report['cycle_gc_defer']
+            state['before_enabled']=gc.isenabled();state['before_threshold']=tuple(gc.get_threshold())
+            need(state['before_enabled'],'Automatic GC is already disabled before active cycles')
+            gc_restore_required=True
+            gc.disable();state['during_enabled']=gc.isenabled()
+            need(not state['during_enabled'],'Automatic GC deferral was not applied')
+        safety_check()
+        start=clock();release=start;stop_started=False;consecutive=0;previous_release=None
+        if supervision is not None:supervision.on_start(start)
+        max_run_ns=int((profile['duration_s']+.04)*1e9)
+        stop_at_s=profile['duration_s']-max_stop_s-.04
+        while clock()-start<max_run_ns:
+            safety_check()
+            if clock()<release:sleep((release-clock())/1e9)
+            safety_check();begun=clock();hard_end=begun+int(profile['hard_cycle_ms']*1e6)
+            pending_timing.begin(len(report['cycles']),release,begun,last_command_ns,last_sample_ns)
+            supervised_stop=False
+            if supervision is not None:
+                supervised_stop=supervision.before_cycle(begun,stop_requested=stop_requested.is_set())
+            # Hold last validated command while obtaining fresh feedback.
+            cycle=len(report['cycles']);electric_id={s:ids[cycle%6] for s,ids in BUSES.items()}
+            acquisition={s:list(last_wires[s])+([] if voltage_overlap else [codec.read_request(electric_id[s],'voltage')])+
+                ([codec.read_request(electric_id[s],'can_timeout')]
+                 if cadence['timeout_requests_per_bus_per_cycle'] else []) for s in BUSES}
+            # A delayed host wake must STOP before refreshing a stale command.
+            # Use the same age/gap limits as feedback_sample and envelope.step;
+            # cycle-release jitter itself does not introduce another threshold.
+            hold_now=clock();gap_ns=profile.get('max_sample_gap_ms',profile['hard_cycle_ms'])*1e6
+            pending_timing.hold_checked_ns=hold_now
+            need(hold_now-last_command_ns<=gap_ns and hold_now-last_sample_ns<=gap_ns,
+                 'Command/sample gap exceeded before feedback hold')
+            # Values were checked after receipt and are immutable; only their
+            # age changes while waiting. Avoid rebuilding motion input vectors.
+            for i in IDS:
+                _,old_start,old_end=previous[i,'feedback']
+                need(0<old_start<=old_end<=hold_now and
+                     hold_now-old_start<=profile['max_sample_age_ms']*1e6,f'ID{i} stale feedback before hold')
+            require_voltage_before_type1()
+            pending_timing.stage='input_acquisition'
+            incoming=workers.submit(acquisition,timeout_ns=max(1,hard_end-clock()),label='feedback_hold')
+            imu_future=imu_pool.submit(read_imu)
+            replies=workers.collect(incoming);rows=rows_from_pair(replies)
+            imu_value=imu_future.result();safety_check();acquired=clock()
+            pending_timing.acquisition_complete_ns=acquired
+            last_imu=validate_imu_metadata(imu_value,acquired,profile,previous=last_imu)
+            first=min(last_imu,*(r.start_ns for result in replies.values() for r in result[0]))
+            hard_end=min(hard_end,first+int(profile['max_sample_age_ms']*1e6))
+            voltage_pending=(workers.submit_voltage(electric_id,profile,
+                timeout_ns=max(1,hard_end-clock())) if voltage_overlap else None)
+            sample=feedback_sample(rows,profile,offsets,now_ns=acquired,previous=previous)
+            pending_timing.sample_start_ns=min(row[1] for key,row in rows.items() if key[1]=='feedback')
+            # Reject bad telemetry before spending any time in model inference.
+            validate_measured(sample,profile,initial=initial_sample)
+            if v3:
+                # Do not send a learned target if any axis has lost voltage
+                # evidence, even though only two axes are queried this cycle.
+                if not voltage_overlap:
+                    voltage_cache.update(checked_voltage_rows(rows,electric_id.values(),profile,acquired))
+                checked_voltage_cache(voltage_cache,profile,acquired)
+            for s,i in electric_id.items():
+                if not v3:
+                    need(profile['voltage_min_v']<=rows[i,'voltage'][0]['value']<=profile['voltage_max_v'],f'ID{i} voltage')
+                if cadence['timeout_parameter_drift_monitored_during_cycles']:
+                    need(rows[i,'can_timeout'][0]['value']==protocol.WATCHDOG_TICKS,f'ID{i} watchdog changed')
+            wants_stop=(supervised_stop if supervision is not None else
+                        stop_requested.is_set() or (begun-start)/1e9>=stop_at_s)
+            if supervision is not None and (begun-start)/1e9>=stop_at_s and not (wants_stop or stop_started):
+                raise RuntimeError('Ground shutdown reserve reached without fresh re-support confirmation')
+            if not stop_started and wants_stop:
+                envelope.request_stop();stop_started=True
+            weight=0.
+            if stop_started:
+                # No inference during gain-down, but the fresh IMU limits must
+                # still hold. LivePolicyModel validates once inside an active
+                # inference call, so do not repeat its assembly on those ticks.
+                if hasattr(policy,'validate_inputs'):policy.validate_inputs(sample,imu_value,acquired)
+                target=None
+            else:
+                pending_timing.stage='policy_call';pending_timing.policy_call_begin_ns=clock()
+                target=tuple(policy(sample,imu_value,acquired))
+                pending_timing.policy_call_return_ns=clock();pending_timing.stage='target_validation'
+                need(len(target)==12 and all(type(v) in (int,float) and math.isfinite(v) for v in target),'Invalid learned target')
+                for i,q in enumerate(target,1):
+                    a=profile['axes'][str(i)]
+                    if local_characterization is not None:
+                        lower,upper=MODEL_TARGET_LIMITS_BY_ID[i]
+                        need(lower<=q<=upper,f'ID{i} learned target outside model range')
+                    else:
+                        need(a['lower_rad']<=q<=a['upper_rad'],f'ID{i} learned target outside physical range')
+                fraction=max(0.,min(1.,((begun-start)/1e9-profile['startup_duration_s'])/profile['policy_ramp_s']))
+                weight=profile['policy_weight']*fraction**3*(10.+fraction*(-15.+6.*fraction))
+                target=tuple(q0+weight*(q-q0) for q,q0 in zip(target,initial_sample.q_model_rad))
+                if local_characterization is not None:
+                    for i,q in enumerate(target,1):
+                        a=profile['axes'][str(i)]
+                        need(a['lower_rad']<=q<=a['upper_rad'],
+                             f'ID{i} blended target outside local physical range')
+            safety_check();policy_computed=clock()
+            pending_timing.target_ready_ns=policy_computed;pending_timing.stage='voltage_join'
+            voltage_validated_ns={}
+            if voltage_pending is not None:
+                validated=workers.collect(voltage_pending)
+                pending_timing.voltage_join_complete_ns=clock()
+                for scope,(_,values,stamp) in validated.items():
+                    voltage_cache.update(values);voltage_validated_ns[scope]=stamp
+                # No gain/target frame may be sent until both owner proofs have
+                # joined and every cached axis remains in bounds and fresh.
+                checked_voltage_cache(voltage_cache,profile,clock())
+            safety_check();computed=clock()
+            pending_timing.candidate_ns=computed;pending_timing.stage='candidate_deadline'
+            need(computed<hard_end,'Inference exceeded hard cycle deadline')
+            pending_timing.stage='motion_envelope'
+            command=envelope.step(target,sample,now_s=computed/1e9)
+            pending_timing.stage='target_encoding'
+            outgoing=wires_for(command,offsets)
+            safety_check();encoded=clock()
+            require_voltage_before_type1()
+            # Mark intent before the first write, including a partial transaction.
+            report['learned_targets_attempted']|=weight>0
+            pending_timing.output_submit_ns=clock();pending_timing.stage='output_exchange'
+            feedback=workers.exchange(outgoing,timeout_ns=max(1,hard_end-clock()),
+                label='graceful_stop' if stop_started else 'policy_output' if weight>0 else 'startup_hold')
+            reply_return=clock()
+            pending_timing.output_return_ns=reply_return;pending_timing.stage='output_validation'
+            returned=rows_from_pair(feedback)
+            # Validate returned limits before the next hold command is reused.
+            checked=feedback_sample(returned,profile,offsets,now_ns=reply_return,previous=rows)
+            for i in IDS:
+                a=profile['axes'][str(i)];k=i-1
+                need(a['lower_rad']<=checked.q_model_rad[k]<=a['upper_rad'],f'ID{i} joint limit')
+                need(abs(checked.torque_nm[k])<=a['max_measured_torque_nm'],f'ID{i} torque')
+                need(abs(checked.velocity_rad_s[k])<=a['max_measured_velocity_rad_s'],f'ID{i} velocity')
+                need(checked.temperature_c[k]<=a['max_temperature_c'],f'ID{i} temperature')
+                need(abs(checked.q_model_rad[k]-command.q_model_rad[k])<=a['max_tracking_error_rad'],f'ID{i} tracking error')
+                need(abs(checked.q_model_rad[k]-initial_sample.q_model_rad[k])<=a['max_displacement_from_start_rad'],f'ID{i} trial displacement')
+                estimated=command.kp[k]*(command.q_model_rad[k]-checked.q_model_rad[k])-command.kd[k]*checked.velocity_rad_s[k]
+                need(abs(estimated)<=a['max_estimated_pd_torque_nm'],f'ID{i} estimated PD torque')
+            all_records=[r for result in replies.values() for r in result[0]]
+            first=min(last_imu,*(r.start_ns for r in all_records))
+            final_write=max(r.finish_ns for result in feedback.values() for r in result[0])
+            last_reply=max(r.received_ns for result in feedback.values() for r in result[0])
+            cycle_row={'index':cycle,'phase':command.phase,'begin_ns':begun,
+                'output_reply_end_ns':last_reply,'output_exchange_return_ns':reply_return,
+                'release_lateness_ms':max(0,begun-release)/1e6,
+                'release_interval_ms':None if previous_release is None else (begun-previous_release)/1e6,
+                'acquisition_ms':(acquired-first)/1e6,'inference_ms':(computed-acquired)/1e6,
+                'policy_return_ns':policy_computed,
+                'overlapped_voltage_validated_ns':voltage_validated_ns,
+                'voltage_join_ms':(computed-policy_computed)/1e6 if voltage_overlap else 0.,
+                'envelope_and_encode_ms':(encoded-computed)/1e6,
+                'policy_and_envelope_ms':(encoded-acquired)/1e6,
+                'effective_policy_weight':weight,
+                'oldest_input_to_final_host_write_ms':(final_write-first)/1e6,'command':command,
+                'feedback':checked,'imu':imu_value,'imu_body':getattr(policy,'last_validation',None)}
+            safety_check();report['cycles'].append(cycle_row)
+            # Reply receipt is not cycle completion: decoding, limit checks and
+            # metric construction above are part of the measured control work.
+            # Keep only scalar timestamp finalization after this boundary; defer
+            # dataclass/JSON copies until every owner has stopped in finally.
+            end=clock()
+            pending_timing.cycle_end_ns=end;pending_timing.stage='cycle_deadline'
+            elapsed=end-begun;miss=elapsed>PERIOD_NS or final_write-first>PERIOD_NS
+            consecutive=consecutive+1 if miss else 0
+            cycle_row.update(end_ns=end,iteration_ms=elapsed/1e6,deadline20ms_missed=miss,
+                post_output_processing_ms=(end-reply_return)/1e6)
+            # Use a fresh clock even on the final zero-gain cycle. It must not
+            # become a successful ramp merely because its reply arrived in time.
+            need(clock()<hard_end,'Output cycle exceeded hard deadline')
+            need(consecutive<=profile['max_consecutive_20ms_misses'],'Consecutive20ms timing misses')
+            watcher.kick();previous=returned;last_wires=outgoing;previous_release=begun
+            last_command_ns=computed;last_sample_ns=pending_timing.sample_start_ns
+            pending_timing.active=False
+            if command.phase=='stopped':report['normal_ramp_completed']=True;break
+            release=max(begun+PERIOD_NS,end)
+        need(report['normal_ramp_completed'],'Finite run budget expired before normal stop')
+        report['status']='COMPLETE_SUPPORTED_OUTPUT'
+    except BaseException as error:
+        report['errors'].append(type(error).__name__+': '+str(error));workers.emergency(report['errors'][-1])
+    finally:
+        try:
+            try:stops=workers.finish_stops()
+            except BaseException as error:
+                report['errors'].append('STOP collection: '+type(error).__name__+': '+str(error))
+                stops={s:{'confirmed_ids':[],'unconfirmed_ids':list(BUSES[s]),'error':repr(error)} for s in BUSES}
+            try:watcher.close()
+            except BaseException as error:
+                report['errors'].append('Host watchdog close: '+repr(error))
+                if report['status']=='COMPLETE_SUPPORTED_OUTPUT':report['status']='ABORTED_WATCHDOG_CLOSE'
+        finally:
+            try:
+                if gc_restore_required:
+                    state=report['cycle_gc_defer']
+                    for attempt in range(3):
+                        state['restore_attempts']=attempt+1
+                        try:gc.set_threshold(*state['before_threshold'])
+                        except BaseException as error:state['restore_errors'].append('threshold: '+repr(error))
+                        try:gc.enable()
+                        except BaseException as error:state['restore_errors'].append('enabled state: '+repr(error))
+                        try:
+                            state['after_enabled']=gc.isenabled();state['after_threshold']=tuple(gc.get_threshold())
+                            state['restored']=(state['after_enabled'] is True and
+                                state['after_threshold']==state['before_threshold'])
+                        except BaseException as error:
+                            state['restore_errors'].append('readback: '+repr(error));state['restored']=False
+                        if state['restored']:break
+                    if not state['restored']:
+                        report['errors'].append('Automatic GC state/threshold restoration unconfirmed')
+                        if report['status']=='COMPLETE_SUPPORTED_OUTPUT':report['status']='ABORTED_GC_RESTORE'
+            finally:
+                if worker_restore_required:
+                    state=report['worker_affinity']
+                    try:
+                        state['workers_after']=_transition_worker_affinities(
+                            workers,imu_pool,original_worker_masks)
+                        state['restore_errors']=[row['error'] for row in state['workers_after'].values()
+                                                 if row['error']]
+                        state['restored']=not state['restore_errors']
+                    except BaseException as error:
+                        state['restored']=False;state['restore_errors'].append(type(error).__name__+': '+str(error))
+                    if not state['restored']:
+                        report['errors'].append('I/O worker affinity restoration unconfirmed: '+str(state['restore_errors']))
+                        if report['status']=='COMPLETE_SUPPORTED_OUTPUT':report['status']='ABORTED_WORKER_AFFINITY_RESTORE'
+                if original_affinity is not None:
+                    affinity=report['main_thread_affinity']
+                    try:
+                        os.sched_setaffinity(0,original_affinity)
+                        affinity['restored']=set(os.sched_getaffinity(0))==original_affinity
+                        need(affinity['restored'],'Main-thread CPU affinity restoration differs')
+                    except BaseException as error:
+                        affinity['restored']=False
+                        report['errors'].append(type(error).__name__+': '+str(error))
+                        if report['status']=='COMPLETE_SUPPORTED_OUTPUT':report['status']='ABORTED_AFFINITY_RESTORE'
+        report['stop_confirmed']=all(set(stops[s].get('confirmed_ids',[]))==set(BUSES[s]) and
+            stops[s].get('complete',True) is True and not stops[s].get('unconfirmed_ids') and
+            not stops[s].get('ambiguous_ids') for s in BUSES)
+        report['stop_reports']={s:{k:v for k,v in stops[s].items() if k not in ('records','stats')} for s in BUSES}
+        stop_faults={str(i):bits for s in BUSES for i,bits in stops[s].get('fault_by_id',{}).items() if bits}
+        report['stop_faults_by_id']=stop_faults
+        if stop_faults:
+            report['errors'].append('Fault bits remain in STOP replies')
+            if report['status']=='COMPLETE_SUPPORTED_OUTPUT':report['status']='ABORTED_STOP_FAULT'
+        if not report['stop_confirmed']:
+            report['status']='STOP_UNCONFIRMED_POWER_OFF_REQUIRED';report['errors'].append('All-axis STOP not confirmed; physical power cutoff required')
+        workers.close();imu_pool.shutdown(wait=True,cancel_futures=True)
+        # Convert copies and JSON-ready dictionaries only after all bus owners stop.
+        if pending_timing.active:
+            report['failed_cycle_timing']=pending_timing.snapshot(profile)
+        for cycle in report['cycles']:
+            cycle['command']=asdict(cycle['command']);cycle['feedback']=asdict(cycle['feedback'])
+        report['learned_targets_sent']=any(label=='policy_output' and any(row.written==17 for row in r[0])
+            for _,r,_,label in workers.journal)
+        sent_frames=[codec.ATParser().feed(bytes(row.tx))[0] for _,r,_,_ in workers.journal
+                     for row in r[0] if row.written==17]
+        report['motor_enable_sent']=any(frame.kind==3 for frame in sent_frames)
+        report['motion_gain_sent']=any(frame.kind==1 and any(frame.data[4:]) for frame in sent_frames)
+        report['command_output_sent']=any(frame.kind==1 for frame in sent_frames)
+        if v3:
+            report['voltage_guard']['latest_by_id']={str(i):{
+                'value_v':voltage_cache[i][0],'received_ns':voltage_cache[i][1]}
+                for i in sorted(voltage_cache)}
+        report['journal']=[{'bus':s,'error':e,'phase':label,**exchange_evidence(*r),
+                           'rejected_total':getattr(r[1],'rejected_total',r[1].rejected_size),
+                           'rejected_truncated':getattr(r[1],'rejected_total',r[1].rejected_size)>r[1].rejected_size}
+                          for s,r,e,label in workers.journal]
+        report['deadline20ms_misses']=sum(r['deadline20ms_missed'] for r in report['cycles'])
+        # Compute start spacing from integer monotonic timestamps after STOP;
+        # the existing <=21ms wakeup diagnostic is not strict 50Hz evidence.
+        report.update(_start_interval_metrics(report['cycles']))
+        report['host_watchdog_reason']=workers.reason
+    return report

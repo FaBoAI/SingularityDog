@@ -1,0 +1,171 @@
+{
+  "schema": "native-step-scalar-short-replay-r1",
+  "phase": "parity",
+  "status": "PASS_FILE_ONLY",
+  "hardware_opened": false,
+  "output_allowed": false,
+  "approved_for_runtime": false,
+  "live_50hz_verified": false,
+  "environment": {
+    "system": "Linux",
+    "machine": "aarch64",
+    "torch_version": "2.14.0+cpu",
+    "cxx11_abi": true
+  },
+  "scalar_step_source_sha256": "0e47c261541aaf837a4b43484e5bbc696be695cc130e01a33fc6546c411b3ddc",
+  "scalar_replay_source_sha256": "d6cdee80c0119adc47e090f640852b9e3dbd382a7826952994756d94e75d732d",
+  "candidate_model_sha256": "7401bf982aff06c9394f36c26acf8c295fe1dd15826e6732e789e979e159113b",
+  "candidate_library_sha256": "3dfe86772586c4322de751f61fe4684fbe0c3ee1603181b0afafca4e66270457",
+  "baseline_manifest_sha256": "477d3f83b5f2177b22d5dda69e3884d7e22622a6fefdf7d578d8bd64121609de",
+  "records_sha256": "617d85a521338d9108f10218336b1ce9e33ea21aa2aa711e76cd3a995dbc910d",
+  "operator": "sd_step_fileonly_r1::step",
+  "implementation": "scalar_cpp_file_only",
+  "same_model_graph_as_aten_step_candidate": true,
+  "fresh_process_required": true,
+  "validation": {
+    "saved_recurrent_calls": 500,
+    "all_named_state_each_call": true,
+    "observation_actor_target_exact": true,
+    "input_mutation": false,
+    "rejection_count": 26,
+    "rejections": [
+      {
+        "case": "gyro_nan",
+        "reason": "nonfinite observation"
+      },
+      {
+        "case": "gyro_inf",
+        "reason": "nonfinite observation"
+      },
+      {
+        "case": "gyro_shape",
+        "reason": "observation shape"
+      },
+      {
+        "case": "gravity_nan",
+        "reason": "nonfinite observation"
+      },
+      {
+        "case": "gravity_inf",
+        "reason": "nonfinite observation"
+      },
+      {
+        "case": "gravity_shape",
+        "reason": "observation shape"
+      },
+      {
+        "case": "command_nan",
+        "reason": "nonfinite observation"
+      },
+      {
+        "case": "command_inf",
+        "reason": "nonfinite observation"
+      },
+      {
+        "case": "command_shape",
+        "reason": "observation shape"
+      },
+      {
+        "case": "q_nan",
+        "reason": "nonfinite observation"
+      },
+      {
+        "case": "q_inf",
+        "reason": "nonfinite observation"
+      },
+      {
+        "case": "q_shape",
+        "reason": "observation shape"
+      },
+      {
+        "case": "dq_nan",
+        "reason": "nonfinite observation"
+      },
+      {
+        "case": "dq_inf",
+        "reason": "nonfinite observation"
+      },
+      {
+        "case": "dq_shape",
+        "reason": "observation shape"
+      },
+      {
+        "case": "h_nan",
+        "reason": "nonfinite observation"
+      },
+      {
+        "case": "h_inf",
+        "reason": "nonfinite observation"
+      },
+      {
+        "case": "h_shape",
+        "reason": "observation shape"
+      },
+      {
+        "case": "gravity_norm",
+        "reason": "IMU gravity vector is not normalized"
+      },
+      {
+        "case": "gravity_heading_singular",
+        "reason": "IMU heading rate singular near vertical pitch"
+      },
+      {
+        "case": "mixed_command",
+        "reason": "Outside registered L11 cardinal, pure-yaw or stop command domain"
+      },
+      {
+        "case": "translation_and_yaw",
+        "reason": "Outside registered L11 cardinal, pure-yaw or stop command domain"
+      },
+      {
+        "case": "forward_limit",
+        "reason": "Outside registered L11 cardinal, pure-yaw or stop command domain"
+      },
+      {
+        "case": "yaw_limit",
+        "reason": "Outside registered L11 cardinal, pure-yaw or stop command domain"
+      },
+      {
+        "case": "negative_h",
+        "reason": "exposure outside [0,1]"
+      },
+      {
+        "case": "excess_h",
+        "reason": "exposure outside [0,1]"
+      }
+    ],
+    "max_errors": {
+      "target": 0.0,
+      "named_buffers:last_observation": 0.0,
+      "named_buffers:last_actor_output": 0.0,
+      "named_buffers:controller.output_anchor": 0.0,
+      "named_buffers:controller.phase": 0.0,
+      "named_buffers:controller.elapsed": 0.0,
+      "named_buffers:controller.filters": 0.0,
+      "named_buffers:controller.yaw_filters": 0.0,
+      "named_buffers:controller.heading_error_rad": 0.0,
+      "named_buffers:controller.sensor_yaw_rate": 0.0,
+      "named_buffers:controller.previous_clipped": 0.0,
+      "named_buffers:controller.origins": 0.0,
+      "named_buffers:controller.anchor": 0.0,
+      "named_buffers:controller.offsets": 0.0,
+      "named_buffers:controller.signs": 0.0,
+      "named_buffers:controller.nominal": 0.0,
+      "named_buffers:controller.lower": 0.0,
+      "named_buffers:controller.upper": 0.0,
+      "named_buffers:controller.scale": 0.0,
+      "named_buffers:controller.safe_lower": 0.0,
+      "named_buffers:controller.safe_upper": 0.0,
+      "named_buffers:controller.sensor_q": 0.0,
+      "named_buffers:controller.sensor_up": 0.0,
+      "named_parameters:actor.0.weight": 0.0,
+      "named_parameters:actor.0.bias": 0.0,
+      "named_parameters:actor.2.weight": 0.0,
+      "named_parameters:actor.2.bias": 0.0,
+      "named_parameters:actor.4.weight": 0.0,
+      "named_parameters:actor.4.bias": 0.0,
+      "named_parameters:actor.6.weight": 0.0,
+      "named_parameters:actor.6.bias": 0.0
+    }
+  }
+}

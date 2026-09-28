@@ -5,9 +5,11 @@ for each fixed h=0 or h=1 diagnostic hypothesis. h is twelve load-history
 inputs, not measured temperature or height. Caller warmup is followed by one
 explicit reset per run. A blocked/missed tick permanently invalidates that run.
 """
+from array import array
 import copy
 import hashlib
 import json
+import marshal
 import math
 from pathlib import Path
 import struct
@@ -65,6 +67,21 @@ def _snapshot_copy(snapshot):
         return snapshot_event(snapshot)
     except (TypeError, ValueError) as error:
         raise ObserverError("Invalid bounded JSON snapshot: " + str(error)) from error
+
+
+def _provenance_copier(value):
+    """Select the bounded JSON copier without narrowing static metadata input.
+
+    Static validators historically allow JSON metadata beyond the event bounds
+    (including numeric keys). Such metadata keeps its existing deepcopy path.
+    Selection is once per fixed configuration; every result is still copied in
+    the measured provenance section, with the bounded checks included there.
+    """
+    try:
+        snapshot_event(value)
+    except (TypeError, ValueError):
+        return copy.deepcopy
+    return snapshot_event
 
 
 def _mount(candidate):
@@ -255,13 +272,21 @@ class StatefulPolicyObserver:
     policy state without assigning a deadline; arm_run(first_tick_ns) assigns
     the schedule after preparation. reset_run combines both for replay callers.
     Tick values are model deadlines, not a claim of measured wall time.
+
+    CPU buffer reuse is opt-in, matching the live adapter's input storage. Such
+    policies must own any retained recurrent state rather than retain input views.
+    Returned diagnostic records still own their lists and snapshot provenance.
     """
 
     def __init__(self, policy, calibration, *, imu_mount_candidate,
                  h_hypothesis, command, max_ticks, max_age_ns, max_spread_ns,
                  torch_module=None, gyro_bias_candidate=None,
                  profile_consume=False, monotonic_ns=None,
-                 power_epoch_branch_comparison=None):
+                 power_epoch_branch_comparison=None, measured_diagnostic_ticks=False,
+                 reuse_input_buffers=False):
+        _require(type(reuse_input_buffers) is bool, "reuse_input_buffers must be boolean")
+        _require(type(measured_diagnostic_ticks) is bool, "measured_diagnostic_ticks must be boolean")
+        self._measured_diagnostic_ticks = measured_diagnostic_ticks
         _require(type(profile_consume) is bool, "profile_consume must be an explicit boolean")
         _require(monotonic_ns is None or callable(monotonic_ns),
                  "monotonic_ns must be a callable clock")
@@ -284,6 +309,15 @@ class StatefulPolicyObserver:
         self._calibration_source_flags = {
             k: copy.deepcopy(v) for k, v in self._calibration.items()
             if k not in ("identities", "candidates")}
+        self._static_provenance_copiers = tuple(_provenance_copier(value) for value in
+            (self._calibration_source_flags, self._mount, self._bias))
+        # The bounded built-in JSON branches are fixed configuration. Freeze an
+        # alias-free validated copy once, then decode a fresh owned tree for
+        # every returned record. Legacy metadata keeps its deepcopy fallback.
+        self._static_provenance_blobs = tuple(
+            marshal.dumps(snapshot_event(value)) if copier is snapshot_event else None
+            for value, copier in zip((self._calibration_source_flags, self._mount, self._bias),
+                                     self._static_provenance_copiers))
         self._can_order = tuple(shadow.CAN_ORDER)
         self._ordered_calibration = tuple(
             (i, self._rows[i]["sign_candidate"], self._rows[i]["offset_candidate_rad"])
@@ -301,6 +335,16 @@ class StatefulPolicyObserver:
             import torch as torch_module
         self._torch = torch_module
         self._policy = policy
+        self._input_buffers = None
+        self._input_tensors = None
+        if reuse_input_buffers:
+            _require(callable(getattr(self._torch, "frombuffer", None)) and array("f").itemsize == 4,
+                     "CPU float buffer reuse requires torch.frombuffer and 32-bit floats")
+            self._input_buffers = tuple(array("f", [0.]*n) for n in (3, 3, 3, 12, 12, 12))
+            with self._torch.inference_mode():
+                self._input_tensors = tuple(
+                    self._torch.frombuffer(buf, dtype=self._torch.float32).reshape(1, len(buf))
+                    for buf in self._input_buffers)
         owner = _OWNERS.get(policy)
         _require(owner is None or owner() is None, "Policy instance already belongs to an observer")
         _OWNERS[policy] = weakref.ref(self)
@@ -325,6 +369,11 @@ class StatefulPolicyObserver:
                 "h_measured": False, "h_hypothesis": self._h,
                 "h_semantics": "fixed twelve-joint load-history sensitivity hypothesis",
                 "independent_cold_reset": False, "dt_s": .02}
+
+    def _copy_static_provenance(self, index, value):
+        copier = self._static_provenance_copiers[index]
+        blob = self._static_provenance_blobs[index]
+        return marshal.loads(blob) if blob is not None and copier is snapshot_event else copier(value)
 
     def summary(self):
         result = {**self._flags(), "status": self.status, "run_number": self.run_number,
@@ -407,9 +456,16 @@ class StatefulPolicyObserver:
             inputs, provenance, selected_sources, branch_raw = self._inputs(snapshot, profile)
             if profile is not None:
                 profile.next("tensor_conversion")
-            tensor = lambda x: self._torch.tensor([x], dtype=self._torch.float32)
             with self._torch.inference_mode():
-                tensors = tuple(tensor(x) for x in inputs)
+                if self._input_buffers is None:
+                    tensors = tuple(self._torch.tensor([x], dtype=self._torch.float32) for x in inputs)
+                else:
+                    # Float32 conversion and all 45 writes stay in this measured
+                    # section. Diagnostic input/result lists never borrow these buffers.
+                    for buf, row in zip(self._input_buffers, inputs):
+                        for index, value in enumerate(row):
+                            buf[index] = value
+                    tensors = self._input_tensors
                 if profile is not None:
                     profile.next("model_call")
                 target = self._policy(*tensors)
@@ -431,11 +487,19 @@ class StatefulPolicyObserver:
                     "provenance": provenance}
             if profile is not None:
                 self._last_consume_profile = profile.finish(complete=True)
-                result["consume_profile"] = copy.deepcopy(self._last_consume_profile)
+                # The fixed successful profile has only these two mutable
+                # components. Keep result ownership without recursive dispatch.
+                result["consume_profile"] = {
+                    **self._last_consume_profile,
+                    "durations_ns": dict(self._last_consume_profile["durations_ns"]),
+                    "excludes": list(self._last_consume_profile["excludes"])}
             self._last_sources = selected_sources
             self._last_branch_raw = branch_raw
             self.ticks_completed += 1
-            self._next_tick_ns += DT_NS
+            self._next_tick_ns = (snapshot["tick_ns"]+1 if self._measured_diagnostic_ticks
+                                  else self._next_tick_ns+DT_NS)
+            if self._measured_diagnostic_ticks:
+                result["timing_scope"] = "actual acquisition completion; model dt remains 20ms; diagnostic only"
             return result
         except BaseException as error:
             if profile is not None:
@@ -457,7 +521,10 @@ class StatefulPolicyObserver:
                  and snapshot.get("output_allowed") is False
                  and snapshot.get("blocked_reasons") == [], "Blocked or non-diagnostic snapshot")
         tick = _stamp(snapshot.get("tick_ns"), "snapshot tick")
-        _require(tick == self._next_tick_ns, "Missed, repeated or out-of-order 20ms tick; no catchup")
+        if self._measured_diagnostic_ticks:
+            _require(tick >= self._next_tick_ns, "Repeated/backward measured diagnostic tick")
+        else:
+            _require(tick == self._next_tick_ns, "Missed, repeated or out-of-order 20ms tick; no catchup")
         _require(type(snapshot.get("max_age_ns")) is int
                  and snapshot["max_age_ns"] == self._max_age_ns
                  and type(snapshot.get("max_spread_ns")) is int
@@ -465,7 +532,8 @@ class StatefulPolicyObserver:
                  "Snapshot limits differ from the fixed observer profile")
         motors = snapshot.get("motors")
         _require(isinstance(motors, list) and len(motors) == 24, "Missing 24 motor values")
-        values, intervals, selected_sources = {}, [], {}
+        values, selected_sources = {}, {}
+        oldest = latest = earliest_receive = None
         for row in motors:
             _require(isinstance(row, dict), "Invalid motor observation")
             mid, parameter = row.get("motor_id"), row.get("parameter")
@@ -482,7 +550,9 @@ class StatefulPolicyObserver:
             _require(type(row.get("age_upper_bound_ns")) is int
                      and row["age_upper_bound_ns"] == tick-start, "Invalid motor age")
             values[key] = row["value"]
-            intervals.append((start, end))
+            oldest = start if oldest is None else min(oldest, start)
+            latest = end if latest is None else max(latest, end)
+            earliest_receive = end if earliest_receive is None else min(earliest_receive, end)
             selected_sources[key] = (start, end, row["value"])
         _require(values.keys() == _EXPECTED_MOTOR_KEYS, "Missing motor input; no zero filling")
         imu = snapshot.get("imu")
@@ -494,7 +564,9 @@ class StatefulPolicyObserver:
         _require(start <= end <= tick, "Noncausal IMU observation")
         _require(type(imu.get("age_upper_bound_ns")) is int
                  and imu["age_upper_bound_ns"] == tick-start, "Invalid IMU age")
-        intervals.append((start, end))
+        oldest = min(oldest, start)
+        latest = max(latest, end)
+        earliest_receive = min(earliest_receive, end)
         selected_sources["imu"] = (start, end, (tuple(accel), tuple(gyro)))
         for key, current in selected_sources.items():
             previous = self._last_sources.get(key)
@@ -505,9 +577,9 @@ class StatefulPolicyObserver:
             else:
                 _require(current[0] > previous[0] and current[1] > previous[1],
                          "Source acquisition/read timestamps moved backward or partly repeated")
-        age = tick-min(a for a, _ in intervals)
-        spread = max(b for _, b in intervals)-min(a for a, _ in intervals)
-        receive_spread = max(b for _, b in intervals)-min(b for _, b in intervals)
+        age = tick-oldest
+        spread = latest-oldest
+        receive_spread = latest-earliest_receive
         for key, actual in (("oldest_observation_age_ns", age), ("acquisition_spread_ns", spread),
                             ("receive_spread_ns", receive_spread)):
             _require(type(snapshot.get(key)) is int and snapshot[key] == actual,
@@ -542,16 +614,18 @@ class StatefulPolicyObserver:
         source_flags = snapshot.get("source_flags", {})
         _require(isinstance(source_flags, dict), "Invalid snapshot source flags")
         provenance = {"snapshot_status": snapshot["status"], "snapshot_output_allowed": False,
-            "snapshot_source_flags": copy.deepcopy(source_flags),
+            # _snapshot_copy independently owns every mutable descendant; no
+            # snapshot container is retained by the observer after this tick.
+            "snapshot_source_flags": source_flags,
             "snapshot_canonical_json_sha256": _digest(snapshot),
             "oldest_observation_age_ns": age, "acquisition_spread_ns": spread,
             "receive_spread_ns": receive_spread, "max_age_ns": self._max_age_ns,
             "max_spread_ns": self._max_spread_ns,
             "calibration_canonical_json_sha256": self._calibration_sha256,
-            "calibration_source_flags": copy.deepcopy(self._calibration_source_flags),
+            "calibration_source_flags": self._copy_static_provenance(0, self._calibration_source_flags),
             "identity_binding": "calibration manifest syntax only; fresh UID matching is upstream and unverified here",
-            "imu_mount_candidate": copy.deepcopy(self._mount),
-            "gyro_bias_hypothesis": copy.deepcopy(self._bias),
+            "imu_mount_candidate": self._copy_static_provenance(1, self._mount),
+            "gyro_bias_hypothesis": self._copy_static_provenance(2, self._bias),
             "raw_accel_m_s2": accel, "raw_gyro_rad_s": gyro,
             "raw_accel_norm_m_s2": norm, "raw_accel_norm_relative_deviation": norm/9.80665-1.,
             "accel_bias_subtracted": False, "accel_scale_corrected": False,

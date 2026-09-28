@@ -1,0 +1,134 @@
+{
+  "schema": "singularitydog.final-input-stop-proxy-observation.v1",
+  "date_jst": "2026-09-28",
+  "status": "COMPLETE_DIAGNOSTIC",
+  "source_sha256": "4b454c8064b0f38baba4224030388f5b8ba2a3002fdbe683d8ea0c59417893c7",
+  "input_sha256": {
+    "expected_uids": "a3a2839e24836298a3c17957a113395dfe831ec4cdb3fa7c33d31d9882953237",
+    "calibration": "0ae3d3d46203229a840164556caee48bb45656801f29d3173e5e2bd1b6f81add",
+    "mount": "7648829b67dbb9c35f20dbf6ed2771a07ea79acaa5c92137bd3e2212450d429c",
+    "gyro_bias": "fd4e49ebdca50416091982c15f1fde118d023f4743b9cf36cc778350465c0954"
+  },
+  "motor_enable_sent": false,
+  "learned_targets_sent": false,
+  "cycles_requested": 501,
+  "cycles_completed": 501,
+  "distributions_ms": {
+    "acquisition_ms": {
+      "count": 501,
+      "median": 7.038737,
+      "p95": 7.164142,
+      "p99": 7.282735,
+      "max": 7.460031
+    },
+    "prepare_ms": {
+      "count": 501,
+      "median": 0.27226,
+      "p95": 0.295553,
+      "p99": 0.299094,
+      "max": 0.339582
+    },
+    "inference_ms": {
+      "count": 501,
+      "median": 2.812321,
+      "p95": 3.191702,
+      "p99": 3.242291,
+      "max": 3.355795
+    },
+    "oldest_input_to_final_host_write_ms": {
+      "count": 501,
+      "median": 15.501509,
+      "p95": 15.791891,
+      "p99": 15.89892,
+      "max": 16.101776
+    },
+    "oldest_input_to_last_reply_ms": {
+      "count": 501,
+      "median": 18.282354,
+      "p95": 18.572669,
+      "p99": 18.702821,
+      "max": 18.869247
+    },
+    "whole_iteration_ms": {
+      "count": 501,
+      "median": 18.670217,
+      "p95": 18.963302,
+      "p99": 19.101794,
+      "max": 19.555189
+    },
+    "release_lateness_ms": {
+      "count": 501,
+      "median": 0.013272,
+      "p95": 0.014468,
+      "p99": 0.01678,
+      "max": 0.024953
+    },
+    "actual_release_interval_ms": {
+      "count": 500,
+      "median": 19.999969,
+      "p95": 20.001543,
+      "p99": 20.00308,
+      "max": 20.004367
+    }
+  },
+  "steady_timing": {
+    "startup_cycle_allowance": 1,
+    "startup_cycles_recorded": 1,
+    "startup_whole_iteration_ms": [
+      19.555189
+    ],
+    "startup_iteration_deadline_misses": 0,
+    "startup_to_steady_interval_ms": 19.988102,
+    "steady_cycles_requested": 500,
+    "steady_cycles_completed": 500,
+    "steady_whole_iteration_ms": {
+      "count": 500,
+      "median": 18.6696685,
+      "p95": 18.962774,
+      "p99": 19.08619,
+      "max": 19.258605
+    },
+    "steady_iteration_deadline_misses": 0,
+    "steady_processing_20ms_met": true,
+    "steady_scheduled_completion_slack_ms": {
+      "count": 500,
+      "median": 1.317399,
+      "p95": 1.904715,
+      "p99": 1.99443,
+      "max": 2.033458
+    },
+    "steady_min_completion_slack_ms": 0.727401,
+    "steady_scheduled_deadline_misses": 0,
+    "steady_slots_skipped": 0,
+    "steady_scheduled_deadlines_met": true,
+    "steady_start_interval_ms": {
+      "count": 499,
+      "median": 19.999969,
+      "p95": 20.001565,
+      "p99": 20.003106,
+      "max": 20.004367
+    },
+    "steady_start_intervals_over_20ms": 243,
+    "strict_steady_start_interval_20ms_met": false,
+    "all_cycles_retained": true,
+    "diagnostic_only": true,
+    "full_controller_50Hz_verified": false
+  },
+  "absolute_epoch_schedule": {
+    "enabled": true,
+    "epoch_ns": 872766019137,
+    "period_ns": 20000000,
+    "minimum_start_separation_ns": 15000000,
+    "slots_skipped": 0,
+    "start_intervals_over_20ms": 243,
+    "strict_start_interval_20ms_met": false,
+    "diagnostic_only": true,
+    "learned_targets_sent": false
+  },
+  "imu_restore_status": "restored",
+  "cpu_settings_restored": true,
+  "host_deadline_misses": 0,
+  "iteration_deadline_misses": 0,
+  "full_controller_50Hz_verified": false,
+  "interpretation": "New water-level zeros, mounting rotation and gyro bias. All 501 processing intervals were below20ms. Strict release intervals are separately recorded; operator accepted observed start jitter. Type4 STOP output proxy, no learned Type1 targets."
+}

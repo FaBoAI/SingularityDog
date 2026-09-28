@@ -1,0 +1,137 @@
+{
+  "schema": "singularitydog.policy-ground-software-validation.v1",
+  "date": "2026-09-28",
+  "scope": "OFFLINE_SOFTWARE_ONLY",
+  "hardware_accessed": false,
+  "motor_commands_sent_to_robot": false,
+  "physical_standing_verified": false,
+  "physical_walking_verified": false,
+  "jetson_20ms_verified": false,
+  "runtime_profiles_approved": false,
+  "suite_results": [
+    {
+      "scope": "runtime",
+      "tests_run": 1626,
+      "skipped": 1,
+      "result": "PASS",
+      "log_sha256": "a3494664549753403cd15b7861330e9d82b86ded2c79436d4c51680b67a09fa9"
+    },
+    {
+      "scope": "tools",
+      "tests_run": 187,
+      "skipped": 0,
+      "result": "PASS",
+      "log_sha256": "ba89badc4bbe447bc1044e53405c33d10013209730b9bb82c83d82f9737ca66e"
+    }
+  ],
+  "total_tests_run": 1813,
+  "total_skipped": 1,
+  "supported_integration": {
+    "summary_sha256": "02329ab63c7cc3886961d03bff86563330830ea191660accbbc1a59a7aeca381",
+    "cases": {
+      "real-success": {
+        "status": "PASS_OFFLINE_SIMULATION",
+        "errors": [],
+        "runtime_status": "COMPLETE_SUPPORTED_OUTPUT",
+        "tx_frames": 1596,
+        "rx_frames": 1584,
+        "real_model_calls": 42,
+        "report_sha256": "673fd19e76e743df9de208d73f524c2b01987bd644ad74a1f9071ebd3372b785"
+      },
+      "drop-feedback": {
+        "status": "PASS_OFFLINE_SIMULATION",
+        "errors": [],
+        "runtime_status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+        "tx_frames": 224,
+        "rx_frames": 211,
+        "real_model_calls": 0,
+        "report_sha256": "935eb013d13bd3d0db42223c4ea3546dfac4c2d9caf022b8da1603d56273326c"
+      },
+      "usb-disconnect": {
+        "status": "PASS_OFFLINE_SIMULATION",
+        "errors": [],
+        "runtime_status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+        "tx_frames": 208,
+        "rx_frames": 195,
+        "real_model_calls": 0,
+        "report_sha256": "5ae4147cc6978f8f5ca1ea1346e6c06ce85773498bd5b5a4d5504840236b4fe4"
+      }
+    },
+    "real_model_cycles": 51,
+    "real_model_calls": 42,
+    "model_target_and_state_max_error": 0.0
+  },
+  "ground_integration": {
+    "summary_sha256": "ddad43147c19f85ee60c5ba0eccb1375edbe7f90a087af978801fb357ec1adbe",
+    "source_hashes_unchanged": true,
+    "cases": {
+      "supported_stance": {
+        "status": "PASS_OFFLINE_GROUND_SIMULATION",
+        "errors": [],
+        "ground_status": "COMPLETE_BOUNDED_GROUND_TRIAL",
+        "tx_frames": 5684,
+        "rx_frames": 5672,
+        "real_model_calls": 183,
+        "stop_confirmed": true,
+        "report_sha256": "63b6e47e4295d16f9da1be9dd836879670fde6e6f1a114d37b4df2911e156532",
+        "model_parity_max_error": 0.0
+      },
+      "walk": {
+        "status": "PASS_OFFLINE_GROUND_SIMULATION",
+        "errors": [],
+        "ground_status": "COMPLETE_BOUNDED_GROUND_TRIAL",
+        "tx_frames": 5656,
+        "rx_frames": 5644,
+        "real_model_calls": 183,
+        "stop_confirmed": true,
+        "report_sha256": "67cf572a2fcb604a4ecf93155dd2d5390aaf6d4c25429a37be2a99428845cb50",
+        "model_parity_max_error": 0.0
+      },
+      "walk-missing-ack": {
+        "status": "PASS_OFFLINE_GROUND_SIMULATION",
+        "errors": [],
+        "ground_status": "ABORTED",
+        "tx_frames": 5292,
+        "rx_frames": 5280,
+        "real_model_calls": 183,
+        "stop_confirmed": true,
+        "report_sha256": "7871d4145f510e4ac992c71430df6ec9b84ebe2e5876dc27944e8973ba375bb0",
+        "model_parity_max_error": 0.0
+      }
+    },
+    "source_sha256": {
+      "coordinator": "670ecbb4f9beea157804705d9eb9585aba5b8b1691b44b82ad42d0d958db3451",
+      "active_python": "759a1e6596894d6467a8e8bff032cd9dbfa39eea0b512000c0f775104298e006",
+      "active_cpp": "40e57361c3ea64f30309cce12cde871bd270cb671438d8b74e4f475abb2ef7b4",
+      "model_adapter": "302b7629445003a33ea00c6ea19dd67c4b8d14a624b8d52df7862b8610c66604",
+      "profile": "6fa4eeee378d0ef726b93ceeecb702a54aa8e5e32ab0c992ee68c2afb954d74e",
+      "envelope": "7abe9dc5874c8be35b50ea6f1482cd54d048d1d4fa610cca3b23a403142c07dd",
+      "cli": "03025b6252438348c728183ef55b141aaf5178150a3a897145eba515ff2ae204",
+      "support_smoke_tool": "2726ee865377ce27f9ac140294552fdccfdf3c5642536ae1ea8005760f30db5a",
+      "tool": "2de6c3a693a2fc421c9140b20eca6834cd3952c4d5ef664117f74fe5c0efd5c5",
+      "ground_trial_output": "232dcd1163e1292a1199834dbc877c701231dac17a3ce9de0b10a8ab714aa2b1",
+      "ground_trial_trajectory": "22d06a86ecb9c49b1274eb266eb997a78581d8468788f939d9dd6f8bef728697",
+      "ground_trial_plan": "aeddd83acdb6a524a85abefba727418419aa7e108ec723b373ba08c69d186179",
+      "ground_trial_review": "7a8bdf900de6fc02b3270c1734fc9fc7586991db1b636e4c2824a5528347d590"
+    },
+    "library_sha256": "5bb75d6571c20aff04ebfa79354ac45c6cbc8e79b6790631ac2c75cea80451cf"
+  },
+  "method": "Actual pinned CPU learned model and C++ transport over two local AF_UNIX socketpairs; synthetic instantaneous plant with no gravity/contact dynamics. Fault injection and all-axis STOP audit. Ground simulation uses a relaxed Mac timing profile that is not admissible for real walking.",
+  "unverified": [
+    "Physical angle zero/sign/range approval",
+    "Fixed IMU physical review",
+    "Hardware communication watchdog behavior",
+    "Continuous acquire/infer/real-output <=20ms on Jetson",
+    "Supported load transfer",
+    "Freestanding",
+    "Low-speed physical walking"
+  ],
+  "tools": [
+    "ground_trial_plan",
+    "ground_trial_trajectory",
+    "ground_trial_output",
+    "ground_trial_review",
+    "prepare_ground_review"
+  ],
+  "private_raw_logs": "Saved under the ignored Mac jetson-snapshots directory; not included in this evidence file."
+}

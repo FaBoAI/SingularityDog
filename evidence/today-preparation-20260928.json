@@ -1,0 +1,162 @@
+{
+  "schema": "singularitydog.today-preparation.v1",
+  "date": "2026-09-28",
+  "scope": "OFFLINE_SOFTWARE_ONLY",
+  "hardware_accessed": false,
+  "physical_standing_verified": false,
+  "physical_walking_verified": false,
+  "jetson_20ms_verified": false,
+  "runtime_profiles_approved": false,
+  "suite_results": [
+    {
+      "scope": "runtime",
+      "tests_run": 1666,
+      "skipped": 1,
+      "status": "PASS",
+      "log_sha256": "86ef55bf6a77e7fc7b5df0f814d4d067e586f0123a1629dd8928a70c3dc93267"
+    },
+    {
+      "scope": "tools",
+      "tests_run": 251,
+      "skipped": 0,
+      "status": "PASS",
+      "log_sha256": "fbad2ed14dfa94debfa9c0dfb2152372912a77b0a8a257bce380dc0881639c9f"
+    }
+  ],
+  "total_tests_run": 1917,
+  "total_skipped": 1,
+  "changes": [
+    "Fresh grouped diagnostics: all-axis capture, CAN, Type17/Type2, parallel full pipeline with STOP proxy",
+    "File-only supported profile assembly with source/boot/power-epoch binding and three joint-group settings",
+    "Independent supported zero-gain command-loss diagnostic with one operator confirmation and all-axis STOP cleanup",
+    "Fresh exact raw firmware fingerprint check before enable; version replies cannot satisfy ordinary STOP",
+    "Remove unused per-cycle actor/observation Python list copies while retaining finite tensor checks",
+    "Pin hardware watchdog review when evaluating native ground-trial raw journals"
+  ],
+  "supported_integration": {
+    "summary_sha256": "ecf4064a3b5528180a83c3959f24d7fec2992d8be8d8fc9a9a693efe3398b315",
+    "cases": {
+      "real-success": {
+        "status": "PASS_OFFLINE_SIMULATION",
+        "errors": [],
+        "runtime_status": "COMPLETE_SUPPORTED_OUTPUT",
+        "tx_frames": 1636,
+        "rx_frames": 1624,
+        "real_model_calls": 43,
+        "report_sha256": "6dc15d5d4befd29cd28feb9632b32d76fe0323b60356afd8e6b9bbae608ded25"
+      },
+      "drop-feedback": {
+        "status": "PASS_OFFLINE_SIMULATION",
+        "errors": [],
+        "runtime_status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+        "tx_frames": 236,
+        "rx_frames": 223,
+        "real_model_calls": 0,
+        "report_sha256": "3ef578a9fd0f99a83860c0474a0ea6e4e23e1fcfab06c07ecf7ec90e321d5454"
+      },
+      "usb-disconnect": {
+        "status": "PASS_OFFLINE_SIMULATION",
+        "errors": [],
+        "runtime_status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+        "tx_frames": 220,
+        "rx_frames": 207,
+        "real_model_calls": 0,
+        "report_sha256": "3e2d3b6773420fe08160378f4f5ddb262feaf5e8b95fafc69acfd647f06988a3"
+      }
+    },
+    "physical_dynamics_simulated": false
+  },
+  "ground_integration": {
+    "summary_sha256": "41216ef12cf241d781fee99c698924ad113373dab43891f1f74532de93418ac1",
+    "cases": {
+      "supported_stance": {
+        "status": "PASS_OFFLINE_GROUND_SIMULATION",
+        "ground_status": "COMPLETE_BOUNDED_GROUND_TRIAL",
+        "tx_frames": 5696,
+        "rx_frames": 5684,
+        "real_model_calls": 182,
+        "stop_confirmed": true,
+        "report_sha256": "4906ec9ae440de833e90b15013ebfcabf2e058e98ad5648279d8e00c092e7f35",
+        "model_target_observation_actor_and_final_state_max_error": 0.0
+      },
+      "walk": {
+        "status": "PASS_OFFLINE_GROUND_SIMULATION",
+        "ground_status": "COMPLETE_BOUNDED_GROUND_TRIAL",
+        "tx_frames": 5668,
+        "rx_frames": 5656,
+        "real_model_calls": 183,
+        "stop_confirmed": true,
+        "report_sha256": "f06130b6a0877d06586cbb43bbd3f1b69dfcda6847cab56f95c7d7f57f40aaea",
+        "model_target_observation_actor_and_final_state_max_error": 0.0
+      },
+      "walk-missing-ack": {
+        "status": "PASS_OFFLINE_GROUND_SIMULATION",
+        "ground_status": "ABORTED",
+        "tx_frames": 5220,
+        "rx_frames": 5208,
+        "real_model_calls": 180,
+        "stop_confirmed": true,
+        "report_sha256": "6a7e260475d37987c068f01757053b1496c9f317aa5f766b0ff8111bf47cac12",
+        "model_target_observation_actor_and_final_state_max_error": 0.0
+      }
+    },
+    "source_hashes_unchanged": true,
+    "physical_dynamics_simulated": false,
+    "raw_review_parser_all_three_cases": "PASS",
+    "review_parser_proof_sha256": "61994f7689e060e3a5c67a7a1bdf701cf97e3cf10ed2620f8892406bd00a36ba"
+  },
+  "unified_build": {
+    "platform": "Mac arm64; not a Jetson build",
+    "status": "PASS",
+    "hardware_opened": false,
+    "steps": [
+      "diagnostic_cpp",
+      "active_cpp",
+      "native_policy"
+    ],
+    "state_sha256": "549967be9d901f54cd72b162bca535370719b2e99bdb23e8325223ff74cf3019",
+    "model_manifest_sha256": "e407281f8edb1e3bb76d4b66300b928ab9430460ceda94a9e235609033b74b10",
+    "validation_sha256": "49096233a93634f696b4f30775617150631a3b70f09784c0cfc7fbd9a915005f",
+    "parity_frames": 240,
+    "max_error": 0.0,
+    "saved_reload_max_error": 0.0,
+    "matched_rejection_cases": 26
+  },
+  "tensor_copy_reduction": {
+    "report_sha256": "eae6a2ee0dfe614fba5474e583fcfb5f75634612de6ae8aed618b62fb93bdbc7",
+    "platform": "Mac CPU",
+    "frames": 183,
+    "legacy_check_median_us": 14.52028125,
+    "new_check_median_us": 3.9759478999999995,
+    "target_observation_actor_and_final_state_exact": true,
+    "jetson_timing_claim": false
+  },
+  "source_sha256": {
+    "tools/dog_tomorrow.py": "2a77ac79da5127259e5a860fc5186151210a05ccaf42af7640867870dcc58433",
+    "tools/prepare_supported_profile.py": "e68867f543494c6c2d41b85920f90e89100f6f4a6cf2fe5ed01d22cfdf2b2153",
+    "tools/prepare_policy_output_bundle.py": "3514f835424c9bcfa4970fc3a0ff8c04c77686144b16e975cd4fb0bdfcaacf30",
+    "tools/prepare_imu_review.py": "904e1c1497ceadde17e14218f1f32658f54e96a1ccebe49447df688edb2dd981",
+    "runtime/singularitydog_hw/watchdog_commissioning.py": "4405c75fd169c501472837b7944dbae5e56c6c8df11c4a8dd87e2bea1ce513d7",
+    "runtime/singularitydog_hw/angle_calibration_audit.py": "0bf640992449df012445ab5ef1c14ac8bbfe1c26ed73871d6b06a66dcf0c9c10",
+    "runtime/singularitydog_hw/imu_commissioning_audit.py": "2a5e79bfd5bdd37c18741c0ebfd9c09b4e9d02cdfe7a85bfcbbe07d660027e2d",
+    "runtime/singularitydog_hw/imu_commissioning_capture.py": "eb906bdc182701945ee11057239695343cf33437bfefb1f2db1286f3f325bd0b",
+    "runtime/singularitydog_hw/native_pipeline_benchmark.py": "52930342f33d075d5149264a53cf7561f6a01982a77bc53fd1dcd032264f75fc",
+    "runtime/singularitydog_hw/policy_output_model.py": "264b88d6672fa0ae69442ccceed7e8dd5418eb0ff4f2dbfcebb03d37eefd96e1",
+    "runtime/singularitydog_hw/policy_live_profile.py": "c3a8a331f3b7e4936e519bf20c319ede686d695c967531e60a463bdab88105da",
+    "runtime/singularitydog_hw/policy_output_runtime.py": "ec4d14f247337e7f2a55646d0ecc6e4cd32428a12d0f8f7e4683174369813a33",
+    "runtime/singularitydog_hw/native_active_transport.py": "75468d9fbfc4a7d0dfb5dd13c3ed6631724721e50421ef5fc1e4480072c79242",
+    "runtime/singularitydog_hw/ground_trial_output.py": "232dcd1163e1292a1199834dbc877c701231dac17a3ce9de0b10a8ab714aa2b1",
+    "runtime/singularitydog_hw/ground_trial_review.py": "32d53b9ff0fd95d991057771917390a67921ff98dba1f1c3b1c799b43c42508e",
+    "runtime/experiments/native_active_transport/transport.cpp": "214e2078c7a3783d8038dcb9d81ae6bea05c82b3cb167c92ada5adf64c13b49d",
+    "runtime/experiments/native_transport/transport.cpp": "ec6ab5d8a2818ce590332604a0f06419d64b49c670b7f41086a224c442b84597",
+    "runtime/experiments/native_policy_overnight/projection.cpp": "4d73a30cc08ad05fd9ad496079469cde8cd36636748a1544521d8f7c98ca94d1"
+  },
+  "limitations": [
+    "No robot device, I2C, SSH or motor output was used for this preparation.",
+    "Socket peers follow commanded position immediately; no gravity, friction, floor contact or balance validation.",
+    "Mac build and timing do not verify Jetson USB2CAN end-to-end20ms.",
+    "Command-loss diagnostic does not establish physical USB disconnect behavior or loaded safety.",
+    "Profile assembly remains unapproved and preserves missing measured ranges, gains and uncertainty.",
+    "Physical load transfer requires current accepted evidence and a helper or independent catch."
+  ]
+}

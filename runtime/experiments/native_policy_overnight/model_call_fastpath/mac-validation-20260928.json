@@ -1,0 +1,218 @@
+{
+  "schema": "native-model-call-fastpath-mac-validation-v1",
+  "date": "2026-09-28",
+  "host": "macOS arm64 / CPU PyTorch 2.10.0",
+  "hardware_opened": false,
+  "output_allowed": false,
+  "approved_for_runtime": false,
+  "live_50hz_verified": false,
+  "records_sha256": "8252c4d144bc042b72243c9722577e19de4d1dbee27b1f52e9b8709d7a8edc45",
+  "baseline_manifest_sha256": "e407281f8edb1e3bb76d4b66300b928ab9430460ceda94a9e235609033b74b10",
+  "runs": {
+    "actor_r1": {
+      "status": "PASS_EXACT_FILE_ONLY",
+      "private_report_sha256": "9cfff80300083a3e768e181633498f5f9bd3fc496883673f5faa1d8d9e4a5027",
+      "source_hashes": {
+        "actor.cpp": "88e708efb911130e4305546a0c0751f17accf12a4b3c941bc6731f6002314e6e",
+        "candidate.py": "694ce82de004f5b634c8b5ed0a5be75173e1e81b8efd1bca1c292351aa7ca7ff",
+        "run.py": "69abcd26947b6ce16c885cbb2701ce55102cf76efb76b50557ae0ae595ecbedc"
+      },
+      "library_sha256": "d975eda881309891a14c71d9a3c9960611239963f0e3467b7f72c7ff951fcb70",
+      "model_sha256": "88ef4fc9c73df5e0d138ba013dd1e56a2569d1758e018d0a35f700b015d47b22",
+      "saved_recurrent_calls": 500,
+      "rejection_count": 26,
+      "max_exact_error": 0.0,
+      "synthetic_frames": 0,
+      "timing": {
+        "native": {
+          "wall": {
+            "count": 500,
+            "median_ms": 0.4612085,
+            "p95_ms": 0.511708,
+            "p99_ms": 0.554375,
+            "max_ms": 0.772083
+          },
+          "thread_cpu": {
+            "count": 500,
+            "median_ms": 0.460625,
+            "p95_ms": 0.502416,
+            "p99_ms": 0.544334,
+            "max_ms": 0.686375
+          }
+        },
+        "cached": {
+          "wall": {
+            "count": 500,
+            "median_ms": 0.436771,
+            "p95_ms": 0.475417,
+            "p99_ms": 0.539,
+            "max_ms": 0.683
+          },
+          "thread_cpu": {
+            "count": 500,
+            "median_ms": 0.436229,
+            "p95_ms": 0.469833,
+            "p99_ms": 0.523042,
+            "max_ms": 0.655708
+          }
+        },
+        "actor_fused_cached": {
+          "wall": {
+            "count": 500,
+            "median_ms": 0.435875,
+            "p95_ms": 0.469916,
+            "p99_ms": 0.551,
+            "max_ms": 0.645291
+          },
+          "thread_cpu": {
+            "count": 500,
+            "median_ms": 0.435333,
+            "p95_ms": 0.465209,
+            "p99_ms": 0.531125,
+            "max_ms": 0.633583
+          }
+        }
+      }
+    },
+    "step_r2": {
+      "status": "PASS_EXACT_FILE_ONLY",
+      "private_report_sha256": "ee4ec401474f47a60fdd806befd67bf3676d65eb42bae6260396ec19556aeba1",
+      "source_hashes": {
+        "step.cpp": "69b34790df67f00314c638199efba99abc0469969cfda52e31f4a48ad8a6332d",
+        "step_generator.py": "a251dd55f9db2438b76cfeeed9efbd21b309338b3dcf0d05c28c93beb3c63f33",
+        "run_step.py": "76bf25de732acbaeb15f4107d90bc184c4b9f36896097d9aae974c01e85aa2b3",
+        "run.py": "daa624f1235b4cbb9953e4a33fea8720614f057da4d416aed0956e8693046df0"
+      },
+      "library_sha256": "f4865ceaf7d130aec3d048e672df7bbf9a99d1cefcbaa0c50186c6dd8248ec4d",
+      "model_sha256": "82f01d8ced4b7f33f5bd31ac73d67b88f09dcba4c7a907e5b59e5d3488d44c6a",
+      "saved_recurrent_calls": 500,
+      "rejection_count": 26,
+      "max_exact_error": 0.0,
+      "synthetic_frames": 240,
+      "timing": {
+        "native": {
+          "wall": {
+            "count": 500,
+            "median_ms": 0.474021,
+            "p95_ms": 0.539584,
+            "p99_ms": 0.600459,
+            "max_ms": 0.985625
+          },
+          "thread_cpu": {
+            "count": 500,
+            "median_ms": 0.4734375,
+            "p95_ms": 0.528834,
+            "p99_ms": 0.577583,
+            "max_ms": 0.75975
+          }
+        },
+        "cached": {
+          "wall": {
+            "count": 500,
+            "median_ms": 0.446896,
+            "p95_ms": 0.50225,
+            "p99_ms": 0.574834,
+            "max_ms": 1.117
+          },
+          "thread_cpu": {
+            "count": 500,
+            "median_ms": 0.446229,
+            "p95_ms": 0.497958,
+            "p99_ms": 0.554125,
+            "max_ms": 0.939459
+          }
+        },
+        "step_fused_cached": {
+          "wall": {
+            "count": 500,
+            "median_ms": 0.4080835,
+            "p95_ms": 0.47125,
+            "p99_ms": 0.56625,
+            "max_ms": 0.775083
+          },
+          "thread_cpu": {
+            "count": 500,
+            "median_ms": 0.407542,
+            "p95_ms": 0.464208,
+            "p99_ms": 0.510625,
+            "max_ms": 0.7435
+          }
+        }
+      }
+    },
+    "step_r3": {
+      "status": "PASS_EXACT_FILE_ONLY",
+      "private_report_sha256": "66d7969fbaba82184d175ed40a2eaa87a66258b64e4a925482e62f850b8efcd6",
+      "source_hashes": {
+        "step.cpp": "69b34790df67f00314c638199efba99abc0469969cfda52e31f4a48ad8a6332d",
+        "step_generator.py": "a251dd55f9db2438b76cfeeed9efbd21b309338b3dcf0d05c28c93beb3c63f33",
+        "run_step.py": "021e64d93d1425a693af284fe303755d5e39542718c705db2c24e49fc9739da4",
+        "run.py": "daa624f1235b4cbb9953e4a33fea8720614f057da4d416aed0956e8693046df0"
+      },
+      "library_sha256": "311e1365adb82d9ad11409090ad5d2943fea10d0e0147116f4411dd8b586334a",
+      "model_sha256": "9c7c61f11d715cfc6e750d0fa0f1d25327af7a9fc715d465d143e113c126ae79",
+      "saved_recurrent_calls": 500,
+      "rejection_count": 26,
+      "max_exact_error": 0.0,
+      "synthetic_frames": 240,
+      "timing": {
+        "native": {
+          "wall": {
+            "count": 500,
+            "median_ms": 0.4661045,
+            "p95_ms": 0.509708,
+            "p99_ms": 0.583291,
+            "max_ms": 0.6635
+          },
+          "thread_cpu": {
+            "count": 500,
+            "median_ms": 0.465479,
+            "p95_ms": 0.506084,
+            "p99_ms": 0.570291,
+            "max_ms": 0.619791
+          }
+        },
+        "cached": {
+          "wall": {
+            "count": 500,
+            "median_ms": 0.441646,
+            "p95_ms": 0.480167,
+            "p99_ms": 0.532416,
+            "max_ms": 0.659458
+          },
+          "thread_cpu": {
+            "count": 500,
+            "median_ms": 0.4410835,
+            "p95_ms": 0.476708,
+            "p99_ms": 0.520542,
+            "max_ms": 0.612542
+          }
+        },
+        "step_fused_cached": {
+          "wall": {
+            "count": 500,
+            "median_ms": 0.4051665,
+            "p95_ms": 0.449958,
+            "p99_ms": 0.51875,
+            "max_ms": 0.575667
+          },
+          "thread_cpu": {
+            "count": 500,
+            "median_ms": 0.4045205,
+            "p95_ms": 0.446541,
+            "p99_ms": 0.503417,
+            "max_ms": 0.552875
+          }
+        }
+      }
+    }
+  },
+  "decision": {
+    "actor_only": "REJECT_NO_USEFUL_GAIN",
+    "step_fusion": "MAC_PROMISING_JETSON_UNVERIFIED",
+    "jetson_build_completed": true,
+    "jetson_saved_replay_completed": false,
+    "jetson_full_runner_timeout_s": 30,
+    "deployed_loader_changed": false
+  }
+}

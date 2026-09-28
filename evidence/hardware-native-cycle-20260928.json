@@ -1,0 +1,5358 @@
+{
+  "schema": "hardware-native-cycle-summary-v1",
+  "date": "2026-09-28",
+  "updated_at": "2026-09-28T05:43:24.300990+00:00",
+  "scope": "Actual Jetson fresh dual-bus CAN and I2C IMU; real native stateful inference; STOP proxy output only",
+  "runs": [
+    {
+      "case": "can-window1-gap600-r1",
+      "report_sha256": "b0972039663bcbaebc92f90f8476b20a88ea81eff19fc16d8880a98ae1859e64",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "type17",
+      "errors": [],
+      "cycles_requested": 20,
+      "cycles_completed": 20,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 20,
+          "median": 33.4657605,
+          "p95": 33.883872,
+          "p99": 33.926082,
+          "max": 33.926082
+        },
+        "prepare_ms": {
+          "count": 20,
+          "median": 1.207176,
+          "p95": 1.318287,
+          "p99": 1.327506,
+          "max": 1.327506
+        },
+        "inference_ms": {
+          "count": 20,
+          "median": 0.000736,
+          "p95": 0.000928,
+          "p99": 0.00096,
+          "max": 0.00096
+        },
+        "oldest_input_to_final_host_write_ms": null,
+        "oldest_input_to_last_reply_ms": null,
+        "whole_iteration_ms": {
+          "count": 20,
+          "median": 35.154433499999996,
+          "p95": 35.623253,
+          "p99": 35.901062,
+          "max": 35.901062
+        },
+        "release_lateness_ms": {
+          "count": 20,
+          "median": 0.109014,
+          "p95": 0.240662,
+          "p99": 0.504914,
+          "max": 0.504914
+        },
+        "actual_release_interval_ms": {
+          "count": 19,
+          "median": 35.265464,
+          "p95": 35.981762,
+          "p99": 35.981762,
+          "max": 35.981762
+        }
+      },
+      "host_deadline_misses": null,
+      "iteration_deadline_misses": 20,
+      "release_intervals_over_21ms": 19,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "request_window": 1,
+      "request_gap_us": 600,
+      "kit_revision": "20260928-r6"
+    },
+    {
+      "case": "can-window2-gap1000-r1",
+      "report_sha256": "ecdf32df6c3cd28e032ac04041fee763ef689fca0cecd14f6f46f467435672d6",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "type17",
+      "errors": [],
+      "cycles_requested": 20,
+      "cycles_completed": 20,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 20,
+          "median": 20.1087845,
+          "p95": 20.583718,
+          "p99": 21.040389,
+          "max": 21.040389
+        },
+        "prepare_ms": {
+          "count": 20,
+          "median": 1.1930075,
+          "p95": 1.237807,
+          "p99": 1.264889,
+          "max": 1.264889
+        },
+        "inference_ms": {
+          "count": 20,
+          "median": 0.0007365,
+          "p95": 0.000896,
+          "p99": 0.000897,
+          "max": 0.000897
+        },
+        "oldest_input_to_final_host_write_ms": null,
+        "oldest_input_to_last_reply_ms": null,
+        "whole_iteration_ms": {
+          "count": 20,
+          "median": 21.610492,
+          "p95": 22.427592,
+          "p99": 22.618891,
+          "max": 22.618891
+        },
+        "release_lateness_ms": {
+          "count": 20,
+          "median": 0.1058125,
+          "p95": 0.235826,
+          "p99": 0.36227,
+          "max": 0.36227
+        },
+        "actual_release_interval_ms": {
+          "count": 19,
+          "median": 21.730582,
+          "p95": 22.742326,
+          "p99": 22.742326,
+          "max": 22.742326
+        }
+      },
+      "host_deadline_misses": null,
+      "iteration_deadline_misses": 20,
+      "release_intervals_over_21ms": 19,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "request_window": 2,
+      "request_gap_us": 1000,
+      "kit_revision": "20260928-r6"
+    },
+    {
+      "case": "can-window3-gap1000-r1",
+      "report_sha256": "2c54f97009df216f69d245387f89f25bded0b1b00a661ef734e8da222afc0a5b",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "type17",
+      "errors": [],
+      "cycles_requested": 20,
+      "cycles_completed": 20,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 20,
+          "median": 14.931057500000001,
+          "p95": 14.986687,
+          "p99": 15.009861,
+          "max": 15.009861
+        },
+        "prepare_ms": {
+          "count": 20,
+          "median": 1.178289,
+          "p95": 1.222668,
+          "p99": 1.241681,
+          "max": 1.241681
+        },
+        "inference_ms": {
+          "count": 20,
+          "median": 0.0007525,
+          "p95": 0.000865,
+          "p99": 0.000865,
+          "max": 0.000865
+        },
+        "oldest_input_to_final_host_write_ms": null,
+        "oldest_input_to_last_reply_ms": null,
+        "whole_iteration_ms": {
+          "count": 20,
+          "median": 16.441291999999997,
+          "p95": 16.555425,
+          "p99": 16.79231,
+          "max": 16.79231
+        },
+        "release_lateness_ms": {
+          "count": 20,
+          "median": 0.073824,
+          "p95": 0.077281,
+          "p99": 0.238555,
+          "max": 0.238555
+        },
+        "actual_release_interval_ms": {
+          "count": 19,
+          "median": 20.0736,
+          "p95": 20.077281,
+          "p99": 20.077281,
+          "max": 20.077281
+        }
+      },
+      "host_deadline_misses": null,
+      "iteration_deadline_misses": 0,
+      "release_intervals_over_21ms": 0,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "request_window": 3,
+      "request_gap_us": 1000,
+      "kit_revision": "20260928-r6"
+    },
+    {
+      "case": "full-window3-gap1000-r1",
+      "report_sha256": "c2dbf1e79745716e141486fdaafa982c69f141997b58c8e9f866635fac153ee9",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 20,
+      "cycles_completed": 20,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 20,
+          "median": 8.500914,
+          "p95": 8.589832,
+          "p99": 9.173651,
+          "max": 9.173651
+        },
+        "prepare_ms": {
+          "count": 20,
+          "median": 0.722532,
+          "p95": 0.777048,
+          "p99": 0.777623,
+          "max": 0.777623
+        },
+        "inference_ms": {
+          "count": 20,
+          "median": 7.7771175,
+          "p95": 8.137512,
+          "p99": 8.299636,
+          "max": 8.299636
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 20,
+          "median": 22.968848,
+          "p95": 23.303816,
+          "p99": 23.504503,
+          "max": 23.504503
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 20,
+          "median": 25.744679,
+          "p95": 26.040909,
+          "p99": 26.301056,
+          "max": 26.301056
+        },
+        "whole_iteration_ms": {
+          "count": 20,
+          "median": 26.1804865,
+          "p95": 26.517775,
+          "p99": 26.679162,
+          "max": 26.679162
+        },
+        "release_lateness_ms": {
+          "count": 20,
+          "median": 0.1449545,
+          "p95": 0.179085,
+          "p99": 0.205807,
+          "max": 0.205807
+        },
+        "actual_release_interval_ms": {
+          "count": 19,
+          "median": 26.341474,
+          "p95": 26.809636,
+          "p99": 26.809636,
+          "max": 26.809636
+        }
+      },
+      "host_deadline_misses": 19,
+      "iteration_deadline_misses": 20,
+      "release_intervals_over_21ms": 19,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "request_window": 3,
+      "request_gap_us": 1000,
+      "kit_revision": "20260928-r6"
+    },
+    {
+      "case": "full-window3-gap600-r1",
+      "report_sha256": "108dc7aa8c39800b6314bb8b27f9d70520eb4fca7e8a0f26c7b4b33272ba78b0",
+      "status": "ABORTED",
+      "mode": "stop-proxy",
+      "errors": [
+        "ExchangeError: Response deadline exceeded after all writes (4/6 replies); missing motor IDs: 2,6; no retry"
+      ],
+      "cycles_requested": 20,
+      "cycles_completed": 0,
+      "distributions_ms": {
+        "acquisition_ms": null,
+        "prepare_ms": null,
+        "inference_ms": null,
+        "oldest_input_to_final_host_write_ms": null,
+        "oldest_input_to_last_reply_ms": null,
+        "whole_iteration_ms": null,
+        "release_lateness_ms": null,
+        "actual_release_interval_ms": null
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 0,
+      "release_intervals_over_21ms": 0,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "request_window": 3,
+      "request_gap_us": 600,
+      "kit_revision": "20260928-r6"
+    },
+    {
+      "case": "full-window3-gap1000-performance-r1",
+      "report_sha256": "12c52965d0d0d8fac58a8f2eb7b0f61e13e67635499ee07077aa56c99ac3a48d",
+      "status": "ABORTED",
+      "mode": null,
+      "errors": [
+        "PermissionError: [Errno 13] Permission denied: '/root/.cache/singularitydog'"
+      ],
+      "cycles_requested": null,
+      "cycles_completed": null,
+      "distributions_ms": null,
+      "host_deadline_misses": null,
+      "iteration_deadline_misses": null,
+      "release_intervals_over_21ms": null,
+      "motor_enable_sent": null,
+      "learned_targets_sent": null,
+      "approved_for_runtime": null,
+      "full_controller_50Hz_verified": null,
+      "imu_restore_status": "not_started",
+      "request_window": 3,
+      "request_gap_us": 1000,
+      "kit_revision": "20260928-r6"
+    },
+    {
+      "case": "full-window3-gap1000-performance-r2",
+      "report_sha256": "a184329d4f4c602e516315cbda4b7f3bfd234ac4b92d6f40a949546505e7d264",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 20,
+      "cycles_completed": 20,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 20,
+          "median": 8.2771465,
+          "p95": 8.381594,
+          "p99": 8.497113,
+          "max": 8.497113
+        },
+        "prepare_ms": {
+          "count": 20,
+          "median": 0.368253,
+          "p95": 0.407997,
+          "p99": 0.418748,
+          "max": 0.418748
+        },
+        "inference_ms": {
+          "count": 20,
+          "median": 4.1704609999999995,
+          "p95": 4.323483,
+          "p99": 5.059157,
+          "max": 5.059157
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 20,
+          "median": 18.506165,
+          "p95": 18.716355,
+          "p99": 19.664731,
+          "max": 19.664731
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 20,
+          "median": 21.2927655,
+          "p95": 21.486636,
+          "p99": 22.448131,
+          "max": 22.448131
+        },
+        "whole_iteration_ms": {
+          "count": 20,
+          "median": 21.536507,
+          "p95": 21.728521,
+          "p99": 23.514907,
+          "max": 23.514907
+        },
+        "release_lateness_ms": {
+          "count": 20,
+          "median": 0.0746715,
+          "p95": 0.095455,
+          "p99": 0.138751,
+          "max": 0.138751
+        },
+        "actual_release_interval_ms": {
+          "count": 19,
+          "median": 21.589738,
+          "p95": 23.601146,
+          "p99": 23.601146,
+          "max": 23.601146
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 20,
+      "release_intervals_over_21ms": 19,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "request_window": 3,
+      "request_gap_us": 1000,
+      "kit_revision": "20260928-r6"
+    },
+    {
+      "case": "full-window3-gap800-performance-r1",
+      "report_sha256": "d78a965b5766ca69f8bdaadba5c4bd532601553624169460dc9a9e0a4ac10305",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 20,
+      "cycles_completed": 20,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 20,
+          "median": 7.226272,
+          "p95": 7.523807,
+          "p99": 7.568703,
+          "max": 7.568703
+        },
+        "prepare_ms": {
+          "count": 20,
+          "median": 0.37168,
+          "p95": 0.411296,
+          "p99": 0.451776,
+          "max": 0.451776
+        },
+        "inference_ms": {
+          "count": 20,
+          "median": 4.109584,
+          "p95": 5.99344,
+          "p99": 6.039744,
+          "max": 6.039744
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 20,
+          "median": 16.4660485,
+          "p95": 18.224479,
+          "p99": 18.25853,
+          "max": 18.25853
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 20,
+          "median": 19.2559045,
+          "p95": 21.04829,
+          "p99": 21.054495,
+          "max": 21.054495
+        },
+        "whole_iteration_ms": {
+          "count": 20,
+          "median": 19.510975000000002,
+          "p95": 21.263711,
+          "p99": 21.748574,
+          "max": 21.748574
+        },
+        "release_lateness_ms": {
+          "count": 20,
+          "median": 0.0596785,
+          "p95": 0.08352,
+          "p99": 0.123424,
+          "max": 0.123424
+        },
+        "actual_release_interval_ms": {
+          "count": 19,
+          "median": 20.059582,
+          "p95": 21.832094,
+          "p99": 21.832094,
+          "max": 21.832094
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 5,
+      "release_intervals_over_21ms": 4,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "request_window": 3,
+      "request_gap_us": 800,
+      "kit_revision": "20260928-r6"
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 100,
+      "cycles_completed": 100,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 100,
+          "median": 7.247059,
+          "p95": 7.390822,
+          "p99": 7.498186,
+          "max": 7.581291
+        },
+        "prepare_ms": {
+          "count": 100,
+          "median": 0.371306,
+          "p95": 0.399819,
+          "p99": 0.431692,
+          "max": 0.442188
+        },
+        "inference_ms": {
+          "count": 100,
+          "median": 4.052525,
+          "p95": 4.349301,
+          "p99": 4.807617,
+          "max": 4.883587
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 100,
+          "median": 16.356616,
+          "p95": 16.678273,
+          "p99": 17.106444,
+          "max": 17.16811
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 100,
+          "median": 19.115857499999997,
+          "p95": 19.517806,
+          "p99": 19.892311,
+          "max": 22.582687
+        },
+        "whole_iteration_ms": {
+          "count": 100,
+          "median": 19.356473,
+          "p95": 19.802197,
+          "p99": 20.196159,
+          "max": 23.099053
+        },
+        "release_lateness_ms": {
+          "count": 100,
+          "median": 0.0596755,
+          "p95": 0.06774,
+          "p99": 0.087939,
+          "max": 0.098018
+        },
+        "actual_release_interval_ms": {
+          "count": 99,
+          "median": 20.059676,
+          "p95": 20.120029,
+          "p99": 23.186992,
+          "max": 23.186992
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 5,
+      "release_intervals_over_21ms": 1,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-performance-r1",
+      "kit_revision": "20260928-r7",
+      "report_sha256": "54adfa8dfd10928f5618a2b2158c5f9ee38f8e3d1acf98dbc7bce35d184c628d",
+      "records_sha256": "ca9cb49435c20f78442306012bff65e0bee9d7c5619f00d96c6cd1dad3b464d9",
+      "request_window": 3,
+      "request_gap_us": 800,
+      "statistics_scope": "Completed cycles only; an aborted acquisition has no completed inference/output iteration timing.",
+      "all_requested_cycles_complete": true,
+      "worker_startup": {
+        "duration_ms": 1.549898,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_iterations": true,
+        "hardware_acquisition_during_startup": false,
+        "model_call_during_startup": false
+      },
+      "cpu_governor_during_measurement": "performance",
+      "frequency_limits_changed": false,
+      "outlier_cycles": [
+        {
+          "cycle": 1,
+          "whole_iteration_ms": 20.196159,
+          "inference_ms": 4.807617,
+          "oldest_input_to_final_host_write_ms": 17.028585,
+          "oldest_input_to_last_reply_ms": 19.857973
+        },
+        {
+          "cycle": 2,
+          "whole_iteration_ms": 20.042875,
+          "inference_ms": 4.228945,
+          "oldest_input_to_final_host_write_ms": 16.958759,
+          "oldest_input_to_last_reply_ms": 19.785715
+        },
+        {
+          "cycle": 30,
+          "whole_iteration_ms": 20.146206,
+          "inference_ms": 4.883587,
+          "oldest_input_to_final_host_write_ms": 17.16811,
+          "oldest_input_to_last_reply_ms": 19.887895
+        },
+        {
+          "cycle": 34,
+          "whole_iteration_ms": 23.099053,
+          "inference_ms": 4.056493,
+          "oldest_input_to_final_host_write_ms": 16.349143,
+          "oldest_input_to_last_reply_ms": 22.582687
+        },
+        {
+          "cycle": 81,
+          "whole_iteration_ms": 20.109309,
+          "inference_ms": 4.732991,
+          "oldest_input_to_final_host_write_ms": 17.106444,
+          "oldest_input_to_last_reply_ms": 19.892311
+        }
+      ],
+      "selected_as_comparison_baseline": true
+    },
+    {
+      "status": "ABORTED",
+      "mode": "stop-proxy",
+      "errors": [
+        "ExchangeError: Response deadline exceeded after all writes (5/6 replies); missing motor IDs: 9; no retry"
+      ],
+      "cycles_requested": 100,
+      "cycles_completed": 23,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 23,
+          "median": 6.8081,
+          "p95": 6.909958,
+          "p99": 7.082731,
+          "max": 7.082731
+        },
+        "prepare_ms": {
+          "count": 23,
+          "median": 0.372523,
+          "p95": 0.400043,
+          "p99": 0.453773,
+          "max": 0.453773
+        },
+        "inference_ms": {
+          "count": 23,
+          "median": 4.164856,
+          "p95": 4.441408,
+          "p99": 5.095346,
+          "max": 5.095346
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 23,
+          "median": 15.538527,
+          "p95": 15.919913,
+          "p99": 16.600029,
+          "max": 16.600029
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 23,
+          "median": 18.29467,
+          "p95": 18.763387,
+          "p99": 19.538897,
+          "max": 19.538897
+        },
+        "whole_iteration_ms": {
+          "count": 23,
+          "median": 18.539061,
+          "p95": 18.985762,
+          "p99": 19.949885,
+          "max": 19.949885
+        },
+        "release_lateness_ms": {
+          "count": 23,
+          "median": 0.059393,
+          "p95": 0.061889,
+          "p99": 0.071264,
+          "max": 0.071264
+        },
+        "actual_release_interval_ms": {
+          "count": 22,
+          "median": 20.059520499999998,
+          "p95": 20.061889,
+          "p99": 20.071264,
+          "max": 20.071264
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 0,
+      "release_intervals_over_21ms": 0,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap700-performance-r1",
+      "kit_revision": "20260928-r7",
+      "report_sha256": "3747b4e1edd1472525309b021411ecaf586c31b391c4244e201526afd9981949",
+      "records_sha256": "cb8c5dc029c82fcfa1f1a0a1ebe1012fc8c93fd749ef018792b6bc06192512ac",
+      "request_window": 3,
+      "request_gap_us": 700,
+      "statistics_scope": "Completed cycles only; an aborted acquisition has no completed inference/output iteration timing.",
+      "all_requested_cycles_complete": false,
+      "worker_startup": {
+        "duration_ms": 1.588013,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_iterations": true,
+        "hardware_acquisition_during_startup": false,
+        "model_call_during_startup": false
+      },
+      "cpu_governor_during_measurement": "performance",
+      "frequency_limits_changed": false,
+      "outlier_cycles": [],
+      "failure": {
+        "cycle": 24,
+        "phase": "rear CAN acquisition",
+        "missing_motor_ids": [
+          9
+        ],
+        "requests_written": 6,
+        "replies_received": 5,
+        "all_writes_completed": true,
+        "response_deadline_ms": 100,
+        "retry_attempted": false,
+        "imu_record_present": true,
+        "front_acquisition_record_present": true,
+        "rear_acquisition_complete": false,
+        "inference_started": false,
+        "output_started": false,
+        "rejected_frame_bytes_present": false,
+        "cause_identified": false
+      },
+      "selected_as_comparison_baseline": false
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 20,
+      "cycles_completed": 20,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 20,
+          "median": 7.2715425,
+          "p95": 7.474528,
+          "p99": 7.577733,
+          "max": 7.577733
+        },
+        "prepare_ms": {
+          "count": 20,
+          "median": 0.364593,
+          "p95": 0.407731,
+          "p99": 0.418452,
+          "max": 0.418452
+        },
+        "inference_ms": {
+          "count": 20,
+          "median": 4.175093,
+          "p95": 4.360302,
+          "p99": 4.92836,
+          "max": 4.92836
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 20,
+          "median": 16.472023,
+          "p95": 16.773269,
+          "p99": 17.34424,
+          "max": 17.34424
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 20,
+          "median": 19.268907,
+          "p95": 19.617627,
+          "p99": 20.042159,
+          "max": 20.042159
+        },
+        "whole_iteration_ms": {
+          "count": 20,
+          "median": 19.5265835,
+          "p95": 19.859782,
+          "p99": 20.434594,
+          "max": 20.434594
+        },
+        "release_lateness_ms": {
+          "count": 20,
+          "median": 0.059840000000000004,
+          "p95": 0.062033,
+          "p99": 0.08842,
+          "max": 0.08842
+        },
+        "actual_release_interval_ms": {
+          "count": 19,
+          "median": 20.059952,
+          "p95": 20.523014,
+          "p99": 20.523014,
+          "max": 20.523014
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 1,
+      "release_intervals_over_21ms": 0,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-timer-baseline20-r1",
+      "kit_revision": "20260928-r7",
+      "report_sha256": "be7c93eb631399c89112ed04cf4509520ff890a983065677284a9b0a9f98edd8",
+      "records_sha256": "9ceeebefbeff382ded1bf75ffd10def4f411413f77a26ddfd048e4c975936d40",
+      "request_window": 3,
+      "request_gap_us": 800,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "statistics_scope": "All requested cycles completed; fresh hardware acquisition and real inference; twelve STOP proxy outputs, no enable or learned targets.",
+      "worker_startup": {
+        "duration_ms": 1.573226,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "timer_slack": {
+        "proof_sha256": "72e57efd53a8641cefb6b6612e28a5b1cced769007164fb07ea9df40ecf796b4",
+        "wrapper_sha256": "266beea8b0678bb1659abfec80094539a50e9c6c4e0631cae90e85011b12083f",
+        "launch_sha256": "b09a34d23f4f340bccde2c05c480c38709225786ee1f5b05378cffc69508ba87",
+        "kit_manifest_sha256": "d0515721de838fa84337d1028dae8314754779aaf41de5c06eeb0b3d7ca03552",
+        "before_ns": 50000,
+        "during_ns": 50000,
+        "after_ns": 50000,
+        "worker_count": 3,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "333743b669d6497d0a0d7c4ceccef786b067ceaf6db2ff72289eaafb7b797a05",
+        "restored": true,
+        "errors": [],
+        "frequency_limits_changed": false,
+        "frequency_limits_restored": true,
+        "exit_code": 0,
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 20,
+      "cycles_completed": 20,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 20,
+          "median": 7.04681,
+          "p95": 7.141294,
+          "p99": 7.147982,
+          "max": 7.147982
+        },
+        "prepare_ms": {
+          "count": 20,
+          "median": 0.37020949999999997,
+          "p95": 0.422996,
+          "p99": 0.43426,
+          "max": 0.43426
+        },
+        "inference_ms": {
+          "count": 20,
+          "median": 4.1749795,
+          "p95": 4.292265,
+          "p99": 4.967528,
+          "max": 4.967528
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 20,
+          "median": 16.012237,
+          "p95": 16.395135,
+          "p99": 16.854965,
+          "max": 16.854965
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 20,
+          "median": 18.788750999999998,
+          "p95": 19.275366,
+          "p99": 19.632311,
+          "max": 19.632311
+        },
+        "whole_iteration_ms": {
+          "count": 20,
+          "median": 19.044235,
+          "p95": 19.52869,
+          "p99": 20.065612,
+          "max": 20.065612
+        },
+        "release_lateness_ms": {
+          "count": 20,
+          "median": 0.010601,
+          "p95": 0.022825,
+          "p99": 0.092548,
+          "max": 0.092548
+        },
+        "actual_release_interval_ms": {
+          "count": 19,
+          "median": 20.010601,
+          "p95": 20.15816,
+          "p99": 20.15816,
+          "max": 20.15816
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 1,
+      "release_intervals_over_21ms": 0,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-timer-slack20-r1",
+      "kit_revision": "20260928-r7",
+      "report_sha256": "ed2f02c2a8ee2591970f13bddd079abb436936e9a01c705ce8f17db4895c1bc1",
+      "records_sha256": "57745bbad13a55e6c1641bfcfbe4c9f6fa81efd1283077b2a9e8f8cb8a6a6205",
+      "request_window": 3,
+      "request_gap_us": 800,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "statistics_scope": "All requested cycles completed; fresh hardware acquisition and real inference; twelve STOP proxy outputs, no enable or learned targets.",
+      "worker_startup": {
+        "duration_ms": 1.388353,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "timer_slack": {
+        "proof_sha256": "e551ffe4e50453f30d9f434189601951113523bd6c1f86314b75f51a4922cf7e",
+        "wrapper_sha256": "266beea8b0678bb1659abfec80094539a50e9c6c4e0631cae90e85011b12083f",
+        "launch_sha256": "b09a34d23f4f340bccde2c05c480c38709225786ee1f5b05378cffc69508ba87",
+        "kit_manifest_sha256": "d0515721de838fa84337d1028dae8314754779aaf41de5c06eeb0b3d7ca03552",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "worker_count": 3,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "b49e8853ec8a938d185f79ae6a93d31892580f9bb1386c63fce710076f94cd5d",
+        "restored": true,
+        "errors": [],
+        "frequency_limits_changed": false,
+        "frequency_limits_restored": true,
+        "exit_code": 0,
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 100,
+      "cycles_completed": 100,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 100,
+          "median": 7.037655,
+          "p95": 7.131787,
+          "p99": 7.200974,
+          "max": 7.250033
+        },
+        "prepare_ms": {
+          "count": 100,
+          "median": 0.374786,
+          "p95": 0.400499,
+          "p99": 0.414004,
+          "max": 0.420596
+        },
+        "inference_ms": {
+          "count": 100,
+          "median": 4.091678,
+          "p95": 4.3066,
+          "p99": 4.402125,
+          "max": 5.069483
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 100,
+          "median": 15.9607575,
+          "p95": 16.191024,
+          "p99": 16.572098,
+          "max": 16.872143
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 100,
+          "median": 18.743494499999997,
+          "p95": 19.006547,
+          "p99": 19.299297,
+          "max": 19.63592
+        },
+        "whole_iteration_ms": {
+          "count": 100,
+          "median": 18.974513,
+          "p95": 19.238269,
+          "p99": 20.052995,
+          "max": 22.218152
+        },
+        "release_lateness_ms": {
+          "count": 100,
+          "median": 0.010754,
+          "p95": 0.012321,
+          "p99": 0.087493,
+          "max": 0.104293
+        },
+        "actual_release_interval_ms": {
+          "count": 99,
+          "median": 20.010754,
+          "p95": 20.012321,
+          "p99": 22.322445,
+          "max": 22.322445
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 2,
+      "release_intervals_over_21ms": 1,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-timer-slack100-r1",
+      "kit_revision": "20260928-r7",
+      "report_sha256": "87f39bd1132b4cf31425ccb8b1dbc56cca7d9eda6a93c59cdaad8606746648c8",
+      "records_sha256": "dc14f7d846699d1bcd6a905efa6d746e72794a302441dda173511e72b5cb60d4",
+      "request_window": 3,
+      "request_gap_us": 800,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "statistics_scope": "All requested cycles completed; fresh hardware acquisition and real inference; twelve STOP proxy outputs, no enable or learned targets.",
+      "worker_startup": {
+        "duration_ms": 1.43725,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "timer_slack": {
+        "proof_sha256": "a22c2c245bbf727072c02d5e7d9a889a6b981df79b8773d49134b65f9be60e75",
+        "wrapper_sha256": "266beea8b0678bb1659abfec80094539a50e9c6c4e0631cae90e85011b12083f",
+        "launch_sha256": "b09a34d23f4f340bccde2c05c480c38709225786ee1f5b05378cffc69508ba87",
+        "kit_manifest_sha256": "d0515721de838fa84337d1028dae8314754779aaf41de5c06eeb0b3d7ca03552",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "worker_count": 3,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "9c0503ce28e8fb086d9de0bf8fc94180efecbb2b79db85c9a720857b8fe14dc8",
+        "restored": true,
+        "errors": [],
+        "frequency_limits_changed": false,
+        "frequency_limits_restored": true,
+        "exit_code": 0,
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 100,
+      "cycles_completed": 100,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 100,
+          "median": 7.038621,
+          "p95": 7.153058,
+          "p99": 7.292872,
+          "max": 7.591125
+        },
+        "prepare_ms": {
+          "count": 100,
+          "median": 0.37449699999999997,
+          "p95": 0.396978,
+          "p99": 0.417426,
+          "max": 0.434707
+        },
+        "inference_ms": {
+          "count": 100,
+          "median": 3.9709149999999998,
+          "p95": 4.437703,
+          "p99": 5.64643,
+          "max": 6.861973
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 100,
+          "median": 15.848856999999999,
+          "p95": 16.467909,
+          "p99": 17.633113,
+          "max": 18.860945
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 100,
+          "median": 18.629926,
+          "p95": 19.29882,
+          "p99": 20.446872,
+          "max": 21.628333
+        },
+        "whole_iteration_ms": {
+          "count": 100,
+          "median": 18.884945000000002,
+          "p95": 19.495405,
+          "p99": 20.94571,
+          "max": 21.946331
+        },
+        "release_lateness_ms": {
+          "count": 100,
+          "median": 0.01114,
+          "p95": 0.013796,
+          "p99": 0.094565,
+          "max": 0.105636
+        },
+        "actual_release_interval_ms": {
+          "count": 99,
+          "median": 20.01114,
+          "p95": 20.013796,
+          "p99": 22.051967,
+          "max": 22.051967
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 3,
+      "release_intervals_over_21ms": 2,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-timer-gcobserve100-r1",
+      "kit_revision": "20260928-r7",
+      "report_sha256": "95f6bab2bec069e1802a3bb1fdd5cee5aac26d6cc8d537b9a198a48c32cdf1b9",
+      "records_sha256": "2ad78be97c390982690b10d16668a5dedad21919e7a8e5883ab8564d14f6037a",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "statistics_scope": "All100 fresh hardware acquisition/real-inference cycles completed; STOP proxy only; finite GC instrumentation comparison.",
+      "worker_startup": {
+        "duration_ms": 1.845971,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "timer_slack": {
+        "proof_sha256": "343be171c492dcceb4741c2ac31cb441e9d48b8270376ed2a36857a814df2f8b",
+        "wrapper_sha256": "b1d4e4432511434d9a7d1b4009f0730b8e50f8783e2dd102dd181422e285e1f4",
+        "launch_sha256": "b09a34d23f4f340bccde2c05c480c38709225786ee1f5b05378cffc69508ba87",
+        "kit_manifest_sha256": "d0515721de838fa84337d1028dae8314754779aaf41de5c06eeb0b3d7ca03552",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "worker_count": 3,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "c72be7ef58d66bdc97232ef4222a65d191a3a5b92e17be41578a4544218b14b3",
+        "restored": true,
+        "frequency_limits_restored": true,
+        "frequency_limits_changed": false,
+        "exit_code": 0,
+        "errors": [],
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      },
+      "gc_observation": {
+        "policy": "observe",
+        "proof_sha256": "343be171c492dcceb4741c2ac31cb441e9d48b8270376ed2a36857a814df2f8b",
+        "event_markers": 22,
+        "collections": 11,
+        "generation_counts": {
+          "0": 11
+        },
+        "collection_duration_min_ms": 0.176008,
+        "collection_duration_max_ms": 0.226506,
+        "cycles_overlapping_gc": [
+          3,
+          12,
+          21,
+          30,
+          39,
+          48,
+          57,
+          66,
+          75,
+          84,
+          93
+        ],
+        "deadline_miss_cycles": [
+          1,
+          6,
+          24
+        ],
+        "deadline_misses_overlapping_gc": [],
+        "original_enabled": true,
+        "gc_state_restored": true,
+        "precollection_outside_measured_cycles": true,
+        "runtime_gc_disable_adopted": false,
+        "causal_improvement_verified": false
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 100,
+      "cycles_completed": 100,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 100,
+          "median": 7.048984,
+          "p95": 7.13366,
+          "p99": 7.168862,
+          "max": 7.172766
+        },
+        "prepare_ms": {
+          "count": 100,
+          "median": 0.3724965,
+          "p95": 0.388753,
+          "p99": 0.390577,
+          "max": 0.465237
+        },
+        "inference_ms": {
+          "count": 100,
+          "median": 4.1781369999999995,
+          "p95": 4.291358,
+          "p99": 4.361057,
+          "max": 6.099758
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 100,
+          "median": 16.0291895,
+          "p95": 16.223247,
+          "p99": 16.388533,
+          "max": 18.089345
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 100,
+          "median": 18.83157,
+          "p95": 19.035019,
+          "p99": 19.21637,
+          "max": 20.930751
+        },
+        "whole_iteration_ms": {
+          "count": 100,
+          "median": 19.072732000000002,
+          "p95": 19.288758,
+          "p99": 19.438908,
+          "max": 21.460406
+        },
+        "release_lateness_ms": {
+          "count": 100,
+          "median": 0.0105655,
+          "p95": 0.011894,
+          "p99": 0.015457,
+          "max": 0.086564
+        },
+        "actual_release_interval_ms": {
+          "count": 99,
+          "median": 20.01055,
+          "p95": 20.011894,
+          "p99": 21.54697,
+          "max": 21.54697
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 1,
+      "release_intervals_over_21ms": 1,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-timer-gcdefer100-r1",
+      "kit_revision": "20260928-r7",
+      "report_sha256": "00f8ae059aeeea9691ca2e6667a2bcfa6ecd3d5f14f4d53baa7264b5b881affe",
+      "records_sha256": "d1ef1e0607a379a843f067d6bda0eadd3f019adc88f3e45fb8a772f638d76068",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "statistics_scope": "All100 fresh hardware acquisition/real-inference cycles completed; STOP proxy only; finite GC instrumentation comparison.",
+      "worker_startup": {
+        "duration_ms": 1.873107,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "timer_slack": {
+        "proof_sha256": "abcc19a1a702a6763db0f8183ad449ce916c4cfdb393c94e5b187835b3c6739a",
+        "wrapper_sha256": "b1d4e4432511434d9a7d1b4009f0730b8e50f8783e2dd102dd181422e285e1f4",
+        "launch_sha256": "b09a34d23f4f340bccde2c05c480c38709225786ee1f5b05378cffc69508ba87",
+        "kit_manifest_sha256": "d0515721de838fa84337d1028dae8314754779aaf41de5c06eeb0b3d7ca03552",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "worker_count": 3,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "50585ccd9e53161fe173411410e858613628660d43b3c45438559e6a45110de5",
+        "restored": true,
+        "frequency_limits_restored": true,
+        "frequency_limits_changed": false,
+        "exit_code": 0,
+        "errors": [],
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      },
+      "gc_observation": {
+        "policy": "defer",
+        "proof_sha256": "abcc19a1a702a6763db0f8183ad449ce916c4cfdb393c94e5b187835b3c6739a",
+        "event_markers": 0,
+        "collections": 0,
+        "generation_counts": {},
+        "collection_duration_min_ms": null,
+        "collection_duration_max_ms": null,
+        "cycles_overlapping_gc": [],
+        "deadline_miss_cycles": [
+          1
+        ],
+        "deadline_misses_overlapping_gc": [],
+        "original_enabled": true,
+        "gc_state_restored": true,
+        "precollection_outside_measured_cycles": true,
+        "runtime_gc_disable_adopted": false,
+        "causal_improvement_verified": false
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 100,
+      "cycles_completed": 100,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 100,
+          "median": 7.053100000000001,
+          "p95": 7.165851,
+          "p99": 7.300794,
+          "max": 7.457594
+        },
+        "prepare_ms": {
+          "count": 100,
+          "median": 0.377854,
+          "p95": 0.396446,
+          "p99": 0.434878,
+          "max": 0.461726
+        },
+        "inference_ms": {
+          "count": 100,
+          "median": 4.20793,
+          "p95": 4.366857,
+          "p99": 4.59092,
+          "max": 4.748743
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 100,
+          "median": 16.069038,
+          "p95": 16.402796,
+          "p99": 16.577258,
+          "max": 16.851625
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 100,
+          "median": 18.865487,
+          "p95": 19.183967,
+          "p99": 19.402268,
+          "max": 19.635002
+        },
+        "whole_iteration_ms": {
+          "count": 100,
+          "median": 19.1197095,
+          "p95": 19.515837,
+          "p99": 20.074712,
+          "max": 23.05108
+        },
+        "release_lateness_ms": {
+          "count": 100,
+          "median": 0.010568500000000002,
+          "p95": 0.0118,
+          "p99": 0.086944,
+          "max": 0.105855
+        },
+        "actual_release_interval_ms": {
+          "count": 99,
+          "median": 20.010552,
+          "p95": 20.0118,
+          "p99": 23.138024,
+          "max": 23.138024
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 2,
+      "release_intervals_over_21ms": 1,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-latewarm100-r1",
+      "kit_revision": "20260928-r8",
+      "report_sha256": "20ef609800f9b450ef34a5fda4cc73499809a8b991245db64beba6d9377e3a90",
+      "records_sha256": "e1d701fe9c408aeba4d4eeb234b426b3201cf24b5f542281a39aa302f75aba27",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "deadline_miss_cycles": [
+        1,
+        34
+      ],
+      "last_reply_deadline_misses": 0,
+      "statistics_scope": "All requested fresh QDD/IMU acquisition, real inference and 12-axis STOP-proxy output cycles; no motor enable or learned target output. Includes post-reply host checks.",
+      "worker_startup": {
+        "duration_ms": 1.645495,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "policy_warmup": {
+        "position": "after_identity_and_imu_start_before_worker_startup",
+        "iterations": 10,
+        "duration_ms": 189.056102,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "cached_tensor_view_diagnostic_variant": false,
+      "timer_slack": {
+        "proof_contained_in_report_sha256": "20ef609800f9b450ef34a5fda4cc73499809a8b991245db64beba6d9377e3a90",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "1390b54590a124d10b649112d8ea9110fa06b66a6f0d6f5b0003d186632520ab",
+        "restored": true,
+        "frequency_limits_restored": true,
+        "frequency_limits_changed": false,
+        "exit_code": 0,
+        "errors": [],
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 100,
+      "cycles_completed": 100,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 100,
+          "median": 7.053091,
+          "p95": 7.14749,
+          "p99": 7.254723,
+          "max": 7.306754
+        },
+        "prepare_ms": {
+          "count": 100,
+          "median": 0.365327,
+          "p95": 0.385246,
+          "p99": 0.451071,
+          "max": 0.453278
+        },
+        "inference_ms": {
+          "count": 100,
+          "median": 4.059903,
+          "p95": 4.215599,
+          "p99": 4.590285,
+          "max": 4.60462
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 100,
+          "median": 15.905503,
+          "p95": 16.314589,
+          "p99": 16.504444,
+          "max": 16.643131
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 100,
+          "median": 18.683650999999998,
+          "p95": 19.041042,
+          "p99": 19.354128,
+          "max": 19.363439
+        },
+        "whole_iteration_ms": {
+          "count": 100,
+          "median": 18.931298499999997,
+          "p95": 19.402575,
+          "p99": 19.878669,
+          "max": 21.459945
+        },
+        "release_lateness_ms": {
+          "count": 100,
+          "median": 0.010399,
+          "p95": 0.013807,
+          "p99": 0.028781,
+          "max": 0.089632
+        },
+        "actual_release_interval_ms": {
+          "count": 99,
+          "median": 20.010319,
+          "p95": 20.013807,
+          "p99": 21.549577,
+          "max": 21.549577
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 1,
+      "release_intervals_over_21ms": 1,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-cached100-r1",
+      "kit_revision": "20260928-r8",
+      "report_sha256": "6db6d2858c9abbdd79655a4fc3a8c4d20a11d9f81d0eaf78499b688ab276166a",
+      "records_sha256": "a54c8e5a02152f564820773b2312007d260e02b05e5347ec32bec49eab492378",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "deadline_miss_cycles": [
+        85
+      ],
+      "last_reply_deadline_misses": 0,
+      "statistics_scope": "All requested fresh QDD/IMU acquisition, real inference and 12-axis STOP-proxy output cycles; no motor enable or learned target output. Includes post-reply host checks.",
+      "worker_startup": {
+        "duration_ms": 1.635961,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "policy_warmup": {
+        "position": "after_identity_and_imu_start_before_worker_startup",
+        "iterations": 10,
+        "duration_ms": 176.204609,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "cached_tensor_view_diagnostic_variant": true,
+      "timer_slack": {
+        "proof_contained_in_report_sha256": "6db6d2858c9abbdd79655a4fc3a8c4d20a11d9f81d0eaf78499b688ab276166a",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "fece9d0af6a611e9cb28feeb60e748154ca46e31b2a1829d429bb854723ca312",
+        "restored": true,
+        "frequency_limits_restored": true,
+        "frequency_limits_changed": false,
+        "exit_code": 0,
+        "errors": [],
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 100,
+      "cycles_completed": 100,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 100,
+          "median": 7.0436049999999994,
+          "p95": 7.146166,
+          "p99": 7.257527,
+          "max": 7.313815
+        },
+        "prepare_ms": {
+          "count": 100,
+          "median": 0.368099,
+          "p95": 0.390787,
+          "p99": 0.399331,
+          "max": 0.425251
+        },
+        "inference_ms": {
+          "count": 100,
+          "median": 4.0288305,
+          "p95": 4.3312,
+          "p99": 4.431489,
+          "max": 4.478594
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 100,
+          "median": 15.894295,
+          "p95": 16.250491,
+          "p99": 16.305947,
+          "max": 16.439005
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 100,
+          "median": 18.6817725,
+          "p95": 19.047279,
+          "p99": 19.084368,
+          "max": 19.236626
+        },
+        "whole_iteration_ms": {
+          "count": 100,
+          "median": 18.9256305,
+          "p95": 19.277233,
+          "p99": 19.531188,
+          "max": 21.716324
+        },
+        "release_lateness_ms": {
+          "count": 100,
+          "median": 0.010647,
+          "p95": 0.012631,
+          "p99": 0.01424,
+          "max": 0.088161
+        },
+        "actual_release_interval_ms": {
+          "count": 99,
+          "median": 20.010647,
+          "p95": 20.012631,
+          "p99": 21.804485,
+          "max": 21.804485
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 1,
+      "release_intervals_over_21ms": 1,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-cachedtrace100-r1",
+      "kit_revision": "20260928-r8",
+      "report_sha256": "8498a1f321ca81b0bae39c6e683fb183f6a0908192e90dacfc23df098a550c90",
+      "records_sha256": "9786dd756b7c4a33ff590e3e413fc4e5d6c2ad2dc3383e70b9518744d0b6450d",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "deadline_miss_cycles": [
+        94
+      ],
+      "last_reply_deadline_misses": 0,
+      "statistics_scope": "All requested fresh QDD/IMU acquisition, real inference and 12-axis STOP-proxy output cycles; no motor enable or learned target output. Includes post-reply host checks.",
+      "worker_startup": {
+        "duration_ms": 1.701965,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "policy_warmup": {
+        "position": "after_identity_and_imu_start_before_worker_startup",
+        "iterations": 10,
+        "duration_ms": 176.430732,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "cached_tensor_view_diagnostic_variant": true,
+      "timer_slack": {
+        "proof_contained_in_report_sha256": "8498a1f321ca81b0bae39c6e683fb183f6a0908192e90dacfc23df098a550c90",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "d6f5747724da1b1b335f69929177a7d769cfd5b06432367fec52507c39b7a78d",
+        "restored": true,
+        "frequency_limits_restored": true,
+        "frequency_limits_changed": false,
+        "exit_code": 0,
+        "errors": [],
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      },
+      "gc_observation": {
+        "proof_sha256": "16c0d5475dc4569111643286e5d567373339b86c0f0a91b2698b6fcfdb746dd5",
+        "placement": "natural",
+        "setup_gc_duration_ms": null,
+        "event_markers": 22,
+        "collections": 11,
+        "generation_counts": {
+          "0": 10,
+          "1": 1,
+          "2": 0
+        },
+        "cycles_overlapping_gc": [
+          5,
+          14,
+          23,
+          32,
+          41,
+          50,
+          59,
+          68,
+          77,
+          86,
+          94
+        ],
+        "deadline_misses_overlapping_gc": [
+          94
+        ],
+        "higher_generation_overlaps": [
+          {
+            "cycle": 94,
+            "generation": 1,
+            "duration_ms": 2.85343,
+            "whole_iteration_ms": 21.716324,
+            "inference_ms": 4.032127,
+            "last_reply_to_cycle_end_ms": 2.881046
+          }
+        ],
+        "gc_enabled_before": true,
+        "gc_enabled_after": true,
+        "gc_state_restored": true,
+        "runtime_gc_disabled_in_this_finite_comparison": false,
+        "runtime_gc_disable_adopted": false
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 100,
+      "cycles_completed": 100,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 100,
+          "median": 7.043327,
+          "p95": 7.125312,
+          "p99": 7.212225,
+          "max": 7.501091
+        },
+        "prepare_ms": {
+          "count": 100,
+          "median": 0.36645099999999997,
+          "p95": 0.381412,
+          "p99": 0.384451,
+          "max": 0.432035
+        },
+        "inference_ms": {
+          "count": 100,
+          "median": 4.000068,
+          "p95": 4.155941,
+          "p99": 4.315687,
+          "max": 4.440104
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 100,
+          "median": 15.8672145,
+          "p95": 16.055216,
+          "p99": 16.311922,
+          "max": 16.53634
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 100,
+          "median": 18.6502955,
+          "p95": 18.917161,
+          "p99": 19.07985,
+          "max": 19.331725
+        },
+        "whole_iteration_ms": {
+          "count": 100,
+          "median": 18.8900255,
+          "p95": 19.210924,
+          "p99": 19.457486,
+          "max": 19.777584
+        },
+        "release_lateness_ms": {
+          "count": 100,
+          "median": 0.010163,
+          "p95": 0.012436,
+          "p99": 0.014258,
+          "max": 0.014643
+        },
+        "actual_release_interval_ms": {
+          "count": 99,
+          "median": 20.010163,
+          "p95": 20.012436,
+          "p99": 20.014643,
+          "max": 20.014643
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 0,
+      "release_intervals_over_21ms": 0,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-cachedsetupgc100-r1",
+      "kit_revision": "20260928-r8",
+      "report_sha256": "1cd4a916db41ccef27172c4a8a608608106607f7fd8a327a5c525483c2c4b73c",
+      "records_sha256": "1f973a04ed53155fd17b9429dd709beefcec9509a3db9693420a7100dee211f4",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "deadline_miss_cycles": [],
+      "last_reply_deadline_misses": 0,
+      "statistics_scope": "All requested fresh QDD/IMU acquisition, real inference and 12-axis STOP-proxy output cycles; no motor enable or learned target output. Includes post-reply host checks.",
+      "worker_startup": {
+        "duration_ms": 1.665391,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "policy_warmup": {
+        "position": "after_identity_and_imu_start_before_worker_startup",
+        "iterations": 10,
+        "duration_ms": 307.031924,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "cached_tensor_view_diagnostic_variant": true,
+      "timer_slack": {
+        "proof_contained_in_report_sha256": "1cd4a916db41ccef27172c4a8a608608106607f7fd8a327a5c525483c2c4b73c",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "26bf94eb771717d35613524d93bb111911d7840a43c3f147471a458fb870cf2a",
+        "restored": true,
+        "frequency_limits_restored": true,
+        "frequency_limits_changed": false,
+        "exit_code": 0,
+        "errors": [],
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      },
+      "gc_observation": {
+        "proof_sha256": "49aab2d5ae9e5ce3eabc893d14f458c990cb7f2eeb084511a54ac43648a548fc",
+        "placement": "before-warmup",
+        "setup_gc_duration_ms": 128.833403,
+        "event_markers": 22,
+        "collections": 11,
+        "generation_counts": {
+          "0": 11,
+          "1": 0,
+          "2": 0
+        },
+        "cycles_overlapping_gc": [
+          3,
+          12,
+          21,
+          30,
+          39,
+          48,
+          57,
+          66,
+          75,
+          84,
+          93
+        ],
+        "deadline_misses_overlapping_gc": [],
+        "higher_generation_overlaps": [],
+        "gc_enabled_before": true,
+        "gc_enabled_after": true,
+        "gc_state_restored": true,
+        "runtime_gc_disabled_in_this_finite_comparison": false,
+        "runtime_gc_disable_adopted": false
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 500,
+      "cycles_completed": 500,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 500,
+          "median": 7.037198500000001,
+          "p95": 7.204178,
+          "p99": 7.375026,
+          "max": 7.554358
+        },
+        "prepare_ms": {
+          "count": 500,
+          "median": 0.3669325,
+          "p95": 0.388741,
+          "p99": 0.401156,
+          "max": 0.443205
+        },
+        "inference_ms": {
+          "count": 500,
+          "median": 3.892556,
+          "p95": 4.148463,
+          "p99": 4.606611,
+          "max": 6.448617
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 500,
+          "median": 15.754866499999999,
+          "p95": 16.170296,
+          "p99": 16.541048,
+          "max": 18.547026
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 500,
+          "median": 18.540191999999998,
+          "p95": 18.932726,
+          "p99": 19.320791,
+          "max": 21.267505
+        },
+        "whole_iteration_ms": {
+          "count": 500,
+          "median": 18.7920985,
+          "p95": 19.229561,
+          "p99": 20.656297,
+          "max": 21.592757
+        },
+        "release_lateness_ms": {
+          "count": 500,
+          "median": 0.010929,
+          "p95": 0.013055,
+          "p99": 0.084193,
+          "max": 0.189795
+        },
+        "actual_release_interval_ms": {
+          "count": 499,
+          "median": 20.010915,
+          "p95": 20.013055,
+          "p99": 21.247567,
+          "max": 21.68927
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 8,
+      "release_intervals_over_21ms": 5,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-cachedsetupgc500-r1",
+      "kit_revision": "20260928-r8",
+      "report_sha256": "2cc9de23c466cf80741c8e4cea2fac923890755f93530b172ea87c4d2e553947",
+      "records_sha256": "73341c09f1b235556cf8d5d2d0d9f2267a2490e1ce47b8bdfd2a8d82b5cc3313",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "deadline_miss_cycles": [
+        101,
+        160,
+        208,
+        315,
+        422,
+        460,
+        461,
+        481
+      ],
+      "last_reply_deadline_misses": 4,
+      "statistics_scope": "All requested fresh QDD/IMU acquisition, real inference and 12-axis STOP-proxy output cycles; no motor enable or learned target output. Includes post-reply host checks.",
+      "worker_startup": {
+        "duration_ms": 1.646163,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "policy_warmup": {
+        "position": "after_identity_and_imu_start_before_worker_startup",
+        "iterations": 10,
+        "duration_ms": 303.716235,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "cached_tensor_view_diagnostic_variant": true,
+      "timer_slack": {
+        "proof_contained_in_report_sha256": "2cc9de23c466cf80741c8e4cea2fac923890755f93530b172ea87c4d2e553947",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "b1f65fdbcea82baaf0890e93242ede8592a0d4d4c5cdc053f70bf00ccbec0dab",
+        "restored": true,
+        "frequency_limits_restored": true,
+        "frequency_limits_changed": false,
+        "exit_code": 0,
+        "errors": [],
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      },
+      "gc_observation": {
+        "proof_sha256": "c6f514570d58ae791a58f02d2d4a908ca43ad022ef136514bae7502725253b61",
+        "placement": "before-warmup",
+        "setup_gc_duration_ms": 127.623752,
+        "event_markers": 112,
+        "collections": 56,
+        "generation_counts": {
+          "0": 52,
+          "1": 4,
+          "2": 0
+        },
+        "cycles_overlapping_gc": [
+          3,
+          12,
+          21,
+          30,
+          39,
+          48,
+          57,
+          66,
+          75,
+          84,
+          93,
+          101,
+          110,
+          119,
+          128,
+          137,
+          146,
+          155,
+          164,
+          173,
+          182,
+          191,
+          200,
+          208,
+          217,
+          226,
+          235,
+          244,
+          253,
+          262,
+          271,
+          280,
+          289,
+          298,
+          307,
+          315,
+          324,
+          333,
+          342,
+          351,
+          360,
+          369,
+          378,
+          387,
+          396,
+          405,
+          414,
+          422,
+          431,
+          440,
+          449,
+          458,
+          467,
+          476,
+          485,
+          494
+        ],
+        "deadline_misses_overlapping_gc": [
+          101,
+          208,
+          315,
+          422
+        ],
+        "higher_generation_overlaps": [
+          {
+            "cycle": 101,
+            "generation": 1,
+            "duration_ms": 2.418523,
+            "whole_iteration_ms": 21.240365,
+            "inference_ms": 3.96254,
+            "last_reply_to_cycle_end_ms": 2.531068
+          },
+          {
+            "cycle": 208,
+            "generation": 1,
+            "duration_ms": 2.515388,
+            "whole_iteration_ms": 21.261326,
+            "inference_ms": 3.887852,
+            "last_reply_to_cycle_end_ms": 2.650654
+          },
+          {
+            "cycle": 315,
+            "generation": 1,
+            "duration_ms": 2.410747,
+            "whole_iteration_ms": 21.162126,
+            "inference_ms": 3.820875,
+            "last_reply_to_cycle_end_ms": 2.488924
+          },
+          {
+            "cycle": 422,
+            "generation": 1,
+            "duration_ms": 2.414428,
+            "whole_iteration_ms": 21.172111,
+            "inference_ms": 3.912908,
+            "last_reply_to_cycle_end_ms": 2.427035
+          }
+        ],
+        "gc_enabled_before": true,
+        "gc_enabled_after": true,
+        "gc_state_restored": true,
+        "runtime_gc_disabled_in_this_finite_comparison": false,
+        "runtime_gc_disable_adopted": false
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 500,
+      "cycles_completed": 500,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 500,
+          "median": 7.051037,
+          "p95": 7.187759,
+          "p99": 7.305393,
+          "max": 7.455604
+        },
+        "prepare_ms": {
+          "count": 500,
+          "median": 0.3680375,
+          "p95": 0.394534,
+          "p99": 0.410119,
+          "max": 0.446791
+        },
+        "inference_ms": {
+          "count": 500,
+          "median": 3.9640295,
+          "p95": 4.289602,
+          "p99": 5.800537,
+          "max": 6.217696
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 500,
+          "median": 15.8469175,
+          "p95": 16.35254,
+          "p99": 17.651153,
+          "max": 18.248026
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 500,
+          "median": 18.635217,
+          "p95": 19.147112,
+          "p99": 20.483581,
+          "max": 21.000836
+        },
+        "whole_iteration_ms": {
+          "count": 500,
+          "median": 18.88983,
+          "p95": 19.444045,
+          "p99": 20.700128,
+          "max": 21.226408
+        },
+        "release_lateness_ms": {
+          "count": 500,
+          "median": 0.010837,
+          "p95": 0.013813,
+          "p99": 0.071586,
+          "max": 0.077441
+        },
+        "actual_release_interval_ms": {
+          "count": 499,
+          "median": 20.010837,
+          "p95": 20.013813,
+          "p99": 20.974339,
+          "max": 21.296041
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 20,
+      "release_intervals_over_21ms": 4,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-cachedsetupgcdefer500-r1",
+      "kit_revision": "20260928-r8",
+      "report_sha256": "c921d0d1b35c249f77c23f1da2f2002d80ee9aaba02100dc1348a31e63caeb16",
+      "records_sha256": "a8ab9d500275aa2a085fff04fb16472334803d2c5b7058cb58178b8afda37fca",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "deadline_miss_cycles": [
+        68,
+        69,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        170,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        272
+      ],
+      "last_reply_deadline_misses": 19,
+      "statistics_scope": "All requested fresh QDD/IMU acquisition, real inference and 12-axis STOP-proxy output cycles; no motor enable or learned target output. Includes post-reply host checks.",
+      "worker_startup": {
+        "duration_ms": 1.705946,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "policy_warmup": {
+        "position": "after_identity_and_imu_start_before_worker_startup",
+        "iterations": 10,
+        "duration_ms": 302.619793,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "cached_tensor_view_diagnostic_variant": true,
+      "timer_slack": {
+        "proof_contained_in_report_sha256": "c921d0d1b35c249f77c23f1da2f2002d80ee9aaba02100dc1348a31e63caeb16",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "45c14ddd784bf9fa7392c12cb3e721c98d24f344077bd2295312caf225a1a2c4",
+        "restored": true,
+        "frequency_limits_restored": true,
+        "frequency_limits_changed": false,
+        "exit_code": 0,
+        "errors": [],
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      },
+      "gc_observation": {
+        "proof_sha256": "aba3702334fe60e82413463112ab2675889d4f0ccc66aaf4f47ebedab0afe73d",
+        "placement": "before-warmup-defer",
+        "setup_gc_duration_ms": 124.990372,
+        "event_markers": 0,
+        "collections": 0,
+        "generation_counts": {
+          "0": 0,
+          "1": 0,
+          "2": 0
+        },
+        "cycles_overlapping_gc": [],
+        "deadline_misses_overlapping_gc": [],
+        "higher_generation_overlaps": [],
+        "gc_enabled_before": true,
+        "gc_enabled_after": true,
+        "gc_state_restored": true,
+        "runtime_gc_disabled_in_this_finite_comparison": true,
+        "runtime_gc_disable_adopted": false
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 500,
+      "cycles_completed": 500,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 500,
+          "median": 7.051992,
+          "p95": 7.115721,
+          "p99": 7.202763,
+          "max": 7.388943
+        },
+        "prepare_ms": {
+          "count": 500,
+          "median": 0.381031,
+          "p95": 0.405928,
+          "p99": 0.41972,
+          "max": 0.478986
+        },
+        "inference_ms": {
+          "count": 500,
+          "median": 15.850544,
+          "p95": 16.317051,
+          "p99": 16.364156,
+          "max": 16.490879
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 500,
+          "median": 27.6981985,
+          "p95": 28.186656,
+          "p99": 28.344099,
+          "max": 29.282643
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 500,
+          "median": 30.4666995,
+          "p95": 30.970134,
+          "p99": 31.163224,
+          "max": 32.108041
+        },
+        "whole_iteration_ms": {
+          "count": 500,
+          "median": 30.7124785,
+          "p95": 31.222043,
+          "p99": 31.451871,
+          "max": 32.395215
+        },
+        "release_lateness_ms": {
+          "count": 500,
+          "median": 0.0819695,
+          "p95": 0.095137,
+          "p99": 0.102434,
+          "max": 0.117826
+        },
+        "actual_release_interval_ms": {
+          "count": 499,
+          "median": 30.796946,
+          "p95": 31.306333,
+          "p99": 31.573279,
+          "max": 32.482353
+        }
+      },
+      "host_deadline_misses": 500,
+      "iteration_deadline_misses": 500,
+      "release_intervals_over_21ms": 499,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-cachedaffinity500-r1",
+      "kit_revision": "20260928-r8",
+      "report_sha256": "83b3c41e62fba8803ae59a97a262e151e25409bce9a0d3358a488dc78f9cd596",
+      "records_sha256": "9283dff425c44396fbf81b79cea97369828783c3c2cd6e2fefe19686ce24dcb4",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "deadline_miss_cycles": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269,
+        270,
+        271,
+        272,
+        273,
+        274,
+        275,
+        276,
+        277,
+        278,
+        279,
+        280,
+        281,
+        282,
+        283,
+        284,
+        285,
+        286,
+        287,
+        288,
+        289,
+        290,
+        291,
+        292,
+        293,
+        294,
+        295,
+        296,
+        297,
+        298,
+        299,
+        300,
+        301,
+        302,
+        303,
+        304,
+        305,
+        306,
+        307,
+        308,
+        309,
+        310,
+        311,
+        312,
+        313,
+        314,
+        315,
+        316,
+        317,
+        318,
+        319,
+        320,
+        321,
+        322,
+        323,
+        324,
+        325,
+        326,
+        327,
+        328,
+        329,
+        330,
+        331,
+        332,
+        333,
+        334,
+        335,
+        336,
+        337,
+        338,
+        339,
+        340,
+        341,
+        342,
+        343,
+        344,
+        345,
+        346,
+        347,
+        348,
+        349,
+        350,
+        351,
+        352,
+        353,
+        354,
+        355,
+        356,
+        357,
+        358,
+        359,
+        360,
+        361,
+        362,
+        363,
+        364,
+        365,
+        366,
+        367,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        374,
+        375,
+        376,
+        377,
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414,
+        415,
+        416,
+        417,
+        418,
+        419,
+        420,
+        421,
+        422,
+        423,
+        424,
+        425,
+        426,
+        427,
+        428,
+        429,
+        430,
+        431,
+        432,
+        433,
+        434,
+        435,
+        436,
+        437,
+        438,
+        439,
+        440,
+        441,
+        442,
+        443,
+        444,
+        445,
+        446,
+        447,
+        448,
+        449,
+        450,
+        451,
+        452,
+        453,
+        454,
+        455,
+        456,
+        457,
+        458,
+        459,
+        460,
+        461,
+        462,
+        463,
+        464,
+        465,
+        466,
+        467,
+        468,
+        469,
+        470,
+        471,
+        472,
+        473,
+        474,
+        475,
+        476,
+        477,
+        478,
+        479,
+        480,
+        481,
+        482,
+        483,
+        484,
+        485,
+        486,
+        487,
+        488,
+        489,
+        490,
+        491,
+        492,
+        493,
+        494,
+        495,
+        496,
+        497,
+        498,
+        499,
+        500
+      ],
+      "last_reply_deadline_misses": 500,
+      "statistics_scope": "All requested fresh QDD/IMU acquisition, real inference and 12-axis STOP-proxy output cycles; no motor enable or learned target output. Includes post-reply host checks.",
+      "worker_startup": {
+        "duration_ms": 1.97815,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "policy_warmup": {
+        "position": "after_identity_and_imu_start_before_worker_startup",
+        "iterations": 10,
+        "duration_ms": 430.976244,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "cached_tensor_view_diagnostic_variant": true,
+      "timer_slack": {
+        "proof_contained_in_report_sha256": "83b3c41e62fba8803ae59a97a262e151e25409bce9a0d3358a488dc78f9cd596",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "801f8a1adcd72d7f3a8b7836ad78429bb92e4a4d7716443ee09f087063e1e74f",
+        "restored": true,
+        "frequency_limits_restored": true,
+        "frequency_limits_changed": false,
+        "exit_code": 0,
+        "errors": [],
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      },
+      "gc_observation": {
+        "proof_sha256": "2458b4a2461e1026c7df713fc6bab626c99e85e486dcdc68a4cb6fdf334c97de",
+        "placement": "before-warmup-defer",
+        "setup_gc_duration_ms": 127.558096,
+        "event_markers": 0,
+        "collections": 0,
+        "generation_counts": {
+          "0": 0,
+          "1": 0,
+          "2": 0
+        },
+        "cycles_overlapping_gc": [],
+        "deadline_misses_overlapping_gc": [],
+        "higher_generation_overlaps": [],
+        "gc_enabled_before": true,
+        "gc_enabled_after": true,
+        "gc_state_restored": true,
+        "runtime_gc_disabled_in_this_finite_comparison": true,
+        "runtime_gc_disable_adopted": false
+      },
+      "finite_cpu_affinity": {
+        "proof_sha256": "2458b4a2461e1026c7df713fc6bab626c99e85e486dcdc68a4cb6fdf334c97de",
+        "parent_cpu_mask_before": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "parent_cpu_mask_during": [
+          4
+        ],
+        "parent_cpu_mask_after": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "workers_verified": true,
+        "restored": true,
+        "adopted": false
+      },
+      "model_call_wall_vs_main_thread_cpu_ms": {
+        "wall_median": 14.786621,
+        "wall_max": 15.393162,
+        "main_thread_cpu_median": 4.626912,
+        "main_thread_cpu_max": 4.8104,
+        "scope": "Main-thread CPU excludes computation in other threads; divergence does not alone identify a scheduling or compute cause."
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 500,
+      "cycles_completed": 500,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 500,
+          "median": 7.0405169999999995,
+          "p95": 7.16012,
+          "p99": 7.275642,
+          "max": 7.503999
+        },
+        "prepare_ms": {
+          "count": 500,
+          "median": 0.372072,
+          "p95": 0.393289,
+          "p99": 0.402024,
+          "max": 0.52494
+        },
+        "inference_ms": {
+          "count": 500,
+          "median": 3.821281,
+          "p95": 4.128824,
+          "p99": 5.730873,
+          "max": 6.076257
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 500,
+          "median": 15.7099815,
+          "p95": 16.15119,
+          "p99": 17.692727,
+          "max": 18.003902
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 500,
+          "median": 18.499048000000002,
+          "p95": 18.962002,
+          "p99": 20.47413,
+          "max": 20.779545
+        },
+        "whole_iteration_ms": {
+          "count": 500,
+          "median": 18.7398695,
+          "p95": 19.198391,
+          "p99": 20.7238,
+          "max": 21.040574
+        },
+        "release_lateness_ms": {
+          "count": 500,
+          "median": 0.01076,
+          "p95": 0.012873,
+          "p99": 0.073281,
+          "max": 0.193292
+        },
+        "actual_release_interval_ms": {
+          "count": 499,
+          "median": 20.01076,
+          "p95": 20.012873,
+          "p99": 20.968382,
+          "max": 21.116896
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 10,
+      "release_intervals_over_21ms": 4,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-cachedr9public500-r1",
+      "kit_revision": "20260928-r9",
+      "report_sha256": "a47aa053aded2d09c9ed97a1cc77ac23b54019f431c1a4a054e7dab88bbfe74d",
+      "records_sha256": "8a37b28bc116d1e5cad7e9c443b9e59d11772231ef143c653eb8a46417652d91",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "deadline_miss_cycles": [
+        76,
+        94,
+        95,
+        145,
+        157,
+        235,
+        313,
+        391,
+        452,
+        469
+      ],
+      "last_reply_deadline_misses": 10,
+      "statistics_scope": "All requested fresh QDD/IMU acquisition, real inference and 12-axis STOP-proxy output cycles; no motor enable or learned target output. Includes post-reply host checks.",
+      "worker_startup": {
+        "duration_ms": 1.661027,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "policy_warmup": {
+        "position": "after_identity_and_imu_start_before_worker_startup",
+        "iterations": 10,
+        "duration_ms": 176.550013,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "cached_tensor_view_diagnostic_variant": true,
+      "timer_slack": {
+        "proof_contained_in_report_sha256": "a47aa053aded2d09c9ed97a1cc77ac23b54019f431c1a4a054e7dab88bbfe74d",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "0fa34cca34bb8aa99442c9f631019fab71f152a526df205684e94afd85e3ea54",
+        "restored": true,
+        "frequency_limits_restored": true,
+        "frequency_limits_changed": false,
+        "exit_code": 0,
+        "errors": [],
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      },
+      "public_setup_gc": {
+        "mode": "before-warmup",
+        "scope": "setup_only",
+        "position": "after_identity_and_imu_start_before_warmup",
+        "generation": 2,
+        "attempted": true,
+        "complete": true,
+        "duration_ms": 127.973175,
+        "collected_objects": 37,
+        "changes_gc_settings": false
+      },
+      "gc_settings_changed_during_public_diagnostic": false
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 500,
+      "cycles_completed": 500,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 500,
+          "median": 7.043931000000001,
+          "p95": 7.165789,
+          "p99": 7.26016,
+          "max": 7.834381
+        },
+        "prepare_ms": {
+          "count": 500,
+          "median": 0.370184,
+          "p95": 0.396009,
+          "p99": 0.411273,
+          "max": 0.445514
+        },
+        "inference_ms": {
+          "count": 500,
+          "median": 3.9228864999999997,
+          "p95": 4.382337,
+          "p99": 6.016388,
+          "max": 6.567345
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 500,
+          "median": 15.79542,
+          "p95": 16.314215,
+          "p99": 17.985804,
+          "max": 18.691483
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 500,
+          "median": 18.5727765,
+          "p95": 19.071012,
+          "p99": 20.766057,
+          "max": 21.461176
+        },
+        "whole_iteration_ms": {
+          "count": 500,
+          "median": 18.8286065,
+          "p95": 19.394123,
+          "p99": 21.013454,
+          "max": 21.752127
+        },
+        "release_lateness_ms": {
+          "count": 500,
+          "median": 0.010776,
+          "p95": 0.013368,
+          "p99": 0.075522,
+          "max": 0.096834
+        },
+        "actual_release_interval_ms": {
+          "count": 499,
+          "median": 20.010776,
+          "p95": 20.013368,
+          "p99": 21.268756,
+          "max": 21.827104
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 19,
+      "release_intervals_over_21ms": 8,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-cachedr9profile500-r1",
+      "kit_revision": "20260928-r9",
+      "report_sha256": "5ebebab0fbe8bf6a940e467241037fbf4b8f35887664a5810ad8c6ee078bbb09",
+      "records_sha256": "130f4c54b3cd45010d447ea063b670e59523687ec4882c9cac27d408537b53a6",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "deadline_miss_cycles": [
+        60,
+        61,
+        75,
+        156,
+        236,
+        314,
+        358,
+        359,
+        360,
+        361,
+        362,
+        363,
+        364,
+        365,
+        394,
+        460,
+        461,
+        462,
+        472
+      ],
+      "last_reply_deadline_misses": 18,
+      "statistics_scope": "All requested fresh QDD/IMU acquisition, real inference and 12-axis STOP-proxy output cycles; no motor enable or learned target output. Includes post-reply host checks.",
+      "worker_startup": {
+        "duration_ms": 1.697349,
+        "worker_count": 3,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "policy_warmup": {
+        "position": "after_identity_and_imu_start_before_worker_startup",
+        "iterations": 10,
+        "duration_ms": 176.910322,
+        "complete": true,
+        "outside_timed_cycles": true
+      },
+      "cached_tensor_view_diagnostic_variant": true,
+      "timer_slack": {
+        "proof_contained_in_report_sha256": "5ebebab0fbe8bf6a940e467241037fbf4b8f35887664a5810ad8c6ee078bbb09",
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "all_three_workers_verified": true,
+        "restored": true,
+        "permanent_runtime_change": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "d9dafb3880b6a3b418ab484a9ce3eeea21c5c78a4848985148fe1b836fb4e038",
+        "restored": true,
+        "frequency_limits_restored": true,
+        "frequency_limits_changed": false,
+        "exit_code": 0,
+        "errors": [],
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      },
+      "gc_observation": {
+        "proof_sha256": "4aa21ced0eb6f8a0a2cf83b6eea36d85071deae71452b5ee6cdbc9fa5b5e0fef",
+        "placement": "normal-gc",
+        "setup_gc_duration_ms": null,
+        "event_markers": 152,
+        "collections": 76,
+        "generation_counts": {
+          "0": 70,
+          "1": 6,
+          "2": 0
+        },
+        "cycles_overlapping_gc": [
+          2,
+          8,
+          15,
+          21,
+          28,
+          35,
+          42,
+          48,
+          55,
+          62,
+          69,
+          75,
+          82,
+          88,
+          95,
+          102,
+          109,
+          115,
+          122,
+          129,
+          136,
+          142,
+          149,
+          156,
+          162,
+          169,
+          175,
+          182,
+          189,
+          196,
+          202,
+          209,
+          216,
+          223,
+          229,
+          236,
+          242,
+          249,
+          255,
+          262,
+          268,
+          275,
+          281,
+          288,
+          294,
+          301,
+          307,
+          314,
+          320,
+          327,
+          333,
+          340,
+          347,
+          354,
+          360,
+          367,
+          374,
+          381,
+          387,
+          394,
+          400,
+          407,
+          413,
+          420,
+          426,
+          433,
+          439,
+          446,
+          452,
+          459,
+          465,
+          472,
+          478,
+          485,
+          491,
+          498
+        ],
+        "deadline_misses_overlapping_gc": [
+          75,
+          156,
+          236,
+          314,
+          360,
+          394,
+          472
+        ],
+        "higher_generation_overlaps": [
+          {
+            "cycle": 75,
+            "generation": 1,
+            "duration_ms": 1.955787,
+            "whole_iteration_ms": 20.963885,
+            "inference_ms": 3.966679,
+            "last_reply_to_cycle_end_ms": 0.091202
+          },
+          {
+            "cycle": 156,
+            "generation": 1,
+            "duration_ms": 1.900042,
+            "whole_iteration_ms": 21.013454,
+            "inference_ms": 5.973507,
+            "last_reply_to_cycle_end_ms": 0.07789
+          },
+          {
+            "cycle": 236,
+            "generation": 1,
+            "duration_ms": 1.958379,
+            "whole_iteration_ms": 21.20853,
+            "inference_ms": 6.120391,
+            "last_reply_to_cycle_end_ms": 0.096066
+          },
+          {
+            "cycle": 314,
+            "generation": 1,
+            "duration_ms": 2.110766,
+            "whole_iteration_ms": 21.752127,
+            "inference_ms": 6.567345,
+            "last_reply_to_cycle_end_ms": 0.123267
+          },
+          {
+            "cycle": 394,
+            "generation": 1,
+            "duration_ms": 1.803688,
+            "whole_iteration_ms": 20.799626,
+            "inference_ms": 5.865313,
+            "last_reply_to_cycle_end_ms": 0.078178
+          },
+          {
+            "cycle": 472,
+            "generation": 1,
+            "duration_ms": 1.707397,
+            "whole_iteration_ms": 20.87198,
+            "inference_ms": 5.707165,
+            "last_reply_to_cycle_end_ms": 0.046945
+          }
+        ],
+        "gc_enabled_before": true,
+        "gc_enabled_after": true,
+        "gc_state_restored": true,
+        "runtime_gc_disabled_in_this_finite_comparison": false,
+        "runtime_gc_disable_adopted": false
+      },
+      "public_setup_gc": {
+        "mode": "before-warmup",
+        "scope": "setup_only",
+        "position": "after_identity_and_imu_start_before_warmup",
+        "generation": 2,
+        "attempted": true,
+        "complete": true,
+        "duration_ms": 127.757144,
+        "collected_objects": 37,
+        "changes_gc_settings": false
+      },
+      "gc_settings_changed_during_public_diagnostic": false,
+      "profiling_scope": "Additional main-thread CPU and GC callback instrumentation. Keep separate from public-code 500-cycle run; profiling overhead and execution variation are included."
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 500,
+      "cycles_completed": 500,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 500,
+          "median": 7.0417415000000005,
+          "p95": 7.139672,
+          "p99": 7.206689,
+          "max": 7.34017
+        },
+        "prepare_ms": {
+          "count": 500,
+          "median": 0.37277400000000005,
+          "p95": 0.392136,
+          "p99": 0.400553,
+          "max": 0.425548
+        },
+        "inference_ms": {
+          "count": 500,
+          "median": 3.915231,
+          "p95": 4.173996,
+          "p99": 4.391711,
+          "max": 4.726146
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 500,
+          "median": 15.776254,
+          "p95": 16.085742,
+          "p99": 16.289812,
+          "max": 16.59187
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 500,
+          "median": 18.5563435,
+          "p95": 18.868348,
+          "p99": 19.056335,
+          "max": 19.378426
+        },
+        "whole_iteration_ms": {
+          "count": 500,
+          "median": 18.806924000000002,
+          "p95": 19.148854,
+          "p99": 19.639381,
+          "max": 22.341728
+        },
+        "release_lateness_ms": {
+          "count": 500,
+          "median": 0.010669,
+          "p95": 0.012957,
+          "p99": 0.019934,
+          "max": 0.091049
+        },
+        "actual_release_interval_ms": {
+          "count": 499,
+          "median": 20.010669,
+          "p95": 20.012957,
+          "p99": 20.020988,
+          "max": 22.42244
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 4,
+      "release_intervals_over_21ms": 4,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-cachedr10public500-r1",
+      "kit_revision": "20260928-r10",
+      "report_sha256": "496687aa1e48105ae19e24c69cb0c61d42b89b4956393f83f950e2c2a0198684",
+      "records_sha256": "8252c4d144bc042b72243c9722577e19de4d1dbee27b1f52e9b8709d7a8edc45",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "deadline_miss_cycles": [
+        112,
+        231,
+        350,
+        469
+      ],
+      "last_reply_deadline_misses": 0,
+      "statistics_scope": "Finite STOP-proxy diagnostic: 12 fresh QDD+IMU inputs, real learned inference, 12 STOP proxy outputs, and post-reply host checks. No motor enable or learned target output.",
+      "policy_warmup": {
+        "iterations": 10,
+        "duration_ms": 178.127748,
+        "outside_timed_cycles": true
+      },
+      "cached_tensor_view_diagnostic_variant": true,
+      "timer_slack": {
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "all_three_workers_verified": true,
+        "restored": true
+      },
+      "public_setup_gc": {
+        "mode": "before-warmup",
+        "scope": "setup_only",
+        "position": "after_identity_and_imu_start_before_warmup",
+        "generation": 2,
+        "attempted": true,
+        "complete": true,
+        "duration_ms": 128.482846,
+        "collected_objects": 36,
+        "changes_gc_settings": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "798e662453e8e45b56386d43e820fa2aaed5b7fe58e88fe4b7ad81e3d794c885",
+        "frequency_limits_changed": false,
+        "immediate_governors_restored": true,
+        "immediate_frequency_limits_restored": true,
+        "followup": null
+      }
+    },
+    {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "errors": [],
+      "cycles_requested": 500,
+      "cycles_completed": 500,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 500,
+          "median": 7.005691000000001,
+          "p95": 7.130612,
+          "p99": 7.2439,
+          "max": 7.309918
+        },
+        "prepare_ms": {
+          "count": 500,
+          "median": 0.322997,
+          "p95": 0.337878,
+          "p99": 0.347479,
+          "max": 0.444765
+        },
+        "inference_ms": {
+          "count": 500,
+          "median": 3.3703005,
+          "p95": 3.633229,
+          "p99": 3.902303,
+          "max": 5.229206
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 500,
+          "median": 15.131599000000001,
+          "p95": 15.404917,
+          "p99": 15.67824,
+          "max": 16.974069
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 500,
+          "median": 17.9124055,
+          "p95": 18.209965,
+          "p99": 18.502296,
+          "max": 19.703592
+        },
+        "whole_iteration_ms": {
+          "count": 500,
+          "median": 18.132054500000002,
+          "p95": 18.454196,
+          "p99": 19.211365,
+          "max": 20.89369
+        },
+        "release_lateness_ms": {
+          "count": 500,
+          "median": 0.009699,
+          "p95": 0.011553,
+          "p99": 0.016382,
+          "max": 0.082725
+        },
+        "actual_release_interval_ms": {
+          "count": 499,
+          "median": 20.009699,
+          "p95": 20.011553,
+          "p99": 20.029084,
+          "max": 20.971423
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 4,
+      "release_intervals_over_21ms": 0,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "imu_restore_status": "restored",
+      "case": "full-window3-gap800-cachedr10maxfreq500-r1",
+      "kit_revision": "20260928-r10",
+      "report_sha256": "6807f42fd8c079df051e00c7432e7c6b9ff2d089cb565a789eca07f342e51b31",
+      "records_sha256": "a3d6aa2257d2f608240a7495db9b51bd10c4189d5e57dc81e1f4037aa1070231",
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "all_requested_cycles_complete": true,
+      "all_expected_acquisition_and_proxy_replies_received": true,
+      "deadline_miss_cycles": [
+        112,
+        231,
+        350,
+        469
+      ],
+      "last_reply_deadline_misses": 0,
+      "statistics_scope": "Finite STOP-proxy diagnostic: 12 fresh QDD+IMU inputs, real learned inference, 12 STOP proxy outputs, and post-reply host checks. No motor enable or learned target output.",
+      "policy_warmup": {
+        "iterations": 10,
+        "duration_ms": 155.745648,
+        "outside_timed_cycles": true
+      },
+      "cached_tensor_view_diagnostic_variant": true,
+      "timer_slack": {
+        "before_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "all_three_workers_verified": true,
+        "restored": true
+      },
+      "public_setup_gc": {
+        "mode": "before-warmup",
+        "scope": "setup_only",
+        "position": "after_identity_and_imu_start_before_warmup",
+        "generation": 2,
+        "attempted": true,
+        "complete": true,
+        "duration_ms": 122.842649,
+        "collected_objects": 36,
+        "changes_gc_settings": false
+      },
+      "temporary_cpu_performance": {
+        "proof_sha256": "3150a04e56c9532e1d444f1e7fa93883e750bcf1099490ca9b0dcfb244e5ac6a",
+        "frequency_limits_changed": true,
+        "immediate_governors_restored": true,
+        "immediate_frequency_limits_restored": false,
+        "followup": {
+          "original_immediate_limits_restored": false,
+          "followup_proof_sha256": "211cddec71284deda3b6945001d541cba06dab09600113b0ea04e26ebfcd0d9d",
+          "followup_exact_restoration_verified": true,
+          "additional_writes": false
+        }
+      }
+    },
+    {
+      "case": "full-window3-gap800-cachedr11encoded500-r1",
+      "kit_revision": "20260928-r11",
+      "report_sha256": "b0525b782f29de76171c48dd20cafd0ba1a546a2f1d3e73464766991059cf448",
+      "records_sha256": "1f543d360c9dbdffffc8b0c561bdcab6430be0ab649e937f18e759f0c1a702d5",
+      "cpu_proof_sha256": "bcdc195b6f4539229cc2777f7128f6a8f72671e510652581f837d403c12e81af",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "record_storage": "encoded",
+      "cycles_requested": 500,
+      "cycles_completed": 500,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 500,
+          "median": 7.034447999999999,
+          "p95": 7.159876,
+          "p99": 7.304168,
+          "max": 7.428236
+        },
+        "prepare_ms": {
+          "count": 500,
+          "median": 0.3509855,
+          "p95": 0.375179,
+          "p99": 0.388683,
+          "max": 0.447245
+        },
+        "inference_ms": {
+          "count": 500,
+          "median": 3.8996905,
+          "p95": 4.060046,
+          "p99": 4.334294,
+          "max": 5.99626
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 500,
+          "median": 15.692525,
+          "p95": 16.026263,
+          "p99": 16.164249,
+          "max": 17.705797
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 500,
+          "median": 18.483337499999998,
+          "p95": 18.813571,
+          "p99": 18.979975,
+          "max": 20.477105
+        },
+        "whole_iteration_ms": {
+          "count": 500,
+          "median": 19.292784,
+          "p95": 19.635258,
+          "p99": 19.941667,
+          "max": 21.330889
+        },
+        "actual_release_interval_ms": {
+          "count": 499,
+          "median": 20.011908,
+          "p95": 20.013476,
+          "p99": 20.042565,
+          "max": 21.38049
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 4,
+      "deadline_miss_cycles": [
+        1,
+        2,
+        176,
+        227
+      ],
+      "last_reply_deadline_misses": 2,
+      "last_reply_miss_cycles": [
+        176,
+        227
+      ],
+      "release_intervals_over_21ms": 1,
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "temporary_max_frequency_khz": 1497600,
+      "cpu_governor_and_frequency_limits_restored": true,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "statistics_scope": "Finite same-boot STOP-proxy diagnostic with actual dual-bus QDD and I2C IMU input plus real inference; not Type1 learned output or loaded standing."
+    },
+    {
+      "case": "full-window3-gap800-cachedr11encoded500-maxfreq1728000-r1",
+      "kit_revision": "20260928-r11",
+      "report_sha256": "7a1466d2e7ed5535f475bafc320d5678a4100061a3a5b3bcabea9c2f9a155c01",
+      "records_sha256": "617d85a521338d9108f10218336b1ce9e33ea21aa2aa711e76cd3a995dbc910d",
+      "cpu_proof_sha256": "d80381a6af889f3be62ad2fa5c8e68a468e3ac510388b930e4ce502d51055d28",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "record_storage": "encoded",
+      "cycles_requested": 500,
+      "cycles_completed": 500,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 500,
+          "median": 7.0093265,
+          "p95": 7.170818,
+          "p99": 7.290117,
+          "max": 7.423368
+        },
+        "prepare_ms": {
+          "count": 500,
+          "median": 0.30488649999999995,
+          "p95": 0.316999,
+          "p99": 0.330343,
+          "max": 0.410474
+        },
+        "inference_ms": {
+          "count": 500,
+          "median": 3.413709,
+          "p95": 3.949337,
+          "p99": 5.051314,
+          "max": 5.998216
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 500,
+          "median": 15.110486,
+          "p95": 15.712612,
+          "p99": 16.802172,
+          "max": 18.10889
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 500,
+          "median": 17.899988999999998,
+          "p95": 18.538852,
+          "p99": 19.581755,
+          "max": 20.952699
+        },
+        "whole_iteration_ms": {
+          "count": 500,
+          "median": 18.6192055,
+          "p95": 19.246068,
+          "p99": 20.330028,
+          "max": 21.634537
+        },
+        "actual_release_interval_ms": {
+          "count": 499,
+          "median": 20.010885,
+          "p95": 20.012516,
+          "p99": 20.382573,
+          "max": 21.701419
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 16,
+      "deadline_miss_cycles": [
+        1,
+        17,
+        18,
+        19,
+        20,
+        21,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        211,
+        214,
+        216,
+        365
+      ],
+      "last_reply_deadline_misses": 2,
+      "last_reply_miss_cycles": [
+        18,
+        20
+      ],
+      "release_intervals_over_21ms": 2,
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "temporary_max_frequency_khz": 1728000,
+      "cpu_governor_and_frequency_limits_restored": true,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "statistics_scope": "Finite same-boot STOP-proxy diagnostic with actual dual-bus QDD and I2C IMU input plus real inference; not Type1 learned output or loaded standing."
+    },
+    {
+      "case": "full-window3-gap800-cachedr13trace500-r1",
+      "kit_revision": "20260928-r13",
+      "report_sha256": "fc3732f9639808f225a1fd30618ed1da3f2a49a8f38cced5e9a95fa2e1983376",
+      "records_sha256": "3832ceffee959e8442e079785d4e0e39ab8a1343e960aa15721d24b0cdda4ca4",
+      "cpu_proof_sha256": "5a48add0e88fc07bd0956e0d10dbc6a914328dda724d78764bce0000edba0e06",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "mode": "stop-proxy",
+      "record_storage": "trace",
+      "cycles_requested": 500,
+      "cycles_completed": 500,
+      "distributions_ms": {
+        "acquisition_ms": {
+          "count": 500,
+          "median": 7.038429000000001,
+          "p95": 7.157537,
+          "p99": 7.297957,
+          "max": 7.43572
+        },
+        "prepare_ms": {
+          "count": 500,
+          "median": 0.36568999999999996,
+          "p95": 0.386282,
+          "p99": 0.397963,
+          "max": 0.508078
+        },
+        "inference_ms": {
+          "count": 500,
+          "median": 3.8136064999999997,
+          "p95": 4.164752,
+          "p99": 5.675129,
+          "max": 6.167046
+        },
+        "oldest_input_to_final_host_write_ms": {
+          "count": 500,
+          "median": 15.667238000000001,
+          "p95": 16.215189,
+          "p99": 17.869826,
+          "max": 18.468946
+        },
+        "oldest_input_to_last_reply_ms": {
+          "count": 500,
+          "median": 18.445889,
+          "p95": 19.004896,
+          "p99": 20.780016,
+          "max": 21.294846
+        },
+        "whole_iteration_ms": {
+          "count": 500,
+          "median": 18.792234,
+          "p95": 19.382634,
+          "p99": 21.121113,
+          "max": 21.640423
+        },
+        "actual_release_interval_ms": {
+          "count": 499,
+          "median": 20.011131,
+          "p95": 20.013724,
+          "p99": 21.183643,
+          "max": 21.672232
+        }
+      },
+      "host_deadline_misses": 0,
+      "iteration_deadline_misses": 16,
+      "deadline_miss_cycles": [
+        1,
+        124,
+        256,
+        263,
+        264,
+        265,
+        266,
+        314,
+        315,
+        316,
+        365,
+        366,
+        367,
+        368,
+        388,
+        416
+      ],
+      "last_reply_deadline_misses": 14,
+      "last_reply_miss_cycles": [
+        124,
+        256,
+        263,
+        264,
+        265,
+        266,
+        314,
+        315,
+        316,
+        365,
+        366,
+        367,
+        368,
+        388
+      ],
+      "release_intervals_over_21ms": 6,
+      "request_gap_us": 800,
+      "request_window": 3,
+      "requests_per_cycle": 24,
+      "temporary_max_frequency_khz": 1497600,
+      "cpu_governor_and_frequency_limits_restored": true,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "approved_for_runtime": false,
+      "full_controller_50Hz_verified": false,
+      "statistics_scope": "Finite same-boot STOP-proxy diagnostic with actual dual-bus QDD and I2C IMU input plus real inference; preallocated trace records. No Type1 learned output or loaded standing."
+    }
+  ],
+  "static_type17_type2_comparison": {
+    "status": "COMPLETE_DIAGNOSTIC",
+    "cycles": 3,
+    "report_sha256": "41c68f417737a21815d9f6f8df6fe3e7445e6e9ae6514d801a4b95483b8b8a88",
+    "all12_all3_direct_static_agree": true,
+    "maximum_position_difference_deg": 0.022745193733629144,
+    "maximum_velocity_difference_rad_s": 0.11808019162618706,
+    "dynamic_scale_validated": false
+  },
+  "temporary_cpu_performance": {
+    "temporary-performance-r1.json": {
+      "elapsed_ms": 3922.338287,
+      "restored": true,
+      "errors": [],
+      "frequency_limits_changed": false
+    },
+    "temporary-performance-r2.json": {
+      "elapsed_ms": 4629.456017,
+      "restored": true,
+      "errors": [],
+      "frequency_limits_changed": false
+    },
+    "temporary-performance-r3.json": {
+      "elapsed_ms": 4625.798358,
+      "restored": true,
+      "errors": [],
+      "frequency_limits_changed": false
+    }
+  },
+  "software_regression": {
+    "flow_integration_and_cli_tests_passed": 52,
+    "input_buffer_tests_passed": 53,
+    "saved_frames_each_h_hypothesis": 183,
+    "h_hypotheses": [
+      0,
+      1
+    ],
+    "model_outputs_and_state_exact": true,
+    "r7_scoped_integration_tests_passed": 73,
+    "r7_scoped_integration_status": "PASS",
+    "r7_scoped_integration_log_sha256": "4a07193b6cb5e09f645b34925e2c0e9d595f2c451b66d570d5cd100473eafd94",
+    "worker_prestart_hardware_free": true,
+    "worker_prestart_and_bounded_failure_cleanup_tested": true,
+    "v2_transport_scoped_integration": {
+      "tests_run": 282,
+      "status": "PASS",
+      "hardware_opened": false,
+      "source_kind": "Transcription of observed tool output, not redirected raw test log",
+      "transcript_sha256": "f0e41678629fab2ca81471c7fe8d4c5e3dc5c372799f23cb1034d1516cfba727"
+    },
+    "v2_profile_hash_parity_focused": {
+      "tests_run": 31,
+      "status": "PASS",
+      "source_kind": "Separate focused test result reported by delegated software audit",
+      "overlaps_282_integration_suite": true,
+      "counts_are_not_added": true
+    },
+    "applied_v3_cadence_scoped_integration": {
+      "tests_run": 208,
+      "status": "PASS",
+      "exit_code": 0,
+      "reported_duration_s": 14.315,
+      "source_kind": "Exact merged process stdout and stderr captured after guarded application to current repository",
+      "log_sha256": "90ad8a567617c9b7bb8f3a66e11dd83d0ffcbb97380adfee439594665338877c",
+      "result_json_sha256": "326617ff7facc9dc016a801d8e09940db02fbff6e1c3d974942e9beda76936e8",
+      "patch_sha256": "cbe4869443e1b5614ea57eb8d9e4045d2513a5f2a4c6d13114550975cbec7418",
+      "changed_sources_sha256": {
+        "runtime/singularitydog_hw/ground_trial_output.py": "5a4cc3e937def4885af0e012c83dd8331cd4ecec787bac5505c5e31193686c83",
+        "runtime/singularitydog_hw/ground_trial_review.py": "ea47c1317186f8e638891d0557f80d5e881ca44235314ee0221cfe59ba3dc83f",
+        "runtime/singularitydog_hw/policy_live_profile.py": "5b175ac865a8abaef75b63636a1503c64f0098756eafdc29e1047829c4ee18c8",
+        "runtime/singularitydog_hw/policy_output.py": "4ff1f40f533211b48d1c0b3974d2c69edf4cf26d0d7c4e6de09b9a4522d29f20",
+        "runtime/singularitydog_hw/policy_output_runtime.py": "2b32747fa4939b7856327ee7b6a7f2db9955bd52deb7922530abfc9f194c9eff",
+        "runtime/tests/test_policy_output_runtime.py": "5dec20c1a5d6387d6a45f09514bd9eb262a61edb444b40d6b2af4cfff353b597",
+        "runtime/tests/test_policy_telemetry_cadence.py": "a26d5d3b9f8f55c7cd381cc7e3eef02903aaf2a7fb2cc94f3abfeac3da5f8f2a",
+        "tools/offline_policy_output_smoke.py": "a5802e4e7d0e7fc9895341179b8691499c5c364d948ccac67f51f5c494d78f5b",
+        "tools/prepare_supported_profile.py": "6daa3abe0a209e66670923c13bf1972e86e0a26e7c9d3d26a5e0ff6491c0bcdc",
+        "tools/test_prepare_supported_profile.py": "c22a3064a4885367fd8950d2a31abcb6186547052edcc71ea92ce8f0795b5490"
+      },
+      "changed_sources_unchanged_during_tests": true,
+      "new_cadence_tests_included": 17,
+      "new_prepare_tests_included": 2,
+      "overlaps_prior_integration_and_focused_tests": true,
+      "counts_are_not_added": true,
+      "hardware_opened": false,
+      "actual_26_request_cycle_measured": false,
+      "production_profile_approved": false,
+      "command": "python3 -m unittest test_policy_output_runtime test_policy_live_profile test_policy_output_cli test_ground_trial_review test_ground_trial_output test_ground_trial_plan test_policy_telemetry_cadence test_prepare_supported_profile -v"
+    },
+    "r9_setup_gc_cli": {
+      "tests_run": 58,
+      "status": "PASS",
+      "reported_duration_s": 0.643,
+      "log_sha256": "4fea0c2b6cad8f4b318567152548e85b6457f6e9c1b8d6571d0fdaff21c65b61",
+      "source_kind": "Exact process test output",
+      "hardware_opened": false,
+      "not_disjoint_from_prior_suites": true,
+      "counts_are_not_added": true
+    },
+    "r9_observer_copy_focused": {
+      "tests_run": 50,
+      "status": "PASS",
+      "reported_duration_s": 3.147,
+      "failures": 0,
+      "skipped": 0,
+      "modules": [
+        "test_policy_observer",
+        "test_policy_observer_buffers",
+        "test_policy_observer_saved_buffers",
+        "test_event_snapshot"
+      ],
+      "proof_sha256": "03dc780198d697e67897b44a54162ef02de1e24092ce8dc7a97e68727d6deefa",
+      "source_kind": "Embedded test result metadata, not a separate captured log",
+      "hardware_opened": false,
+      "not_disjoint_from_prior_suites": true,
+      "counts_are_not_added": true
+    },
+    "r13_local_targeted_tests_passed": 63,
+    "r13_frozen_jetson_kit_tests_passed": 61,
+    "r13_private_launch_offline_tests_passed": 9
+  },
+  "deployed_source_sha256": {
+    "runtime/singularitydog_hw/native_pipeline_benchmark.py": "8a161a2948c68f5608174096041130e36bd06aa1233a5d5cfd1c1460854d4335",
+    "runtime/singularitydog_hw/policy_observer.py": "7d13db2764c13e93e150bc5a2c5d7a91f2c9e30d15a9eba63e4cad5f857697d4",
+    "runtime/experiments/native_transport/transport.cpp": "385d2263555e57970aeafe1b00b0815c41ebc0c255eab572be36c1ec71f067da"
+  },
+  "motor_enable_sent": false,
+  "learned_targets_sent": false,
+  "actual_type1_output_tested": false,
+  "physical_can_bitrate_verified": false,
+  "all_iteration_20ms_verified": false,
+  "profile_approved_for_runtime": false,
+  "raw_data_public": false,
+  "next": [
+    "Investigate the measured model-call bursts on saved inputs with exact target/actor/observation/state parity; reduce p99/max before another finite integrated comparison.",
+    "Keep 0.8ms/3-window CAN pacing and STOP/response checks. Trace reduced the post-reply median, but R13 still missed 16 of 500 whole-cycle deadlines.",
+    "Do not adopt GC deferral, one-core whole-process affinity, 0.7ms gap, or 1,728,000kHz CPU max from incomplete or worse finite comparisons.",
+    "After angle/IMU/watchdog physical review and fresh source-bound profile review, measure actual 26-request V3 or 28-request V2 Type1 output separately from this 24-request STOP proxy."
+  ],
+  "temporary_cpu_performance_r7": {
+    "temporary-performance-r1.json": {
+      "proof_sha256": "e31e4e2febcc8e3b78f76d1189c33959757dee4c2c8da90ed8719f1b5edfed6b",
+      "elapsed_ms": 6316.661272,
+      "restored": true,
+      "errors": [],
+      "frequency_limits_changed": false,
+      "exit_code": 0,
+      "policies": [
+        {
+          "policy": "policy0",
+          "governor_before": "schedutil",
+          "governor_during": "performance",
+          "governor_after": "schedutil",
+          "min_frequency_khz": 729600,
+          "max_frequency_khz": 1497600,
+          "limits_unchanged": true
+        },
+        {
+          "policy": "policy4",
+          "governor_before": "schedutil",
+          "governor_during": "performance",
+          "governor_after": "schedutil",
+          "min_frequency_khz": 729600,
+          "max_frequency_khz": 1497600,
+          "limits_unchanged": true
+        }
+      ]
+    },
+    "temporary-performance-r2.json": {
+      "proof_sha256": "6080ea8e80fd0e258c052d99acff3833b44633791f960ce7da9832fd63400d05",
+      "elapsed_ms": 4772.273656,
+      "restored": true,
+      "errors": [],
+      "frequency_limits_changed": false,
+      "exit_code": 2,
+      "policies": [
+        {
+          "policy": "policy0",
+          "governor_before": "schedutil",
+          "governor_during": "performance",
+          "governor_after": "schedutil",
+          "min_frequency_khz": 729600,
+          "max_frequency_khz": 1497600,
+          "limits_unchanged": true
+        },
+        {
+          "policy": "policy4",
+          "governor_before": "schedutil",
+          "governor_during": "performance",
+          "governor_after": "schedutil",
+          "min_frequency_khz": 729600,
+          "max_frequency_khz": 1497600,
+          "limits_unchanged": true
+        }
+      ]
+    }
+  },
+  "deployed_source_history": {
+    "20260928-r6": {
+      "runtime/singularitydog_hw/native_pipeline_benchmark.py": "e18490b170df388f3c36ccf318ef14700c3b0f7e873b98319a6d2b70f6a7b1f4",
+      "runtime/singularitydog_hw/policy_observer.py": "db60e7e01570710cc84ad85395eb90ea8b16f394e4f4f8aee011a6449026bf12",
+      "runtime/experiments/native_transport/transport.cpp": "385d2263555e57970aeafe1b00b0815c41ebc0c255eab572be36c1ec71f067da"
+    },
+    "20260928-r7": {
+      "runtime/singularitydog_hw/native_pipeline_benchmark.py": "f87ca47c679388db036ca6ed2ad86f9de8e9db59f73a3c9d288214ca767e0782",
+      "runtime/singularitydog_hw/policy_observer.py": "db60e7e01570710cc84ad85395eb90ea8b16f394e4f4f8aee011a6449026bf12",
+      "runtime/experiments/native_transport/transport.cpp": "385d2263555e57970aeafe1b00b0815c41ebc0c255eab572be36c1ec71f067da"
+    }
+  },
+  "latest_kit_revision": "20260928-r13",
+  "r7_packaging": {
+    "archive_sha256": "19ee96fb03a1bb734229c49e5a787c289f451f8e89c9919ceb102d5e319e01b8",
+    "manifest_sha256": "d0515721de838fa84337d1028dae8314754779aaf41de5c06eeb0b3d7ca03552",
+    "manifest_file_count": 376,
+    "binaries_shipped": false,
+    "hardware_accessed_during_packaging": false,
+    "profiles_approved": false
+  },
+  "latest_result": {
+    "comparison_baseline": "20260928-r13/full-window3-gap800-cachedr13trace500-r1",
+    "comparison_baseline_cycles": 500,
+    "all_requested_cycles_complete": true,
+    "host_deadline_misses": 0,
+    "last_reply_deadline_misses": 14,
+    "iteration_deadline_misses": 16,
+    "release_intervals_over_21ms": 6,
+    "all_iteration_20ms_verified": false,
+    "full_controller_50Hz_verified": false,
+    "timer_slack_ns": 1000,
+    "request_gap_us": 800,
+    "request_window": 3,
+    "requests_per_cycle": 24,
+    "setup_gc_before_warmup": true,
+    "runtime_gc_kept_enabled": true,
+    "view_cache_diagnostic_variant": true,
+    "preallocated_trace_diagnostic": true,
+    "whole_iteration_median_ms": 18.792234,
+    "whole_iteration_max_ms": 21.640423,
+    "host_median_ms": 15.667238000000001,
+    "host_max_ms": 18.468946,
+    "last_reply_median_ms": 18.445889,
+    "last_reply_max_ms": 21.294846,
+    "inference_median_ms": 3.8136064999999997,
+    "inference_max_ms": 6.167046,
+    "deadline_miss_cycles": [
+      1,
+      124,
+      256,
+      263,
+      264,
+      265,
+      266,
+      314,
+      315,
+      316,
+      365,
+      366,
+      367,
+      368,
+      388,
+      416
+    ],
+    "actual_type1_output_tested": false,
+    "actual_26_request_cycle_measured": false,
+    "actual_28_request_cycle_measured": false,
+    "profile_approved_for_runtime": false,
+    "scope": "Latest source-bound 24-request STOP-proxy comparison. Full 500 cycles completed but 16 iteration deadlines missed; Type1 26/28 requests and loaded standing remain untested."
+  },
+  "r7_pacing_breakdown": {
+    "source_sha256": "5a16f28b015aaa8ec3cd2adc91e9394416ed51b33b96fc9e26f7afa5f693195f",
+    "scope": "completed exchanges; missing-reply failure kept separately in original records",
+    "cases": [
+      {
+        "case": "full-window3-gap800-performance-r1",
+        "records_sha256": "ca9cb49435c20f78442306012bff65e0bee9d7c5619f00d96c6cd1dad3b464d9",
+        "actual_finish_to_next_start_gap_median_ms": 0.858391,
+        "gap_max_ms": 1.067805,
+        "latest_reply_after_final_write_median_ms": 2.7702025,
+        "longest_reply_wait": {
+          "cycle": 34,
+          "phase": "output",
+          "bus": "rear",
+          "last_reply_wait_ms": 6.233544
+        }
+      },
+      {
+        "case": "full-window3-gap700-performance-r1",
+        "records_sha256": "cb8c5dc029c82fcfa1f1a0a1ebe1012fc8c93fd749ef018792b6bc06192512ac",
+        "actual_finish_to_next_start_gap_median_ms": 0.75999,
+        "gap_max_ms": 0.860217,
+        "latest_reply_after_final_write_median_ms": 2.775184,
+        "longest_reply_wait": {
+          "cycle": 1,
+          "phase": "output",
+          "bus": "front",
+          "last_reply_wait_ms": 2.938868
+        }
+      }
+    ]
+  },
+  "file_only_native_context_comparison": {
+    "scope": "Exact saved-input inference replay only; no acquisition, freshness, output, whole-pipeline GC diagnosis or full-cycle claim.",
+    "hardware_opened": false,
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "approved_for_runtime": false,
+    "full_controller_50Hz_verified": false,
+    "saved_input_replay": {
+      "report_sha256": "476914578b3295b78a1cc0785965c2abbeb6fb00054a2a706f358bd9ed936216",
+      "saved_frames_per_trial": 20,
+      "trials": 6,
+      "forward_calls": 120,
+      "exact_saved_outputs_and_cross_trial_final_named_buffers_parity": true,
+      "conditions": [
+        {
+          "deliberate_idle_ms": 0.0,
+          "calls": 20,
+          "forward_wall_median_ms": 2.826991,
+          "forward_wall_max_ms": 3.292841,
+          "thread_cpu_for_maximum_wall_ms": 3.13888
+        },
+        {
+          "deliberate_idle_ms": 15.0,
+          "calls": 20,
+          "forward_wall_median_ms": 3.0192,
+          "forward_wall_max_ms": 4.852885,
+          "thread_cpu_for_maximum_wall_ms": 4.722752
+        },
+        {
+          "deliberate_idle_ms": 15.0,
+          "calls": 20,
+          "forward_wall_median_ms": 3.012655,
+          "forward_wall_max_ms": 3.15366,
+          "thread_cpu_for_maximum_wall_ms": 3.046624
+        },
+        {
+          "deliberate_idle_ms": 0.0,
+          "calls": 20,
+          "forward_wall_median_ms": 2.852017,
+          "forward_wall_max_ms": 3.095958,
+          "thread_cpu_for_maximum_wall_ms": 3.04864
+        },
+        {
+          "deliberate_idle_ms": 0.0,
+          "calls": 20,
+          "forward_wall_median_ms": 2.8371985,
+          "forward_wall_max_ms": 4.730249,
+          "thread_cpu_for_maximum_wall_ms": 4.562272
+        },
+        {
+          "deliberate_idle_ms": 15.0,
+          "calls": 20,
+          "forward_wall_median_ms": 3.0323045,
+          "forward_wall_max_ms": 3.408082,
+          "thread_cpu_for_maximum_wall_ms": 3.15184
+        }
+      ]
+    },
+    "gc_comparison": {
+      "summary_sha256": "f0625b306844c56490eec8b02b0b90cbc0fc1ccba1dee98f616478addfd04aa1",
+      "adopt_gc_defer": false,
+      "runtime_gc_disable_adopted": false,
+      "results": {
+        "observe": {
+          "source_sha256": "9bba41401ecd6853e04af8ae217514fd08aaf9c4a47bace77a90cb97fa9c825b",
+          "automatic_gc_events": 0,
+          "gc_state_restored": true,
+          "conditions": {
+            "0.0": {
+              "calls": 60,
+              "forward_median_ms": 2.808365,
+              "forward_max_ms": 4.336594,
+              "gc_overlap_calls": 0
+            },
+            "15.0": {
+              "calls": 60,
+              "forward_median_ms": 3.012616,
+              "forward_max_ms": 4.32517,
+              "gc_overlap_calls": 0
+            }
+          }
+        },
+        "defer": {
+          "source_sha256": "df5a5673f5c108976e7d1100818d2629b2fe36f3cdf5190acbd876327a5827b7",
+          "automatic_gc_events": 0,
+          "gc_state_restored": true,
+          "conditions": {
+            "0.0": {
+              "calls": 60,
+              "forward_median_ms": 2.876381,
+              "forward_max_ms": 4.267081,
+              "gc_overlap_calls": 0
+            },
+            "15.0": {
+              "calls": 60,
+              "forward_median_ms": 3.0854645,
+              "forward_max_ms": 5.046163,
+              "gc_overlap_calls": 0
+            }
+          }
+        }
+      },
+      "whole_pipeline_gc_cause_verified": false
+    },
+    "temporary_cpu_proofs": {
+      "native-context-replay-performance-r1": {
+        "proof_sha256": "1eb86a94b1976538457aefad9c977f1d0aecd9289f20ed31ebda6047692ffed0",
+        "restored": true,
+        "errors": [],
+        "frequency_limits_changed": false,
+        "frequency_limits_restored": true,
+        "exit_code": 0,
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      },
+      "native-context-gc-observe-performance-r1": {
+        "proof_sha256": "53285d0dca23b1da6b562025bd04b096bceb682ecda8096381a313b5a9b988af",
+        "restored": true,
+        "errors": [],
+        "frequency_limits_changed": false,
+        "frequency_limits_restored": true,
+        "exit_code": 0,
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      },
+      "native-context-gc-defer-performance-r1": {
+        "proof_sha256": "03d9b49d872d6f65d1f705e1fc4306051f6f8941c5379a3ef6a9f8b9cb89fb1f",
+        "restored": true,
+        "errors": [],
+        "frequency_limits_changed": false,
+        "frequency_limits_restored": true,
+        "exit_code": 0,
+        "policies": [
+          {
+            "policy": "policy0",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          },
+          {
+            "policy": "policy4",
+            "governor_before": "schedutil",
+            "governor_during": "performance",
+            "governor_after": "schedutil",
+            "min_frequency_khz": 729600,
+            "max_frequency_khz": 1497600,
+            "limits_unchanged": true
+          }
+        ]
+      }
+    }
+  },
+  "v2_transport_profile": {
+    "schema": "singularitydog.supported-policy-profile.v2",
+    "explicit_reviewed_fields": [
+      "request_gap_us",
+      "request_window"
+    ],
+    "pacing_bound_to_settings_sha256": true,
+    "cli_override_must_match_before_hardware_setup": true,
+    "normal_and_emergency_stop_same_gap": true,
+    "legacy_v1_settings_hash_unchanged": true,
+    "unapproved_template_defaults": {
+      "request_gap_us": 600,
+      "request_window": 3
+    },
+    "diagnostic_pacing_auto_adopted": false,
+    "profile_approved_for_runtime": false
+  },
+  "whole_pipeline_gc_comparison": {
+    "scope": "Finite100-cycle STOP proxy with gap800/window3, timer slack1000ns and temporary performance CPU; no actual learned targets.",
+    "conditions": [
+      {
+        "case": "full-window3-gap800-timer-gcobserve100-r1",
+        "report_sha256": "95f6bab2bec069e1802a3bb1fdd5cee5aac26d6cc8d537b9a198a48c32cdf1b9",
+        "whole_iteration_ms": {
+          "count": 100,
+          "median": 18.884945000000002,
+          "p95": 19.495405,
+          "p99": 20.94571,
+          "max": 21.946331
+        },
+        "gc_observation": {
+          "policy": "observe",
+          "proof_sha256": "343be171c492dcceb4741c2ac31cb441e9d48b8270376ed2a36857a814df2f8b",
+          "event_markers": 22,
+          "collections": 11,
+          "generation_counts": {
+            "0": 11
+          },
+          "collection_duration_min_ms": 0.176008,
+          "collection_duration_max_ms": 0.226506,
+          "cycles_overlapping_gc": [
+            3,
+            12,
+            21,
+            30,
+            39,
+            48,
+            57,
+            66,
+            75,
+            84,
+            93
+          ],
+          "deadline_miss_cycles": [
+            1,
+            6,
+            24
+          ],
+          "deadline_misses_overlapping_gc": [],
+          "original_enabled": true,
+          "gc_state_restored": true,
+          "precollection_outside_measured_cycles": true,
+          "runtime_gc_disable_adopted": false,
+          "causal_improvement_verified": false
+        },
+        "inference_max_ms": 6.861973
+      },
+      {
+        "case": "full-window3-gap800-timer-gcdefer100-r1",
+        "report_sha256": "00f8ae059aeeea9691ca2e6667a2bcfa6ecd3d5f14f4d53baa7264b5b881affe",
+        "whole_iteration_ms": {
+          "count": 100,
+          "median": 19.072732000000002,
+          "p95": 19.288758,
+          "p99": 19.438908,
+          "max": 21.460406
+        },
+        "gc_observation": {
+          "policy": "defer",
+          "proof_sha256": "abcc19a1a702a6763db0f8183ad449ce916c4cfdb393c94e5b187835b3c6739a",
+          "event_markers": 0,
+          "collections": 0,
+          "generation_counts": {},
+          "collection_duration_min_ms": null,
+          "collection_duration_max_ms": null,
+          "cycles_overlapping_gc": [],
+          "deadline_miss_cycles": [
+            1
+          ],
+          "deadline_misses_overlapping_gc": [],
+          "original_enabled": true,
+          "gc_state_restored": true,
+          "precollection_outside_measured_cycles": true,
+          "runtime_gc_disable_adopted": false,
+          "causal_improvement_verified": false
+        },
+        "inference_max_ms": 6.099758
+      }
+    ],
+    "both_requested_runs_complete": true,
+    "runtime_gc_disable_adopted": false,
+    "causal_improvement_verified": false,
+    "conclusion": "Observe misses1/6/24 did not overlap GC; defer retained first-cycle inference miss. No claim that GC deferral achieves all-cycle20ms."
+  },
+  "file_only_native_view_cache_comparison": {
+    "manifest_comparison_sha256": "1dca46f5e531da20fa43de40a1e399508c3b9479cd84da23826275646054b5f1",
+    "scope": "CPU forward only; body includes input fill and owned evidence capture; no acquisition/output/full-cycle claim",
+    "status": "PASS_FILE_ONLY_COMPARE",
+    "hardware_opened": false,
+    "approved_for_runtime": false,
+    "live_50hz_verified": false,
+    "default_adopted": false,
+    "saved_stateful_calls_per_model": 120,
+    "synthetic_frames": 240,
+    "rejection_cases_checked": 26,
+    "timed_outputs_and_final_state_exact": true,
+    "saved_reload_exact": true,
+    "original_ast_exact_after_inverse_view_substitution": true,
+    "summaries": {
+      "baseline": {
+        "wall_ns": {
+          "count": 120,
+          "median_ms": 2.71111,
+          "p95_ms": 2.917407,
+          "max_ms": 5.988485
+        },
+        "thread_cpu_ns": {
+          "count": 120,
+          "median_ms": 2.688336,
+          "p95_ms": 2.898976,
+          "max_ms": 4.616288
+        },
+        "wall_minus_thread_cpu_ns": {
+          "count": 120,
+          "median_ms": 0.025206,
+          "p95_ms": 0.051704,
+          "max_ms": 1.372197
+        }
+      },
+      "cached_views": {
+        "wall_ns": {
+          "count": 120,
+          "median_ms": 2.571104,
+          "p95_ms": 2.6685,
+          "max_ms": 2.71647
+        },
+        "thread_cpu_ns": {
+          "count": 120,
+          "median_ms": 2.551824,
+          "p95_ms": 2.632896,
+          "max_ms": 2.679776
+        },
+        "wall_minus_thread_cpu_ns": {
+          "count": 120,
+          "median_ms": 0.0205445,
+          "p95_ms": 0.05087,
+          "max_ms": 0.116853
+        }
+      }
+    },
+    "temporary_cpu_proof": {
+      "proof_sha256": "fdf6e14847892d1fb28da80df21b9fe3026dc7e4e2cd380cb84a0ba62ef76dd5",
+      "restored": true,
+      "frequency_limits_restored": true,
+      "frequency_limits_changed": false,
+      "exit_code": 0,
+      "errors": [],
+      "policies": [
+        {
+          "policy": "policy0",
+          "governor_before": "schedutil",
+          "governor_during": "performance",
+          "governor_after": "schedutil",
+          "min_frequency_khz": 729600,
+          "max_frequency_khz": 1497600,
+          "limits_unchanged": true
+        },
+        {
+          "policy": "policy4",
+          "governor_before": "schedutil",
+          "governor_during": "performance",
+          "governor_after": "schedutil",
+          "min_frequency_khz": 729600,
+          "max_frequency_khz": 1497600,
+          "limits_unchanged": true
+        }
+      ]
+    }
+  },
+  "optional_v3_telemetry_cadence": {
+    "schema": "singularitydog.supported-policy-profile.v3",
+    "implementation_status": "SOFTWARE_IMPLEMENTED_AND_TESTED_ONLY",
+    "selection": "Explicit --profile-schema or --template-schema; default remains V2",
+    "cadence": "feedback_voltage_pre_enable_timeout.v1",
+    "default_profile_schema": "singularitydog.supported-policy-profile.v2",
+    "v1_v2_requests_per_cycle": 28,
+    "v3_requests_per_cycle": 26,
+    "v3_acquisition_requests_per_bus": 7,
+    "v3_output_requests_per_bus": 6,
+    "all_axis_feedback_on_acquisition_and_output": true,
+    "voltage_requests_per_bus_per_cycle": 1,
+    "voltage_rotation_length_cycles": 6,
+    "initial_all_12_timeout_write_and_readback": true,
+    "after_announcement_all_12_timeout_readback": true,
+    "timeout_recheck_before_final_pose_and_imu": true,
+    "timeout_parameter_drift_monitored_during_cycles": false,
+    "timeout_change_during_announcement_rejected_before_enable": true,
+    "all_axis_feedback_mode_fault_angle_velocity_torque_temperature_freshness_tracking_range_checks_preserved": true,
+    "stop_reply_confirmation_preserved": true,
+    "post_stop_timeout_parameter_readback": false,
+    "cadence_and_9_source_pins_bound_to_reviewed_settings_hash": true,
+    "stale_or_missing_cadence_source_pins_rejected_in_plan": true,
+    "v2_approval_reusable_for_v3": false,
+    "kit_native_binary_model_and_ground_profile_hash_checks_separately_required": true,
+    "cadence_source_sha256": {
+      "singularitydog_hw/policy_live_profile.py": "5b175ac865a8abaef75b63636a1503c64f0098756eafdc29e1047829c4ee18c8",
+      "singularitydog_hw/policy_output.py": "4ff1f40f533211b48d1c0b3974d2c69edf4cf26d0d7c4e6de09b9a4522d29f20",
+      "singularitydog_hw/policy_output_runtime.py": "2b32747fa4939b7856327ee7b6a7f2db9955bd52deb7922530abfc9f194c9eff",
+      "singularitydog_hw/ground_trial_output.py": "5a4cc3e937def4885af0e012c83dd8331cd4ecec787bac5505c5e31193686c83",
+      "singularitydog_hw/ground_trial_review.py": "ea47c1317186f8e638891d0557f80d5e881ca44235314ee0221cfe59ba3dc83f",
+      "singularitydog_hw/native_active_transport.py": "75468d9fbfc4a7d0dfb5dd13c3ed6631724721e50421ef5fc1e4480072c79242",
+      "singularitydog_hw/can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+      "singularitydog_hw/rs05_trial_protocol.py": "7119678fa75b8c6ae7b38ccc8a9063e62398c92a48675d9f8847a6057a024dc4",
+      "experiments/native_active_transport/transport.cpp": "362bd3169ebb3b13cc87988ef07ba0a33bb3bd8dfd4b1c6e9fbd3ed879c9cca9"
+    },
+    "unapproved_template_pacing_defaults": {
+      "request_gap_us": 600,
+      "request_window": 3
+    },
+    "pacing_auto_adopted": false,
+    "actual_26_request_hardware_cycle_measured": false,
+    "actual_type1_learned_output_tested": false,
+    "profile_approved_for_runtime": false,
+    "runtime_adoption_automatic": false,
+    "scope_limit": "Cyclic static timeout-parameter drift polling is intentionally removed only for opt-in V3. Physical command-loss and USB-loss stop evidence remains required. Software request-count reduction is not measured hardware latency reduction."
+  },
+  "latest_result_history": [
+    {
+      "kit_revision": "20260928-r7",
+      "result": {
+        "comparison_baseline": "20260928-r7/full-window3-gap800-timer-slack100-r1",
+        "comparison_baseline_cycles": 100,
+        "all_requested_cycles_complete": true,
+        "host_deadline_misses": 0,
+        "iteration_deadline_misses": 2,
+        "release_intervals_over_21ms": 1,
+        "all_iteration_20ms_verified": false,
+        "gap700_selected": false,
+        "gap700_completed_cycles_before_abort": 23,
+        "gap700_failure_phase": "rear CAN acquisition",
+        "gap700_missing_motor_ids": [
+          9
+        ],
+        "gap700_cause_identified": false,
+        "actual_type1_output_tested": false,
+        "previous_comparison_baseline": "20260928-r7/full-window3-gap800-performance-r1",
+        "last_reply_deadline_misses": 0,
+        "timer_slack_ns": 1000,
+        "timer_setting_is_finite_comparison_only": true,
+        "maximum_cycle_detail": {
+          "cycle": 34,
+          "whole_iteration_ms": 22.218152,
+          "oldest_input_to_last_reply_ms": 18.611072,
+          "release_to_oldest_input_start_ms": 0.165736,
+          "last_reply_to_cycle_end_ms": 3.441344,
+          "scope": "Host-side collection, handoff and post-reply checks are included; internal cause not established."
+        },
+        "first_cycle_detail": {
+          "cycle": 1,
+          "whole_iteration_ms": 20.052995,
+          "inference_ms": 5.069483
+        },
+        "additional_gc_comparisons_complete": true,
+        "comparison_baseline_not_gc_deferral_selected": true
+      }
+    },
+    {
+      "kit_revision": "20260928-r9",
+      "result": {
+        "comparison_baseline": "20260928-r9/full-window3-gap800-cachedr9public500-r1",
+        "comparison_baseline_cycles": 500,
+        "all_requested_cycles_complete": true,
+        "host_deadline_misses": 0,
+        "last_reply_deadline_misses": 10,
+        "iteration_deadline_misses": 10,
+        "release_intervals_over_21ms": 4,
+        "all_iteration_20ms_verified": false,
+        "full_controller_50Hz_verified": false,
+        "timer_slack_ns": 1000,
+        "request_gap_us": 800,
+        "request_window": 3,
+        "requests_per_cycle": 24,
+        "setup_gc_before_warmup": true,
+        "runtime_gc_kept_enabled": true,
+        "view_cache_diagnostic_variant": true,
+        "periodic_copy_reduction_deployed": true,
+        "whole_iteration_median_ms": 18.7398695,
+        "whole_iteration_max_ms": 21.040574,
+        "host_median_ms": 15.7099815,
+        "host_max_ms": 18.003902,
+        "last_reply_median_ms": 18.499048,
+        "last_reply_max_ms": 20.779545,
+        "inference_median_ms": 3.821281,
+        "inference_max_ms": 6.076257,
+        "deadline_miss_cycles": [
+          76,
+          94,
+          95,
+          145,
+          157,
+          235,
+          313,
+          391,
+          452,
+          469
+        ],
+        "periodicity_is_cause_proof": false,
+        "r9_miss_cause_confirmed": false,
+        "r8_setup_gc_100_all_whole_cycles_under20": true,
+        "r8_setup_gc_500_iteration_misses": 8,
+        "r8_gc_deferred_500_iteration_misses": 20,
+        "r8_affinity_500_iteration_misses": 500,
+        "gc_deferral_adopted": false,
+        "cpu_affinity_adopted": false,
+        "gap700_selected": false,
+        "actual_type1_output_tested": false,
+        "actual_26_request_cycle_measured": false,
+        "actual_28_request_cycle_measured": false,
+        "profile_approved_for_runtime": false,
+        "scope": "Latest public-code candidate, finite STOP proxy; 100-cycle setup-GC success did not extend to 500-cycle success. R9 inference tails are not yet attributed to compute vs GC/scheduling.",
+        "r9_instrumented500_gc_cause_observed": true,
+        "r9_instrumented_case_is_representative_timing": false
+      }
+    },
+    {
+      "kit_revision": "20260928-r10",
+      "result": {
+        "comparison_baseline": "20260928-r10/full-window3-gap800-cachedr10public500-r1",
+        "comparison_baseline_cycles": 500,
+        "all_requested_cycles_complete": true,
+        "host_deadline_misses": 0,
+        "last_reply_deadline_misses": 0,
+        "iteration_deadline_misses": 4,
+        "release_intervals_over_21ms": 4,
+        "all_iteration_20ms_verified": false,
+        "full_controller_50Hz_verified": false,
+        "timer_slack_ns": 1000,
+        "request_gap_us": 800,
+        "request_window": 3,
+        "requests_per_cycle": 24,
+        "setup_gc_before_warmup": true,
+        "runtime_gc_kept_enabled": true,
+        "view_cache_diagnostic_variant": true,
+        "noncyclic_event_copy_deployed": true,
+        "whole_iteration_median_ms": 18.806924000000002,
+        "whole_iteration_max_ms": 22.341728,
+        "host_median_ms": 15.776254,
+        "host_max_ms": 16.59187,
+        "last_reply_median_ms": 18.5563435,
+        "last_reply_max_ms": 19.378426,
+        "inference_median_ms": 3.915231,
+        "inference_max_ms": 4.726146,
+        "deadline_miss_cycles": [
+          112,
+          231,
+          350,
+          469
+        ],
+        "periodicity_is_cause_proof": false,
+        "post_reply_retention_is_hypothesis_not_proven_cause": true,
+        "actual_type1_output_tested": false,
+        "actual_26_request_cycle_measured": false,
+        "actual_28_request_cycle_measured": false,
+        "profile_approved_for_runtime": false,
+        "scope": "Latest ordinary-frequency public-code candidate, finite 24-request STOP proxy. All host writes and replies under20ms, four whole-iteration misses. 26/28-request Type1 and continuous controller untested."
+      }
+    }
+  ],
+  "r9_packaging": {
+    "revision": "20260928-r9-setup-gc-copy-and-optional-telemetry-cadence",
+    "archive_sha256": "419711dbe944e6aea8ccca56fa55306a1a81e00f98f4f4b95cee2d1872189177",
+    "manifest_sha256": "9576e257b8df8291a88c2d6bc7138b38808b4398b636a2c04276f2749f4da65a",
+    "manifest_file_count": 386,
+    "packaging_proof_sha256": "935406fac178f13d86d0653b2d317737b52e0e74252509d455eec9c1fde589ba",
+    "deployed_diagnostic_source_sha256": {
+      "runtime/singularitydog_hw/native_pipeline_benchmark.py": "6e747c4c74de2c170a67fbdf0f8feb57ffc0cbbee362fdfed540274b6f01ca53",
+      "runtime/singularitydog_hw/policy_observer.py": "7d13db2764c13e93e150bc5a2c5d7a91f2c9e30d15a9eba63e4cad5f857697d4"
+    },
+    "profiles_approved": false,
+    "binaries_shipped": false,
+    "docs_snapshot_predates_this_aggregate_update": true
+  },
+  "file_only_observer_copy_reduction": {
+    "proof_sha256": "03dc780198d697e67897b44a54162ef02de1e24092ce8dc7a97e68727d6deefa",
+    "status": "PASS_FILE_ONLY_PARITY",
+    "scope": {
+      "canonical_snapshot_sha_every_tick": true,
+      "current_paths": [
+        "regular_tensor_inputs",
+        "reused_input_buffers"
+      ],
+      "frames_each": 183,
+      "full_record_equality": true,
+      "hypotheses": [
+        0,
+        1
+      ],
+      "legacy_static_copy_fallback": "fixed constructor selection for oversized strings/numeric keys/depth beyond bounded event copier",
+      "named_model_parameters_and_buffers_exact_after_every_call": true,
+      "new_static_bound_validation": false,
+      "original_model_call_timestamps_preserved": true,
+      "original_saved_h0_target_exact": true,
+      "profile_clock": "deterministic equal injected clocks; not wall-clock performance evidence",
+      "rejection_reason_and_full_failure_profile_exact": true,
+      "reset_once_per_sequence": true,
+      "saved_snapshot_rejection_sequences": 20,
+      "source_intervals": "harness-generated; explicitly flagged in every record",
+      "state_comparisons": 772
+    },
+    "state_errors_all_zero": true,
+    "hardware_opened": false,
+    "jetson_timing_verified": false,
+    "approved_for_runtime": false,
+    "source_sha256": {
+      "event_snapshot.py": "1c2c8f01fbcc5fd0175cb31ad246d450aa695ff101374da3488363a47b068758",
+      "policy_observer.py": "7d13db2764c13e93e150bc5a2c5d7a91f2c9e30d15a9eba63e4cad5f857697d4",
+      "test_policy_observer.py": "9129382a2c0db1f90bef7605e0a5dd59fb0a53dba0d0c6b76d106f8911c8c944",
+      "test_policy_observer_buffers.py": "4a608c132d2042966e21299304157529a2166a9422551780b6abe3bd2046c426",
+      "test_policy_observer_saved_buffers.py": "fbdb8b83ef4527147eb04dbf4d640f10649171f6df92aa8ac2cbf09d748ae123"
+    },
+    "scope_limit": "Exact stored-output/state/failure parity; injected profiling clocks are not wall-clock performance evidence.",
+    "focused_tests": {
+      "count": 50,
+      "elapsed_s": 3.147,
+      "failures": 0,
+      "modules": [
+        "test_policy_observer",
+        "test_policy_observer_buffers",
+        "test_policy_observer_saved_buffers",
+        "test_event_snapshot"
+      ],
+      "skipped": 0
+    },
+    "focused_test_source_kind": "Result metadata embedded in SHA-pinned file-only parity proof; no separate redirected test log."
+  },
+  "r8_completed_cohort_summary": {
+    "distinct_completed_cohorts": 7,
+    "report_directories_received": 8,
+    "duplicate_receipt_case": "cachedtrace100",
+    "duplicate_report_sha256": "8498a1f321ca81b0bae39c6e683fb183f6a0908192e90dacfc23df098a550c90",
+    "duplicate_records_sha256": "9786dd756b7c4a33ff590e3e413fc4e5d6c2ad2dc3383e70b9518744d0b6450d",
+    "duplicate_counted_as_extra_trial": false,
+    "natural_gen1_gc_cycle": 94,
+    "natural_gen1_gc_duration_ms": 2.85343,
+    "higher_generation_gc_can_cause_post_reply_tail": true,
+    "older_r7_precleared_gen0_observation_excludes_higher_generations": false,
+    "setup_gc_100_conditional_pass_not_500_or_type1_pass": true,
+    "gc_deferral_adopted": false,
+    "affinity_adopted": false
+  },
+  "r9_profiled_cpu_gc_causality": {
+    "proof_sha256": "80987e5a71a8f8e5aa0b3c05c9d79297c1815a605f9c61615b8ad87a914856e2",
+    "representative_public_candidate_case": "full-window3-gap800-cachedr9public500-r1",
+    "representative_public_candidate_misses": 10,
+    "instrumented_case": "full-window3-gap800-cachedr9profile500-r1",
+    "instrumented_misses": 19,
+    "scope": "CPU section clocks and GC callbacks add overhead. Instrumented timing does not replace the public-code cohort.",
+    "gc_generations": {
+      "0": 70,
+      "1": 6
+    },
+    "gc_gen1_miss_cycles": [
+      75,
+      156,
+      236,
+      314,
+      394,
+      472
+    ],
+    "gc_gen1_duration_min_ms": 1.707397,
+    "gc_gen1_duration_max_ms": 2.110766,
+    "section_wall_and_main_thread_cpu_medians_ms": {
+      "snapshot_copy": {
+        "wall_median_ms": 0.1549315,
+        "cpu_median_ms": 0.156192
+      },
+      "source_validation": {
+        "wall_median_ms": 0.139715,
+        "cpu_median_ms": 0.13995200000000002
+      },
+      "input_conversion": {
+        "wall_median_ms": 0.051009,
+        "cpu_median_ms": 0.051488
+      },
+      "provenance_serialization": {
+        "wall_median_ms": 0.33909500000000004,
+        "cpu_median_ms": 0.337888
+      },
+      "tensor_conversion": {
+        "wall_median_ms": 0.040129,
+        "cpu_median_ms": 0.040896
+      },
+      "model_call": {
+        "wall_median_ms": 2.951633,
+        "cpu_median_ms": 2.927696
+      },
+      "output_conversion_validation": {
+        "wall_median_ms": 0.16083550000000002,
+        "cpu_median_ms": 0.162784
+      },
+      "result_build": {
+        "wall_median_ms": 0.02304,
+        "cpu_median_ms": 0.024576
+      }
+    },
+    "non_gc_miss_model_wall_max_ms": 5.375702,
+    "non_gc_miss_model_main_thread_cpu_max_ms": 4.885472,
+    "all_misses_attributed_only_to_waiting": false,
+    "main_thread_cpu_excludes_other_threads": true,
+    "gc_kept_enabled": true,
+    "gc_state_restored": true,
+    "full_controller_verified": false
+  },
+  "r10_packaging": {
+    "revision": "20260928-r10-noncyclic-event-clone",
+    "manifest_sha256": "e666bb72a3881c58c3ba721b6275ffa3b6581063ed66386e8f67da4dab4af3c0",
+    "archive_sha256": "381da4d8a4408c277a22fe84a598267c71554c43ccdf0f55644b56f838f6a263",
+    "packaging_proof_sha256": "1551f41ba0cd70cb65b6ebd53d188d50229169c08920759b61a5e2d78575c89a",
+    "manifest_file_count": 386,
+    "profiles_approved": false,
+    "binaries_shipped": false
+  },
+  "r10_temporary_max_frequency_comparison": {
+    "case": "full-window3-gap800-cachedr10maxfreq500-r1",
+    "temporary_max_frequency_khz": 1728000,
+    "ordinary_max_frequency_khz": 1497600,
+    "ordinary_whole_iteration_median_ms": 18.806924000000002,
+    "ordinary_whole_iteration_max_ms": 22.341728,
+    "temporary_max_whole_iteration_median_ms": 18.132054500000002,
+    "temporary_max_whole_iteration_max_ms": 20.89369,
+    "temporary_max_iteration_misses": 4,
+    "immediate_frequency_restoration_failed_readback": true,
+    "followup_exact_restoration_verified": true,
+    "frequency_change_adopted_as_default": false,
+    "full_controller_50Hz_verified": false
+  },
+  "r10_noncyclic_event_copy": {
+    "source_sha256": "45347ba7e9f9a70e37b5d169cc1a9abce99a7e6770a24d6e93a5cd18e9fe2925",
+    "parity_proof_sha256": "2e5a04bb4c1a9caa1b2fe4e4c54604b2813551c0d53eda9551b7e7c2929bb124",
+    "gc_allocation_proof_sha256": "b8e73a04bec06c4b4dd83e49f17e16a56510f9d349e43300dfd455f3ef006cc5",
+    "focused_tests_passed": 52,
+    "all_saved_values_state_failures_exact": true,
+    "hardware_opened_by_file_only_proof": false,
+    "after_reply_tail_eliminated_in_500_cycles": false
+  },
+  "r11_r12_encoded_same_boot_comparison": {
+    "baseline_case": "full-window3-gap800-cachedr11encoded500-r1",
+    "temporary_max_frequency_case": "full-window3-gap800-cachedr11encoded500-maxfreq1728000-r1",
+    "same_boot": true,
+    "r11_whole_iteration_median_ms": 19.292784,
+    "r12_whole_iteration_median_ms": 18.6192055,
+    "r11_whole_iteration_max_ms": 21.330889,
+    "r12_whole_iteration_max_ms": 21.634537,
+    "r11_iteration_deadline_misses": 4,
+    "r12_iteration_deadline_misses": 16,
+    "cpu_max_frequency_change_adopted": false,
+    "all_iteration_20ms_verified": false,
+    "full_controller_50Hz_verified": false,
+    "interpretation": "Temporary CPU maximum improved the median but increased deadline misses from 4/500 to 16/500; model-call bursts remain. Diagnostic STOP proxy, not loaded standing or learned Type1 output."
+  },
+  "r12_saved_input_model_replay": {
+    "scope": "File-only CPU model replay of pinned R12 inputs; no CAN, IMU, motor enable, learned target send, or integrated 50Hz claim",
+    "unpaced_report_sha256": "80fc176e1908bde3a45def903290a3a96dcc854a7638787d2d63598fd604e93b",
+    "unpaced_source_sha256": "9de386bc2bd3a15c2ca7be643fbff3f686199678c00f5daab991181cf9023255",
+    "unpaced_passes": 3,
+    "cycles_per_pass": 500,
+    "unpaced_model_call_median_ms": [
+      2.82157,
+      2.809473,
+      2.8071525
+    ],
+    "unpaced_model_call_max_ms": [
+      5.140877,
+      4.567762,
+      7.870312
+    ],
+    "unpaced_calls_over_4ms": [
+      8,
+      1,
+      3
+    ],
+    "recurrent_slow_input_cycles_over_4ms": [],
+    "saved_target_actor_observation_exact": true,
+    "candidate_baseline_target_state_exact": true,
+    "hardware_opened": false,
+    "approved_for_runtime": false
+  },
+  "r11_r12_stop_send_stage_decomposition": {
+    "scope": "Read-only analysis of 500 raw STOP-proxy record timestamps in each cohort; not learned-target output",
+    "private_summary_sha256": "cb5d2a9993238d22d88b09ba9d7f6017988664da68e752017d550c5c499ba732",
+    "r11_infer_end_to_last_host_write_median_ms": 4.399096,
+    "r12_infer_end_to_last_host_write_median_ms": 4.354787,
+    "five_required_0_8ms_gaps_ms": 4.0,
+    "r11_pre_native_dispatch_median_ms": 0.267688,
+    "r12_pre_native_dispatch_median_ms": 0.241814,
+    "r11_native_entry_to_first_write_median_ms": 0.014657,
+    "r12_native_entry_to_first_write_median_ms": 0.012673,
+    "r11_idealized_first_dispatch_plus_host_excess_upper_bound_median_ms": 0.329767,
+    "r12_idealized_first_dispatch_plus_host_excess_upper_bound_median_ms": 0.290353,
+    "gap_reduction_adopted": false,
+    "motor_output_changed": false
+  },
+  "r12_saved_input_operator_profile": {
+    "scope": "File-only replay of 500 pinned model inputs; 24 CPU-profiler calls excluded from latency distribution",
+    "private_report_sha256": "0b361dd91bab3ee651b4e852d1270ecc664d47351e8f51f3ca7233ec0f288673",
+    "source_sha256": "5720c77b0c5d79e25ef95371965cb01f3ee8116e74fa752a398b8219f2f8660c",
+    "unprofiled_calls": 476,
+    "unprofiled_forward_median_ms": 2.708187,
+    "unprofiled_forward_max_ms": 5.317107,
+    "staged_calls": 500,
+    "staged_observation_median_ms": 0.535567,
+    "staged_actor_median_ms": 0.8497675,
+    "staged_target_median_ms": 1.495753,
+    "candidate_baseline_target_state_exact": true,
+    "slow_cycle_125_to_128_all_core0": true,
+    "cpu4_migration_explains_burst": false,
+    "within_call_frequency_proven": false,
+    "affinity_changed": false,
+    "hardware_opened": false,
+    "approved_for_runtime": false
+  },
+  "r13_preallocated_trace_comparison": {
+    "scope": "Same-boot actual QDD/IMU and real inference, 24 requests with STOP proxy only; independent R11 and R13 500-cycle runs.",
+    "r11_report_sha256": "b0525b782f29de76171c48dd20cafd0ba1a546a2f1d3e73464766991059cf448",
+    "r13_report_sha256": "fc3732f9639808f225a1fd30618ed1da3f2a49a8f38cced5e9a95fa2e1983376",
+    "r13_records_sha256": "3832ceffee959e8442e079785d4e0e39ab8a1343e960aa15721d24b0cdda4ca4",
+    "r13_cpu_proof_sha256": "5a48add0e88fc07bd0956e0d10dbc6a914328dda724d78764bce0000edba0e06",
+    "r11_post_last_reply_median_ms": 0.659762,
+    "r13_post_last_reply_median_ms": 0.185397,
+    "r11_whole_iteration_median_ms": 19.292784,
+    "r13_whole_iteration_median_ms": 18.792234,
+    "r11_iteration_deadline_misses": 4,
+    "r13_iteration_deadline_misses": 16,
+    "r13_inference_ge_5ms_among_missed_cycles": 12,
+    "r13_host_deadline_misses": 0,
+    "all_iteration_20ms_verified": false,
+    "trace_is_only_changed_runtime_setting_and_code_path": true,
+    "miss_count_change_attributed_to_trace": false,
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "cpu_governor_and_frequency_limits_restored": true,
+    "full_controller_50Hz_verified": false
+  }
+}

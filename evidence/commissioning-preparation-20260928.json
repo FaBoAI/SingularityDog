@@ -1,0 +1,167 @@
+{
+  "schema": "singularitydog.commissioning-preparation.v1",
+  "date": "2026-09-28",
+  "scope": "OFFLINE_SOFTWARE_ONLY",
+  "hardware_accessed": false,
+  "physical_standing_verified": false,
+  "physical_walking_verified": false,
+  "jetson_20ms_verified": false,
+  "runtime_profiles_approved": false,
+  "suite_results": [
+    {
+      "scope": "runtime",
+      "tests_run": 1635,
+      "skipped": 1,
+      "status": "PASS",
+      "log_sha256": "910f88f7e8758f3fa79b759392d72378624c5f5f9810bf25b8dfe3d445d6abee"
+    },
+    {
+      "scope": "tools",
+      "tests_run": 215,
+      "skipped": 0,
+      "status": "PASS",
+      "log_sha256": "975543a39d4cebe3dbdfb4037a12425db91495f2f163b2cbbe4e62cd7cf0f10f"
+    }
+  ],
+  "total_tests_run": 1850,
+  "total_skipped": 1,
+  "changes": [
+    "Measure the complete reply validation cycle including final stopped cycle",
+    "Recompute controller cadence independently of per-cycle work time",
+    "Unified target-local diagnostic/active/model build with rollback on failure",
+    "Prepare an unreviewed IMU evidence fragment from exact raw captures",
+    "Reuse saved calibration evidence before requesting new physical measurements"
+  ],
+  "supported_integration": {
+    "summary_sha256": "caf7e828807d6108c8909f9608e8ffa2db0f97000d9c288db1dd3ce2651ce137",
+    "cases": {
+      "real-success": {
+        "status": "PASS_OFFLINE_SIMULATION",
+        "errors": [],
+        "runtime_status": "COMPLETE_SUPPORTED_OUTPUT",
+        "tx_frames": 1624,
+        "rx_frames": 1612,
+        "real_model_calls": 43,
+        "report_sha256": "ade6aa9c2e326404a738175c06c64b9e59ee95c520e7c2906e84d9e32cec1faf"
+      },
+      "drop-feedback": {
+        "status": "PASS_OFFLINE_SIMULATION",
+        "errors": [],
+        "runtime_status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+        "tx_frames": 224,
+        "rx_frames": 211,
+        "real_model_calls": 0,
+        "report_sha256": "607715f5fca6ff28fe02832846157358f2a23e14c06f25f62642d9859eefd37a"
+      },
+      "usb-disconnect": {
+        "status": "PASS_OFFLINE_SIMULATION",
+        "errors": [],
+        "runtime_status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+        "tx_frames": 208,
+        "rx_frames": 195,
+        "real_model_calls": 0,
+        "report_sha256": "3ae2e09c5ba3d2eac18f8c2417147d6e27b39f47f8e26a6fe717b72739944df1"
+      }
+    },
+    "real_model_cycles": 52,
+    "model_target_and_state_max_error": 0.0
+  },
+  "ground_integration": {
+    "summary_sha256": "3647887eeaedfcf6fbc0724a2f6d9545f946ecf41cffb17ca9e0ea8fc1be7a2a",
+    "source_hashes_unchanged": true,
+    "cases": {
+      "supported_stance": {
+        "status": "PASS_OFFLINE_GROUND_SIMULATION",
+        "errors": [],
+        "ground_status": "COMPLETE_BOUNDED_GROUND_TRIAL",
+        "tx_frames": 5712,
+        "rx_frames": 5700,
+        "real_model_calls": 183,
+        "stop_confirmed": true,
+        "report_sha256": "30424dea6f23780ac7ccce58a801556eccfcac9a7c3098deebafe425ef75e471",
+        "model_parity_max_error": 0.0
+      },
+      "walk": {
+        "status": "PASS_OFFLINE_GROUND_SIMULATION",
+        "errors": [],
+        "ground_status": "COMPLETE_BOUNDED_GROUND_TRIAL",
+        "tx_frames": 5656,
+        "rx_frames": 5644,
+        "real_model_calls": 183,
+        "stop_confirmed": true,
+        "report_sha256": "b9036d1bb4c97c6b7dc240a9e9d8f0d801903182d911e4eb8d86a6b0727c73d2",
+        "model_parity_max_error": 0.0
+      },
+      "walk-missing-ack": {
+        "status": "PASS_OFFLINE_GROUND_SIMULATION",
+        "errors": [],
+        "ground_status": "ABORTED",
+        "tx_frames": 5292,
+        "rx_frames": 5280,
+        "real_model_calls": 183,
+        "stop_confirmed": true,
+        "report_sha256": "0a9aec602ae3e0003d35fb67c91a5abdcdb4f5a708bfcc253d43d7a551afd494",
+        "model_parity_max_error": 0.0
+      }
+    },
+    "source_sha256": {
+      "coordinator": "d6cf90d37cd66da681c24283562aff59844e03be3ed8fbfdf4688c4cb8a0e8b9",
+      "active_python": "759a1e6596894d6467a8e8bff032cd9dbfa39eea0b512000c0f775104298e006",
+      "active_cpp": "40e57361c3ea64f30309cce12cde871bd270cb671438d8b74e4f475abb2ef7b4",
+      "model_adapter": "302b7629445003a33ea00c6ea19dd67c4b8d14a624b8d52df7862b8610c66604",
+      "profile": "6fa4eeee378d0ef726b93ceeecb702a54aa8e5e32ab0c992ee68c2afb954d74e",
+      "envelope": "7abe9dc5874c8be35b50ea6f1482cd54d048d1d4fa610cca3b23a403142c07dd",
+      "cli": "03025b6252438348c728183ef55b141aaf5178150a3a897145eba515ff2ae204",
+      "support_smoke_tool": "2726ee865377ce27f9ac140294552fdccfdf3c5642536ae1ea8005760f30db5a",
+      "tool": "2de6c3a693a2fc421c9140b20eca6834cd3952c4d5ef664117f74fe5c0efd5c5",
+      "ground_trial_output": "232dcd1163e1292a1199834dbc877c701231dac17a3ce9de0b10a8ab714aa2b1",
+      "ground_trial_trajectory": "22d06a86ecb9c49b1274eb266eb997a78581d8468788f939d9dd6f8bef728697",
+      "ground_trial_plan": "aeddd83acdb6a524a85abefba727418419aa7e108ec723b373ba08c69d186179",
+      "ground_trial_review": "89148f08968bdff84fd703e5815a1575fe842b9ed8f3135c79aac0bfbade30bb"
+    }
+  },
+  "unified_build": {
+    "platform": "Mac arm64; not a Jetson build",
+    "status": "PASS",
+    "hardware_opened": false,
+    "build_steps": [
+      "diagnostic_cpp",
+      "active_cpp",
+      "native_policy"
+    ],
+    "state_sha256": "b81cb322ca35822d334afd28cb24acdc7b192b38f47cc545b1a850c8099566b9",
+    "model_manifest_sha256": "29057771df3ba3177b538bde8628bd17e477c5714aa1b6e0f5c469fe49ec6276",
+    "validation_sha256": "49096233a93634f696b4f30775617150631a3b70f09784c0cfc7fbd9a915005f",
+    "parity_frames": 240,
+    "max_error": 0.0,
+    "saved_reload_max_error": 0.0,
+    "matched_rejection_cases": 26,
+    "active_library_source_and_binary_verified": true
+  },
+  "imu_review_preparation": {
+    "status": "UNREVIEWED",
+    "fragment_sha256": "1ff2df0fda8e216e7c0548c746072d99b30ee7e173bf9120126e05c58e7bbdcf",
+    "source_captures_recomputed": true,
+    "approved_for_runtime": false,
+    "corrected_static_gyro_max_rad_s": 0.00480297316859822,
+    "raw_gravity_norm_min_m_s2": 10.654261765296857,
+    "raw_gravity_norm_max_m_s2": 10.736906757213477,
+    "physical_direction_approvals_populated": false,
+    "external_gravity_reference_populated": false
+  },
+  "source_sha256": {
+    "tools/dog_tomorrow.py": "7889fa0408a4879d54b10e0b0feb13bc85c7692da2a9827cb5c2988b4bd7843a",
+    "tools/prepare_policy_output_bundle.py": "f376f64755098bc1bdf2cfd0b4c115b2f256ea4f9df0ea193bb16384ccf2b54b",
+    "tools/prepare_imu_review.py": "904e1c1497ceadde17e14218f1f32658f54e96a1ccebe49447df688edb2dd981",
+    "runtime/singularitydog_hw/policy_output_runtime.py": "d6cf90d37cd66da681c24283562aff59844e03be3ed8fbfdf4688c4cb8a0e8b9",
+    "runtime/singularitydog_hw/ground_trial_review.py": "89148f08968bdff84fd703e5815a1575fe842b9ed8f3135c79aac0bfbade30bb",
+    "runtime/singularitydog_hw/imu_commissioning_audit.py": "2a5e79bfd5bdd37c18741c0ebfd9c09b4e9d02cdfe7a85bfcbbe07d660027e2d"
+  },
+  "limitations": [
+    "Socket peers are an instantaneous synthetic plant without contact or gravity dynamics.",
+    "Mac timing is not Jetson USB2CAN timing.",
+    "No new motor enable or learned target was sent to the robot.",
+    "Work/host-write budget remains20ms; separate release-gap allowance is1ms (21ms interval).",
+    "Jetson connection timed out; deployment and actual active-path measurement remain pending."
+  ]
+}

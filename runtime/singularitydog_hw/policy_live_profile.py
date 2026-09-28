@@ -1,0 +1,807 @@
+"""File-only reviewed profile for a short, supported learned-policy experiment.
+
+Loading verifies pinned files and review consistency, not physical truth. A
+candidate/template never grants output. The runner still owns fresh identity,
+power-epoch, mode-0/watchdog readbacks, physical support and cancellation checks.
+No transport, network, torch loading or automatic candidate promotion exists.
+"""
+import argparse
+import copy
+from datetime import datetime
+import hashlib
+import json
+import math
+import statistics
+from pathlib import Path
+import uuid
+
+from . import policy_shadow as shadow
+from .policy_observer import _bias
+
+SCHEMA_V1 = 'singularitydog.supported-policy-profile.v1'
+SCHEMA_V2 = 'singularitydog.supported-policy-profile.v2'
+SCHEMA_V3 = 'singularitydog.supported-policy-profile.v3'
+# V3 is opt-in; existing/default templates keep their original V2 contract.
+SCHEMA = SCHEMA_V2
+REVIEW_SCHEMA = 'singularitydog.supported-policy-hardware-review.v1'
+IDS = tuple(str(i) for i in range(1, 13))
+ARTIFACTS = ('calibration', 'mount', 'bias', 'model_manifest', 'pipeline_diagnostic', 'hardware_review')
+LIMIT_CAPS = {
+    'kp': 30., 'kd': 1., 'max_command_velocity_rad_s': .5,
+    'max_command_acceleration_rad_s2': 2., 'max_tracking_error_rad': .25,
+    'max_measured_velocity_rad_s': 1., 'max_measured_torque_nm': 3.,
+    'max_temperature_c': 60., 'max_estimated_pd_torque_nm': 3.,
+    'max_displacement_from_start_rad': math.radians(10),
+}
+# These are experiment-scope ceilings, not motor/structure safety ratings.
+AXIS_KEYS = {'uid', 'sign', 'offset_rad', 'uncertainty_rad', 'physical_lower_rad',
+             'physical_upper_rad', *LIMIT_CAPS}
+TOP_KEYS_V1 = {'schema', 'scope', 'approved_for_supported_policy_output', 'blockers', 'review',
+            'boot_id', 'motor_power_epoch', 'assembly_id', 'axes', 'artifacts', 'bundle_path',
+            'duration_s', 'startup_duration_s', 'stop_duration_s', 'policy_ramp_s',
+            'policy_weight', 'h_hypothesis', 'command', 'period_ms', 'hard_cycle_ms',
+            'max_consecutive_20ms_misses', 'max_sample_age_ms', 'max_sample_gap_ms',
+            'voltage_min_v', 'voltage_max_v', 'imu_tilt_limit_rad', 'imu_gyro_limit_rad_s',
+            'imu_accel_norm_min_m_s2', 'imu_accel_norm_max_m_s2', 'start_pose_bounds'}
+TRANSPORT_KEYS = {'request_gap_us', 'request_window'}
+TOP_KEYS = TOP_KEYS_V1 | TRANSPORT_KEYS
+CADENCE_KEYS = {'telemetry_cadence', 'cadence_source_sha256'}
+TOP_KEYS_V3 = TOP_KEYS | CADENCE_KEYS
+V3_EXECUTION_KEYS = {'model_backend', 'voltage_overlap', 'diagnostic_timing_acceptance',
+                     'watchdog_review_policy', 'local_characterization'}
+COMMAND_LOSS_ONLY_SUPPORTED = 'command_loss_only_supported_trial'
+LOCAL_RELATIVE_SUPPORTED = 'bounded_relative_supported_v1'
+LOCAL_NUMERICAL_MARGIN_RAD = 2*25.14/65535
+_LOCAL_VALIDATION_TOKEN = object()
+SCALAR_BACKEND = 'scalar_step_cpp'
+OBSERVED_R17_TIMING = 'observed-r17-cadence-20260928'
+OBSERVED_R17_REPORT_SHA256 = frozenset((
+    '1d0e49226ab095c007d5de63325b8e201467315234e43ed229546b3652cfb2d4',
+    '7eaadb878a0ea6f98cfeae1b49312a2bcc4a63d71d4aeb8c9f43c6740afbe204',
+))
+CADENCE_PRE_ENABLE = 'feedback_voltage_pre_enable_timeout.v1'
+CADENCE_SOURCE_PATHS = (
+    'singularitydog_hw/policy_live_profile.py',
+    'singularitydog_hw/policy_output.py',
+    'singularitydog_hw/policy_output_runtime.py',
+    'singularitydog_hw/ground_trial_output.py',
+    'singularitydog_hw/ground_trial_review.py',
+    'singularitydog_hw/native_active_transport.py',
+    'singularitydog_hw/can_readonly.py',
+    'singularitydog_hw/rs05_trial_protocol.py',
+    'experiments/native_active_transport/transport.cpp',
+)
+
+
+class ProfileError(ValueError):
+    pass
+
+
+def _need(condition, message):
+    if not condition:
+        raise ProfileError(message)
+
+
+def _number(value, label, lower, upper, *, positive=False):
+    _need(type(value) in (int, float), 'Invalid number: '+label)
+    try:
+        value = float(value)
+    except (OverflowError, ValueError) as error:
+        raise ProfileError('Invalid number: '+label) from error
+    _need(math.isfinite(value) and lower <= value <= upper and (not positive or value > 0),
+          'Out-of-scope limit: '+label)
+    return value
+
+
+def _text(value, label):
+    _need(type(value) is str and 0 < len(value) <= 1024 and value.strip() == value,
+          'Missing/invalid '+label)
+    return value
+
+
+def _hash(value, label):
+    _need(type(value) is str and len(value) == 64 and all(c in '0123456789abcdef' for c in value),
+          'Invalid SHA256: '+label)
+    return value
+
+
+def _review(value, expected_decision):
+    _need(type(value) is dict and set(value) == {'reviewer', 'reviewed_at', 'decision', 'rationale'},
+          'Explicit named review is required')
+    _text(value['reviewer'], 'reviewer'); _text(value['rationale'], 'review rationale')
+    try:
+        stamp = datetime.fromisoformat(value['reviewed_at'].replace('Z', '+00:00'))
+        _need(stamp.utcoffset() is not None, 'Review time must include timezone')
+    except (TypeError, ValueError, AttributeError) as error:
+        raise ProfileError('Invalid review date') from error
+    _need(value['decision'] == expected_decision, 'Review has not approved this scope')
+
+
+def _read_json(path, *, digest=None):
+    path = Path(path)
+    _need(path.is_file() and not path.is_symlink(), 'Regular nonsymlink file required: '+str(path))
+    _need(path.stat().st_size <= 16*1024*1024, 'Profile/evidence JSON is too large')
+    raw = path.read_bytes()
+    actual = hashlib.sha256(raw).hexdigest()
+    _need(digest is None or actual == digest, 'Artifact SHA256 mismatch: '+path.name)
+    try:
+        return shadow._json(raw.decode('utf-8')), actual
+    except (ValueError, UnicodeError) as error:
+        raise ProfileError('Invalid JSON: '+path.name) from error
+
+
+def _artifact(reference, base):
+    _need(type(reference) is dict and set(reference) == {'path', 'sha256'}, 'Invalid artifact reference')
+    name = _text(reference['path'], 'artifact path')
+    digest = _hash(reference['sha256'], name)
+    path = Path(name).expanduser()
+    if not path.is_absolute():
+        path = base/path
+    data, _ = _read_json(path, digest=digest)
+    return data, {'path': str(path.absolute()), 'sha256': digest}
+
+
+def _profile_keys(data):
+    _need(type(data) is dict and type(data.get('schema')) is str,
+          'Unsupported profile schema')
+    _need(data['schema'] in (SCHEMA_V1, SCHEMA_V2, SCHEMA_V3), 'Unsupported profile schema')
+    keys = {SCHEMA_V1: TOP_KEYS_V1, SCHEMA_V2: TOP_KEYS, SCHEMA_V3: TOP_KEYS_V3}[data['schema']]
+    return keys | (V3_EXECUTION_KEYS.intersection(data) if data['schema'] == SCHEMA_V3 else set())
+
+
+def execution_settings(profile):
+    """Explicit reviewed V3 choices; old profiles retain their original route."""
+    _profile_keys(profile)
+    if profile['schema'] != SCHEMA_V3:
+        _need(not V3_EXECUTION_KEYS.intersection(profile), 'Fast execution requires a V3 profile')
+    backend = profile.get('model_backend', 'native_baseline')
+    _need(backend in ('native_baseline', SCALAR_BACKEND), 'Unsupported model backend')
+    overlap = profile.get('voltage_overlap', False)
+    _need(type(overlap) is bool, 'voltage_overlap must be an explicit boolean')
+    timing = profile.get('diagnostic_timing_acceptance')
+    _need(timing in (None, OBSERVED_R17_TIMING), 'Unsupported diagnostic timing acceptance')
+    _need(profile.get('watchdog_review_policy') in (None, COMMAND_LOSS_ONLY_SUPPORTED),
+          'Unsupported watchdog review policy')
+    _need(profile.get('local_characterization') in (None, LOCAL_RELATIVE_SUPPORTED),
+          'Unsupported local characterization')
+    return {'model_backend': backend, 'voltage_overlap': overlap,
+            'diagnostic_timing_acceptance': timing}
+
+
+def artifact_names(profile):
+    return ARTIFACTS + (('scalar_step_manifest',)
+                        if execution_settings(profile)['model_backend'] == SCALAR_BACKEND else ()) + (
+        ('operator_acceptance', 'command_loss_report')
+        if profile.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED else ()) + (
+        ('local_reference_capture',) if profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED else ())
+
+
+def local_characterization_settings(profile):
+    """Return a loader-derived local mode proof; raw JSON cannot mint the token."""
+    if profile.get('local_characterization') is None:
+        return None
+    _need(profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+          profile.get('_local_validation_token') is _LOCAL_VALIDATION_TOKEN,
+          'Local characterization requires validated loader proof')
+    return {'mode': LOCAL_RELATIVE_SUPPORTED, 'numerical_position_margin_rad': LOCAL_NUMERICAL_MARGIN_RAD,
+            'absolute_zero_uncertainty_rad': None, 'max_displacement_rad': math.radians(1)}
+
+
+def _supported_command_loss_acceptance(acceptance, report, data):
+    """An explicit bounded experiment choice; never fabricate a USB test result."""
+    _need(data['schema'] == SCHEMA_V3 and data['scope'] == 'supported_characterization_only',
+          'Command-loss-only review is limited to supported V3 characterization')
+    _need(type(acceptance) is dict and
+          acceptance.get('schema') == 'singularitydog.supported-trial-operator-acceptance.v1' and
+          acceptance.get('scope') == data['scope'] and
+          acceptance.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED,
+          'Explicit supported command-loss-only operator acceptance required')
+    _review(acceptance.get('review'), 'ACCEPT_COMMAND_LOSS_ONLY_SUPPORTED_TRIAL')
+    _text(acceptance.get('user_statement'), 'explicit user instruction to omit USB test')
+    _need(acceptance.get('usb_disconnect_test_waived') is True and
+          acceptance.get('box_must_remain') is True and
+          acceptance.get('immediate_40v_cutoff_required') is True and
+          acceptance.get('ground_progression_allowed') is False,
+          'Supported-only acceptance must preserve box/cutoff and prohibit ground progression')
+    _need(acceptance.get('reviewed_settings_sha256') == reviewed_settings_sha256(data) and
+          acceptance.get('uids_by_id') == {mid: data['axes'][mid]['uid'] for mid in IDS},
+          'Operator acceptance settings or UID binding differs')
+    _need(acceptance.get('artifact_sha256') == {
+        k: data['artifacts'][k]['sha256'] for k in artifact_names(data)
+        if k not in ('hardware_review', 'operator_acceptance')},
+        'Operator acceptance must pin the exact diagnostic and command-loss report')
+    _need(type(report) is dict and report.get('status') == 'COMPLETE_COMMAND_LOSS_DIAGNOSTIC' and
+          report.get('errors') == [] and report.get('selected_ids') == list(range(1,13)) and
+          report.get('configured_timeout_ms') == 200 and report.get('watchdog_ticks') == 4000 and
+          report.get('stop_confirmed') is True and report.get('positive_gain_sent') is False and
+          report.get('learned_targets_sent') is False and report.get('usb_disconnect_tested') is False,
+          'Complete zero-gain twelve-axis command-loss evidence required')
+    _need(report.get('boot_id') == data['boot_id'] and
+          report.get('motor_power_epoch') == data['motor_power_epoch'],
+          'Command-loss evidence must match the current boot and motor-power epoch')
+    _need(type(report.get('axes')) is dict and set(report['axes']) == set(IDS),
+          'Twelve command-loss axis records required')
+    for scope, ids in (('front', list(range(1,7))), ('rear', list(range(7,13)))):
+        stop = report.get('stop_reports', {}).get(scope, {})
+        _need(stop.get('complete') is True and stop.get('confirmed_ids') == ids and
+              stop.get('unconfirmed_ids') == [] and stop.get('ambiguous_ids') == [] and
+              stop.get('errors') == [], 'Command-loss report has incomplete or ambiguous STOP evidence')
+    for mid in IDS:
+        row = report['axes'][mid]
+        _need(type(row) is dict and row.get('uid') == data['axes'][mid]['uid'] and
+              row.get('command_loss_tested') is True and row.get('disabled_on_command_loss') is True and
+              row.get('usb_disconnect_tested') is False and row.get('configured_timeout_ms') == 200,
+              'Per-UID command-loss evidence incomplete: ID'+mid)
+        _number(row.get('disable_reply_upper_bound_ms'), 'command-loss disable bound ID'+mid, 0, 250, positive=True)
+        _need(row.get('disable_upper_bound_origin') == 'last_zero_host_write_started_ns',
+              'Command-loss disable bound must start before the final zero-command write: ID'+mid)
+        probe = row.get('stop_probe', {})
+        _need(probe.get('mode_state') == 0 and probe.get('fault_bits') == 0 and
+              row.get('watchdog_readback', {}).get('value') == 4000,
+              'Command-loss disabled/timeout readback invalid: ID'+mid)
+
+
+def transport_settings(profile, *, request_gap_us=None, request_window=None):
+    """Resolve reviewed pacing; v1 always retains its original 600us/window3."""
+    _profile_keys(profile)
+    if profile['schema'] == SCHEMA_V1:
+        _need(not TRANSPORT_KEYS.intersection(profile), 'Unsupported v1 profile fields')
+        gap, window = 600, 3
+    else:
+        gap, window = profile.get('request_gap_us'), profile.get('request_window')
+    _need(type(gap) is int and 600 <= gap <= 5000, 'Invalid request_gap_us: integer 600..5000 required')
+    _need(type(window) is int and 1 <= window <= 3, 'Invalid request_window: integer 1..3 required')
+    for key, requested, reviewed in (('request_gap_us', request_gap_us, gap),
+                                     ('request_window', request_window, window)):
+        _need(requested is None or (type(requested) is int and requested == reviewed),
+              key+' differs from reviewed profile')
+    return {'request_gap_us': gap, 'request_window': window,
+            'source_profile_schema': profile['schema'], 'emergency_stop_uses_same_gap': True}
+
+
+def cadence_source_hashes():
+    """Read-only identity of cadence-related source files; not all kit dependencies."""
+    root = Path(__file__).resolve().parents[1]
+    values = {}
+    for name in CADENCE_SOURCE_PATHS:
+        path = root/name
+        _need(path.is_file() and not path.is_symlink(), 'Missing cadence source: '+name)
+        values[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return values
+
+
+def telemetry_settings(profile):
+    """Resolve only an explicit cadence; V1/V2 retain rotating timeout monitoring."""
+    _profile_keys(profile)
+    new = profile['schema'] == SCHEMA_V3
+    if new:
+        _need(profile.get('telemetry_cadence') == CADENCE_PRE_ENABLE, 'Unsupported telemetry cadence')
+        sources = profile.get('cadence_source_sha256')
+        _need(type(sources) is dict and set(sources) == set(CADENCE_SOURCE_PATHS),
+              'Complete cadence source pins required')
+        for name, value in sources.items():
+            _hash(value, 'cadence source '+name)
+    else:
+        _need(not CADENCE_KEYS.intersection(profile), 'Legacy profile cannot select a new cadence')
+    return {'schema': 'singularitydog.policy-telemetry-cadence.v1',
+        'source_profile_schema': profile['schema'],
+        'cadence': CADENCE_PRE_ENABLE if new else 'feedback_rotating_voltage_and_timeout.v1',
+        'feedback_requests_per_bus_per_cycle': 6,
+        'voltage_requests_per_bus_per_cycle': 1,
+        'voltage_rotation_length_cycles': 6,
+        'timeout_requests_per_bus_per_cycle': 0 if new else 1,
+        'total_requests_per_cycle_including_output': 26 if new else 28,
+        'initial_all_axis_timeout_write_and_readback': True,
+        'after_announcement_all_axis_timeout_readback': new,
+        'timeout_parameter_drift_monitored_during_cycles': not new,
+        'all_axis_feedback_monitored_on_acquisition_and_output': True,
+        'stop_reply_confirmation_required': True,
+        'post_stop_timeout_parameter_readback': False}
+
+
+def validate_cadence_sources(profile):
+    """Fail before hardware setup if a V3 cadence pin differs from this frozen kit."""
+    telemetry_settings(profile)
+    if profile['schema'] == SCHEMA_V3:
+        _need(profile['cadence_source_sha256'] == cadence_source_hashes(),
+              'Cadence source SHA256 mismatch; freeze and review a new profile')
+
+
+def add_transport_arguments(parser, *, reviewed=True):
+    """Bound CLI pacing; output overrides only confirm the selected profile."""
+    def gap_us(value):
+        try:
+            number = int(value)
+        except ValueError as error:
+            raise argparse.ArgumentTypeError('request-gap-us must be an integer 600..5000') from error
+        if not 600 <= number <= 5000:
+            raise argparse.ArgumentTypeError('request-gap-us must be an integer 600..5000')
+        return number
+    context = 'must match the reviewed profile' if reviewed else 'for the unapproved candidate profile'
+    parser.add_argument('--request-gap-us', type=gap_us, help='600..5000 us; '+context)
+    parser.add_argument('--request-window', type=int, choices=(1, 2, 3), help='1..3; '+context)
+
+
+def template(*, schema=SCHEMA):
+    """No invented calibration, gains, identities or evidence in the template."""
+    _profile_keys({'schema': schema})
+    data = {'schema': schema, 'scope': 'supported_characterization_only',
+        'approved_for_supported_policy_output': False,
+        'blockers': ['12-axis zero/sign/physical range review including ID10',
+                     'fixed-mount IMU direction/bias/gravity review',
+                     'full diagnostic acquire/infer/12-STOP timing evidence',
+                     'Type2 dynamic position/velocity/torque interpretation',
+                     'each QDD actual communication-loss watchdog test'],
+        'review': None, 'boot_id': None, 'motor_power_epoch': None, 'assembly_id': None,
+        'axes': {mid: {key: None for key in sorted(AXIS_KEYS)} for mid in IDS},
+        'artifacts': {key: {'path': None, 'sha256': None} for key in ARTIFACTS},
+        'bundle_path': None, 'duration_s': 5., 'startup_duration_s': 1., 'stop_duration_s': 1.,
+        'policy_ramp_s': 1., 'policy_weight': .1, 'h_hypothesis': 0., 'command': [0., 0., 0.],
+        'period_ms': 20, 'hard_cycle_ms': 20., 'max_consecutive_20ms_misses': 0,
+        'max_sample_age_ms': 20., 'max_sample_gap_ms': 21.,
+        'voltage_min_v': 35., 'voltage_max_v': 42., 'imu_tilt_limit_rad': .2,
+        'imu_gyro_limit_rad_s': .5, 'imu_accel_norm_min_m_s2': 9.4,
+        'imu_accel_norm_max_m_s2': 10.2, 'start_pose_bounds': None}
+    if schema in (SCHEMA_V2, SCHEMA_V3):
+        data.update(request_gap_us=600, request_window=3)
+    if schema == SCHEMA_V3:
+        data.update(telemetry_cadence=CADENCE_PRE_ENABLE, cadence_source_sha256=cadence_source_hashes())
+        data['blockers'].append('Review absence of cyclic timeout-parameter drift polling and pinned cadence source')
+    return data
+
+
+def reviewed_settings_sha256(profile):
+    """Bind review to numerical settings; file relocation and fresh epoch are separate."""
+    # Keep the exact original v1 digest input; derived legacy defaults are not
+    # new reviewed fields. v2 binds its two explicit pacing settings.
+    transport_settings(profile)
+    telemetry_settings(profile)
+    keys = _profile_keys(profile)-{'artifacts', 'review', 'blockers', 'approved_for_supported_policy_output',
+                     'boot_id', 'motor_power_epoch', 'bundle_path'}
+    settings = {key: copy.deepcopy(profile[key]) for key in keys}
+    # load_profile adds effective limits, while the file stores physical limits.
+    settings['axes'] = {mid: {key: row[key] for key in AXIS_KEYS}
+                        for mid, row in settings['axes'].items()}
+    return hashlib.sha256(json.dumps(settings, sort_keys=True, separators=(',', ':'),
+                                    allow_nan=False).encode()).hexdigest()
+
+
+def _structure(data):
+    keys = _profile_keys(data)
+    _need(set(data) == keys, 'Unsupported profile fields')
+    _need(data['scope'] == 'supported_characterization_only',
+          'Only short supported characterization is supported; no standing/walking release')
+    _need(type(data['approved_for_supported_policy_output']) is bool, 'Explicit approval boolean required')
+    _need(type(data['blockers']) is list and all(type(v) is str and v for v in data['blockers']),
+          'Invalid blockers')
+    _need(type(data['axes']) is dict and set(data['axes']) == set(IDS), 'Exactly twelve CAN axes required')
+    for row in data['axes'].values():
+        _need(type(row) is dict and set(row) == AXIS_KEYS, 'Unsupported axis fields')
+    _need(type(data['artifacts']) is dict and set(data['artifacts']) == set(artifact_names(data)),
+          'Complete pinned artifact references required for the selected backend')
+
+
+def _settings(data):
+    transport_settings(data)
+    validate_cadence_sources(data)
+    execution_settings(data)
+    _need(type(data['period_ms']) is int and data['period_ms'] == 20, 'Target period is exactly20ms')
+    hard = _number(data['hard_cycle_ms'], 'hard_cycle_ms', 20, 60)
+    _need(type(data['max_consecutive_20ms_misses']) is int and
+          0 <= data['max_consecutive_20ms_misses'] <= 3, 'Invalid20ms miss budget')
+    _number(data['max_sample_age_ms'], 'max_sample_age_ms', 1, hard)
+    # Inter-sample scheduling jitter is separate from sample age and execution
+    # deadlines. This1ms margin never changes either20ms computation criterion.
+    _number(data['max_sample_gap_ms'], 'max_sample_gap_ms', 1, hard+1)
+    duration = _number(data['duration_s'], 'duration_s', .5, 10)
+    start = _number(data['startup_duration_s'], 'startup_duration_s', .2, 2)
+    stop = _number(data['stop_duration_s'], 'stop_duration_s', .2, 2)
+    ramp = _number(data['policy_ramp_s'], 'policy_ramp_s', .2, 5)
+    _need(start+ramp+stop <= duration, 'Run duration must include startup, policy ramp and stopping')
+    _number(data['policy_weight'], 'policy_weight', 0, 1)
+    _need(type(data['h_hypothesis']) in (int, float) and data['h_hypothesis'] in (0., 1.),
+          'Explicit h=0 or h=1 hypothesis required')
+    _need(type(data['command']) is list and len(data['command']) == 3 and
+          all(type(v) in (int, float) and v == 0 for v in data['command']), 'Only zero locomotion command allowed')
+    lo = _number(data['voltage_min_v'], 'voltage_min_v', 35, 42)
+    hi = _number(data['voltage_max_v'], 'voltage_max_v', 35, 42)
+    _need(lo < hi, 'Invalid voltage interval')
+    _number(data['imu_tilt_limit_rad'], 'imu_tilt_limit_rad', .01, .35)
+    _number(data['imu_gyro_limit_rad_s'], 'imu_gyro_limit_rad_s', .01, 1.)
+    lo = _number(data['imu_accel_norm_min_m_s2'], 'imu_accel_norm_min_m_s2', 8.8, 11.2)
+    hi = _number(data['imu_accel_norm_max_m_s2'], 'imu_accel_norm_max_m_s2', 8.8, 11.2)
+    _need(lo < hi and hi-lo <= 1.5, 'Invalid diagnostic gravity-norm interval')
+    if data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED:
+        _need(data['schema'] == SCHEMA_V3 and
+              data.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED,
+              'Local characterization requires explicit supported V3 review')
+        _need(duration <= 3 and data['policy_weight'] <= .01 and hard == 20 and
+              data['max_consecutive_20ms_misses'] == 0,
+              'Local characterization requires <=3s, <=1percent mix and hard20ms')
+
+
+def _axes(data, calibration):
+    rows = shadow.validate_calibration(calibration)
+    _need(calibration.get('approved_for_runtime') is False,
+          'Keep original candidate provenance unchanged; use the separate hardware review')
+    for mid in IDS:
+        row = data['axes'][mid]
+        candidate = rows[int(mid)]
+        _need(row['uid'] == calibration['identities'][mid], 'Calibrated UID mismatch: ID'+mid)
+        _need(type(row['sign']) is int and row['sign'] in (-1, 1) and
+              row['sign'] == candidate['sign_candidate'], 'Calibrated sign mismatch: ID'+mid)
+        offset = _number(row['offset_rad'], 'offset_rad ID'+mid, -30, 30)
+        _need(offset == candidate['offset_candidate_rad'], 'Calibrated offset mismatch: ID'+mid)
+        local = data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED
+        if local:
+            _need(row['uncertainty_rad'] is None, 'Local absolute-zero uncertainty must remain unknown')
+            uncertainty = LOCAL_NUMERICAL_MARGIN_RAD
+        else:
+            uncertainty = _number(row['uncertainty_rad'], 'uncertainty_rad ID'+mid, 1e-6, .0873)
+        lower = _number(row['physical_lower_rad'], 'physical lower ID'+mid, -math.pi, math.pi)
+        upper = _number(row['physical_upper_rad'], 'physical upper ID'+mid, -math.pi, math.pi)
+        index = shadow.CAN_ORDER.index(int(mid))
+        _need(shadow.LOWER[index] <= lower < upper <= shadow.UPPER[index],
+              'Physical range exceeds model range: ID'+mid)
+        _need(lower+uncertainty < upper-uncertainty, 'Uncertainty consumes joint range: ID'+mid)
+        row['lower_rad'], row['upper_rad'] = lower+uncertainty, upper-uncertainty
+        for key, cap in LIMIT_CAPS.items():
+            _number(row[key], key+' ID'+mid, 0, cap, positive=True)
+        if local:
+            for key, cap in {'kp':3., 'kd':.15, 'max_command_velocity_rad_s':math.radians(1),
+                    'max_command_acceleration_rad_s2':math.radians(5),
+                    'max_tracking_error_rad':math.radians(2), 'max_measured_velocity_rad_s':.25,
+                    'max_measured_torque_nm':1., 'max_estimated_pd_torque_nm':.1,
+                    'max_temperature_c':45., 'max_displacement_from_start_rad':math.radians(1)}.items():
+                _need(row[key] <= cap, 'Local characterization limit exceeded: '+key+' ID'+mid)
+        _need(row['max_estimated_pd_torque_nm'] <= row['max_measured_torque_nm'],
+              'Estimated PD budget must not exceed hard measured torque monitor')
+        _need(row['max_command_velocity_rad_s'] <= row['max_measured_velocity_rad_s'],
+              'Command velocity exceeds measured velocity monitor')
+    bounds = data['start_pose_bounds']
+    brake_s = max(row['max_command_velocity_rad_s']/row['max_command_acceleration_rad_s2']
+                  for row in data['axes'].values())
+    _need(data['startup_duration_s']+data['policy_ramp_s']+data['stop_duration_s']+brake_s+.04 < data['duration_s'],
+          'Duration does not reserve worst-case acceleration-limited braking')
+    if bounds is not None:
+        _need(type(bounds) is dict and set(bounds) == set(IDS), 'Start-pose bounds need all12axes')
+        for mid, value in bounds.items():
+            _need(type(value) is list and len(value) == 2, 'Start-pose interval required')
+            lo = _number(value[0], 'start lower', -math.pi, math.pi)
+            hi = _number(value[1], 'start upper', -math.pi, math.pi)
+            _need(data['axes'][mid]['lower_rad'] <= lo < hi <= data['axes'][mid]['upper_rad'],
+                  'Start-pose interval exceeds effective physical range')
+
+
+def _timing(report, data):
+    """Recompute evidence metrics from timestamps; STOP proxy is never active I/O."""
+    _need(type(report) is dict and report.get('status') == 'COMPLETE_DIAGNOSTIC' and
+          report.get('mode') == 'stop-proxy' and report.get('errors') == [] and
+          report.get('motor_enable_sent') is False and report.get('learned_targets_sent') is False and
+          report.get('full_controller_50Hz_verified') is False and
+          type(report.get('observer')) is dict, 'Full real-input/inference/STOP diagnostic required')
+    if data['schema'] in (SCHEMA_V2, SCHEMA_V3):
+        settings = transport_settings(data)
+        plan = report.get('plan')
+        _need(type(plan) is dict and type(plan.get('request_gap_us')) is int and
+              type(plan.get('window')) is int and
+              plan['request_gap_us'] == settings['request_gap_us'] and
+              plan['window'] == settings['request_window'],
+              'Diagnostic pacing differs from reviewed profile')
+    bindings = report.get('input_sha256', {})
+    for source, key in (('calibration', 'calibration'), ('mount', 'mount'), ('bias', 'gyro_bias')):
+        value = bindings.get(key, bindings.get('bias') if source == 'bias' else None)
+        _need(value == data['artifacts'][source]['sha256'], 'Timing input mismatch: '+source)
+        if source == 'bias' and 'bias' in bindings:
+            _need(bindings['bias'] == value, 'Conflicting timing gyro-bias pins')
+    execution = execution_settings(data)
+    if 'voltage_overlap' in data:
+        _need(report.get('plan', {}).get('v3_voltage_overlap',False) is execution['voltage_overlap'],
+              'Diagnostic voltage overlap differs from reviewed profile')
+        if execution['voltage_overlap']:
+            _need(report.get('plan', {}).get('v3_voltage_validation_overlap') is True,
+                  'Diagnostic worker voltage validation overlap was not measured')
+    model_key = 'scalar_step_manifest' if execution['model_backend'] == SCALAR_BACKEND else 'model_manifest'
+    _need(report.get('model_source', {}).get('manifest_sha256') == data['artifacts'][model_key]['sha256'],
+          'Timing model-manifest mismatch')
+    if model_key == 'scalar_step_manifest':
+        _need(report.get('model_source', {}).get('baseline_provenance', {}).get('manifest_sha256') ==
+              data['artifacts']['model_manifest']['sha256'], 'Scalar timing baseline differs')
+    accepted_r17 = execution['diagnostic_timing_acceptance'] == OBSERVED_R17_TIMING
+    if accepted_r17:
+        _need(data['artifacts']['pipeline_diagnostic']['sha256'] in OBSERVED_R17_REPORT_SHA256,
+              'Observed cadence acceptance is limited to the two original R17 reports')
+        _need(report.get('plan', {}).get('startup_cycle_allowance') == 1 and
+              report.get('cycles_requested') == 501, 'R17 startup evidence differs')
+    rows = report.get('measurements')
+    _need(type(rows) is list and 20 <= len(rows) <= 100000 and
+          report.get('cycles_completed') == len(rows) == report.get('cycles_requested'),
+          'At least20complete diagnostic cycles required')
+    observation = report['observer']
+    _need(observation.get('status') == 'COMPLETE_NO_OUTPUT_DIAGNOSTIC' and
+          observation.get('failure') is None and observation.get('incomplete') is False and
+          observation.get('ticks_completed') == len(rows) == observation.get('ticks_requested') and
+          observation.get('h_hypothesis') == data['h_hypothesis'] and
+          observation.get('output_allowed') is False,
+          'Model observer did not complete the exact reviewed hypothesis and tick count')
+    maximum, misses, consecutive, longest, previous, previous_end = 0., 0, 0, 0, None, None
+    late_intervals = 0
+    names = ('release_ns', 'oldest_input_start_ns', 'input_latest_reply_ns', 'gather_end_ns',
+             'prepare_end_ns', 'infer_end_ns', 'final_host_write_ns', 'last_proxy_reply_ns', 'cycle_end_ns')
+    startup_elapsed = None
+    for index, row in enumerate(rows):
+        _need(type(row) is dict, 'Invalid timing row')
+        stamps = [row.get(k) for k in names]
+        _need(all(type(x) is int and 0 < x < 2**63 for x in stamps) and stamps == sorted(stamps),
+              'Missing/noncausal full-pipeline timestamps')
+        release, oldest, latest, gather, prepared, inferred, sent, replied, end = stamps
+        _need(row.get('learned_targets_sent') is False and
+              row.get('host_write_is_can_wire_completion') is False and inferred > prepared,
+              'Diagnostic scope or real inference timestamps invalid')
+        _need(previous_end is None or release >= previous_end, 'Overlapping diagnostic cycles')
+        elapsed = (end-release)/1e6
+        maximum = max(maximum, elapsed)
+        startup = accepted_r17 and index == 0
+        if accepted_r17:
+            _need(row.get('timing_phase') == ('startup' if startup else 'steady'),
+                  'R17 startup classification differs')
+        if startup: startup_elapsed = elapsed
+        _need((startup or elapsed <= data['hard_cycle_ms']) and (inferred-oldest)/1e6 <= data['max_sample_age_ms'],
+              'Diagnostic exceeds the reviewed cycle/freshness budget')
+        # Wakeup jitter has a distinct1ms tolerance; it is not included in the
+        # actual20ms computation deadline. Never hide it by rounding timestamps.
+        interval = (release-previous)/1e6 if previous is not None else None
+        _need(accepted_r17 or interval is None or interval <= data['hard_cycle_ms']+1,
+              'Diagnostic scheduling gap exceeds reviewed budget')
+        late_intervals += int(interval is not None and interval > 21)
+        missed = not startup and (elapsed > 20 or (sent-oldest)/1e6 > 20)
+        if accepted_r17 and not startup:
+            _need(elapsed <= 20 and (replied-oldest)/1e6 <= 20,
+                  'Observed cadence acceptance does not waive steady20ms processing/reply limits')
+        misses += int(missed); consecutive = consecutive+1 if missed else 0
+        longest = max(longest, consecutive)
+        _need(longest <= data['max_consecutive_20ms_misses'], 'Diagnostic exceeds20ms consecutive-miss budget')
+        previous, previous_end = release, end
+    return {'kind': 'stop_proxy_diagnostic_only', 'cycles': len(rows),
+            'max_whole_iteration_ms': maximum, 'twenty_ms_misses': misses,
+            'longest_consecutive_twenty_ms_misses': longest,
+            'release_intervals_over_21ms': late_intervals,
+            'diagnostic_timing_acceptance': execution['diagnostic_timing_acceptance'],
+            'startup_whole_iteration_ms': startup_elapsed,
+            'strict_start_interval_20ms_met': all(
+                (b['release_ns']-a['release_ns']) <= 20_000_000 for a, b in zip(rows, rows[1:])),
+            'actual_policy_output_20ms_verified': False}
+
+
+def _local_reference(review, capture, data):
+    """Bind a local relative envelope to a current, non-driving twelve-axis read."""
+    local = review.get('local_characterization', {})
+    _need(type(local) is dict and local.get('schema') == 'singularitydog.local-relative-review.v1' and
+          local.get('operator_confirmed_local_clearance') is True and
+          local.get('local_clearance_rad') == math.radians(3) and
+          'absolute_zero_uncertainty_rad' in local and local['absolute_zero_uncertainty_rad'] is None and
+          local.get('absolute_calibration_not_certified') is True and
+          local.get('full_dynamic_feedback_not_certified') is True,
+          'Explicit relative local clearance review with unknown absolute calibration required')
+    _need(type(capture) is dict and capture.get('schema') == 'singularitydog.readonly-12-angle-capture.v1' and
+          capture.get('status') == 'RECORDED_REVIEW_REQUIRED' and capture.get('errors') == [] and
+          capture.get('motor_output_allowed') is False and capture.get('boot_id') == data['boot_id'],
+          'Current-boot read-only local reference capture required')
+    turns = local.get('reference_turns_by_id')
+    _need(type(turns) is dict and set(turns) == set(IDS), 'Local reference branches need all twelve IDs')
+    identities, rows = capture.get('identities', {}), capture.get('telemetry', {}).get('rows', {})
+    _need(set(identities) == set(rows) == set(IDS), 'Local reference must contain twelve identities and angles')
+    for mid in IDS:
+        a, row = data['axes'][mid], rows[mid]
+        _need(identities[mid].get('mcu_uid_hex') == a['uid'] and row.get('run_mode') == 0,
+              'Local reference UID/mode mismatch: ID'+mid)
+        samples = row.get('position_samples')
+        _need(type(samples) is list and len(samples) == 3, 'Local reference requires three position samples')
+        values = [_number(s.get('rad'), 'reference raw ID'+mid, -1000, 1000) for s in samples]
+        _need(max(values)-min(values) <= math.radians(.1) and
+              row.get('median_position_rad') == statistics.median(values),
+              'Local reference position median/span invalid: ID'+mid)
+        _need(type(turns[mid]) is int and -20 <= turns[mid] <= 20, 'Invalid local branch: ID'+mid)
+        q = a['sign']*(statistics.median(values)-turns[mid]*2*math.pi)+a['offset_rad']
+        index = shadow.CAN_ORDER.index(int(mid))
+        lower, upper = max(shadow.LOWER[index], q-math.radians(3)), min(shadow.UPPER[index], q+math.radians(3))
+        _need(abs(a['physical_lower_rad']-lower) <= 1e-12 and
+              abs(a['physical_upper_rad']-upper) <= 1e-12 and
+              lower+LOCAL_NUMERICAL_MARGIN_RAD < q < upper-LOCAL_NUMERICAL_MARGIN_RAD,
+              'Local bounds differ from measured reference and model range: ID'+mid)
+
+
+def _hardware(review, data, base, *, command_loss_report=None, local_reference_capture=None):
+    _need(type(review) is dict and review.get('schema') == REVIEW_SCHEMA and
+          review.get('scope') == data['scope'], 'Explicit supported hardware-review artifact required')
+    _review(review.get('review'), 'APPROVED_SUPPORTED_CHARACTERIZATION')
+    _need(review.get('reviewed_settings_sha256') == reviewed_settings_sha256(data),
+          'Hardware review does not bind exact gains, limits and policy settings')
+    _need(review.get('assembly_id') == data['assembly_id'] and
+          review.get('uids_by_id') == {mid: data['axes'][mid]['uid'] for mid in IDS},
+          'Hardware review assembly/UID mismatch')
+    _need(review.get('artifact_sha256') == {k: data['artifacts'][k]['sha256'] for k in artifact_names(data) if k != 'hardware_review'},
+          'Hardware review is not bound to all exact input artifacts')
+    sources = review.get('source_captures')
+    _need(type(sources) is list and bool(sources), 'Underlying hardware capture files required')
+    for source in sources:
+        _artifact(source, base)
+    angles = review.get('angles')
+    _need(type(angles) is dict and set(angles) == set(IDS), 'Every axis needs physical angle review')
+    local_mode = data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED
+    if local_mode:
+        _local_reference(review, local_reference_capture, data)
+    for mid, angle in angles.items():
+        row = data['axes'][mid]
+        keys = (('zero_reference_recorded', 'sign_evidence_reviewed', 'relative_local_clearance_verified',
+                 'power_cycle_branch_method_verified') if local_mode else
+                ('zero_and_sign_physically_verified', 'physical_range_and_clearance_verified',
+                 'power_cycle_branch_method_verified'))
+        _need(type(angle) is dict and all(angle.get(k) is True for k in keys),
+              'Unresolved physical calibration: ID'+mid)
+        _need(angle.get('sign') == row['sign'] and angle.get('offset_rad') == row['offset_rad'] and
+              angle.get('physical_lower_rad') == row['physical_lower_rad'] and
+              angle.get('physical_upper_rad') == row['physical_upper_rad'] and
+              angle.get('uncertainty_rad') == row['uncertainty_rad'], 'Angle review values differ: ID'+mid)
+    imu = review.get('imu', {})
+    gravity_key = 'gravity_direction_compared_to_operator_level' if local_mode else 'gravity_direction_verified'
+    _need(type(imu) is dict and all(imu.get(k) is True for k in
+          ('right_handed_mount_physically_verified', 'nose_up_verified', 'left_up_verified',
+           'yaw_left_verified', 'gyro_bias_independent_stationary_validation', gravity_key)),
+          'IMU direction/bias/gravity review incomplete')
+    if local_mode:
+        _need('absolute_gravity_error_bound_rad' in imu and imu['absolute_gravity_error_bound_rad'] is None,
+              'Local IMU comparison must preserve unknown absolute gravity accuracy')
+    _number(imu.get('gravity_direction_max_error_rad'), 'IMU gravity direction error', 0, math.radians(3))
+    _number(imu.get('corrected_static_gyro_max_rad_s'), 'IMU held-out gyro residual', 0, .02)
+    normlo = _number(imu.get('raw_gravity_norm_min_m_s2'), 'review gravity norm low', 8.8, 11.2)
+    normhi = _number(imu.get('raw_gravity_norm_max_m_s2'), 'review gravity norm high', 8.8, 11.2)
+    _need(data['imu_accel_norm_min_m_s2'] <= normlo <= normhi <= data['imu_accel_norm_max_m_s2'],
+          'Observed static gravity norm outside run bounds')
+    _text(imu.get('norm_deviation_rationale'), 'gravity norm disposition (single-pose bias fitting prohibited)')
+    feedback = review.get('type2_dynamic')
+    _need(type(feedback) is dict and set(feedback) == set(IDS), 'Twelve-axis dynamic Type2 review required')
+    for mid, row in feedback.items():
+        dynamic_keys = ('output_shaft_position_verified', 'velocity_scale_and_sign_verified', 'torque_interpretation_verified')
+        if local_mode:
+            _need(type(row) is dict and row.get('limited_trial_reviewed') is True and
+                  all(type(row.get(k)) is bool for k in dynamic_keys),
+                  'Local Type2 characterization requires explicit pending/verified state: ID'+mid)
+        else:
+            _need(type(row) is dict and all(row.get(k) is True for k in dynamic_keys),
+                  'Static-only Type2 comparison cannot validate dynamic feedback: ID'+mid)
+        _need(row.get('position_range_rad') == [-12.57, 12.57] and
+              row.get('velocity_range_rad_s') == [-50., 50.] and
+              row.get('torque_range_nm') == [-5.5, 5.5], 'Unexpected fixed RS05 feedback codec')
+    watchdogs = review.get('device_watchdog')
+    _need(type(watchdogs) is dict and set(watchdogs) == set(IDS), 'Every motor needs watchdog-loss test evidence')
+    result = {}
+    command_loss_only = data.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED
+    for mid, row in watchdogs.items():
+        _need(type(row) is dict and row.get('motor_model') == 'RS05' and
+              row.get('actual_command_loss_test_passed') is True and
+              row.get('usb_disconnect_test_passed') is (False if command_loss_only else True) and
+              row.get('disabled_after_loss_verified') is True,
+              'STOP transmission/readback alone does not verify device watchdog: ID'+mid)
+        timeout = _number(row.get('configured_timeout_ms'), 'device watchdog timeout', 200, 200)
+        measured = _number(row.get('max_observed_disable_ms'), 'observed command-loss stop', 0, 250, positive=True)
+        _need(timeout >= data['hard_cycle_ms']+20 and measured <= timeout+50,
+              'Watchdog timing inconsistent with cycle budget')
+        fingerprint=row.get('version_bytes_hex')
+        _need(type(fingerprint) is str and len(fingerprint)==8 and
+              all(c in '0123456789abcdef' for c in fingerprint),
+              'Tested raw firmware version_bytes_hex required: ID'+mid)
+        # Do not interpret these protocol bytes as a semantic release number.
+        # Old string-only reviews cannot bind the version read before enabling.
+        if row.get('firmware_version') is not None:
+            _text(row['firmware_version'], 'informational tested firmware version')
+        if command_loss_only:
+            measured_row = command_loss_report['axes'][mid]
+            _need(measured_row.get('version', {}).get('version_bytes_hex') == fingerprint and
+                  measured_row['disable_reply_upper_bound_ms'] == measured,
+                  'Watchdog review differs from measured command-loss evidence: ID'+mid)
+        result[mid] = {'configured_timeout_ms': timeout, 'max_observed_disable_ms': measured,
+                       'version_bytes_hex':fingerprint,
+                       'firmware_version': row.get('firmware_version')}
+        if command_loss_only:
+            result[mid].update(usb_disconnect_test_passed=False,
+                              usb_disconnect_test_waived_for_supported_trial=True)
+    _need(review.get('mode0_readback_required_before_enable') is True,
+          'Mode0 must be freshly read back before enable')
+    _text(review.get('timing_budget_rationale'), 'reviewed timing budget rationale')
+    return result
+
+
+def load_profile(path, *, require_approved=True):
+    """Return a deep-copied plain mapping; resolves references but never opens hardware.
+
+    An unapproved plan is returned only when require_approved=False. It contains
+    placeholders and must not be passed to a runner. Approved loads also work in
+    plan mode and receive exactly the same validation as an executable load.
+    """
+    _need(type(require_approved) is bool, 'Invalid approval requirement')
+    path = Path(path).expanduser().absolute()
+    original, digest = _read_json(path)
+    _structure(original)
+    data = copy.deepcopy(original)
+    _settings(data)
+    if data['approved_for_supported_policy_output'] is False:
+        _need(not require_approved, 'Profile remains unapproved; review its blockers before real output')
+        _need(data['review'] is None and bool(data['blockers']), 'Unapproved plan needs explicit blockers')
+        return {**data, 'output_allowed': False, 'profile_path': str(path), 'profile_sha256': digest}
+    _need(data['blockers'] == [], 'Approved profile still contains unresolved blockers')
+    _review(data['review'], 'APPROVED_SUPPORTED_CHARACTERIZATION')
+    try:
+        _need(str(uuid.UUID(data['boot_id'])) == data['boot_id'], 'Noncanonical boot ID')
+    except (ValueError, TypeError, AttributeError) as error:
+        raise ProfileError('Invalid boot ID') from error
+    _text(data['motor_power_epoch'], 'motor power epoch'); _text(data['assembly_id'], 'assembly ID')
+    bundle = Path(_text(data['bundle_path'], 'bundle path')).expanduser()
+    if not bundle.is_absolute():
+        bundle = path.parent/bundle
+    _need(bundle.is_dir(), 'Pinned policy bundle directory missing')
+    for filename, sha in shadow.SOURCE_HASHES.items():
+        source = bundle/filename
+        _need(source.is_file() and not source.is_symlink() and shadow.sha(source) == sha,
+              'Pinned bundle member mismatch: '+filename)
+    data['bundle_path'] = str(bundle.absolute())
+    documents = {}
+    for key in artifact_names(data):
+        documents[key], data['artifacts'][key] = _artifact(data['artifacts'][key], path.parent)
+    command_loss_only = data.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED
+    if command_loss_only:
+        _supported_command_loss_acceptance(documents['operator_acceptance'], documents['command_loss_report'], data)
+    _axes(data, documents['calibration'])
+    shadow.validate_imu_mount_candidate(documents['mount'])
+    _bias(documents['bias'])
+    manifest = documents['model_manifest']
+    _need(type(manifest) is dict and manifest.get('schema') == 'native-policy-overnight-v1' and
+          manifest.get('status') == 'VALIDATED_FILE_ONLY' and manifest.get('bundle_hashes') == shadow.SOURCE_HASHES and
+          all(manifest.get(k) is False for k in ('output_allowed', 'approved_for_runtime', 'live_50hz_verified')),
+          'Pinned native model equivalence manifest required; runtime loader checks ABI and library')
+    if execution_settings(data)['model_backend'] == SCALAR_BACKEND:
+        scalar = documents['scalar_step_manifest']
+        _need(type(scalar) is dict and scalar.get('schema') == 'native-step-scalar-file-only-v1' and
+              scalar.get('status') == 'PASS_FILE_ONLY_COMPARE' and
+              scalar.get('baseline_manifest_sha256') == data['artifacts']['model_manifest']['sha256'] and
+              all(scalar.get(k) is False for k in ('hardware_opened', 'output_allowed',
+                  'approved_for_runtime', 'live_50hz_verified')),
+              'Scalar equivalence manifest must retain file-only provenance and exact baseline')
+    data['timing_review'] = _timing(documents['pipeline_diagnostic'], data)
+    data['watchdog_by_id'] = _hardware(documents['hardware_review'], data,
+                                     Path(data['artifacts']['hardware_review']['path']).parent,
+                                     command_loss_report=documents.get('command_loss_report'),
+                                     local_reference_capture=documents.get('local_reference_capture'))
+    data['mode0_readback_required_before_enable'] = True
+    if data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED:
+        data['_local_validation_token'] = _LOCAL_VALIDATION_TOKEN
+    return {**data, 'output_allowed': True, 'profile_path': str(path), 'profile_sha256': digest,
+            'actual_policy_output_20ms_verified': False, 'support_must_remain': True}
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    options = parser.add_mutually_exclusive_group(required=True)
+    options.add_argument('--write-template', type=Path)
+    options.add_argument('--check', type=Path)
+    parser.add_argument('--plan-only', action='store_true')
+    parser.add_argument('--template-schema', choices=(SCHEMA_V1, SCHEMA_V2, SCHEMA_V3), default=SCHEMA,
+                        help='V3 cadence is explicit and always starts unapproved')
+    args = parser.parse_args(argv)
+    if args.write_template:
+        with args.write_template.open('x', encoding='utf-8') as stream:
+            args.write_template.chmod(0o600)
+            json.dump(template(schema=args.template_schema), stream, ensure_ascii=False, indent=2, allow_nan=False)
+            stream.write('\n')
+        print('UNAPPROVED_TEMPLATE_WRITTEN '+str(args.write_template))
+        return 0
+    data = load_profile(args.check, require_approved=not args.plan_only)
+    print(json.dumps({'output_allowed': data['output_allowed'], 'scope': data['scope'],
+                      'blockers': data['blockers'], 'profile_sha256': data['profile_sha256'],
+                      'transport_settings': transport_settings(data),
+                      'telemetry_cadence': telemetry_settings(data)}))
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

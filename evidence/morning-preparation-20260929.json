@@ -1,0 +1,72 @@
+{
+  "schema": "singularitydog.morning-preparation.v1",
+  "date_jst": "2026-09-29",
+  "status": "OFFLINE_SOFTWARE_PREPARED_TARGET_RETEST_REQUIRED",
+  "hardware_retest_performed": false,
+  "tests": {
+    "runtime": {
+      "run": 1981,
+      "passed": 1977,
+      "skipped": 4,
+      "failed": 0,
+      "seconds": 46.7,
+      "output_sha256": "7735682fe4d81d30c7d1884b7ddc76f32ac362b727e99ebbfec24aec55c1d242"
+    },
+    "tools": {
+      "run": 327,
+      "passed": 326,
+      "skipped": 1,
+      "failed": 0,
+      "seconds": 17.573,
+      "output_sha256": "c3d2c568aa43503eee16cfa6fec72233ded597d8e64248df1330ddf2a3a49f55"
+    },
+    "command_environment": "PYTHONPATH=runtime:runtime/tests:tools; Python3 unittest discover; runtime then tools, sequential",
+    "total_passed": 2303,
+    "total_skipped": 5
+  },
+  "changes": [
+    "Separate command-computation and sensor-sample interval faults without changing limits",
+    "Reuse compact failed-cycle timestamps; serialize only after STOP",
+    "Raise bounded native STOP acknowledgment budget from150ms to250ms; preserve each reply deadline and all-axis attempt",
+    "Retain outstanding STOP ambiguity across same-session subsequent cleanup",
+    "Match simulated watchdog write to real Type2 acknowledgment plus independent Type17 readback",
+    "Add explicit default-off exclusion of CPU4 from CAN/IMU owners with same-thread readback and post-STOP restoration",
+    "Make timing-order tests deterministic and allow only floating-point roundoff beyond one wire LSB in branch reconstruction test"
+  ],
+  "source_sha256": {
+    "runtime/singularitydog_hw/policy_motion_envelope.py": "7bfdeff1fa2e60c494ee65de6130678e4cf5f83cd1e33dc6ce371f2fc19be5a0",
+    "runtime/singularitydog_hw/policy_output_runtime.py": "265911a1132eb79aeaa53bf369e91792bb899b866ab11d68c12b5223af3f45c1",
+    "runtime/singularitydog_hw/policy_output.py": "e7eceac8aaa96e6fc86b4215dc56a63436b542f3e2c59d2e544e1d7af83fa7cc",
+    "runtime/singularitydog_hw/native_active_transport.py": "ffa7367ada5a06963c597f55cf3ccc12d0147b42d459eff0cef11c1a3f26ab8f",
+    "runtime/experiments/native_active_transport/transport.cpp": "e002d95dd24537f93fb1723f127e6b89b92da0062ab81087dc61839d16ce08f6",
+    "tools/offline_policy_output_smoke.py": "e54ffa820242c50367a165cbf93a9236d69bc3fc2b03e1789af2364bab688f8e"
+  },
+  "limits_changed": false,
+  "normal_output_deadlines_changed": false,
+  "stop_confirmation_budget_changed_ms": {
+    "before": 150,
+    "after": 250
+  },
+  "affinity_comparison": {
+    "default_enabled": false,
+    "hardware_timing_benefit_measured": false,
+    "matched_to_existing_stop_proxy_diagnostic": true
+  },
+  "next_hardware_scope": {
+    "supported": true,
+    "box_remains": true,
+    "duration_s": 2,
+    "max_displacement_deg": 1,
+    "kp": 3,
+    "kd": 0.15,
+    "learned_output_success_required": true,
+    "all_twelve_stop_confirmations_required": true
+  },
+  "ground_trials_approved": false,
+  "full_controller_50Hz_verified": false,
+  "backup": {
+    "tonight_key_results_saved_to_mac": true,
+    "full_jetson_logs_backup_complete": false,
+    "remaining_blocker": "SSH connection lost during bulk retrieval"
+  }
+}

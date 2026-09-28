@@ -1,0 +1,605 @@
+{
+  "schema": "singularitydog.angle-steady-diagnostic-summary.v1",
+  "date": "2026-09-28",
+  "scope": "Read-only angle captures and disabled 26-request STOP proxy; no policy output",
+  "startup_allowance": {
+    "allowed_cycles": 1,
+    "operator_request": "開始の1回は20msを超過してもいいと思います。",
+    "all_501_cycles_retained": true
+  },
+  "power_cycle": {
+    "operator_statement": "40V Off→On完了・姿勢は同じ",
+    "uid_mismatch_ids": [],
+    "nonunique_branch_ids": [],
+    "maximum_absolute_model_difference_deg": 0.008524076084175913,
+    "whole_turn_change_reproduced": false,
+    "raw_capture_sha256": {
+      "branch-fix-before-20260928-2216.json": "a301e66075e96eaffdcaa359c6541f853c55457b0395eb067a4dae0516239f8d",
+      "branch-fix-after-20260928-2218.json": "f4def8a26d3a5903a91f4c1916c7c5dc344f5901911fbcff0fef9eee67675e23",
+      "branch-fix-comparison-20260928-2218.json": "bd1f955d8e38c13953029ed9711dfce3f0edfb3bfb386a5fe9fa3e549d2f8ed2",
+      "branch-fix-operator-observation-20260928.json": "8f6232497064d487d9e6b232f75f0c33176584698d573b9c796dd684787b5dfb"
+    },
+    "physical_zero_direction_limits_approved": false
+  },
+  "live_r14": {
+    "status": "COMPLETE_DIAGNOSTIC",
+    "report_sha256": "288c2e6176277342482f3652941f631a8e23883014815e9b1a04068f737e7899",
+    "records_sha256": "5b21d7ac009780307328398a02373149d49cdf5dec6570b4bb70bfe7cf1d3555",
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "steady_timing": {
+      "startup_cycle_allowance": 1,
+      "startup_cycles_recorded": 1,
+      "startup_whole_iteration_ms": [
+        20.007973
+      ],
+      "startup_iteration_deadline_misses": 1,
+      "startup_to_steady_interval_ms": 20.058249,
+      "steady_cycles_requested": 500,
+      "steady_cycles_completed": 500,
+      "steady_whole_iteration_ms": {
+        "count": 500,
+        "median": 18.831873,
+        "p95": 19.018809,
+        "p99": 19.185445,
+        "max": 20.734286
+      },
+      "steady_iteration_deadline_misses": 2,
+      "steady_processing_20ms_met": false,
+      "steady_scheduled_completion_slack_ms": {
+        "count": 500,
+        "median": 1.1558605000000002,
+        "p95": 1.289049,
+        "p99": 1.324451,
+        "max": 1.42306
+      },
+      "steady_min_completion_slack_ms": -0.747107,
+      "steady_scheduled_deadline_misses": 2,
+      "steady_slots_skipped": 0,
+      "steady_scheduled_deadlines_met": false,
+      "steady_start_interval_ms": {
+        "count": 499,
+        "median": 19.999997,
+        "p95": 20.001635,
+        "p99": 20.003296,
+        "max": 20.782609
+      },
+      "steady_start_intervals_over_20ms": 248,
+      "strict_steady_start_interval_20ms_met": false,
+      "all_cycles_retained": true,
+      "diagnostic_only": true,
+      "full_controller_50Hz_verified": false
+    },
+    "late_cycles": [
+      {
+        "whole_iteration_ms": 20.509828,
+        "inference_ms": 4.880144,
+        "scheduled_completion_slack_ms": -0.522168,
+        "cycle": 164
+      },
+      {
+        "whole_iteration_ms": 20.734286,
+        "inference_ms": 4.92709,
+        "scheduled_completion_slack_ms": -0.747107,
+        "cycle": 471
+      }
+    ],
+    "full_controller_50Hz_verified": false
+  },
+  "software_checks": {
+    "angle_related_tests_passed": 240,
+    "output_smoke_tests_passed": 9,
+    "timing_and_transport_tests_passed_on_mac": 122,
+    "jetson_angle_runtime_wait_tests_passed": 69,
+    "counts_overlap_do_not_sum": true,
+    "r17_mac_related_tests_passed_reported": 136,
+    "r17_jetson_voltage_overlap_tests_passed_reported": 13
+  },
+  "r17_source_pins": {
+    "source_pins_file": "r17-validation-overlap-source-pins.json",
+    "source_pins_sha256": "dbc219d7e98a0acaea7ebb9a5e266e9d3cedca76adf45fcb77a855c78c7bb3e8",
+    "deployed_benchmark_sha256": "aca85cc9ff75007b1ff5a30b2599d9790e3cb0418f5e9aa15b6a89c165a82fa1",
+    "voltage_overlap_test_sha256": "f8da2f2b0d99896c74786f5f006bb09b588510698844cc3782a7e3018f4f2a2f",
+    "mac_related_tests_passed": 136,
+    "jetson_overlap_tests_passed": 13,
+    "counts_overlap_do_not_sum": true,
+    "independent_review": "No blocker found"
+  },
+  "runtime_output_approved": false,
+  "latest_update_jst": "2026-09-28 22:44",
+  "timing_scope": {
+    "whole_iteration_ms": "actual release through STOP replies, in-cycle trace capture and in-cycle reference-clearing statements; cycle_end is recorded before timing-row assembly",
+    "oldest_input_to_last_reply_ms": "earliest feedback/IMU input start through final STOP reply; excludes release-to-first-input delay",
+    "release_to_last_reply_ms": "actual release through final STOP reply, computed from retained raw monotonic timestamps",
+    "strict_start_interval": "actual steady-to-steady release difference above 20.000000 ms is a miss; no tolerance added"
+  },
+  "live_r16_scalar_only": {
+    "source_directory": "v3-26-startup-scalar-gap800-20260928-223053-Q2x5AZ",
+    "boot_id": "b4709d10-dd73-4441-bf2e-fe95ac72fdc3",
+    "status": "COMPLETE_DIAGNOSTIC",
+    "report_sha256": "2fd0547fee02260337f4cc14af4b2b74af90dbab8d2d730669865b1fabee8808",
+    "records_sha256": "19409c5a6560d89f1b805f7d76248b6f31adbb5f2cfa3d1529478d0f98846382",
+    "model_source_schema": "native-step-scalar-file-only-loader-v1",
+    "model_manifest_sha256": "7ad6670368feb10d36bd62f594c7a53e89f28a5462fd1c3cf2292e2c1987f666",
+    "voltage_overlap": false,
+    "cycles_requested": 501,
+    "cycles_completed": 501,
+    "records_verified": {
+      "rows": 501,
+      "requests_per_cycle": 26,
+      "total_requests": 13026,
+      "phase_request_counts": {
+        "acquired": 7014,
+        "output": 6012
+      },
+      "type4_count": 12024,
+      "type17_voltage_count": 1002,
+      "type1_count": 0,
+      "all_native_records_written_and_received_17_bytes": true
+    },
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "steady_timing": {
+      "startup_cycle_allowance": 1,
+      "startup_cycles_recorded": 1,
+      "startup_whole_iteration_ms": [
+        19.388177
+      ],
+      "startup_iteration_deadline_misses": 0,
+      "startup_to_steady_interval_ms": 19.987724,
+      "steady_cycles_requested": 500,
+      "steady_cycles_completed": 500,
+      "steady_whole_iteration_ms": {
+        "count": 500,
+        "median": 18.292254999999997,
+        "p95": 18.510793,
+        "p99": 18.682545,
+        "max": 20.082833
+      },
+      "steady_iteration_deadline_misses": 1,
+      "steady_processing_20ms_met": false,
+      "steady_scheduled_completion_slack_ms": {
+        "count": 500,
+        "median": 1.694401,
+        "p95": 1.846072,
+        "p99": 1.913272,
+        "max": 2.011446
+      },
+      "steady_min_completion_slack_ms": -0.096065,
+      "steady_scheduled_deadline_misses": 1,
+      "steady_slots_skipped": 0,
+      "steady_scheduled_deadlines_met": false,
+      "steady_start_interval_ms": {
+        "count": 499,
+        "median": 19.999981,
+        "p95": 20.001676,
+        "p99": 20.003886,
+        "max": 20.132211
+      },
+      "steady_start_intervals_over_20ms": 247,
+      "strict_steady_start_interval_20ms_met": false,
+      "all_cycles_retained": true,
+      "diagnostic_only": true,
+      "full_controller_50Hz_verified": false
+    },
+    "oldest_input_to_last_reply_ms_max_all_501": 18.729906,
+    "oldest_input_to_last_reply_over_20ms_all_501": 0,
+    "release_to_last_reply_ms_max_all_501": 19.134054,
+    "release_to_last_reply_over_20ms_all_501": 0,
+    "steady_whole_miss_cycles": [
+      {
+        "cycle": 14,
+        "whole_iteration_ms": 20.082833,
+        "inference_ms": 2.648632,
+        "scheduled_completion_slack_ms": -0.096065
+      }
+    ],
+    "steady_scheduled_deadline_miss_cycles": [
+      14
+    ],
+    "restored": {
+      "main_cpu_affinity": true,
+      "worker_cpu_affinity": true,
+      "automatic_gc": true,
+      "imu_configuration": true
+    },
+    "full_controller_50Hz_verified": false
+  },
+  "live_r15_scalar_voltage_overlap_first": {
+    "source_directory": "v3-26-startup-scalar-voltage-overlap-gap800-20260928-223226-C7nQhu",
+    "boot_id": "b4709d10-dd73-4441-bf2e-fe95ac72fdc3",
+    "status": "COMPLETE_DIAGNOSTIC",
+    "report_sha256": "ab518cf0c5b808435f06595946ce24c23f9206db1296f71907a62f94a7be6e4c",
+    "records_sha256": "841bf870aca1ff6a0d03047051745db42a248b263964a2e8430ed970e8fd4878",
+    "model_source_schema": "native-step-scalar-file-only-loader-v1",
+    "model_manifest_sha256": "7ad6670368feb10d36bd62f594c7a53e89f28a5462fd1c3cf2292e2c1987f666",
+    "voltage_overlap": true,
+    "cycles_requested": 501,
+    "cycles_completed": 501,
+    "records_verified": {
+      "rows": 501,
+      "requests_per_cycle": 26,
+      "total_requests": 13026,
+      "phase_request_counts": {
+        "acquired": 6012,
+        "voltage": 1002,
+        "output": 6012
+      },
+      "type4_count": 12024,
+      "type17_voltage_count": 1002,
+      "type1_count": 0,
+      "all_native_records_written_and_received_17_bytes": true
+    },
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "steady_timing": {
+      "startup_cycle_allowance": 1,
+      "startup_cycles_recorded": 1,
+      "startup_whole_iteration_ms": [
+        19.676083
+      ],
+      "startup_iteration_deadline_misses": 0,
+      "startup_to_steady_interval_ms": 19.989953,
+      "steady_cycles_requested": 500,
+      "steady_cycles_completed": 500,
+      "steady_whole_iteration_ms": {
+        "count": 500,
+        "median": 18.480045,
+        "p95": 18.776459,
+        "p99": 18.954034,
+        "max": 19.022997
+      },
+      "steady_iteration_deadline_misses": 0,
+      "steady_processing_20ms_met": true,
+      "steady_scheduled_completion_slack_ms": {
+        "count": 500,
+        "median": 1.5068065000000002,
+        "p95": 2.118179,
+        "p99": 2.217745,
+        "max": 2.270845
+      },
+      "steady_min_completion_slack_ms": 0.962838,
+      "steady_scheduled_deadline_misses": 0,
+      "steady_slots_skipped": 0,
+      "steady_scheduled_deadlines_met": true,
+      "steady_start_interval_ms": {
+        "count": 499,
+        "median": 20.000001,
+        "p95": 20.00189,
+        "p99": 20.003234,
+        "max": 20.010369
+      },
+      "steady_start_intervals_over_20ms": 254,
+      "strict_steady_start_interval_20ms_met": false,
+      "all_cycles_retained": true,
+      "diagnostic_only": true,
+      "full_controller_50Hz_verified": false
+    },
+    "oldest_input_to_last_reply_ms_max_all_501": 18.897553,
+    "oldest_input_to_last_reply_over_20ms_all_501": 0,
+    "release_to_last_reply_ms_max_all_501": 19.424456,
+    "release_to_last_reply_over_20ms_all_501": 0,
+    "steady_whole_miss_cycles": [],
+    "steady_scheduled_deadline_miss_cycles": [],
+    "restored": {
+      "main_cpu_affinity": true,
+      "worker_cpu_affinity": true,
+      "automatic_gc": true,
+      "imu_configuration": true
+    },
+    "full_controller_50Hz_verified": false
+  },
+  "live_r15_scalar_voltage_overlap_repeat": {
+    "source_directory": "v3-26-startup-scalar-voltage-overlap-gap800-20260928-223317-CrBRoQ",
+    "boot_id": "b4709d10-dd73-4441-bf2e-fe95ac72fdc3",
+    "status": "COMPLETE_DIAGNOSTIC",
+    "report_sha256": "3496cb28761fc3a6b54cb389441e45c83fc09f207fb7b7f64ceb9259b5b18e62",
+    "records_sha256": "ad6546f6570bb39ece3dcbc0f9fb59d5551b05b1c0c0362de596ad44588f98c6",
+    "model_source_schema": "native-step-scalar-file-only-loader-v1",
+    "model_manifest_sha256": "7ad6670368feb10d36bd62f594c7a53e89f28a5462fd1c3cf2292e2c1987f666",
+    "voltage_overlap": true,
+    "cycles_requested": 501,
+    "cycles_completed": 501,
+    "records_verified": {
+      "rows": 501,
+      "requests_per_cycle": 26,
+      "total_requests": 13026,
+      "phase_request_counts": {
+        "acquired": 6012,
+        "voltage": 1002,
+        "output": 6012
+      },
+      "type4_count": 12024,
+      "type17_voltage_count": 1002,
+      "type1_count": 0,
+      "all_native_records_written_and_received_17_bytes": true
+    },
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "steady_timing": {
+      "startup_cycle_allowance": 1,
+      "startup_cycles_recorded": 1,
+      "startup_whole_iteration_ms": [
+        19.05156
+      ],
+      "startup_iteration_deadline_misses": 0,
+      "startup_to_steady_interval_ms": 19.990326,
+      "steady_cycles_requested": 500,
+      "steady_cycles_completed": 500,
+      "steady_whole_iteration_ms": {
+        "count": 500,
+        "median": 18.4954975,
+        "p95": 18.824497,
+        "p99": 19.567096,
+        "max": 20.227358
+      },
+      "steady_iteration_deadline_misses": 4,
+      "steady_processing_20ms_met": false,
+      "steady_scheduled_completion_slack_ms": {
+        "count": 500,
+        "median": 1.492106,
+        "p95": 2.078764,
+        "p99": 2.123107,
+        "max": 2.220858
+      },
+      "steady_min_completion_slack_ms": -0.603793,
+      "steady_scheduled_deadline_misses": 5,
+      "steady_slots_skipped": 0,
+      "steady_scheduled_deadlines_met": false,
+      "steady_start_interval_ms": {
+        "count": 499,
+        "median": 19.999946,
+        "p95": 20.001319,
+        "p99": 20.007808,
+        "max": 20.269447
+      },
+      "steady_start_intervals_over_20ms": 237,
+      "strict_steady_start_interval_20ms_met": false,
+      "all_cycles_retained": true,
+      "diagnostic_only": true,
+      "full_controller_50Hz_verified": false
+    },
+    "oldest_input_to_last_reply_ms_max_all_501": 19.836808,
+    "oldest_input_to_last_reply_over_20ms_all_501": 0,
+    "release_to_last_reply_ms_max_all_501": 20.019344,
+    "release_to_last_reply_over_20ms_all_501": 1,
+    "steady_whole_miss_cycles": [
+      {
+        "cycle": 82,
+        "whole_iteration_ms": 20.227358,
+        "inference_ms": 5.031658,
+        "scheduled_completion_slack_ms": -0.239817
+      },
+      {
+        "cycle": 83,
+        "whole_iteration_ms": 20.210554,
+        "inference_ms": 5.063761,
+        "scheduled_completion_slack_ms": -0.49246
+      },
+      {
+        "cycle": 84,
+        "whole_iteration_ms": 20.069788,
+        "inference_ms": 5.039404,
+        "scheduled_completion_slack_ms": -0.603793
+      },
+      {
+        "cycle": 338,
+        "whole_iteration_ms": 20.001328,
+        "inference_ms": 4.514963,
+        "scheduled_completion_slack_ms": -0.013907
+      }
+    ],
+    "steady_scheduled_deadline_miss_cycles": [
+      82,
+      83,
+      84,
+      85,
+      338
+    ],
+    "restored": {
+      "main_cpu_affinity": true,
+      "worker_cpu_affinity": true,
+      "automatic_gc": true,
+      "imu_configuration": true
+    },
+    "full_controller_50Hz_verified": false
+  },
+  "scalar_file_only_jetson": {
+    "status": "PASS_FILE_ONLY",
+    "hardware_opened": false,
+    "output_allowed": false,
+    "parity_report_sha256": "f5ff3e4c6014099e360d0f1af4bc04f84fb5966cdf2d5bb0bbabc2d9a504c08e",
+    "synthetic_report_sha256": "5ff31cd047992d1396c921b0bae07ef14dfca660944ded4a23771697866a07e2",
+    "timing_report_sha256": "30aae8fc8f33a45f0283d3209d45dd6b25b27851a580390d04c7aade8c9306f7",
+    "saved_recurrent_calls_exact_output_and_state": 500,
+    "rejection_cases": 26,
+    "synthetic_frames_exact_output_and_state": 240,
+    "cached_wall_median_ms": 2.270622,
+    "scalar_wall_median_ms": 1.735172,
+    "scalar_median_gain_ms": 0.53545,
+    "distinct_from_earlier_aten_dispatch_only_gain_ms_approximately": 0.1,
+    "full_controller_50Hz_verified": false
+  },
+  "live_r17_worker_validation_first": {
+    "source_directory": "v3-26-startup-scalar-worker-validation-gap800-20260928-224359-1WWnCM",
+    "boot_id": "b4709d10-dd73-4441-bf2e-fe95ac72fdc3",
+    "status": "COMPLETE_DIAGNOSTIC",
+    "report_sha256": "1d0e49226ab095c007d5de63325b8e201467315234e43ed229546b3652cfb2d4",
+    "records_sha256": "d02f9eea25949ea49effc325a6ae471a8239b5b5f7e9a78e326361301221b2bf",
+    "model_source_schema": "native-step-scalar-file-only-loader-v1",
+    "model_manifest_sha256": "7ad6670368feb10d36bd62f594c7a53e89f28a5462fd1c3cf2292e2c1987f666",
+    "voltage_overlap": true,
+    "worker_voltage_validation_overlap_enabled": true,
+    "worker_validation_started_before_inference_end_cycles": 51,
+    "worker_validation_finished_before_inference_end_cycles": 51,
+    "cycles_requested": 501,
+    "cycles_completed": 501,
+    "records_verified": {
+      "rows": 501,
+      "requests_per_cycle": 26,
+      "total_requests": 13026,
+      "phase_request_counts": {
+        "acquired": 6012,
+        "voltage": 1002,
+        "output": 6012
+      },
+      "type4_count": 12024,
+      "type17_voltage_count": 1002,
+      "type1_count": 0,
+      "all_native_records_written_and_received_17_bytes": true,
+      "all_501_voltage_proofs_finalized_before_proxy_stop": true
+    },
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "steady_timing": {
+      "startup_cycle_allowance": 1,
+      "startup_cycles_recorded": 1,
+      "startup_whole_iteration_ms": [
+        19.49674
+      ],
+      "startup_iteration_deadline_misses": 0,
+      "startup_to_steady_interval_ms": 19.989692,
+      "steady_cycles_requested": 500,
+      "steady_cycles_completed": 500,
+      "steady_whole_iteration_ms": {
+        "count": 500,
+        "median": 18.677438000000002,
+        "p95": 18.949917,
+        "p99": 19.086665,
+        "max": 19.840034
+      },
+      "steady_iteration_deadline_misses": 0,
+      "steady_processing_20ms_met": true,
+      "steady_scheduled_completion_slack_ms": {
+        "count": 500,
+        "median": 1.310036,
+        "p95": 1.885126,
+        "p99": 1.996763,
+        "max": 2.036609
+      },
+      "steady_min_completion_slack_ms": -0.357238,
+      "steady_scheduled_deadline_misses": 1,
+      "steady_slots_skipped": 0,
+      "steady_scheduled_deadlines_met": false,
+      "steady_start_interval_ms": {
+        "count": 499,
+        "median": 19.99996,
+        "p95": 20.00134,
+        "p99": 20.002039,
+        "max": 21.552385
+      },
+      "steady_start_intervals_over_20ms": 239,
+      "strict_steady_start_interval_20ms_met": false,
+      "all_cycles_retained": true,
+      "diagnostic_only": true,
+      "full_controller_50Hz_verified": false
+    },
+    "oldest_input_to_last_reply_ms_max_all_501": 19.452054,
+    "oldest_input_to_last_reply_over_20ms_all_501": 0,
+    "release_to_last_reply_ms_max_all_501": 19.637611,
+    "release_to_last_reply_over_20ms_all_501": 0,
+    "release_to_last_reply_over_20ms_cycles": [],
+    "steady_whole_miss_cycles": [],
+    "steady_scheduled_deadline_miss_cycles": [
+      349
+    ],
+    "restored": {
+      "main_cpu_affinity": true,
+      "worker_cpu_affinity": true,
+      "automatic_gc": true,
+      "imu_configuration": true
+    },
+    "full_controller_50Hz_verified": false
+  },
+  "live_r17_worker_validation_repeat": {
+    "source_directory": "v3-26-startup-scalar-worker-validation-gap800-20260928-224444-Zu4pEn",
+    "boot_id": "b4709d10-dd73-4441-bf2e-fe95ac72fdc3",
+    "status": "COMPLETE_DIAGNOSTIC",
+    "report_sha256": "7eaadb878a0ea6f98cfeae1b49312a2bcc4a63d71d4aeb8c9f43c6740afbe204",
+    "records_sha256": "d0a9c14791d956c99e4856370ed0088d4a4b38982f8a060ba0fb2f762a33c801",
+    "model_source_schema": "native-step-scalar-file-only-loader-v1",
+    "model_manifest_sha256": "7ad6670368feb10d36bd62f594c7a53e89f28a5462fd1c3cf2292e2c1987f666",
+    "voltage_overlap": true,
+    "worker_voltage_validation_overlap_enabled": true,
+    "worker_validation_started_before_inference_end_cycles": 77,
+    "worker_validation_finished_before_inference_end_cycles": 77,
+    "cycles_requested": 501,
+    "cycles_completed": 501,
+    "records_verified": {
+      "rows": 501,
+      "requests_per_cycle": 26,
+      "total_requests": 13026,
+      "phase_request_counts": {
+        "acquired": 6012,
+        "voltage": 1002,
+        "output": 6012
+      },
+      "type4_count": 12024,
+      "type17_voltage_count": 1002,
+      "type1_count": 0,
+      "all_native_records_written_and_received_17_bytes": true,
+      "all_501_voltage_proofs_finalized_before_proxy_stop": true
+    },
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "steady_timing": {
+      "startup_cycle_allowance": 1,
+      "startup_cycles_recorded": 1,
+      "startup_whole_iteration_ms": [
+        20.60489
+      ],
+      "startup_iteration_deadline_misses": 1,
+      "startup_to_steady_interval_ms": 20.654463,
+      "steady_cycles_requested": 500,
+      "steady_cycles_completed": 500,
+      "steady_whole_iteration_ms": {
+        "count": 500,
+        "median": 18.655257499999998,
+        "p95": 18.984472,
+        "p99": 19.183733,
+        "max": 19.455481
+      },
+      "steady_iteration_deadline_misses": 0,
+      "steady_processing_20ms_met": true,
+      "steady_scheduled_completion_slack_ms": {
+        "count": 500,
+        "median": 1.330699,
+        "p95": 1.931941,
+        "p99": 1.987434,
+        "max": 2.087727
+      },
+      "steady_min_completion_slack_ms": 0.52142,
+      "steady_scheduled_deadline_misses": 0,
+      "steady_slots_skipped": 0,
+      "steady_scheduled_deadlines_met": true,
+      "steady_start_interval_ms": {
+        "count": 499,
+        "median": 20.000017,
+        "p95": 20.002198,
+        "p99": 20.003566,
+        "max": 20.011825
+      },
+      "steady_start_intervals_over_20ms": 252,
+      "strict_steady_start_interval_20ms_met": false,
+      "all_cycles_retained": true,
+      "diagnostic_only": true,
+      "full_controller_50Hz_verified": false
+    },
+    "oldest_input_to_last_reply_ms_max_all_501": 19.821635,
+    "oldest_input_to_last_reply_over_20ms_all_501": 0,
+    "release_to_last_reply_ms_max_all_501": 20.340412,
+    "release_to_last_reply_over_20ms_all_501": 1,
+    "release_to_last_reply_over_20ms_cycles": [
+      1
+    ],
+    "steady_whole_miss_cycles": [],
+    "steady_scheduled_deadline_miss_cycles": [],
+    "restored": {
+      "main_cpu_affinity": true,
+      "worker_cpu_affinity": true,
+      "automatic_gc": true,
+      "imu_configuration": true
+    },
+    "full_controller_50Hz_verified": false
+  }
+}

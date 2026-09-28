@@ -1,0 +1,83 @@
+{
+  "schema": "singularitydog.accepted-angle-timing-policy.v1",
+  "recorded_at": "2026-09-28T14:08:44.375887+00:00",
+  "operator_instructions": {
+    "angle": "360度はたまに発生しますので、その前提で対策を実施し、それができればOK",
+    "cadence": "周期開始時刻の安定化×約1.57msの開始遅れが1回あり、厳密な開始間隔は未達 は、現状のままでOK",
+    "startup_previously_allowed_cycles": 1
+  },
+  "angle_software": {
+    "status": "PASS_OFFLINE",
+    "new_power_epoch_rebinds_integer_turns": true,
+    "shared_read_and_target_inverse_branch": true,
+    "axes_tested": 12,
+    "signs_tested": [
+      -1,
+      1
+    ],
+    "raw_turn_offsets_tested": [
+      -1,
+      0,
+      1
+    ],
+    "encoded_type1_targets_checked": true,
+    "live_discontinuity_reject_and_both_bus_stop_mock_checked": true,
+    "hardware_wrap_reproduction_required_for_software_acceptance": false,
+    "physical_zero_sign_limits_approved": false,
+    "tests_passed": 100,
+    "test_command": "PYTHONPATH=runtime:runtime/tests python3 -B -m unittest test_angle_calibration_audit test_policy_output_runtime test_policy_live_profile",
+    "runtime_logic_change_needed_this_review": false
+  },
+  "observed_timing": {
+    "acceptance_artifact_sha256": "791e7244b7140535027f7ab78667d43fe551eedc9ee38e04a95a1d3b4ad0a9bb",
+    "source_sha256": {
+      "baseline": "1d0e49226ab095c007d5de63325b8e201467315234e43ed229546b3652cfb2d4",
+      "candidate": "7eaadb878a0ea6f98cfeae1b49312a2bcc4a63d71d4aeb8c9f43c6740afbe204"
+    },
+    "operator_acceptance": {
+      "policy": "observed-r17-cadence-20260928",
+      "scope": "Only these two existing disabled R17 reports; first cycle separately recorded, observed start jitter accepted",
+      "reports": {
+        "baseline": {
+          "accepted_for_diagnostic_continuation": true,
+          "steady_processing_20ms_met": true,
+          "observed_cadence_accepted_by_operator": true,
+          "strict_start_interval_20ms_met": false
+        },
+        "candidate": {
+          "accepted_for_diagnostic_continuation": true,
+          "steady_processing_20ms_met": true,
+          "observed_cadence_accepted_by_operator": true,
+          "strict_start_interval_20ms_met": false
+        }
+      },
+      "accepted_for_diagnostic_continuation": true,
+      "future_reports_covered": false,
+      "runtime_safety_limits_changed": false,
+      "approved_for_runtime": false,
+      "live_policy_20ms_verified": false
+    },
+    "steady_processing_max_ms": [
+      19.840034,
+      19.455481
+    ],
+    "steady_cycles": 1000,
+    "steady_processing_over_20ms": 0,
+    "strict_start_interval_20ms_verified": false,
+    "additional_current_cadence_optimization_required": false,
+    "tests_passed": 12
+  },
+  "source_sha256": {
+    "runtime/singularitydog_hw/angle_calibration_audit.py": "8366c1e18fe17ab5851ced1591b5c9c6695d5f0ff9512bd686a646547e35c759",
+    "runtime/singularitydog_hw/policy_output_runtime.py": "5f07d2087d698bc97a6b2bd5f250dedea53a60f224a6b6b912fde682dc6a0bc3",
+    "runtime/tests/test_angle_calibration_audit.py": "5c4e8b71465e15a4676bd54f080d384081986edf3653c18447011bfe0afb0b8a",
+    "runtime/tests/test_policy_output_runtime.py": "dab919d9bb8525051614913a8fd197b7f11a4c5399644174162d101c70c7198c",
+    "tools/compare_native_20ms.py": "8d5301d414683f363835f57074d501c199e3eec38c879188567d50d00aa4960a",
+    "tools/test_compare_native_20ms.py": "7587bca86c1128d9b5822ed59f11582e0fadfe388c26a02c087d1aeb20607387"
+  },
+  "hardware_opened_for_this_change": false,
+  "motor_enable_sent": false,
+  "learned_targets_sent": false,
+  "runtime_safety_limits_changed": false,
+  "runtime_output_approved": false
+}

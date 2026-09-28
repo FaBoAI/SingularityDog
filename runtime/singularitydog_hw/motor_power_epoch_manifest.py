@@ -249,10 +249,12 @@ def build_manifest(reference_source, current_source, operator_events_source):
         epoch = epoch_id(phase)
         snapshots.append({"boot_id": capture["boot_id"],
             "motor_power_epoch": epoch,
+            "epoch_evidence_sha256": events["sha256"],
             "uid_read_boot_id": capture["boot_id"],
             "uid_read_motor_power_epoch": epoch,
             "capture_sha256": capture["capture_sha256"],
             "uid_capture_sha256": capture["uid_capture_sha256"],
+            "monotonic_ns": capture["last_telemetry_reply_ns"],
             "uids_by_id": capture["uids_by_id"],
             "raw_rad_by_id": capture["raw_rad_by_id"],
             "disabled_zero_current_by_id": capture["disabled_zero_current_by_id"],

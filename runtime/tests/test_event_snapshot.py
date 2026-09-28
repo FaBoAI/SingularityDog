@@ -1,8 +1,13 @@
 """Ownership and resource limits for strict event snapshots; no device access."""
 import copy
+import gc
 import json
 import math
+import pathlib
+import subprocess
+import sys
 import unittest
+import weakref
 from unittest.mock import patch
 
 from singularitydog_hw.event_snapshot import snapshot_event
@@ -104,6 +109,74 @@ class EventSnapshotTests(unittest.TestCase):
                         {'max_bytes': True}):
             with self.subTest(options=options), self.assertRaisesRegex(ValueError, 'bounds'):
                 snapshot_event(object(), **options)
+
+    def test_recursive_helper_has_no_self_closure_and_dies_without_collection(self):
+        visitors = []
+        def capture(frame, event, result):
+            if event == 'return' and frame.f_code is snapshot_event.__code__:
+                visitors.append(frame.f_locals['visit'])
+        previous = sys.getprofile()
+        enabled = gc.isenabled()
+        gc.disable()
+        try:
+            sys.setprofile(capture)
+            self.assertEqual(snapshot_event({'nested': [({'values': [1., None]},)]}),
+                             {'nested': [({'values': [1., None]},)]})
+            sys.setprofile(previous)
+            self.assertEqual(len(visitors), 1)
+            visitor = visitors.pop()
+            self.assertFalse(any(cell.cell_contents is visitor for cell in visitor.__closure__))
+            reference = weakref.ref(visitor)
+            del visitor
+            # Refcount reclamation must suffice while automatic GC is disabled.
+            # No gc.collect() is needed to release this per-clone helper.
+            self.assertIsNone(reference())
+        finally:
+            sys.setprofile(previous)
+            if enabled:
+                gc.enable()
+
+    def test_gc_disabled_clones_create_no_per_call_unreachable_growth(self):
+        # A fresh interpreter excludes unrelated unittest/mock reference cycles
+        # from the manual collection counts and restores its own GC in finally.
+        script = '''
+import gc, importlib.util, json, sys
+spec = importlib.util.spec_from_file_location('owned_event_copy', sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+shared = {'samples': [1, 2., None, False]}
+valid = (0, None, 'text', {}, [], (), {'a': shared, 'b': [shared, ({'deep': [3]},)]})
+invalid = ({'bad': float('nan')}, {'bad': object()}, {1: 'bad key'}, {'deep': [[1]]})
+enabled = gc.isenabled()
+gc.disable()
+try:
+    gc.collect()
+    counts = []
+    for calls in (1, 100, 1000):
+        for _ in range(calls):
+            for source in valid:
+                module.snapshot_event(source)
+            for source in invalid:
+                try:
+                    module.snapshot_event(source, max_depth=2)
+                except (TypeError, ValueError):
+                    pass
+                else:
+                    raise AssertionError('Invalid event accepted')
+        counts.append(gc.collect())
+    assert counts == [0, 0, 0], counts
+    print(json.dumps({'manual_unreachable_counts': counts, 'calls_each': [1, 100, 1000],
+                      'automatic_gc_enabled': gc.isenabled()}))
+finally:
+    if enabled:
+        gc.enable()
+'''
+        path = pathlib.Path(sys.modules[snapshot_event.__module__].__file__).resolve()
+        result = subprocess.run([sys.executable, '-I', '-c', script, str(path)],
+                                check=True, capture_output=True, text=True, timeout=20)
+        evidence = json.loads(result.stdout)
+        self.assertEqual(evidence['manual_unreachable_counts'], [0, 0, 0])
+        self.assertFalse(evidence['automatic_gc_enabled'])
 
 
 if __name__ == '__main__':

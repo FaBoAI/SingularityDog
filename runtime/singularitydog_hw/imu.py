@@ -118,10 +118,14 @@ class ICM20948:
     """
 
     def __init__(self, bus="/dev/i2c-7", address=0x68, *, sleep=time.sleep,
-                 monotonic_ns=time.monotonic_ns, wall_time_ns=time.time_ns):
+                 monotonic_ns=time.monotonic_ns, wall_time_ns=time.time_ns,
+                 accel_range_g=2):
         if address not in (0x68, 0x69):
             raise ValueError("ICM-20948 address must be 0x68 or 0x69")
+        if accel_range_g not in (2, 4, 8, 16):
+            raise ValueError("ICM-20948 accel range must be 2, 4, 8, or 16 g")
         self.address = address
+        self._accel_range_g = accel_range_g
         self._bus_argument = bus
         self._owns_bus = isinstance(bus, (str, bytes, os.PathLike))
         self._bus = None if self._owns_bus else bus
@@ -228,7 +232,8 @@ class ICM20948:
                 GYRO_CONFIG_1: (self._original[GYRO_CONFIG_1] & 0xC0) | 0x21,
                 ACCEL_SMPLRT_DIV_1: self._original[ACCEL_SMPLRT_DIV_1] & 0xF0,
                 ACCEL_SMPLRT_DIV_2: 10,
-                ACCEL_CONFIG: (self._original[ACCEL_CONFIG] & 0xC0) | 0x21,
+                ACCEL_CONFIG: ((self._original[ACCEL_CONFIG] & 0xC0) | 0x21 |
+                               ((2, 4, 8, 16).index(self._accel_range_g) << 1)),
             }
             for key, value in targets.items():
                 self._change(key, value)

@@ -1,0 +1,122 @@
+{
+  "schema": "singularitydog.watchdog-command-loss-observation.v1",
+  "status": "COMPLETE_COMMAND_LOSS_DIAGNOSTIC",
+  "trial_complete": true,
+  "source_sha256": "ef33169fcd1aff4330168ef32c7fc95df81542c1cdddc9d09b7b995e11a9a6f7",
+  "motor_enable_sent": true,
+  "positive_gain_sent": false,
+  "command_loss_disabled_all12": true,
+  "configured_timeout_ms": 200,
+  "disable_reply_upper_bound_ms_by_id": {
+    "1": 226.005017,
+    "2": 227.472672,
+    "3": 224.051877,
+    "4": 224.278828,
+    "5": 226.255709,
+    "6": 223.474078,
+    "7": 224.132153,
+    "8": 223.692295,
+    "9": 223.684807,
+    "10": 226.390028,
+    "11": 225.142254,
+    "12": 223.931596
+  },
+  "disable_bound_origin": "Last zero-gain host write started; reply time is an upper bound, not exact torque-off instant.",
+  "stop_reports": {
+    "front": {
+      "confirmed_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "unconfirmed_ids": [],
+      "ambiguous_ids": [],
+      "errors": [],
+      "complete": true
+    },
+    "rear": {
+      "confirmed_ids": [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "unconfirmed_ids": [],
+      "ambiguous_ids": [],
+      "errors": [],
+      "complete": true
+    }
+  },
+  "stop_confirmed": true,
+  "usb_disconnect_tested": false,
+  "operator_after": "音声が聞こえ・異常なし。箱を残した支持状態。",
+  "approved_for_runtime": false,
+  "remaining": "Physical USB disconnection and separate learned-output profile review are not covered.",
+  "previous_attempts": [
+    {
+      "schema": "singularitydog.watchdog-command-loss-observation.v1",
+      "status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+      "trial_complete": false,
+      "source_sha256": "64cf09e92dc11dc7c3cb38914dd8cb3e8729131aedb36146616560de8cab4f0e",
+      "motor_enable_sent": true,
+      "positive_gain_sent": false,
+      "command_loss_disabled_all12": true,
+      "configured_timeout_ms": 200,
+      "disable_reply_upper_bound_ms_by_id": {
+        "1": 227.428772,
+        "2": 227.506249,
+        "3": 222.721713,
+        "4": 225.514873,
+        "5": 227.632082,
+        "6": 223.485416,
+        "7": 224.54434,
+        "8": 223.900645,
+        "9": 222.696334,
+        "10": 226.829144,
+        "11": 225.384496,
+        "12": 225.180066
+      },
+      "stop_reports": {
+        "front": {
+          "confirmed_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "unconfirmed_ids": [
+            6
+          ],
+          "ambiguous_ids": [],
+          "errors": [
+            "TimeoutError: Serial hard receive deadline reached"
+          ],
+          "complete": false
+        },
+        "rear": {
+          "confirmed_ids": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "unconfirmed_ids": [],
+          "ambiguous_ids": [],
+          "errors": [],
+          "complete": true
+        }
+      },
+      "usb_disconnect_tested": false,
+      "operator_after": "40V Off・現物異常なし",
+      "approved_for_runtime": false
+    }
+  ]
+}

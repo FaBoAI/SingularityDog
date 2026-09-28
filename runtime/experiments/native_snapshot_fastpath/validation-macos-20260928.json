@@ -1,0 +1,252 @@
+{
+  "schema": "native-snapshot-fastpath-validation-v1",
+  "status": "PASS_EXACT_FILE_ONLY",
+  "hardware_opened": false,
+  "output_allowed": false,
+  "approved_for_runtime": false,
+  "adoption_decision": "REJECT_SMALL_ABSOLUTE_GAIN",
+  "jetson_verified": false,
+  "full_cycle_verified": false,
+  "deployed_default_changed": false,
+  "saved_stop_frames": 500,
+  "saved_type17_frames": 20,
+  "all_snapshot_values_exact": true,
+  "rejection_count": 30,
+  "single_byte_mutations_exact": 17340,
+  "rejections": [
+    {
+      "case": "stop_written_short",
+      "exception": "ValueError",
+      "reason": "Incomplete/noncausal native input"
+    },
+    {
+      "case": "stop_received_short",
+      "exception": "ValueError",
+      "reason": "Incomplete/noncausal native input"
+    },
+    {
+      "case": "zero_start",
+      "exception": "ValueError",
+      "reason": "Incomplete/noncausal native input"
+    },
+    {
+      "case": "finish_before_start",
+      "exception": "ValueError",
+      "reason": "Incomplete/noncausal native input"
+    },
+    {
+      "case": "receive_before_finish",
+      "exception": "ValueError",
+      "reason": "Incomplete/noncausal native input"
+    },
+    {
+      "case": "receive_at_deadline",
+      "exception": "ValueError",
+      "reason": "Incomplete/noncausal native input"
+    },
+    {
+      "case": "tick_before_reply",
+      "exception": "ValueError",
+      "reason": "Incomplete/noncausal native input"
+    },
+    {
+      "case": "malformed_tx_0",
+      "exception": "ValueError",
+      "reason": "Malformed native record"
+    },
+    {
+      "case": "malformed_tx_6",
+      "exception": "ValueError",
+      "reason": "Malformed native record"
+    },
+    {
+      "case": "malformed_tx_15",
+      "exception": "ValueError",
+      "reason": "Malformed native record"
+    },
+    {
+      "case": "malformed_rx_0",
+      "exception": "ValueError",
+      "reason": "Malformed native record"
+    },
+    {
+      "case": "malformed_rx_6",
+      "exception": "ValueError",
+      "reason": "Malformed native record"
+    },
+    {
+      "case": "malformed_rx_15",
+      "exception": "ValueError",
+      "reason": "Malformed native record"
+    },
+    {
+      "case": "cross_bus",
+      "exception": "ValueError",
+      "reason": "Cross-bus input"
+    },
+    {
+      "case": "unknown_bus",
+      "exception": "ValueError",
+      "reason": "Unknown bus"
+    },
+    {
+      "case": "stop_request_payload",
+      "exception": "ValueError",
+      "reason": "Invalid STOP composite response"
+    },
+    {
+      "case": "stop_response_flags",
+      "exception": "ValueError",
+      "reason": "Invalid STOP composite response"
+    },
+    {
+      "case": "stop_forbidden_payload",
+      "exception": "ValueError",
+      "reason": "Invalid STOP composite response"
+    },
+    {
+      "case": "type17_request_payload",
+      "exception": "ValueError",
+      "reason": "Invalid Type17 request"
+    },
+    {
+      "case": "type17_reply_index",
+      "exception": "ValueError",
+      "reason": "Reply does not match request"
+    },
+    {
+      "case": "type17_reserved",
+      "exception": "ValueError",
+      "reason": "Rejected Type17 value"
+    },
+    {
+      "case": "type17_status",
+      "exception": "ValueError",
+      "reason": "Rejected Type17 value"
+    },
+    {
+      "case": "type17_nan",
+      "exception": "ValueError",
+      "reason": "Rejected Type17 value"
+    },
+    {
+      "case": "identity_not_telemetry",
+      "exception": "ValueError",
+      "reason": "Identity is not cycle telemetry"
+    },
+    {
+      "case": "duplicate_stop",
+      "exception": "ValueError",
+      "reason": "Duplicate input"
+    },
+    {
+      "case": "duplicate_type17",
+      "exception": "ValueError",
+      "reason": "Duplicate input"
+    },
+    {
+      "case": "missing_bus",
+      "exception": "ValueError",
+      "reason": "Missing full twelve-axis position/velocity inputs"
+    },
+    {
+      "case": "imu_zero_start",
+      "exception": "ValueError",
+      "reason": "Noncausal IMU"
+    },
+    {
+      "case": "imu_nan",
+      "exception": "ValueError",
+      "reason": "Invalid IMU vector"
+    },
+    {
+      "case": "expired",
+      "exception": "ValueError",
+      "reason": "Expired inputs"
+    }
+  ],
+  "timing_stop": {
+    "python": {
+      "wall": {
+        "count": 500,
+        "median_ms": 0.034167,
+        "p95_ms": 0.037167,
+        "p99_ms": 0.040417,
+        "max_ms": 0.068625
+      },
+      "thread_cpu": {
+        "count": 500,
+        "median_ms": 0.0339375,
+        "p95_ms": 0.036917,
+        "p99_ms": 0.039917,
+        "max_ms": 0.053625
+      }
+    },
+    "native": {
+      "wall": {
+        "count": 500,
+        "median_ms": 0.010291,
+        "p95_ms": 0.011875,
+        "p99_ms": 0.013667,
+        "max_ms": 0.029375
+      },
+      "thread_cpu": {
+        "count": 500,
+        "median_ms": 0.010083,
+        "p95_ms": 0.011333,
+        "p99_ms": 0.012958,
+        "max_ms": 0.019
+      }
+    }
+  },
+  "timing_type17": {
+    "python": {
+      "wall": {
+        "count": 500,
+        "median_ms": 0.071,
+        "p95_ms": 0.076791,
+        "p99_ms": 0.094542,
+        "max_ms": 0.109167
+      },
+      "thread_cpu": {
+        "count": 500,
+        "median_ms": 0.07075,
+        "p95_ms": 0.076584,
+        "p99_ms": 0.088709,
+        "max_ms": 0.101334
+      }
+    },
+    "native": {
+      "wall": {
+        "count": 500,
+        "median_ms": 0.010291,
+        "p95_ms": 0.011625,
+        "p99_ms": 0.014167,
+        "max_ms": 0.030916
+      },
+      "thread_cpu": {
+        "count": 500,
+        "median_ms": 0.010083,
+        "p95_ms": 0.011334,
+        "p99_ms": 0.013917,
+        "max_ms": 0.019917
+      }
+    }
+  },
+  "source_hashes": {
+    "snapshot.cpp": "5b99350c931ff68fc45e4f03aa65f38262ff00540eae5440545e37a364407f52",
+    "loader.py": "d8bdc509acb68094cc4476a28096812bcf7618c82ebb8cb62e0e7523e40901dc",
+    "build.py": "a542938e7851e1d82170ee9fdb5f48b3cf820831dc36099816f1c9e1e4b32131",
+    "verify.py": "149b484b792455163df1ee719528dfb16760b12e9acb8553977266d89dd2171b"
+  },
+  "reference_source_sha256": {
+    "native_pipeline_benchmark.py": "af897b7e95fe8882151660d71535d11bc9a77b036f48ebc25a02add4f7a92cf1",
+    "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+    "native_diagnostic_transport.py": "9b30905f2c6bfdd6f42c4719f45ad60f4430db967faae49aece4e073c2c1b7a5",
+    "dual_can_pipeline_benchmark.py": "b31307264ec7e4986520f2d6e0701238d38c627d26222401aa1507c716a0ca3d"
+  },
+  "stop_records_sha256": "3832ceffee959e8442e079785d4e0e39ab8a1343e960aa15721d24b0cdda4ca4",
+  "type17_records_sha256": "28276e5dcd1502302af1f85be0a319996de8f144593f14616118fd4c455b4ae4",
+  "library_sha256": "fa9d87fc4e9c938fe01111f588d656db78f4876ab0f0712a05bafaf8f235f8eb",
+  "scope": "CPU snapshot assembly from saved fixed records only; no live I/O"
+}

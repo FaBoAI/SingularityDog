@@ -1,6 +1,7 @@
 """Causal offline replay with synthetic captures and independent fake policies."""
 import contextlib
 import argparse
+from array import array
 import copy
 import io
 import json
@@ -36,6 +37,50 @@ def records(ticks=4):
 
 
 class ReplayTests(unittest.TestCase):
+    def test_optional_warmup_primes_the_same_reused_input_storage(self):
+        import torch
+        seen = []
+        class Model:
+            def __call__(self, *inputs):
+                seen.append(tuple(t.data_ptr() for t in inputs))
+                self.last_actor_output = torch.zeros(1, 12)
+                self.last_observation = torch.zeros(1, 74)
+                return torch.zeros(1, 12)
+        buffers = tuple(array('f', [42.]*n) for n in (3, 3, 3, 12, 12, 12))
+        inputs = tuple(torch.frombuffer(buf, dtype=torch.float32).reshape(1, len(buf))
+                       for buf in buffers)
+        model = Model()
+        replay.warmup_policy(model, torch, 1, 3, input_tensors=inputs)
+        self.assertEqual(len(seen), 3)
+        self.assertTrue(all(ptrs == seen[0] for ptrs in seen))
+        self.assertEqual(seen[0], tuple(t.data_ptr() for t in inputs))
+        for actual, expected in zip(buffers[3], [0., .4, -.8]*4):
+            self.assertAlmostEqual(actual, expected)
+        self.assertEqual(list(buffers[5]), [1.]*12)
+        with self.assertRaisesRegex(ValueError, 'six float32'):
+            replay.warmup_policy(model, torch, 1, 1, input_tensors=inputs[:-1])
+
+    def test_reused_input_prime_cannot_replace_first_fresh_observation(self):
+        import torch
+        model=Policy()
+        run=replay.observer.StatefulPolicyObserver(
+            model,calibration(),imu_mount_candidate=mount(),h_hypothesis=0,
+            command=[0.,0.,0.],max_ticks=1,max_age_ns=10_000_000,
+            max_spread_ns=5_000_000,torch_module=torch,reuse_input_buffers=True)
+        replay.warmup_policy(model,torch,0,3,input_tensors=run._input_tensors)
+        run.prepare_run(warmup_completed=True)
+        run.arm_run(1_000_000_000)
+        observed=run.consume(snapshot())
+        self.assertEqual(run.reset_count,1)
+        self.assertEqual(run.ticks_completed,1)
+        self.assertEqual(len(model.calls),4)
+        for actual,expected in zip(model.calls[-1][0],[.22,.11,-.33]):
+            self.assertAlmostEqual(actual,expected)
+        for actual,expected in zip(model.calls[-1][4],[.02*(i+1) for i in range(12)]):
+            self.assertAlmostEqual(actual,expected)
+        self.assertEqual(observed['tick_ns'],1_000_000_000)
+        self.assertGreater(observed['provenance']['oldest_observation_age_ns'],0)
+
     def run_replay(self, data=None, policies=None, **kw):
         emitted = []
         p = policies or [Policy(), Policy()]

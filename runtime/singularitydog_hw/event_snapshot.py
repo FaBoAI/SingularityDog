@@ -29,7 +29,7 @@ def snapshot_event(value, *, max_depth=MAX_DEPTH, max_nodes=MAX_NODES, max_bytes
     active = set()
     isfinite = math.isfinite
 
-    def visit(item, depth):
+    def visit(recurse, item, depth):
         nonlocal nodes_left, bytes_left
         if depth > max_depth:
             raise ValueError("Event snapshot depth bound exceeded")
@@ -72,7 +72,7 @@ def snapshot_event(value, *, max_depth=MAX_DEPTH, max_nodes=MAX_NODES, max_bytes
                 elif child_kind is bool:
                     cost = 5
                 elif child_kind is dict or child_kind is list or child_kind is tuple:
-                    child = visit(child, depth + 1)
+                    child = recurse(recurse, child, depth + 1)
                     cost = 0
                 else:
                     raise TypeError("Unsupported event value type")
@@ -90,7 +90,7 @@ def snapshot_event(value, *, max_depth=MAX_DEPTH, max_nodes=MAX_NODES, max_bytes
 
     kind = type(value)
     if kind is dict or kind is list or kind is tuple:
-        return visit(value, 0)
+        return visit(visit, value, 0)
     # Scalar roots are uncommon for events, but keep the same strict contract.
     if kind is str:
         cost = len(value) * 12 + 2

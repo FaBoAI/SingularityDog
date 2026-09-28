@@ -93,14 +93,28 @@ def translate_records(records, calibration):
                    "source_timestamps_changed": False}
 
 
-def warmup_policy(policy, torch, h, count):
-    """Synthetic shape/state warmup only; never substitute these for telemetry."""
+def warmup_policy(policy, torch, h, count, *, input_tensors=None):
+    """Synthetic shape/state warmup only; never substitute these for telemetry.
+
+    Optional tensors let a caller prime the exact persistent input storage used
+    later by inference. Their contents are synthetic and the policy must still
+    be reset before any measured run.
+    """
     _require(type(count) is int and 1 <= count <= 100, "warmup_ticks must be 1..100")
     inputs = ([0., 0., 0.], [0., 0., -1.], [0., 0., 0.],
               [0., .4, -.8]*4, [0.]*12, [float(h)]*12)
     with torch.inference_mode():
+        if input_tensors is not None:
+            _require(type(input_tensors) is tuple and len(input_tensors) == len(inputs)
+                     and all(tuple(t.shape) == (1, len(row)) and t.dtype == torch.float32
+                             for t, row in zip(input_tensors, inputs)),
+                     "Warmup input tensors must match six float32 model inputs")
+            for tensor, row in zip(input_tensors, inputs):
+                tensor.copy_(torch.tensor([row], dtype=torch.float32))
         for _ in range(count):
-            output = policy(*(torch.tensor([x], dtype=torch.float32) for x in inputs))
+            tensors = (input_tensors if input_tensors is not None else
+                       tuple(torch.tensor([x], dtype=torch.float32) for x in inputs))
+            output = policy(*tensors)
             observer._tensor_row(output, 12, "warmup target")
             observer._tensor_row(policy.last_actor_output, 12, "warmup actor")
             observer._tensor_row(policy.last_observation, 74, "warmup observation")
