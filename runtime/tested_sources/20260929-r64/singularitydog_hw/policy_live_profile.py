@@ -76,10 +76,6 @@ SUPPORTED_POLICY_PROBE_5S = 'supported-policy-probe-5s-v1'
 SUPPORTED_POLICY_PROBE_2S_RARE_JITTER = 'supported-policy-probe-2s-rare-jitter-v1'
 SUPPORTED_POLICY_PROBE_10S_AFTER_2S = 'supported-policy-probe-10s-after-2s-v1'
 SUPPORTED_POLICY_GAIN_STEP_3S = 'supported-policy-gain-step-3s-v1'
-SUPPORTED_PRELOAD_5S = 'supported-geometric-preload-5s-v1'
-_PRELOAD_TOKEN = object()
-_PRELOAD_ARTIFACTS = ('preload_source_profile', 'preload_path', 'preload_review')
-_PRELOAD_SOURCE_PATH = 'singularitydog_hw/supported_preload_path.py'
 FIRST_CYCLE_POST_REPLY = 'first-cycle-post-reply-v1'
 _STARTUP_CYCLE_TOKEN = object()
 _EXTENSION_ARTIFACTS = ('prior_supported_profile', 'prior_supported_report',
@@ -205,7 +201,7 @@ def execution_settings(profile):
                     CURRENT_HOLD_PROBE, CURRENT_HOLD_AFTER_SUPPORTED_10S, FIXED_CATCH_CURRENT_HOLD_30S,
                     SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S,
                     SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-                    SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_PRELOAD_5S),
+                    SUPPORTED_POLICY_GAIN_STEP_3S),
           'Unsupported diagnostic timing acceptance')
     _need(profile.get('watchdog_review_policy') in (None, COMMAND_LOSS_ONLY_SUPPORTED),
           'Unsupported watchdog review policy')
@@ -233,8 +229,6 @@ def _supported_duration_cap(profile):
         return 10
     if profile.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_2S_RARE_JITTER:
         return 2
-    if profile.get('diagnostic_timing_acceptance') == SUPPORTED_PRELOAD_5S:
-        return 5
     if profile.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_GAIN_STEP_3S:
         return 3
     return 5 if profile.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_5S else 3
@@ -328,8 +322,7 @@ def artifact_names(profile):
         _EXTENSION_ARTIFACTS if profile.get('diagnostic_timing_acceptance') in (
             SUPPORTED_POLICY_PROBE_10S_AFTER_2S, CURRENT_HOLD_AFTER_SUPPORTED_10S,
             SUPPORTED_POLICY_GAIN_STEP_3S) else ()) + (
-        _FIXED_CATCH_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == FIXED_CATCH_CURRENT_HOLD_30S else ()) + (
-        _PRELOAD_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == SUPPORTED_PRELOAD_5S else ())
+        _FIXED_CATCH_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == FIXED_CATCH_CURRENT_HOLD_30S else ())
 
 
 def _post_reply_policy(profile):
@@ -462,18 +455,11 @@ def transport_settings(profile, *, request_gap_us=None, request_window=None):
             'source_profile_schema': profile['schema'], 'emergency_stop_uses_same_gap': True}
 
 
-def cadence_source_paths(profile=None):
-    """Keep historical manifests stable; preload explicitly pins its extra runtime."""
-    extra = (_PRELOAD_SOURCE_PATH,) if profile is not None and profile.get(
-        'diagnostic_timing_acceptance') == SUPPORTED_PRELOAD_5S else ()
-    return CADENCE_SOURCE_PATHS+extra
-
-
-def cadence_source_hashes(profile=None):
+def cadence_source_hashes():
     """Read-only identity of cadence-related source files; not all kit dependencies."""
     root = Path(__file__).resolve().parents[1]
     values = {}
-    for name in cadence_source_paths(profile):
+    for name in CADENCE_SOURCE_PATHS:
         path = root/name
         _need(path.is_file() and not path.is_symlink(), 'Missing cadence source: '+name)
         values[name] = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -487,7 +473,7 @@ def telemetry_settings(profile):
     if new:
         _need(profile.get('telemetry_cadence') == CADENCE_PRE_ENABLE, 'Unsupported telemetry cadence')
         sources = profile.get('cadence_source_sha256')
-        _need(type(sources) is dict and set(sources) == set(cadence_source_paths(profile)),
+        _need(type(sources) is dict and set(sources) == set(CADENCE_SOURCE_PATHS),
               'Complete cadence source pins required')
         for name, value in sources.items():
             _hash(value, 'cadence source '+name)
@@ -513,7 +499,7 @@ def validate_cadence_sources(profile):
     """Fail before hardware setup if a V3 cadence pin differs from this frozen kit."""
     telemetry_settings(profile)
     if profile['schema'] == SCHEMA_V3:
-        _need(profile['cadence_source_sha256'] == cadence_source_hashes(profile),
+        _need(profile['cadence_source_sha256'] == cadence_source_hashes(),
               'Cadence source SHA256 mismatch; freeze and review a new profile')
 
 
@@ -628,17 +614,6 @@ def _settings(data):
               not {'startup_damping_duration_s', 'startup_cycle_allowance',
                    'post_reply_deadline_policy'}.intersection(data),
               'Thirty-second fixed catch requires strict zero-mixture current hold')
-    if data.get('diagnostic_timing_acceptance') == SUPPORTED_PRELOAD_5S:
-        _need(data['schema'] == SCHEMA_V3 and data['scope'] == 'supported_characterization_only' and
-              data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
-              data.get('model_backend') == SCALAR_BACKEND and data.get('voltage_overlap') is True and
-              data['policy_weight'] == 0 and duration == 5 and data['startup_duration_s'] == 1 and
-              .2 <= data['stop_duration_s'] <= .4 and hard == 20 and
-              data['max_sample_age_ms'] <= 20 and data['max_sample_gap_ms'] <= 21 and
-              data['max_consecutive_20ms_misses'] == 0 and
-              not {'startup_damping_duration_s', 'startup_cycle_allowance',
-                   'post_reply_deadline_policy', 'fixed_catch'}.intersection(data),
-              'Preload requires supported five-second zero-mixture path and strict live deadlines')
     policy_probe_5s = data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_5S
     rare_jitter_probe = data.get('diagnostic_timing_acceptance') in (
         SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
@@ -713,8 +688,7 @@ def _axes(data, calibration):
     # With exactly zero policy mixture the runtime anchors every target to the
     # initial measured position. Allow a separately reviewed gain comparison
     # there only; learned motion retains the original Kp3 / 0.1Nm ceilings.
-    preload = data.get('diagnostic_timing_acceptance') == SUPPORTED_PRELOAD_5S
-    current_position_hold = data['policy_weight'] == 0 and not preload
+    current_position_hold = data['policy_weight'] == 0
     for mid in IDS:
         row = data['axes'][mid]
         candidate = rows[int(mid)]
@@ -744,7 +718,7 @@ def _axes(data, calibration):
                 _need(data['startup_duration_s'] >= 1.,
                       'Higher-gain current-position hold requires at least1s gain ramp')
             gain_step = data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_GAIN_STEP_3S
-            for key, cap in {'kp':6. if preload else 12. if current_position_hold or gain_step else 3., 'kd':.15,
+            for key, cap in {'kp':12. if current_position_hold or gain_step else 3., 'kd':.15,
                     'max_command_velocity_rad_s':math.radians(1),
                     'max_command_acceleration_rad_s2':math.radians(5),
                     'max_tracking_error_rad':math.radians(2),
@@ -755,7 +729,7 @@ def _axes(data, calibration):
                          SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
                          SUPPORTED_POLICY_GAIN_STEP_3S) else .25),
                     'max_measured_torque_nm':1.,
-                    'max_estimated_pd_torque_nm':.2 if preload else .5 if current_position_hold or gain_step else .1,
+                    'max_estimated_pd_torque_nm':.5 if current_position_hold or gain_step else .1,
                     'max_temperature_c':45., 'max_displacement_from_start_rad':math.radians(1)}.items():
                 _need(row[key] <= cap, 'Local characterization limit exceeded: '+key+' ID'+mid)
         _need(row['max_estimated_pd_torque_nm'] <= row['max_measured_torque_nm'],
@@ -840,7 +814,7 @@ def _timing(report, data):
         FIXED_CATCH_CURRENT_HOLD_30S,
         SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S,
         SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-        SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_PRELOAD_5S)
+        SUPPORTED_POLICY_GAIN_STEP_3S)
     accepted_r17 = observed_r17 or measured_r17
     if observed_r17:
         _need(data['artifacts']['pipeline_diagnostic']['sha256'] in OBSERVED_R17_REPORT_SHA256,
@@ -865,10 +839,6 @@ def _timing(report, data):
               type(schedule.get('epoch_ns')) is int and schedule['epoch_ns'] > 0 and
               type(schedule.get('period_ns')) is int and schedule['period_ns'] == 20_000_000,
               'Fresh R17 requires a bound 1+500 disabled absolute-epoch diagnostic')
-    if execution['diagnostic_timing_acceptance'] == SUPPORTED_PRELOAD_5S:
-        _need(report.get('motor_power_epoch') == data['motor_power_epoch'] and
-              report.get('cadence_source_sha256') == data['cadence_source_sha256'],
-              'Preload diagnostic must bind current power epoch and exact execution sources')
     rows = report.get('measurements')
     _need(type(rows) is list and 20 <= len(rows) <= 100000 and
           report.get('cycles_completed') == len(rows) == report.get('cycles_requested'),
@@ -958,9 +928,7 @@ def _timing(report, data):
         else:
             _need(longest <= data['max_consecutive_20ms_misses'], 'Diagnostic exceeds20ms consecutive-miss budget')
         previous, previous_end = release, end
-    return {'kind': ('supported_preload_5s_diagnostic_admission_only'
-                     if execution['diagnostic_timing_acceptance'] == SUPPORTED_PRELOAD_5S else
-                     'fixed_catch_current_hold_30s_admission_only' if fixed_catch_hold else
+    return {'kind': ('fixed_catch_current_hold_30s_admission_only' if fixed_catch_hold else
                      'current_hold_after_supported_10s_admission_only' if hold_after_supported else
                      'supported_policy_10s_after_2s_admission_only'
                      if execution['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_10S_AFTER_2S else
@@ -1793,155 +1761,6 @@ def _fixed_catch_evidence(documents, data, base):
     _review(acceptance.get('review'), 'ACCEPT_FIXED_CATCH_CURRENT_HOLD_30S')
 
 
-def supported_preload_template():
-    """Incomplete opt-in plan; numerical success cannot authorize motor output."""
-    data = template(schema=SCHEMA_V3)
-    data.update(diagnostic_timing_acceptance=SUPPORTED_PRELOAD_5S,
-        model_backend=SCALAR_BACKEND, voltage_overlap=True,
-        watchdog_review_policy=COMMAND_LOSS_ONLY_SUPPORTED,
-        local_characterization=LOCAL_RELATIVE_SUPPORTED, policy_weight=0.,
-        duration_s=5., startup_duration_s=1., policy_ramp_s=.2, stop_duration_s=.4,
-        request_gap_us=900, request_window=3)
-    data['cadence_source_sha256'] = cadence_source_hashes(data)
-    data['artifacts'] = {name: {'path': None, 'sha256': None} for name in artifact_names(data)}
-    data['blockers'].extend(('Reviewed finite 0.25mm path and physical direction/corridor',
-        'Pinned software fault/STOP validation and current-power full diagnostic',
-        'Support must remain; standing, support removal and walking are not authorized'))
-    return data
-
-
-def _preload_binding(data, path):
-    """Bind loader proof to all executable values, not just a copied token."""
-    payload = dict(settings=reviewed_settings_sha256(data), axes=data['axes'],
-        artifacts=data['artifacts'], boot_id=data['boot_id'],
-        motor_power_epoch=data['motor_power_epoch'], path=path)
-    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(',', ':'),
-                                    allow_nan=False).encode()).hexdigest()
-
-
-def supported_preload_settings(profile):
-    """Return admitted path data only; never fabricate a learned-policy target."""
-    if profile.get('diagnostic_timing_acceptance') != SUPPORTED_PRELOAD_5S:
-        _need('_preload_token' not in profile, 'Preload proof used with a different mode')
-        return None
-    _need(profile.get('_preload_token') is _PRELOAD_TOKEN and profile.get('output_allowed') is True,
-          'Preload execution requires validated loader proof')
-    path = profile.get('_preload_path')
-    _need(type(path) is dict and profile.get('_preload_binding') == _preload_binding(profile, path),
-          'Preload execution settings changed after review')
-    from .supported_preload_path import validate_path, RETURN_COMPLETE_S
-    try:
-        validate_path(path, profile)
-    except (ValueError, TypeError, KeyError) as error:
-        raise ProfileError(str(error)) from error
-    return {'path': copy.deepcopy(path),
-            'path_sha256': profile['artifacts']['preload_path']['sha256'],
-            'return_complete_s': RETURN_COMPLETE_S}
-
-
-def _supported_preload_evidence(documents, data, base):
-    """Separate reviewed disposition of an immutable file-only candidate.
-
-    Historical candidate blockers/approval flags are retained. Numerical screen
-    failures are never waivable. The software review is evidence of offline
-    tests only, while fresh hardware, watchdog and diagnostic gates stay active.
-    """
-    from .supported_preload_path import validate_path
-    path = documents['preload_path']
-    prior = documents['preload_source_profile']
-    review = documents['preload_review']
-    _structure(prior)
-    _need(prior['approved_for_supported_policy_output'] is True and prior['blockers'] == [] and
-          prior['scope'] == 'supported_characterization_only',
-          'Preload source must be a pinned historical supported profile')
-    _review(prior['review'], 'APPROVED_SUPPORTED_CHARACTERIZATION')
-    for name in ('calibration', 'mount', 'bias', 'model_manifest'):
-        _need(prior['artifacts'][name]['sha256'] == data['artifacts'][name]['sha256'],
-              'Preload historical calibration/model provenance differs: '+name)
-    for mid in IDS:
-        for name in ('uid', 'sign', 'offset_rad'):
-            _need(prior['axes'][mid][name] == data['axes'][mid][name],
-                  'Preload historical calibration differs: ID'+mid)
-    _need(type(path) is dict and type(path.get('source_screen')) is dict,
-          'Preload path/source screen required')
-    screen = path['source_screen']
-    _need(screen.get('profile_sha256') == data['artifacts']['preload_source_profile']['sha256'] and
-          screen.get('capture_sha256') == data['artifacts']['local_reference_capture']['sha256'],
-          'Preload path must pin its original source profile and current capture')
-    try:
-        numerical = validate_path(path, data)
-    except (ValueError, TypeError, KeyError) as error:
-        raise ProfileError(str(error)) from error
-    capture = documents['local_reference_capture']
-    turns = documents['hardware_review']['local_characterization']['reference_turns_by_id']
-    for n, mid in enumerate(IDS):
-        raw = capture['telemetry']['rows'][mid]['median_position_rad']
-        axis = data['axes'][mid]
-        q = axis['sign']*(raw-turns[mid]*2*math.pi)+axis['offset_rad']
-        _need(abs(raw-numerical.initial_raw[n]) <= 1e-10 and
-              abs(q-numerical.initial_model[n]) <= 1e-10,
-              'Preload path origin differs from reviewed capture: ID'+mid)
-    _need(type(review) is dict and review.get('schema') == 'singularitydog.supported-preload-review.v1',
-          'Separate supported preload engineering review required')
-    _review(review.get('review'), 'ACCEPT_SUPPORTED_GEOMETRIC_PRELOAD_5S')
-    expected = dict(mode=SUPPORTED_PRELOAD_5S, scope=data['scope'],
-        boot_id=data['boot_id'], motor_power_epoch=data['motor_power_epoch'],
-        assembly_id=data['assembly_id'],
-        path_sha256=data['artifacts']['preload_path']['sha256'],
-        source_profile_sha256=data['artifacts']['preload_source_profile']['sha256'],
-        capture_sha256=data['artifacts']['local_reference_capture']['sha256'],
-        diagnostic_sha256=data['artifacts']['pipeline_diagnostic']['sha256'],
-        command_loss_sha256=data['artifacts']['command_loss_report']['sha256'],
-        source_sha256=data['cadence_source_sha256'])
-    _need(all(review.get(k) == v for k, v in expected.items()),
-          'Preload review must pin exact path, sources and current-epoch evidence')
-    flags = dict(support_must_remain=True, low_catch_must_remain=True,
-        immediate_power_cutoff_ready=True, four_foot_contact_observed=True,
-        physical_corridor_and_direction_verified=True, encoder_branch_rechecked=True,
-        original_candidate_not_promoted=True, absolute_accuracy_not_certified=True,
-        load_bearing_not_established=True, standing_allowed=False,
-        walking_allowed=False, box_removal_allowed=False)
-    _need(all(review.get(k) is v for k, v in flags.items()),
-          'Preload physical supported-only scope acknowledgements incomplete')
-    direction = screen.get('up_direction_body_unit_vector')
-    _need(type(direction) is list and len(direction) == 3 and
-          all(type(v) in (int, float) and math.isfinite(v) for v in direction) and
-          abs(sum(v*v for v in direction)-1) < 1e-9 and
-          review.get('verified_up_direction_body_unit_vector') == direction,
-          'Preload extension direction must be independently reviewed')
-    _text(review.get('direction_and_contact_evidence'), 'preload direction/contact evidence')
-    blockers = path.get('blockers')
-    screen_blockers = screen.get('readiness_blockers')
-    _need(type(blockers) is list and type(screen_blockers) is list and
-          all(type(v) is str and bool(v) for v in blockers+screen_blockers) and
-          set(screen_blockers) <= set(blockers), 'Keep original preload candidate blockers')
-    dispositions = review.get('blocker_dispositions')
-    _need(type(dispositions) is dict and set(dispositions) == set(blockers),
-          'Every original preload blocker needs an explicit disposition')
-    for blocker, disposition in dispositions.items():
-        _text(disposition, 'preload blocker disposition: '+blocker)
-    validation, _ = _artifact(review.get('software_validation'),
-        Path(data['artifacts']['preload_review']['path']).parent)
-    checks = ('normal_extend_return_and_stop', 'fault_stop_both_buses', 'cancellation_stop',
-              'stale_input_stop', 'path_mutation_and_replay_rejected',
-              'return_target_and_measured_confirmation')
-    _need(type(validation) is dict and validation.get('schema') ==
-          'singularitydog.supported-preload-source-validation.v1' and
-          validation.get('status') == 'PASS_FILE_ONLY_TESTS' and
-          validation.get('hardware_opened') is False and validation.get('errors') == [] and
-          validation.get('source_sha256') == data['cadence_source_sha256'] and
-          type(validation.get('checks')) is dict and
-          all(validation['checks'].get(k) is True for k in checks),
-          'Preload exact-source normal/fault/STOP software validation missing')
-    _text(validation.get('test_command'), 'preload validation test command')
-    _hash(validation.get('test_output_sha256'), 'preload test output')
-    _need(type(validation.get('tests_passed')) is int and validation['tests_passed'] > 0,
-          'Preload validation needs an actual passing test count')
-    data['_preload_path'] = copy.deepcopy(path)
-    data['_preload_binding'] = _preload_binding(data, path)
-    data['_preload_token'] = _PRELOAD_TOKEN
-
-
 def load_profile(path, *, require_approved=True):
     """Return a deep-copied plain mapping; resolves references but never opens hardware.
 
@@ -2013,8 +1832,6 @@ def load_profile(path, *, require_approved=True):
         _supported_extension_evidence(documents, original)
     if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_GAIN_STEP_3S:
         _supported_gain_step_evidence(documents, original)
-    if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_PRELOAD_5S:
-        _supported_preload_evidence(documents, data, path.parent)
     if execution_settings(data)['diagnostic_timing_acceptance'] == CURRENT_HOLD_AFTER_SUPPORTED_10S:
         _current_hold_after_supported_evidence(documents, original)
     if execution_settings(data)['diagnostic_timing_acceptance'] == FIXED_CATCH_CURRENT_HOLD_30S:
@@ -2082,22 +1899,17 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     options = parser.add_mutually_exclusive_group(required=True)
     options.add_argument('--write-template', type=Path)
-    options.add_argument('--write-preload-template', type=Path,
-                         help='Write an unapproved V3 five-second geometric preload plan')
     options.add_argument('--check', type=Path)
     parser.add_argument('--plan-only', action='store_true')
     parser.add_argument('--template-schema', choices=(SCHEMA_V1, SCHEMA_V2, SCHEMA_V3), default=SCHEMA,
                         help='V3 cadence is explicit and always starts unapproved')
     args = parser.parse_args(argv)
-    target = args.write_preload_template or args.write_template
-    if target:
-        candidate = (supported_preload_template() if args.write_preload_template
-                     else template(schema=args.template_schema))
-        with target.open('x', encoding='utf-8') as stream:
-            target.chmod(0o600)
-            json.dump(candidate, stream, ensure_ascii=False, indent=2, allow_nan=False)
+    if args.write_template:
+        with args.write_template.open('x', encoding='utf-8') as stream:
+            args.write_template.chmod(0o600)
+            json.dump(template(schema=args.template_schema), stream, ensure_ascii=False, indent=2, allow_nan=False)
             stream.write('\n')
-        print('UNAPPROVED_TEMPLATE_WRITTEN '+str(target))
+        print('UNAPPROVED_TEMPLATE_WRITTEN '+str(args.write_template))
         return 0
     data = load_profile(args.check, require_approved=not args.plan_only)
     print(json.dumps({'output_allowed': data['output_allowed'], 'scope': data['scope'],

@@ -192,7 +192,9 @@ class NativeBenchmarkCLITests(unittest.TestCase):
                 '--view-cache-manifest-sha256', 'a'*64]
 
     def mock_timer_collection(self, *, status="COMPLETE_DIAGNOSTIC", measurements=None):
-        def collect(sessions, device, policy, *, mode, cycles, check, worker_initializer):
+        def collect(sessions, device, policy, *, mode, cycles, check, worker_initializer,
+                    voltage_max_v):
+            self.assertEqual(voltage_max_v, 42)
             self.imu_constructor.return_value.start.assert_called_once_with()
             for first in (1, 7):
                 self.assertEqual(len(self.sessions[first].calls), 6)
@@ -320,7 +322,9 @@ class NativeBenchmarkCLITests(unittest.TestCase):
             self.imu_constructor.assert_not_called()
             self.normal_collect.assert_not_called()
 
-        def complete_collect(sessions, imu_device, policy_observer, *, mode, cycles, check):
+        def complete_collect(sessions, imu_device, policy_observer, *, mode, cycles, check,
+                             voltage_max_v):
+            self.assertEqual(voltage_max_v, 42)
             self.assertEqual(set(sessions), {"front", "rear"})
             for scope, first_id in (("front", 1), ("rear", 7)):
                 self.assertIs(sessions[scope], self.sessions[first_id])
@@ -685,6 +689,7 @@ class NativeBenchmarkCLITests(unittest.TestCase):
             order.append('prepare')
         def collected(sessions, imu_device, observer, **kwargs):
             self.assertIs(imu_device, device); self.assertIs(observer, run)
+            self.assertEqual(kwargs['voltage_max_v'], 42)
             self.assertEqual(order, ['imu_start', 'warmup', 'prepare'])
             self.assertNotIn('worker_initializer', kwargs)
             order.append('collect')
@@ -719,7 +724,8 @@ class NativeBenchmarkCLITests(unittest.TestCase):
             self.assertEqual(order, ['warmup'])
             order.append('prepare')
         def collected(sessions, device, observer, *, mode, cycles, check,
-                      pre_cycle_policy_prepare):
+                      pre_cycle_policy_prepare, voltage_max_v):
+            self.assertEqual(voltage_max_v, 42)
             self.assertIs(observer, run)
             self.assertEqual((mode, cycles), ('stop-proxy', 1))
             self.assertEqual(order, [])
@@ -762,7 +768,8 @@ class NativeBenchmarkCLITests(unittest.TestCase):
             self.assertEqual(order,['warmup','prime'])
             order.append('reset')
         def collected(sessions,device,observer,*,mode,cycles,check,main_thread_cpu,
-                      pre_cycle_policy_prepare,post_pin_policy_prepare):
+                      pre_cycle_policy_prepare,post_pin_policy_prepare,voltage_max_v):
+            self.assertEqual(voltage_max_v,42)
             self.assertEqual((mode,cycles,main_thread_cpu),('stop-proxy',1,4))
             self.assertEqual(order,[])
             pre_cycle_policy_prepare()
@@ -962,6 +969,18 @@ class NativeBenchmarkCLITests(unittest.TestCase):
         self.assertFalse(report['plan']['enable_available'])
         self.assertFalse(report['plan']['learned_targets_sent'])
         self.assertTrue(self.normal_collect.call_args.kwargs['v3_voltage_proxy'])
+        self.assertEqual(self.normal_collect.call_args.kwargs['voltage_max_v'],42)
+        self.assert_closed()
+
+    def test_explicit_voltage_upper_bound_reaches_collector_and_saved_plan(self):
+        self.ready_imu()
+        self.normal_collect.return_value=({'status':'COMPLETE_DIAGNOSTIC','errors':[]},[])
+        args=self.policy_args()+['--v3-voltage-proxy','--voltage-max-v','43']
+        self.assertEqual(self.call_main(args),0)
+        report,_=self.saved()
+        self.assertEqual(report['plan']['voltage_max_v'],43)
+        self.assertEqual(report['plan']['voltage_range_v'],[35.,43])
+        self.assertEqual(self.normal_collect.call_args.kwargs['voltage_max_v'],43)
         self.assert_closed()
 
     def test_startup_allowance_explicitly_adds_one_recorded_cycle(self):
@@ -1126,7 +1145,9 @@ class NativeBenchmarkCLITests(unittest.TestCase):
             self.assertEqual(order, ['cached_load', 'imu_start', 'setup_gc', 'warmup'])
             self.assertEqual(backend.set_count, 0)
             order.append('prepare')
-        def collected(sessions, imu_device, observer, *, mode, cycles, check, worker_initializer):
+        def collected(sessions, imu_device, observer, *, mode, cycles, check, worker_initializer,
+                      voltage_max_v):
+            self.assertEqual(voltage_max_v, 42)
             self.assertIs(imu_device, device); self.assertIs(observer, run)
             self.assertEqual((mode, cycles), ('stop-proxy', 1))
             self.assertEqual(order, ['cached_load', 'imu_start', 'setup_gc', 'warmup', 'prepare'])

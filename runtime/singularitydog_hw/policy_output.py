@@ -14,7 +14,7 @@ import subprocess
 
 from . import math_thread_startup as math_threads
 from .policy_live_profile import (ProfileError, add_transport_arguments, load_profile,
-                                  transport_settings, telemetry_settings)
+                                  transport_settings, telemetry_settings, SUPPORTED_PRELOAD_5S)
 
 
 class SignalState:
@@ -40,6 +40,8 @@ def main(argv=None,*,execution=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--profile',required=True)
     p.add_argument('--execute-supported',action='store_true')
+    p.add_argument('--execute-supported-preload',action='store_true',
+                   help='Execute only the separately reviewed five-second geometric extend/return path')
     p.add_argument('--execute-fixed-catch',action='store_true')
     p.add_argument('--fixed-catch-ready',action='store_true')
     p.add_argument('--support-in-place',action='store_true');p.add_argument('--cutoff-ready',action='store_true')
@@ -66,7 +68,7 @@ def main(argv=None,*,execution=None):
                    help='Opt in to OMP/OPENBLAS/MKL thread counts of 1 before NumPy/Torch import')
     add_transport_arguments(p)
     a=p.parse_args(argv)
-    if a.execute_fixed_catch and (a.execute_supported or execution is not None or
+    if a.execute_fixed_catch and (a.execute_supported_preload or a.execute_supported or execution is not None or
                                   not a.fixed_catch_ready):
         p.error('Fixed catch requires its dedicated execution and ready flags')
     if a.fixed_catch_ready and not a.execute_fixed_catch:
@@ -81,8 +83,17 @@ def main(argv=None,*,execution=None):
         p.error('--exclude-policy-cpu-from-workers requires R22 supported-only output')
     if a.release_spin_us is not None and not a.absolute_epoch_cadence:
         p.error('--release-spin-us requires --absolute-epoch-cadence')
-    active=a.execute_supported or a.execute_fixed_catch
+    if a.execute_supported_preload and (a.execute_supported or a.execute_fixed_catch or execution is not None):
+        p.error('Geometric preload requires its dedicated supported-only execution')
+    active=a.execute_supported or a.execute_fixed_catch or a.execute_supported_preload
     profile=load_profile(a.profile,require_approved=active)
+    preload_mode=profile.get('diagnostic_timing_acceptance')==SUPPORTED_PRELOAD_5S
+    if active and preload_mode!=a.execute_supported_preload:
+        p.error('Geometric preload profile and --execute-supported-preload must match')
+    if a.execute_supported_preload:
+        if not a.absolute_epoch_cadence:
+            p.error('Geometric preload requires --absolute-epoch-cadence')
+        a.execute_supported=True
     if a.execute_fixed_catch:
         from .fixed_catch_hold import FixedCatchExecution
         try:
@@ -234,7 +245,7 @@ def main(argv=None,*,execution=None):
         os.close(cr);os.close(cw)
         with os.fdopen(os.open(out/'report.json',os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600),'w') as f:
             json.dump(report,f,ensure_ascii=False,allow_nan=False);f.write('\n')
-        print(json.dumps({k:report.get(k) for k in ('status','errors','motor_enable_sent','learned_targets_sent','stop_confirmed','deadline20ms_misses','transport_settings')},ensure_ascii=False))
+        print(json.dumps({k:report.get(k) for k in ('status','errors','motor_enable_sent','learned_targets_sent','preload_targets_sent','output_kind','preload_return_commanded','preload_return_measured','stop_confirmed','deadline20ms_misses','transport_settings')},ensure_ascii=False))
     return 0 if report['status'] in ('COMPLETE_SUPPORTED_OUTPUT','COMPLETE_BOUNDED_GROUND_TRIAL',
                                     'COMPLETE_FIXED_CATCH_HOLD') else 2
 

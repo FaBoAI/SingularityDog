@@ -57,47 +57,6 @@ _OUTPUT_DISPATCH_FIELDS = (
     'main_infer_thread_cpu_ns', 'main_submits_end_thread_cpu_ns')
 
 
-def _start_source_provenance(mode, power_epoch):
-    """Optional file provenance; no power detection or output authorization.
-
-    Legacy diagnostic invocations remain unbound. A preload timing record must
-    explicitly name its epoch and pin the preload source set before opening any
-    devices. The caller's epoch string is an assertion, not a sensor reading.
-    """
-    if mode is None and power_epoch is None:
-        return None
-    from . import policy_live_profile as profiles
-    if mode != profiles.SUPPORTED_PRELOAD_5S:
-        raise ValueError('Explicit preload --provenance-mode is required with --power-epoch')
-    if (type(power_epoch) is not str or not 0 < len(power_epoch) <= 256 or
-            power_epoch.strip() != power_epoch or not power_epoch.isprintable()):
-        raise ValueError('Preload source provenance requires an explicit nonempty --power-epoch')
-    return {'schema':'singularitydog.diagnostic-source-provenance.v1',
-            'mode':mode,'motor_power_epoch':power_epoch,
-            'power_epoch_source':'explicit_operator_argument_not_hardware_detected',
-            'cadence_source_sha256':profiles.cadence_source_hashes(
-                {'diagnostic_timing_acceptance':mode}),
-            'source_files_unchanged':None,
-            'output_allowed':False,'approved_for_runtime':False}
-
-
-def _finish_source_provenance(report, provenance):
-    """Fail the diagnostic if any pinned file changed during its finite run."""
-    if provenance is None:
-        return
-    from . import policy_live_profile as profiles
-    try:
-        current = profiles.cadence_source_hashes(
-            {'diagnostic_timing_acceptance':provenance['mode']})
-        if current != provenance['cadence_source_sha256']:
-            raise ValueError('Diagnostic cadence source changed during execution')
-        provenance['source_files_unchanged'] = True
-    except Exception as error:
-        provenance['source_files_unchanged'] = False
-        report['status'] = 'ABORTED'
-        report.setdefault('errors', []).append(type(error).__name__+': '+str(error))
-
-
 def _native_record_frame(wire):
     """Decode one complete fixed-size native record without streaming state.
 
@@ -1532,10 +1491,6 @@ def _encoded_records_for_output(records,encoding_failure=None):
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--execute',action='store_true');p.add_argument('--supported-disabled',action='store_true')
-    p.add_argument('--provenance-mode',choices=('supported-geometric-preload-5s-v1',),
-                   help='Explicitly pin current preload execution sources in this disabled diagnostic; requires --power-epoch and grants no output approval')
-    p.add_argument('--power-epoch',
-                   help='Explicit current motor-power epoch assertion for --provenance-mode; never inferred from an earlier report')
     p.add_argument('--mode',choices=('type17','stop-proxy'),default='type17')
     p.add_argument('--v3-voltage-proxy',action='store_true',
                    help='Disabled-only 26-request proxy: six STOP feedback plus one rotating voltage read per bus, then six STOP; never Type1 or motor enable')
@@ -1692,8 +1647,6 @@ def main(argv=None):
             p.error('--exclude-policy-cpu-from-workers requires at most 500 V3 STOP-proxy inference cycles and --main-thread-cpu')
         if len(set(os.sched_getaffinity(0))-{args.main_thread_cpu})<3:
             p.error('--exclude-policy-cpu-from-workers requires at least three other available CPUs')
-    try:source_provenance=_start_source_provenance(args.provenance_mode,args.power_epoch)
-    except (ValueError,OSError) as error:p.error(str(error))
     plan={'mode':args.mode,'cycles':args.cycles,'gap_ms':args.request_gap_us/1000,
           'startup_cycle_allowance':args.startup_cycle_allowance,
           'steady_cycles_requested':args.cycles-args.startup_cycle_allowance,
@@ -1734,8 +1687,6 @@ def main(argv=None):
                            else ['front7','rear7','IMU'] if args.v3_voltage_proxy
                            else ['front6','rear6','IMU']),
           'disk_io_during_cycles':False,'full_controller_50Hz_verified':False}
-    if source_provenance is not None:
-        plan['source_provenance']=source_provenance
     if args.v3_voltage_overlap:plan['v3_voltage_overlap']=True
     if args.v3_voltage_validation_overlap:plan['v3_voltage_validation_overlap']=True
     if args.output_dispatch_trace:plan['output_dispatch_trace']=True
@@ -1768,10 +1719,6 @@ def main(argv=None):
     report={'status':'ABORTED','plan':plan,'math_thread_startup':math_startup,
             'timer_slack':timer_slack.report,
             'setup_gc':setup_gc,'errors':[]};saved=[];device=None
-    if source_provenance is not None:
-        report.update(motor_power_epoch=source_provenance['motor_power_epoch'],
-                      cadence_source_sha256=source_provenance['cadence_source_sha256'],
-                      source_provenance=source_provenance)
     calibration=None
     cr,cw=os.pipe();handlers={};cancelled=[]
     def cancel(signum,frame):
@@ -1955,7 +1902,6 @@ def main(argv=None):
         report['imu_restore_status']=device.restore_status if device is not None else 'not_started'
         if device is not None and device.restore_status not in ('restored','not_needed'):
             report['status']='ABORTED';report['errors'].append('IMU restoration unconfirmed')
-        _finish_source_provenance(report,source_provenance)
         extra=[]
         if args.record_storage in ('encoded','trace'):
             values,failures=_encoded_records_for_output(saved,report.get('record_storage_failure'))

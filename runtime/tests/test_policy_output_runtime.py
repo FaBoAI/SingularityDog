@@ -340,7 +340,13 @@ class OutputRuntimeTests(unittest.TestCase):
     def test_all_axis_zero_gain_comparison_uses_type1_without_motion_gains(self):
         data=profile();data['policy_weight']=0.
         for axis in data['axes'].values():axis.update(kp=0.,kd=0.)
-        report,sessions=self.run_case(profile_data=data)
+        # This case checks wire encoding, not host scheduling. Use the same
+        # causal clock for both buses and the IMU; real watchdog tests below
+        # retain wall time and independently assert stop-before-return.
+        clock=SimulatedClock()
+        report,sessions=self.run_case(profile_data=data,
+            front=FakeSession(1,clock=clock),rear=FakeSession(7,clock=clock),
+            imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
         self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
         self.assertTrue(report['motor_enable_sent'])
         self.assertTrue(report['stop_confirmed'])

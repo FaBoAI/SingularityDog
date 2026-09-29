@@ -23,7 +23,7 @@ from .policy_live_profile import (SCHEMA_V3, SCALAR_BACKEND, MEASURED_R17_STARTU
                                   execution_settings, local_characterization_settings,
                                   post_reply_deadline_settings, current_position_hold_only,
                                   reviewed_startup_cycle_allowance,
-                                  fixed_catch_current_hold_settings)
+                                  fixed_catch_current_hold_settings, supported_preload_settings)
 from .policy_post_reply_timing import PostReplyDeadlineBudget
 from .policy_observer import _TARGET_LOWER, _TARGET_UPPER
 from .native_diagnostic_transport import exchange_evidence
@@ -563,6 +563,16 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
     need(profile.get('output_allowed') is True,'Reviewed supported output profile required')
     local_characterization=local_characterization_settings(profile)
     fixed_position_hold=current_position_hold_only(profile)
+    preload_settings=supported_preload_settings(profile)
+    preload_path=None;preload_bound=None
+    if preload_settings is not None:
+        from .supported_preload_path import (validate_path, RETURN_COMPLETE_S,
+            COMMAND_RETURN_TOLERANCE_RAD, MEASURED_RETURN_TOLERANCE_RAD)
+        need(supervision is None and absolute_epoch_cadence,
+             'Geometric preload requires supported-only absolute-epoch execution')
+        need(callable(getattr(policy,'validate_inputs',None)),
+             'Geometric preload must retain full model input validation')
+        preload_path=validate_path(preload_settings['path'],profile)
     fixed_catch=fixed_catch_current_hold_settings(profile)
     if fixed_catch is not None:
         from .fixed_catch_hold import FixedCatchExecution
@@ -637,7 +647,11 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             'scope':profile.get('scope','supported_characterization_only'),
             'full_controller_50Hz_verified':False,'normal_ramp_completed':False,
             'current_position_hold_only':fixed_position_hold,
-            'cyclic_inference_skipped':fixed_position_hold,
+            'cyclic_inference_skipped':fixed_position_hold or preload_path is not None,
+            'output_kind':'geometric_preload' if preload_path is not None else 'current_hold' if fixed_position_hold else 'learned_policy',
+            'preload_targets_attempted':False,'preload_targets_sent':False,
+            'preload_return_commanded':False,'preload_return_measured':False,
+            'preload_return_max_error_rad':None,
             'stop_is_physical_torque_cap':False,'firmware_versions_by_id':{},
             'firmware_versions_match_watchdog_review':False,
             'telemetry_cadence':cadence,
@@ -696,6 +710,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
     previous=None;last_imu=0;pending_timing=_PendingCycleTiming()
     def safety_check():
         check();need(not workers.aborted.is_set(),workers.reason or 'Output aborted')
+        need(preload_path is None or not stop_requested.is_set(),
+             'Geometric preload cancelled; STOP without a forced return')
     def require_voltage_before_type1():
         if not v3:return
         maximum_age,minimum_voltage=checked_voltage_cache(voltage_cache,profile,clock())
@@ -804,6 +820,9 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                           f'ID{i} moved during preparation; recapture required')
         initial_sample=feedback_sample(current,profile,offsets,now_ns=clock(),required_mode=0)
         validate_measured(initial_sample,profile)
+        if preload_path is not None:
+            preload_path.check_origin(initial_sample.q_model_rad,
+                tuple(current[i,'feedback'][0].protocol_position_rad for i in IDS))
         # Keep the displacement origin fixed across enable and zero-gain
         # startup. The later fresh pose may initialize a jump-free hold target,
         # but must never grant a new displacement budget.
@@ -898,6 +917,13 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
         initial_sample=feedback_sample(fresh_zero,profile,offsets,now_ns=clock())
         check_startup_displacement(fresh_zero,'all_axis_zero_gain')
         validate_measured(initial_sample,profile,initial=trial_origin_sample)
+        if preload_path is not None:
+            preload_bound=preload_path.bind(initial_sample.q_model_rad,
+                tuple(fresh_zero[i,'feedback'][0].protocol_position_rad for i in IDS))
+            report['preload_path_sha256']=preload_settings['path_sha256']
+            report['preload_origin']={'strategy':'fresh_feedback_plus_reviewed_capture_deltas',
+                'model_rad':preload_bound.initial_model,'raw_rad':preload_bound.initial_raw,
+                'anchor_difference_rad':preload_bound.anchor_difference_rad}
         limits=tuple(replace(a,
             lower_rad=max(a.lower_rad,q-a.max_displacement_from_start_rad),
             upper_rad=min(a.upper_rad,q+a.max_displacement_from_start_rad))
@@ -931,6 +957,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
         if supervision is not None:supervision.on_start(start)
         max_run_ns=int((profile['duration_s']+.04)*1e9)
         stop_at_s=profile['duration_s']-max_stop_s-.04
+        need(preload_path is None or stop_at_s>RETURN_COMPLETE_S,
+             'Geometric preload needs return verification before gain-down reserve')
         while clock()-start<max_run_ns:
             safety_check()
             if absolute_epoch_cadence:
@@ -1033,6 +1061,12 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             if supervision is not None and (begun-start)/1e9>=stop_at_s and not (wants_stop or stop_started):
                 raise RuntimeError('Ground shutdown reserve reached without fresh re-support confirmation')
             if not stop_started and wants_stop:
+                if preload_bound is not None:
+                    need(report['preload_return_commanded'] and report['preload_return_measured'],
+                         'Geometric preload return was not verified before gain-down')
+                    need(all(abs(q-q0)<=min(MEASURED_RETURN_TOLERANCE_RAD,a['max_tracking_error_rad'])
+                             for q,q0,a in zip(sample.q_model_rad,preload_bound.initial_model,axis_profiles)),
+                         'Geometric preload fresh measured return outside tolerance')
                 envelope.request_stop();stop_started=True
             weight=0.
             if stop_started:
@@ -1043,7 +1077,10 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 target=None
             else:
                 pending_timing.stage='policy_call';pending_timing.policy_call_begin_ns=clock()
-                if fixed_position_hold:
+                if preload_bound is not None:
+                    policy.validate_inputs(sample,imu_value,acquired)
+                    target=preload_bound.target_for_slot(slot)
+                elif fixed_position_hold:
                     policy.validate_inputs(sample,imu_value,acquired)
                     target=initial_sample.q_model_rad
                 else:
@@ -1059,7 +1096,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                         need(a['lower_rad']<=q<=a['upper_rad'],f'ID{i} learned target outside physical range')
                 fraction=max(0.,min(1.,((begun-start)/1e9-profile['startup_duration_s'])/profile['policy_ramp_s']))
                 weight=profile['policy_weight']*fraction**3*(10.+fraction*(-15.+6.*fraction))
-                target=tuple(q0+weight*(q-q0) for q,q0 in zip(target,initial_sample.q_model_rad))
+                if preload_bound is None:
+                    target=tuple(q0+weight*(q-q0) for q,q0 in zip(target,initial_sample.q_model_rad))
                 if local_characterization is not None:
                     for i,q in enumerate(target,1):
                         a=profile['axes'][str(i)]
@@ -1090,9 +1128,10 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             need(clock()<hard_end,'Encoded command exceeded hard cycle or sample-age deadline')
             # Mark intent before the first write, including a partial transaction.
             report['learned_targets_attempted']|=weight>0
+            report['preload_targets_attempted']|=preload_bound is not None and not stop_started
             pending_timing.output_submit_ns=clock();pending_timing.stage='output_exchange'
             output_futures=workers.submit_decoded(outgoing,deadline_ns=hard_end,
-                label='graceful_stop' if stop_started else 'policy_output' if weight>0 else 'startup_hold')
+                label='graceful_stop' if stop_started else 'preload_output' if preload_bound is not None else 'policy_output' if weight>0 else 'startup_hold')
             # These values are fixed before output. Assemble them while the
             # two owners wait for replies; the reply checks and cycle deadline
             # still run on the coordinator before another command is sent.
@@ -1126,6 +1165,16 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 need(abs(checked.q_model_rad[k]-trial_origin_sample.q_model_rad[k])<=a['max_displacement_from_start_rad'],f'ID{i} trial displacement')
                 estimated=command.kp[k]*(command.q_model_rad[k]-checked.q_model_rad[k])-command.kd[k]*checked.velocity_rad_s[k]
                 need(abs(estimated)<=a['max_estimated_pd_torque_nm'],f'ID{i} estimated PD torque')
+            if preload_bound is not None and preload_bound.return_complete:
+                command_error=max(abs(q-q0) for q,q0 in zip(command.q_model_rad,preload_bound.initial_model))
+                return_error=max(abs(q-q0) for q,q0 in zip(checked.q_model_rad,preload_bound.initial_model))
+                report['preload_return_max_error_rad']=return_error
+                report['preload_return_commanded']=command_error<=COMMAND_RETURN_TOLERANCE_RAD
+                report['preload_return_measured']=all(
+                    abs(q-q0)<=min(MEASURED_RETURN_TOLERANCE_RAD,a['max_tracking_error_rad'])
+                    for q,q0,a in zip(checked.q_model_rad,preload_bound.initial_model,axis_profiles))
+                need(report['preload_return_commanded'],'Geometric preload command did not return')
+                need(report['preload_return_measured'],'Geometric preload measured return outside tolerance')
             final_write=max(entry[2] for entry in decoded.values())
             last_reply=max(entry[3] for entry in decoded.values())
             cycle_row={'index':cycle,'phase':command.phase,'begin_ns':begun,
@@ -1274,6 +1323,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             report['failed_cycle_timing']=pending_timing.snapshot(profile)
         for cycle in report['cycles']:
             cycle['command']=asdict(cycle['command']);cycle['feedback']=asdict(cycle['feedback'])
+        report['preload_targets_sent']=any(label=='preload_output' and any(row.written==17 for row in r[0])
+            for _,r,_,label in workers.journal)
         report['learned_targets_sent']=any(label=='policy_output' and any(row.written==17 for row in r[0])
             for _,r,_,label in workers.journal)
         sent_frames=[codec.ATParser().feed(bytes(row.tx))[0] for _,r,_,_ in workers.journal
