@@ -1,0 +1,47 @@
+{
+  "schema": "singularitydog-no-output-fastscalar-summary-v1",
+  "date": "2026-09-29",
+  "jetson_boot_id": "274a4717-d613-489e-b5bf-48ee50690111",
+  "remote_log_dir": "/home/jetson/singularitydog-logs/can-stopproxy-fastscalar-vpipeline-20260929-r5",
+  "report_sha256": "dc04726831fb5a98683e7978eb5f9196695196e4ef157e4292c6d336e050b26f",
+  "records_sha256": "26e460c0131bd2a0481114d6f428ae96117736de99f89654c74f9bc16fef0498",
+  "manifest_sha256": {
+    "baseline": "477d3f83b5f2177b22d5dda69e3884d7e22622a6fefdf7d578d8bd64121609de",
+    "scalar_step": "7ad6670368feb10d36bd62f594c7a53e89f28a5462fd1c3cf2292e2c1987f666"
+  },
+  "mode": "stop-proxy-v3-voltage-fast-pipeline",
+  "requests_per_cycle": 26,
+  "request_gap_us": 800,
+  "request_window_per_bus": 3,
+  "startup_cycles": 1,
+  "steady_cycles": 500,
+  "cycles_completed": 501,
+  "stop_replies_per_cycle": 12,
+  "complete_stop_reply_cycles": 501,
+  "motor_enable_sent": false,
+  "learned_targets_sent": false,
+  "steady_whole_iteration_ms": {
+    "median": 18.830695,
+    "p95": 19.141808,
+    "p99": 19.307285,
+    "max": 19.482394
+  },
+  "steady_over_20ms": 0,
+  "steady_scheduled_deadline_misses": 0,
+  "steady_slots_skipped": 0,
+  "oldest_input_to_last_stop_reply_max_ms_including_startup": 19.00574,
+  "steady_start_interval_ms": {
+    "median": 20.00001,
+    "max": 20.004969
+  },
+  "strict_start_interval_20ms_met": false,
+  "cpu_scope": {
+    "original_min_khz": 729600,
+    "raised_min_khz": 1728000,
+    "policies": ["policy0", "policy4"],
+    "restored": true
+  },
+  "imu_restore_status": "restored",
+  "full_controller_50hz_verified": false,
+  "diagnostic_only": true
+}

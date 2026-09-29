@@ -48,13 +48,20 @@ TOP_KEYS = TOP_KEYS_V1 | TRANSPORT_KEYS
 CADENCE_KEYS = {'telemetry_cadence', 'cadence_source_sha256'}
 TOP_KEYS_V3 = TOP_KEYS | CADENCE_KEYS
 V3_EXECUTION_KEYS = {'model_backend', 'voltage_overlap', 'diagnostic_timing_acceptance',
-                     'watchdog_review_policy', 'local_characterization'}
+                     'watchdog_review_policy', 'local_characterization', 'post_reply_deadline_policy',
+                     'voltage_pipeline', 'native_batch_encoder', 'startup_damping_duration_s'}
 COMMAND_LOSS_ONLY_SUPPORTED = 'command_loss_only_supported_trial'
 LOCAL_RELATIVE_SUPPORTED = 'bounded_relative_supported_v1'
 LOCAL_NUMERICAL_MARGIN_RAD = 2*25.14/65535
 _LOCAL_VALIDATION_TOKEN = object()
+_POST_REPLY_VALIDATION_TOKEN = object()
 SCALAR_BACKEND = 'scalar_step_cpp'
 OBSERVED_R17_TIMING = 'observed-r17-cadence-20260928'
+MEASURED_R17_STARTUP_TIMING = 'measured-r17-startup-20260929'
+CURRENT_HOLD_PROBE = 'current-position-hold-probe-v1'
+SUPPORTED_POLICY_PROBE = 'supported-policy-probe-v1'
+SUPPORTED_POLICY_PROBE_5S = 'supported-policy-probe-5s-v1'
+_CURRENT_HOLD_TOKEN = object()
 OBSERVED_R17_REPORT_SHA256 = frozenset((
     '1d0e49226ab095c007d5de63325b8e201467315234e43ed229546b3652cfb2d4',
     '7eaadb878a0ea6f98cfeae1b49312a2bcc4a63d71d4aeb8c9f43c6740afbe204',
@@ -63,13 +70,21 @@ CADENCE_PRE_ENABLE = 'feedback_voltage_pre_enable_timeout.v1'
 CADENCE_SOURCE_PATHS = (
     'singularitydog_hw/policy_live_profile.py',
     'singularitydog_hw/policy_output.py',
+    'singularitydog_hw/math_thread_startup.py',
     'singularitydog_hw/policy_output_runtime.py',
+    'singularitydog_hw/active_output_timer_slack.py',
+    'singularitydog_hw/thread_timer_slack.py',
+    'singularitydog_hw/policy_post_reply_timing.py',
     'singularitydog_hw/ground_trial_output.py',
     'singularitydog_hw/ground_trial_review.py',
     'singularitydog_hw/native_active_transport.py',
+    'singularitydog_hw/native_policy_batch_encode.py',
+    'singularitydog_hw/native_pipeline_benchmark.py',
     'singularitydog_hw/can_readonly.py',
     'singularitydog_hw/rs05_trial_protocol.py',
     'experiments/native_active_transport/transport.cpp',
+    'experiments/native_policy_batch_encode/batch_encode.cpp',
+    'experiments/native_policy_batch_encode/batch_encode_py.cpp',
 )
 
 
@@ -158,14 +173,51 @@ def execution_settings(profile):
     _need(backend in ('native_baseline', SCALAR_BACKEND), 'Unsupported model backend')
     overlap = profile.get('voltage_overlap', False)
     _need(type(overlap) is bool, 'voltage_overlap must be an explicit boolean')
+    pipeline = profile.get('voltage_pipeline', False)
+    _need(type(pipeline) is bool, 'voltage_pipeline must be an explicit boolean')
+    _need(not pipeline or profile['schema'] == SCHEMA_V3 and overlap,
+          'Voltage pipeline requires V3 voltage overlap')
     timing = profile.get('diagnostic_timing_acceptance')
-    _need(timing in (None, OBSERVED_R17_TIMING), 'Unsupported diagnostic timing acceptance')
+    _need(timing in (None, OBSERVED_R17_TIMING, MEASURED_R17_STARTUP_TIMING,
+                    CURRENT_HOLD_PROBE, SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S),
+          'Unsupported diagnostic timing acceptance')
     _need(profile.get('watchdog_review_policy') in (None, COMMAND_LOSS_ONLY_SUPPORTED),
           'Unsupported watchdog review policy')
     _need(profile.get('local_characterization') in (None, LOCAL_RELATIVE_SUPPORTED),
           'Unsupported local characterization')
     return {'model_backend': backend, 'voltage_overlap': overlap,
+            'voltage_pipeline': pipeline,
             'diagnostic_timing_acceptance': timing}
+
+
+def current_position_hold_only(profile):
+    """The probe omits inference, never input validation or active deadlines."""
+    selected = profile.get('diagnostic_timing_acceptance') == CURRENT_HOLD_PROBE
+    if selected:
+        _need(profile.get('_current_hold_token') is _CURRENT_HOLD_TOKEN and
+              profile['policy_weight'] == 0, 'Current-position hold requires loader proof')
+    return selected
+
+
+def _supported_duration_cap(profile):
+    return 5 if profile.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_5S else 3
+
+
+def native_batch_encoder_settings(profile):
+    """Validate an optional reviewed binary selection without loading code."""
+    selection = profile.get('native_batch_encoder')
+    if selection is None:
+        return None
+    _need(profile['schema'] == SCHEMA_V3 and type(selection) is dict and
+          set(selection) == {'path', 'sha256'},
+          'Native batch encoder requires a V3 path and SHA256')
+    name = _text(selection['path'], 'native batch encoder path')
+    relative = Path(name)
+    _need(not relative.is_absolute() and len(relative.parts) == 1 and
+          relative.name == name and name not in ('.', '..'),
+          'Native batch encoder path must be one bundle-relative file name')
+    _hash(selection['sha256'], 'native batch encoder')
+    return selection
 
 
 def artifact_names(profile):
@@ -174,6 +226,38 @@ def artifact_names(profile):
         ('operator_acceptance', 'command_loss_report')
         if profile.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED else ()) + (
         ('local_reference_capture',) if profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED else ())
+
+
+def _post_reply_policy(profile):
+    from .policy_post_reply_timing import POST_REPLY_POLICY
+    value = profile.get('post_reply_deadline_policy')
+    if value is None:
+        _need('post_reply_deadline_policy' not in profile, 'Omit inactive post-reply deadline policy')
+        return None
+    _need(profile['schema'] == SCHEMA_V3 and
+          profile.get('scope') == 'supported_characterization_only',
+          'Post-reply deadline policy requires supported-only V3')
+    _need(type(value) is dict and set(value) == {'mode', 'max_lateness_ms',
+          'max_consecutive_misses', 'rolling_window_cycles', 'max_misses_per_window'} and
+          value.get('mode') == POST_REPLY_POLICY, 'Invalid post-reply deadline policy')
+    _number(value['max_lateness_ms'], 'post-reply lateness', 0, 1, positive=True)
+    for key, expected in (('max_consecutive_misses', 1), ('rolling_window_cycles', 100),
+                          ('max_misses_per_window', 1)):
+        _need(type(value[key]) is int and value[key] == expected, 'Invalid post-reply '+key)
+    _need(profile['hard_cycle_ms'] == 20 and profile['max_sample_age_ms'] <= 20 and
+          profile['max_sample_gap_ms'] <= 21 and profile['max_consecutive_20ms_misses'] == 0 and
+          profile['duration_s'] <= _supported_duration_cap(profile),
+          'Post-reply policy preserves hard20ms, freshness and finite supported scope')
+    return dict(value)
+
+
+def post_reply_deadline_settings(profile):
+    """Only a fully reviewed loader result may enable post-reply tolerance."""
+    value = _post_reply_policy(profile)
+    if value is not None:
+        _need(profile.get('_post_reply_validation_token') is _POST_REPLY_VALIDATION_TOKEN,
+              'Post-reply deadline policy requires validated loader proof')
+    return value
 
 
 def local_characterization_settings(profile):
@@ -385,6 +469,7 @@ def _settings(data):
     transport_settings(data)
     validate_cadence_sources(data)
     execution_settings(data)
+    native_batch_encoder_settings(data)
     _need(type(data['period_ms']) is int and data['period_ms'] == 20, 'Target period is exactly20ms')
     hard = _number(data['hard_cycle_ms'], 'hard_cycle_ms', 20, 60)
     _need(type(data['max_consecutive_20ms_misses']) is int and
@@ -394,6 +479,30 @@ def _settings(data):
     # deadlines. This1ms margin never changes either20ms computation criterion.
     _number(data['max_sample_gap_ms'], 'max_sample_gap_ms', 1, hard+1)
     duration = _number(data['duration_s'], 'duration_s', .5, 10)
+    if data.get('diagnostic_timing_acceptance') == CURRENT_HOLD_PROBE:
+        _need(data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+              data['policy_weight'] == 0 and duration <= 3 and
+              data['startup_duration_s'] >= 1 and hard == 20 and
+              data['max_sample_age_ms'] <= 20 and data['max_sample_gap_ms'] <= 21 and
+              data['max_consecutive_20ms_misses'] == 0,
+              'Current-position probe requires zero mixture, >=1s ramp, <=3s and hard20ms')
+    policy_probe_5s = data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_5S
+    if data.get('diagnostic_timing_acceptance') in (SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S):
+        _need(data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+              0 < data['policy_weight'] <= .005 and duration <= (5 if policy_probe_5s else 2) and
+              data['startup_duration_s'] >= .4 and hard == 20 and
+              data['max_sample_age_ms'] <= 20 and data['max_sample_gap_ms'] <= 21 and
+              data['max_consecutive_20ms_misses'] == 0,
+              'Supported policy probe requires <=0.5percent mixture, >=0.4s ramp, bounded duration and hard20ms')
+    if 'startup_damping_duration_s' in data:
+        _need(policy_probe_5s, 'Independent damping ramp requires the five-second supported probe')
+        _number(data['startup_damping_duration_s'], 'startup damping duration', .08,
+                data['startup_duration_s'])
+    if execution_settings(data)['voltage_pipeline']:
+        _need(hard == 20 and data['max_sample_age_ms'] <= 20 and
+              data['max_sample_gap_ms'] <= 21 and duration <= _supported_duration_cap(data),
+              'Voltage pipeline preserves hard20ms, freshness and short supported scope')
+    _post_reply_policy(data)
     start = _number(data['startup_duration_s'], 'startup_duration_s', .2, 2)
     stop = _number(data['stop_duration_s'], 'stop_duration_s', .2, 2)
     ramp = _number(data['policy_ramp_s'], 'policy_ramp_s', .2, 5)
@@ -415,15 +524,25 @@ def _settings(data):
         _need(data['schema'] == SCHEMA_V3 and
               data.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED,
               'Local characterization requires explicit supported V3 review')
-        _need(duration <= 3 and data['policy_weight'] <= .01 and hard == 20 and
+        _need(duration <= _supported_duration_cap(data) and data['policy_weight'] <= .01 and hard == 20 and
               data['max_consecutive_20ms_misses'] == 0,
-              'Local characterization requires <=3s, <=1percent mix and hard20ms')
+              'Local characterization requires bounded duration, <=1percent mix and hard20ms')
 
 
 def _axes(data, calibration):
     rows = shadow.validate_calibration(calibration)
     _need(calibration.get('approved_for_runtime') is False,
           'Keep original candidate provenance unchanged; use the separate hardware review')
+    # A reviewed all-axis zero-gain comparison exercises the actual Type1
+    # transport without applying learned targets or PD gains. Preserve the
+    # existing positive-gain contract for every other profile and keep all
+    # monitoring limits strictly positive. Native gain caps also become zero.
+    zero_gain_comparison = data['policy_weight'] == 0 and all(
+        data['axes'][mid][key] == 0 for mid in IDS for key in ('kp', 'kd'))
+    # With exactly zero policy mixture the runtime anchors every target to the
+    # initial measured position. Allow a separately reviewed gain comparison
+    # there only; learned motion retains the original Kp3 / 0.1Nm ceilings.
+    current_position_hold = data['policy_weight'] == 0
     for mid in IDS:
         row = data['axes'][mid]
         candidate = rows[int(mid)]
@@ -446,12 +565,19 @@ def _axes(data, calibration):
         _need(lower+uncertainty < upper-uncertainty, 'Uncertainty consumes joint range: ID'+mid)
         row['lower_rad'], row['upper_rad'] = lower+uncertainty, upper-uncertainty
         for key, cap in LIMIT_CAPS.items():
-            _number(row[key], key+' ID'+mid, 0, cap, positive=True)
+            _number(row[key], key+' ID'+mid, 0, cap,
+                    positive=not (zero_gain_comparison and key in ('kp', 'kd')))
         if local:
-            for key, cap in {'kp':3., 'kd':.15, 'max_command_velocity_rad_s':math.radians(1),
+            if current_position_hold and (row['kp'] > 3. or row['max_estimated_pd_torque_nm'] > .1):
+                _need(data['startup_duration_s'] >= 1.,
+                      'Higher-gain current-position hold requires at least1s gain ramp')
+            for key, cap in {'kp':12. if current_position_hold else 3., 'kd':.15,
+                    'max_command_velocity_rad_s':math.radians(1),
                     'max_command_acceleration_rad_s2':math.radians(5),
-                    'max_tracking_error_rad':math.radians(2), 'max_measured_velocity_rad_s':.25,
-                    'max_measured_torque_nm':1., 'max_estimated_pd_torque_nm':.1,
+                    'max_tracking_error_rad':math.radians(2),
+                    'max_measured_velocity_rad_s':(.35 if data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_5S else .25),
+                    'max_measured_torque_nm':1.,
+                    'max_estimated_pd_torque_nm':.5 if current_position_hold else .1,
                     'max_temperature_c':45., 'max_displacement_from_start_rad':math.radians(1)}.items():
                 _need(row[key] <= cap, 'Local characterization limit exceeded: '+key+' ID'+mid)
         _need(row['max_estimated_pd_torque_nm'] <= row['max_measured_torque_nm'],
@@ -501,22 +627,52 @@ def _timing(report, data):
         if execution['voltage_overlap']:
             _need(report.get('plan', {}).get('v3_voltage_validation_overlap') is True,
                   'Diagnostic worker voltage validation overlap was not measured')
+    if execution['voltage_pipeline']:
+        _need(report.get('plan', {}).get('v3_voltage_fast_pipeline') is True and
+              report.get('plan', {}).get('v3_voltage_pipeline') is not True,
+              'Immediate feedback-then-voltage pipeline requires its own disabled diagnostic')
     model_key = 'scalar_step_manifest' if execution['model_backend'] == SCALAR_BACKEND else 'model_manifest'
     _need(report.get('model_source', {}).get('manifest_sha256') == data['artifacts'][model_key]['sha256'],
           'Timing model-manifest mismatch')
     if model_key == 'scalar_step_manifest':
         _need(report.get('model_source', {}).get('baseline_provenance', {}).get('manifest_sha256') ==
               data['artifacts']['model_manifest']['sha256'], 'Scalar timing baseline differs')
-    accepted_r17 = execution['diagnostic_timing_acceptance'] == OBSERVED_R17_TIMING
-    if accepted_r17:
+    observed_r17 = execution['diagnostic_timing_acceptance'] == OBSERVED_R17_TIMING
+    hold_probe = execution['diagnostic_timing_acceptance'] == CURRENT_HOLD_PROBE
+    policy_probe = execution['diagnostic_timing_acceptance'] in (SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S)
+    bounded_probe = hold_probe or policy_probe
+    measured_r17 = execution['diagnostic_timing_acceptance'] in (
+        MEASURED_R17_STARTUP_TIMING, CURRENT_HOLD_PROBE, SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S)
+    accepted_r17 = observed_r17 or measured_r17
+    if observed_r17:
         _need(data['artifacts']['pipeline_diagnostic']['sha256'] in OBSERVED_R17_REPORT_SHA256,
               'Observed cadence acceptance is limited to the two original R17 reports')
+    if accepted_r17:
         _need(report.get('plan', {}).get('startup_cycle_allowance') == 1 and
               report.get('cycles_requested') == 501, 'R17 startup evidence differs')
+    if measured_r17:
+        plan = report['plan']
+        schedule = report.get('absolute_epoch_schedule')
+        _need(execution['model_backend'] == SCALAR_BACKEND and execution['voltage_overlap'] is True and
+              data['hard_cycle_ms'] == 20 and data['max_sample_age_ms'] <= 20 and
+              data['max_sample_gap_ms'] <= 21 and
+              report.get('boot_id') == data['boot_id'] and
+              report.get('approved_for_runtime') is False and
+              report.get('imu_restore_status') in ('restored', 'not_needed') and
+              type(plan.get('startup_cycle_allowance')) is int and
+              type(plan.get('steady_cycles_requested')) is int and
+              plan['steady_cycles_requested'] == 500 and
+              plan.get('absolute_epoch_cadence') is True and
+              type(schedule) is dict and schedule.get('enabled') is True and
+              type(schedule.get('epoch_ns')) is int and schedule['epoch_ns'] > 0 and
+              type(schedule.get('period_ns')) is int and schedule['period_ns'] == 20_000_000,
+              'Fresh R17 requires a bound 1+500 disabled absolute-epoch diagnostic')
     rows = report.get('measurements')
     _need(type(rows) is list and 20 <= len(rows) <= 100000 and
           report.get('cycles_completed') == len(rows) == report.get('cycles_requested'),
           'At least20complete diagnostic cycles required')
+    if execution['voltage_pipeline']:
+        _voltage_fast_pipeline_trace(report, data, rows)
     observation = report['observer']
     _need(observation.get('status') == 'COMPLETE_NO_OUTPUT_DIAGNOSTIC' and
           observation.get('failure') is None and observation.get('incomplete') is False and
@@ -529,6 +685,7 @@ def _timing(report, data):
     names = ('release_ns', 'oldest_input_start_ns', 'input_latest_reply_ns', 'gather_end_ns',
              'prepare_end_ns', 'infer_end_ns', 'final_host_write_ns', 'last_proxy_reply_ns', 'cycle_end_ns')
     startup_elapsed = None
+    probe_miss_indices = []
     for index, row in enumerate(rows):
         _need(type(row) is dict, 'Invalid timing row')
         stamps = [row.get(k) for k in names]
@@ -546,7 +703,26 @@ def _timing(report, data):
             _need(row.get('timing_phase') == ('startup' if startup else 'steady'),
                   'R17 startup classification differs')
         if startup: startup_elapsed = elapsed
-        _need((startup or elapsed <= data['hard_cycle_ms']) and (inferred-oldest)/1e6 <= data['max_sample_age_ms'],
+        if measured_r17:
+            scheduled = schedule['epoch_ns'] + index*20_000_000
+            _need(type(row.get('cadence_slot')) is int and row['cadence_slot'] == index and
+                  type(row.get('scheduled_release_ns')) is int and
+                  row['scheduled_release_ns'] == scheduled and release >= scheduled and
+                  type(row.get('skipped_slots_before')) is int and
+                  row['skipped_slots_before'] == 0 and
+                  (index == 0 or 15_000_000 <= release-previous <= 21_000_000),
+                  'Fresh R17 schedule skipped a slot or exceeded the release-gap budget')
+            if bounded_probe:
+                # Admission to a short supported commissioning probe is not
+                # a successful20ms certificate. Both live paths retain the
+                # hard20ms output/freshness guards. Only hold omits inference.
+                _need(elapsed <= 21 and replied-oldest <= 21_000_000,
+                      'Supported probe diagnostic exceeds21ms bound')
+            else:
+                _need((elapsed <= 21 if startup else end <= scheduled+20_000_000) and
+                      (replied-oldest) <= 20_000_000,
+                      'Fresh R17 exceeds startup, scheduled, or STOP-reply deadline')
+        _need((startup or elapsed <= (21 if bounded_probe else data['hard_cycle_ms'])) and (inferred-oldest)/1e6 <= data['max_sample_age_ms'],
               'Diagnostic exceeds the reviewed cycle/freshness budget')
         # Wakeup jitter has a distinct1ms tolerance; it is not included in the
         # actual20ms computation deadline. Never hide it by rounding timestamps.
@@ -554,15 +730,23 @@ def _timing(report, data):
         _need(accepted_r17 or interval is None or interval <= data['hard_cycle_ms']+1,
               'Diagnostic scheduling gap exceeds reviewed budget')
         late_intervals += int(interval is not None and interval > 21)
-        missed = not startup and (elapsed > 20 or (sent-oldest)/1e6 > 20)
-        if accepted_r17 and not startup:
+        missed = not startup and (elapsed > 20 or (sent-oldest)/1e6 > 20 or
+            bounded_probe and (end > scheduled+20_000_000 or replied-oldest > 20_000_000))
+        if accepted_r17 and not startup and not bounded_probe:
             _need(elapsed <= 20 and (replied-oldest)/1e6 <= 20,
                   'Observed cadence acceptance does not waive steady20ms processing/reply limits')
         misses += int(missed); consecutive = consecutive+1 if missed else 0
         longest = max(longest, consecutive)
-        _need(longest <= data['max_consecutive_20ms_misses'], 'Diagnostic exceeds20ms consecutive-miss budget')
+        if bounded_probe:
+            if missed: probe_miss_indices.append(index)
+            _need(longest <= 1 and sum(i > index-100 for i in probe_miss_indices) <= 1,
+                  'Supported probe diagnostic exceeds one miss per100 cycles')
+        else:
+            _need(longest <= data['max_consecutive_20ms_misses'], 'Diagnostic exceeds20ms consecutive-miss budget')
         previous, previous_end = release, end
-    return {'kind': 'stop_proxy_diagnostic_only', 'cycles': len(rows),
+    return {'kind': ('current_position_probe_admission_only' if hold_probe else
+                     'supported_policy_probe_admission_only' if policy_probe else
+                     'stop_proxy_diagnostic_only'), 'cycles': len(rows),
             'max_whole_iteration_ms': maximum, 'twenty_ms_misses': misses,
             'longest_consecutive_twenty_ms_misses': longest,
             'release_intervals_over_21ms': late_intervals,
@@ -571,6 +755,195 @@ def _timing(report, data):
             'strict_start_interval_20ms_met': all(
                 (b['release_ns']-a['release_ns']) <= 20_000_000 for a, b in zip(rows, rows[1:])),
             'actual_policy_output_20ms_verified': False}
+
+
+def _voltage_pipeline_trace(report, data, measurements):
+    """Recheck the separately hashed trace; a plan flag alone is no evidence."""
+    from . import can_readonly as codec
+    from . import rs05_trial_protocol as protocol
+    proof = report.get('v3_voltage_pipeline')
+    _need(type(proof) is dict and proof.get('enabled') is True and
+          proof.get('schema') == 'feedback-then-voltage-proxy-v1' and
+          proof.get('period_ns') == 20_000_000 and
+          proof.get('feedback_gate_before_voltage') is True and
+          proof.get('voltage_verified_before_proxy_stop') is True and
+          proof.get('diagnostic_only') is True and
+          proof.get('motor_output_allowed') is False and
+          proof.get('learned_targets_sent') is False and
+          proof.get('active_feedback_safety_equivalent') is False,
+          'Voltage pipeline requires exact disabled trace provenance')
+    overlap = report.get('v3_voltage_overlap')
+    _need(type(overlap) is dict and overlap.get('enabled') is True and
+          overlap.get('validation_overlap_enabled') is True and
+          overlap.get('voltage_dispatch_schedule') == 'after_complete_feedback_imu_snapshot',
+          'Voltage pipeline timing differs from feedback-gated schedule')
+    digest = _hash(proof.get('records_sha256'), 'voltage pipeline records')
+    records_path = Path(data['artifacts']['pipeline_diagnostic']['path']).with_name('records.json')
+    records, _ = _read_json(records_path, digest=digest)
+    _need(type(records) is list and len(records) == len(measurements),
+          'Voltage pipeline trace count differs from timing rows')
+    buses = {'front': set(range(1, 7)), 'rear': set(range(7, 13))}
+    for index, (record, timing) in enumerate(zip(records, measurements)):
+        _need(type(record) is dict and record.get('cycle') == index+1 and
+              record.get('voltage_overlap', {}).get('status') == 'VALIDATED_BEFORE_PROXY_STOP',
+              'Voltage pipeline trace is incomplete or out of order')
+        row = record.get('voltage_pipeline')
+        _need(type(row) is dict and row.get('status') == 'VALIDATED_BEFORE_PROXY_STOP' and
+              row.get('output_allowed') is False and row.get('range_v') == [35., 42.],
+              'Voltage pipeline cycle lacks validated no-output proof')
+        bus_names = ('feedback_dispatch_ns_by_bus', 'feedback_reply_end_ns_by_bus',
+                     'feedback_ready_ns_by_bus', 'voltage_dispatch_ns_by_bus',
+                     'voltage_reply_end_ns_by_bus')
+        _need(all(type(row.get(name)) is dict and set(row[name]) == set(buses)
+                  for name in bus_names), 'Voltage pipeline lacks both bus timestamp sets')
+        join, gate, inferred, voltage_join, verified, deadline = (row.get(name) for name in
+            ('feedback_join_ns', 'voltage_gate_set_ns', 'inference_end_ns',
+             'voltage_join_ns', 'voltage_verified_ns', 'hard_deadline_ns'))
+        _need(all(type(value) is int and 0 < value < 2**63 for value in
+                  (join, gate, inferred, voltage_join, verified, deadline)) and
+              join == timing['gather_end_ns'] and inferred == timing['infer_end_ns'] and
+              join <= gate <= inferred <= verified <= timing['final_host_write_ns'] and
+              voltage_join <= verified < deadline and
+              deadline == min(timing['release_ns'], timing['oldest_input_start_ns'])+20_000_000,
+              'Voltage pipeline coordinator timestamps are noncausal')
+        for bus, expected_ids in buses.items():
+            timestamps = tuple(row[name][bus] for name in bus_names)
+            feedback_sent, feedback_replied, feedback_ready, voltage_sent, voltage_replied = timestamps
+            _need(all(type(value) is int and 0 < value < 2**63 for value in timestamps) and
+                  timing['release_ns'] <= feedback_sent <= feedback_replied <= feedback_ready <= join <=
+                  gate <= voltage_sent <= voltage_replied <= voltage_join,
+                  'Voltage pipeline feedback/gate/voltage order is invalid')
+            _need(type(record.get('acquired')) is dict and type(record.get('voltage')) is dict and
+                  type(record.get('output')) is dict and
+                  set(record['acquired']) == set(buses) and
+                  set(record['voltage']) == set(buses) and
+                  set(record['output']) == set(buses),
+                  'Voltage pipeline requires two-bus feedback, voltage and STOP')
+            acquired = record['acquired'][bus].get('records')
+            volts = record['voltage'][bus].get('records')
+            output = record['output'][bus].get('records')
+            _need(all(type(part) is list for part in (acquired, volts, output)) and
+                  (len(acquired), len(volts), len(output)) == (6, 1, 6) and
+                  min(part['start_ns'] for part in output) >= verified,
+                  'Voltage pipeline frame counts or STOP ordering differ')
+            ordered_ids = tuple(sorted(expected_ids))
+            expected_stops = [protocol.stop_request(phase=protocol.TrialPhase.STOP,
+                                                    motor_id=mid) for mid in ordered_ids]
+            expected_voltage = codec.read_request(ordered_ids[index % 6], 'voltage')
+            try:
+                actual_acquired = [bytes.fromhex(part['tx_hex']) for part in acquired]
+                actual_voltage = bytes.fromhex(volts[0]['tx_hex'])
+                actual_output = [bytes.fromhex(part['tx_hex']) for part in output]
+            except (ValueError, TypeError, KeyError) as error:
+                raise ProfileError('Invalid voltage-pipeline trace request frame') from error
+            _need(actual_acquired == expected_stops and actual_voltage == expected_voltage and
+                  actual_output == expected_stops,
+                  'Voltage pipeline requires exact feedback, voltage and STOP requests')
+
+
+def _voltage_fast_pipeline_trace(report, data, measurements):
+    """Bind the immediate, read-only voltage overlap to complete STOP evidence.
+
+    Voltage can start after its own bus's six feedback replies, before the
+    coordinator has checked both buses and IMU. This diagnostic never sends a
+    learned target. The active runtime must complete those checks and both
+    voltage checks before it may send Type1.
+    """
+    from . import can_readonly as codec
+    from . import rs05_trial_protocol as protocol
+    proof = report.get('v3_voltage_fast_pipeline')
+    _need(type(proof) is dict and proof.get('enabled') is True and
+          proof.get('schema') == 'immediate-feedback-voltage-proxy-v1' and
+          proof.get('period_ns') == 20_000_000 and
+          proof.get('voltage_dispatch_schedule') == 'after_each_bus_feedback' and
+          proof.get('voltage_may_precede_global_feedback_validation') is True and
+          proof.get('voltage_verified_before_proxy_stop') is True and
+          proof.get('diagnostic_only') is True and
+          proof.get('motor_output_allowed') is False and
+          proof.get('learned_targets_sent') is False and
+          proof.get('active_feedback_safety_equivalent') is False,
+          'Fast voltage pipeline requires exact disabled trace provenance')
+    overlap = report.get('v3_voltage_overlap')
+    _need(type(overlap) is dict and overlap.get('enabled') is True and
+          overlap.get('validation_overlap_enabled') is True and
+          overlap.get('voltage_dispatch_schedule') == 'after_each_bus_feedback',
+          'Fast voltage pipeline timing differs from immediate schedule')
+    digest = _hash(proof.get('records_sha256'), 'fast voltage pipeline records')
+    records_path = Path(data['artifacts']['pipeline_diagnostic']['path']).with_name('records.json')
+    records, _ = _read_json(records_path, digest=digest)
+    _need(type(records) is list and len(records) == len(measurements),
+          'Fast voltage pipeline trace count differs from timing rows')
+    buses = {'front': tuple(range(1, 7)), 'rear': tuple(range(7, 13))}
+    for index, (record, timing) in enumerate(zip(records, measurements)):
+        _need(type(record) is dict and record.get('cycle') == index+1 and
+              type(record.get('voltage_overlap')) is dict and
+              record['voltage_overlap'].get('status') == 'VALIDATED_BEFORE_PROXY_STOP',
+              'Fast voltage pipeline trace is incomplete or out of order')
+        row = record.get('voltage_fast_pipeline')
+        _need(type(row) is dict and row.get('status') == 'VALIDATED_BEFORE_PROXY_STOP' and
+              row.get('output_allowed') is False and row.get('range_v') == [35., 42.] and
+              row.get('stop_reply_count') == 12,
+              'Fast voltage pipeline cycle lacks validated no-output proof')
+        bus_names = ('feedback_dispatch_ns_by_bus', 'feedback_reply_end_ns_by_bus',
+                     'feedback_ready_ns_by_bus', 'voltage_dispatch_ns_by_bus',
+                     'voltage_reply_end_ns_by_bus', 'stop_reply_end_ns_by_bus')
+        _need(all(type(row.get(name)) is dict and set(row[name]) == set(buses)
+                  for name in bus_names), 'Fast voltage pipeline lacks both bus timestamp sets')
+        join, snapshot_ok, inferred, voltage_join, post_verified, verified, deadline, stop_ok = (
+            row.get(name) for name in ('feedback_join_ns', 'feedback_snapshot_validated_ns',
+            'inference_end_ns', 'voltage_join_ns', 'post_inference_verified_ns',
+            'voltage_verified_ns', 'hard_deadline_ns', 'stop_reply_verified_ns'))
+        _need(all(type(value) is int and 0 < value < 2**63 for value in
+                  (join, snapshot_ok, inferred, voltage_join, post_verified,
+                   verified, deadline, stop_ok)) and
+              join == timing['gather_end_ns'] and inferred == timing['infer_end_ns'] and
+              join <= snapshot_ok <= inferred <= post_verified <= verified < deadline and
+              voltage_join <= post_verified and verified <= timing['final_host_write_ns'] and
+              stop_ok <= timing['cycle_end_ns'] and
+              deadline == min(timing['release_ns'], timing['oldest_input_start_ns'])+20_000_000,
+              'Fast voltage pipeline coordinator timestamps are noncausal')
+        for bus, ids in buses.items():
+            feedback_sent, feedback_replied, feedback_ready, voltage_sent, voltage_replied, stop_replied = (
+                row[name][bus] for name in bus_names)
+            _need(all(type(value) is int and 0 < value < 2**63 for value in
+                      (feedback_sent, feedback_replied, feedback_ready,
+                       voltage_sent, voltage_replied, stop_replied)) and
+                  timing['release_ns'] <= feedback_sent <= feedback_replied <= feedback_ready <=
+                  voltage_sent <= voltage_replied <= voltage_join and
+                  feedback_ready <= join and
+                  timing['final_host_write_ns'] <= stop_replied <= stop_ok,
+                  'Fast voltage pipeline feedback/voltage/STOP order is invalid')
+            _need(type(record.get('acquired')) is dict and type(record.get('voltage')) is dict and
+                  type(record.get('output')) is dict and
+                  set(record['acquired']) == set(buses) and
+                  set(record['voltage']) == set(buses) and
+                  set(record['output']) == set(buses),
+                  'Fast voltage pipeline requires two-bus feedback, voltage and STOP')
+            acquired = record['acquired'][bus].get('records')
+            volts = record['voltage'][bus].get('records')
+            output = record['output'][bus].get('records')
+            _need(all(type(part) is list for part in (acquired, volts, output)) and
+                  (len(acquired), len(volts), len(output)) == (6, 1, 6) and
+                  min(part['start_ns'] for part in output) >= verified and
+                  max(part['received_ns'] for part in output) == stop_replied,
+                  'Fast voltage pipeline frame counts or STOP ordering differ')
+            expected_stops = [protocol.stop_request(phase=protocol.TrialPhase.STOP,
+                                                    motor_id=mid) for mid in ids]
+            try:
+                actual_acquired = [bytes.fromhex(part['tx_hex']) for part in acquired]
+                actual_voltage = bytes.fromhex(volts[0]['tx_hex'])
+                actual_output = [bytes.fromhex(part['tx_hex']) for part in output]
+                reply_frames = [codec.ATParser().feed(bytes.fromhex(part['rx_hex']))
+                                for part in output]
+            except (ValueError, TypeError, KeyError) as error:
+                raise ProfileError('Invalid fast voltage pipeline trace frame') from error
+            _need(actual_acquired == expected_stops and
+                  actual_voltage == codec.read_request(ids[index % 6], 'voltage') and
+                  actual_output == expected_stops and
+                  all(len(frames) == 1 and frames[0].flags == 4 and
+                      frames[0].can_id == ((2 << 24) | (mid << 8) | 0xfd)
+                      for mid, frames in zip(ids, reply_frames)),
+                  'Fast voltage pipeline requires exact feedback, voltage and STOP replies')
 
 
 def _local_reference(review, capture, data):
@@ -745,6 +1118,13 @@ def load_profile(path, *, require_approved=True):
         _need(source.is_file() and not source.is_symlink() and shadow.sha(source) == sha,
               'Pinned bundle member mismatch: '+filename)
     data['bundle_path'] = str(bundle.absolute())
+    encoder_selection = native_batch_encoder_settings(data)
+    if encoder_selection is not None:
+        encoder_path = bundle / encoder_selection['path']
+        _need(encoder_path.is_file() and not encoder_path.is_symlink() and
+              hashlib.sha256(encoder_path.read_bytes()).hexdigest() == encoder_selection['sha256'],
+              'Pinned native batch encoder binary is missing or differs')
+        data['_native_batch_encoder_path'] = str(encoder_path.absolute())
     documents = {}
     for key in artifact_names(data):
         documents[key], data['artifacts'][key] = _artifact(data['artifacts'][key], path.parent)
@@ -772,9 +1152,38 @@ def load_profile(path, *, require_approved=True):
                                      Path(data['artifacts']['hardware_review']['path']).parent,
                                      command_loss_report=documents.get('command_loss_report'),
                                      local_reference_capture=documents.get('local_reference_capture'))
+    if execution_settings(data)['voltage_pipeline']:
+        acceptance = documents['hardware_review'].get('voltage_pipeline_acceptance', {})
+        _need(type(acceptance) is dict and
+              acceptance.get('pipeline') == 'feedback_then_voltage.fast_v1' and
+              acceptance.get('diagnostic_sha256') == data['artifacts']['pipeline_diagnostic']['sha256'] and
+              acceptance.get('scope') == data['scope'] and
+              acceptance.get('hard_output_and_freshness_limits_unchanged') is True,
+              'Explicit matching voltage-pipeline acceptance required')
+        _review(acceptance.get('review'), 'ACCEPT_FEEDBACK_THEN_VOLTAGE')
+    if encoder_selection is not None:
+        acceptance = documents['hardware_review'].get('native_batch_encoder_acceptance', {})
+        _need(type(acceptance) is dict and
+              acceptance.get('binary_sha256') == encoder_selection['sha256'] and
+              acceptance.get('scope') == data['scope'] and
+              acceptance.get('hard_output_and_freshness_limits_unchanged') is True,
+              'Explicit matching native batch encoder acceptance required')
+        _review(acceptance.get('review'), 'ACCEPT_NATIVE_BATCH_ENCODER')
+    post_reply = _post_reply_policy(data)
+    if post_reply is not None:
+        acceptance = documents['hardware_review'].get('post_reply_deadline_acceptance', {})
+        _need(type(acceptance) is dict and acceptance.get('settings') == post_reply and
+              acceptance.get('scope') == data['scope'] and
+              acceptance.get('strict_50hz_not_established') is True and
+              acceptance.get('hard_output_and_freshness_limits_unchanged') is True,
+              'Explicit matching post-reply deadline acceptance required')
+        _review(acceptance.get('review'), 'ACCEPT_BOUNDED_POST_REPLY_DEADLINE')
+        data['_post_reply_validation_token'] = _POST_REPLY_VALIDATION_TOKEN
     data['mode0_readback_required_before_enable'] = True
     if data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED:
         data['_local_validation_token'] = _LOCAL_VALIDATION_TOKEN
+    if data.get('diagnostic_timing_acceptance') == CURRENT_HOLD_PROBE:
+        data['_current_hold_token'] = _CURRENT_HOLD_TOKEN
     return {**data, 'output_allowed': True, 'profile_path': str(path), 'profile_sha256': digest,
             'actual_policy_output_20ms_verified': False, 'support_must_remain': True}
 

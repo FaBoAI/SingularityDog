@@ -1,0 +1,167 @@
+{
+  "schema": "can-usb-loss-investigation-20260929-v1",
+  "motor_writes_this_investigation": 0,
+  "operator_last_state": "40V_OFF_BOX_SUPPORTED_NO_PHYSICAL_ANOMALY",
+  "root_cause_confirmed": false,
+  "runtime_skip_enabled": false,
+  "runs": [
+    {
+      "source_name": "box120-policy-probe-20260929-r2",
+      "source_sha256": "a5a8eaf96860fccf88426028d205154893f2074cf6aba4c42178f27faac42743",
+      "completed_cycles": 200,
+      "failed_batches": [
+        {
+          "journal_index": 1255,
+          "bus": "front",
+          "phase": "policy_output",
+          "error": "Active reply deadline exceeded; all requests already written",
+          "unresolved": [
+            {
+              "id": 6,
+              "kind": 1,
+              "state": "no_complete_reply_at_deadline",
+              "write_to_deadline_ms": 4.863533
+            }
+          ],
+          "rx_bytes": 85,
+          "rx_reads": 3,
+          "unparsed_bytes": 0,
+          "unparsed_hex": "",
+          "late_tail_candidate": null,
+          "skip_recovery_proven": false
+        }
+      ]
+    },
+    {
+      "source_name": "box120-policy-probe-20260929-r3",
+      "source_sha256": "4fbbf5afd139be0f5fd006a4c6dfce685409fea0bf922834ab9c4b4a69b582e9",
+      "completed_cycles": 150,
+      "failed_batches": [
+        {
+          "journal_index": 955,
+          "bus": "rear",
+          "phase": "policy_output",
+          "error": "Active reply deadline exceeded; all requests already written",
+          "unresolved": [
+            {
+              "id": 8,
+              "kind": 1,
+              "state": "no_complete_reply_at_deadline",
+              "write_to_deadline_ms": 7.858825
+            },
+            {
+              "id": 12,
+              "kind": 1,
+              "state": "no_complete_reply_at_deadline",
+              "write_to_deadline_ms": 2.621964
+            }
+          ],
+          "rx_bytes": 83,
+          "rx_reads": 3,
+          "unparsed_bytes": 15,
+          "unparsed_hex": "4154140067ec089120801280200136",
+          "late_tail_candidate": {
+            "id": 12,
+            "prefix_bytes": 15,
+            "later_bytes_hex": "0d0a",
+            "observed_during": "first STOP collection; individual byte timestamp unavailable",
+            "arrival_within_one_extra_cycle_proven": false
+          },
+          "skip_recovery_proven": false
+        }
+      ]
+    },
+    {
+      "source_name": "box120-policy-probe-20260929-r5",
+      "source_sha256": "29abb96a129738245ff2a9881de9ce94f4b1a3511ad7c3ef2b85fbc8de770aa0",
+      "completed_cycles": 0,
+      "failed_batches": [
+        {
+          "journal_index": 23,
+          "bus": "front",
+          "phase": "preflight",
+          "error": "Active reply deadline exceeded; all requests already written",
+          "unresolved": [
+            {
+              "id": 1,
+              "kind": 3,
+              "state": "no_complete_reply_at_deadline",
+              "write_to_deadline_ms": 19.955295
+            }
+          ],
+          "rx_bytes": 0,
+          "rx_reads": 0,
+          "unparsed_bytes": 0,
+          "unparsed_hex": "",
+          "late_tail_candidate": null,
+          "skip_recovery_proven": false
+        }
+      ]
+    },
+    {
+      "source_name": "box120-policy-probe-20260929-r6",
+      "source_sha256": "dfe9bd2c69cf9e594df89ed1a9bc50a9078bbf1681f9cc818dd8558b7252dec2",
+      "completed_cycles": 32,
+      "failed_batches": [
+        {
+          "journal_index": 244,
+          "bus": "rear",
+          "phase": "feedback_hold",
+          "error": "Active reply deadline exceeded; all requests already written",
+          "unresolved": [
+            {
+              "id": 12,
+              "kind": 1,
+              "state": "no_complete_reply_at_deadline",
+              "write_to_deadline_ms": 15.635959
+            }
+          ],
+          "rx_bytes": 85,
+          "rx_reads": 3,
+          "unparsed_bytes": 0,
+          "unparsed_hex": "",
+          "late_tail_candidate": null,
+          "skip_recovery_proven": false
+        }
+      ]
+    }
+  ],
+  "host": {
+    "kernel_config": [
+      "# CONFIG_KPROBES is not set",
+      "# CONFIG_USB_MON is not set",
+      "CONFIG_TRACING=y",
+      "CONFIG_TRACING_SUPPORT=y",
+      "CONFIG_FTRACE=y",
+      "# CONFIG_FTRACE_SYSCALLS is not set",
+      "CONFIG_BPF_EVENTS=y"
+    ],
+    "ch341_module_sha256": "27c8f86b7fe0316bd56bb6161ac8e10dd3e0ae65b135b60bf71960bc345e23dc",
+    "usbmon_available": false,
+    "xhci_tracepoints_available": true
+  },
+  "passive_capture": {
+    "seconds": 2,
+    "motor_writes": 0,
+    "serial_devices_opened": false,
+    "target_events": 0,
+    "instances_removed": true,
+    "errors": [],
+    "scope": "Configuration and cleanup check with 40V off; not a motor communication test"
+  },
+  "validation": {
+    "mac_tests_passed": 74,
+    "jetson_native_socket_tests_passed": 3,
+    "hardware_late_reply_recovery_tested": false
+  },
+  "private_artifact_sha256": {
+    "can-reply-loss-analysis-r1.json": "7dacc215a7884e5cb37f622e8f77a0517b36091673e8e35f79f33ada21bf7059",
+    "can-host-snapshot-r1.json": "da31514d78f308dd8ceb079069576e246ea731514c48fb0c772a06a86405bafb",
+    "xhci-passive-off-r1.tar": "0ab72c7b75f3b10d574c36b09e97acb2572b4c27e1c6c1ec4ed2f2fa1bde3d8d"
+  },
+  "limitations": [
+    "STOP retained-byte evidence has no individual arrival timestamp",
+    "Unsequenced Type2 cannot be attributed to a new request after an unresolved old request",
+    "One-slot prototype is not integrated with live watchdog, input-age or model-history rules"
+  ]
+}

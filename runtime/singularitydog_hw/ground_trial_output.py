@@ -290,7 +290,7 @@ def main(argv=None):
     parser.add_argument('--trial-id')
     # Keep a finite whitelist; arbitrary/abbreviated arguments must never be
     # forwarded into a different entry point with its own arming semantics.
-    flags=('support-in-place','cutoff-ready')
+    flags=('support-in-place','cutoff-ready','single-thread-math')
     values=('front-port','rear-port','library','output','audio','audio-sha256','audio-device','power-epoch')
     for name in flags:parser.add_argument('--'+name,action='store_true')
     for name in values:parser.add_argument('--'+name)

@@ -121,8 +121,8 @@ STOP-unconfirmed; this change does not reinterpret its rejected replies.
 
 This is a cleanup acknowledgement budget, not a change to the 20 ms active cycle
 or the 200 ms device watchdog. When every reply is missing, the sixth STOP write
-is attempted at about 208 ms rather than 125 ms; the entire configured wait is
-still at most 250 ms per bus, with both bus owners running independently. OS
+is attempted at about 208 ms rather than 125 ms; a single default call still budgets 250 ms per bus, with both bus owners
+running independently. The repeated wrapper has a separate total budget below. OS
 descheduling can delay execution beyond a configured deadline, so this is not a
 hard real-time guarantee. No later motion is permitted while STOP collection is
 running. An uncertain STOP still requires physical cutoff. Synthetic socket
@@ -140,7 +140,12 @@ be distinguished from a new STOP acknowledgement.
 An unanswered STOP from emergency cleanup is also remembered by the session.
 If a caller attempts emergency STOP again on that session, a delayed reply to
 the earlier attempt remains ambiguous even when it arrives after the new write.
-The runtime makes one cleanup attempt; this API safeguard does not add retries.
+The runtime calls `emergency_stop_repeated` on each bus owner. A successful first
+round ends cleanup; otherwise at most three STOP-only rounds share one absolute
+one-second budget. The first round retains a 250 ms cap; later rounds may use
+500 ms or the remaining total budget. The collector uses a shared 1.25-second
+wait including dispatch overhead. No motion is retried, fault evidence is
+retained, and additional mode-zero replies never erase prior ambiguity.
 There is no sequence number in Type2: very late duplicate replies cannot be
 proven fresh by this transport. The runner must use freshness and state limits,
 and an unconfirmed or ambiguous STOP requires the physical cutoff procedure.

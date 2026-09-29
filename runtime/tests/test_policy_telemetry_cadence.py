@@ -51,7 +51,8 @@ class MonitoringSession(FakeSession):
     """Inject responses only; the runtime still emits real protocol bytes."""
     def __init__(self, first_id, *, timeout_ticks=4000, missing_timeout=False,
                  drift_after_enable=False, acquisition_failure=None,
-                 pre_enable_voltage_failure=None,initial_voltage_failure=None):
+                 pre_enable_voltage_failure=None,initial_voltage_failure=None,
+                 after_enable_voltage_failure=None):
         super().__init__(first_id)
         self.timeout_ticks = timeout_ticks
         self.missing_timeout = missing_timeout
@@ -59,6 +60,7 @@ class MonitoringSession(FakeSession):
         self.acquisition_failure = acquisition_failure
         self.pre_enable_voltage_failure = pre_enable_voltage_failure
         self.initial_voltage_failure = initial_voltage_failure
+        self.after_enable_voltage_failure = after_enable_voltage_failure
 
     def _exchange(self, wires, timeout_ns, send_only):
         wires = tuple(wires)
@@ -80,7 +82,8 @@ class MonitoringSession(FakeSession):
                     ticks = 0 if self.drift_after_enable and self.enabled else self.timeout_ticks
                     body = tx.data[:4] + struct.pack('<I', ticks)
                     record.rx[:] = wire((17 << 24) | (tx.destination << 8) | codec.HOST_ID, body)
-            voltage_failure=(self.pre_enable_voltage_failure if voltage_refresh else
+            voltage_failure=(self.after_enable_voltage_failure if voltage_refresh and self.enabled else
+                             self.pre_enable_voltage_failure if voltage_refresh else
                              self.initial_voltage_failure if initial_voltage else None)
             if name == 'voltage' and tx.destination == self.ids[-1] and voltage_failure:
                 if voltage_failure == 'missing':
@@ -161,15 +164,42 @@ class CadenceRuntimeTests(unittest.TestCase):
         final = [b for b in journals if b['phase'] == 'watchdog_pre_enable_readback']
         pose = [b for b in journals if b['phase'] == 'pre_enable_pose']
         refresh = [b for b in journals if b['phase'] == 'voltage_pre_enable_refresh']
+        after_enable = [b for b in journals if b['phase'] == 'voltage_after_enable_refresh']
         self.assertEqual(len(refresh),2)
+        self.assertEqual(len(after_enable),2)
         self.assertEqual({codec.ATParser().feed(bytes.fromhex(row['tx_hex']))[0].destination
                           for b in refresh for row in b['records']},set(range(1,13)))
+        self.assertEqual({codec.ATParser().feed(bytes.fromhex(row['tx_hex']))[0].destination
+                          for b in after_enable for row in b['records']},set(range(1,13)))
+        for batch in after_enable:
+            for row in batch['records']:
+                mid = codec.ATParser().feed(bytes.fromhex(row['tx_hex']))[0].destination
+                voltage = codec.decode_reply(
+                    codec.ATParser().feed(bytes.fromhex(row['rx_hex']))[0],mid,'voltage')['value']
+                self.assertEqual(report['voltage_guard']['after_enable_refresh_by_id'][str(mid)],
+                                 {'value_v':voltage,'received_ns':row['received_ns']})
         self.assertLess(max(r['received_ns'] for b in final for r in b['records']),
                         min(r['start_ns'] for b in pose for r in b['records']))
         self.assertLess(max(r['received_ns'] for b in pose for r in b['records']),
                         min(r['start_ns'] for b in refresh for r in b['records']))
         self.assertLess(max(r['received_ns'] for b in refresh for r in b['records']),
                         min(c[0] for session in sessions.values() for c in session.calls if c[1] == 3))
+        last_transition = max(c[0] for session in sessions.values()
+                              for c in session.calls if c[1] == 3)
+        self.assertLess(last_transition,
+                        min(r['start_ns'] for b in after_enable for r in b['records']))
+        after_enable_end = max(r['received_ns'] for b in after_enable for r in b['records'])
+        final_zero_hold = [b for b in journals if b['phase'] == 'preflight' and
+                           len(b['records']) == 6 and all(
+                               codec.ATParser().feed(bytes.fromhex(r['tx_hex']))[0].kind == 1
+                               for r in b['records']) and
+                           min(r['start_ns'] for r in b['records']) > after_enable_end]
+        self.assertEqual(len(final_zero_hold),2)
+        self.assertLess(after_enable_end,
+                        min(r['start_ns'] for b in final_zero_hold for r in b['records']))
+        self.assertLess(max(r['received_ns'] for b in final_zero_hold for r in b['records']),
+                        min(r['start_ns'] for b in journals if b['phase'] == 'feedback_hold'
+                            for r in b['records']))
         self.assertEqual(set(report['voltage_guard']['pre_enable_refresh_by_id']),
                          {str(i) for i in range(1,13)})
         self.assertGreater(report['voltage_guard']['checks_before_type1'],0)
@@ -203,6 +233,24 @@ class CadenceRuntimeTests(unittest.TestCase):
                                     for error in report['errors']))
                 self.assertFalse(any(call[1] in (1,3) for session in sessions.values()
                                      for call in session.calls))
+
+    def test_after_enable_voltage_refresh_rejects_missing_stale_and_low_before_cycles(self):
+        for failure in ('missing','stale','low'):
+            with self.subTest(failure=failure):
+                report,sessions=self.run_case(profile_data=new_profile(),
+                    rear=MonitoringSession(7,after_enable_voltage_failure=failure))
+                self.assertEqual(report['status'],'ABORTED',report['errors'])
+                self.assertTrue(report['motor_enable_sent'])
+                self.assertFalse(report['cycles'])
+                self.assertEqual(report['voltage_guard']['after_enable_refresh_by_id'],{})
+                self.assertTrue(report['stop_confirmed'])
+                self.assertTrue(any('voltage' in error.lower() or 'noncausal' in error.lower()
+                                    for error in report['errors']))
+                self.assertFalse(any(batch['phase']=='feedback_hold' for batch in report['journal']))
+                self.assertFalse(any(batch['phase']=='preflight' and len(batch['records'])==6
+                                     and all(codec.ATParser().feed(bytes.fromhex(r['tx_hex']))[0].kind==1
+                                             for r in batch['records'])
+                                     for batch in report['journal']))
 
     def test_initial_preflight_voltage_rejects_missing_stale_and_low(self):
         for failure in ('missing','stale','low'):

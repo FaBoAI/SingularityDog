@@ -43,7 +43,11 @@ ACTIVE_SOURCE_PATHS = (
     'runtime/singularitydog_hw/native_active_transport.py',
     'runtime/singularitydog_hw/policy_live_profile.py',
     'runtime/singularitydog_hw/policy_output.py',
+    'runtime/singularitydog_hw/math_thread_startup.py',
     'runtime/singularitydog_hw/policy_output_runtime.py',
+    'runtime/singularitydog_hw/active_output_timer_slack.py',
+    'runtime/singularitydog_hw/thread_timer_slack.py',
+    'runtime/singularitydog_hw/policy_post_reply_timing.py',
     'runtime/singularitydog_hw/policy_output_model.py',
     'runtime/singularitydog_hw/policy_motion_envelope.py',
 )

@@ -1,0 +1,87 @@
+{
+  "date": "2026-09-29",
+  "scope": "box_supported_finite_characterization_only",
+  "settings": {
+    "gap_us": 800,
+    "window": 3,
+    "main_cpu": 4,
+    "math_threads": 1,
+    "policy_weight": 0.005,
+    "kp": 3.0,
+    "kd": 0.15,
+    "maximum_displacement_deg": 1.0,
+    "duration_budget_s": 2.0
+  },
+  "zero_gain": {
+    "report_sha256": "6822290f8d977f578abbeb0982ae9a02c5de8b18acdd6863d5ce804c5ffc1469",
+    "profile_sha256": "f876a92077c51cb74e7b5a30ecae6165c541400c2b16a7124f6e4e74137fe50e",
+    "completed_cycles": 88,
+    "status": "COMPLETE_SUPPORTED_OUTPUT",
+    "whole_iteration_ms": {
+      "median": 18.592893500000002,
+      "maximum": 19.495142
+    },
+    "deadline20ms_misses": 0,
+    "skipped_slots": 0,
+    "max_start_interval_ms": 20.020076,
+    "motion_gain_sent": false,
+    "learned_targets_sent": false,
+    "stop_confirmed": true,
+    "normal_ramp_completed": true,
+    "stop_attempts": {
+      "front": 1,
+      "rear": 1
+    },
+    "minimum_checked_voltage_v": 39.47534942626953,
+    "maximum_tracking_error_deg": 0.0879173508482868,
+    "maximum_command_delta_deg": 0.021979337712122585,
+    "maximum_feedback_delta_deg": 0.06593801313616421,
+    "maximum_reported_torque_nm": 0.029625391012435998
+  },
+  "learned_output": {
+    "report_sha256": "2c91dabdb45f42c9ab39a8530daad762badd11aea32ce0be7fe12434d807e496",
+    "profile_sha256": "b46e7704217846262c4c3050582902e968f4e499e4ab98b1c1cffc13d11e14f2",
+    "completed_cycles": 97,
+    "status": "COMPLETE_SUPPORTED_OUTPUT",
+    "whole_iteration_ms": {
+      "median": 18.640036,
+      "maximum": 19.575205
+    },
+    "deadline20ms_misses": 0,
+    "skipped_slots": 0,
+    "max_start_interval_ms": 20.003724,
+    "motion_gain_sent": true,
+    "learned_targets_sent": true,
+    "stop_confirmed": true,
+    "normal_ramp_completed": true,
+    "stop_attempts": {
+      "front": 1,
+      "rear": 1
+    },
+    "minimum_checked_voltage_v": 39.51043701171875,
+    "maximum_tracking_error_deg": 0.13668319714696087,
+    "maximum_command_delta_deg": 0.131771627629245,
+    "maximum_feedback_delta_deg": 0.06593801313636775,
+    "maximum_reported_torque_nm": 0.03986419470511926
+  },
+  "operator_observation": {
+    "audio_audible": true,
+    "physical_anomaly": false,
+    "support_removed": false
+  },
+  "limits": {
+    "retry_after_failure_measured": false,
+    "long_duration_reliability_proven": false,
+    "loaded_stance_proven": false,
+    "freestanding_proven": false,
+    "walking_proven": false,
+    "can_wire_time_measured": false
+  },
+  "software_tests_passed": 265,
+  "post_trial_readonly": {
+    "report_sha256": "223e30510a0ba5e1b6e53a3923ff4651b986a3007c047eca69e55c5ca62eaefd",
+    "all_axes_quiet": true,
+    "maximum_span_deg": 0.011338114022221167,
+    "stop_proof_from_readonly": false
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "can-stopproxy-diagnostic-v1",
+  "date": "2026-09-29",
+  "jetson_boot_id": "274a4717-d613-489e-b5bf-48ee50690111",
+  "physical_setup": {
+    "operator_confirmed": "40V On、胴体は箱で支持、4足接地、QDD脱力、手離し、即時40V Off可能",
+    "post_test_observation": "異音・振動・滑り・想定外の動きなし",
+    "id9_physical_full_turn": false
+  },
+  "angle_capture": {
+    "status": "RECORDED_REVIEW_REQUIRED",
+    "output": "/home/jetson/singularitydog-logs/RO-motor-epoch-current-boot-20260929-r1.json",
+    "motor_output_allowed": false,
+    "id9_raw_rad": 5.632876873016357,
+    "id9_additional_diagnostic_turns": 0,
+    "id9_diagnostic_model_rad": -0.0043048858642578125,
+    "id9_offset_branch_history": "The selected diagnostic profile already maps the current +5.633 rad raw angle into range; no additional turn was selected by this audit.",
+    "runtime_approval": false
+  },
+  "stop_proxy": {
+    "output": "/home/jetson/singularitydog-logs/can-stopproxy-replies-20260929-r3",
+    "status": "COMPLETE_DIAGNOSTIC",
+    "cycles_requested": 100,
+    "cycles_completed": 100,
+    "requests_per_cycle": 26,
+    "type1_requests_per_cycle": 0,
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "stop_proxy_enabled": true,
+    "all_stop_replies_observed": true,
+    "timing_ms": {
+      "acquisition_median": 8.3263105,
+      "acquisition_max": 8.766114,
+      "prepare_median": 0.607584,
+      "inference_median": 28.728836,
+      "inference_p95": 30.765208,
+      "inference_max": 31.174595,
+      "oldest_input_to_final_host_write_median": 42.701356,
+      "oldest_input_to_last_reply_median": 45.4725955,
+      "whole_iteration_median": 46.190806,
+      "whole_iteration_max": 48.765385
+    }
+  },
+  "interpretation": {
+    "id9_branch_issue_resolved_for_diagnostic": true,
+    "full_20ms_controller_verified": false,
+    "policy_backend_selected": "reference_bundle",
+    "inference_ms_scope": "observer.consume, including input validation and model call",
+    "pinned_scalar_cpp_selected": false,
+    "next_optimization": "rerun the same disabled STOP-proxy measurement with the pinned scalar C++ model and compare stage timing before considering request-count changes"
+  }
+}

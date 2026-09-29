@@ -9,6 +9,8 @@ import unittest
 from unittest.mock import patch
 
 from singularitydog_hw import policy_live_profile as profile
+from singularitydog_hw import rs05_trial_protocol as protocol
+from singularitydog_hw import can_readonly as codec
 
 
 def _write(path, data):
@@ -151,6 +153,7 @@ class ProfileTests(unittest.TestCase):
     def test_scalar_and_overlap_are_explicit_review_bound_v3_selections(self):
         legacy=profile.execution_settings(self.data)
         self.assertEqual(legacy,{'model_backend':'native_baseline','voltage_overlap':False,
+                                 'voltage_pipeline':False,
                                  'diagnostic_timing_acceptance':None})
         self.select_scalar()
         with self.assertRaisesRegex(profile.ProfileError,'exact gains, limits'):
@@ -184,24 +187,314 @@ class ProfileTests(unittest.TestCase):
         with self.assertRaisesRegex(profile.ProfileError,'retain file-only provenance'):
             profile.load_profile(self.save(bind_review=True))
 
+    def test_native_batch_encoder_requires_pinned_binary_and_separate_review(self):
+        self.select_scalar()
+        binary = self.base/'bundle'/'native_batch.so'
+        binary.write_bytes(b'synthetic extension bytes; never loaded')
+        digest = hashlib.sha256(binary.read_bytes()).hexdigest()
+        self.data['native_batch_encoder'] = {'path': binary.name, 'sha256': digest}
+        with self.assertRaisesRegex(profile.ProfileError, 'native batch encoder acceptance'):
+            profile.load_profile(self.save(bind_review=True))
+        self.docs['hardware_review']['native_batch_encoder_acceptance'] = {
+            'binary_sha256': digest, 'scope': self.data['scope'],
+            'hard_output_and_freshness_limits_unchanged': True,
+            'review': {'reviewer': 'synthetic test',
+                       'reviewed_at': '2026-09-29T00:00:00+00:00',
+                       'decision': 'ACCEPT_NATIVE_BATCH_ENCODER',
+                       'rationale': 'Synthetic file-only fixture, never a motor approval.'},
+        }
+        parsed = profile.load_profile(self.save(bind_review=True))
+        self.assertEqual(parsed['_native_batch_encoder_path'], str(binary))
+        self.assertEqual(parsed['native_batch_encoder']['path'], binary.name)
+        binary.write_bytes(b'changed extension bytes')
+        with self.assertRaisesRegex(profile.ProfileError, 'Pinned native batch encoder binary'):
+            profile.load_profile(self.save(bind_review=True))
+
+    def test_native_batch_encoder_rejects_escape_and_unreviewed_selection(self):
+        self.select_scalar()
+        binary = self.base/'bundle'/'native_batch.so'
+        binary.write_bytes(b'synthetic extension bytes')
+        digest = hashlib.sha256(binary.read_bytes()).hexdigest()
+        for name in ('../native_batch.so', '/tmp/native_batch.so', 'sub/native_batch.so'):
+            self.data['native_batch_encoder'] = {'path': name, 'sha256': digest}
+            with self.assertRaisesRegex(profile.ProfileError, 'bundle-relative'):
+                profile.load_profile(self.save(bind_review=True))
+        self.data['native_batch_encoder'] = {'path': binary.name, 'sha256': digest}
+        old = profile.reviewed_settings_sha256(self.data)
+        self.data['native_batch_encoder']['sha256'] = '0'*64
+        self.assertNotEqual(profile.reviewed_settings_sha256(self.data), old)
+        with self.assertRaisesRegex(profile.ProfileError, 'Pinned native batch encoder binary'):
+            profile.load_profile(self.save(bind_review=True))
+
     def test_fast_choices_rejected_for_legacy_unknown_backend_and_nonboolean_overlap(self):
-        for change in ({'model_backend':profile.SCALAR_BACKEND},{'voltage_overlap':True}):
+        for change in ({'model_backend':profile.SCALAR_BACKEND},{'voltage_overlap':True},
+                       {'voltage_pipeline':True}):
             candidate=profile.template();candidate.update(change)
             _write(self.base/'bad-fast.json',candidate)
             with self.assertRaises(profile.ProfileError):
                 profile.load_profile(self.base/'bad-fast.json',require_approved=False)
         for change in ({'model_backend':'unknown'},{'voltage_overlap':1},
+                       {'voltage_pipeline':1},
                        {'diagnostic_timing_acceptance':'unlimited'}):
             candidate=profile.template(schema=profile.SCHEMA_V3);candidate.update(change)
             _write(self.base/'bad-fast.json',candidate)
             with self.assertRaises(profile.ProfileError):
                 profile.load_profile(self.base/'bad-fast.json',require_approved=False)
 
+    def test_voltage_pipeline_requires_distinct_diagnostic_and_acceptance(self):
+        self.select_scalar()
+        self.data['voltage_pipeline'] = True
+        self.data['duration_s'] = 3.
+        self.data['startup_duration_s'] = .5
+        self.data['stop_duration_s'] = .5
+        self.data['policy_ramp_s'] = .5
+        with self.assertRaisesRegex(profile.ProfileError, 'own disabled diagnostic'):
+            profile.load_profile(self.save(bind_review=True))
+        self.docs['pipeline_diagnostic']['plan']['v3_voltage_pipeline'] = True
+        with self.assertRaisesRegex(profile.ProfileError, 'own disabled diagnostic'):
+            profile.load_profile(self.save(bind_review=True))
+        del self.docs['pipeline_diagnostic']['plan']['v3_voltage_pipeline']
+        self.docs['pipeline_diagnostic']['plan']['v3_voltage_fast_pipeline'] = True
+        report = self.docs['pipeline_diagnostic']
+        report['v3_voltage_overlap'] = {
+            'enabled': True, 'validation_overlap_enabled': True,
+            'voltage_dispatch_schedule': 'after_each_bus_feedback'}
+        records = []
+        for index, timing in enumerate(report['measurements']):
+            release = timing['release_ns']
+            fast = {
+                'status': 'VALIDATED_BEFORE_PROXY_STOP', 'output_allowed': False,
+                'range_v': [35., 42.], 'feedback_join_ns': timing['gather_end_ns'],
+                'feedback_snapshot_validated_ns': release+9_100_000,
+                'inference_end_ns': timing['infer_end_ns'],
+                'voltage_join_ns': release+11_100_000,
+                'post_inference_verified_ns': release+12_100_000,
+                'voltage_verified_ns': release+12_200_000,
+                'hard_deadline_ns': release+20_000_000,
+                'feedback_dispatch_ns_by_bus': {'front': release+100, 'rear': release+100},
+                'feedback_reply_end_ns_by_bus': {'front': release+8_000_000,
+                                                 'rear': release+8_000_000},
+                'feedback_ready_ns_by_bus': {'front': release+8_100_000,
+                                              'rear': release+8_100_000},
+                'voltage_dispatch_ns_by_bus': {'front': release+8_200_000,
+                                                'rear': release+8_200_000},
+                'voltage_reply_end_ns_by_bus': {'front': release+11_000_000,
+                                                 'rear': release+11_000_000},
+                'stop_reply_end_ns_by_bus': {'front': release+16_000_000,
+                                              'rear': release+16_000_000},
+                'stop_reply_count': 12,
+                'stop_reply_verified_ns': release+16_100_000,
+            }
+            partitions = {}
+            for bus, ids in (('front', range(1, 7)), ('rear', range(7, 13))):
+                partitions[bus] = {
+                    'acquired': {'records': [
+                        {'start_ns': release+100,
+                         'tx_hex': protocol.stop_request(
+                             phase=protocol.TrialPhase.STOP, motor_id=axis).hex()}
+                        for axis in ids]},
+                    'voltage': {'records': [
+                        {'start_ns': release+8_200_000,
+                         'tx_hex': codec.read_request(tuple(ids)[index % 6], 'voltage').hex()}]},
+                    'output': {'records': [
+                        {'start_ns': release+13_000_000,
+                         'received_ns': release+16_000_000,
+                         'rx_hex': (b'AT'+((((2<<24)|(axis<<8)|0xfd)<<3)|4).to_bytes(4,'big')+
+                                    b'\x08'+bytes(8)+b'\r\n').hex(),
+                         'tx_hex': protocol.stop_request(
+                             phase=protocol.TrialPhase.STOP, motor_id=axis).hex()}
+                        for axis in ids]},
+                }
+            records.append({'cycle': index+1, 'voltage_fast_pipeline': fast,
+                            'voltage_overlap': {'status': 'VALIDATED_BEFORE_PROXY_STOP'},
+                            **{phase: {bus: part[phase] for bus, part in partitions.items()}
+                               for phase in ('acquired', 'voltage', 'output')}})
+        record_reference = _write(self.base/'records.json', records)
+        report['v3_voltage_fast_pipeline'] = {
+            'enabled': True, 'schema': 'immediate-feedback-voltage-proxy-v1',
+            'period_ns': 20_000_000, 'voltage_dispatch_schedule': 'after_each_bus_feedback',
+            'voltage_may_precede_global_feedback_validation': True,
+            'voltage_verified_before_proxy_stop': True, 'diagnostic_only': True,
+            'motor_output_allowed': False, 'learned_targets_sent': False,
+            'active_feedback_safety_equivalent': False,
+            'records_sha256': record_reference['sha256'],
+        }
+        with self.assertRaisesRegex(profile.ProfileError, 'voltage-pipeline acceptance'):
+            profile.load_profile(self.save(bind_review=True))
+        acceptance = {
+            'pipeline': 'feedback_then_voltage.fast_v1',
+            'diagnostic_sha256': self.data['artifacts']['pipeline_diagnostic']['sha256'],
+            'scope': self.data['scope'],
+            'hard_output_and_freshness_limits_unchanged': True,
+            'review': {'reviewer': 'synthetic test', 'reviewed_at': '2026-09-29T00:00:00+00:00',
+                       'decision': 'ACCEPT_FEEDBACK_THEN_VOLTAGE',
+                       'rationale': 'Synthetic disabled diagnostic and bounded supported scope.'},
+        }
+        self.docs['hardware_review']['voltage_pipeline_acceptance'] = acceptance
+        parsed = profile.load_profile(self.save(bind_review=True))
+        self.assertTrue(profile.execution_settings(parsed)['voltage_pipeline'])
+        self.assertFalse(parsed['actual_policy_output_20ms_verified'])
+        tampered = copy.deepcopy(records)
+        tampered[0]['voltage_fast_pipeline']['voltage_dispatch_ns_by_bus']['front'] -= 2_000_000
+        _write(self.base/'records.json', tampered)
+        with self.assertRaisesRegex(profile.ProfileError, 'Artifact SHA256 mismatch'):
+            profile.load_profile(self.save(bind_review=True))
+        _write(self.base/'records.json', records)
+        tampered = copy.deepcopy(records)
+        tampered[0]['output']['front']['records'][0]['rx_hex'] = '00'
+        report['v3_voltage_fast_pipeline']['records_sha256'] = _write(
+            self.base/'records.json', tampered)['sha256']
+        with self.assertRaisesRegex(profile.ProfileError, 'exact feedback, voltage and STOP replies'):
+            profile.load_profile(self.save(bind_review=True))
+        _write(self.base/'records.json', records)
+        report['v3_voltage_fast_pipeline']['records_sha256'] = record_reference['sha256']
+        self.docs['hardware_review']['voltage_pipeline_acceptance']['diagnostic_sha256'] = '0'*64
+        with self.assertRaisesRegex(profile.ProfileError, 'voltage-pipeline acceptance'):
+            profile.load_profile(self.save(bind_review=True))
+
+    def test_voltage_pipeline_trace_cannot_be_replaced_by_plan_marker(self):
+        self.select_scalar()
+        self.data.update(voltage_pipeline=True, duration_s=3., startup_duration_s=.5,
+                         stop_duration_s=.5, policy_ramp_s=.5)
+        self.docs['pipeline_diagnostic']['plan']['v3_voltage_fast_pipeline'] = True
+        with self.assertRaisesRegex(profile.ProfileError, 'disabled trace provenance'):
+            profile.load_profile(self.save(bind_review=True))
+
     def test_new_timing_acceptance_never_covers_future_or_changed_report(self):
         self.select_scalar()
         self.data['diagnostic_timing_acceptance']=profile.OBSERVED_R17_TIMING
         with self.assertRaisesRegex(profile.ProfileError,'two original R17'):
             profile.load_profile(self.save(bind_review=True))
+
+    def select_measured_r17(self):
+        self.select_scalar()
+        self.data['diagnostic_timing_acceptance']=profile.MEASURED_R17_STARTUP_TIMING
+        report=self.docs['pipeline_diagnostic']
+        report.update(boot_id=self.data['boot_id'],approved_for_runtime=False,
+                      imu_restore_status='restored',cycles_completed=501,cycles_requested=501)
+        report['plan'].update(startup_cycle_allowance=1,steady_cycles_requested=500,
+                              absolute_epoch_cadence=True)
+        report['observer'].update(ticks_completed=501,ticks_requested=501)
+        seed=report['measurements'][0]
+        epoch=seed['release_ns']
+        rows=[]
+        for index in range(501):
+            lateness=(193_669 if index else 0)+(7_383 if index>=300 else 0)
+            offset=index*20_000_000+lateness
+            row={key:value+offset if key.endswith('_ns') else value for key,value in seed.items()}
+            release=row['release_ns']
+            row.update(timing_phase='startup' if index==0 else 'steady',
+                       cadence_slot=index,scheduled_release_ns=epoch+index*20_000_000,
+                       skipped_slots_before=0)
+            row['last_proxy_reply_ns']=release+(19_318_095 if index==0 else 19_131_272)
+            row['cycle_end_ns']=release+(20_140_131 if index==0 else 19_492_561)
+            rows.append(row)
+        report['measurements']=rows
+        report['absolute_epoch_schedule']={'enabled':True,'epoch_ns':epoch,'period_ns':20_000_000,
+            'slots_skipped':0,'diagnostic_only':True,'learned_targets_sent':False}
+
+    def test_fresh_r17_measured_startup_accepts_exact_501_cycles(self):
+        self.select_measured_r17()
+        parsed=profile.load_profile(self.save(bind_review=True))
+        timing=parsed['timing_review']
+        self.assertEqual(timing['diagnostic_timing_acceptance'],profile.MEASURED_R17_STARTUP_TIMING)
+        self.assertEqual(timing['cycles'],501)
+        self.assertEqual(timing['startup_whole_iteration_ms'],20.140131)
+        self.assertEqual(timing['twenty_ms_misses'],0)
+        self.assertEqual(timing['release_intervals_over_21ms'],0)
+        self.assertFalse(timing['strict_start_interval_20ms_met'])
+        self.assertFalse(parsed['actual_policy_output_20ms_verified'])
+
+    def test_hold_probe_keeps_diagnostic_miss_visible_and_bounds_admission(self):
+        self.select_measured_r17()
+        self.data['diagnostic_timing_acceptance']=profile.CURRENT_HOLD_PROBE
+        self.save(bind_review=True)
+        report=self.docs['pipeline_diagnostic']
+        def late(index,elapsed_ns):
+            row=report['measurements'][index]
+            row['cycle_end_ns']=row['release_ns']+elapsed_ns
+            if index+1<len(report['measurements']):
+                for key in ('release_ns','oldest_input_start_ns','input_latest_reply_ns',
+                            'gather_end_ns','prepare_end_ns','infer_end_ns',
+                            'final_host_write_ns','last_proxy_reply_ns','cycle_end_ns'):
+                    report['measurements'][index+1][key]+=200_000
+        late(500,20_100_000)
+        timing=profile._timing(report,self.data)
+        self.assertEqual(timing['kind'],'current_position_probe_admission_only')
+        self.assertEqual(timing['twenty_ms_misses'],1)
+        self.assertFalse(timing['actual_policy_output_20ms_verified'])
+        late(500,21_000_001)
+        with self.assertRaisesRegex(profile.ProfileError,'21ms bound'):
+            profile._timing(report,self.data)
+        late(500,20_100_000);late(450,20_100_000)
+        with self.assertRaisesRegex(profile.ProfileError,'one miss per100'):
+            profile._timing(report,self.data)
+
+    def test_policy_probe_records_late_diagnostic_and_rejects_stale_inputs(self):
+        self.select_measured_r17()
+        self.save(bind_review=True)
+        self.data['diagnostic_timing_acceptance']=profile.SUPPORTED_POLICY_PROBE
+        report=self.docs['pipeline_diagnostic']
+        row=report['measurements'][-1]
+        row['cycle_end_ns']=row['release_ns']+20_300_000
+        timing=profile._timing(report,self.data)
+        self.assertEqual(timing['kind'],'supported_policy_probe_admission_only')
+        self.assertEqual(timing['twenty_ms_misses'],1)
+        self.assertFalse(timing['actual_policy_output_20ms_verified'])
+        # Inference must still consume inputs no older than20ms even at
+        # diagnostic admission, before the live hard20ms checks take over.
+        row['infer_end_ns']=row['oldest_input_start_ns']+20_000_001
+        row['final_host_write_ns']=row['infer_end_ns']+10_000
+        row['last_proxy_reply_ns']=row['final_host_write_ns']+10_000
+        row['cycle_end_ns']=row['last_proxy_reply_ns']+10_000
+        with self.assertRaisesRegex(profile.ProfileError,'freshness budget'):
+            profile._timing(report,self.data)
+
+    def test_fresh_r17_requires_bound_schedule_and_steady_deadlines(self):
+        self.select_measured_r17()
+        good=copy.deepcopy(self.docs['pipeline_diagnostic'])
+        def delay_row(report):
+            row=report['measurements'][300]
+            for key in ('release_ns','oldest_input_start_ns','input_latest_reply_ns',
+                        'gather_end_ns','prepare_end_ns','infer_end_ns',
+                        'final_host_write_ns','last_proxy_reply_ns','cycle_end_ns'):
+                row[key]+=1_100_000
+        def late_reply(report):
+            row=report['measurements'][2]
+            row['last_proxy_reply_ns']=row['oldest_input_start_ns']+20_000_001
+            row['cycle_end_ns']=row['last_proxy_reply_ns']+100_000
+        cases=(
+            ('different boot',lambda r:r.update(boot_id='00000000-0000-4000-8000-000000000000'),
+             'bound 1\\+500'),
+            ('wrong steady count',lambda r:r['plan'].update(steady_cycles_requested=499),
+             'bound 1\\+500'),
+            ('second startup',lambda r:r['measurements'][1].update(timing_phase='startup'),
+             'startup classification'),
+            ('skipped slot',lambda r:r['measurements'][2].update(skipped_slots_before=1),
+             'skipped a slot'),
+            ('release gap',delay_row,
+             'release-gap budget'),
+            ('steady work',lambda r:r['measurements'][2].update(cycle_end_ns=
+                r['measurements'][2]['release_ns']+20_000_001,whole_iteration_ms=1.,
+                iteration_deadline_met=True),
+             'scheduled, or STOP-reply deadline'),
+            ('steady reply',late_reply,
+             'STOP-reply deadline'),
+            ('startup beyond allowance',lambda r:r['measurements'][0].update(cycle_end_ns=
+                r['measurements'][0]['release_ns']+21_000_001),
+             'startup, scheduled'),
+            ('startup late reply',lambda r:r['measurements'][0].update(last_proxy_reply_ns=
+                r['measurements'][0]['oldest_input_start_ns']+20_000_001),
+             'STOP-reply deadline'),
+            ('motor enabled',lambda r:r.update(motor_enable_sent=True),
+             'Full real-input'),
+        )
+        for label,mutate,message in cases:
+            with self.subTest(label=label):
+                self.docs['pipeline_diagnostic']=copy.deepcopy(good)
+                mutate(self.docs['pipeline_diagnostic'])
+                with self.assertRaisesRegex(profile.ProfileError,message):
+                    profile.load_profile(self.save(bind_review=True))
 
     def test_pinned_observed_timing_keeps_first_cycle_and_strict_cadence_visible(self):
         self.select_scalar()

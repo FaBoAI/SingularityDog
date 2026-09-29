@@ -59,7 +59,34 @@ def load_library(path):
     lib.sda_emergency_stop.argtypes = [C.c_void_p, C.c_uint64, C.POINTER(Record),
         C.POINTER(Stats), C.POINTER(StopResult), C.POINTER(C.c_char), C.c_uint32]
     lib.sda_emergency_stop.restype = C.c_int
+    waiter = getattr(lib, 'sda_wait_until', None)
+    if waiter is not None:
+        waiter.argtypes = [C.c_int, C.c_uint64, C.c_uint32,
+            C.POINTER(C.c_uint64), C.POINTER(C.c_char), C.c_uint32]
+        waiter.restype = C.c_int
     return lib
+
+
+class ActiveWaitError(RuntimeError):
+    """Bounded release wait was cancelled or failed before a motor cycle."""
+
+
+def wait_until(library, cancel_fd, deadline_ns, *, spin_us=500):
+    """Wait without motor I/O and return the actual monotonic wake timestamp."""
+    if (type(cancel_fd) is not int or type(deadline_ns) is not int or
+            not 0 < deadline_ns < 2**64 or type(spin_us) is not int or
+            spin_us not in (200, 500)):
+        raise ValueError('Invalid bounded active release wait arguments')
+    waiter = getattr(library, 'sda_wait_until', None)
+    if waiter is None:
+        raise ActiveWaitError('Optional active release wait is unavailable in this library')
+    actual, error = C.c_uint64(), C.create_string_buffer(256)
+    status = waiter(cancel_fd, deadline_ns, spin_us, C.byref(actual), error, len(error))
+    if status:
+        raise ActiveWaitError(error.value.decode('utf-8', errors='replace'))
+    if actual.value < deadline_ns:
+        raise ActiveWaitError('Active release wait returned a backdated time')
+    return actual.value
 
 
 def _finite(value, name):
@@ -132,7 +159,7 @@ class ActiveSession:
         if not self._handle:
             raise ValueError(error.value.decode())
 
-    def _call(self, wires, timeout_ns, send_only):
+    def _call(self, wires, timeout_ns, send_only, deadline_ns=None):
         if not self.busy.acquire(blocking=False):
             raise RuntimeError('Concurrent active session use')
         try:
@@ -142,12 +169,24 @@ class ActiveSession:
                 raise RuntimeError('Session poisoned; active retry prohibited')
             wires = tuple(wires)
             if (not 1 <= len(wires) <= 12 or any(type(w) is not bytes or len(w) != 17 for w in wires)
-                    or type(timeout_ns) is not int or not 1_000_000 <= timeout_ns <= 250_000_000):
+                    or (deadline_ns is None and
+                        (type(timeout_ns) is not int or not 1_000_000 <= timeout_ns <= 250_000_000))):
                 raise ValueError('Invalid active request batch/deadline')
             raw = (C.c_ubyte*(17*len(wires))).from_buffer_copy(b''.join(wires))
             records, stats, error = (Record*len(wires))(), Stats(), C.create_string_buffer(256)
+            now_ns = time.monotonic_ns()
+            if deadline_ns is None:
+                native_deadline_ns = now_ns + timeout_ns
+            else:
+                # The active controller's 20 ms deadline is absolute. Never
+                # restart its clock after a worker has waited in a queue or
+                # spent time preparing the native batch.
+                if (type(deadline_ns) is not int or
+                        not now_ns < deadline_ns <= now_ns + 250_000_000):
+                    raise ValueError('Expired or invalid absolute active deadline')
+                native_deadline_ns = deadline_ns
             status = self.lib.sda_exchange(self._handle, raw, len(wires), int(send_only),
-                time.monotonic_ns()+timeout_ns, records, C.byref(stats), error, len(error))
+                native_deadline_ns, records, C.byref(stats), error, len(error))
             if status:
                 raise ExchangeError(error.value.decode(), records, stats)
             # STOP faults are returned, never turned into an apparently healthy reply.
@@ -161,8 +200,8 @@ class ActiveSession:
         finally:
             self.busy.release()
 
-    def exchange(self, wires, *, timeout_ns=100_000_000):
-        return self._call(wires, timeout_ns, False)
+    def exchange(self, wires, *, timeout_ns=100_000_000, deadline_ns=None):
+        return self._call(wires, timeout_ns, False, deadline_ns)
 
     def send_only(self, wires, *, timeout_ns=100_000_000):
         """Unsupported: native active commands require acknowledgement.
@@ -172,7 +211,7 @@ class ActiveSession:
         """
         return self._call(wires, timeout_ns, True)
 
-    def emergency_stop(self, *, timeout_ns=250_000_000):
+    def emergency_stop(self, *, timeout_ns=250_000_000, deadline_ns=None):
         """All six STOP attempts, independent of cancelled/poisoned/boot state.
 
         Returned confirmation is a matching mode-zero frame, not CAN wire time
@@ -191,11 +230,15 @@ class ActiveSession:
         try:
             if not self._handle:
                 raise RuntimeError('Active session closed')
-            if type(timeout_ns) is not int or not 20_000_000 <= timeout_ns <= 250_000_000:
-                raise ValueError('Emergency budget must be 20..250 ms')
+            if type(timeout_ns) is not int or not 20_000_000 <= timeout_ns <= 500_000_000:
+                raise ValueError('Emergency budget must be 20..500 ms')
             self.poisoned = True
             records, stats, result, error = (Record*6)(), Stats(), StopResult(), C.create_string_buffer(256)
-            stop_deadline_ns = time.monotonic_ns()+timeout_ns
+            now_ns = time.monotonic_ns()
+            if deadline_ns is not None and (type(deadline_ns) is not int or
+                    not 20_000_000 <= deadline_ns-now_ns <= 500_000_000):
+                raise ValueError('Absolute emergency deadline must leave 20..500 ms')
+            stop_deadline_ns = now_ns+timeout_ns if deadline_ns is None else deadline_ns
             status = self.lib.sda_emergency_stop(self._handle, stop_deadline_ns,
                 records, C.byref(stats), C.byref(result), error, len(error))
             selected = lambda mask: [self.first_id+i for i in range(6) if mask & (1 << i)]
@@ -213,6 +256,61 @@ class ActiveSession:
                 'evidence': evidence, 'poisoned': True}
         finally:
             self.busy.release()
+
+    def emergency_stop_repeated(self, *, max_attempts=3, total_timeout_ns=1_000_000_000):
+        """Retry STOP only, at most three rounds within one absolute budget.
+
+        A successful first round is not repeated. Failed/ambiguous exchanges
+        retain their raw evidence and the native session's sticky ambiguity;
+        a later mode-zero frame cannot erase an uncertain Type1/enable/STOP
+        transaction. This improves STOP delivery without resuming motion or
+        claiming physical cutoff. Every observed fault remains in the result.
+        The first round retains its 250 ms cap so first STOP delivery to later
+        axes is not delayed. Retries may use 500 ms, within one total deadline.
+        """
+        if (type(max_attempts) is not int or not 1 <= max_attempts <= 3 or
+                type(total_timeout_ns) is not int or
+                not 21_000_000 <= total_timeout_ns <= 1_000_000_000):
+            raise ValueError('STOP retries require 1..3 rounds and a 21..1000 ms total budget')
+        self.poisoned = True
+        begin = time.monotonic_ns(); deadline = begin+total_timeout_ns
+        ids = set(range(self.first_id, self.first_id+6))
+        attempts = []; ambiguous = set(); faults = {}
+        result = {'complete': False, 'confirmed_ids': [], 'unconfirmed_ids': sorted(ids)}
+        for attempt_index in range(max_attempts):
+            now = time.monotonic_ns()
+            # Keep a small preparation reserve; the native call still gets an
+            # absolute deadline, so a scheduling delay never restarts a budget.
+            remaining = deadline-now
+            if remaining < 21_000_000:break
+            round_limit = 250_000_000 if attempt_index == 0 else 500_000_000
+            round_deadline = min(deadline, now+round_limit)
+            try:
+                row = self.emergency_stop(timeout_ns=min(remaining,round_limit),
+                                          deadline_ns=round_deadline)
+            except Exception as error:
+                row = {'complete': False, 'confirmed_ids': [], 'unconfirmed_ids': sorted(ids),
+                       'error': type(error).__name__+': '+str(error)}
+            attempts.append(row)
+            ambiguous.update(row.get('ambiguous_ids', []))
+            for mid, bits in row.get('fault_by_id', {}).items():
+                faults[mid] = faults.get(mid, 0) | bits
+            confirmed = set(row.get('confirmed_ids', []))-ambiguous
+            result = {**row, 'confirmed_ids': sorted(confirmed),
+                      'unconfirmed_ids': sorted(ids-confirmed),
+                      'ambiguous_ids': sorted(ambiguous), 'fault_by_id': dict(faults)}
+            result['complete'] = (row.get('complete') is True and confirmed == ids and
+                                  not row.get('unconfirmed_ids') and not ambiguous)
+            if result['complete']:break
+        end = time.monotonic_ns()
+        result.update(attempts=attempts, poisoned=True, retry_policy={
+            'stop_only': True, 'max_attempts': max_attempts,
+            'attempts_completed': len(attempts), 'total_timeout_ns': total_timeout_ns,
+            'first_attempt_cap_ns': 250_000_000, 'retry_attempt_cap_ns': 500_000_000,
+            'begin_ns': begin, 'end_ns': end, 'deadline_ns': deadline,
+            'budget_exhausted': deadline-end < 21_000_000 and not result['complete'],
+            'motion_retry_allowed': False, 'ambiguity_preserved': True})
+        return result
 
     def close(self):
         if not self.busy.acquire(blocking=False):

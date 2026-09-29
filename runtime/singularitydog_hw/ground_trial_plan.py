@@ -356,6 +356,8 @@ def validate_ground_plan(plan, base_profile, prior_evaluations=None, *, require_
     _need(plan['blockers'] == [], 'Ground plan has unresolved blockers')
     _need(type(base_profile) is dict and base_profile.get('watchdog_review_policy') is None,
           'Supported-only command-loss acceptance cannot authorize ground progression')
+    _need(base_profile.get('post_reply_deadline_policy') is None,
+          'Supported-only post-reply timing acceptance cannot authorize ground progression')
     _base(plan, base_profile)
     _trajectory(plan, base_profile)
     _catch(plan)

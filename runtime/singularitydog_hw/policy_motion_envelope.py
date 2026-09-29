@@ -53,6 +53,13 @@ def _positive(value, name):
 
 
 def _vector(values, name):
+    # The live decoder supplies exact float tuples. Validate those in C-level
+    # loops while retaining the generic conversion/rejection path for every
+    # other input type (including bool, int, and float subclasses).
+    if (type(values) is tuple and len(values) == AXIS_COUNT and
+            all(type(value) is float for value in values) and
+            all(map(math.isfinite, values))):
+        return values
     if isinstance(values, (str, bytes)):
         raise MotionFault(f"{name}: twelve numeric values required")
     try:
@@ -131,7 +138,10 @@ def _quintic_fraction(value):
         return 0.
     if value >= 1:
         return 1.
-    return value ** 3 * (10. + value * (-15. + 6. * value))
+    # Near one, floating-point cancellation can produce 1 + a few ulps and
+    # make a stopping gain negative. Bound this dimensionless ramp only;
+    # policy targets and measured limits continue to reject invalid values.
+    return min(1., max(0., value ** 3 * (10. + value * (-15. + 6. * value))))
 
 
 def _advance_reference(q, velocity, target, dt, vmax, acceleration):
@@ -183,7 +193,7 @@ def _advance_reference(q, velocity, target, dt, vmax, acceleration):
 class PolicyMotionEnvelope:
     def __init__(self, limits: Sequence[AxisLimits], initial_sample: MotionSample, *,
                  now_s, startup_duration_s, stop_duration_s,
-                 max_sample_age_s, max_sample_gap_s):
+                 max_sample_age_s, max_sample_gap_s, startup_damping_duration_s=None):
         self._fault_reason = None
         self._stop_requested = False
         self._stop_anchor = None
@@ -194,6 +204,10 @@ class PolicyMotionEnvelope:
         if len(self.limits) != AXIS_COUNT or any(type(row) is not AxisLimits for row in self.limits):
             raise MotionFault("Twelve AxisLimits required")
         self.startup_duration_s = _positive(startup_duration_s, "startup_duration_s")
+        self.startup_damping_duration_s = (self.startup_duration_s if startup_damping_duration_s is None
+            else _positive(startup_damping_duration_s, "startup_damping_duration_s"))
+        if self.startup_damping_duration_s > self.startup_duration_s:
+            raise MotionFault("Damping ramp must not be slower than position gain ramp")
         self.stop_duration_s = _positive(stop_duration_s, "stop_duration_s")
         self.max_sample_age_s = _positive(max_sample_age_s, "max_sample_age_s")
         self.max_sample_gap_s = _positive(max_sample_gap_s, "max_sample_gap_s")
@@ -208,6 +222,7 @@ class PolicyMotionEnvelope:
         self._started_at = self._last_now = now
         self._last_sample_at = initial_sample.monotonic_s
         self._gain = 0.
+        self._damping_gain = 0.
         self._phase = "starting"
 
     @property
@@ -254,8 +269,8 @@ class PolicyMotionEnvelope:
 
     def _stop_command(self, now):
         if self._stop_anchor is None:
-            self._stop_anchor = (self._last_now, self._q, self._velocity, self._gain)
-        started, start_q, start_v, start_gain = self._stop_anchor
+            self._stop_anchor = (self._last_now, self._q, self._velocity, self._gain, self._damping_gain)
+        started, start_q, start_v, start_gain, start_damping_gain = self._stop_anchor
         elapsed = now - started
         brake_duration = max(abs(v) / row.max_command_acceleration_rad_s2
                              for v, row in zip(start_v, self.limits))
@@ -269,8 +284,9 @@ class PolicyMotionEnvelope:
             velocity.append(0. if elapsed >= duration else v + signed_a * t)
         ramp_elapsed = elapsed - brake_duration
         gain = start_gain * (1. - _quintic_fraction(ramp_elapsed / self.stop_duration_s))
+        damping_gain = start_damping_gain * (1. - _quintic_fraction(ramp_elapsed / self.stop_duration_s))
         completed = ramp_elapsed >= self.stop_duration_s
-        return (tuple(q), tuple(velocity), gain, "stopped" if completed else "stopping",
+        return (tuple(q), tuple(velocity), gain, damping_gain, "stopped" if completed else "stopping",
                 "complete" if completed else "braking" if ramp_elapsed < 0 else "gain_ramp")
 
     def step(self, target_model_rad, sample: MotionSample, *, now_s):
@@ -306,7 +322,7 @@ class PolicyMotionEnvelope:
                                   f"sample_interval_ms={sample_dt*1000:.6f}, "
                                   f"limit_ms={self.max_sample_gap_s*1000:.6f}")
             if self._stop_requested:
-                q, velocity, gain, phase, stop_stage = self._stop_command(now)
+                q, velocity, gain, damping_gain, phase, stop_stage = self._stop_command(now)
             else:
                 target = _vector(target_model_rad, "target_model_rad")
                 for mid, (wanted, (low, high)) in enumerate(zip(target, self._bounds), 1):
@@ -317,6 +333,7 @@ class PolicyMotionEnvelope:
                             for pos, v, wanted, row in zip(self._q, self._velocity, target, self.limits)]
                 q, velocity = tuple(item[0] for item in advanced), tuple(item[1] for item in advanced)
                 gain = _quintic_fraction((now - self._started_at) / self.startup_duration_s)
+                damping_gain = _quintic_fraction((now - self._started_at) / self.startup_damping_duration_s)
                 phase = "active" if gain >= 1. else "starting"
                 stop_stage = None
             errors, torques, kp, kd, normalized_q = [], [], [], [], []
@@ -336,7 +353,7 @@ class PolicyMotionEnvelope:
                 error = pos - measured
                 if abs(error) > row.max_tracking_error_rad:
                     raise MotionFault(f"ID{mid}: tracking error exceeded")
-                p_gain, d_gain = gain * row.kp, gain * row.kd
+                p_gain, d_gain = gain * row.kp, damping_gain * row.kd
                 torque = p_gain * error - d_gain * measured_v
                 if abs(torque) > row.max_estimated_pd_torque_nm:
                     raise MotionFault(f"ID{mid}: estimated PD torque budget exceeded")
@@ -347,6 +364,7 @@ class PolicyMotionEnvelope:
                 (0.,) * AXIS_COUNT, velocity, tuple(errors), tuple(torques), gain,
                 phase, stop_stage, now)
             self._q, self._velocity, self._gain, self._phase = q, velocity, gain, phase
+            self._damping_gain = damping_gain
             self._last_now, self._last_sample_at = now, sample.monotonic_s
             return command
         except (ValueError, TypeError, OverflowError) as exc:

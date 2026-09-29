@@ -1,0 +1,212 @@
+{
+  "schema": "singularitydog.supported-policy-summary.v1",
+  "date": "2026-09-29",
+  "support": "torso on120mm box; four paws on floor",
+  "scope": "bounded supported probe; no load transfer or walking",
+  "software_tests": {
+    "count": 273,
+    "passed": true,
+    "kind": "Mac synthetic/file-only including54 native tests; Jetson additionally54native tests"
+  },
+  "runs": [
+    {
+      "revision": "r1",
+      "status": "ABORTED",
+      "errors": [
+        "RuntimeError: ID10 velocity"
+      ],
+      "report_sha256": "9cb10982cf27f57c7d8c0475aa407c066fb0f229b53d3b9781457a93647ff007",
+      "profile_sha256": "5d707603d55668277e2ff354f7ad1e7d7f71aa461aed0534efd1b689dd75819d",
+      "requested_duration_s": 2.0,
+      "policy_weight": 0.005,
+      "kp": 3.0,
+      "kd": 0.15,
+      "startup_damping_s": 0.4,
+      "velocity_monitor_rad_s": 0.25,
+      "complete_cycles": 7,
+      "actual_model_calls": 8,
+      "cycles_with_positive_policy_mixture": 0,
+      "model_targets_sent": false,
+      "completed_cycle_median_ms": 18.696799,
+      "completed_cycle_max_ms": 19.416565,
+      "complete_run_20ms_verified": false,
+      "failed_cycle_index": 7,
+      "failed_cycle_stage": "output_validation",
+      "all_axis_stop_confirmed": true,
+      "stop_attempts_by_bus": {
+        "front": 1,
+        "rear": 1
+      },
+      "stop_unconfirmed_ids": [],
+      "stop_ambiguous_ids": [],
+      "max_command_change_deg": 0.0,
+      "max_measured_change_deg": 0.2637520525444533,
+      "max_measured_speed_rad_s": 0.2204928664072625,
+      "max_measured_torque_nm": 0.03734645609216436,
+      "operator_report": "audio heard; no physical anomaly"
+    },
+    {
+      "revision": "r2",
+      "status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+      "errors": [
+        "ExchangeError: Active reply deadline exceeded; all requests already written",
+        "All-axis STOP not confirmed; physical power cutoff required"
+      ],
+      "report_sha256": "a5a8eaf96860fccf88426028d205154893f2074cf6aba4c42178f27faac42743",
+      "profile_sha256": "8336535f8cbb8edc6167644253d5b4a913f1de9242d8fac71fbb238d5e130769",
+      "requested_duration_s": 5.0,
+      "policy_weight": 0.005,
+      "kp": 3.0,
+      "kd": 0.15,
+      "startup_damping_s": 0.08,
+      "velocity_monitor_rad_s": 0.35,
+      "complete_cycles": 200,
+      "actual_model_calls": 201,
+      "cycles_with_positive_policy_mixture": 180,
+      "model_targets_sent": true,
+      "completed_cycle_median_ms": 18.682908,
+      "completed_cycle_max_ms": 19.347722,
+      "complete_run_20ms_verified": false,
+      "failed_cycle_index": 200,
+      "failed_cycle_stage": "output_exchange",
+      "all_axis_stop_confirmed": false,
+      "stop_attempts_by_bus": {
+        "front": 3,
+        "rear": 1
+      },
+      "stop_unconfirmed_ids": [
+        6
+      ],
+      "stop_ambiguous_ids": [
+        6
+      ],
+      "max_command_change_deg": 0.17229042217150947,
+      "max_measured_change_deg": 0.13187602627232842,
+      "max_measured_speed_rad_s": 0.17624170290684305,
+      "max_measured_torque_nm": 0.04087129015030122,
+      "operator_report": "40V Off; no physical anomaly"
+    },
+    {
+      "revision": "r3",
+      "status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+      "errors": [
+        "ExchangeError: Active reply deadline exceeded; all requests already written",
+        "All-axis STOP not confirmed; physical power cutoff required"
+      ],
+      "report_sha256": "4fbbf5afd139be0f5fd006a4c6dfce685409fea0bf922834ab9c4b4a69b582e9",
+      "profile_sha256": "3ab6120c4b8e285e03a42da2d9dcd370e9b4a006eb32bfe8695ee24271ced220",
+      "requested_duration_s": 5.0,
+      "policy_weight": 0.005,
+      "kp": 3.0,
+      "kd": 0.15,
+      "startup_damping_s": 0.08,
+      "velocity_monitor_rad_s": 0.35,
+      "complete_cycles": 150,
+      "actual_model_calls": 151,
+      "cycles_with_positive_policy_mixture": 130,
+      "model_targets_sent": true,
+      "completed_cycle_median_ms": 18.692219,
+      "completed_cycle_max_ms": 19.532283,
+      "complete_run_20ms_verified": false,
+      "failed_cycle_index": 150,
+      "failed_cycle_stage": "output_exchange",
+      "all_axis_stop_confirmed": false,
+      "stop_attempts_by_bus": {
+        "front": 1,
+        "rear": 3
+      },
+      "stop_unconfirmed_ids": [
+        8,
+        12
+      ],
+      "stop_ambiguous_ids": [
+        8,
+        12
+      ],
+      "operator_report": "40V Off; no physical anomaly"
+    },
+    {
+      "revision": "r5",
+      "status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+      "errors": [
+        "ExchangeError: Active reply deadline exceeded; all requests already written",
+        "All-axis STOP not confirmed; physical power cutoff required"
+      ],
+      "report_sha256": "29abb96a129738245ff2a9881de9ce94f4b1a3511ad7c3ef2b85fbc8de770aa0",
+      "profile_sha256": "1d090f1e5de26c3fffb0a95ca170725c6ba64c034645db7db90b011bd41ea618",
+      "requested_duration_s": 5.0,
+      "complete_cycles": 0,
+      "actual_model_calls": 0,
+      "model_targets_sent": false,
+      "motor_enable_sent": true,
+      "failure": "frontID1 Type3 enable reply missing at20ms during preflight",
+      "all_axis_stop_confirmed": false,
+      "stop_unconfirmed_ids": [
+        1
+      ],
+      "stop_ambiguous_ids": [
+        1
+      ],
+      "stop_attempts_by_bus": {
+        "front": 3,
+        "rear": 1
+      },
+      "stop_total_budget_ms": 1000,
+      "operator_report": "40V Off; audio heard; no physical anomaly"
+    },
+    {
+      "revision": "r6",
+      "status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+      "errors": [
+        "ExchangeError: Active reply deadline exceeded; all requests already written",
+        "All-axis STOP not confirmed; physical power cutoff required"
+      ],
+      "report_sha256": "dfe9bd2c69cf9e594df89ed1a9bc50a9078bbf1681f9cc818dd8558b7252dec2",
+      "profile_sha256": "034be32c14899315f6d746b5f8f265b5c9ed744b5c3c186a74c80af415673d11",
+      "requested_duration_s": 5.0,
+      "complete_cycles": 32,
+      "actual_model_calls": 32,
+      "cycles_with_positive_policy_mixture": 12,
+      "model_targets_sent": true,
+      "motor_enable_sent": true,
+      "completed_cycle_median_ms": 18.6967845,
+      "completed_cycle_max_ms": 19.43925,
+      "complete_run_20ms_verified": false,
+      "failed_cycle_index": 32,
+      "failed_cycle_stage": "input_acquisition",
+      "zero_gain_enable_elapsed_ms": 59.653432,
+      "missing_reply_ids": [
+        12
+      ],
+      "missing_reply_wait_ms": [
+        15.635959
+      ],
+      "all_axis_stop_confirmed": false,
+      "stop_unconfirmed_ids": [
+        12
+      ],
+      "stop_ambiguous_ids": [
+        12
+      ],
+      "stop_attempts_by_bus": {
+        "front": 1,
+        "rear": 3
+      },
+      "stop_elapsed_ms_by_bus": {
+        "front": 151.946078,
+        "rear": 180.396073
+      },
+      "operator_report": "40V Off; audio heard; no physical anomaly"
+    }
+  ],
+  "r2_stop_note": "ID6 mode0/fault0 frames were observed on all three STOP attempts. Pending Type1 response has no transaction number; ambiguity was retained, not promoted to confirmed STOP. Operator cut power.",
+  "next_power_cycle": {
+    "motor_id": 9,
+    "raw_difference_deg": 359.98867190389046,
+    "circular_difference_deg": -0.011328096109538777,
+    "unique_branch_still_required_before_output": true,
+    "raw_capture_sha256": "5e67f8c18a2321075868459795ff651c833a0faf018e0bcda9b804822060d61f"
+  },
+  "latest_state": "r6 made32complete cycles and12positive policy-mixture cycles,then rearID12 feedback reply absent. STOP mode0/fault0 observed on all3rear attempts but pendingType1 ambiguity retained. Operator confirmed40V Off/audio heard/no physical anomaly. Box retained; no further actuation.",
+  "r3_reply_note": "ID8 had no reply at the deadline; ID12 had15/17bytes (CR/LF missing). Later STOP mode0 replies remain ambiguous for pendingType1 IDs8/12. Operator cut40V and reported no physical anomaly."
+}

@@ -7,6 +7,8 @@ import io
 import json
 import os
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import types
 import unittest
@@ -242,6 +244,33 @@ class NativeBenchmarkCLITests(unittest.TestCase):
                 os.fstat(fd)
         for name in {name for name, _ in self.lock_events}:
             self.assertEqual([event for n, event in self.lock_events if n == name], ["enter", "exit"])
+
+    def test_single_thread_math_plan_abort_report_and_late_import_guard(self):
+        environment=dict(os.environ,OMP_NUM_THREADS='8',OPENBLAS_NUM_THREADS='4',
+                         MKL_NUM_THREADS='2',PYTHONPATH=str(Path(__file__).resolve().parents[1]))
+        command=[sys.executable,'-m','singularitydog_hw.native_pipeline_benchmark',
+                 '--single-thread-math']
+        result=subprocess.run(command,env=environment,text=True,capture_output=True,check=False)
+        self.assertEqual(result.returncode,0,result.stderr)
+        plan=json.loads(result.stdout)
+        expected={'OMP_NUM_THREADS':'1','OPENBLAS_NUM_THREADS':'1','MKL_NUM_THREADS':'1'}
+        self.assertEqual(plan['math_thread_startup']['effective_env'],expected)
+        self.assertTrue(plan['math_thread_startup']['verified_before_math_import'])
+        self.assertFalse(plan['enable_available'])
+        late=subprocess.run([sys.executable,'-c',
+            'import sys,types; sys.modules["torch"]=types.ModuleType("torch"); '
+            'from singularitydog_hw import native_pipeline_benchmark; '
+            'native_pipeline_benchmark.main(sys.argv[1:])','--single-thread-math'],
+            env=environment,text=True,capture_output=True,check=False)
+        self.assertEqual(late.returncode,2)
+        self.assertIn('before NumPy/Torch import',late.stderr)
+        abort=subprocess.run(command[0:3]+self.policy_args()+['--single-thread-math'],
+            env=environment,text=True,capture_output=True,check=False)
+        self.assertEqual(abort.returncode,2)
+        report=json.loads((self.output/'report.json').read_text())
+        self.assertEqual(report['status'],'ABORTED')
+        self.assertEqual(report['math_thread_startup']['effective_env'],expected)
+        self.assertEqual(report['plan']['math_thread_startup'],report['math_thread_startup'])
 
     def test_compare_cli_saves_replayable_raw_json_without_model_or_imu(self):
         self.assertEqual(self.call_main(self.compare_args()), 0)
@@ -841,6 +870,30 @@ class NativeBenchmarkCLITests(unittest.TestCase):
         self.assertFalse(self.output.exists())
         self.assert_no_model_or_imu()
         bench.native.load_library.assert_not_called(); self.serial_constructor.assert_not_called()
+
+    def test_required_fast_model_rejects_reference_and_accepts_pinned_scalar_plan(self):
+        args = self.policy_args()
+        args.remove('--execute')
+        args.append('--require-pinned-fast-model')
+        stderr = io.StringIO()
+        with contextlib.redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as rejected:
+                bench.main(args)
+        self.assertEqual(rejected.exception.code, 2)
+        self.assertIn('pinned scalar and baseline manifests', stderr.getvalue())
+
+        args += self.native_baseline_flags()+[
+            '--scalar-step-manifest', str(self.root/'scalar.json'),
+            '--scalar-step-manifest-sha256', 'c'*64]
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            self.assertEqual(bench.main(args), 0)
+        plan = json.loads(output.getvalue())
+        self.assertEqual(plan['policy_backend_requested'], 'pinned_scalar_cpp')
+        self.assertTrue(plan['require_pinned_fast_model'])
+        self.assertFalse(plan['enable_available'])
+        self.assertFalse(self.output.exists())
+        self.assert_no_model_or_imu()
 
     def test_setup_gc_plan_is_explicit_and_reads_or_changes_no_gc_state(self):
         for selected in (None, 'before-warmup'):

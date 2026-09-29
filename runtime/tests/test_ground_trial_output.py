@@ -439,6 +439,17 @@ class GroundTrialCliTests(unittest.TestCase):
                 self.assertIn('--execute-supported',forwarded)
                 self.assertEqual(execute.call_args.kwargs['execution'].execution_kind,'hardware')
 
+    def test_single_thread_math_is_forwarded_only_when_selected(self):
+        selected=['--execute-ground','--catch-ready','--video-ready','--roles-ready',
+                  '--support-in-place','--cutoff-ready','--single-thread-math']
+        result,_,_,_,execute=self.invoke(selected)
+        self.assertEqual(result,17)
+        self.assertEqual(execute.call_args.args[0].count('--single-thread-math'),1)
+
+        result,_,_,_,execute=self.invoke(selected[:-1])
+        self.assertEqual(result,17)
+        self.assertNotIn('--single-thread-math',execute.call_args.args[0])
+
     def test_invalid_pacing_is_rejected_before_ground_document_profile_or_shared_runner(self):
         invalid=(('--request-gap-us','599'),('--request-gap-us','5001'),('--request-gap-us','not-an-int'),
                  ('--request-window','0'),('--request-window','4'),('--request-window','not-an-int'))

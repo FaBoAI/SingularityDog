@@ -12,6 +12,7 @@ from pathlib import Path
 import signal
 import subprocess
 
+from . import math_thread_startup as math_threads
 from .policy_live_profile import (ProfileError, add_transport_arguments, load_profile,
                                   transport_settings, telemetry_settings)
 
@@ -53,13 +54,25 @@ def main(argv=None,*,execution=None):
                    help='Optionally prime ten calls on reused model input buffers after CPU4 pin')
     p.add_argument('--defer-gc-during-cycles',action='store_true',
                    help='Temporarily defer automatic GC across the finite output cycle loop')
+    p.add_argument('--absolute-epoch-cadence',action='store_true',
+                   help='Opt-in fixed 20ms active release epochs; skip/STOP on a missed slot')
+    p.add_argument('--release-spin-us',type=int,choices=(200,500),
+                   help='Use the pinned active C++ cancellation-aware release wait')
+    p.add_argument('--active-timer-slack-ns',type=int,choices=(1000,),
+                   help='Set exactly 1us timer slack on the three active I/O workers, then restore')
+    p.add_argument('--single-thread-math',action='store_true',
+                   help='Opt in to OMP/OPENBLAS/MKL thread counts of 1 before NumPy/Torch import')
     add_transport_arguments(p)
     a=p.parse_args(argv)
+    try:math_startup=math_threads.configure_single_thread_math(a.single_thread_math)
+    except math_threads.MathThreadStartupError as error:p.error(str(error))
     r22=a.main_thread_cpu is not None or a.pre_cycle_policy_warmup_calls is not None or a.post_pin_policy_prime_calls is not None
     if r22 and (a.main_thread_cpu!=4 or a.pre_cycle_policy_warmup_calls!=10):
         p.error('R22 startup requires --pre-cycle-policy-warmup-calls 10 and --main-thread-cpu 4 together')
     if a.exclude_policy_cpu_from_workers and (not r22 or execution is not None):
         p.error('--exclude-policy-cpu-from-workers requires R22 supported-only output')
+    if a.release_spin_us is not None and not a.absolute_epoch_cadence:
+        p.error('--release-spin-us requires --absolute-epoch-cadence')
     profile=load_profile(a.profile,require_approved=a.execute_supported)
     try:
         pacing=transport_settings(profile,request_gap_us=a.request_gap_us,request_window=a.request_window)
@@ -75,6 +88,10 @@ def main(argv=None,*,execution=None):
             'r22_startup_selected':r22,'post_pin_policy_prime_calls':a.post_pin_policy_prime_calls,
             'defer_gc_during_cycles':a.defer_gc_during_cycles,
             'exclude_policy_cpu_from_workers':a.exclude_policy_cpu_from_workers,
+            'absolute_epoch_cadence':a.absolute_epoch_cadence,
+            'release_spin_us':a.release_spin_us,
+            'active_timer_slack_ns':a.active_timer_slack_ns,
+            'math_thread_startup':math_startup,
             'actual_policy_output_20ms_verified':False},ensure_ascii=False,indent=2));return 0
     if not a.support_in_place or not a.cutoff_ready:p.error('Supported trial requires support-in-place and cutoff-ready')
     if any(not getattr(a,k) for k in ('front_port','rear_port','library','output','audio','audio_sha256','audio_device','power_epoch')):
@@ -89,7 +106,11 @@ def main(argv=None,*,execution=None):
             'transport_settings':pacing,'telemetry_cadence':telemetry_settings(profile),
             'r22_startup_selected':r22,'post_pin_policy_prime_calls':a.post_pin_policy_prime_calls,
             'defer_gc_during_cycles':a.defer_gc_during_cycles,
-            'exclude_policy_cpu_from_workers':a.exclude_policy_cpu_from_workers}
+            'exclude_policy_cpu_from_workers':a.exclude_policy_cpu_from_workers,
+            'absolute_epoch_cadence':a.absolute_epoch_cadence,
+            'release_spin_us':a.release_spin_us,
+            'active_timer_slack_ns':a.active_timer_slack_ns,
+            'math_thread_startup':math_startup}
     cr,cw=os.pipe();signals=SignalState(cw);handlers={}
     device=None
     try:
@@ -99,6 +120,10 @@ def main(argv=None,*,execution=None):
         from . import imu
         from .policy_output_model import LivePolicyModel
         from .policy_output_runtime import run_supported_policy, BUSES
+        if a.single_thread_math:
+            math_startup['before_torch_import_env']=math_threads.verify_before_math_import()
+        else:
+            math_startup['before_torch_import_env']=math_threads.effective_math_thread_env()
         import torch
         torch.set_num_threads(1);torch.set_num_interop_threads(1)
         # Load before opening serial. Default warmup runs here; R22 defers it
@@ -147,6 +172,14 @@ def main(argv=None,*,execution=None):
                     post_pin_policy_prime_calls=a.post_pin_policy_prime_calls)
             if a.defer_gc_during_cycles:startup_options['defer_gc_during_cycles']=True
             if a.exclude_policy_cpu_from_workers:startup_options['exclude_policy_cpu_from_workers']=True
+            if a.absolute_epoch_cadence:startup_options['absolute_epoch_cadence']=True
+            if a.release_spin_us is not None:
+                if getattr(lib,'sda_wait_until',None) is None:
+                    raise RuntimeError('Pinned active library lacks bounded release wait')
+                startup_options['deadline_wait']=lambda target: native.wait_until(
+                    lib,cr,target,spin_us=a.release_spin_us)
+            if a.active_timer_slack_ns is not None:
+                startup_options['active_timer_slack_ns']=a.active_timer_slack_ns
             report=run_supported_policy(profile,sessions,device.read_sample,model,cancel_io=signals.cancel,
                 check=check,announce=announce,stop_requested=signals,supervision=execution,
                 **startup_options)
@@ -155,7 +188,11 @@ def main(argv=None,*,execution=None):
                 actual_model_calls=model.calls,imu_configuration=configuration,
                 r22_startup_selected=r22,post_pin_policy_prime_calls=a.post_pin_policy_prime_calls,
                 defer_gc_during_cycles=a.defer_gc_during_cycles,
-                exclude_policy_cpu_from_workers=a.exclude_policy_cpu_from_workers)
+                exclude_policy_cpu_from_workers=a.exclude_policy_cpu_from_workers,
+                absolute_epoch_cadence=a.absolute_epoch_cadence,
+                release_spin_us=a.release_spin_us,
+                active_timer_slack_ns=a.active_timer_slack_ns,
+                math_thread_startup=math_startup)
     except BaseException as error:
         report['errors'].append(type(error).__name__+': '+str(error))
     finally:
@@ -166,6 +203,7 @@ def main(argv=None,*,execution=None):
             if report['status']=='COMPLETE_SUPPORTED_OUTPUT':report['status']='ABORTED_RESTORE'
         report['transport_settings']=pacing
         report['telemetry_cadence']=telemetry_settings(profile)
+        report['math_thread_startup']=math_startup
         report['actual_policy_output_20ms_verified']=False
         if execution is not None:report=execution.decorate_report(report)
         # The ground operator reader can signal cancellation. Join it before

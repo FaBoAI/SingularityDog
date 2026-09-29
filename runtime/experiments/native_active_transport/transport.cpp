@@ -147,6 +147,65 @@ void stop_wire(int mid,unsigned char *w) {
 }
 }
 extern "C" uint64_t sda_now_ns() {return now();}
+// Optional bounded release wait. It never receives a motor/serial descriptor or
+// sends a command. The cancellation fd is checked both before and after the
+// sleep/spin, and a missed deadline returns the actual monotonic wake time.
+extern "C" int sda_wait_until(int cancel_fd,uint64_t deadline_ns,uint32_t spin_us,
+        uint64_t *woke_ns,char *error,uint32_t error_size) {
+    if(woke_ns)*woke_ns=0;
+    if(!woke_ns||!error||!error_size)return -1;
+    auto fail=[&](const char *message) {
+        std::snprintf(error,error_size,"%s",message);return -1;
+    };
+    const uint64_t start=now();
+    if(!start||!deadline_ns||cancel_fd<0||cancel_fd>=FD_SETSIZE||
+       fcntl(cancel_fd,F_GETFL)<0||(spin_us!=200&&spin_us!=500)||
+       (deadline_ns>start&&deadline_ns-start>1000000000ULL)||
+       (start>deadline_ns&&start-deadline_ns>1000000000ULL))
+        return fail("Invalid bounded active release wait arguments");
+    auto check_cancel=[&](uint64_t wait_ns) {
+        fd_set readable;FD_ZERO(&readable);FD_SET(cancel_fd,&readable);
+        timespec timeout{time_t(wait_ns/1000000000ULL),long(wait_ns%1000000000ULL)};
+        const int ready=pselect(cancel_fd+1,&readable,nullptr,nullptr,&timeout,nullptr);
+        if(ready<0)return errno==EINTR?2:-1;
+        return FD_ISSET(cancel_fd,&readable)?1:0;
+    };
+    uint32_t interrupts=0;
+    const uint64_t spin_ns=uint64_t(spin_us)*1000ULL;
+    while(true) {
+        const int before=check_cancel(0);
+        if(before==1)return fail("Cancelled before active release");
+        if(before==-1)return fail("Active release cancellation check failed");
+        if(before==2) {
+            if(++interrupts>32)return fail("Active release interrupted too often");
+            continue;
+        }
+        const uint64_t current=now();
+        if(!current)return fail("Active release monotonic clock failed");
+        if(current>=deadline_ns)break;
+        const uint64_t remaining=deadline_ns-current;
+        if(remaining>spin_ns) {
+            const int ready=check_cancel(remaining-spin_ns);
+            if(ready==1)return fail("Cancelled during active release");
+            if(ready==-1)return fail("Active release wait failed");
+            if(ready==2&&++interrupts>32)
+                return fail("Active release interrupted too often");
+            continue;
+        }
+        while(true) {
+            const uint64_t spinning_now=now();
+            if(!spinning_now)return fail("Active release monotonic clock failed");
+            if(spinning_now>=deadline_ns)break;
+        }
+        break;
+    }
+    const int after=check_cancel(0);
+    if(after==1)return fail("Cancelled after active release");
+    if(after==-1||after==2)return fail("Active release final cancellation check failed");
+    const uint64_t actual=now();
+    if(!actual||actual<deadline_ns)return fail("Active release returned before deadline");
+    *woke_ns=actual;return 0;
+}
 extern "C" void *sda_create(int fd,int cancel_fd,int boot_fd,const char *boot,
         int first,const SDLimits *limits,uint64_t gap,uint32_t window,char *error,uint32_t size) {
     auto bad=[&](const char *why)->void*{if(error&&size)std::snprintf(error,size,"%s",why);return nullptr;};
@@ -264,7 +323,10 @@ extern "C" int sda_exchange(void *handle,const unsigned char *wires,uint32_t cou
             // later LF could make pre-request bytes appear to be a causal ACK.
             if(used&&done==sent)return fail("Trailing partial active frame");
         }
-        t=now();if(!t||t>=deadline)return fail("Active deadline reached before write");
+        t=now();
+        if(!t||t>=deadline)
+            return fail(sent==count ? "Active reply deadline exceeded; all requests already written"
+                                    : "Active deadline reached before remaining writes");
         if(sent<count&&sent-done<effective_window&&t>=next) {
             // Check immediately before EVERY individual write, not merely at phase entry.
             if(cancelled(s))return fail("Cancelled before active write");
@@ -293,7 +355,7 @@ extern "C" int sda_emergency_stop(void *handle,uint64_t deadline,SDRecord *recor
     if(!lock.owns_lock())return finish(-1,"Concurrent emergency request: cancel active call and join owner first");
     s->poisoned=true;result->ambiguous_mask=s->ambiguous;
     if(!fd_ok(s)||deadline<=stats->begin_ns||deadline-stats->begin_ns<20000000||
-       deadline-stats->begin_ns>250000000)return finish(-1,"Invalid emergency FD/budget");
+       deadline-stats->begin_ns>500000000)return finish(-1,"Invalid emergency FD/budget");
     // Boot/cancel do NOT block STOP. Preserve bounded raw backlog; never use it as an ACK.
     // Each actuator gets its own slice even if the preceding actuator times out.
     // The caller's default aggregate budget is 250ms (about 41.7ms per ID),

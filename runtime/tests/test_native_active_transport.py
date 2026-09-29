@@ -15,6 +15,7 @@ import unittest
 import hashlib
 import json
 import subprocess
+from unittest.mock import patch
 
 from singularitydog_hw import native_active_transport as native
 from singularitydog_hw.can_readonly import ATParser, read_request
@@ -118,6 +119,65 @@ class NativeActiveTests(unittest.TestCase):
     def fresh(self):
         self.session.close();self.session=self.make_session();return self.session
 
+    def test_absolute_deadline_is_not_rebased_after_caller_delay(self):
+        deadline_ns=time.monotonic_ns()+70_000_000
+        time.sleep(.01)  # Worker preparation/queue delay consumes the same budget.
+        self.device_loop(1)
+        records,_=self.session.exchange([read_request(1)],deadline_ns=deadline_ns)
+        self.assertEqual(records[0].deadline_ns,deadline_ns)
+        self.assertLess(records[0].received_ns,deadline_ns)
+
+    def test_receive_gap_hypothesis_late_reply_has_no_second_motion_write(self):
+        # Offline socket experiment only. Live runtime still supplies 20 ms.
+        # One already-written transaction remains outstanding through a 20 ms
+        # soft boundary; receiving it at 25 ms is not a new command's ACK.
+        begin=time.monotonic_ns()
+        def delayed(wire):
+            time.sleep(.025)
+            return reply(wire)
+        self.device_loop(1,delayed)
+        records,_=self.session.exchange([native.encode_motion(1,0.,0.,0.)],
+                                       deadline_ns=begin+40_000_000)
+        self.assertGreater(records[0].received_ns-begin,20_000_000)
+        self.assertLess(records[0].received_ns-begin,40_000_000)
+        self.thread.join(timeout=1)
+        self.assertEqual(len(self.seen),1)
+        self.no_write()
+
+    def test_receive_gap_hypothesis_delayed_crlf_completes_original_frame(self):
+        def partial(wire):
+            value=reply(wire)
+            self.peer.sendall(value[:15])
+            time.sleep(.025)
+            return value[15:]
+        self.device_loop(1,partial)
+        begin=time.monotonic_ns()
+        records,stats=self.session.exchange([native.encode_motion(1,0.,0.,0.)],
+                                           deadline_ns=begin+40_000_000)
+        self.assertEqual(records[0].received,17)
+        self.assertEqual(stats.bytes,17)
+        self.assertGreaterEqual(stats.reads,2)
+        self.assertGreater(records[0].received_ns-begin,20_000_000)
+        self.thread.join(timeout=1)
+        self.assertEqual(len(self.seen),1)
+        self.no_write()
+
+    def test_receive_gap_hypothesis_hard_miss_still_poisoned_no_retry(self):
+        self.device_loop(1,lambda _:b'')
+        with self.assertRaises(native.ExchangeError):
+            self.session.exchange([native.encode_motion(1,0.,0.,0.)],timeout_ns=40_000_000)
+        self.thread.join(timeout=1)
+        with self.assertRaisesRegex(RuntimeError,'poisoned'):
+            self.session.exchange([native.encode_motion(1,0.,0.,0.)])
+        self.assertEqual(len(self.seen),1)
+        self.no_write()
+
+    def test_expired_absolute_deadline_never_writes(self):
+        with self.assertRaisesRegex(ValueError,'Expired or invalid absolute'):
+            self.session.exchange([read_request(1)],deadline_ns=time.monotonic_ns()-1)
+        self.no_write()
+        self.assertTrue(self.session.poisoned)
+
     def test_identity_all_allowed_reads_and_integer_semantics(self):
         self.device_loop(6,fragment=True)
         records,stats=self.session.exchange([read_request(i) for i in range(1,7)])
@@ -150,6 +210,38 @@ class NativeActiveTests(unittest.TestCase):
         self.assertGreaterEqual(stop_records[0]['start_ns']-records[-1].finish_ns,5_000_000)
         self.assertTrue(all(b['start_ns']-a['finish_ns']>=5_000_000
                             for a,b in zip(stop_records,stop_records[1:])))
+
+    def test_missing_third_reply_and_partial_sixth_remain_unconfirmed_after_stop(self):
+        # Reproduce the live front-bus trace: six complete Type1 writes,
+        # ID3 absent, ID6 with only 15 bytes before the absolute deadline.
+        self.session.close()
+        self.session=self.make_session(gap_ns=800_000,window=3)
+        partial=[]
+        def incomplete(wire):
+            mid=ATParser().feed(wire)[0].destination
+            if mid==3:return b''
+            value=reply(wire)
+            if mid==6:
+                partial.append(value[:15]);return value[:15]
+            return value
+        self.device_loop(6,incomplete)
+        with self.assertRaises(native.ExchangeError) as failed:
+            self.session.exchange([native.encode_motion(i,0.,0.,0.) for i in range(1,7)],
+                                  timeout_ns=30_000_000)
+        records,stats=failed.exception.records,failed.exception.stats
+        self.assertEqual([r.written for r in records],[17]*6)
+        self.assertEqual([i+1 for i,r in enumerate(records) if not r.received],[3,6])
+        self.assertEqual(bytes(stats.rejected[:stats.rejected_size]),partial[0])
+        self.assertNotIn('before write',str(failed.exception))
+        # Even six later mode0 replies cannot prove which request caused
+        # the two outstanding Type2 replies. Preserve the cutoff request.
+        self.thread.join(timeout=1)
+        self.device_loop(6,lambda wire:reply(wire,mode=0))
+        stopped=self.session.emergency_stop()
+        self.assertFalse(stopped['complete'])
+        self.assertEqual(stopped['unconfirmed_ids'],[3,6])
+        self.assertEqual(stopped['ambiguous_ids'],[3,6])
+        self.assertEqual(len(stopped['replies']),6)
 
     def test_watchdog_requires_stopped_ack_before_separate_readback(self):
         self.device_loop(6)
@@ -323,6 +415,15 @@ class NativeActiveTests(unittest.TestCase):
                 self.fresh().exchange([enable(2),wire])
             self.assertEqual(caught.exception.stats.writes,0);self.no_write()
 
+    def test_zero_gain_native_caps_reject_positive_gain_before_any_write(self):
+        for kp,kd in ((.1,0.),(0.,.01)):
+            self.session.close()
+            self.session=self.make_session(kp_max_by_id={i:0. for i in range(1,7)},
+                                           kd_max_by_id={i:0. for i in range(1,7)})
+            with self.subTest(kp=kp,kd=kd),self.assertRaises(native.ExchangeError) as caught:
+                self.session.exchange([enable(2),native.encode_motion(1,.5,kp,kd)])
+            self.assertEqual(caught.exception.stats.writes,0);self.no_write()
+
     def test_quantized_lower_boundary_is_not_silently_clipped(self):
         with self.assertRaises(native.ExchangeError):self.session.exchange([native.encode_motion(1,-1.,0.,0.)])
         self.no_write()
@@ -461,6 +562,18 @@ class NativeActiveTests(unittest.TestCase):
         self.assertEqual(result['evidence']['records'][0]['received'],0)
         self.assertEqual(result['timeout_ns'],150_000_000)
 
+    def test_emergency_extended_budget_accepts_slow_replies_before_own_deadline(self):
+        def slow_reply(w):
+            time.sleep(.055)
+            return reply(w)
+        self.device_loop(6,slow_reply)
+        result=self.session.emergency_stop(timeout_ns=500_000_000)
+        self.assertTrue(result['complete'],result)
+        self.assertEqual(result['confirmed_ids'],list(range(1,7)))
+        self.assertTrue(all(f.kind==4 for f in self.seen))
+        self.assertTrue(all(r['finish_ns']<r['received_ns']<r['deadline_ns']
+                            for r in result['evidence']['records']))
+
     def test_emergency_default_still_attempts_all_axes_when_none_reply(self):
         self.device_loop(6,lambda w:b'')
         started=time.monotonic_ns()
@@ -481,6 +594,85 @@ class NativeActiveTests(unittest.TestCase):
         self.assertEqual(result['ambiguous_ids'],[1])
         self.assertNotIn(1,result['confirmed_ids'])
         self.assertEqual(len(result['replies']),6)
+
+    def test_repeated_stop_finishes_after_one_confirmed_round(self):
+        self.device_loop(6)
+        result=self.session.emergency_stop_repeated()
+        self.assertTrue(result['complete'])
+        self.assertEqual(len(result['attempts']),1)
+        self.assertEqual(result['retry_policy']['attempts_completed'],1)
+        self.assertTrue(all(f.kind==4 for f in self.seen))
+        with self.assertRaises(RuntimeError):self.session.exchange([enable(1)])
+        self.no_write()
+
+    def test_repeated_stop_preserves_pending_motion_ambiguity_and_limits_rounds(self):
+        self.device_loop(1,lambda w:b'')
+        with self.assertRaises(native.ExchangeError):
+            self.session.exchange([native.encode_motion(1,.1,0.,0.)],timeout_ns=5_000_000)
+        self.device_loop(18)
+        before=len(self.seen)
+        result=self.session.emergency_stop_repeated()
+        self.assertFalse(result['complete'])
+        self.assertEqual(result['ambiguous_ids'],[1])
+        self.assertEqual(result['unconfirmed_ids'],[1])
+        self.assertEqual(len(result['attempts']),3)
+        self.assertEqual(len(self.seen)-before,18)
+        self.assertTrue(all(f.kind==4 for f in self.seen[before:]))
+        self.assertTrue(all(a['ambiguous_ids']==[1] for a in result['attempts']))
+        self.assertTrue(all(a['deadline_monotonic_ns']<=result['retry_policy']['deadline_ns']
+                            for a in result['attempts']))
+
+    def test_repeated_stop_cannot_restart_total_deadline_when_nothing_replies(self):
+        self.device_loop(18,lambda w:b'')
+        begin=time.monotonic_ns()
+        result=self.session.emergency_stop_repeated()
+        self.assertFalse(result['complete'])
+        self.assertTrue(result['retry_policy']['budget_exhausted'])
+        self.assertEqual(len(result['attempts']),3)
+        self.assertEqual(result['attempts'][0]['timeout_ns'],250_000_000)
+        self.assertEqual(result['attempts'][1]['timeout_ns'],500_000_000)
+        self.assertLess(result['attempts'][2]['timeout_ns'],250_000_000)
+        self.assertLess(time.monotonic_ns()-begin,1_200_000_000)
+        self.assertEqual(result['unconfirmed_ids'],list(range(1,7)))
+        for attempt in result['attempts']:
+            self.assertEqual(attempt['attempted_ids'],list(range(1,7)))
+            self.assertLessEqual(attempt['deadline_monotonic_ns'],result['retry_policy']['deadline_ns'])
+            for row in attempt['evidence']['records']:
+                self.assertLess(row['start_ns'],row['deadline_ns'])
+
+    def test_repeated_stop_short_total_budget_still_bounds_all_rounds(self):
+        self.device_loop(12,lambda w:b'')
+        result=self.session.emergency_stop_repeated(total_timeout_ns=500_000_000)
+        self.assertEqual(len(result['attempts']),2)
+        self.assertTrue(result['retry_policy']['budget_exhausted'])
+        self.assertTrue(all(a['deadline_monotonic_ns']<=result['retry_policy']['deadline_ns']
+                            for a in result['attempts']))
+        self.assertFalse(result['complete'])
+
+    def test_repeated_stop_keeps_faults_from_earlier_attempt(self):
+        first={'complete':False,'confirmed_ids':list(range(2,7)),'unconfirmed_ids':[1],
+               'ambiguous_ids':[],'fault_by_id':{'2':4}}
+        second={'complete':True,'confirmed_ids':list(range(1,7)),'unconfirmed_ids':[],
+                'ambiguous_ids':[],'fault_by_id':{'2':0}}
+        with patch.object(self.session,'emergency_stop',side_effect=[first,second]) as stop:
+            result=self.session.emergency_stop_repeated()
+        self.assertEqual(stop.call_count,2)
+        self.assertTrue(result['complete']);self.assertEqual(result['fault_by_id']['2'],4)
+        self.no_write()
+
+    def test_repeated_stop_invalid_budgets_never_write(self):
+        for args in ({'max_attempts':0},{'max_attempts':4},{'max_attempts':True},
+                     {'total_timeout_ns':20_000_000},{'total_timeout_ns':1_000_000_001}):
+            with self.subTest(args=args),self.assertRaises(ValueError):
+                self.session.emergency_stop_repeated(**args)
+        self.no_write()
+
+    def test_extended_stop_budget_does_not_extend_active_budget(self):
+        with self.assertRaises(ValueError):
+            self.session.exchange([enable(1)],timeout_ns=250_000_001)
+        with self.assertRaises(ValueError):
+            self.session.emergency_stop(timeout_ns=500_000_001)
+        self.no_write()
 
     def test_repeated_emergency_does_not_confirm_a_delayed_previous_stop_reply(self):
         pending=[]

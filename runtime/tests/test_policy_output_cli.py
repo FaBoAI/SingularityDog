@@ -6,6 +6,8 @@ import json
 import os
 from pathlib import Path
 import signal
+import subprocess
+import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -130,7 +132,55 @@ class PolicyOutputCLITests(unittest.TestCase):
         self.assertEqual(report['status'], 'PLAN_ONLY')
         self.assertFalse(report['hardware_opened']); self.assertFalse(report['output_allowed'])
         self.assertFalse(report['exclude_policy_cpu_from_workers'])
+        self.assertFalse(report['math_thread_startup']['selected'])
         model.assert_not_called(); native.assert_not_called(); audio.assert_not_called()
+
+    def test_single_thread_math_plan_starts_early_and_late_import_fails_closed(self):
+        environment=dict(os.environ,OMP_NUM_THREADS='8',OPENBLAS_NUM_THREADS='4',MKL_NUM_THREADS='2',
+                         PYTHONPATH=str(Path(__file__).resolve().parents[1]))
+        command=[sys.executable,'-m','singularitydog_hw.policy_output',
+                 '--profile',str(self.path),'--single-thread-math']
+        result=subprocess.run(command,env=environment,text=True,capture_output=True,check=False)
+        self.assertEqual(result.returncode,0,result.stderr)
+        plan=json.loads(result.stdout)
+        self.assertEqual(plan['math_thread_startup']['effective_env'],
+                         {'OMP_NUM_THREADS':'1','OPENBLAS_NUM_THREADS':'1','MKL_NUM_THREADS':'1'})
+        self.assertTrue(plan['math_thread_startup']['verified_before_math_import'])
+        self.assertFalse(plan['hardware_opened'])
+        late=subprocess.run([sys.executable,'-c',
+            'import sys,types; sys.modules["numpy"]=types.ModuleType("numpy"); '
+            'from singularitydog_hw import policy_output; policy_output.main(sys.argv[1:])',
+            '--profile',str(self.path),'--single-thread-math'],env=environment,
+            text=True,capture_output=True,check=False)
+        self.assertEqual(late.returncode,2)
+        self.assertIn('before NumPy/Torch import',late.stderr)
+        self.assertFalse(self.out.exists())
+
+    def test_absolute_epoch_selection_is_explicit_and_file_only_in_plan(self):
+        flags=['--absolute-epoch-cadence','--release-spin-us','500',
+               '--active-timer-slack-ns','1000']
+        with patch('singularitydog_hw.native_active_transport.load_library') as native, \
+             redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(cli.main(['--profile',str(self.path),*flags]),0)
+        plan=json.loads(out.getvalue())
+        self.assertTrue(plan['absolute_epoch_cadence'])
+        self.assertEqual(plan['release_spin_us'],500)
+        self.assertEqual(plan['active_timer_slack_ns'],1000)
+        self.assertFalse(plan['hardware_opened']);native.assert_not_called()
+        with patch.object(cli,'load_profile') as load,redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                cli.main(['--profile',str(self.path),'--release-spin-us','500'])
+        load.assert_not_called()
+
+    def test_absolute_epoch_and_worker_slack_forward_to_runtime_only_when_selected(self):
+        code,report,_,runner,_=self.execute_mocked_profile(
+            self.approved_profile(SCHEMA_V2),status='COMPLETE_SUPPORTED_OUTPUT',
+            extra_args=['--absolute-epoch-cadence','--active-timer-slack-ns','1000'])
+        self.assertEqual(code,0)
+        self.assertTrue(report['absolute_epoch_cadence'])
+        self.assertEqual(report['active_timer_slack_ns'],1000)
+        self.assertTrue(runner.call_args.kwargs['absolute_epoch_cadence'])
+        self.assertEqual(runner.call_args.kwargs['active_timer_slack_ns'],1000)
 
     def test_r22_plan_and_invalid_flag_pairs_stay_file_only(self):
         flags=['--pre-cycle-policy-warmup-calls','10','--main-thread-cpu','4',

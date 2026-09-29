@@ -8,6 +8,7 @@ import unittest
 from singularitydog_hw.policy_motion_envelope import (
     AxisLimits, MotionFault, MotionSample, PolicyMotionEnvelope,
 )
+from singularitydog_hw import policy_motion_envelope as motion
 
 
 def limits(**changes):
@@ -28,6 +29,106 @@ def envelope(axis=None, initial=None, **changes):
 
 
 class MotionEnvelopeTests(unittest.TestCase):
+    def test_ramp_roundoff_cannot_make_startup_exceed_cap_or_stop_gain_negative(self):
+        fractions=[0.,1.,math.nextafter(1.,0.),.9999999979]
+        fractions.extend(1.-i*1e-10 for i in range(1,10000))
+        for fraction in fractions:
+            ramp=motion._quintic_fraction(fraction)
+            self.assertGreaterEqual(ramp,0.)
+            self.assertLessEqual(ramp,1.)
+        controller=envelope(startup_duration_s=1.,stop_duration_s=1.,max_sample_gap_s=2.)
+        controller.step((0.,)*12,sample(2.),now_s=2.)
+        controller.request_stop()
+        t=2.+.9999999979
+        command=controller.step(None,sample(t),now_s=t)
+        self.assertTrue(all(0.<=v<=4. for v in command.kp))
+        self.assertTrue(all(0.<=v<=.2 for v in command.kd))
+
+    def test_separate_damping_ramp_and_early_stop_are_continuous_and_bounded(self):
+        controller=envelope(axis=limits(kp=3.,kd=.15,max_estimated_pd_torque_nm=.1),
+                            startup_duration_s=.4,startup_damping_duration_s=.08)
+        previous=None
+        for tick in range(1,5):
+            t=1.+tick*.02
+            command=controller.step((0.,)*12,sample(t,v=.2),now_s=t)
+            self.assertLess(command.kp[0],3.)
+            self.assertLessEqual(command.kd[0],.15)
+            self.assertGreater(command.kd[0]/.15,command.kp[0]/3.)
+            self.assertAlmostEqual(command.estimated_pd_torque_nm[0],-.2*command.kd[0])
+            if previous:self.assertGreaterEqual(command.kd[0],previous.kd[0])
+            previous=command
+        self.assertEqual(previous.kd[0],.15)
+        controller.request_stop()
+        for tick in range(5,26):
+            t=1.+tick*.02
+            command=controller.step(None,sample(t,v=.2),now_s=t)
+            self.assertLessEqual(command.kd[0],previous.kd[0])
+            self.assertLessEqual(command.kp[0],previous.kp[0])
+            self.assertEqual(command.q_model_rad,(0.,)*12)
+            previous=command
+        self.assertEqual(command.kd[0],0.)
+        self.assertEqual(command.kp[0],0.)
+
+    def test_early_damping_preserves_torque_budget(self):
+        controller=envelope(axis=limits(kd=.15,max_estimated_pd_torque_nm=.001),
+                            startup_duration_s=.4,startup_damping_duration_s=.08)
+        with self.assertRaisesRegex(MotionFault,'estimated PD torque budget'):
+            controller.step((0.,)*12,sample(1.02,v=.2),now_s=1.02)
+        with self.assertRaisesRegex(MotionFault,'Damping ramp'):
+            envelope(startup_duration_s=.4,startup_damping_duration_s=.41)
+
+    def test_float_tuple_fast_path_preserves_generic_vector_acceptance_and_failures(self):
+        def original(values, name):
+            if isinstance(values, (str, bytes)):
+                raise MotionFault(f"{name}: twelve numeric values required")
+            try:
+                result = tuple(motion._number(value, name) for value in values)
+            except TypeError as exc:
+                raise MotionFault(f"{name}: twelve numeric values required") from exc
+            if len(result) != 12:
+                raise MotionFault(f"{name}: exactly twelve axes required")
+            return result
+
+        class FloatChild(float):
+            pass
+
+        finite = (0., -0., 1e-300, -1e300) + (1.25,) * 8
+        cases = (
+            finite,
+            tuple(float(index) for index in range(12)),
+            tuple(range(12)),
+            (FloatChild(.25),) + (0.,) * 11,
+            [float(index) for index in range(12)],
+            (math.nan,) + (0.,) * 11,
+            (math.inf,) + (0.,) * 11,
+            (-math.inf,) + (0.,) * 11,
+            (True,) + (0.,) * 11,
+            (None,) + (0.,) * 11,
+            (0.,) * 11,
+            (0.,) * 13,
+            [0.] * 11,
+            "not a vector",
+            b"not a vector",
+            None,
+        )
+        for case in cases:
+            with self.subTest(case=repr(case)):
+                try:
+                    expected = original(case, "vector")
+                except MotionFault as error:
+                    with self.assertRaises(MotionFault) as caught:
+                        motion._vector(case, "vector")
+                    self.assertEqual(str(caught.exception), str(error))
+                else:
+                    actual = motion._vector(case, "vector")
+                    self.assertEqual(actual, expected)
+                    self.assertTrue(all(type(value) is float for value in actual))
+        self.assertEqual(motion._vector(iter(range(12)), "vector"),
+                         original(iter(range(12)), "vector"))
+        self.assertIs(motion._vector(finite, "vector"), finite)
+        sample_value = MotionSample(finite, finite, finite, finite, 1.)
+        self.assertEqual(sample_value.q_model_rad, finite)
+
     def test_dataclasses_validate_dimensions_finite_gains_and_limits(self):
         for changes in ({"kp": -1}, {"kd": math.nan}, {"lower_rad": 1.},
                         {"max_command_acceleration_rad_s2": 0},

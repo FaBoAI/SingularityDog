@@ -1,0 +1,80 @@
+{
+  "schema": "can-usb-type17-live-v1",
+  "date": "2026-09-29",
+  "jetson_boot_id": "274a4717-d613-489e-b5bf-48ee50690111",
+  "physical_setup": {
+    "operator_confirmed": "40V On, torso supported by box, four paws on floor, QDD disabled, hands clear, immediate 40V Off available",
+    "post_test_operator_observation": "No unexpected motion, vibration, sound or paw slip; box and 40V unchanged"
+  },
+  "read_only_type17": {
+    "jetson_report": "/home/jetson/singularitydog-logs/can-type17-lossless-20260929-r4/report.json",
+    "status": "COMPLETE_DIAGNOSTIC",
+    "cycles_requested": 500,
+    "cycles_completed": 500,
+    "request_gap_us": 800,
+    "request_window_per_bus": 3,
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "stop_requests_in_measured_cycles": 0,
+    "acquisition_ms": {"median": 12.7252605, "max": 13.505524},
+    "whole_iteration_ms": {"median": 14.046324, "max": 14.89539},
+    "release_interval_ms": {"median": 20.0718, "max": 20.247358}
+  },
+  "xhci_metadata": {
+    "jetson_report": "/home/jetson/singularitydog-logs/xhci-type17-lossless-20260929-r4/report.json",
+    "status": "CAPTURED_REVIEW_REQUIRED",
+    "instances_removed": true,
+    "trace_lossless": true,
+    "payload_captured": false,
+    "bus_1_rear_devnum_4": {
+      "out_pipe": 3221292032,
+      "in_pipe": 3225486464,
+      "out_enqueue": 6006,
+      "out_giveback": 6006,
+      "in_enqueue": 3508,
+      "in_giveback": 3508,
+      "in_full_32_byte_chunks": 3000,
+      "in_final_12_byte_chunks": 500,
+      "in_startup_17_byte_chunks": 6,
+      "in_zero_byte_close": 2
+    },
+    "bus_1_front_devnum_5": {
+      "out_pipe": 3221292288,
+      "in_pipe": 3225486720,
+      "out_enqueue": 6006,
+      "out_giveback": 6006,
+      "in_enqueue": 3508,
+      "in_giveback": 3508,
+      "in_full_32_byte_chunks": 3000,
+      "in_final_12_byte_chunks": 500,
+      "in_startup_17_byte_chunks": 6,
+      "in_zero_byte_close": 2
+    },
+    "nonzero_tracepoint_status_interpreted_as_usb_error": false,
+    "usb_or_can_error_in_past_type1_failures_localized": false
+  },
+  "stop_proxy_attempts": [
+    {"report": "/home/jetson/singularitydog-logs/can-stopproxy-replies-20260929-r1/report.json", "cycles_completed": 0, "error": "Torch unavailable in system Python"},
+    {"report": "/home/jetson/singularitydog-logs/can-stopproxy-replies-20260929-r2/report.json", "cycles_completed": 0, "error": "Current calibrated pose outside registered model joint range"}
+  ],
+  "id9_branch_diagnostic": {
+    "previous_source_raw_rad_approx": -0.673,
+    "current_type17_raw_rad_approx": 5.633,
+    "raw_difference_rad_approx": 6.306,
+    "current_model_rad_before_branch": 6.279,
+    "registered_model_range_rad": [-0.5, 0.5],
+    "numeric_branch_candidate_turns": 1,
+    "physical_no_turn_confirmation_pending": false,
+    "physical_no_turn_operator_confirmation": "操作者は40V Off/On後も右後脚ID9を実物で一回転させていないと確認した。",
+    "correction_applied_to_motor_output": false
+  },
+  "scope_limits": [
+    "Type17 test did not send Type1 goals, motor enable or STOP requests",
+    "Type17 test does not establish full 20ms inference and STOP-reply performance",
+    "No active Type1 reply loss occurred in this test, so the historical loss origin remains unknown"
+  ],
+  "private_mac_archive": {
+    "relative_to_private_robotdog_backups": "20260929-can-usb-test-r1/logs.tar.gz",
+    "sha256": "1e1172cee93af3e397610005d2748ec0758656487c7ede4d8516c474afd4c38f"
+  }
+}

@@ -15,6 +15,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from singularitydog_hw import can_readonly as codec
+from singularitydog_hw import policy_live_profile as live
 from singularitydog_hw import policy_output_runtime as runtime
 from singularitydog_hw.native_diagnostic_transport import Record, Stats
 from singularitydog_hw.policy_motion_envelope import AxisLimits
@@ -58,6 +59,16 @@ def profile():
                      for mid in range(1, 13)}}
 
 
+def measured_startup_profile():
+    data = profile()
+    data.update(schema=live.SCHEMA_V3, telemetry_cadence=live.CADENCE_PRE_ENABLE,
+        cadence_source_sha256=live.cadence_source_hashes(),
+        model_backend=live.SCALAR_BACKEND, voltage_overlap=True,
+        diagnostic_timing_acceptance=live.MEASURED_R17_STARTUP_TIMING,
+        hard_cycle_ms=20., max_sample_age_ms=20., max_sample_gap_ms=21.)
+    return data
+
+
 class SimulatedClock:
     """Shared causal test time; actual thread handshakes still use Events."""
     def __init__(self):
@@ -68,6 +79,8 @@ class SimulatedClock:
             return self.value
     def advance(self,nanoseconds):
         with self.lock:self.value+=nanoseconds
+    def advance_to(self,nanoseconds):
+        with self.lock:self.value=max(self.value,nanoseconds)
     def sleep(self,seconds):
         self.advance(math.ceil(seconds*1e9))
 
@@ -101,8 +114,14 @@ class FakeSession:
         self.positive_gain_writes = 0
         self._busy = threading.Lock()
 
-    def exchange(self, wires, *, timeout_ns):
-        return self._exchange(wires, timeout_ns, send_only=False)
+    def exchange(self, wires, *, timeout_ns=100_000_000, deadline_ns=None):
+        if deadline_ns is not None:
+            timeout_ns=deadline_ns-self.clock()
+            if timeout_ns<=0:raise TimeoutError('Synthetic absolute deadline expired')
+        records,stats=self._exchange(wires, timeout_ns, send_only=False)
+        if deadline_ns is not None:
+            for record in records:record.deadline_ns=deadline_ns
+        return records,stats
 
     def send_only(self, wires, *, timeout_ns):
         return self._exchange(wires, timeout_ns, send_only=True)
@@ -225,6 +244,256 @@ class OutputRuntimeTests(unittest.TestCase):
         self.assertTrue(cancelled.is_set())
         self.assertTrue(all(len(session.stop_times) == 1 for session in sessions.values()))
         return report, sessions
+
+    def test_all_axis_zero_gain_comparison_uses_type1_without_motion_gains(self):
+        data=profile();data['policy_weight']=0.
+        for axis in data['axes'].values():axis.update(kp=0.,kd=0.)
+        report,sessions=self.run_case(profile_data=data)
+        self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
+        self.assertTrue(report['motor_enable_sent'])
+        self.assertTrue(report['stop_confirmed'])
+        self.assertFalse(report['motion_gain_sent'])
+        self.assertFalse(report['learned_targets_sent'])
+        for session in sessions.values():
+            commands=[codec.ATParser().feed(w)[0] for _,kind,_,w in session.calls if kind==1]
+            self.assertGreater(len(commands),12)
+            for command in commands:
+                _,velocity,kp,kd=struct.unpack('>4H',command.data)
+                self.assertEqual((velocity,kp,kd),(32767,0,0))
+                self.assertEqual((command.can_id>>8)&65535,32767)
+
+    def test_each_bus_owner_uses_bounded_stop_retries_when_available(self):
+        owners={}
+        class RetryingSession(FakeSession):
+            def emergency_stop_repeated(self):
+                owners[self.ids[0]]=threading.current_thread().name
+                return {**self.emergency_stop(),'retry_policy':{'stop_only':True,'attempts_completed':1}}
+        report,_=self.run_case(front=RetryingSession(1),rear=RetryingSession(7))
+        self.assertTrue(report['stop_confirmed'])
+        self.assertEqual(set(owners),{1,7})
+        self.assertTrue(owners[1].startswith('policy-front'))
+        self.assertTrue(owners[7].startswith('policy-rear'))
+        self.assertTrue(all(r['retry_policy']['stop_only'] for r in report['stop_reports'].values()))
+
+    def test_stop_collection_has_one_shared_deadline_with_dispatch_margin(self):
+        timeouts=[]
+        future=SimpleNamespace(result=lambda *,timeout:timeouts.append(timeout) or {'complete':True})
+        workers=runtime.BusWorkers.__new__(runtime.BusWorkers)
+        workers.stop_futures={'front':future,'rear':future}
+        workers.emergency=lambda reason:None
+        with patch.object(runtime.time,'monotonic',side_effect=[100.,100.,100.8]):
+            result=workers.finish_stops()
+        self.assertEqual(set(result),{'front','rear'})
+        self.assertAlmostEqual(timeouts[0],1.25)
+        self.assertAlmostEqual(timeouts[1],.45)
+
+    def test_stop_collection_does_not_timeout_at_old_one_second_boundary(self):
+        class SlowCleanup(FakeSession):
+            def emergency_stop_repeated(self):
+                time.sleep(1.03)
+                return self.emergency_stop()
+        workers=runtime.BusWorkers({'front':SlowCleanup(1),'rear':SlowCleanup(7)},lambda:None)
+        try:
+            stopped=workers.finish_stops()
+            for scope,ids in runtime.BUSES.items():
+                self.assertNotIn('error',stopped[scope])
+                self.assertEqual(stopped[scope]['confirmed_ids'],list(ids))
+        finally:workers.close()
+
+    def test_zero_policy_high_gain_hold_never_follows_varying_model_targets(self):
+        data=profile();data.update(policy_weight=0., duration_s=2., startup_duration_s=1.)
+        for axis in data['axes'].values():axis.update(kp=12.,kd=.15,max_estimated_pd_torque_nm=.5)
+        calls=[]
+        def varying_policy(sample,imu,now):
+            calls.append(now)
+            return ((.8 if len(calls)%2 else -.8),)*12
+        report,sessions=self.run_case(profile_data=data,policy=varying_policy)
+        self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
+        self.assertGreater(len(calls),10)
+        self.assertTrue(report['motion_gain_sent'])
+        self.assertFalse(report['learned_targets_sent'])
+        self.assertTrue(report['stop_confirmed'])
+        for session in sessions.values():
+            positions={mid:set() for mid in session.ids};gains=[]
+            for _,kind,mid,wire_bytes in session.calls:
+                if kind!=1:continue
+                command=codec.ATParser().feed(wire_bytes)[0]
+                pos,velocity,kp,kd=struct.unpack('>4H',command.data)
+                positions[mid].add(pos);gains.append(kp)
+                self.assertEqual(velocity,32767)
+                self.assertEqual((command.can_id>>8)&65535,32767)
+            self.assertTrue(all(len(values)==1 for values in positions.values()))
+            self.assertIn(quantize(12.,0.,500.),gains)
+
+    def test_hold_probe_skips_inference_but_checks_inputs_each_cycle(self):
+        data=profile();data.update(policy_weight=0.,duration_s=2.,startup_duration_s=1.)
+        for axis in data['axes'].values():axis.update(kp=12.,kd=.15,max_estimated_pd_torque_nm=.5)
+        checked=[]
+        class ValidationOnly:
+            def validate_inputs(self,sample,imu,now):checked.append(now)
+            def __call__(self,*args):raise AssertionError('Hold must not run inference')
+        with patch.object(runtime,'current_position_hold_only',return_value=True):
+            report,sessions=self.run_case(profile_data=data,policy=ValidationOnly())
+        self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
+        self.assertTrue(report['cyclic_inference_skipped'])
+        self.assertTrue(report['motion_gain_sent'])
+        self.assertFalse(report['learned_targets_sent'])
+        self.assertTrue(report['stop_confirmed'])
+        # One validation precedes enable; each control cycle validates again.
+        self.assertEqual(len(checked),len(report['cycles'])+1)
+        for session in sessions.values():
+            positions={mid:set() for mid in session.ids}
+            for _,kind,mid,wire_bytes in session.calls:
+                if kind==1:positions[mid].add(struct.unpack('>4H',codec.ATParser().feed(wire_bytes)[0].data)[0])
+            self.assertTrue(all(len(values)==1 for values in positions.values()))
+
+    def test_hold_probe_input_fault_stops_before_positive_gains(self):
+        data=profile();data['policy_weight']=0.
+        class BadInputs:
+            def validate_inputs(self,*args):raise ValueError('Synthetic tilt fault')
+            def __call__(self,*args):raise AssertionError('Unexpected inference')
+        with patch.object(runtime,'current_position_hold_only',return_value=True):
+            report,_=self.run_case(profile_data=data,policy=BadInputs())
+        self.assertEqual(report['status'],'ABORTED')
+        self.assertIn('Synthetic tilt fault',str(report['errors']))
+        self.assertFalse(report['motion_gain_sent'])
+        self.assertTrue(report['stop_confirmed'])
+
+    def test_early_damping_reaches_wires_while_real_policy_still_runs(self):
+        data=measured_startup_profile()
+        data.update(duration_s=2.,startup_duration_s=.4,policy_ramp_s=.4,
+                    stop_duration_s=.4,startup_damping_duration_s=.08,policy_weight=.005)
+        calls=[]
+        def actual_policy(*args):
+            calls.append(1)
+            return (.01,)*12
+        logical_clock=SimulatedClock()
+        report,sessions=self.run_case(profile_data=data,policy=actual_policy,
+            front=FakeSession(1,clock=logical_clock),rear=FakeSession(7,clock=logical_clock),
+            imu=FakeIMU(clock=logical_clock),clock=logical_clock,sleep=logical_clock.sleep)
+        self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
+        self.assertGreater(len(calls),20)
+        self.assertTrue(report['learned_targets_sent'])
+        self.assertFalse(report['cyclic_inference_skipped'])
+        self.assertTrue(report['stop_confirmed'])
+        self.assertEqual(report['startup_gain_schedule']['damping_duration_s'],.08)
+        self.assertTrue(any(command['kd'][0] > command['kp'][0]*.2/4.
+                            for c in report['cycles'] if c['phase']=='starting'
+                            for command in (c['command'],)))
+        for session in sessions.values():
+            wires=[struct.unpack('>4H',codec.ATParser().feed(blob)[0].data)
+                   for _,kind,_,blob in session.calls if kind==1]
+            self.assertTrue(any(kd==quantize(.2,0.,5.) and kp<quantize(4.,0.,500.)
+                                for _,_,kp,kd in wires))
+        self.assertTrue(report['stop_confirmed'])
+
+    def test_v3_cold_enable_gets_30ms_without_extending_control_period(self):
+        clock=SimulatedClock();budgets=[]
+        class ColdEnable(FakeSession):
+            def exchange(self,wires,*,timeout_ns=100_000_000,deadline_ns=None):
+                kind=codec.ATParser().feed(wires[0])[0].kind
+                if kind==3:
+                    budgets.append(timeout_ns)
+                    if not self.enabled:
+                        if timeout_ns<25_000_000:raise TimeoutError('Cold enable needs25ms')
+                        clock.advance(25_000_000)
+                return super().exchange(wires,timeout_ns=timeout_ns,deadline_ns=deadline_ns)
+        report,_=self.run_case(profile_data=measured_startup_profile(),
+            front=ColdEnable(1,clock=clock),rear=FakeSession(7,clock=clock),
+            imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
+        self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
+        self.assertEqual(budgets,[30_000_000]*6)
+        self.assertTrue(report['zero_gain_enable_transition']['complete'])
+        self.assertTrue(report['learned_targets_sent'])
+        self.assertTrue(all(c['iteration_ms']<=20 for c in report['cycles']))
+
+    def test_v3_enable_sequence_deadline_stops_before_positive_gains(self):
+        clock=SimulatedClock()
+        class SlowEveryEnable(FakeSession):
+            def exchange(self,wires,*,timeout_ns=100_000_000,deadline_ns=None):
+                if codec.ATParser().feed(wires[0])[0].kind==3:
+                    if timeout_ns<25_000_000:raise TimeoutError('Enable sequence budget exhausted')
+                    clock.advance(25_000_000)
+                return super().exchange(wires,timeout_ns=timeout_ns,deadline_ns=deadline_ns)
+        report,sessions=self.run_case(profile_data=measured_startup_profile(),
+            front=SlowEveryEnable(1,clock=clock),rear=FakeSession(7,clock=clock),
+            imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
+        self.assertEqual(report['status'],'ABORTED',report['errors'])
+        self.assertIn('budget exhausted',str(report['errors']))
+        self.assertFalse(report['motion_gain_sent'])
+        self.assertFalse(report['learned_targets_sent'])
+        self.assertTrue(report['stop_confirmed'])
+        self.assertTrue(all(s.positive_gain_writes==0 for s in sessions.values()))
+
+    def run_measured_startup_timing_case(self, *, delayed_cycle=None, late_reply=False,
+                                         acceptance=True, delayed_elapsed_ns=20_010_000,
+                                         second_cycle_processing_delay_ns=0):
+        data = measured_startup_profile()
+        if not acceptance:
+            data['diagnostic_timing_acceptance'] = None
+        logical_clock = SimulatedClock()
+        state = {'index': None, 'begin': None, 'injected': False,
+                 'second_cycle_delayed': False}
+        stop_requested = threading.Event()
+        original_begin = runtime._PendingCycleTiming.begin
+
+        def capture_begin(pending, index, release, begun, previous_candidate, previous_sample):
+            state.update(index=index, begin=begun)
+            original_begin(pending, index, release, begun,
+                           previous_candidate, previous_sample)
+            if index == 0:
+                # Leave a causal input-to-cycle-start margin for the unchanged
+                # 20 ms sample-age check when the first cycle ends at 20.010 ms.
+                logical_clock.advance(200_000)
+
+        class TimedPolicy:
+            def __call__(self, *args):
+                return (.04,) * 12
+
+            def validate_inputs(self, *args):
+                if (second_cycle_processing_delay_ns and state['index'] == 1 and
+                        not state['second_cycle_delayed']):
+                    logical_clock.advance(second_cycle_processing_delay_ns)
+                    state['second_cycle_delayed'] = True
+
+            @property
+            def last_validation(self):
+                if state['index'] == 0:
+                    stop_requested.set()
+                if delayed_cycle == state['index'] and not state['injected']:
+                    # First-cycle post-reply bookkeeping finishes just over
+                    # 20 ms; every transport reply keeps its earlier timestamp.
+                    logical_clock.advance_to(state['begin'] + delayed_elapsed_ns)
+                    state['injected'] = True
+                return None
+
+        class LateReply(FakeSession):
+            def __init__(self, first_id, **kwargs):
+                super().__init__(first_id, **kwargs)
+                self.cycle_type1_batches = 0
+
+            def _exchange(self, wires, timeout_ns, send_only):
+                records, stats = super()._exchange(wires, timeout_ns, send_only)
+                if (state['index'] == 0 and len(records) == 6 and all(
+                        codec.ATParser().feed(bytes(record.tx))[0].kind == 1
+                        for record in records)):
+                    self.cycle_type1_batches += 1
+                if (late_reply and not state['injected'] and state['index'] == 0 and
+                        self.cycle_type1_batches == 2):
+                    late = state['begin'] + 20_050_000
+                    records[-1].received_ns = late
+                    records[-1].deadline_ns = late + 1_000_000
+                    logical_clock.advance_to(late + 10_000)
+                    state['injected'] = True
+                return records, stats
+
+        front = LateReply(1, clock=logical_clock)
+        rear = FakeSession(7, clock=logical_clock)
+        with patch.object(runtime._PendingCycleTiming, 'begin', capture_begin):
+            report, sessions = self.run_case(profile_data=data, front=front, rear=rear,
+                imu=FakeIMU(clock=logical_clock), policy=TimedPolicy(), clock=logical_clock,
+                sleep=logical_clock.sleep, stop_requested=stop_requested)
+        return report, sessions, state
 
     def test_strict_start_interval_is_distinct_from_21ms_wakeup_allowance(self):
         period = runtime.PERIOD_NS
@@ -546,7 +815,8 @@ class OutputRuntimeTests(unittest.TestCase):
         automatic=[True]
         class SlowStopSession(FakeSession):
             def emergency_stop(self_inner):
-                time.sleep(1.15)
+                # Exceed the extended shared 1.25-second collection deadline.
+                time.sleep(1.4)
                 return super().emergency_stop()
         stop=threading.Event();stop.set()
         with patch.object(runtime.gc,'isenabled',side_effect=lambda:automatic[0]), \
@@ -653,6 +923,39 @@ class OutputRuntimeTests(unittest.TestCase):
         self.assertTrue(report["motion_gain_sent"])
         self.assertTrue(report["stop_confirmed"])
 
+    def test_owner_decoding_rejects_bad_output_reply_before_next_command(self):
+        class BadOutputReply(FakeSession):
+            def __init__(self, first_id):
+                super().__init__(first_id)
+                self.bad_reply_sent = False
+                self.motion_batches = 0
+
+            def _exchange(self, wires, timeout_ns, send_only):
+                records, stats = super()._exchange(wires, timeout_ns, send_only)
+                if len(records) == 6 and all(
+                        codec.ATParser().feed(bytes(record.tx))[0].kind == 1
+                        for record in records):
+                    self.motion_batches += 1
+                    if self.motion_batches == 2:
+                        records[-1].rx[-1] = 0  # Invalid native frame trailer.
+                        self.bad_reply_sent = True
+                return records, stats
+
+        front = BadOutputReply(1)
+        report, sessions = self.run_case(front=front)
+        self.assertEqual(report["status"], "ABORTED")
+        self.assertTrue(front.bad_reply_sent)
+        self.assertTrue(any("Invalid native frame" in error for error in report["errors"]),
+                        report["errors"])
+        self.assertFalse(report["cycles"])
+        self.assertTrue(report["stop_confirmed"])
+        # No owner may send another Type1 after the corrupted output batch.
+        output_batches = [batch for batch in report['journal']
+                          if batch['phase'] in ('startup_hold', 'policy_output', 'graceful_stop')]
+        self.assertLessEqual(len(output_batches), 2)
+        self.assertTrue(all(batch['phase'] == 'startup_hold' for batch in output_batches))
+        self.assertEqual(front.motion_batches, 2)
+
     def test_fault_after_policy_blend_preserves_actual_learned_write_evidence(self):
         report, _ = self.run_case(front=FakeSession(1, high_returned_torque=True, torque_fault_after=120))
         self.assertEqual(report["status"], "ABORTED")
@@ -712,6 +1015,117 @@ class OutputRuntimeTests(unittest.TestCase):
         self.assertTrue(cycle["deadline20ms_missed"])
         self.assertFalse(report["normal_ramp_completed"])
         self.assertTrue(report["stop_confirmed"])
+
+    def test_owner_decode_time_counts_toward_same_cycle_deadline(self):
+        offset = [0]
+        original = runtime.BusWorkers._exchange_decoded
+
+        def slow_decoded_reply(worker, *args):
+            result = original(worker, *args)
+            if not offset[0]:
+                offset[0] = 30_000_000
+            return result
+
+        with patch.object(runtime.BusWorkers, "_exchange_decoded", slow_decoded_reply):
+            report, _ = self.run_case(clock=lambda: time.monotonic_ns() + offset[0])
+        self.assertEqual(report["status"], "ABORTED")
+        self.assertTrue(any("timing misses" in error for error in report["errors"]),
+                        report["errors"])
+        self.assertEqual(len(report["cycles"]), 1)
+        cycle = report["cycles"][0]
+        self.assertGreaterEqual(cycle["output_exchange_return_ns"] -
+                                cycle["output_reply_end_ns"], 30_000_000)
+        self.assertGreaterEqual(cycle["iteration_ms"], 30.)
+        self.assertTrue(cycle["deadline20ms_missed"])
+        self.assertTrue(report["stop_confirmed"])
+
+    def test_reviewed_startup_allows_only_post_reply_work_past_20ms(self):
+        report, _, state = self.run_measured_startup_timing_case(delayed_cycle=0)
+        self.assertTrue(state['injected'])
+        self.assertEqual(report['status'], 'COMPLETE_SUPPORTED_OUTPUT', report['errors'])
+        self.assertTrue(report['startup_20ms_allowance_enabled'])
+        self.assertGreater(len(report['cycles']), 1)
+        first = report['cycles'][0]
+        self.assertGreater(first['iteration_ms'], 20.)
+        self.assertLessEqual(first['iteration_ms'], 21.)
+        self.assertLessEqual(first['output_reply_end_ns'] - first['begin_ns'], runtime.PERIOD_NS)
+        self.assertTrue(first['deadline20ms_missed'])
+        self.assertTrue(first['startup_20ms_allowance_used'])
+        self.assertFalse(first['steady_deadline20ms_missed'])
+        self.assertEqual(report['startup_20ms_misses'], 1)
+        self.assertEqual(report['startup_20ms_allowance_uses'], 1)
+        self.assertEqual(report['steady_deadline20ms_misses'], 0)
+        self.assertEqual(report['deadline20ms_misses'], 1)
+        self.assertFalse(report['full_controller_50Hz_verified'])
+
+    def test_reviewed_startup_allowance_does_not_cover_next_command_gap(self):
+        report, sessions, state = self.run_measured_startup_timing_case(
+            delayed_cycle=0, second_cycle_processing_delay_ns=2_000_000)
+        self.assertTrue(state['injected'])
+        self.assertTrue(state['second_cycle_delayed'])
+        self.assertEqual(report['status'], 'ABORTED')
+        self.assertEqual(len(report['cycles']), 1)
+        self.assertTrue(report['cycles'][0]['startup_20ms_allowance_used'])
+        trace = report['failed_cycle_timing']
+        self.assertEqual(trace['index'], 1)
+        self.assertEqual(trace['stage'], 'motion_envelope')
+        self.assertGreater(trace['command_interval_ms'], 21.)
+        self.assertIsNone(trace['output_submit_ns'])
+        self.assertTrue(any('Command gap exceeded' in error for error in report['errors']),
+                        report['errors'])
+        self.assertTrue(report['stop_confirmed'])
+        self.assertTrue(all(session.stop_times[0] > trace['candidate_ns']
+                            for session in sessions.values()))
+
+    def test_reviewed_startup_allowance_never_covers_second_cycle(self):
+        report, _, state = self.run_measured_startup_timing_case(delayed_cycle=1)
+        self.assertTrue(state['injected'])
+        self.assertEqual(report['status'], 'ABORTED')
+        self.assertEqual(report['cycles'][-1]['index'], 1)
+        self.assertTrue(report['cycles'][-1]['deadline20ms_missed'])
+        self.assertFalse(report['cycles'][-1]['startup_20ms_allowance_used'])
+        self.assertTrue(report['cycles'][-1]['steady_deadline20ms_missed'])
+        self.assertEqual(report['steady_deadline20ms_misses'], 1)
+        self.assertTrue(any('Output cycle exceeded hard deadline' in error
+                            for error in report['errors']), report['errors'])
+        self.assertTrue(report['stop_confirmed'])
+
+    def test_reviewed_startup_rejects_reply_after_20ms(self):
+        report, _, state = self.run_measured_startup_timing_case(late_reply=True)
+        self.assertTrue(state['injected'])
+        self.assertEqual(report['status'], 'ABORTED')
+        # The native owner now receives the original absolute deadline, so an
+        # over-deadline reply is rejected before a validated cycle is recorded.
+        self.assertEqual(report['cycles'], [])
+        self.assertEqual(report['failed_cycle_timing']['stage'], 'output_exchange')
+        self.assertEqual(report['startup_20ms_misses'], 0)
+        self.assertEqual(report['startup_20ms_allowance_uses'], 0)
+        self.assertTrue(any('Incomplete or noncausal motor transaction' in error
+                            for error in report['errors']), report['errors'])
+        self.assertTrue(report['stop_confirmed'])
+
+    def test_reviewed_startup_keeps_oldest_input_age_and_21ms_ceiling(self):
+        for elapsed_ns, maximum_ms in ((20_500_000, 21.), (21_100_000, 22.)):
+            with self.subTest(elapsed_ns=elapsed_ns):
+                report, _, state = self.run_measured_startup_timing_case(
+                    delayed_cycle=0, delayed_elapsed_ns=elapsed_ns)
+                self.assertTrue(state['injected'])
+                self.assertEqual(report['status'], 'ABORTED')
+                self.assertGreater(report['cycles'][0]['iteration_ms'], elapsed_ns/1e6)
+                self.assertLess(report['cycles'][0]['iteration_ms'], maximum_ms)
+                self.assertFalse(report['cycles'][0]['startup_20ms_allowance_used'])
+                self.assertTrue(any('sample-age deadline' in error for error in report['errors']),
+                                report['errors'])
+
+    def test_unreviewed_route_keeps_first_cycle_hard_20ms(self):
+        report, _, state = self.run_measured_startup_timing_case(
+            delayed_cycle=0, acceptance=False)
+        self.assertTrue(state['injected'])
+        self.assertEqual(report['status'], 'ABORTED')
+        self.assertFalse(report['startup_20ms_allowance_enabled'])
+        self.assertFalse(report['cycles'][0]['startup_20ms_allowance_used'])
+        self.assertTrue(any('Output cycle exceeded hard deadline' in error
+                            for error in report['errors']), report['errors'])
 
     def test_cycle_metric_assembly_is_not_excluded_from_iteration_time(self):
         offset = [0]
@@ -1063,6 +1477,222 @@ class OverlappedVoltageTests(unittest.TestCase):
         self.assertEqual(report['status'],'ABORTED')
         self.assertFalse(report['learned_targets_sent'])
         self.assertTrue(any('hard cycle deadline' in error for error in report['errors']),report['errors'])
+
+
+class VoltagePipelineCandidateTests(OverlappedVoltageTests):
+    """Opt-in feedback/voltage chain with no device or motor transport."""
+
+    def run_case(self,policy,**kwargs):
+        original=runtime.execution_settings
+        with patch.object(runtime,'execution_settings',
+                          side_effect=lambda data:{**original(data),'voltage_pipeline':True}):
+            return super().run_case(policy,**kwargs)
+
+    def _workers(self,*,front=None,rear=None,cancel_io=lambda:None,deadline_ns=None):
+        sessions={'front':front or FakeSession(1),'rear':rear or FakeSession(7)}
+        for session in sessions.values():session.enabled.update(session.ids)
+        workers=runtime.BusWorkers(sessions,cancel_io)
+        requests={scope:[encode_motion(mid,0.,0.,0.) for mid in session.ids]
+                  for scope,session in sessions.items()}
+        deadline=[time.monotonic_ns()+1_000_000_000 if deadline_ns is None else deadline_ns]
+        feedback,voltage=workers.submit_feedback_then_voltage(
+            requests,{'front':1,'rear':7},self.fast_profile(),deadline_ns=deadline)
+        return workers,sessions,deadline,feedback,voltage
+
+    def test_feedback_is_published_before_same_owner_read_only_voltage(self):
+        workers,sessions,deadline,feedback,voltage=self._workers()
+        try:
+            result=workers.collect(feedback)
+            self.assertEqual(set(runtime.rows_from_decoded_pair(result)),
+                             {(mid,'feedback') for mid in range(1,13)})
+            verified=workers.collect(voltage)
+            self.assertEqual(set(verified),{'front','rear'})
+            for session in sessions.values():
+                self.assertEqual([call[1] for call in session.calls],[1]*6+[17])
+            for exchange,_ in result.values():
+                self.assertTrue(all(record.deadline_ns==deadline[0] for record in exchange[0]))
+        finally:
+            workers.finish_stops();workers.close()
+
+    def test_emergency_cancels_inflight_voltage_before_same_owner_stop(self):
+        cancelled=threading.Event()
+        class BlockingVoltage(FakeSession):
+            def __init__(self,first_id):
+                super().__init__(first_id)
+                self.feedback_seen=False;self.voltage_entered=threading.Event()
+            def _exchange(self,wires,timeout_ns,send_only):
+                kind=codec.ATParser().feed(wires[0])[0].kind
+                if self.feedback_seen and len(wires)==1 and kind==17:
+                    if not self._busy.acquire(blocking=False):
+                        raise AssertionError('One bus had concurrent owners')
+                    try:
+                        self.voltage_entered.set()
+                        if not cancelled.wait(.5):raise TimeoutError('Synthetic cancellation missing')
+                        raise TimeoutError('Synthetic voltage cancelled')
+                    finally:self._busy.release()
+                result=super()._exchange(wires,timeout_ns,send_only)
+                if len(wires)==6 and kind==1:self.feedback_seen=True
+                return result
+        front,rear=BlockingVoltage(1),BlockingVoltage(7)
+        workers,sessions,_,feedback,voltage=self._workers(
+            front=front,rear=rear,cancel_io=cancelled.set)
+        try:
+            workers.collect(feedback)
+            self.assertTrue(front.voltage_entered.wait(.05))
+            self.assertTrue(rear.voltage_entered.wait(.05))
+            began=time.monotonic()
+            workers.emergency('Injected bad IMU with in-flight voltage')
+            self.assertTrue(cancelled.is_set())
+            with self.assertRaises(TimeoutError):workers.collect(voltage)
+            stops=workers.finish_stops()
+            self.assertLess(time.monotonic()-began,.1)
+            self.assertTrue(all(stops[scope]['complete'] for scope in sessions))
+            self.assertTrue(all(len(session.stop_times)==1 for session in sessions.values()))
+        finally:
+            workers.finish_stops();workers.close()
+
+    def test_bad_feedback_precheck_stops_without_bad_bus_voltage(self):
+        class BadFeedback(FakeSession):
+            def _exchange(self,wires,timeout_ns,send_only):
+                records,stats=super()._exchange(wires,timeout_ns,send_only)
+                if len(wires)==6 and codec.ATParser().feed(wires[0])[0].kind==1:
+                    records[-1].rx[-1]=0
+                return records,stats
+        workers,sessions,_,feedback,voltage=self._workers(front=BadFeedback(1))
+        try:
+            with self.assertRaises(RuntimeError):workers.collect(feedback)
+            with self.assertRaises(RuntimeError):workers.collect(voltage)
+            stops=workers.finish_stops()
+            self.assertTrue(all(stops[scope]['complete'] for scope in sessions))
+            self.assertFalse(any(call[1]==17 for call in sessions['front'].calls))
+        finally:
+            workers.finish_stops();workers.close()
+
+    def test_expired_absolute_deadline_stops_before_feedback_or_voltage(self):
+        workers,sessions,_,feedback,voltage=self._workers(deadline_ns=time.monotonic_ns()-1)
+        try:
+            with self.assertRaises(RuntimeError):workers.collect(feedback)
+            with self.assertRaises(RuntimeError):workers.collect(voltage)
+            stops=workers.finish_stops()
+            self.assertTrue(all(stops[scope]['complete'] for scope in sessions))
+            self.assertFalse(any(session.calls for session in sessions.values()))
+        finally:
+            workers.finish_stops();workers.close()
+
+    def test_queued_type1_cannot_restart_expired_absolute_deadline(self):
+        clock=SimulatedClock()
+        sessions={'front':FakeSession(1,clock=clock),'rear':FakeSession(7,clock=clock)}
+        for session in sessions.values():session.enabled.update(session.ids)
+        workers=runtime.BusWorkers(sessions,lambda:None,clock)
+        entered=threading.Event();release=threading.Event()
+        try:
+            def block_owner():
+                entered.set()
+                self.assertTrue(release.wait(.1))
+            blocked=workers.pools['front'].submit(block_owner)
+            self.assertTrue(entered.wait(.05))
+            deadline=clock()+5_000_000
+            future=workers.submit_decoded({'front':[encode_motion(1,0.,0.,0.)]},
+                                          deadline_ns=deadline,label='policy_output')
+            clock.advance(10_000_000)
+            release.set();blocked.result(timeout=.1)
+            with self.assertRaisesRegex(RuntimeError,'absolute hard deadline'):
+                workers.collect(future)
+            stops=workers.finish_stops()
+            self.assertTrue(all(stops[scope]['complete'] for scope in sessions))
+            self.assertFalse(any(call[1]==1 for session in sessions.values()
+                                 for call in session.calls))
+        finally:
+            release.set();workers.finish_stops();workers.close()
+
+    def test_type1_owner_receives_exact_absolute_deadline(self):
+        clock=SimulatedClock()
+        sessions={'front':FakeSession(1,clock=clock),'rear':FakeSession(7,clock=clock)}
+        for session in sessions.values():session.enabled.update(session.ids)
+        workers=runtime.BusWorkers(sessions,lambda:None,clock)
+        try:
+            deadline=clock()+20_000_000
+            result=workers.collect(workers.submit_decoded(
+                {'front':[encode_motion(1,0.,0.,0.)]},deadline_ns=deadline,label='policy_output'))
+            self.assertEqual(result['front'][0][0][0].deadline_ns,deadline)
+            self.assertEqual([call[1] for call in sessions['front'].calls],[1])
+        finally:
+            workers.finish_stops();workers.close()
+
+    def test_invalid_imu_stops_before_candidate_type1_output(self):
+        with patch.object(runtime,'validate_imu_metadata',side_effect=RuntimeError('Injected bad IMU')):
+            report,sessions=self.run_case(lambda *_:(.04,)*12)
+        self.assertEqual(report['status'],'ABORTED')
+        self.assertTrue(any('Injected bad IMU' in error for error in report['errors']))
+        self.assertFalse(report['learned_targets_sent'])
+        self.assertTrue(all(len(session.stop_times)==1 for session in sessions.values()))
+
+    def test_semantically_invalid_feedback_stops_before_bad_bus_voltage(self):
+        original_exchange=FakeSession._exchange
+        for fault,expected in (('mode','fault/mode'),('fault','fault/mode'),
+                               ('position','raw position discontinuity')):
+            with self.subTest(fault=fault):
+                def inject(session,wires,timeout_ns,send_only):
+                    records,stats=original_exchange(session,wires,timeout_ns,send_only)
+                    if len(wires)==6 and codec.ATParser().feed(wires[0])[0].kind==1:
+                        count=getattr(session,'feedback_batches',0)+1
+                        session.feedback_batches=count
+                        if session.ids[0]==1 and count==2:
+                            record=records[0]
+                            response=bytes(record.rx)
+                            can_id=int.from_bytes(response[2:6],'big')>>3
+                            data=response[7:15]
+                            if fault=='mode':can_id&=~(3<<22)
+                            elif fault=='fault':can_id|=1<<16
+                            else:data=struct.pack('>H',quantize(.5,-12.57,12.57))+data[2:]
+                            record.rx[:]=wire(can_id,data)
+                    return records,stats
+
+                with patch.object(FakeSession,'_exchange',inject):
+                    report,sessions=self.run_case(lambda *_:(.04,)*12)
+                self.assertEqual(report['status'],'ABORTED',report['errors'])
+                self.assertTrue(any(expected in error for error in report['errors']),report['errors'])
+                self.assertFalse(any(row['phase']=='overlapped_voltage' and row['bus']=='front'
+                                     for row in report['journal']))
+                self.assertFalse(report['learned_targets_sent'])
+                self.assertTrue(all(len(session.stop_times)==1 for session in sessions.values()))
+
+    def test_slow_voltage_joins_after_policy_but_before_type1(self):
+        started={scope:threading.Event() for scope in runtime.BUSES}
+        release=threading.Event();policy_done=threading.Event()
+        output_before_release=[];probe=[]
+        original_voltage=runtime.BusWorkers._voltage
+        original_submit=runtime.BusWorkers.submit_decoded
+
+        def slow_voltage(worker,scope,*args,**kwargs):
+            started[scope].set()
+            if not release.wait(.1):raise RuntimeError('Synthetic voltage wait timed out')
+            return original_voltage(worker,scope,*args,**kwargs)
+
+        def guarded_submit(worker,*args,**kwargs):
+            if not release.is_set():output_before_release.append(True)
+            return original_submit(worker,*args,**kwargs)
+
+        def policy(*_):
+            policy_done.set()
+            return (.04,)*12
+
+        def permit_voltage():
+            if policy_done.wait(.2) and all(event.wait(.2) for event in started.values()):
+                probe.append(not output_before_release)
+            release.set()
+
+        releaser=threading.Thread(target=permit_voltage,daemon=True)
+        releaser.start()
+        with patch.object(runtime.BusWorkers,'_voltage',slow_voltage), \
+             patch.object(runtime.BusWorkers,'submit_decoded',guarded_submit):
+            report,_=self.run_case(policy)
+        releaser.join(.2)
+        self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
+        self.assertEqual(report['voltage_pipeline'],'feedback_then_voltage.fast_v1')
+        self.assertEqual(probe,[True])
+        self.assertFalse(output_before_release)
+        self.assertTrue(report['learned_targets_sent'])
 
 
 if __name__ == "__main__":

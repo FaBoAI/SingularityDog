@@ -101,6 +101,32 @@ class LocalProfileTests(unittest.TestCase):
         seal_local(self.base,self.data,self.docs)
         return profile.load_profile(self.base/'profile.json')
 
+    def test_reviewed_all_axis_zero_gain_comparison_preserves_monitors(self):
+        self.data['policy_weight']=0.
+        for axis in self.data['axes'].values():axis.update(kp=0.,kd=0.)
+        loaded=self.load()
+        self.assertTrue(loaded['output_allowed'])
+        self.assertTrue(all(a['kp']==a['kd']==0. for a in loaded['axes'].values()))
+        self.assertEqual(loaded['max_sample_age_ms'],20.)
+        self.assertEqual(loaded['hard_cycle_ms'],20.)
+        self.assertFalse(loaded['actual_policy_output_20ms_verified'])
+        for key in ('max_measured_torque_nm','max_tracking_error_rad',
+                    'max_command_velocity_rad_s','max_displacement_from_start_rad'):
+            old=self.data['axes']['1'][key]; self.data['axes']['1'][key]=0.
+            with self.subTest(key=key),self.assertRaises(profile.ProfileError):self.load()
+            self.data['axes']['1'][key]=old
+
+    def test_zero_gain_comparison_rejects_mixed_gains_targets_and_negative_gains(self):
+        self.data['policy_weight']=0.
+        for axis in self.data['axes'].values():axis.update(kp=0.,kd=0.)
+        self.data['policy_weight']=.005
+        with self.assertRaises(profile.ProfileError):self.load()
+        self.data['policy_weight']=0.
+        for key,value in (('kp',3.),('kd',.15),('kp',-.001),('kd',-.001),('kp',False)):
+            self.data['axes']['1'][key]=value
+            with self.subTest(key=key,value=value),self.assertRaises(profile.ProfileError):self.load()
+            self.data['axes']['1'][key]=0.
+
     def test_local_trial_preserves_unknown_accuracy_and_unverified_usb(self):
         loaded=self.load()
         self.assertTrue(loaded['output_allowed'])
@@ -113,6 +139,39 @@ class LocalProfileTests(unittest.TestCase):
             self.data['axes']['1']['physical_lower_rad']+settings['numerical_position_margin_rad'])
         self.assertFalse(self.docs['hardware_review']['type2_dynamic']['1']['velocity_scale_and_sign_verified'])
 
+    def test_higher_gain_hold_requires_zero_policy_and_slow_gain_ramp(self):
+        self.data.update(policy_weight=0., duration_s=3., startup_duration_s=1.)
+        for axis in self.data['axes'].values():
+            axis.update(kp=12., max_estimated_pd_torque_nm=.5)
+        loaded=self.load()
+        self.assertTrue(loaded['support_must_remain'])
+        self.assertTrue(loaded['output_allowed'])
+        for key,value in (('policy_weight',.000001),('startup_duration_s',.999),
+                          ('duration_s',3.01)):
+            old=self.data[key];self.data[key]=value
+            with self.subTest(key=key),self.assertRaises(profile.ProfileError):self.load()
+            self.data[key]=old
+        for key,value in (('kp',12.01),('kd',.151),('max_estimated_pd_torque_nm',.501),
+                          ('max_measured_torque_nm',1.01),
+                          ('max_tracking_error_rad',math.radians(2.01))):
+            old=self.data['axes']['1'][key];self.data['axes']['1'][key]=value
+            with self.subTest(key=key),self.assertRaises(profile.ProfileError):self.load()
+            self.data['axes']['1'][key]=old
+
+    def test_hold_probe_cannot_admit_learned_motion_or_extend_live_deadline(self):
+        self.data.update(diagnostic_timing_acceptance=profile.CURRENT_HOLD_PROBE,
+                         policy_weight=0.,duration_s=3.,startup_duration_s=1.)
+        profile._settings(self.data)
+        for key,value in (('policy_weight',.000001),('hard_cycle_ms',21.),
+                          ('max_sample_age_ms',21.),('duration_s',3.01),
+                          ('startup_duration_s',.999),('local_characterization',None)):
+            old=self.data[key];self.data[key]=value
+            with self.subTest(key=key),self.assertRaises(profile.ProfileError):
+                profile._settings(self.data)
+            self.data[key]=old
+        with self.assertRaisesRegex(profile.ProfileError,'loader proof'):
+            profile.current_position_hold_only(self.data)
+
     def test_raw_profile_cannot_forge_local_proof(self):
         with self.assertRaisesRegex(profile.ProfileError,'loader proof'):
             profile.local_characterization_settings({**self.data,'_local_validation_token':True})
@@ -120,6 +179,46 @@ class LocalProfileTests(unittest.TestCase):
         seal_local(self.base,self.data,self.docs)
         with self.assertRaisesRegex(profile.ProfileError,'Unsupported profile fields'):
             profile.load_profile(self.base/'profile.json')
+
+    def test_policy_probe_keeps_real_inference_and_existing_output_limits(self):
+        self.data['diagnostic_timing_acceptance']=profile.SUPPORTED_POLICY_PROBE
+        profile._settings(self.data)
+        self.assertFalse(profile.current_position_hold_only(self.data))
+        for key,value in (('policy_weight',0.),('policy_weight',.00501),
+                          ('hard_cycle_ms',21.),('max_sample_age_ms',21.),
+                          ('duration_s',2.01),('startup_duration_s',.399),
+                          ('max_consecutive_20ms_misses',1),('local_characterization',None)):
+            old=self.data[key];self.data[key]=value
+            with self.subTest(key=key,value=value),self.assertRaises(profile.ProfileError):
+                profile._settings(self.data)
+            self.data[key]=old
+        for key,value in (('kp',3.01),('max_displacement_from_start_rad',math.radians(1.01))):
+            old=self.data['axes']['1'][key];self.data['axes']['1'][key]=value
+            with self.subTest(key=key),self.assertRaises(profile.ProfileError):
+                profile._axes(self.data,self.docs['calibration'])
+            self.data['axes']['1'][key]=old
+
+    def test_five_second_probe_scopes_speed_and_damping_changes(self):
+        self.data.update(diagnostic_timing_acceptance=profile.SUPPORTED_POLICY_PROBE_5S,
+                         duration_s=5.,startup_damping_duration_s=.08)
+        for a in self.data['axes'].values():a['max_measured_velocity_rad_s']=.35
+        profile._settings(self.data)
+        profile._axes(self.data,self.docs['calibration'])
+        self.assertFalse(profile.current_position_hold_only(self.data))
+        for key,value in (('duration_s',5.001),('startup_damping_duration_s',.079),
+                          ('startup_damping_duration_s',.401),('hard_cycle_ms',21.),
+                          ('max_consecutive_20ms_misses',1),('policy_weight',.00501)):
+            old=self.data[key];self.data[key]=value
+            with self.subTest(key=key),self.assertRaises(profile.ProfileError):
+                profile._settings(self.data)
+            self.data[key]=old
+        self.data['axes']['1']['max_measured_velocity_rad_s']=.3501
+        with self.assertRaisesRegex(profile.ProfileError,'max_measured_velocity'):
+            profile._axes(self.data,self.docs['calibration'])
+        self.data['diagnostic_timing_acceptance']=profile.SUPPORTED_POLICY_PROBE
+        self.data['duration_s']=2.
+        with self.assertRaisesRegex(profile.ProfileError,'Independent damping'):
+            profile._settings(self.data)
 
     def test_local_caps_remain_hard_and_absolute_uncertainty_cannot_be_invented(self):
         for key,value in (('kp',3.01),('kd',.151),('max_measured_torque_nm',1.01),
