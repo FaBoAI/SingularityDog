@@ -30,7 +30,9 @@ PYTHONPATH=runtime python3 -m unittest \
 
 Live selection requires a separately approved V3 profile with the reviewed
 `native_batch_encoder` path and SHA-256. The runner loads the extension before
-enable and binds it to the fresh post-enable sample. Any mismatch or encoding
+enable and binds its displacement limits to the last pre-enable sample. The
+fresh post-enable sample supplies the smooth starting target without resetting
+the trial's displacement allowance. Any mismatch or encoding
 error fails closed; it does not fall back during an active cycle. The existing
 motion envelope, voltage/freshness gates, motor reply checks and STOP handling
 remain in the runner. This is not a motor-output authorization.

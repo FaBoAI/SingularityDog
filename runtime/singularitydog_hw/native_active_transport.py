@@ -15,7 +15,7 @@ import threading
 import time
 
 from .native_diagnostic_transport import Record, exchange_evidence
-from .can_readonly import ATParser
+from .can_readonly import Frame
 from .motor_version_probe import VERSION_PAYLOAD, VERSION_PREFIX, decode_version, version_request
 
 
@@ -330,32 +330,43 @@ class ActiveSession:
 
 
 def decode_record(record):
-    """Pure evidence decoder; no clipping/scaling repair or health approval."""
+    """Decode one native-validated fixed17B record without a stream parser.
+
+    Native exchange already frames the stream. Check the canonical envelope
+    again here, retaining raw bytes, fault fields and version discrimination.
+    """
     if record.written != 17 or record.received != 17:
         raise ValueError('Incomplete active record')
-    tx = ATParser().feed(bytes(record.tx))[0]
-    rx = ATParser().feed(bytes(record.rx))[0]
-    result = {'motor_id': tx.destination, 'request_kind': tx.kind,
-              'reply_kind': rx.kind, 'reply_wire_hex': bytes(record.rx).hex(),
+    tx, rx = bytes(record.tx), bytes(record.rx)
+    for wire in (tx, rx):
+        if (len(wire) != 17 or wire[:2] != b'AT' or wire[6] != 8 or
+                wire[-2:] != b'\r\n' or wire[5] & 7 != 4):
+            raise ValueError('Noncanonical active frame')
+    tx_id = int.from_bytes(tx[2:6], 'big') >> 3
+    rx_id = int.from_bytes(rx[2:6], 'big') >> 3
+    mid, tx_kind, rx_kind = tx_id & 255, (tx_id >> 24) & 31, (rx_id >> 24) & 31
+    data = rx[7:15]
+    result = {'motor_id': mid, 'request_kind': tx_kind,
+              'reply_kind': rx_kind, 'reply_wire_hex': rx.hex(),
               'received_monotonic_ns': record.received_ns}
-    if tx.kind==4 and tx.data==VERSION_PAYLOAD:
-        result.update(decode_version(rx,tx.destination))
-        result['request_started_monotonic_ns']=record.start_ns
+    if tx_kind == 4 and tx[7:15] == VERSION_PAYLOAD:
+        result.update(decode_version(Frame(rx_id, 4, data, rx), mid))
+        result['request_started_monotonic_ns'] = record.start_ns
         return result
-    if rx.kind == 2:
-        if rx.data[:3]==VERSION_PREFIX:
+    if rx_kind == 2:
+        if data[:3] == VERSION_PREFIX:
             raise ValueError('Firmware version reply cannot be active telemetry or STOP acknowledgement')
-        p, v, torque, temp = struct.unpack('>4H', rx.data)
-        result.update(mode_state=(rx.can_id >> 22) & 3, fault_bits=(rx.can_id >> 16) & 63,
+        p, v, torque, temp = struct.unpack('>4H', data)
+        result.update(mode_state=(rx_id >> 22) & 3, fault_bits=(rx_id >> 16) & 63,
             position_u16=p, velocity_u16=v, torque_u16=torque, temperature_u16=temp,
             position_rad_candidate=p*25.14/65535.-12.57,
             velocity_rad_s_candidate=v*100./65535.-50., torque_nm_candidate=torque*11./65535.-5.5,
             temperature_c=temp/10.)
-    elif rx.kind == 17:
-        index = int.from_bytes(rx.data[:2], 'little')
-        value = (int.from_bytes(rx.data[4:], 'little') if index == 0x7028 else
-                 rx.data[4] if index == 0x7005 else struct.unpack('<f', rx.data[4:])[0])
+    elif rx_kind == 17:
+        index = int.from_bytes(data[:2], 'little')
+        value = (int.from_bytes(data[4:], 'little') if index == 0x7028 else
+                 data[4] if index == 0x7005 else struct.unpack('<f', data[4:])[0])
         result.update(index=index, value=value)
     else:
-        result['uid_hex'] = rx.data.hex()
+        result['uid_hex'] = data.hex()
     return result

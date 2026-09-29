@@ -294,12 +294,14 @@ def _solve3(a, b):
     return tuple(rows[i][3] for i in range(3))
 
 
-def _ik_near(previous, target, g):
+def _ik_near(previous, target, g, *, tolerance_m=1e-5):
+    _require(type(tolerance_m) in (int, float) and math.isfinite(tolerance_m)
+             and 0 < tolerance_m <= 1e-5, 'IK tolerance must be positive and at most 0.01mm')
     q = tuple(previous)
     for _ in range(20):
         actual = _point(q, g)
         error = tuple(target[k] - actual[k] for k in range(3))
-        if math.sqrt(sum(v*v for v in error)) <= 1e-5:
+        if math.sqrt(sum(v*v for v in error)) <= tolerance_m:
             return q
         eps = 1e-6
         derivatives = []

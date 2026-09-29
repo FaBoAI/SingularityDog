@@ -1,0 +1,1091 @@
+{
+  "schema": "singularitydog.tested-jetson-source-snapshot.v1",
+  "snapshot": "20260929-r64",
+  "historical_source_only": true,
+  "live_output_authorized": false,
+  "scope": "Python and C++ runtime source files only; excludes settings, binaries, models, raw logs and documentation.",
+  "source_count": 178,
+  "archived_source_count": 2,
+  "evidence": {
+    "report_name": "supported-gain-step-3s-20260929-r64/report.json",
+    "report_sha256": "5e55383bf47e31fb8472a423bacf9a98494c1d6d5c2617db15e708dc33142f57",
+    "profile_sha256": "166b6f81641a36cc87f7968002ce1913bc53fbc4c2085e56307e43f33f12e598",
+    "status": "COMPLETE_SUPPORTED_OUTPUT",
+    "cycles": 143,
+    "learned_targets_sent": true,
+    "stop_confirmed": true,
+    "normal_ramp_completed": true,
+    "steady_deadline20ms_misses": 0,
+    "deadline20ms_misses_including_startup": 1
+  },
+  "sources": [
+    {
+      "source_path": "experiments/native_active_transport/build.py",
+      "storage_path": "runtime/experiments/native_active_transport/build.py",
+      "sha256": "064b6d540976f93d6877b4306133943522f82a5fa4800e5121d66f2c6be6a889",
+      "size_bytes": 954
+    },
+    {
+      "source_path": "experiments/native_active_transport/transport.cpp",
+      "storage_path": "runtime/experiments/native_active_transport/transport.cpp",
+      "sha256": "9f61d07d08aa2c904cef5686716ee7f91c80903bfe81562d74f5e882cbbb01e2",
+      "size_bytes": 22643
+    },
+    {
+      "source_path": "experiments/native_diagnostic_r1/build_native_boot_guard.py",
+      "storage_path": "runtime/experiments/native_diagnostic_r1/build_native_boot_guard.py",
+      "sha256": "263f5cea48d21772d2e80d4802515a1b3283d2cf69c8730052467bab262f35e1",
+      "size_bytes": 1449
+    },
+    {
+      "source_path": "experiments/native_diagnostic_r1/build_native_event_copy.py",
+      "storage_path": "runtime/experiments/native_diagnostic_r1/build_native_event_copy.py",
+      "sha256": "7299ae7294bcebbffa000cc80bcbdfeb9413342c61809b544f8f133f34790df3",
+      "size_bytes": 945
+    },
+    {
+      "source_path": "experiments/native_diagnostic_r1/build_native_input_validation.py",
+      "storage_path": "runtime/experiments/native_diagnostic_r1/build_native_input_validation.py",
+      "sha256": "2f381ddc8e7f250d1c62e2d5e8394a99d7382a565e752c7b2a6ac46d4cac8974",
+      "size_bytes": 1123
+    },
+    {
+      "source_path": "experiments/native_diagnostic_r1/event_snapshot.py",
+      "storage_path": "runtime/experiments/native_diagnostic_r1/event_snapshot.py",
+      "sha256": "d420d20c2e2ff1cb44e5b4b38904a2a6e230dd1326b78557fb6e701eb92e98e8",
+      "size_bytes": 368
+    },
+    {
+      "source_path": "experiments/native_diagnostic_r1/native_boot_guard.cpp",
+      "storage_path": "runtime/experiments/native_diagnostic_r1/native_boot_guard.cpp",
+      "sha256": "3d178288a825b34766e9123a3e01c9d425879aaae59620029c187fe47458229e",
+      "size_bytes": 3806
+    },
+    {
+      "source_path": "experiments/native_diagnostic_r1/native_fast_policy_inputs.py",
+      "storage_path": "runtime/experiments/native_diagnostic_r1/native_fast_policy_inputs.py",
+      "sha256": "4132ce12385cc7a9061753b1d5ad44f76de25e590d63731f231da657d19c7f1c",
+      "size_bytes": 2775
+    },
+    {
+      "source_path": "experiments/native_diagnostic_r1/native_guard.py",
+      "storage_path": "runtime/experiments/native_diagnostic_r1/native_guard.py",
+      "sha256": "64e26b85546703e31d86b4cf2d0eb790e51e7121dd93298354b4f1d3c4392fa2",
+      "size_bytes": 1042
+    },
+    {
+      "source_path": "experiments/native_diagnostic_r1/native_input_validation.cpp",
+      "storage_path": "runtime/experiments/native_diagnostic_r1/native_input_validation.cpp",
+      "sha256": "1055ab3ca7d8feaf2896bf13922ad732e584955bc0a709e515ab4e339a8b3088",
+      "size_bytes": 14806
+    },
+    {
+      "source_path": "experiments/native_diagnostic_r1/test_native_input_validation.py",
+      "storage_path": "runtime/experiments/native_diagnostic_r1/test_native_input_validation.py",
+      "sha256": "dc55fb7da2773b768c07650abf762f51ac246d5a5eed0931a89485292b7c8141",
+      "size_bytes": 2546
+    },
+    {
+      "source_path": "experiments/native_policy_batch_encode/batch_encode.cpp",
+      "storage_path": "runtime/experiments/native_policy_batch_encode/batch_encode.cpp",
+      "sha256": "73e3e28bf80800c8ea6a2b12320f783c247b706f1964b46122c3e9a5b78238ea",
+      "size_bytes": 3921
+    },
+    {
+      "source_path": "experiments/native_policy_batch_encode/batch_encode_py.cpp",
+      "storage_path": "runtime/experiments/native_policy_batch_encode/batch_encode_py.cpp",
+      "sha256": "7210ee9cce727e5b31cac697893753d0355813fc17e5d9d34a709883c7fa3908",
+      "size_bytes": 6789
+    },
+    {
+      "source_path": "experiments/native_policy_batch_encode/benchmark.py",
+      "storage_path": "runtime/experiments/native_policy_batch_encode/benchmark.py",
+      "sha256": "d6de9ec4b198e69be2db3dd608dd57c07471c4b02d18ebb2dfa9ff980668043b",
+      "size_bytes": 8342
+    },
+    {
+      "source_path": "experiments/native_policy_batch_encode/build_file_only.py",
+      "storage_path": "runtime/experiments/native_policy_batch_encode/build_file_only.py",
+      "sha256": "88d634c5f7185690d7adbf712ac60a1123fb2bfe897855c5509876132467ef40",
+      "size_bytes": 2721
+    },
+    {
+      "source_path": "experiments/native_policy_batch_encode/profile_live_model.py",
+      "storage_path": "runtime/experiments/native_policy_batch_encode/profile_live_model.py",
+      "sha256": "05254729deb2d5ad4ac8f80ca016f326fcef87643cfdbacdd5a8b1614b0eb7ff",
+      "size_bytes": 8661
+    },
+    {
+      "source_path": "experiments/native_policy_batch_encode/test_batch_encode.py",
+      "storage_path": "runtime/experiments/native_policy_batch_encode/test_batch_encode.py",
+      "sha256": "149580fde21dad25477d48c52d1e2c2e457a9825521755d2d4d491af4db6df2f",
+      "size_bytes": 6461
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/__init__.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/__init__.py",
+      "sha256": "e2fada62f22c3d4e436d48f59c58dbfc7dfedebdd26ef86cc5e580df9847c470",
+      "size_bytes": 144
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/__main__.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/__main__.py",
+      "sha256": "ff730d6c04b4c97596d77e3390d3c3e41ec55ba9d4a4c03b7e443c6dedabcdb8",
+      "size_bytes": 2183
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/build.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/build.py",
+      "sha256": "7bb057495ec1cb00956006659fe59852bd3c7258d40e2963cad94765f6ea808e",
+      "size_bytes": 4543
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/contracts.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/contracts.py",
+      "sha256": "9b12862441bbb791419a998515e4d019a3ba4190269d175e44aa83dc10bc5e08",
+      "size_bytes": 6157
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/full_recurrent_fusion/__init__.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/full_recurrent_fusion/__init__.py",
+      "sha256": "01c007ff68f0131a371b5db8fdab70b40d7dc5d3cc62c24405959588f7a4b832",
+      "size_bytes": 78
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/full_recurrent_fusion/generator.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/full_recurrent_fusion/generator.py",
+      "sha256": "0e39b3e57c32894a4ff3deb95fd6932e5cc83b7b3a4768b44a4b339ed741f11b",
+      "size_bytes": 3813
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/full_recurrent_fusion/run_file_only.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/full_recurrent_fusion/run_file_only.py",
+      "sha256": "df41f93f6143827b41abfc40de2dac59252fe274a15874abd979d761c501c4cb",
+      "size_bytes": 10359
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/lean_swing_core.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/lean_swing_core.py",
+      "sha256": "76f9af18a2d031dc690021a94ba5418ba308056c471e27a854b724805722018e",
+      "size_bytes": 29714
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/lean_swing_deployment.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/lean_swing_deployment.py",
+      "sha256": "6f01774d5a1642502d7eacab7b43e18fa1827f4de0f1b56097be0d83635c5aba",
+      "size_bytes": 1340
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/loader.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/loader.py",
+      "sha256": "1fd54274607a8f5c085bcae764cf87790d2525a0ee9e0f65c0499bb40643735a",
+      "size_bytes": 3467
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/__init__.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/__init__.py",
+      "sha256": "90ee669dc14636ecfff717cc95559351ba42476f178a61e5715d1da1f49166e1",
+      "size_bytes": 58
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/actor.cpp",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/actor.cpp",
+      "sha256": "88e708efb911130e4305546a0c0751f17accf12a4b3c941bc6731f6002314e6e",
+      "size_bytes": 1655
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/candidate.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/candidate.py",
+      "sha256": "694ce82de004f5b634c8b5ed0a5be75173e1e81b8efd1bca1c292351aa7ca7ff",
+      "size_bytes": 848
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/compile_scalar.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/compile_scalar.py",
+      "sha256": "691237cb588124c66dca70bcaa94d11c5fa1a17ee7eb1461d7f984fa9b28dab7",
+      "size_bytes": 930
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/compile_step.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/compile_step.py",
+      "sha256": "d79c0b4b08d57c63694329048d28cd8853c820a5260f485c37b9d9a22151072a",
+      "size_bytes": 924
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/run.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/run.py",
+      "sha256": "daa624f1235b4cbb9953e4a33fea8720614f057da4d416aed0956e8693046df0",
+      "size_bytes": 10578
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/run_step.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/run_step.py",
+      "sha256": "021e64d93d1425a693af284fe303755d5e39542718c705db2c24e49fc9739da4",
+      "size_bytes": 6565
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/scalar_loader.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/scalar_loader.py",
+      "sha256": "829b0109e0064c104d689052052804f59bf40470c82ea994cbe9a549ef3d912b",
+      "size_bytes": 10684
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/scalar_replay.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/scalar_replay.py",
+      "sha256": "d6cdee80c0119adc47e090f640852b9e3dbd382a7826952994756d94e75d732d",
+      "size_bytes": 3842
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/short_replay.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/short_replay.py",
+      "sha256": "8bcd64594bcc13215cb59a28e591deb8fcb3d6d5016965f8602b954b2e4cfe3a",
+      "size_bytes": 8085
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/step.cpp",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/step.cpp",
+      "sha256": "69b34790df67f00314c638199efba99abc0469969cfda52e31f4a48ad8a6332d",
+      "size_bytes": 6398
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/step_generator.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/step_generator.py",
+      "sha256": "a251dd55f9db2438b76cfeeed9efbd21b309338b3dcf0d05c28c93beb3c63f33",
+      "size_bytes": 3513
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/step_scalar.cpp",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/step_scalar.cpp",
+      "sha256": "0e47c261541aaf837a4b43484e5bbc696be695cc130e01a33fc6546c411b3ddc",
+      "size_bytes": 9811
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/model_call_fastpath/test_scalar_loader.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/model_call_fastpath/test_scalar_loader.py",
+      "sha256": "ad4b5322dc7f2070f66b74191abc1666987bad7c1fbfcf7ed8ba1f582f68187b",
+      "size_bytes": 8724
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/observation_fusion/__init__.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/observation_fusion/__init__.py",
+      "sha256": "4a3280da502f98c61fef9eb33d56bbc011ae995e5dc8372f82909101ce98d6c9",
+      "size_bytes": 55
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/observation_fusion/generator.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/observation_fusion/generator.py",
+      "sha256": "34b5d36c0274f725d59da85d899d444dc2aa019ded6a2e960bff62c4d675d283",
+      "size_bytes": 3186
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/observation_fusion/observation.cpp",
+      "storage_path": "runtime/experiments/native_policy_overnight/observation_fusion/observation.cpp",
+      "sha256": "ec4ba828d6290376388aa57553d864789c5f7158e47487c9d42ac3d301c37152",
+      "size_bytes": 3419
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/observation_fusion/run.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/observation_fusion/run.py",
+      "sha256": "6002fbf5faa7f77dea021b33ed7227c89ee0823193c673152e82b8b04099fa21",
+      "size_bytes": 4920
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/projection.cpp",
+      "storage_path": "runtime/experiments/native_policy_overnight/projection.cpp",
+      "sha256": "4d73a30cc08ad05fd9ad496079469cde8cd36636748a1544521d8f7c98ca94d1",
+      "size_bytes": 5629
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/projection_accept_skip/projection.cpp",
+      "storage_path": "runtime/experiments/native_policy_overnight/projection_accept_skip/projection.cpp",
+      "sha256": "e26672597e9194db4e3c1dc30555a779f1e4d3436d76c0ea91180cdc638a1a93",
+      "size_bytes": 5886
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/projection_accept_skip/test_file_only.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/projection_accept_skip/test_file_only.py",
+      "sha256": "10261edf2fd1b43b6ad85599986d85f7734446586478f4ecdb3c3c1b6eca25ca",
+      "size_bytes": 8299
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/projection_zero_cache/__init__.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/projection_zero_cache/__init__.py",
+      "sha256": "ea435116415236adca4d24936e114f93f90d755cf163b3c0850e88734d708e0a",
+      "size_bytes": 61
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/projection_zero_cache/generator.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/projection_zero_cache/generator.py",
+      "sha256": "4c24b4da1025631804a85ab3ee707b584cbebff2646752d190bcfa22425ef0b7",
+      "size_bytes": 3384
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/projection_zero_cache/projection.cpp",
+      "storage_path": "runtime/experiments/native_policy_overnight/projection_zero_cache/projection.cpp",
+      "sha256": "06b59f4b41ff6940d897890cffa2f339196c839978f7093a1b1badcda18cf067",
+      "size_bytes": 6099
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/projection_zero_cache/run.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/projection_zero_cache/run.py",
+      "sha256": "7a025982fcef5fa471ec77d7429a83dfe571722de4642965cb7c1bb32ed2452d",
+      "size_bytes": 6757
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/projection_zero_cache/torch_projection.cpp",
+      "storage_path": "runtime/experiments/native_policy_overnight/projection_zero_cache/torch_projection.cpp",
+      "sha256": "6ac1bd2cc087cfa6fb0039103179664b3f6fc571923c7b1c7e27cc1998a6aaf3",
+      "size_bytes": 2618
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/test_contracts.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/test_contracts.py",
+      "sha256": "5e1caff9204d68c5471fa347b52dd22ffd2fa38b530d617c78f9ca930acefdc4",
+      "size_bytes": 6505
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/test_view_cache.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/test_view_cache.py",
+      "sha256": "8d754a9414850b2cc3e63f912b544e89b140d5924bb1700e72b868d822172278",
+      "size_bytes": 11139
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/test_view_cache_loader.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/test_view_cache_loader.py",
+      "sha256": "bb2f91481256eb5406024853a1095a504261aa73543c46c5bfc98f15e8358cc1",
+      "size_bytes": 18850
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/torch_projection.cpp",
+      "storage_path": "runtime/experiments/native_policy_overnight/torch_projection.cpp",
+      "sha256": "16438adb456d1babecd70c81bf72febe3c496befd0789ade699836660cd94ebc",
+      "size_bytes": 2596
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/verification.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/verification.py",
+      "sha256": "533b0f860ccc2a38b5c570ead2b0011eaeb5e326f8cf61e8fe808186fbd8c8be",
+      "size_bytes": 8756
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/view_cache/__init__.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/view_cache/__init__.py",
+      "sha256": "de8603cddbae0b9fa25ca7800907eb85f3598ced538b717a51ab400a2ffabb6e",
+      "size_bytes": 181
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/view_cache/generator.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/view_cache/generator.py",
+      "sha256": "b0ae01397ba4270d45101bb5e4370111cc0e6a159c2ddd57b530757d85377534",
+      "size_bytes": 8053
+    },
+    {
+      "source_path": "experiments/native_policy_overnight/view_cache/loader.py",
+      "storage_path": "runtime/experiments/native_policy_overnight/view_cache/loader.py",
+      "sha256": "b49499a2dc5b0a5af308fdb26948925da7d24ffbd99f0677cdacee2257c035b2",
+      "size_bytes": 9355
+    },
+    {
+      "source_path": "experiments/native_snapshot_fastpath/__init__.py",
+      "storage_path": "runtime/experiments/native_snapshot_fastpath/__init__.py",
+      "sha256": "35796648a8fbe93a64c1751c2f2d42df1cdb2abf7fcffc95881c5a7b19b89456",
+      "size_bytes": 55
+    },
+    {
+      "source_path": "experiments/native_snapshot_fastpath/build.py",
+      "storage_path": "runtime/experiments/native_snapshot_fastpath/build.py",
+      "sha256": "a542938e7851e1d82170ee9fdb5f48b3cf820831dc36099816f1c9e1e4b32131",
+      "size_bytes": 1695
+    },
+    {
+      "source_path": "experiments/native_snapshot_fastpath/loader.py",
+      "storage_path": "runtime/experiments/native_snapshot_fastpath/loader.py",
+      "sha256": "d8bdc509acb68094cc4476a28096812bcf7618c82ebb8cb62e0e7523e40901dc",
+      "size_bytes": 5596
+    },
+    {
+      "source_path": "experiments/native_snapshot_fastpath/snapshot.cpp",
+      "storage_path": "runtime/experiments/native_snapshot_fastpath/snapshot.cpp",
+      "sha256": "5b99350c931ff68fc45e4f03aa65f38262ff00540eae5440545e37a364407f52",
+      "size_bytes": 5617
+    },
+    {
+      "source_path": "experiments/native_snapshot_fastpath/verify.py",
+      "storage_path": "runtime/experiments/native_snapshot_fastpath/verify.py",
+      "sha256": "149b484b792455163df1ee719528dfb16760b12e9acb8553977266d89dd2171b",
+      "size_bytes": 11162
+    },
+    {
+      "source_path": "experiments/native_transport/build.py",
+      "storage_path": "runtime/experiments/native_transport/build.py",
+      "sha256": "e8ef00528093e128bb1111c88129eb3ffb57e114737be058e003aeca5fed5e9b",
+      "size_bytes": 975
+    },
+    {
+      "source_path": "experiments/native_transport/transport.cpp",
+      "storage_path": "runtime/experiments/native_transport/transport.cpp",
+      "sha256": "5461c925575bd10bbca2a0c8c8d2c28cd119f22228bf7f8d7ed3976dcd73da0e",
+      "size_bytes": 13004
+    },
+    {
+      "source_path": "experiments/receive_gap/contract.py",
+      "storage_path": "runtime/experiments/receive_gap/contract.py",
+      "sha256": "7804b3fe964088ba2169ba404854944f9a88bbebdc0a880fd83cfc48a035afbd",
+      "size_bytes": 5159
+    },
+    {
+      "source_path": "singularitydog_hw/__init__.py",
+      "storage_path": "runtime/singularitydog_hw/__init__.py",
+      "sha256": "2344e5418b018be98cbd653b54e9330fbca4ee1d0e35fe01acb3a3ff9bde46c7",
+      "size_bytes": 105
+    },
+    {
+      "source_path": "singularitydog_hw/active_output_timer_slack.py",
+      "storage_path": "runtime/singularitydog_hw/active_output_timer_slack.py",
+      "sha256": "19890be67b37276bf05c35c91b9370231da80646f0a074f818638e15cbb706e3",
+      "size_bytes": 8761
+    },
+    {
+      "source_path": "singularitydog_hw/active_report_probe.py",
+      "storage_path": "runtime/singularitydog_hw/active_report_probe.py",
+      "sha256": "1d242daaa78b377b0cc45aa0fe4e23d75c417c23864b64c2517ad562866f1c4a",
+      "size_bytes": 42901
+    },
+    {
+      "source_path": "singularitydog_hw/active_report_protocol.py",
+      "storage_path": "runtime/singularitydog_hw/active_report_protocol.py",
+      "sha256": "7a6de0dcb024bdf0682dbe7afbc2fd4bb24b3d80dc07f840a835fa68f16db1e8",
+      "size_bytes": 6105
+    },
+    {
+      "source_path": "singularitydog_hw/active_report_receiver.py",
+      "storage_path": "runtime/singularitydog_hw/active_report_receiver.py",
+      "sha256": "e7252c4b790cfdbc5ba18f6f3166ba8c8cefd87cdb3bd445a263bcc9e081621f",
+      "size_bytes": 20687
+    },
+    {
+      "source_path": "singularitydog_hw/active_report_recovery.py",
+      "storage_path": "runtime/singularitydog_hw/active_report_recovery.py",
+      "sha256": "75b830dd45b31453377dab4898c58e6dd8395632c3d0363f8168a2e5c9941bd1",
+      "size_bytes": 14274
+    },
+    {
+      "source_path": "singularitydog_hw/all_axis_stop.py",
+      "storage_path": "runtime/singularitydog_hw/all_axis_stop.py",
+      "sha256": "e663b9cb3261cc7a8cbe5f709d34c7f735e051ca61a7c479df81c34686501f9b",
+      "size_bytes": 8521
+    },
+    {
+      "source_path": "singularitydog_hw/angle_branch_comparison.py",
+      "storage_path": "runtime/singularitydog_hw/angle_branch_comparison.py",
+      "sha256": "6b841c3be3255af06e776a5510b8f5c460da03cdffb8c88522587659909967cf",
+      "size_bytes": 12012
+    },
+    {
+      "source_path": "singularitydog_hw/angle_calibration_audit.py",
+      "storage_path": "runtime/singularitydog_hw/angle_calibration_audit.py",
+      "sha256": "8366c1e18fe17ab5851ced1591b5c9c6695d5f0ff9512bd686a646547e35c759",
+      "size_bytes": 22917
+    },
+    {
+      "source_path": "singularitydog_hw/bounded_pose_plan.py",
+      "storage_path": "runtime/singularitydog_hw/bounded_pose_plan.py",
+      "sha256": "5f81a802ad5e981d06e5cb7915bdecf94b1434eae08fa98615c22bcd35177e53",
+      "size_bytes": 22560
+    },
+    {
+      "source_path": "singularitydog_hw/box_pose_alignment.py",
+      "storage_path": "runtime/singularitydog_hw/box_pose_alignment.py",
+      "sha256": "f765907e1e76c4591ab4d4e0a22adfb20d4d6036466a88adf6733d5d716905d4",
+      "size_bytes": 17264
+    },
+    {
+      "source_path": "singularitydog_hw/box_rise_candidate.py",
+      "storage_path": "runtime/singularitydog_hw/box_rise_candidate.py",
+      "sha256": "caa63b35631a40312c53a33d4fbf4ce478d75311fd4e522ba7005752018ee480",
+      "size_bytes": 9939
+    },
+    {
+      "source_path": "singularitydog_hw/can_pipeline_probe.py",
+      "storage_path": "runtime/singularitydog_hw/can_pipeline_probe.py",
+      "sha256": "e90427613d440d624142a850663682aa7ac3367e0daa2e5a028d8bfc2516b5e0",
+      "size_bytes": 24705
+    },
+    {
+      "source_path": "singularitydog_hw/can_readonly.py",
+      "storage_path": "runtime/singularitydog_hw/can_readonly.py",
+      "sha256": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+      "size_bytes": 9959
+    },
+    {
+      "source_path": "singularitydog_hw/can_timing_probe.py",
+      "storage_path": "runtime/singularitydog_hw/can_timing_probe.py",
+      "sha256": "be285ae75fc4e5271fceb696bfc6f4590e8b23f54b25380747eb92fe58930a0a",
+      "size_bytes": 16023
+    },
+    {
+      "source_path": "singularitydog_hw/commissioning.py",
+      "storage_path": "runtime/singularitydog_hw/commissioning.py",
+      "sha256": "1b9c40a7ebe12d30a3967a6d5590a7adc574ef42023db55bf069888945eac85a",
+      "size_bytes": 11527
+    },
+    {
+      "source_path": "singularitydog_hw/continuous_front_hip_plan.py",
+      "storage_path": "runtime/singularitydog_hw/continuous_front_hip_plan.py",
+      "sha256": "ea4d68d9d5932b8736ea5b7c912f27cc4a3747cdac3572919149c7bf9a1a08e1",
+      "size_bytes": 5249
+    },
+    {
+      "source_path": "singularitydog_hw/current_hold_review.py",
+      "storage_path": "runtime/singularitydog_hw/current_hold_review.py",
+      "sha256": "145702687dd438bd7177a275760cde742ddead863032cd5a901cfde60b063c29",
+      "size_bytes": 6851
+    },
+    {
+      "source_path": "singularitydog_hw/diagnose.py",
+      "storage_path": "runtime/singularitydog_hw/diagnose.py",
+      "sha256": "0b69e75caeaa8f62b57383ccadcf2ec9fe97396e157ee7c8f59229621110a3ba",
+      "size_bytes": 12422
+    },
+    {
+      "source_path": "singularitydog_hw/disabled_type1_stress.py",
+      "storage_path": "runtime/singularitydog_hw/disabled_type1_stress.py",
+      "sha256": "b78a9ac735c90ef5a26c673faac14653ba9a762ef8502ba29b31a904a47752fd",
+      "size_bytes": 14327
+    },
+    {
+      "source_path": "singularitydog_hw/dual_can_pipeline_benchmark.py",
+      "storage_path": "runtime/singularitydog_hw/dual_can_pipeline_benchmark.py",
+      "sha256": "b31307264ec7e4986520f2d6e0701238d38c627d26222401aa1507c716a0ca3d",
+      "size_bytes": 30770
+    },
+    {
+      "source_path": "singularitydog_hw/dual_policy_once.py",
+      "storage_path": "runtime/singularitydog_hw/dual_policy_once.py",
+      "sha256": "7db067a8c7f5e3692d8a5f799e8f17067fac2d72aeef44c941f7621b8d7f882c",
+      "size_bytes": 17475
+    },
+    {
+      "source_path": "singularitydog_hw/enabled_zero_type1_stress.py",
+      "storage_path": "runtime/singularitydog_hw/enabled_zero_type1_stress.py",
+      "sha256": "fcd82cf6a202d9124de4354d3fd41afe17bdad5fe695737db20763417542a5f1",
+      "size_bytes": 13625
+    },
+    {
+      "source_path": "singularitydog_hw/event_snapshot.py",
+      "storage_path": "runtime/singularitydog_hw/event_snapshot.py",
+      "sha256": "45347ba7e9f9a70e37b5d169cc1a9abce99a7e6770a24d6e93a5cd18e9fe2925",
+      "size_bytes": 4656
+    },
+    {
+      "source_path": "singularitydog_hw/fast_policy_inputs.py",
+      "storage_path": "runtime/singularitydog_hw/fast_policy_inputs.py",
+      "sha256": "99396e60f696d4341e997f4c12536d4b5a2bda5bf972c60121edd4164973ff3c",
+      "size_bytes": 12607
+    },
+    {
+      "source_path": "singularitydog_hw/fast_policy_replay.py",
+      "storage_path": "runtime/singularitydog_hw/fast_policy_replay.py",
+      "sha256": "7e0b91dceff42b1660fb9012cc62539dbeb845207c3bc334ff7d174c26d05da7",
+      "size_bytes": 5923
+    },
+    {
+      "source_path": "singularitydog_hw/firmware_backup.py",
+      "storage_path": "runtime/singularitydog_hw/firmware_backup.py",
+      "sha256": "4c215e47eaaea2f59a3d92262ce015e4ba99d18139de68243d42a9c81ddfcbad",
+      "size_bytes": 18220
+    },
+    {
+      "source_path": "singularitydog_hw/fixed_stance_candidate.py",
+      "storage_path": "runtime/singularitydog_hw/fixed_stance_candidate.py",
+      "sha256": "90c363b9695c25ecc21458a793c0274d2f5ed7e9911b70f1b9d0f335902f1662",
+      "size_bytes": 10614
+    },
+    {
+      "source_path": "singularitydog_hw/fixed_stance_package.py",
+      "storage_path": "runtime/singularitydog_hw/fixed_stance_package.py",
+      "sha256": "dae9bcac04441ce8662dde9e65615a27196c3326e1ed30456deb1ea31cca198a",
+      "size_bytes": 6479
+    },
+    {
+      "source_path": "singularitydog_hw/fixed_stance_readonly_capture.py",
+      "storage_path": "runtime/singularitydog_hw/fixed_stance_readonly_capture.py",
+      "sha256": "e417c938dac703617383195550dfc0fa8196131bccb1436c8a356abc8f650577",
+      "size_bytes": 16150
+    },
+    {
+      "source_path": "singularitydog_hw/fullbody_step10_plan.py",
+      "storage_path": "runtime/singularitydog_hw/fullbody_step10_plan.py",
+      "sha256": "89414fefdd14d3279bca8a27da5cacfbf31c3c5d15121db80708d160c554f790",
+      "size_bytes": 6756
+    },
+    {
+      "source_path": "singularitydog_hw/ground_trial_output.py",
+      "storage_path": "runtime/singularitydog_hw/ground_trial_output.py",
+      "sha256": "e53be9db403b06ac2768c8f5681e19d26ebea776a6fbebbb723c9a1c6f4b429c",
+      "size_bytes": 19945
+    },
+    {
+      "source_path": "singularitydog_hw/ground_trial_plan.py",
+      "storage_path": "runtime/singularitydog_hw/ground_trial_plan.py",
+      "sha256": "fa65de10d29995cb9f5a1a8e02821133e6e00f6ab720fe4a9f3f8a8b055a3a36",
+      "size_bytes": 19960
+    },
+    {
+      "source_path": "singularitydog_hw/ground_trial_review.py",
+      "storage_path": "runtime/singularitydog_hw/ground_trial_review.py",
+      "sha256": "fd9c60b9b6825a3a09293057cf30cb6e50b92b198c0112c4905743f95b8cdac6",
+      "size_bytes": 48425
+    },
+    {
+      "source_path": "singularitydog_hw/ground_trial_trajectory.py",
+      "storage_path": "runtime/singularitydog_hw/ground_trial_trajectory.py",
+      "sha256": "22d06a86ecb9c49b1274eb266eb997a78581d8468788f939d9dd6f8bef728697",
+      "size_bytes": 12553
+    },
+    {
+      "source_path": "singularitydog_hw/i2s_announcement.py",
+      "storage_path": "runtime/singularitydog_hw/i2s_announcement.py",
+      "sha256": "1388d8ad728d165bc0806e3237c4ad12580e3055b386fceb637d7dd32be74490",
+      "size_bytes": 4464
+    },
+    {
+      "source_path": "singularitydog_hw/id7_photo_pair.py",
+      "storage_path": "runtime/singularitydog_hw/id7_photo_pair.py",
+      "sha256": "7448dd86b8ebc8864c34a81e5cd23c3f7115201811731cea92d257ebe25ba4e5",
+      "size_bytes": 10595
+    },
+    {
+      "source_path": "singularitydog_hw/id7_position_stream.py",
+      "storage_path": "runtime/singularitydog_hw/id7_position_stream.py",
+      "sha256": "0fda45063d1a819005a27aaf6cf91cf660077c90d8b9088752e119f186d001e2",
+      "size_bytes": 7671
+    },
+    {
+      "source_path": "singularitydog_hw/imu.py",
+      "storage_path": "runtime/singularitydog_hw/imu.py",
+      "sha256": "fd48676b45e9badad98e0e0fa1fdc1aad628e03dc66b4bdc3e8b0f35ba7be0ff",
+      "size_bytes": 18729
+    },
+    {
+      "source_path": "singularitydog_hw/imu_calibration.py",
+      "storage_path": "runtime/singularitydog_hw/imu_calibration.py",
+      "sha256": "e857bdd856c85afb67f194ad85ab00fd192feffa9ae73a9138de1670b9137826",
+      "size_bytes": 21864
+    },
+    {
+      "source_path": "singularitydog_hw/imu_capture.py",
+      "storage_path": "runtime/singularitydog_hw/imu_capture.py",
+      "sha256": "76b75f69cd8b918cb7ece98da21335cb058f9e85bbee85afec4a513c5cee4200",
+      "size_bytes": 6514
+    },
+    {
+      "source_path": "singularitydog_hw/imu_commissioning_audit.py",
+      "storage_path": "runtime/singularitydog_hw/imu_commissioning_audit.py",
+      "sha256": "8c1aa1838db66a1828281dfa45b0f447abac2805348352354c2ea358bc881184",
+      "size_bytes": 14231
+    },
+    {
+      "source_path": "singularitydog_hw/imu_commissioning_capture.py",
+      "storage_path": "runtime/singularitydog_hw/imu_commissioning_capture.py",
+      "sha256": "10b71513617f6a630217cfbd467af9f5de0f892a86feb95056c30206def5e24c",
+      "size_bytes": 10749
+    },
+    {
+      "source_path": "singularitydog_hw/imu_fixed_mount_baseline.py",
+      "storage_path": "runtime/singularitydog_hw/imu_fixed_mount_baseline.py",
+      "sha256": "9fa1b70398de7897ec55cc9616c0cf14b998dae48a8583f209994e85a44097dc",
+      "size_bytes": 21142
+    },
+    {
+      "source_path": "singularitydog_hw/imu_orientation_replay.py",
+      "storage_path": "runtime/singularitydog_hw/imu_orientation_replay.py",
+      "sha256": "6abd08ff4fa411cf5d94a11059916223c9ce46855d8429314d1f61c64e53d866",
+      "size_bytes": 12360
+    },
+    {
+      "source_path": "singularitydog_hw/imu_range_crosscheck.py",
+      "storage_path": "runtime/singularitydog_hw/imu_range_crosscheck.py",
+      "sha256": "76804cea2afce74577705aab906d4432b96a7e4fdd1afbb400619a2f154fcbeb",
+      "size_bytes": 8209
+    },
+    {
+      "source_path": "singularitydog_hw/imu_yaw_recovery.py",
+      "storage_path": "runtime/singularitydog_hw/imu_yaw_recovery.py",
+      "sha256": "5aabd0d3190ceb0f8c3b8230b9dcdffe9e2e76d316174687bf388864f7cbfafd",
+      "size_bytes": 12666
+    },
+    {
+      "source_path": "singularitydog_hw/imu_yaw_retake.py",
+      "storage_path": "runtime/singularitydog_hw/imu_yaw_retake.py",
+      "sha256": "0876dde53a7016f025061ca6ff8d0a62c41b6983c27e2ef79a1cabf922bb9905",
+      "size_bytes": 14982
+    },
+    {
+      "source_path": "singularitydog_hw/joint_observation.py",
+      "storage_path": "runtime/singularitydog_hw/joint_observation.py",
+      "sha256": "27ea198a8651d167ec8032f339a5cd9ca0ca5379dd40b6a3b8ccaaa671204f23",
+      "size_bytes": 14221
+    },
+    {
+      "source_path": "singularitydog_hw/joint_snapshot.py",
+      "storage_path": "runtime/singularitydog_hw/joint_snapshot.py",
+      "sha256": "84a0145e08836aad275951c9024399361ce5a710e955a8eb97d7511af41ef027",
+      "size_bytes": 5925
+    },
+    {
+      "source_path": "singularitydog_hw/manual_calibration.py",
+      "storage_path": "runtime/singularitydog_hw/manual_calibration.py",
+      "sha256": "9e9f74330ac74c35e9728bec180df75072f6667359b1a6d55aa891ec2d76be64",
+      "size_bytes": 22510
+    },
+    {
+      "source_path": "singularitydog_hw/manual_motion_check.py",
+      "storage_path": "runtime/singularitydog_hw/manual_motion_check.py",
+      "sha256": "eff7c10b1249f955b409bc21b9efbeb56cd5a8a4a5b195da9fbe75754ad4c6fb",
+      "size_bytes": 14019
+    },
+    {
+      "source_path": "singularitydog_hw/manual_start_alignment.py",
+      "storage_path": "runtime/singularitydog_hw/manual_start_alignment.py",
+      "sha256": "3230f9dc9edd07dfabca8b8f30d73e031f0c9c0afb594709f8359abecf209a21",
+      "size_bytes": 23917
+    },
+    {
+      "source_path": "singularitydog_hw/math_thread_startup.py",
+      "storage_path": "runtime/singularitydog_hw/math_thread_startup.py",
+      "sha256": "0f56509175906cb19b5189b7370eb1dc1df48cc244b2a0d69d746105067ecc84",
+      "size_bytes": 1982
+    },
+    {
+      "source_path": "singularitydog_hw/motor_epoch_readonly_capture.py",
+      "storage_path": "runtime/singularitydog_hw/motor_epoch_readonly_capture.py",
+      "sha256": "5d22216a053b52ea00e1208d560dd2dee22027ce37b97708ba4f4299fd3b59d2",
+      "size_bytes": 6104
+    },
+    {
+      "source_path": "singularitydog_hw/motor_power_epoch_manifest.py",
+      "storage_path": "runtime/singularitydog_hw/motor_power_epoch_manifest.py",
+      "sha256": "6daf34768746fb2066ab30ef9bf1845aa95aaf4a1eb7dbb9d1b3604456a3dd2f",
+      "size_bytes": 17070
+    },
+    {
+      "source_path": "singularitydog_hw/motor_version_probe.py",
+      "storage_path": "runtime/singularitydog_hw/motor_version_probe.py",
+      "sha256": "4f219e8cf80d6bfee7dfa18b8f0ffc46467e8595f01392cf33d89b61227f7feb",
+      "size_bytes": 18252
+    },
+    {
+      "source_path": "singularitydog_hw/native_active_transport.py",
+      "storage_path": "runtime/singularitydog_hw/native_active_transport.py",
+      "sha256": "e9369d8e43a6f83e7383fdf51f72e9d45465a2a2ca842af390adbd5f24443c56",
+      "size_bytes": 19666
+    },
+    {
+      "source_path": "singularitydog_hw/native_diagnostic_transport.py",
+      "storage_path": "runtime/singularitydog_hw/native_diagnostic_transport.py",
+      "sha256": "9e63b047853dce0a616c6615e33dbf27ccbf4a9e515d2425dcfc7d470bf1f3fa",
+      "size_bytes": 10317
+    },
+    {
+      "source_path": "singularitydog_hw/native_feedback_compare.py",
+      "storage_path": "runtime/singularitydog_hw/native_feedback_compare.py",
+      "sha256": "d2d65a286158f5cd9f4f0c31d2329d1a98aabce23d548973b29452f4a4b9afac",
+      "size_bytes": 16566
+    },
+    {
+      "source_path": "singularitydog_hw/native_pipeline_benchmark.py",
+      "storage_path": "runtime/singularitydog_hw/native_pipeline_benchmark.py",
+      "sha256": "ac5a02e519ac13ca3da12d722dd7a90afb92830cc2e374276043eace88eb6f3a",
+      "size_bytes": 120615
+    },
+    {
+      "source_path": "singularitydog_hw/native_policy_batch_encode.py",
+      "storage_path": "runtime/singularitydog_hw/native_policy_batch_encode.py",
+      "sha256": "8d1d012e80a3ecc3e6565069552a3484965a10e0837bdd762150e20c8c06aefd",
+      "size_bytes": 8370
+    },
+    {
+      "source_path": "singularitydog_hw/native_zero_type1_stress.py",
+      "storage_path": "runtime/singularitydog_hw/native_zero_type1_stress.py",
+      "sha256": "423d26f31a01625fae40afcffdfea477b025ea7b0400d41e8e73fb80c1040531",
+      "size_bytes": 27424
+    },
+    {
+      "source_path": "singularitydog_hw/policy_live_profile.py",
+      "storage_path": "runtime/singularitydog_hw/policy_live_profile.py",
+      "sha256": "5350fabe1722b8443525ff01f6e05c243d58dc7b3f4d2c28b2d181708aa98800",
+      "size_bytes": 124644
+    },
+    {
+      "source_path": "singularitydog_hw/policy_motion_envelope.py",
+      "storage_path": "runtime/singularitydog_hw/policy_motion_envelope.py",
+      "sha256": "5f0c89b4bc86e1401550ae93e86de39e5af6ac1a73fb8a9e8c6240ed8b9e7152",
+      "size_bytes": 18405
+    },
+    {
+      "source_path": "singularitydog_hw/policy_observer.py",
+      "storage_path": "runtime/singularitydog_hw/policy_observer.py",
+      "sha256": "4df0fcdde3a10ecbe2ec4837509ecba3c3a79b60180aac631f6a7b4c9c61bea9",
+      "size_bytes": 35324
+    },
+    {
+      "source_path": "singularitydog_hw/policy_observer_live.py",
+      "storage_path": "runtime/singularitydog_hw/policy_observer_live.py",
+      "sha256": "f7245dbcf0d872f4aa06377846d7f8e222bf98f1adc084ee791e80ab7db5da70",
+      "size_bytes": 30059
+    },
+    {
+      "source_path": "singularitydog_hw/policy_observer_replay.py",
+      "storage_path": "runtime/singularitydog_hw/policy_observer_replay.py",
+      "sha256": "2c9d87d137b06e5a87399298b9d94bfa55bfde249e2675291ea7e47e5eb70df2",
+      "size_bytes": 18546
+    },
+    {
+      "source_path": "singularitydog_hw/policy_output.py",
+      "storage_path": "runtime/tested_sources/20260929-r64/singularitydog_hw/policy_output.py",
+      "sha256": "4a0dfdb4d0ff75e304edbc67e4eacc51b9b089be85a0133b3611148d563c3f12",
+      "size_bytes": 14207
+    },
+    {
+      "source_path": "singularitydog_hw/policy_output_model.py",
+      "storage_path": "runtime/singularitydog_hw/policy_output_model.py",
+      "sha256": "f2531714ebe354a8a4888d6de5164c3e48df08a2336658b203ab865bc184da29",
+      "size_bytes": 10600
+    },
+    {
+      "source_path": "singularitydog_hw/policy_output_runtime.py",
+      "storage_path": "runtime/tested_sources/20260929-r64/singularitydog_hw/policy_output_runtime.py",
+      "sha256": "54fbaf9114f9f9efa3951cd3b5973a9c4ff63a9f39f68ef3823853546dd50bf4",
+      "size_bytes": 81066
+    },
+    {
+      "source_path": "singularitydog_hw/policy_post_reply_timing.py",
+      "storage_path": "runtime/singularitydog_hw/policy_post_reply_timing.py",
+      "sha256": "5c95590b566686525a528f2bb0c238ec72284984674754972b6efcbca68a9b41",
+      "size_bytes": 3309
+    },
+    {
+      "source_path": "singularitydog_hw/policy_raw_target_diagnostic.py",
+      "storage_path": "runtime/singularitydog_hw/policy_raw_target_diagnostic.py",
+      "sha256": "1aef293fbebd05975dfefbcd3f843b6b2050e744de045a2ac7151b6debe28544",
+      "size_bytes": 11749
+    },
+    {
+      "source_path": "singularitydog_hw/policy_shadow.py",
+      "storage_path": "runtime/singularitydog_hw/policy_shadow.py",
+      "sha256": "d46181303822563f24572f15ab8af6d3c7ebd82be4d5529b7aa4d38b683a8016",
+      "size_bytes": 26793
+    },
+    {
+      "source_path": "singularitydog_hw/policy_snapshot_copy_replay.py",
+      "storage_path": "runtime/singularitydog_hw/policy_snapshot_copy_replay.py",
+      "sha256": "5ea98e1e33a9bfdefd610e22f1991bb18bf1c9fe651a147e424a0875785d2856",
+      "size_bytes": 4265
+    },
+    {
+      "source_path": "singularitydog_hw/pose_record.py",
+      "storage_path": "runtime/singularitydog_hw/pose_record.py",
+      "sha256": "28bbea91d7ee4a76a690015e748a24c42abb525f87701c3c65885a34d3d45829",
+      "size_bytes": 14289
+    },
+    {
+      "source_path": "singularitydog_hw/position_response_evidence.py",
+      "storage_path": "runtime/singularitydog_hw/position_response_evidence.py",
+      "sha256": "53462fa7a82a83675ddf85fffbe4a78915a6259c3da6f3ae922495c6b099a6d0",
+      "size_bytes": 5116
+    },
+    {
+      "source_path": "singularitydog_hw/post_charge_box_pose_check.py",
+      "storage_path": "runtime/singularitydog_hw/post_charge_box_pose_check.py",
+      "sha256": "e4b64f0938aabbca8252a8df33264df4ad04775a65fb1c54cd910d8645ae42a6",
+      "size_bytes": 13464
+    },
+    {
+      "source_path": "singularitydog_hw/prestand_check.py",
+      "storage_path": "runtime/singularitydog_hw/prestand_check.py",
+      "sha256": "7cae47d13c87c934e2719b0d0e77e606433f72dce282fa48516dd62814edc3e2",
+      "size_bytes": 11814
+    },
+    {
+      "source_path": "singularitydog_hw/raw_stance_transition.py",
+      "storage_path": "runtime/singularitydog_hw/raw_stance_transition.py",
+      "sha256": "6a952a87d544a2826d636b4eeafae54e0db0559a74c5cc67751597fabcc4790b",
+      "size_bytes": 10896
+    },
+    {
+      "source_path": "singularitydog_hw/replacement_evidence.py",
+      "storage_path": "runtime/singularitydog_hw/replacement_evidence.py",
+      "sha256": "c24f959c4a2e3ea66d0301397e8c277c707f8e935bcfc65d4e15e1c8844729f7",
+      "size_bytes": 5226
+    },
+    {
+      "source_path": "singularitydog_hw/replacement_inventory.py",
+      "storage_path": "runtime/singularitydog_hw/replacement_inventory.py",
+      "sha256": "8fdd21b78845356439773c142314f182ede8c915cd8b4c6df0cb40a130963379",
+      "size_bytes": 12505
+    },
+    {
+      "source_path": "singularitydog_hw/role_group_summary.py",
+      "storage_path": "runtime/singularitydog_hw/role_group_summary.py",
+      "sha256": "43b21c9f365fdcfc66f7194d6d61677744417079f68a40d3e0b7be57778e6175",
+      "size_bytes": 3713
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_box_rise_trial.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_box_rise_trial.py",
+      "sha256": "bc4f34c1de58b27cf754507d765a5c496afefbe5a5f9e7eaf9031e8b88561601",
+      "size_bytes": 39172
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_bus_transport.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_bus_transport.py",
+      "sha256": "65e4fde856a72833f9428dcc1e4203ce6d0986364c3df88dc5434953edd921f5",
+      "size_bytes": 22495
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_firmware_transfer.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_firmware_transfer.py",
+      "sha256": "c636f1dabe4717644760ec6d2ab28197072d68186ade359507cab6e135cb05b2",
+      "size_bytes": 11563
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_firmware_update.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_firmware_update.py",
+      "sha256": "287389da57d496c2be936fb5b8afa5f21df1372d11ff5960bc9201297b4ec349",
+      "size_bytes": 12960
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_fixed_stance_trial.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_fixed_stance_trial.py",
+      "sha256": "44a044fd7c20ce91bb99d1052184642163732413f119181192cbcbbb840c38f7",
+      "size_bytes": 38948
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_fullbody_hold.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_fullbody_hold.py",
+      "sha256": "ee870d00a7d6fee8001c76c34c92dfb8aebea2e6d1f7b38b96765a94da8947d3",
+      "size_bytes": 27143
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_fullbody_step2.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_fullbody_step2.py",
+      "sha256": "4cdc6eac16347eb6a5ca2e092ee53da2e6ab16697b2e5976adf55aab5456687e",
+      "size_bytes": 56301
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_id7_step1.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_id7_step1.py",
+      "sha256": "390a565cf3a541292bcb3bdbe5fa3e0c748dff708e4628db515c4ab9c3bc1b0d",
+      "size_bytes": 950
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_joint_trial.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_joint_trial.py",
+      "sha256": "fbded43b0199c214ac7db4b216ee856413295425c4a366f3ce1bcfc47bef7f76",
+      "size_bytes": 22562
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_leg_trial.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_leg_trial.py",
+      "sha256": "94177ed553cc556bdcab1f637a58de77dae87fd6065ebf5e166f9f71891428c6",
+      "size_bytes": 73029
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_load_transfer_hold.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_load_transfer_hold.py",
+      "sha256": "6126f1300cf78a2988c2261b73194d854bbbab9dfa13937c5a00b4f245cd5ed9",
+      "size_bytes": 36061
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_step2_packet_gate.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_step2_packet_gate.py",
+      "sha256": "1aa1a251a59cde14dfd5eaf8e08726027f127ce3cbbbe6bc6f84c3fb6aca0bed",
+      "size_bytes": 10218
+    },
+    {
+      "source_path": "singularitydog_hw/rs05_trial_protocol.py",
+      "storage_path": "runtime/singularitydog_hw/rs05_trial_protocol.py",
+      "sha256": "7119678fa75b8c6ae7b38ccc8a9063e62398c92a48675d9f8847a6057a024dc4",
+      "size_bytes": 16695
+    },
+    {
+      "source_path": "singularitydog_hw/safety.py",
+      "storage_path": "runtime/singularitydog_hw/safety.py",
+      "sha256": "a23e5f3f0dec748243c2ac1529569eb9557e53c0fe4aba5d48d62925a6d71eab",
+      "size_bytes": 11239
+    },
+    {
+      "source_path": "singularitydog_hw/sensor_pipeline_benchmark.py",
+      "storage_path": "runtime/singularitydog_hw/sensor_pipeline_benchmark.py",
+      "sha256": "e7fde259aada55a69b65ae87381785166ee5ecad71e05919af3089a117c81e00",
+      "size_bytes": 19877
+    },
+    {
+      "source_path": "singularitydog_hw/serial_deadline_reader.py",
+      "storage_path": "runtime/singularitydog_hw/serial_deadline_reader.py",
+      "sha256": "38ad57fd46fd5a502594018dd2b8b65d8b83748696ffcc05a0e32c13445e6945",
+      "size_bytes": 11099
+    },
+    {
+      "source_path": "singularitydog_hw/staged_stance_review.py",
+      "storage_path": "runtime/singularitydog_hw/staged_stance_review.py",
+      "sha256": "3497cf8645b1b406f3686f529317e366208f966c276eedcc7c7402e0ff4cd9fa",
+      "size_bytes": 7073
+    },
+    {
+      "source_path": "singularitydog_hw/stance_transition.py",
+      "storage_path": "runtime/singularitydog_hw/stance_transition.py",
+      "sha256": "6f57be494c689168687afb665352ca044b0764b820f9d71a4a93d1d417e058b5",
+      "size_bytes": 6568
+    },
+    {
+      "source_path": "singularitydog_hw/stationary_readonly_capture.py",
+      "storage_path": "runtime/singularitydog_hw/stationary_readonly_capture.py",
+      "sha256": "f35c58314228c4ccab01ce63a97ea08c70e70e5347556984b8183cd00601f409",
+      "size_bytes": 11952
+    },
+    {
+      "source_path": "singularitydog_hw/stop_batch_experiment.py",
+      "storage_path": "runtime/singularitydog_hw/stop_batch_experiment.py",
+      "sha256": "171a8ab05fde6bd356234527f0045b5b3cd17707a8128ffefb2aee72794a1bdf",
+      "size_bytes": 10704
+    },
+    {
+      "source_path": "singularitydog_hw/stop_batch_probe.py",
+      "storage_path": "runtime/singularitydog_hw/stop_batch_probe.py",
+      "sha256": "adaf3231aa42fc5d40aa1b8406c747eb63a62cde453df3aa787507de6a28e6a1",
+      "size_bytes": 14213
+    },
+    {
+      "source_path": "singularitydog_hw/stop_proxy_range_report.py",
+      "storage_path": "runtime/singularitydog_hw/stop_proxy_range_report.py",
+      "sha256": "d2ee7d884d38d437df17949e0b389114e456da421e3226f72eb8e6fc6983d80f",
+      "size_bytes": 10234
+    },
+    {
+      "source_path": "singularitydog_hw/telemetry_snapshot.py",
+      "storage_path": "runtime/singularitydog_hw/telemetry_snapshot.py",
+      "sha256": "47ff8afe07084a62bafb3093a0e60666ac52d9540d90acfe03d5d5a3c0377610",
+      "size_bytes": 11450
+    },
+    {
+      "source_path": "singularitydog_hw/thread_timer_slack.py",
+      "storage_path": "runtime/singularitydog_hw/thread_timer_slack.py",
+      "sha256": "ed1d7a998797420666f252c8719e7a4304ba49cfd11906438d975b54548b191f",
+      "size_bytes": 6162
+    },
+    {
+      "source_path": "singularitydog_hw/watchdog_commissioning.py",
+      "storage_path": "runtime/singularitydog_hw/watchdog_commissioning.py",
+      "sha256": "0fe7a5ce0362c3e7dd61bb7958fe276b8796c5a456e60b01cf5ea05be078bbae",
+      "size_bytes": 25595
+    },
+    {
+      "source_path": "singularitydog_hw/watchdog_usb_reconnect.py",
+      "storage_path": "runtime/singularitydog_hw/watchdog_usb_reconnect.py",
+      "sha256": "a999bad6456628215015c45cc9ecf865a9c9e545f1aa56a99966b855f9d7942e",
+      "size_bytes": 23855
+    }
+  ]
+}

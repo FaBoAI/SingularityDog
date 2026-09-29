@@ -1,8 +1,9 @@
 """Output coordination with byte-accurate in-memory buses; no devices opened.
 
-These use real monotonic time for the independent watchdog.  Short intentional
-stalls terminate themselves; their STOP timestamps must precede policy return.
-They do not prove hardware deadlines, physical torque cutoff, or 50 Hz operation.
+Independent-watchdog tests use real monotonic time: short intentional stalls
+terminate themselves and STOP timestamps must precede policy return.  Target,
+codec and ownership tests may use shared causal time to isolate host scheduling.
+These do not prove hardware deadlines, physical torque cutoff, or 50 Hz operation.
 """
 
 from dataclasses import asdict
@@ -245,6 +246,97 @@ class OutputRuntimeTests(unittest.TestCase):
         self.assertTrue(all(len(session.stop_times) == 1 for session in sessions.values()))
         return report, sessions
 
+    def test_startup_displacement_rejected_before_gains_at_each_transition(self):
+        for stage in ('enable','zero_gain','all_axis_zero_gain'):
+            for direction in (-1,1):
+                with self.subTest(stage=stage,direction=direction):
+                    clock=SimulatedClock();data=measured_startup_profile()
+                    for axis in data['axes'].values():axis['max_displacement_from_start_rad']=math.radians(1)
+                    class StartupDrift(FakeSession):
+                        injected=False
+                        def _exchange(self,wires,timeout_ns,send_only):
+                            result=super()._exchange(wires,timeout_ns,send_only)
+                            for record in result[0]:
+                                tx=codec.ATParser().feed(bytes(record.tx))[0]
+                                kind=('enable' if tx.kind==3 else 'zero_gain' if tx.kind==1 and len(wires)==1
+                                      else 'all_axis_zero_gain' if tx.kind==1 and len(wires)==6 else None)
+                                if not self.injected and tx.destination==1 and kind==stage:
+                                    original=self.positions[1]
+                                    record.rx[7:9]=quantize(original+direction*math.radians(1.25),
+                                                           -12.57,12.57).to_bytes(2,'big')
+                                    self.injected=True
+                            return result
+                    front=StartupDrift(1,clock=clock)
+                    report,sessions=self.run_case(profile_data=data,front=front,
+                        rear=FakeSession(7,clock=clock),imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
+                    self.assertTrue(front.injected)
+                    self.assertEqual(report['status'],'ABORTED',report['errors'])
+                    self.assertIn('startup trial displacement from pre-enable origin',str(report['errors']))
+                    self.assertEqual(report['startup_displacement_checks'][-1]['stage'],stage)
+                    self.assertTrue(report['stop_confirmed'])
+                    self.assertTrue(all(s.positive_gain_writes==0 for s in sessions.values()))
+                    if stage!='all_axis_zero_gain':
+                        self.assertEqual([mid for _,kind,mid,_ in front.calls if kind==3],[1])
+
+    def run_small_startup_drift(self,*,late_drift=False,target=.04):
+        clock=SimulatedClock();data=measured_startup_profile()
+        for axis in data['axes'].values():axis['max_displacement_from_start_rad']=math.radians(1)
+        class SmallDrift(FakeSession):
+            def __init__(self):
+                super().__init__(1,clock=clock)
+                self.origin=self.positions[1];self.late_injected=False
+            def _exchange(self,wires,timeout_ns,send_only):
+                result=super()._exchange(wires,timeout_ns,send_only)
+                for record in result[0]:
+                    tx=codec.ATParser().feed(bytes(record.tx))[0]
+                    if tx.kind!=1 or tx.destination!=1:continue
+                    kp=int.from_bytes(tx.data[4:6],'big')
+                    if self.positive_gain_writes==0:
+                        position=self.origin+math.radians(.5)
+                    elif late_drift and kp and not self.late_injected:
+                        position=self.origin+math.radians(1.05);self.late_injected=True
+                    else:continue
+                    record.rx[7:9]=quantize(position,-12.57,12.57).to_bytes(2,'big')
+                return result
+        front=SmallDrift()
+        return self.run_case(profile_data=data,front=front,rear=FakeSession(7,clock=clock),
+            imu=FakeIMU(clock=clock),policy=lambda *args:(target,)*12,
+            clock=clock,sleep=clock.sleep)
+
+    def test_small_startup_drift_keeps_smooth_target_and_original_one_degree_bound(self):
+        report,sessions=self.run_small_startup_drift()
+        self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
+        origin=report['trial_origin_model_rad_by_id']['1']
+        start=next(row['q_model_rad'] for row in report['startup_displacement_checks']
+                   if row['motor_id']==1 and row['stage']=='all_axis_zero_gain')
+        self.assertGreater(start-origin,math.radians(.4))
+        self.assertAlmostEqual(report['cycles'][0]['command']['q_model_rad'][0],start,delta=1e-6)
+        for row in report['cycles']:
+            self.assertLessEqual(abs(row['command']['q_model_rad'][0]-origin),math.radians(1))
+            self.assertLessEqual(abs(row['feedback']['q_model_rad'][0]-origin),math.radians(1))
+        for _,kind,mid,raw in sessions['front'].calls:
+            if kind==1 and mid==1:
+                q=int.from_bytes(raw[7:9],'big')*25.14/65535-12.57
+                self.assertLessEqual(abs(q-origin),math.radians(1))
+
+    def test_cyclic_reply_cannot_reset_one_degree_origin_after_small_startup_drift(self):
+        report,sessions=self.run_small_startup_drift(late_drift=True)
+        self.assertTrue(sessions['front'].late_injected)
+        self.assertEqual(report['status'],'ABORTED',report['errors'])
+        self.assertIn('ID1 trial displacement',str(report['errors']))
+        self.assertTrue(report['stop_confirmed'])
+
+    def test_target_is_rejected_at_original_origin_bound_before_outside_command(self):
+        report,sessions=self.run_small_startup_drift(target=.3)
+        self.assertEqual(report['status'],'ABORTED',report['errors'])
+        self.assertIn('target outside joint/supported displacement envelope',str(report['errors']))
+        origin=report['trial_origin_model_rad_by_id']['1']
+        for _,kind,mid,raw in sessions['front'].calls:
+            if kind==1 and mid==1:
+                q=int.from_bytes(raw[7:9],'big')*25.14/65535-12.57
+                self.assertLessEqual(abs(q-origin),math.radians(1))
+        self.assertTrue(report['stop_confirmed'])
+
     def test_all_axis_zero_gain_comparison_uses_type1_without_motion_gains(self):
         data=profile();data['policy_weight']=0.
         for axis in data['axes'].values():axis.update(kp=0.,kd=0.)
@@ -301,13 +393,18 @@ class OutputRuntimeTests(unittest.TestCase):
         finally:workers.close()
 
     def test_zero_policy_high_gain_hold_never_follows_varying_model_targets(self):
+        # This checks zero-mixture target isolation, not host scheduling speed.
+        # Use causal simulated time so unrelated Mac load cannot trip 20ms.
+        clock=SimulatedClock()
         data=profile();data.update(policy_weight=0., duration_s=2., startup_duration_s=1.)
         for axis in data['axes'].values():axis.update(kp=12.,kd=.15,max_estimated_pd_torque_nm=.5)
         calls=[]
         def varying_policy(sample,imu,now):
             calls.append(now)
             return ((.8 if len(calls)%2 else -.8),)*12
-        report,sessions=self.run_case(profile_data=data,policy=varying_policy)
+        report,sessions=self.run_case(profile_data=data,policy=varying_policy,
+            front=FakeSession(1,clock=clock),rear=FakeSession(7,clock=clock),
+            imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
         self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
         self.assertGreater(len(calls),10)
         self.assertTrue(report['motion_gain_sent'])
@@ -326,6 +423,9 @@ class OutputRuntimeTests(unittest.TestCase):
             self.assertIn(quantize(12.,0.,500.),gains)
 
     def test_hold_probe_skips_inference_but_checks_inputs_each_cycle(self):
+        # Exercise input-validation and target-isolation semantics without
+        # unrelated host scheduling counting as synthetic device latency.
+        clock=SimulatedClock()
         data=profile();data.update(policy_weight=0.,duration_s=2.,startup_duration_s=1.)
         for axis in data['axes'].values():axis.update(kp=12.,kd=.15,max_estimated_pd_torque_nm=.5)
         checked=[]
@@ -333,7 +433,9 @@ class OutputRuntimeTests(unittest.TestCase):
             def validate_inputs(self,sample,imu,now):checked.append(now)
             def __call__(self,*args):raise AssertionError('Hold must not run inference')
         with patch.object(runtime,'current_position_hold_only',return_value=True):
-            report,sessions=self.run_case(profile_data=data,policy=ValidationOnly())
+            report,sessions=self.run_case(profile_data=data,policy=ValidationOnly(),
+                front=FakeSession(1,clock=clock),rear=FakeSession(7,clock=clock),
+                imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
         self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
         self.assertTrue(report['cyclic_inference_skipped'])
         self.assertTrue(report['motion_gain_sent'])
@@ -544,13 +646,16 @@ class OutputRuntimeTests(unittest.TestCase):
                              (cycle["end_ns"] - cycle["output_exchange_return_ns"]) / 1e6)
 
     def test_logged_positive_and_negative_power_branches_reach_inverse_wires(self):
-        front, rear = FakeSession(1), FakeSession(7)
+        # This checks recorded encoder branches and inverse wire encoding;
+        # independent watchdog timing is exercised by dedicated real-time tests.
+        clock=SimulatedClock()
+        front, rear = FakeSession(1,clock=clock), FakeSession(7,clock=clock)
         front.positions[3] = 6.262798309326172  # Recorded ID3 +361.307 degree case.
         rear.positions[9] = -2 * math.pi + .08  # ID9 negative-turn branch.
         reviewed = profile()
         reviewed['axes']['9']['sign'] = -1
         report, sessions = self.run_case(front=front, rear=rear,
-                                         profile_data=reviewed)
+            profile_data=reviewed,imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
         self.assertEqual(report['status'], 'COMPLETE_SUPPORTED_OUTPUT', report['errors'])
         self.assertEqual(report['fixed_branch_turns_by_id'][3], 1)
         self.assertEqual(report['fixed_branch_turns_by_id'][9], -1)
@@ -600,12 +705,12 @@ class OutputRuntimeTests(unittest.TestCase):
         for sign in (-1, 1):
             for rotation in range(3):
                 with self.subTest(sign=sign, rotation=rotation):
-                    front, rear = FakeSession(1), FakeSession(7)
+                    clock=SimulatedClock()
+                    front, rear = FakeSession(1,clock=clock), FakeSession(7,clock=clock)
                     reviewed = profile()
                     reviewed['motor_power_epoch'] = f'new-power-{sign}-{rotation}'
                     # Scheduler variability is covered elsewhere, not this
                     # hardware-free angle/command conversion matrix.
-                    reviewed['max_consecutive_20ms_misses'] = 100
                     turns = {mid: (mid + rotation) % 3 - 1 for mid in runtime.IDS}
                     initial_raw = {}
                     for mid in runtime.IDS:
@@ -616,7 +721,7 @@ class OutputRuntimeTests(unittest.TestCase):
                                             + turns[mid] * 2 * math.pi)
                         (front if mid <= 6 else rear).positions[mid] = initial_raw[mid]
                     report, sessions = self.run_case(front=front, rear=rear,
-                                                     profile_data=reviewed)
+                        profile_data=reviewed,imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
                     self.assertEqual(report['status'], 'COMPLETE_SUPPORTED_OUTPUT', report['errors'])
                     self.assertEqual(report['fixed_branch_turns_by_id'], turns)
                     self.assertEqual(report['fixed_branch_motor_power_epoch'],
@@ -687,6 +792,9 @@ class OutputRuntimeTests(unittest.TestCase):
                                     now_ns=1_020_000_200, previous=previous)
 
     def test_opt_in_r22_runs_after_workers_and_restores_only_main_affinity_after_stop(self):
+        # Verify affinity ownership and ordering, independently of host load.
+        clock=SimulatedClock()
+        front,rear=FakeSession(1,clock=clock),FakeSession(7,clock=clock)
         main_ident=threading.get_ident();pinned=[False];events=[]
         class Startup:
             def __call__(self_inner,*_args):return (.04,)*12
@@ -701,6 +809,9 @@ class OutputRuntimeTests(unittest.TestCase):
         def set_affinity(_pid,mask):
             self.assertEqual(threading.get_ident(),main_ident)
             pinned[0]=set(mask)=={4}
+            if not pinned[0]:
+                self.assertTrue(all(session.stop_times for session in (front,rear)),
+                                'Both bus owners must stop before main affinity restoration')
             events.append('pin' if pinned[0] else 'restore')
         stop=threading.Event();stop.set()
         startup=Startup()
@@ -708,7 +819,8 @@ class OutputRuntimeTests(unittest.TestCase):
              patch.object(runtime.os,'sched_setaffinity',side_effect=set_affinity,create=True):
             report,sessions=self.run_case(stop_requested=stop,policy=startup,startup_model=startup,
                 main_thread_cpu=4,pre_cycle_policy_warmup_calls=10,
-                post_pin_policy_prime_calls=10,announce=lambda:events.append('announce'))
+                post_pin_policy_prime_calls=10,announce=lambda:events.append('announce'),
+                front=front,rear=rear,imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
         self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
         self.assertEqual(events,['announce','warmup','pin','prime','reset','restore'])
         self.assertFalse(pinned[0]);self.assertTrue(report['stop_confirmed'])
@@ -719,7 +831,7 @@ class OutputRuntimeTests(unittest.TestCase):
         self.assertEqual(affinity['during'],[4]);self.assertTrue(affinity['restored'])
         self.assertEqual(set(affinity['worker_masks_after_pin']),{'front','rear','imu'})
         self.assertTrue(all(row['cpus']==[0,4] for row in affinity['worker_masks_after_pin'].values()))
-        self.assertTrue(all(session.stop_times[0]<time.monotonic_ns() for session in sessions.values()))
+        self.assertTrue(all(session.stop_times[0]<clock() for session in sessions.values()))
 
     def test_r22_warmup_failure_aborts_before_enable_and_still_stops_and_restores(self):
         main_ident=threading.get_ident();masks=[]
@@ -1200,12 +1312,16 @@ class OutputRuntimeTests(unittest.TestCase):
         self.assertTrue(report["stop_confirmed"])
 
     def test_requested_normal_stop_does_not_invoke_or_resume_policy(self):
+        # The stop event is already set: policy isolation is causal, not timed.
+        clock=SimulatedClock()
         stop = threading.Event(); stop.set()
         calls = []
         def unused_policy(*args):
             calls.append(True)
             return (.04,) * 12
-        report, sessions = self.run_case(policy=unused_policy, stop_requested=stop)
+        report, sessions = self.run_case(policy=unused_policy, stop_requested=stop,
+            front=FakeSession(1,clock=clock),rear=FakeSession(7,clock=clock),
+            imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
         self.assertEqual(report["status"], "COMPLETE_SUPPORTED_OUTPUT", report["errors"])
         self.assertEqual(calls, [])
         self.assertTrue(report["normal_ramp_completed"])
@@ -1387,6 +1503,75 @@ class OutputRuntimeTests(unittest.TestCase):
         finally:
             workers.finish_stops()
             workers.close()
+
+
+class NonPipelinedDeadlineTests(unittest.TestCase):
+    def test_queued_acquisition_and_voltage_keep_original_absolute_deadline(self):
+        for phase in ('feedback_hold','overlapped_voltage'):
+            for expired in (False,True):
+                with self.subTest(phase=phase,expired=expired):
+                    clock=SimulatedClock()
+                    sessions={'front':FakeSession(1,clock=clock),'rear':FakeSession(7,clock=clock)}
+                    for session in sessions.values():session.enabled.update(session.ids)
+                    workers=runtime.BusWorkers(sessions,lambda:None,clock)
+                    entered=threading.Event();release=threading.Event()
+                    try:
+                        def block_owner():
+                            entered.set()
+                            self.assertTrue(release.wait(2.))
+                        blocked=workers.pools['front'].submit(block_owner)
+                        self.assertTrue(entered.wait(2.))
+                        deadline=clock()+5_000_000
+                        if phase=='feedback_hold':
+                            pending=workers.submit({'front':[encode_motion(1,0.,0.,0.)]},
+                                deadline_ns=deadline,label=phase)
+                        else:
+                            pending=workers.submit_voltage({'front':1},profile(),deadline_ns=deadline)
+                        clock.advance(10_000_000 if expired else 3_000_000)
+                        release.set();blocked.result(timeout=2.)
+                        if expired:
+                            with self.assertRaisesRegex(RuntimeError,'absolute hard deadline'):
+                                workers.collect(pending)
+                            self.assertFalse(any(session.calls for session in sessions.values()))
+                        else:
+                            result=workers.collect(pending)['front']
+                            exchange=result if phase=='feedback_hold' else result[0]
+                            self.assertEqual(exchange[0][0].deadline_ns,deadline)
+                            self.assertLess(exchange[0][0].received_ns,deadline)
+                        stops=workers.finish_stops()
+                        self.assertTrue(all(stops[scope]['complete'] for scope in sessions))
+                        self.assertTrue(all(len(session.stop_times)==1 for session in sessions.values()))
+                    finally:
+                        release.set();workers.finish_stops();workers.close()
+
+    def test_nonpipelined_cycles_use_cycle_and_sample_age_deadlines(self):
+        clock=SimulatedClock()
+        data=profile()
+        data.update(schema=live.SCHEMA_V3,telemetry_cadence=live.CADENCE_PRE_ENABLE,
+                    cadence_source_sha256=live.cadence_source_hashes(),voltage_overlap=True)
+        sessions={'front':FakeSession(1,clock=clock),'rear':FakeSession(7,clock=clock)}
+        report=runtime.run_supported_policy(data,sessions,FakeIMU(clock=clock),lambda *_:(.04,)*12,
+            cancel_io=lambda:None,encode_motion=encode_motion,clock=clock,sleep=clock.sleep)
+        self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
+        self.assertFalse(report['execution_settings']['voltage_pipeline'])
+        self.assertTrue(report['stop_confirmed'])
+        feedback={scope:[row for row in report['journal']
+            if row['phase']=='feedback_hold' and row['bus']==scope] for scope in sessions}
+        voltage={scope:[row for row in report['journal']
+            if row['phase']=='overlapped_voltage' and row['bus']==scope] for scope in sessions}
+        for scope in sessions:
+            self.assertEqual(len(feedback[scope]),len(report['cycles']))
+            self.assertEqual(len(voltage[scope]),len(report['cycles']))
+        for index,cycle in enumerate(report['cycles']):
+            hold_deadline=cycle['begin_ns']+int(data['hard_cycle_ms']*1e6)
+            oldest=min(cycle['imu']['read_started_monotonic_ns'],
+                *(record['start_ns'] for scope in sessions for record in feedback[scope][index]['records']))
+            voltage_deadline=min(hold_deadline,oldest+int(data['max_sample_age_ms']*1e6))
+            for scope in sessions:
+                self.assertTrue(all(record['deadline_ns']==hold_deadline
+                    for record in feedback[scope][index]['records']))
+                self.assertTrue(all(record['deadline_ns']==voltage_deadline
+                    for record in voltage[scope][index]['records']))
 
 
 class OverlappedVoltageTests(unittest.TestCase):
@@ -1632,6 +1817,10 @@ class VoltagePipelineCandidateTests(OverlappedVoltageTests):
         for fault,expected in (('mode','fault/mode'),('fault','fault/mode'),
                                ('position','raw position discontinuity')):
             with self.subTest(fault=fault):
+                # The injected second feedback batch must be the cause of
+                # rejection, not unrelated host load during pre-enable reads.
+                # Preserve the same clock for owner, coordinator and IMU.
+                clock=SimulatedClock()
                 def inject(session,wires,timeout_ns,send_only):
                     records,stats=original_exchange(session,wires,timeout_ns,send_only)
                     if len(wires)==6 and codec.ATParser().feed(wires[0])[0].kind==1:
@@ -1649,7 +1838,8 @@ class VoltagePipelineCandidateTests(OverlappedVoltageTests):
                     return records,stats
 
                 with patch.object(FakeSession,'_exchange',inject):
-                    report,sessions=self.run_case(lambda *_:(.04,)*12)
+                    report,sessions=self.run_case(lambda *_:(.04,)*12,
+                                                  clock=clock,sleep=clock.sleep)
                 self.assertEqual(report['status'],'ABORTED',report['errors'])
                 self.assertTrue(any(expected in error for error in report['errors']),report['errors'])
                 self.assertFalse(any(row['phase']=='overlapped_voltage' and row['bus']=='front'
@@ -1658,6 +1848,10 @@ class VoltagePipelineCandidateTests(OverlappedVoltageTests):
                 self.assertTrue(all(len(session.stop_times)==1 for session in sessions.values()))
 
     def test_slow_voltage_joins_after_policy_but_before_type1(self):
+        # Events model a voltage owner delayed behind policy computation.
+        # Waiting for the host to schedule those threads must not consume the
+        # simulated sensor-freshness budget; live limits remain unchanged.
+        clock=SimulatedClock()
         started={scope:threading.Event() for scope in runtime.BUSES}
         release=threading.Event();policy_done=threading.Event()
         output_before_release=[];probe=[]
@@ -1666,7 +1860,7 @@ class VoltagePipelineCandidateTests(OverlappedVoltageTests):
 
         def slow_voltage(worker,scope,*args,**kwargs):
             started[scope].set()
-            if not release.wait(.1):raise RuntimeError('Synthetic voltage wait timed out')
+            if not release.wait(2.):raise RuntimeError('Synthetic voltage wait timed out')
             return original_voltage(worker,scope,*args,**kwargs)
 
         def guarded_submit(worker,*args,**kwargs):
@@ -1678,16 +1872,19 @@ class VoltagePipelineCandidateTests(OverlappedVoltageTests):
             return (.04,)*12
 
         def permit_voltage():
-            if policy_done.wait(.2) and all(event.wait(.2) for event in started.values()):
+            if policy_done.wait(2.) and all(event.wait(2.) for event in started.values()):
                 probe.append(not output_before_release)
             release.set()
 
         releaser=threading.Thread(target=permit_voltage,daemon=True)
         releaser.start()
-        with patch.object(runtime.BusWorkers,'_voltage',slow_voltage), \
-             patch.object(runtime.BusWorkers,'submit_decoded',guarded_submit):
-            report,_=self.run_case(policy)
-        releaser.join(.2)
+        try:
+            with patch.object(runtime.BusWorkers,'_voltage',slow_voltage), \
+                 patch.object(runtime.BusWorkers,'submit_decoded',guarded_submit):
+                report,_=self.run_case(policy,clock=clock,sleep=clock.sleep)
+        finally:
+            release.set();releaser.join(2.)
+        self.assertFalse(releaser.is_alive(),'Synthetic voltage releaser did not finish')
         self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
         self.assertEqual(report['voltage_pipeline'],'feedback_then_voltage.fast_v1')
         self.assertEqual(probe,[True])

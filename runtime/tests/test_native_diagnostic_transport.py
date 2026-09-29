@@ -10,6 +10,8 @@ import threading
 import time
 import tty
 import unittest
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 from singularitydog_hw import native_diagnostic_transport as native
 from singularitydog_hw.can_readonly import ATParser, read_request
@@ -253,5 +255,74 @@ class NativeTransportTests(unittest.TestCase):
             self.assertEqual(records[0].received,17)
         finally:
             worker.join(timeout=1);os.close(master);os.close(slave)
+
+class NativePreparationTests(unittest.TestCase):
+    """Python publication boundary, without loading C++ or opening serial ports."""
+    def setUp(self):
+        self.host,self.peer=socket.socketpair()
+        self.host.setblocking(False)
+        self.library=SimpleNamespace(sd_exchange=Mock(return_value=0))
+        self.session=native.NativeSession(self.library,self.host.fileno(),
+            first_id=1,cancel_fd=-1,stop_proxy=True)
+
+    def tearDown(self):
+        self.host.close();self.peer.close()
+
+    def test_hook_runs_once_after_fd_checks_and_buffers_before_native(self):
+        events=[]
+        fstat,get_blocking,create_buffer=os.fstat,os.get_blocking,native.C.create_string_buffer
+        def trace(name,fn):
+            def call(*args):
+                events.append(name)
+                return fn(*args)
+            return call
+        hook=Mock(side_effect=lambda:events.append('publish'))
+        self.library.sd_exchange.side_effect=lambda *args:(events.append('native') or 0)
+        with patch.object(native.os,'fstat',trace('fstat',fstat)), \
+                patch.object(native.os,'get_blocking',trace('blocking',get_blocking)), \
+                patch.object(native.C,'create_string_buffer',trace('buffer',create_buffer)):
+            self.session.exchange([native.stop_wire(1)],before_native=hook)
+        self.assertEqual(events,['fstat','blocking','buffer','publish','native'])
+        hook.assert_called_once_with()
+        self.assertEqual(bytes(self.library.sd_exchange.call_args.args[4]),native.stop_wire(1))
+        self.assertFalse(self.session.poisoned)
+        self.assertFalse(self.session.busy.locked())
+
+    def test_fd_or_batch_rejection_never_publishes_or_enters_native(self):
+        for failure in ('blocking','binding','batch','hook'):
+            with self.subTest(failure=failure):
+                self.session.poisoned=False
+                hook=Mock()
+                st=os.fstat(self.host.fileno())
+                bad_st=SimpleNamespace(st_dev=st.st_dev,st_ino=st.st_ino+1,st_rdev=st.st_rdev)
+                with patch.object(native.os,'get_blocking',return_value=failure=='blocking'), \
+                        patch.object(native.os,'fstat',return_value=bad_st if failure=='binding' else st):
+                    with self.assertRaises(ValueError):
+                        self.session.exchange([] if failure=='batch' else [native.stop_wire(1)],
+                            before_native=0 if failure=='hook' else hook)
+                hook.assert_not_called()
+                self.library.sd_exchange.assert_not_called()
+                self.assertTrue(self.session.poisoned)
+                self.assertFalse(self.session.busy.locked())
+
+    def test_hook_exception_poisons_session_without_native_call(self):
+        hook=Mock(side_effect=RuntimeError('publication failure'))
+        with self.assertRaisesRegex(RuntimeError,'publication failure'):
+            self.session.exchange([native.stop_wire(1)],before_native=hook)
+        hook.assert_called_once_with()
+        self.library.sd_exchange.assert_not_called()
+        self.assertTrue(self.session.poisoned)
+        self.assertFalse(self.session.busy.locked())
+
+    def test_deadline_is_fixed_before_hook_and_not_rebased_after_it(self):
+        now=[1_000_000]
+        def delayed_publish():now[0]+=2_000_000
+        with patch.object(native.time,'monotonic_ns',side_effect=lambda:now[0]) as clock:
+            self.session.exchange([native.stop_wire(1)],timeout_ns=1_000_000,
+                                  before_native=delayed_publish)
+        self.assertEqual(self.library.sd_exchange.call_args.args[10],2_000_000)
+        self.assertLess(self.library.sd_exchange.call_args.args[10],now[0])
+        clock.assert_called_once_with()
+
 
 if __name__=='__main__':unittest.main()

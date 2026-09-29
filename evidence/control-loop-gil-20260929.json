@@ -1,0 +1,786 @@
+{
+  "schema": "singularitydog.gil-comparison-summary.v1",
+  "date": "2026-09-29",
+  "scope": "disabled_stop_proxy_and_bounded_supported_output",
+  "request_gap_us": 900,
+  "window": 3,
+  "motor_enable_sent": true,
+  "learned_targets_sent": true,
+  "active_output_verified": true,
+  "trials": {
+    "r33": {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "cycles": 501,
+      "errors": [],
+      "source_sha256": {
+        "report.json": "9606438ea4af01c603c76bc8c4546ee812494cdf6d63b67b1d1314725089a62f",
+        "records.json": "74584ccc5e32e643e2959d1e9672073e81e19184bc13ff3b2d05ce317ab0e79f"
+      },
+      "initial_whole_ms": 21.352545,
+      "steady_max_whole_ms": 22.336928,
+      "steady_whole_over20_count": 137,
+      "all_max_oldest_to_last_reply_ms": 21.622099,
+      "max_release_interval_ms": 22.393089,
+      "whole_median_ms": 19.8678
+    },
+    "r35": {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "cycles": 501,
+      "errors": [],
+      "source_sha256": {
+        "report.json": "067dc2f116f5d7c8e4e8623fe6588f4d16471b3bd66a48bbc726132cc6e7a12b",
+        "records.json": "fb43c34a9929b228d690d04bb252d3eb370704b93206ce63ca4aedfcf2e79168"
+      },
+      "initial_whole_ms": 21.469918,
+      "steady_max_whole_ms": 19.811546,
+      "steady_whole_over20_count": 0,
+      "all_max_oldest_to_last_reply_ms": 20.098114,
+      "max_release_interval_ms": 21.527679,
+      "whole_median_ms": 19.341293
+    },
+    "r36": {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "cycles": 501,
+      "errors": [],
+      "source_sha256": {
+        "report.json": "4650131de78c78667d1876ad2d4aaee221aab6814354c6974ed7cbfbdd18ae62",
+        "records.json": "c43222ca951227077fae7fac40bc31bacdb3eb9eb79e440eabd22cb66cd74abc"
+      },
+      "initial_whole_ms": 20.175053,
+      "steady_max_whole_ms": 19.939685,
+      "steady_whole_over20_count": 0,
+      "all_max_oldest_to_last_reply_ms": 19.241746,
+      "max_release_interval_ms": 20.228335,
+      "whole_median_ms": 19.357557
+    },
+    "r40": {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "cycles": 501,
+      "errors": [],
+      "source_sha256": {
+        "report.json": "99732771ac45b8ad8757c66cf0ea7810986a689811ca5ffd237902a346a87b0c",
+        "records.json": "17863b5607187cf913a670e0028486de4f1b651d084647366ba5c51f96f0ba7b"
+      },
+      "initial_whole_ms": 20.448795,
+      "steady_max_whole_ms": 20.071859,
+      "steady_whole_over20_count": 5,
+      "steady_scheduled_over20_count": 9,
+      "all_max_oldest_to_last_reply_ms": 19.585374,
+      "max_release_interval_ms": 20.508161,
+      "whole_median_ms": 19.352101,
+      "steady_median_ms": 19.351781000000003,
+      "voltage_range_v": [
+        35.0,
+        43
+      ],
+      "supported_output_admission": "REJECTED",
+      "rejection_reason": "Supported probe diagnostic exceeds one miss per100 cycles"
+    },
+    "r43": {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "cycles": 501,
+      "errors": [],
+      "source_sha256": {
+        "report.json": "071e07adb41573d8254253cfbcc06849add254e8fdea903f9a43f52ad866e684",
+        "records.json": "3219f738cf1870ea8f91f2946f9f37dd058570c90d7e2378f2443d52b6271144"
+      },
+      "initial_whole_ms": 20.578465,
+      "steady_max_whole_ms": 21.099771,
+      "steady_whole_over20_count": 1,
+      "steady_scheduled_over20_count": 4,
+      "all_max_oldest_to_last_reply_ms": 19.462532,
+      "max_release_interval_ms": 21.16157,
+      "whole_median_ms": 19.273519,
+      "steady_median_ms": 19.2734385,
+      "voltage_range_v": [
+        35.0,
+        43
+      ],
+      "supported_output_admission": "REJECTED",
+      "rejection_reason": "Supported probe diagnostic exceeds21ms bound"
+    },
+    "r46": {
+      "status": "COMPLETE_DIAGNOSTIC",
+      "cycles": 501,
+      "errors": [],
+      "source_sha256": {
+        "report.json": "760459a69a72d578f9aadd8d30b6419d5f77dbfb44263985367608cd66c25253",
+        "records.json": "0fd8de46de1118dd7ce34129f3158ff77aa6c540d77c56025a6f60523ab7ad86"
+      },
+      "initial_whole_ms": 20.567448,
+      "steady_max_whole_ms": 20.097074,
+      "steady_whole_over20_count": 3,
+      "steady_scheduled_over20_count": 4,
+      "all_max_oldest_to_last_reply_ms": 19.655007,
+      "whole_median_ms": 19.316556,
+      "steady_median_ms": 19.316207499999997,
+      "child_nice": -10,
+      "child_scheduler": "SCHED_OTHER",
+      "worker_priority_snapshot": "missed_after_process_exit",
+      "voltage_range_v": [
+        35.0,
+        43
+      ],
+      "original_supported_output_admission": "REJECTED",
+      "rejection_reason": "Supported probe diagnostic exceeds one miss per100 cycles",
+      "new_admission_review": "ACCEPTED_ONLY_FOR_EXPLICIT_2S_RARE_JITTER_SUPPORTED_PROBE"
+    },
+    "r48": {
+      "status": "ABORTED",
+      "scope": "supported_characterization_only",
+      "errors": [
+        "RuntimeError: Post-reply timing: input or output feedback exceeded sample-age deadline"
+      ],
+      "cycles_recorded": 1,
+      "source_sha256": {
+        "report.json": "c7cfa1ee732ce43e8b57359dec3e060158ed37a4209ae310483b168011533ba0",
+        "profile.json": "907f130d5108b78e78ea8cb32b70f5a96b1cb84c62832fa568dd735c1ea5fe71"
+      },
+      "native_batch_encoder_enabled": false,
+      "motor_enable_sent": true,
+      "motion_gain_sent": true,
+      "learned_targets_sent": false,
+      "first_cycle_ms": 20.393891,
+      "input_age_at_rejection_ms": 20.048497,
+      "stop_confirmed": true,
+      "stop_confirmed_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "stop_fault_bits_all_zero": true,
+      "disposition": "Input-age guard aborted first ramp cycle; learned mixture remained zero. Failure is retained."
+    },
+    "r49": {
+      "status": "COMPLETE_SUPPORTED_OUTPUT",
+      "scope": "supported_characterization_only",
+      "errors": [],
+      "source_sha256": {
+        "report.json": "e2985b7ef72d2463eba4a276d01aa4398da72b88a3a29dc1f761b84bcfd7775b",
+        "profile.json": "639209060c2a42c0d554fd81a1062baf3c18e36c5190d9b4bdccd4d5f3861128"
+      },
+      "configured_duration_s": 2.0,
+      "recorded_loop_elapsed_s": 1.839576535,
+      "cycles_recorded": 92,
+      "phase_counts": {
+        "starting": 20,
+        "active": 48,
+        "stopping": 23,
+        "stopped": 1
+      },
+      "actual_model_calls": 68,
+      "cycles_with_positive_policy_mix": 48,
+      "maximum_policy_mix": 0.005,
+      "max_displacement_limit_deg": 1.0,
+      "kp": 3.0,
+      "kd": 0.15,
+      "request_gap_us": 900,
+      "window": 3,
+      "native_batch_encoder": {
+        "enabled": true,
+        "binary_sha256": "c434bfe2bc886ddda7aab50763e4ae0136d11a6c15007f5cd73980180a0380c4",
+        "source_sha256": {
+          "batch_encode.cpp": "73e3e28bf80800c8ea6a2b12320f783c247b706f1964b46122c3e9a5b78238ea",
+          "batch_encode_py.cpp": "7210ee9cce727e5b31cac697893753d0355813fc17e5d9d34a709883c7fa3908"
+        }
+      },
+      "motor_enable_sent": true,
+      "motion_gain_sent": true,
+      "learned_targets_sent": true,
+      "normal_ramp_completed": true,
+      "iteration_median_ms": 19.513171,
+      "iteration_max_ms": 19.95915,
+      "maximum_begin_to_output_reply_ms": 19.380834,
+      "deadline20ms_misses": 0,
+      "post_reply_deadline_allowance_uses": 0,
+      "startup_20ms_allowance_uses": 0,
+      "max_start_interval_ms": 20.022582,
+      "start_interval_count": 91,
+      "start_intervals_over_20ms": 50,
+      "start_intervals_over_21ms": 0,
+      "strict_start_interval_20ms_met": false,
+      "actual_policy_output_20ms_verified": false,
+      "max_tracking_error_deg": 0.18683751007521077,
+      "max_measured_displacement_from_trial_origin_deg": 0.15385536398424743,
+      "max_abs_measured_velocity_rad_s": 0.1365682459754325,
+      "max_abs_measured_torque_nm": 0.04355687800411978,
+      "minimum_checked_voltage_v": 40.42275619506836,
+      "stop_confirmed": true,
+      "stop_confirmed_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "stop_fault_bits_all_zero": true,
+      "operator_observation": {
+        "source": "Current chat confirmation relayed by coordinating agent",
+        "audio_heard": true,
+        "physical_anomaly_reported": false,
+        "box_power_pose_maintained": true
+      },
+      "ten_second_trial_completed": false,
+      "weight_bearing_stance_verified": false,
+      "unsupported_stance_verified": false,
+      "walking_verified": false
+    },
+    "r50": {
+      "status": "ABORTED",
+      "scope": "supported_characterization_only",
+      "errors": [
+        "RuntimeError: Post-reply timing: consecutive miss budget exceeded"
+      ],
+      "source_sha256": {
+        "report.json": "ffb004107b90e3472d736b897d3c6b6175737c59cb8712a829072ae140d2b8c3",
+        "profile.json": "03173b3177e5d667407b6582d6da43908ec2c6d0b72ae0219f6bde1a39ba7a0f"
+      },
+      "configured_duration_s": 10.0,
+      "diagnostic_timing_acceptance": "supported-policy-probe-10s-after-2s-v1",
+      "cycles_recorded": 2,
+      "phase_counts": {
+        "starting": 2
+      },
+      "native_batch_encoder_enabled": true,
+      "motor_enable_sent": true,
+      "motion_gain_sent": true,
+      "learned_targets_sent": false,
+      "learned_targets_attempted": false,
+      "actual_model_calls": 2,
+      "cycle_iteration_ms": [
+        20.110677,
+        20.062804
+      ],
+      "cycle_begin_to_output_reply_ms": [
+        19.637927,
+        19.360991
+      ],
+      "cycle_reply_to_end_ms": [
+        0.47275,
+        0.701813
+      ],
+      "deadline20ms_misses": 2,
+      "post_reply_deadline_allowance_uses": 1,
+      "post_reply_deadline_rejections": [
+        {
+          "index": 1,
+          "accepted": false,
+          "checked_ns": 4533815451678,
+          "allowance_used": false,
+          "rejection": "Post-reply timing: consecutive miss budget exceeded"
+        }
+      ],
+      "maximum_policy_mix": 0.0,
+      "normal_ramp_completed": false,
+      "max_start_interval_ms": 20.170998,
+      "stop_confirmed": true,
+      "stop_confirmed_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "stop_fault_bits_all_zero": true,
+      "operator_observation": {
+        "source": "Current chat confirmation relayed by coordinating agent",
+        "audio_heard": true,
+        "physical_anomaly_reported": false,
+        "box_power_pose_maintained": true
+      },
+      "ten_second_trial_completed": false,
+      "weight_bearing_stance_verified": false,
+      "unsupported_stance_verified": false,
+      "walking_verified": false,
+      "disposition": "10s configuration was attempted but aborted in the second startup cycle after consecutive post-reply deadline misses. No learned targets sent. Preserve r49 2s success separately."
+    },
+    "r51": {
+      "status": "ABORTED",
+      "scope": "supported_characterization_only",
+      "errors": [
+        "RuntimeError: Post-reply timing: input or output feedback exceeded sample-age deadline"
+      ],
+      "source_sha256": {
+        "report.json": "c8cb00132ce1e799a9800b63ef66bbddc2af228a5ea3623e4de84d8e8b90d341",
+        "profile.json": "16f961386c3e73465cd66cee4b8264f8094eac2402df7e38cd3c82ed50b505e9"
+      },
+      "configured_duration_s": 2.0,
+      "purpose": "2s requalification after explicit first-cycle post-reply allowance implementation",
+      "startup_cycle_allowance": "first-cycle-post-reply-v1",
+      "startup_20ms_allowance_enabled": true,
+      "startup_20ms_allowance_uses": 0,
+      "cycles_recorded": 1,
+      "phase_counts": {
+        "starting": 1
+      },
+      "iteration_ms": 20.309195,
+      "input_age_at_rejection_ms": 20.093303,
+      "begin_to_output_reply_ms": 19.746328,
+      "reply_to_cycle_end_ms": 0.562867,
+      "native_batch_encoder_enabled": true,
+      "motor_enable_sent": true,
+      "motion_gain_sent": true,
+      "learned_targets_sent": false,
+      "learned_targets_attempted": false,
+      "actual_model_calls": 1,
+      "maximum_policy_mix": 0.0,
+      "normal_ramp_completed": false,
+      "deadline20ms_misses": 1,
+      "startup_20ms_misses": 1,
+      "steady_deadline20ms_misses": 0,
+      "post_reply_deadline_allowance_uses": 0,
+      "post_reply_deadline_rejections": [
+        {
+          "index": 0,
+          "accepted": false,
+          "checked_ns": 5016156654454,
+          "allowance_used": false,
+          "rejection": "Post-reply timing: input or output feedback exceeded sample-age deadline"
+        }
+      ],
+      "stop_confirmed": true,
+      "stop_confirmed_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "stop_fault_bits_all_zero": true,
+      "operator_observation": {
+        "source": "Current chat confirmation relayed by coordinating agent",
+        "audio_heard": true,
+        "physical_anomaly_reported": false,
+        "box_power_pose_maintained": true
+      },
+      "ten_second_trial_completed": false,
+      "weight_bearing_stance_verified": false,
+      "unsupported_stance_verified": false,
+      "walking_verified": false,
+      "disposition": "Input-age guard rejected first cycle before startup allowance could be used. Learned mixture remained zero; all12 STOP confirmed. Preserve r49 success and r50 abort."
+    },
+    "r52": {
+      "status": "ABORTED",
+      "scope": "supported_characterization_only",
+      "errors": [
+        "MotionFault: Command gap exceeded: command_interval_ms=21.364099, sample_interval_ms=20.007292, limit_ms=21.000000"
+      ],
+      "native_batch_encoder": {
+        "enabled": true,
+        "binary_sha256": "c434bfe2bc886ddda7aab50763e4ae0136d11a6c15007f5cd73980180a0380c4",
+        "source_sha256": {
+          "batch_encode.cpp": "73e3e28bf80800c8ea6a2b12320f783c247b706f1964b46122c3e9a5b78238ea",
+          "batch_encode_py.cpp": "7210ee9cce727e5b31cac697893753d0355813fc17e5d9d34a709883c7fa3908"
+        }
+      },
+      "motor_enable_sent": true,
+      "motion_gain_sent": true,
+      "learned_targets_sent": true,
+      "learned_targets_attempted": true,
+      "actual_model_calls": 55,
+      "normal_ramp_completed": false,
+      "deadline20ms_misses": 1,
+      "startup_20ms_allowance_enabled": true,
+      "startup_20ms_allowance_uses": 1,
+      "startup_20ms_misses": 1,
+      "steady_deadline20ms_misses": 0,
+      "post_reply_deadline_allowance_uses": 0,
+      "max_start_interval_ms": 20.247978,
+      "start_intervals_over_20ms": 26,
+      "start_intervals_over_21ms": 0,
+      "actual_policy_output_20ms_verified": false,
+      "full_controller_50Hz_verified": false,
+      "stop_confirmed": true,
+      "source_sha256": {
+        "report.json": "6e6469bb201a814b3aa89c987380836f2fb27d0b7afab5affb09cca96bfa5e8b",
+        "profile.json": "7c7dfefbdce69621346d0f94056dbfec898954afe44879f71c9dcf5ed3bd2b30"
+      },
+      "configured_duration_s": 2.0,
+      "cycles_recorded": 54,
+      "phase_counts": {
+        "starting": 20,
+        "active": 34
+      },
+      "whole_median_ms": 19.443599,
+      "first_iteration_ms": 20.185831,
+      "whole_max_ms": 20.185831,
+      "steady_max_ms": 19.960634,
+      "begin_to_output_reply_max_ms": 19.578822,
+      "recorded_cycle_span_s": 1.079948951,
+      "minimum_checked_voltage_v": 40.352577209472656,
+      "stop_confirmed_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "stop_fault_bits_all_zero": true,
+      "operator_observation": {
+        "source": "Current chat confirmation relayed by coordinating agent",
+        "audio_heard": true,
+        "physical_anomaly_reported": false,
+        "box_power_pose_maintained": true
+      },
+      "ten_second_trial_completed": false,
+      "weight_bearing_stance_verified": false,
+      "unsupported_stance_verified": false,
+      "walking_verified": false,
+      "failed_cycle_timing": {
+        "index": 54,
+        "release_ns": 5479153773353,
+        "begin_ns": 5479153795172,
+        "previous_candidate_ns": 5479145353256,
+        "previous_sample_start_ns": 5479134005299,
+        "hold_checked_ns": 5479153814213,
+        "acquisition_complete_ns": 5479162073239,
+        "sample_start_ns": 5479154012591,
+        "policy_call_begin_ns": 5479162261409,
+        "policy_call_return_ns": 5479164266602,
+        "target_ready_ns": 5479164342190,
+        "voltage_join_complete_ns": 5479166651176,
+        "candidate_ns": 5479166717355,
+        "output_submit_ns": null,
+        "output_return_ns": null,
+        "cycle_end_ns": null,
+        "schema": "singularitydog.failed-policy-cycle-timing.v1",
+        "stage": "motion_envelope",
+        "gap_limit_ms": 21.0,
+        "sample_age_limit_ms": 20.0,
+        "hard_cycle_limit_ms": 20.0,
+        "command_gap_basis": "validated_target_computation_not_transport_write",
+        "command_interval_ms": 21.364099,
+        "sample_interval_ms": 20.007292,
+        "candidate_sample_age_ms": 12.704764,
+        "policy_call_ms": 2.005193,
+        "voltage_join_ms": 2.308986
+      },
+      "disposition": "54 completed cycles; next cycle rejected by 21ms candidate-computation gap limit. Learned output had begun; failed cycle sent no new output; all12 STOP confirmed. Voltage replies arrived before the delayed Python join.",
+      "last_voltage_reply_to_join_ms": 1.777406
+    },
+    "r53": {
+      "status": "COMPLETE_SUPPORTED_OUTPUT",
+      "scope": "supported_characterization_only",
+      "errors": [],
+      "native_batch_encoder": {
+        "enabled": true,
+        "binary_sha256": "c434bfe2bc886ddda7aab50763e4ae0136d11a6c15007f5cd73980180a0380c4",
+        "source_sha256": {
+          "batch_encode.cpp": "73e3e28bf80800c8ea6a2b12320f783c247b706f1964b46122c3e9a5b78238ea",
+          "batch_encode_py.cpp": "7210ee9cce727e5b31cac697893753d0355813fc17e5d9d34a709883c7fa3908"
+        }
+      },
+      "motor_enable_sent": true,
+      "motion_gain_sent": true,
+      "learned_targets_sent": true,
+      "learned_targets_attempted": true,
+      "actual_model_calls": 68,
+      "normal_ramp_completed": true,
+      "deadline20ms_misses": 1,
+      "startup_20ms_allowance_enabled": true,
+      "startup_20ms_allowance_uses": 1,
+      "startup_20ms_misses": 1,
+      "steady_deadline20ms_misses": 0,
+      "post_reply_deadline_allowance_uses": 0,
+      "max_start_interval_ms": 20.199619,
+      "start_intervals_over_20ms": 47,
+      "start_intervals_over_21ms": 0,
+      "actual_policy_output_20ms_verified": false,
+      "full_controller_50Hz_verified": false,
+      "stop_confirmed": true,
+      "source_sha256": {
+        "report.json": "28e6b794528dc5e0dcd71bc7507b08390158c4c65d04e6a857614c05654b877d",
+        "profile.json": "9b9d755a93b8d6cf4be8a998670823ee7315a693192a9a12c8fe0a0aff6adf96"
+      },
+      "configured_duration_s": 2.0,
+      "cycles_recorded": 92,
+      "phase_counts": {
+        "starting": 20,
+        "active": 48,
+        "stopping": 23,
+        "stopped": 1
+      },
+      "whole_median_ms": 19.378731000000002,
+      "first_iteration_ms": 20.138432,
+      "whole_max_ms": 20.138432,
+      "steady_max_ms": 19.887316,
+      "begin_to_output_reply_max_ms": 19.724748,
+      "recorded_cycle_span_s": 1.839192363,
+      "minimum_checked_voltage_v": 40.31748962402344,
+      "stop_confirmed_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "stop_fault_bits_all_zero": true,
+      "operator_observation": {
+        "source": "Current chat confirmation relayed by coordinating agent",
+        "audio_heard": true,
+        "physical_anomaly_reported": false,
+        "box_power_pose_maintained": true
+      },
+      "ten_second_trial_completed": false,
+      "weight_bearing_stance_verified": false,
+      "unsupported_stance_verified": false,
+      "walking_verified": false,
+      "runtime_fixed_decode_benchmark": {
+        "mode": "saved_records_only_no_hardware",
+        "parity_records": 1622,
+        "cycle_records": 24,
+        "median_old_cycle_us": 371.76264533333335,
+        "median_new_cycle_us": 297.255608,
+        "saving_us": 74.50703733333336,
+        "speedup": 1.2506497281401445,
+        "round_cycle_us": {
+          "old": [
+            372.6282693333334,
+            371.596488,
+            370.64635933333335,
+            369.951618,
+            372.3569386666667,
+            371.7331346666667,
+            372.11892133333333,
+            371.79215600000003
+          ],
+          "new": [
+            297.272556,
+            297.3059853333333,
+            296.98907733333334,
+            296.8059633333333,
+            297.23866,
+            296.96711466666665,
+            297.546954,
+            297.730578
+          ]
+        },
+        "source_sha256": "eec61e3c584af69a44d62caf1a4303a2f1ade453a63223a32097a636ba92a148"
+      },
+      "disposition": "2s supported requalification completed after fixed-record runtime decode optimization; first-cycle allowance used once, steady cycles <=20ms, all12 STOP confirmed. No standing or walking.",
+      "before_native_publication_candidate_applied": false
+    },
+    "r54": {
+      "status": "COMPLETE_SUPPORTED_OUTPUT",
+      "scope": "supported_characterization_only",
+      "errors": [],
+      "native_batch_encoder": {
+        "enabled": true,
+        "binary_sha256": "c434bfe2bc886ddda7aab50763e4ae0136d11a6c15007f5cd73980180a0380c4",
+        "source_sha256": {
+          "batch_encode.cpp": "73e3e28bf80800c8ea6a2b12320f783c247b706f1964b46122c3e9a5b78238ea",
+          "batch_encode_py.cpp": "7210ee9cce727e5b31cac697893753d0355813fc17e5d9d34a709883c7fa3908"
+        }
+      },
+      "motor_enable_sent": true,
+      "motion_gain_sent": true,
+      "learned_targets_sent": true,
+      "learned_targets_attempted": true,
+      "actual_model_calls": 468,
+      "normal_ramp_completed": true,
+      "deadline20ms_misses": 1,
+      "startup_20ms_allowance_enabled": true,
+      "startup_20ms_allowance_uses": 0,
+      "startup_20ms_misses": 0,
+      "steady_deadline20ms_misses": 1,
+      "post_reply_deadline_allowance_uses": 1,
+      "max_start_interval_ms": 20.244265,
+      "start_intervals_over_20ms": 248,
+      "start_intervals_over_21ms": 0,
+      "actual_policy_output_20ms_verified": false,
+      "full_controller_50Hz_verified": false,
+      "stop_confirmed": true,
+      "source_sha256": {
+        "report.json": "9a067fe0ed200469c25dec4eea8f0407602e7c6807b1cb4ffaa34584f30193fe",
+        "profile.json": "33b365154e66f2a5f8e59a72626b01aad450ae8c310d182b4c8b53f522e462b5"
+      },
+      "configured_duration_s": 10.0,
+      "cycles_recorded": 494,
+      "phase_counts": {
+        "starting": 20,
+        "active": 448,
+        "stopping": 25,
+        "stopped": 1
+      },
+      "whole_median_ms": 19.361825,
+      "whole_max_ms": 20.189507,
+      "first_iteration_ms": 19.892176,
+      "steady_max_ms": 20.189507,
+      "begin_to_output_reply_max_ms": 19.801148,
+      "recorded_cycle_span_s": 9.879320083,
+      "deadline_miss_indices": [
+        286
+      ],
+      "post_reply_acceptance_all_cycles": true,
+      "maximum_policy_mix": 0.005,
+      "max_tracking_error_deg": 0.2161392009070383,
+      "max_displacement_from_trial_origin_deg": 0.13187602627212486,
+      "max_abs_velocity_rad_s": 0.1579308766308074,
+      "max_abs_torque_nm": 0.06906996261539611,
+      "minimum_checked_voltage_v": 40.31748962402344,
+      "stop_confirmed_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "stop_fault_bits_all_zero": true,
+      "operator_observation": {
+        "source": "Current chat confirmation relayed by coordinating agent",
+        "audio_heard": true,
+        "physical_anomaly_reported": false,
+        "box_power_pose_maintained": true,
+        "catch_surface_2_to_3mm_below_torso_reported_ready": true,
+        "load_transfer_performed": false
+      },
+      "ten_second_trial_completed": true,
+      "weight_bearing_stance_verified": false,
+      "unsupported_stance_verified": false,
+      "walking_verified": false,
+      "before_native_publication_candidate_applied": false,
+      "disposition": "Same-source 10s supported characterization completed, with one allowed post-reply overrun. All12 STOP and no physical anomaly confirmed. Next is box-supported load-preparation current-position hold; no load transfer, unsupported stance or walking claimed."
+    },
+    "r55": {
+      "status": "COMPLETE_SUPPORTED_OUTPUT",
+      "scope": "supported_characterization_only",
+      "errors": [],
+      "native_batch_encoder": {
+        "enabled": true,
+        "binary_sha256": "c434bfe2bc886ddda7aab50763e4ae0136d11a6c15007f5cd73980180a0380c4",
+        "source_sha256": {
+          "batch_encode.cpp": "73e3e28bf80800c8ea6a2b12320f783c247b706f1964b46122c3e9a5b78238ea",
+          "batch_encode_py.cpp": "7210ee9cce727e5b31cac697893753d0355813fc17e5d9d34a709883c7fa3908"
+        }
+      },
+      "motor_enable_sent": true,
+      "motion_gain_sent": true,
+      "learned_targets_sent": false,
+      "learned_targets_attempted": false,
+      "current_position_hold_only": true,
+      "cyclic_inference_skipped": true,
+      "actual_model_calls": 0,
+      "normal_ramp_completed": true,
+      "deadline20ms_misses": 0,
+      "startup_20ms_allowance_enabled": false,
+      "startup_20ms_allowance_uses": 0,
+      "startup_20ms_misses": 0,
+      "steady_deadline20ms_misses": 0,
+      "post_reply_deadline_allowance_uses": 0,
+      "max_start_interval_ms": 20.005087,
+      "start_intervals_over_20ms": 67,
+      "start_intervals_over_21ms": 0,
+      "actual_policy_output_20ms_verified": false,
+      "full_controller_50Hz_verified": false,
+      "stop_confirmed": true,
+      "source_sha256": {
+        "report.json": "485a021a98c704e72aaab07c2cc265e360fd5caace6f38f20e2de5b64a888604",
+        "profile.json": "ed638fa77651d46d54426ddcbf478e9d5b69edc4c3729e2ad657f87ea074b475"
+      },
+      "configured_duration_s": 3.0,
+      "cycles_recorded": 138,
+      "phase_counts": {
+        "starting": 50,
+        "active": 68,
+        "stopping": 19,
+        "stopped": 1
+      },
+      "whole_median_ms": 19.1770925,
+      "whole_max_ms": 19.624325,
+      "first_iteration_ms": 19.599875,
+      "begin_to_output_reply_max_ms": 19.14474,
+      "recorded_cycle_span_s": 2.759192412,
+      "max_kp": 12.0,
+      "max_kd": 0.15,
+      "max_tracking_error_deg": 0.08791735084808323,
+      "max_abs_velocity_rad_s": 0.15487907225146813,
+      "max_abs_torque_nm": 0.04489967193102906,
+      "minimum_checked_voltage_v": 40.28239822387695,
+      "stop_confirmed_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "stop_fault_bits_all_zero": true,
+      "operator_observation": {
+        "source": "Current chat confirmation relayed by coordinating agent",
+        "audio_heard": true,
+        "physical_anomaly_reported": false,
+        "box_power_pose_maintained": true,
+        "load_transfer_performed": false
+      },
+      "weight_bearing_stance_verified": false,
+      "unsupported_stance_verified": false,
+      "walking_verified": false,
+      "thirty_second_fixed_catch_hold_performed": false,
+      "disposition": "Box-supported fixed-current-position 3s hold reached Kp12/Kd0.15 and completed 138 cycles without deadline overrun. No cyclic learned targets, no load transfer, unsupported stance or walking. Thirty-second fixed-catch tool is preparation only."
+    }
+  },
+  "latest_trial": "r55",
+  "current_supported_output_admitted": true,
+  "active_output_verified_scope": "r54: box-supported 10s configured learned mixture<=0.5percent/max1deg; r55: box-supported3s fixed current position Kp12/Kd0.15, no cyclic inference. No weight-bearing stance or walking.",
+  "actual_policy_output_20ms_verified": false,
+  "latest_successful_supported_trial": "r55",
+  "current_disposition": "r55 completed strict-deadline box-supported3s current-position hold. A separate30s fixed-catch tool is in preparation, not executed. Load transfer, unsupported stance and walking remain unperformed.",
+  "latest_successful_learned_output_trial": "r54"
+}

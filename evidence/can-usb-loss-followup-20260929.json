@@ -1,0 +1,1702 @@
+{
+  "schema": "can-usb-loss-followup-20260929-v1",
+  "root_cause_confirmed": false,
+  "runtime_skip_enabled": false,
+  "active_r7": {
+    "report_sha256": "d301a368f20e83238e46b5dc8740fc79a54fe908f7066fe5eeebeece0c91dcc5",
+    "status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+    "completed_cycles": 42,
+    "failed_cycle": 43,
+    "bus": "front",
+    "kind": "Type1",
+    "unresolved_id": 4,
+    "other_complete_replies": 5,
+    "rx_bytes": 85,
+    "unparsed_bytes": 0,
+    "write_return_to_deadline_ms": 17.316262,
+    "xhci_trace_of_failure_available": false,
+    "operator_physical_cutoff_confirmed": true,
+    "operator_physical_anomaly_reported": false,
+    "subsequent_stop_replies_per_attempt": 6,
+    "subsequent_stop_rx_bytes_per_attempt": 102,
+    "subsequent_stop_attempts": 3,
+    "extra_late_type1_reply_proven": false
+  },
+  "disabled_r11": {
+    "report_sha256": "e23bdbc62966303bfc2eb33496dc44094d8ac09861018dfee81a6822afd6c358",
+    "status": "COMPLETE_DIAGNOSTIC",
+    "cycles": 500,
+    "type2_stop_replies_per_axis": 500,
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "request_gap_us": 800,
+    "request_window": 3,
+    "whole_iteration_median_ms": 7.423929,
+    "whole_iteration_max_ms": 7.98001
+  },
+  "xhci_r11": {
+    "report_sha256": "a13946c91d792660594148872db71187c1a1a637125901de9249850c2b45d4a1",
+    "trace_lossless": true,
+    "overrun_or_dropped_events": 0,
+    "out_enqueue_and_giveback_per_adapter": 3006,
+    "in_enqueue_and_giveback_per_adapter": 2008,
+    "in_payload_lengths_per_adapter": {
+      "32_bytes": 1500,
+      "6_bytes": 500,
+      "17_bytes": 6,
+      "zero_bytes_at_close": 2
+    },
+    "in_urb_dequeue_at_close_per_adapter": 2,
+    "payload_captured": false,
+    "can_delivery_proven": false
+  },
+  "angle_diagnostic": {
+    "failed_before_cycle": true,
+    "reason": "diagnostic observer omitted the active runtime's fixed branch",
+    "id9_raw_rad_approx": 5.6324,
+    "id9_direct_model_rad_approx": 6.2784,
+    "active_r7_fixed_branch_turns": 1,
+    "id9_comparison_model_rad_approx": -0.0048,
+    "physical_full_revolution_proven": false,
+    "output_calibration_changed": false
+  },
+  "zero_gain_r12": {
+    "report_sha256": "9c8af99b691006575be0f718c744f7e1c63958320947448b16166731ddd32061",
+    "status": "COMPLETE_COMMAND_LOSS_DIAGNOSTIC",
+    "motor_enable_sent": true,
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "stop_confirmed": true,
+    "type1_replies_per_adapter": 18,
+    "xhci_report_sha256": "41961eb661399d90a3d4369946e707866b6bd2ec68c0fba8198c1d03ad6aa718",
+    "xhci_out_completed_per_adapter": 72,
+    "xhci_real_in_completed_per_adapter": 72,
+    "operator_audio_heard": true,
+    "operator_physical_anomaly_reported": false
+  },
+  "disabled_type1_r13": {
+    "report_sha256": "29402a4da611a7fb1b4201a11170018009ea2320e1548517ecda29d413c186a0",
+    "status": "COMPLETE_DISABLED_TYPE1_DIAGNOSTIC",
+    "cycles": 100,
+    "type1_replies_per_axis": 101,
+    "stop_confirmed": true,
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "cycle_elapsed_median_ms": 19.142512,
+    "cycle_elapsed_max_ms": 22.255833,
+    "cycles_above_20ms": 5,
+    "xhci_trace_overlapped": false,
+    "operator_physical_anomaly_reported": false
+  },
+  "disabled_type1_r14": {
+    "report_sha256": "c5fccf2b19f0fa45da10154bc08c068bfe6453c9df3776c46fd7853905676c87",
+    "status": "COMPLETE_DISABLED_TYPE1_DIAGNOSTIC",
+    "cycles": 100,
+    "type1_replies_per_axis": 101,
+    "stop_confirmed": true,
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "cycle_elapsed_median_ms": 19.168738,
+    "cycle_elapsed_max_ms": 21.89886,
+    "cycles_above_20ms": 1,
+    "xhci_report_sha256": "e230c6acecb42b328a1820332e8d4a2f572ffdf81a20d9ed3a5b5597b964d086",
+    "xhci_trace_overlapped": true,
+    "xhci_trace_lossless": true,
+    "xhci_out_completed_per_adapter": 636,
+    "xhci_real_in_completed_per_adapter": 636,
+    "xhci_zero_byte_in_on_close_per_adapter": 2,
+    "operator_audio_heard": true,
+    "operator_physical_anomaly_reported": false
+  },
+  "dense_disabled_type1_r15": {
+    "report_sha256": "aa6e71ae434b923fa5475bef43024b2a6ba02b5bde68f72b9f9ab08282e67d6a",
+    "status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+    "cycles_completed": 0,
+    "failed_cycle": 1,
+    "diagnostic_reply_deadline_ms": 20,
+    "type1_requests_per_cycle": 24,
+    "voltage_requests_per_cycle": 2,
+    "last_type1_reply_complete_before_deadline": false,
+    "offline_reassembled_complete_replies_per_adapter": 49,
+    "offline_reassembled_discarded_bytes_per_adapter": 0,
+    "physical_cutoff_confirmed": true,
+    "operator_physical_anomaly_reported": false,
+    "root_cause_of_active_r7_proven": false
+  },
+  "dense_disabled_type1_r16": {
+    "report_sha256": "1043d7d1e7c8c10b0f99937ea38cd37fa8e76d1189781f937ffb8a64d7ffe865",
+    "status": "COMPLETE_DISABLED_TYPE1_DIAGNOSTIC",
+    "cycles": 5,
+    "type1_requests_per_cycle": 24,
+    "voltage_requests_per_cycle": 2,
+    "motor_enable_sent": false,
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "stop_confirmed": true,
+    "cycle_elapsed_median_ms": 20.85708,
+    "cycle_elapsed_max_ms": 22.028574,
+    "cycles_above_20ms": 5,
+    "operator_audio_heard": true,
+    "operator_physical_anomaly_reported": false
+  },
+  "dense_disabled_type1_r17": {
+    "report_sha256": "cba67d72e159dccad57fac73847cee6bc12a253156306f02de8362a50dbfa2fe",
+    "status": "COMPLETE_DISABLED_TYPE1_DIAGNOSTIC",
+    "cycles": 50,
+    "type1_requests_per_cycle": 24,
+    "voltage_requests_per_cycle": 2,
+    "motor_enable_sent": false,
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "stop_confirmed": true,
+    "cycle_elapsed_median_ms": 20.697533,
+    "cycle_elapsed_max_ms": 23.967541,
+    "cycles_above_20ms": 48,
+    "xhci_report_sha256": "61cd750ae5c11d63bfbe99a9f1b71e4dc1ef30377753a28c870a8068ef6c877e",
+    "xhci_trace_overlapped": true,
+    "xhci_trace_lossless": true,
+    "xhci_out_completed_per_adapter": 686,
+    "xhci_real_in_urb_completed_per_adapter": 487,
+    "application_requests_and_replies_per_adapter": 686,
+    "application_tx_and_rx_bytes_per_adapter": 11662,
+    "operator_audio_heard": true,
+    "operator_physical_anomaly_reported": false
+  },
+  "enabled_zero_type1_r18": {
+    "report_sha256": "32449d83ea7ca7cf9564fa362b7b979f8552262268706327ea4f69385f069dcf",
+    "status": "COMPLETE_ENABLED_ZERO_TYPE1_DIAGNOSTIC",
+    "cycles": 5,
+    "type1_requests_per_cycle": 24,
+    "voltage_requests_per_cycle": 2,
+    "motor_enable_attempted": true,
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "stop_confirmed": true,
+    "cycle_elapsed_median_ms": 21.293,
+    "cycle_elapsed_max_ms": 21.986,
+    "xhci_report_sha256": "ae56ac2efcc44f4997fd22f2db1b3c2e085e4ea48bad36cda4f3c846fe4d0905",
+    "xhci_trace_overlapped": true,
+    "xhci_trace_lossless": true,
+    "xhci_out_completed_per_adapter": 125,
+    "application_requests_and_replies_per_adapter": 125,
+    "application_tx_and_rx_bytes_per_adapter": 2125,
+    "operator_audio_heard": true,
+    "operator_physical_anomaly_reported": false
+  },
+  "enabled_zero_type1_r19": {
+    "report_sha256": "9a8f460210bd6ad4efc2d9cb5e5eb88cba914b0e6db2cd60014be6c3097a92ff",
+    "status": "COMPLETE_ENABLED_ZERO_TYPE1_DIAGNOSTIC",
+    "cycles": 50,
+    "type1_requests_per_cycle": 24,
+    "voltage_requests_per_cycle": 2,
+    "motor_enable_attempted": true,
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "stop_confirmed": true,
+    "cycle_elapsed_median_ms": 20.89533,
+    "cycle_elapsed_max_ms": 24.196149,
+    "cycles_above_20ms": 50,
+    "xhci_report_sha256": "1250b0592426543f09810852fd4c653be6ae1db21c7b06072898a05ba0657de5",
+    "xhci_trace_overlapped": true,
+    "xhci_trace_lossless": true,
+    "xhci_out_completed_per_adapter": 710,
+    "application_requests_and_replies_per_adapter": 710,
+    "application_tx_and_rx_bytes_per_adapter": 12070,
+    "operator_audio_heard": true,
+    "operator_physical_anomaly_reported": false
+  },
+  "next_decision": {
+    "root_cause_confirmed": false,
+    "comparison_needed": "Apply and restore the previously measured CPU frequency floor and 1us timer slack on native bus owners; compare fixed native pacing in zero-gain finite trials, then requalify supported learned output",
+    "python_500_cycle_diagnostic_executed": false,
+    "ten_second_learned_output_ready": false,
+    "unconditional_reply_skip_allowed": false
+  },
+  "actual_transport_comparison": {
+    "scope": "r7 native active feedback batches vs r19 Python enabled-zero batches; observational comparison, not a single-variable experiment",
+    "front_tx_start_gap_median_ms": {
+      "active_r7": 0.823563,
+      "enabled_zero_r19": 1.083616
+    },
+    "cycle_start_interval_median_ms": {
+      "active_r7": 20.000287,
+      "enabled_zero_r19": 20.918995
+    },
+    "cycle_start_interval_max_ms": {
+      "active_r7": 20.003807,
+      "enabled_zero_r19": 24.22367
+    },
+    "front_feedback_batch_median_ms": {
+      "active_r7": 6.945225,
+      "enabled_zero_r19": 8.330074
+    },
+    "same_configured_gap_us": 800,
+    "same_effective_wire_timing": false
+  },
+  "previous_reply_reuse_review": {
+    "scope": "41 adjacent completed active r7 cycles; original request timestamps retained",
+    "oldest_output_request_to_next_last_write_ms": {
+      "min": 23.639994,
+      "median": 24.221229,
+      "max": 24.504407
+    },
+    "oldest_output_request_to_next_last_reply_ms": {
+      "min": 26.495034,
+      "median": 27.020907,
+      "max": 27.250963
+    },
+    "compatible_with_existing_20ms_freshness_contract": false,
+    "runtime_changed": false
+  },
+  "native_zero_type1_r20": {
+    "report_sha256": "2b3ff8d64c961da0ef8d66cf806db7675dcbc4353c1b810665aa55210fc8973b",
+    "boot_id": "274a4717-d613-489e-b5bf-48ee50690111",
+    "status": "COMPLETE_NATIVE_ZERO_TYPE1_DIAGNOSTIC",
+    "condition": "800us-window3",
+    "attempted_cycles": 5,
+    "completed_cycles": 5,
+    "cycle_elapsed_ms": [
+      21.028811,
+      19.781223,
+      19.903754,
+      19.989997,
+      20.064655
+    ],
+    "cycle_elapsed_median_ms": 19.989997,
+    "cycle_elapsed_max_ms": 21.028811,
+    "cycles_above_20ms": 2,
+    "stop_confirmed": true,
+    "errors": [],
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "diagnostic_reply_deadline_ms": 25,
+    "active_control_deadlines_changed": false,
+    "timer_slack_optimization_applied": false,
+    "cpu_frequency_floor_fixed": false,
+    "xhci_report_sha256": "8d1de72101bc80a387c32ac5d134427f08f40d5abbcf174221668eacff6c68ad",
+    "xhci_trace_lossless": true,
+    "operator_audio_heard": true,
+    "operator_physical_anomaly_reported": false,
+    "cycles": [
+      {
+        "index": 1,
+        "complete": true
+      },
+      {
+        "index": 2,
+        "complete": true
+      },
+      {
+        "index": 3,
+        "complete": true
+      },
+      {
+        "index": 4,
+        "complete": true
+      },
+      {
+        "index": 5,
+        "complete": true
+      }
+    ],
+    "xhci_trace_overlapped": true,
+    "xhci_out_completed_per_adapter": 143,
+    "application_tx_and_rx_bytes_per_adapter": 2431,
+    "xhci_in_urb_completions_per_adapter": 109,
+    "xhci_zero_byte_in_at_close_per_adapter": 2
+  },
+  "native_zero_type1_r21": {
+    "report_sha256": "e347e6dc70e239b8aab7e4cd4df7f217cb870418e7941db68613fcc1736145f4",
+    "boot_id": "b4f0ae39-ac96-4ecc-ab5b-c06222737b2a",
+    "status": "ABORTED",
+    "condition": "800us-window2",
+    "attempted_cycles": 2,
+    "completed_cycles": 1,
+    "cycle_elapsed_ms": [
+      24.174245,
+      25.07449
+    ],
+    "cycle_elapsed_median_ms": 24.624367499999998,
+    "cycle_elapsed_max_ms": 25.07449,
+    "cycles_above_20ms": 2,
+    "stop_confirmed": true,
+    "errors": [
+      "RuntimeError: Native diagnostic cycle exceeded 25 ms"
+    ],
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "diagnostic_reply_deadline_ms": 25,
+    "active_control_deadlines_changed": false,
+    "timer_slack_optimization_applied": false,
+    "cpu_frequency_floor_fixed": false,
+    "xhci_report_sha256": "fc015362081c4b0a0abf7f344570679a343619f3bd145b0adf085dd4d3539ef2",
+    "xhci_trace_sha256": "a57381538eca1b8bda8fd12e9d6d7378dcb5a61bfa06572878a67a5456a01a40",
+    "xhci_trace_lossless": true,
+    "operator_audio_heard": true,
+    "operator_physical_anomaly_reported": false,
+    "operator_support_and_power_state_maintained": true,
+    "application_requests_total_including_setup_and_stop": 208,
+    "application_complete_replies_total_including_setup_and_stop": 208,
+    "application_requests_per_adapter_including_setup_and_stop": 104,
+    "application_tx_and_rx_bytes_per_adapter": 1768,
+    "cyclic_requests_and_complete_replies_total": 52,
+    "cyclic_requests_and_complete_replies_per_adapter": 26,
+    "rejected_bytes": 0,
+    "unparsed_bytes": 0,
+    "reply_loss_observed": false,
+    "abort_classification": "cycle_elapsed_limit_after_all_replies_received",
+    "stop_attempts_per_bus": {
+      "front": 1,
+      "rear": 1
+    },
+    "xhci_trace_events": 748,
+    "xhci_trace_overlapped": true,
+    "xhci_capture_begin_monotonic_ns": 163500417587,
+    "xhci_capture_end_monotonic_ns": 193500564596,
+    "application_first_write_monotonic_ns": 169052774136,
+    "application_last_stop_reply_monotonic_ns": 171244828321,
+    "xhci_capture_margin_before_first_write_s": 5.552356549,
+    "xhci_capture_margin_after_last_stop_reply_s": 22.255736275,
+    "xhci_out_enqueued_per_adapter": 104,
+    "xhci_out_completed_per_adapter": 104,
+    "xhci_in_urb_enqueued_per_adapter": 82,
+    "xhci_in_urb_completions_per_adapter": 82,
+    "xhci_real_in_completions_per_adapter": 80,
+    "xhci_in_payload_length_counts_per_adapter": {
+      "17": 32,
+      "32": 24,
+      "19": 24,
+      "0": 2
+    },
+    "xhci_in_bytes_per_adapter": 1768,
+    "xhci_zero_byte_in_at_close_per_adapter": 2,
+    "xhci_in_dequeues_at_close_per_adapter": 2,
+    "xhci_overrun_or_dropped_events": 0,
+    "post_receive_time_scope": "Python decoding, validation, result collection and scheduling waits; CPU time not separately measured",
+    "comparison_limitations": [
+      "Jetson rebooted between r20 and r21",
+      "r20 and r21 did not apply active r7 CPU frequency floor or 1us timer-slack optimization",
+      "Elapsed-time difference does not isolate a causal effect of window2",
+      "No r7 Type1 loss reproduced and active-control deadlines unchanged"
+    ],
+    "cycles": [
+      {
+        "index": 1,
+        "complete": true,
+        "requests_and_complete_replies": 26,
+        "last_complete_reply_after_begin_ms": 23.396435,
+        "last_complete_reply_to_cycle_end_ms": 0.77781,
+        "last_complete_reply_to_25ms_deadline_ms": 1.603565
+      },
+      {
+        "index": 2,
+        "complete": false,
+        "requests_and_complete_replies": 26,
+        "last_complete_reply_after_begin_ms": 24.345961,
+        "last_complete_reply_to_cycle_end_ms": 0.728529,
+        "last_complete_reply_to_25ms_deadline_ms": 0.654039,
+        "cycle_end_beyond_25ms_deadline_ms": 0.07449
+      }
+    ]
+  },
+  "native_zero_type1_r22": {
+    "report_sha256": "004f5c6df361dd2f9a1f1476745378579d7ec81abd1fdc1ec916323e23c2b808",
+    "boot_id": "b4f0ae39-ac96-4ecc-ab5b-c06222737b2a",
+    "status": "COMPLETE_NATIVE_ZERO_TYPE1_DIAGNOSTIC",
+    "condition": "800us-window3",
+    "attempted_cycles": 5,
+    "completed_cycles": 5,
+    "cycle_elapsed_ms": [
+      17.83389,
+      17.70112,
+      17.921284,
+      18.024774,
+      17.915332
+    ],
+    "cycle_elapsed_median_ms": 17.915332,
+    "cycle_elapsed_max_ms": 18.024774,
+    "cycles_above_20ms": 0,
+    "cycle_start_interval_ms": {
+      "count": 4,
+      "min": 20.006318,
+      "median": 20.007646,
+      "max": 20.008557
+    },
+    "strict_start_interval_20ms_met": false,
+    "stop_confirmed": true,
+    "stop_attempts_per_bus": {
+      "front": 1,
+      "rear": 1
+    },
+    "errors": [],
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "diagnostic_reply_deadline_ms": 25,
+    "active_control_deadlines_changed": false,
+    "actual_policy_output_20ms_verified": false,
+    "timer_slack_optimization_applied": true,
+    "timer_slack_restoration_complete": true,
+    "timer_slack_scope": "front_rear_bus_owners_only",
+    "timer_slack_owners": {
+      "front": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      },
+      "rear": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      }
+    },
+    "cpu_frequency_floor": {
+      "evidence_source": "root agent tool result, separate from diagnostic report",
+      "original_min_khz": 729600,
+      "during_min_khz": 1728000,
+      "restored_min_khz": 729600,
+      "restored": true
+    },
+    "application_requests_total_including_setup_and_stop": 286,
+    "application_complete_replies_total_including_setup_and_stop": 286,
+    "application_requests_per_adapter_including_setup_and_stop": 143,
+    "application_tx_and_rx_bytes_per_adapter": 2431,
+    "cyclic_requests_and_complete_replies_total": 130,
+    "cyclic_requests_and_complete_replies_per_adapter": 65,
+    "rejected_bytes": 0,
+    "unparsed_bytes": 0,
+    "reply_loss_observed": false,
+    "within_six_type1_batch_timing": {
+      "front": {
+        "tx_start_to_next_start_us": {
+          "count": 50,
+          "min": 815.696,
+          "median": 823.6965,
+          "max": 900.946
+        },
+        "write_return_to_next_start_us": {
+          "count": 50,
+          "min": 808.688,
+          "median": 815.088,
+          "max": 894.386
+        },
+        "native_exchange_ms": {
+          "count": 10,
+          "min": 6.932522,
+          "median": 6.975211,
+          "max": 7.101037
+        }
+      },
+      "rear": {
+        "tx_start_to_next_start_us": {
+          "count": 50,
+          "min": 817.521,
+          "median": 824.785,
+          "max": 873.649
+        },
+        "write_return_to_next_start_us": {
+          "count": 50,
+          "min": 811.376,
+          "median": 815.68,
+          "max": 866.897
+        },
+        "native_exchange_ms": {
+          "count": 10,
+          "min": 6.951594,
+          "median": 7.0102195,
+          "max": 7.092781
+        }
+      }
+    },
+    "xhci_report_sha256": "0f6b548d33d1182a69b0c103c5cf48573b6684a91aa62cbf03c6a0845987264b",
+    "xhci_trace_sha256": "28a69fe8a9b745037cb6e3bd073f8fd5041f01916b859bc028f5a5225508afb6",
+    "xhci_trace_lossless": true,
+    "xhci_trace_events": 1012,
+    "xhci_trace_overlapped": true,
+    "xhci_capture_begin_monotonic_ns": 825504430410,
+    "xhci_capture_end_monotonic_ns": 855504591778,
+    "application_first_write_monotonic_ns": 849730587742,
+    "application_last_stop_reply_monotonic_ns": 851927391119,
+    "xhci_capture_margin_before_first_write_s": 24.226157332,
+    "xhci_capture_margin_after_last_stop_reply_s": 3.577200659,
+    "xhci_out_enqueued_per_adapter": 143,
+    "xhci_out_completed_per_adapter": 143,
+    "xhci_in_urb_enqueued_per_adapter": 109,
+    "xhci_in_urb_completions_per_adapter": 109,
+    "xhci_real_in_completions_per_adapter": 107,
+    "xhci_in_payload_length_counts_per_adapter": {
+      "17": 35,
+      "32": 54,
+      "6": 18,
+      "0": 2
+    },
+    "xhci_in_bytes_per_adapter": 2431,
+    "xhci_zero_byte_in_at_close_per_adapter": 2,
+    "xhci_in_dequeues_at_close_per_adapter": 2,
+    "xhci_overrun_or_dropped_events": 0,
+    "comparison_limitations": [
+      "r20 used the same 800us/window3 but ran before reboot and without CPU-floor/timer-slack optimization",
+      "r21 ran on the same boot as r22 but used window2 without the two optimizations",
+      "CPU floor and timer slack changed together; individual causal effects are not isolated",
+      "Only five zero-gain cycles: no learned-model inference, positive gains or proof of active r7 loss resolution",
+      "Cycle processing below 20ms does not mean every start interval is at most 20ms"
+    ]
+  },
+  "native_zero_type1_r23": {
+    "report_sha256": "c521ae37027c9452ca8c9c6b53ee8cb17c50336ed4708a7378c567d65339ab9b",
+    "boot_id": "b4f0ae39-ac96-4ecc-ab5b-c06222737b2a",
+    "status": "COMPLETE_NATIVE_ZERO_TYPE1_DIAGNOSTIC",
+    "condition": "800us-window3",
+    "requested_cycles": 50,
+    "attempted_cycles": 50,
+    "completed_cycles": 50,
+    "completed_cycle_elapsed_ms": {
+      "min": 17.665544,
+      "median": 17.890459,
+      "max": 18.152752
+    },
+    "attempted_cycles_above_20ms": 0,
+    "completed_cycles_above_20ms": 0,
+    "stop_confirmed": true,
+    "errors": [],
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "actual_policy_output_20ms_verified": false,
+    "diagnostic_reply_deadline_ms": 25,
+    "active_control_deadlines_changed": false,
+    "timer_slack_optimization_applied": true,
+    "timer_slack_restoration_complete": true,
+    "timer_slack_owners": {
+      "front": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      },
+      "rear": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      }
+    },
+    "application_requests_total_including_setup_and_stop": 1456,
+    "application_complete_replies_total_including_setup_and_stop": 1456,
+    "rejected_bytes": 0,
+    "unparsed_bytes": 0,
+    "bus_totals": {
+      "front": {
+        "application_requests": 728,
+        "application_complete_replies": 728,
+        "application_tx_bytes": 12376,
+        "application_rx_bytes": 12376,
+        "xhci_out_enqueued": 728,
+        "xhci_out_completed": 728,
+        "xhci_out_bytes": 12376,
+        "xhci_in_enqueued": 514,
+        "xhci_in_completed": 514,
+        "xhci_in_bytes": 12376,
+        "xhci_in_length_counts": {
+          "17": 80,
+          "32": 324,
+          "6": 108,
+          "0": 2
+        },
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true,
+        "stop_ambiguous_ids": []
+      },
+      "rear": {
+        "application_requests": 728,
+        "application_complete_replies": 728,
+        "application_tx_bytes": 12376,
+        "application_rx_bytes": 12376,
+        "xhci_out_enqueued": 728,
+        "xhci_out_completed": 728,
+        "xhci_out_bytes": 12376,
+        "xhci_in_enqueued": 514,
+        "xhci_in_completed": 514,
+        "xhci_in_bytes": 12376,
+        "xhci_in_length_counts": {
+          "17": 80,
+          "32": 324,
+          "6": 108,
+          "0": 2
+        },
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true,
+        "stop_ambiguous_ids": []
+      }
+    },
+    "xhci_report_sha256": "ec53413bb0b1453cad974e829b24804b5224cc2739ffb3916dd2ee75e43dd9cb",
+    "xhci_trace_sha256": "4368db97b773979bd7b41b4d86132bbcf558b540b22dc9ea98d488cf1c4b3ffb",
+    "xhci_trace_events": 4972,
+    "xhci_trace_lossless": true,
+    "xhci_trace_overlapped": true,
+    "xhci_capture_begin_monotonic_ns": 919827299294,
+    "xhci_capture_end_monotonic_ns": 949827638195,
+    "application_first_write_monotonic_ns": 935643789546,
+    "application_last_stop_reply_monotonic_ns": 938742821603,
+    "xhci_capture_margin_before_first_write_s": 15.816490252,
+    "xhci_capture_margin_after_last_stop_reply_s": 11.084816592,
+    "xhci_overrun_or_dropped_events": 0,
+    "reply_loss_observed": false,
+    "limitations": [
+      "50 successful zero-gain cycles did not establish long-run reliability; the subsequent r24 failed",
+      "No positive gains, learned targets or active-policy 20ms validation"
+    ]
+  },
+  "native_zero_type1_r24": {
+    "report_sha256": "99285f96cb5e27fabeaf04d9bf7c6c48c4dd07007f119e3848407068afcd0e71",
+    "boot_id": "b4f0ae39-ac96-4ecc-ab5b-c06222737b2a",
+    "status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+    "condition": "800us-window3",
+    "requested_cycles": 500,
+    "attempted_cycles": 19,
+    "completed_cycles": 18,
+    "completed_cycle_elapsed_ms": {
+      "min": 17.654578,
+      "median": 17.925521,
+      "max": 18.187183
+    },
+    "attempted_cycles_above_20ms": 1,
+    "completed_cycles_above_20ms": 0,
+    "stop_confirmed": false,
+    "errors": [
+      "ExchangeError: Active reply deadline exceeded; all requests already written",
+      "Physically switch motor power Off"
+    ],
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "actual_policy_output_20ms_verified": false,
+    "diagnostic_reply_deadline_ms": 25,
+    "active_control_deadlines_changed": false,
+    "timer_slack_optimization_applied": true,
+    "timer_slack_restoration_complete": true,
+    "timer_slack_owners": {
+      "front": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      },
+      "rear": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      }
+    },
+    "application_requests_total_including_setup_and_stop": 655,
+    "application_complete_replies_total_including_setup_and_stop": 654,
+    "rejected_bytes": 0,
+    "unparsed_bytes": 0,
+    "bus_totals": {
+      "front": {
+        "application_requests": 330,
+        "application_complete_replies": 329,
+        "application_tx_bytes": 5610,
+        "application_rx_bytes": 5593,
+        "xhci_out_enqueued": 330,
+        "xhci_out_completed": 330,
+        "xhci_out_bytes": 5610,
+        "xhci_in_enqueued": 241,
+        "xhci_in_completed": 241,
+        "xhci_in_bytes": 5593,
+        "xhci_in_length_counts": {
+          "17": 60,
+          "32": 134,
+          "6": 44,
+          "21": 1,
+          "0": 2
+        },
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 3,
+        "stop_confirmed": false,
+        "stop_ambiguous_ids": [
+          6
+        ]
+      },
+      "rear": {
+        "application_requests": 325,
+        "application_complete_replies": 325,
+        "application_tx_bytes": 5525,
+        "application_rx_bytes": 5525,
+        "xhci_out_enqueued": 325,
+        "xhci_out_completed": 325,
+        "xhci_out_bytes": 5525,
+        "xhci_in_enqueued": 235,
+        "xhci_in_completed": 235,
+        "xhci_in_bytes": 5525,
+        "xhci_in_length_counts": {
+          "17": 49,
+          "32": 138,
+          "6": 46,
+          "0": 2
+        },
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true,
+        "stop_ambiguous_ids": []
+      }
+    },
+    "xhci_report_sha256": "221bec018c3f2cfb7493487ce1e33ed16b6496710a030b038c3a310075efc147",
+    "xhci_trace_sha256": "506c92b365097f1e5a390f720771a2a992db2e145b9c3922a165b2972b2ea169",
+    "xhci_trace_events": 2266,
+    "xhci_trace_lossless": true,
+    "xhci_trace_overlapped": true,
+    "xhci_capture_begin_monotonic_ns": 1033086772502,
+    "xhci_capture_end_monotonic_ns": 1063087115508,
+    "application_first_write_monotonic_ns": 1049202404269,
+    "application_last_stop_reply_monotonic_ns": 1051729701435,
+    "xhci_capture_margin_before_first_write_s": 16.115631767,
+    "xhci_capture_margin_after_last_stop_reply_s": 11.357414073,
+    "xhci_overrun_or_dropped_events": 0,
+    "reply_loss_observed": true,
+    "operator_physical_cutoff_confirmed": true,
+    "operator_physical_anomaly_reported": false,
+    "failure": {
+      "cycle": 19,
+      "bus": "front",
+      "phase": "cycle_19_input",
+      "unresolved_id": 6,
+      "request_kind": 1,
+      "cycle_begin_monotonic_ns": 1051521124270,
+      "deadline_monotonic_ns": 1051546124270,
+      "write_start_monotonic_ns": 1051525495448,
+      "write_return_monotonic_ns": 1051525503289,
+      "write_return_to_deadline_ms": 20.620981,
+      "application_requests": 6,
+      "application_complete_replies": 5,
+      "application_rx_bytes": 85,
+      "xhci_out_completions_before_stop": 6,
+      "xhci_out_bytes_before_stop": 102,
+      "missing_request_out_completion_monotonic_ns": 1051525548000,
+      "missing_request_out_completion_after_cycle_begin_ms": 4.42373,
+      "write_return_to_out_completion_us": 44.711,
+      "xhci_in_chunks_before_stop": [
+        {
+          "bytes": 32,
+          "completion_monotonic_ns": 1051522993000,
+          "completion_after_cycle_begin_ms": 1.86873
+        },
+        {
+          "bytes": 32,
+          "completion_monotonic_ns": 1051524644000,
+          "completion_after_cycle_begin_ms": 3.51973
+        },
+        {
+          "bytes": 21,
+          "completion_monotonic_ns": 1051527608000,
+          "completion_after_cycle_begin_ms": 6.48373
+        }
+      ],
+      "xhci_in_bytes_before_deadline": 85,
+      "xhci_in_bytes_before_stop": 85,
+      "usb_in_completion_to_application_read_us": [
+        22.475,
+        25.452,
+        22.123
+      ],
+      "first_stop_write_monotonic_ns": 1051546523744,
+      "first_stop_write_after_cycle_begin_ms": 25.399474,
+      "front_cumulative_usb_and_application_rx_before_failed_cycle_bytes": 5202,
+      "rejected_bytes": 0,
+      "unparsed_bytes": 0,
+      "full_reply_observed_at_host_usb_in": false,
+      "can_delivery_proven": false,
+      "host_application_silent_drop_supported": false,
+      "root_cause_confirmed": false
+    },
+    "stop_interpretation": {
+      "front_attempt_reply_bytes": [
+        102,
+        102,
+        102
+      ],
+      "front_mode_zero_fault_zero_replies_per_attempt": [
+        6,
+        6,
+        6
+      ],
+      "front_unconfirmed_id": 6,
+      "reason": "Unresolved preceding Type1 makes later unsequenced Type2 attribution ambiguous; all three STOP rounds observed six mode-zero replies",
+      "late_type1_recovery_proven": false,
+      "first_stop_out_complete_to_in_complete_ms": {
+        "front": {
+          "min": 23.994,
+          "max": 26.388
+        },
+        "rear": {
+          "min": 22.158,
+          "max": 24.722
+        }
+      },
+      "first_stop_in_complete_to_application_read_ms": {
+        "front": {
+          "min": 0.025781,
+          "max": 0.193732
+        },
+        "rear": {
+          "min": 0.037389,
+          "max": 0.210232
+        }
+      }
+    },
+    "limitations": [
+      "The 17-byte deficit is present at the host xHCI IN-completion observation point, not only in application records",
+      "USB OUT completion does not prove UART forwarding or CAN transmission",
+      "Metadata has no USB payload; adapter/UART, CAN, QDD and USB receive boundary are not distinguished",
+      "First STOP replies arrived later at xHCI IN too; they do not prove recovery of the missing Type1",
+      "Zero positive gain and no learned targets reproduce a missing complete reply, but do not prove identical physical root cause to r7"
+    ]
+  },
+  "native_zero_type1_r25": {
+    "report_sha256": "52fba989ed0e90b3b8f6ef7759c317e3b8eee6aa8bbabbab795a06eaa6c08ab4",
+    "boot_id": "b4f0ae39-ac96-4ecc-ab5b-c06222737b2a",
+    "status": "COMPLETE_NATIVE_ZERO_TYPE1_DIAGNOSTIC",
+    "condition": "1000us-window3",
+    "requested_cycles": 5,
+    "attempted_cycles": 5,
+    "completed_cycles": 5,
+    "completed_cycle_elapsed_ms": {
+      "min": 19.763494,
+      "median": 19.924555,
+      "max": 19.944684
+    },
+    "cycles_above_20ms": 0,
+    "last_complete_reply_after_begin_max_ms": 19.642626,
+    "cycles_with_last_complete_reply_after_20ms": 0,
+    "over_20ms_cycle_details": [],
+    "cycle_start_interval_ms": {
+      "median": 20.005374,
+      "max": 20.017743
+    },
+    "strict_start_interval_20ms_met": false,
+    "stop_confirmed": true,
+    "errors": [],
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "actual_policy_output_20ms_verified": false,
+    "diagnostic_reply_deadline_ms": 25,
+    "active_control_deadlines_changed": false,
+    "timer_slack_optimization_applied": true,
+    "timer_slack_restoration_complete": true,
+    "timer_slack_owners": {
+      "front": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      },
+      "rear": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      }
+    },
+    "application_requests_and_complete_replies_total_including_setup_and_stop": 286,
+    "cyclic_requests_and_complete_replies_total": 130,
+    "rejected_bytes": 0,
+    "unparsed_bytes": 0,
+    "reply_loss_observed": false,
+    "bus_totals": {
+      "front": {
+        "application_requests": 143,
+        "application_complete_replies": 143,
+        "application_tx_bytes": 2431,
+        "application_rx_bytes": 2431,
+        "xhci_out_enqueued": 143,
+        "xhci_out_completed": 143,
+        "xhci_out_bytes": 2431,
+        "xhci_in_enqueued": 111,
+        "xhci_in_completed": 111,
+        "xhci_in_bytes_full_capture": 2495,
+        "xhci_in_length_counts_full_capture": {
+          "32": 56,
+          "17": 35,
+          "6": 18,
+          "0": 2
+        },
+        "xhci_in_bytes_from_first_request_through_last_stop_reply": 2431,
+        "xhci_in_bytes_before_first_request": 64,
+        "xhci_in_before_first_request_chunks": [
+          {
+            "bytes": 32,
+            "relative_to_first_request_ms": -79.74352
+          },
+          {
+            "bytes": 32,
+            "relative_to_first_request_ms": -79.71252
+          }
+        ],
+        "xhci_in_bytes_after_last_stop_reply": 0,
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true
+      },
+      "rear": {
+        "application_requests": 143,
+        "application_complete_replies": 143,
+        "application_tx_bytes": 2431,
+        "application_rx_bytes": 2431,
+        "xhci_out_enqueued": 143,
+        "xhci_out_completed": 143,
+        "xhci_out_bytes": 2431,
+        "xhci_in_enqueued": 111,
+        "xhci_in_completed": 111,
+        "xhci_in_bytes_full_capture": 2495,
+        "xhci_in_length_counts_full_capture": {
+          "32": 56,
+          "17": 35,
+          "6": 18,
+          "0": 2
+        },
+        "xhci_in_bytes_from_first_request_through_last_stop_reply": 2431,
+        "xhci_in_bytes_before_first_request": 64,
+        "xhci_in_before_first_request_chunks": [
+          {
+            "bytes": 32,
+            "relative_to_first_request_ms": -71.780793
+          },
+          {
+            "bytes": 32,
+            "relative_to_first_request_ms": -71.744793
+          }
+        ],
+        "xhci_in_bytes_after_last_stop_reply": 0,
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true
+      }
+    },
+    "within_six_type1_batch_timing": {
+      "front": {
+        "sample_count": 50,
+        "tx_start_to_next_start_us": {
+          "min": 1016.129,
+          "median": 1020.2895000000001,
+          "max": 1030.274
+        },
+        "write_return_to_next_start_us": {
+          "min": 1009.825,
+          "median": 1012.4010000000001,
+          "max": 1019.393
+        }
+      },
+      "rear": {
+        "sample_count": 50,
+        "tx_start_to_next_start_us": {
+          "min": 1016.705,
+          "median": 1022.8655,
+          "max": 1037.185
+        },
+        "write_return_to_next_start_us": {
+          "min": 1010.017,
+          "median": 1013.585,
+          "max": 1026.53
+        }
+      }
+    },
+    "xhci_report_sha256": "df43eecd6e34cfcfe42fb2540fe35ecec29bd0a9737f1497a1f3f6777426385c",
+    "xhci_trace_sha256": "e85ce650a4998b71a8f6acd7bb5c32753d2602381a7b224dbebe992946d3d446",
+    "xhci_trace_events": 1020,
+    "xhci_trace_lossless": true,
+    "xhci_trace_overlapped": true,
+    "xhci_capture_begin_monotonic_ns": 1257548932531,
+    "xhci_capture_end_monotonic_ns": 1287549265103,
+    "application_first_write_monotonic_ns": 1275421895520,
+    "application_last_stop_reply_monotonic_ns": 1277644366331,
+    "xhci_capture_margin_before_first_write_s": 17.872962989,
+    "xhci_capture_margin_after_last_stop_reply_s": 9.904898772,
+    "xhci_overrun_or_dropped_events": 0,
+    "limitations": [
+      "Full capture contains 64 USB IN bytes per adapter before the first application request; payload and origin unknown",
+      "Pre-request bytes are not cyclic replies and do not prove recovery of r24 missing Type1",
+      "Five zero-gain cycles only; no learned-output validation"
+    ]
+  },
+  "native_zero_type1_r26": {
+    "report_sha256": "cd8f1c196c8c9d9250b3f7d6976f5c2a8dafeafdc99d2a809f4f31ef6571401f",
+    "boot_id": "b4f0ae39-ac96-4ecc-ab5b-c06222737b2a",
+    "status": "COMPLETE_NATIVE_ZERO_TYPE1_DIAGNOSTIC",
+    "condition": "1000us-window3",
+    "requested_cycles": 500,
+    "attempted_cycles": 500,
+    "completed_cycles": 500,
+    "completed_cycle_elapsed_ms": {
+      "min": 19.441672,
+      "median": 19.837333,
+      "max": 20.415043
+    },
+    "cycles_above_20ms": 16,
+    "last_complete_reply_after_begin_max_ms": 19.920821,
+    "cycles_with_last_complete_reply_after_20ms": 0,
+    "over_20ms_cycle_details": [
+      {
+        "cycle": 17,
+        "elapsed_ms": 20.003612,
+        "last_complete_reply_after_begin_ms": 19.735988,
+        "last_complete_reply_to_cycle_end_ms": 0.267624
+      },
+      {
+        "cycle": 60,
+        "elapsed_ms": 20.051324,
+        "last_complete_reply_after_begin_ms": 19.517069,
+        "last_complete_reply_to_cycle_end_ms": 0.534255
+      },
+      {
+        "cycle": 135,
+        "elapsed_ms": 20.118814,
+        "last_complete_reply_after_begin_ms": 19.877271,
+        "last_complete_reply_to_cycle_end_ms": 0.241543
+      },
+      {
+        "cycle": 188,
+        "elapsed_ms": 20.048764,
+        "last_complete_reply_after_begin_ms": 19.630064,
+        "last_complete_reply_to_cycle_end_ms": 0.4187
+      },
+      {
+        "cycle": 190,
+        "elapsed_ms": 20.106013,
+        "last_complete_reply_after_begin_ms": 19.840725,
+        "last_complete_reply_to_cycle_end_ms": 0.265288
+      },
+      {
+        "cycle": 273,
+        "elapsed_ms": 20.100699,
+        "last_complete_reply_after_begin_ms": 19.728528,
+        "last_complete_reply_to_cycle_end_ms": 0.372171
+      },
+      {
+        "cycle": 291,
+        "elapsed_ms": 20.415043,
+        "last_complete_reply_after_begin_ms": 19.920821,
+        "last_complete_reply_to_cycle_end_ms": 0.494222
+      },
+      {
+        "cycle": 296,
+        "elapsed_ms": 20.034584,
+        "last_complete_reply_after_begin_ms": 19.652813,
+        "last_complete_reply_to_cycle_end_ms": 0.381771
+      },
+      {
+        "cycle": 302,
+        "elapsed_ms": 20.048761,
+        "last_complete_reply_after_begin_ms": 19.702511,
+        "last_complete_reply_to_cycle_end_ms": 0.34625
+      },
+      {
+        "cycle": 324,
+        "elapsed_ms": 20.273696,
+        "last_complete_reply_after_begin_ms": 19.853332,
+        "last_complete_reply_to_cycle_end_ms": 0.420364
+      },
+      {
+        "cycle": 333,
+        "elapsed_ms": 20.043064,
+        "last_complete_reply_after_begin_ms": 19.720943,
+        "last_complete_reply_to_cycle_end_ms": 0.322121
+      },
+      {
+        "cycle": 404,
+        "elapsed_ms": 20.168506,
+        "last_complete_reply_after_begin_ms": 19.842705,
+        "last_complete_reply_to_cycle_end_ms": 0.325801
+      },
+      {
+        "cycle": 426,
+        "elapsed_ms": 20.023958,
+        "last_complete_reply_after_begin_ms": 19.695597,
+        "last_complete_reply_to_cycle_end_ms": 0.328361
+      },
+      {
+        "cycle": 455,
+        "elapsed_ms": 20.048502,
+        "last_complete_reply_after_begin_ms": 19.641803,
+        "last_complete_reply_to_cycle_end_ms": 0.406699
+      },
+      {
+        "cycle": 478,
+        "elapsed_ms": 20.079351,
+        "last_complete_reply_after_begin_ms": 19.813104,
+        "last_complete_reply_to_cycle_end_ms": 0.266247
+      },
+      {
+        "cycle": 492,
+        "elapsed_ms": 20.104503,
+        "last_complete_reply_after_begin_ms": 19.888881,
+        "last_complete_reply_to_cycle_end_ms": 0.215622
+      }
+    ],
+    "cycle_start_interval_ms": {
+      "median": 20.004662,
+      "max": 20.440164
+    },
+    "strict_start_interval_20ms_met": false,
+    "stop_confirmed": true,
+    "errors": [],
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "actual_policy_output_20ms_verified": false,
+    "diagnostic_reply_deadline_ms": 25,
+    "active_control_deadlines_changed": false,
+    "timer_slack_optimization_applied": true,
+    "timer_slack_restoration_complete": true,
+    "timer_slack_owners": {
+      "front": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      },
+      "rear": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      }
+    },
+    "application_requests_and_complete_replies_total_including_setup_and_stop": 13156,
+    "cyclic_requests_and_complete_replies_total": 13000,
+    "rejected_bytes": 0,
+    "unparsed_bytes": 0,
+    "reply_loss_observed": false,
+    "bus_totals": {
+      "front": {
+        "application_requests": 6578,
+        "application_complete_replies": 6578,
+        "application_tx_bytes": 111826,
+        "application_rx_bytes": 111826,
+        "xhci_out_enqueued": 6578,
+        "xhci_out_completed": 6578,
+        "xhci_out_bytes": 111826,
+        "xhci_in_enqueued": 4564,
+        "xhci_in_completed": 4564,
+        "xhci_in_bytes_full_capture": 111826,
+        "xhci_in_length_counts_full_capture": {
+          "17": 530,
+          "32": 3024,
+          "6": 1008,
+          "0": 2
+        },
+        "xhci_in_bytes_from_first_request_through_last_stop_reply": 111826,
+        "xhci_in_bytes_before_first_request": 0,
+        "xhci_in_before_first_request_chunks": [],
+        "xhci_in_bytes_after_last_stop_reply": 0,
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true
+      },
+      "rear": {
+        "application_requests": 6578,
+        "application_complete_replies": 6578,
+        "application_tx_bytes": 111826,
+        "application_rx_bytes": 111826,
+        "xhci_out_enqueued": 6578,
+        "xhci_out_completed": 6578,
+        "xhci_out_bytes": 111826,
+        "xhci_in_enqueued": 4564,
+        "xhci_in_completed": 4564,
+        "xhci_in_bytes_full_capture": 111826,
+        "xhci_in_length_counts_full_capture": {
+          "17": 530,
+          "32": 3024,
+          "6": 1008,
+          "0": 2
+        },
+        "xhci_in_bytes_from_first_request_through_last_stop_reply": 111826,
+        "xhci_in_bytes_before_first_request": 0,
+        "xhci_in_before_first_request_chunks": [],
+        "xhci_in_bytes_after_last_stop_reply": 0,
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true
+      }
+    },
+    "within_six_type1_batch_timing": {
+      "front": {
+        "sample_count": 5000,
+        "tx_start_to_next_start_us": {
+          "min": 1012.349,
+          "median": 1021.117,
+          "max": 1337.03
+        },
+        "write_return_to_next_start_us": {
+          "min": 1005.661,
+          "median": 1013.181,
+          "max": 1328.294
+        }
+      },
+      "rear": {
+        "sample_count": 5000,
+        "tx_start_to_next_start_us": {
+          "min": 1015.485,
+          "median": 1021.181,
+          "max": 1204.738
+        },
+        "write_return_to_next_start_us": {
+          "min": 1009.372,
+          "median": 1013.149,
+          "max": 1197.282
+        }
+      }
+    },
+    "xhci_report_sha256": "866367f5d7f56a9740c6d71f9d00a97eeee0f2caa9d5ee16302e8f5354c623a2",
+    "xhci_trace_sha256": "cfc62491a32fc197c4b665cf649e614e848a88f95bcf9b7aea96e58cb0d4c2cb",
+    "xhci_trace_events": 44572,
+    "xhci_trace_lossless": true,
+    "xhci_trace_overlapped": true,
+    "xhci_capture_begin_monotonic_ns": 1342159811072,
+    "xhci_capture_end_monotonic_ns": 1372160187655,
+    "application_first_write_monotonic_ns": 1358376507522,
+    "application_last_stop_reply_monotonic_ns": 1370498448576,
+    "xhci_capture_margin_before_first_write_s": 16.21669645,
+    "xhci_capture_margin_after_last_stop_reply_s": 1.661739079,
+    "xhci_overrun_or_dropped_events": 0,
+    "operator_physical_anomaly_reported": false,
+    "limitations": [
+      "500 zero-gain cycles without observed reply loss are not proof that the underlying cause is eliminated",
+      "All final replies arrived before 20ms, but 16 cycles exceeded 20ms after decoding, validation, collection and scheduling waits",
+      "No model inference, positive gain, learned targets or active-controller 20ms proof",
+      "USB OUT completion does not prove CAN delivery"
+    ]
+  },
+  "native_zero_type1_r27": {
+    "report_sha256": "25e783a4ff3a8dbf39f6000e191192577d96e38a685263ba37aa0ac11c548e51",
+    "boot_id": "b4f0ae39-ac96-4ecc-ab5b-c06222737b2a",
+    "status": "COMPLETE_NATIVE_ZERO_TYPE1_DIAGNOSTIC",
+    "condition": "900us-window3",
+    "requested_cycles": 5,
+    "attempted_cycles": 5,
+    "completed_cycles": 5,
+    "attempted_cycle_elapsed_ms": {
+      "min": 18.859281,
+      "median": 18.924819,
+      "max": 18.946003
+    },
+    "completed_cycle_elapsed_ms": {
+      "min": 18.859281,
+      "median": 18.924819,
+      "max": 18.946003
+    },
+    "cycles_above_20ms": 0,
+    "stop_confirmed": true,
+    "errors": [],
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "actual_policy_output_20ms_verified": false,
+    "diagnostic_reply_deadline_ms": 25,
+    "active_control_deadlines_changed": false,
+    "velocity_guard_limit_rad_s": 0.5,
+    "velocity_guard_changed": false,
+    "timer_slack_optimization_applied": true,
+    "timer_slack_restoration_complete": true,
+    "timer_slack_owners": {
+      "front": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      },
+      "rear": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      }
+    },
+    "application_requests_and_complete_replies_total_including_setup_and_stop": 286,
+    "cyclic_requests_and_complete_replies_total": 130,
+    "rejected_bytes": 0,
+    "unparsed_bytes": 0,
+    "reply_loss_observed": false,
+    "bus_totals": {
+      "front": {
+        "application_requests": 143,
+        "application_complete_replies": 143,
+        "application_tx_bytes": 2431,
+        "application_rx_bytes": 2431,
+        "xhci_out_enqueued": 143,
+        "xhci_out_completed": 143,
+        "xhci_out_bytes": 2431,
+        "xhci_in_enqueued": 109,
+        "xhci_in_completed": 109,
+        "xhci_in_bytes": 2431,
+        "xhci_in_length_counts": {
+          "17": 35,
+          "32": 54,
+          "6": 18,
+          "0": 2
+        },
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true,
+        "stop_ambiguous_ids": []
+      },
+      "rear": {
+        "application_requests": 143,
+        "application_complete_replies": 143,
+        "application_tx_bytes": 2431,
+        "application_rx_bytes": 2431,
+        "xhci_out_enqueued": 143,
+        "xhci_out_completed": 143,
+        "xhci_out_bytes": 2431,
+        "xhci_in_enqueued": 109,
+        "xhci_in_completed": 109,
+        "xhci_in_bytes": 2431,
+        "xhci_in_length_counts": {
+          "17": 35,
+          "32": 54,
+          "6": 18,
+          "0": 2
+        },
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true,
+        "stop_ambiguous_ids": []
+      }
+    },
+    "within_six_type1_batch_timing": {
+      "front": {
+        "sample_count": 50,
+        "tx_start_to_next_start_median_us": 919.6030000000001,
+        "write_return_to_next_start_median_us": 912.1795
+      },
+      "rear": {
+        "sample_count": 50,
+        "tx_start_to_next_start_median_us": 921.0274999999999,
+        "write_return_to_next_start_median_us": 913.0754999999999
+      }
+    },
+    "xhci_report_sha256": "b163dee9f6a0bb4099345ca3431c24728b144b46cc76b24e418334f80d70ccf4",
+    "xhci_trace_sha256": "c32593ba6bf6382a2deccd88070247be00d08999d98b3c28ce2d79c42b67a7fd",
+    "xhci_trace_events": 1012,
+    "xhci_trace_lossless": true,
+    "xhci_trace_overlapped": true,
+    "xhci_capture_begin_monotonic_ns": 1640027875013,
+    "xhci_capture_end_monotonic_ns": 1670028208090,
+    "application_first_write_monotonic_ns": 1656674749734,
+    "application_last_stop_reply_monotonic_ns": 1658881241154,
+    "xhci_capture_margin_before_first_write_s": 16.646874721,
+    "xhci_capture_margin_after_last_stop_reply_s": 11.146966936,
+    "xhci_overrun_or_dropped_events": 0,
+    "limitations": [
+      "Five successful zero-gain cycles do not establish long-run reliability",
+      "No positive gain, learned targets or active-policy timing validation"
+    ]
+  },
+  "native_zero_type1_r28": {
+    "report_sha256": "ff214c68e4df269caeda42b345cccd179360fd8baa36d38cc07b8529a0f9fa6a",
+    "boot_id": "b4f0ae39-ac96-4ecc-ab5b-c06222737b2a",
+    "status": "ABORTED",
+    "condition": "900us-window3",
+    "requested_cycles": 500,
+    "attempted_cycles": 187,
+    "completed_cycles": 186,
+    "attempted_cycle_elapsed_ms": {
+      "min": 18.521083,
+      "median": 18.852289,
+      "max": 19.427022
+    },
+    "completed_cycle_elapsed_ms": {
+      "min": 18.521083,
+      "median": 18.850960999999998,
+      "max": 19.427022
+    },
+    "cycles_above_20ms": 0,
+    "stop_confirmed": true,
+    "errors": [
+      "RuntimeError: ID4 unsafe native zero-gain feedback"
+    ],
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "actual_policy_output_20ms_verified": false,
+    "diagnostic_reply_deadline_ms": 25,
+    "active_control_deadlines_changed": false,
+    "velocity_guard_limit_rad_s": 0.5,
+    "velocity_guard_changed": false,
+    "timer_slack_optimization_applied": true,
+    "timer_slack_restoration_complete": true,
+    "timer_slack_owners": {
+      "front": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      },
+      "rear": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      }
+    },
+    "application_requests_and_complete_replies_total_including_setup_and_stop": 5018,
+    "cyclic_requests_and_complete_replies_total": 4862,
+    "rejected_bytes": 0,
+    "unparsed_bytes": 0,
+    "reply_loss_observed": false,
+    "bus_totals": {
+      "front": {
+        "application_requests": 2509,
+        "application_complete_replies": 2509,
+        "application_tx_bytes": 42653,
+        "application_rx_bytes": 42653,
+        "xhci_out_enqueued": 2509,
+        "xhci_out_completed": 2509,
+        "xhci_out_bytes": 42653,
+        "xhci_in_enqueued": 1747,
+        "xhci_in_completed": 1747,
+        "xhci_in_bytes": 42653,
+        "xhci_in_length_counts": {
+          "17": 217,
+          "32": 1146,
+          "6": 382,
+          "0": 2
+        },
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true,
+        "stop_ambiguous_ids": []
+      },
+      "rear": {
+        "application_requests": 2509,
+        "application_complete_replies": 2509,
+        "application_tx_bytes": 42653,
+        "application_rx_bytes": 42653,
+        "xhci_out_enqueued": 2509,
+        "xhci_out_completed": 2509,
+        "xhci_out_bytes": 42653,
+        "xhci_in_enqueued": 1747,
+        "xhci_in_completed": 1747,
+        "xhci_in_bytes": 42653,
+        "xhci_in_length_counts": {
+          "17": 217,
+          "32": 1146,
+          "6": 382,
+          "0": 2
+        },
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true,
+        "stop_ambiguous_ids": []
+      }
+    },
+    "within_six_type1_batch_timing": {
+      "front": {
+        "sample_count": 1870,
+        "tx_start_to_next_start_median_us": 920.755,
+        "write_return_to_next_start_median_us": 913.011
+      },
+      "rear": {
+        "sample_count": 1870,
+        "tx_start_to_next_start_median_us": 920.9784999999999,
+        "write_return_to_next_start_median_us": 912.9945
+      }
+    },
+    "xhci_report_sha256": "5aeafb89040e00075e3e7fe51395e84009c028999949d7cbe82d8341d0302cab",
+    "xhci_trace_sha256": "4d6f4681813f315555ca970786099879721700b6249eb3032739d2e9982e9ca6",
+    "xhci_trace_events": 17028,
+    "xhci_trace_lossless": true,
+    "xhci_trace_overlapped": true,
+    "xhci_capture_begin_monotonic_ns": 1714160846074,
+    "xhci_capture_end_monotonic_ns": 1744160989530,
+    "application_first_write_monotonic_ns": 1732035934808,
+    "application_last_stop_reply_monotonic_ns": 1737889783652,
+    "xhci_capture_margin_before_first_write_s": 17.875088734,
+    "xhci_capture_margin_after_last_stop_reply_s": 6.271205878,
+    "xhci_overrun_or_dropped_events": 0,
+    "abort_classification": "complete_reply_exceeded_velocity_guard",
+    "guard_trigger": {
+      "cycle": 187,
+      "bus": "front",
+      "phase": "cycle_187_output",
+      "motor_id": 4,
+      "rx_hex": "4154140027ec08b0e8814b7f7d012c0d0a",
+      "received_monotonic_ns": 1737737361245,
+      "velocity_u16": 33099,
+      "velocity_rad_s": 0.5058365758754846,
+      "velocity_limit_rad_s": 0.5,
+      "mode_state": 2,
+      "fault_bits": 0,
+      "temperature_c": 30.0,
+      "cycle_requests_and_complete_replies": 26,
+      "last_complete_reply_after_begin_ms": 18.635485,
+      "last_complete_reply_to_cycle_end_ms": 0.519018,
+      "cycle_elapsed_ms": 19.154503
+    },
+    "operator_physical_anomaly_reported": false,
+    "limitations": [
+      "Velocity-threshold stop is not a communication-reply loss or timeout",
+      "The origin of the velocity reading is not established by the report; threshold unchanged",
+      "186 completed cycles and a fully received but rejected 187th cycle do not constitute a 500-cycle pass",
+      "Zero gain and no learned-model inference; active-controller validation remains separate"
+    ]
+  },
+  "native_zero_type1_r29": {
+    "evidence_status": "RAW_REPORT_AND_XHCI_AUDITED",
+    "raw_report_audited": true,
+    "xhci_trace_audited": true,
+    "exact_guard_measurement_verified": true,
+    "report_sha256": "e77c30a99bfde1ee474a752f7a52d980f733ec41b920bb5a9f4b391615d9b2f7",
+    "boot_id": "b4f0ae39-ac96-4ecc-ab5b-c06222737b2a",
+    "status": "ABORTED",
+    "condition": "900us-window3",
+    "requested_cycles": 500,
+    "attempted_cycles": 19,
+    "completed_cycles": 18,
+    "attempted_cycle_elapsed_ms": {
+      "min": 18.616138,
+      "median": 18.761262,
+      "max": 19.379546
+    },
+    "completed_cycle_elapsed_ms": {
+      "min": 18.616138,
+      "median": 18.7493095,
+      "max": 18.97669
+    },
+    "cycles_above_20ms": 0,
+    "stop_confirmed": true,
+    "errors": [
+      "RuntimeError: ID6 unsafe native zero-gain feedback"
+    ],
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "actual_policy_output_20ms_verified": false,
+    "diagnostic_reply_deadline_ms": 25,
+    "active_control_deadlines_changed": false,
+    "velocity_guard_limit_rad_s": 0.5,
+    "velocity_guard_changed": false,
+    "abort_classification": "complete_reply_exceeded_velocity_guard",
+    "guard_trigger": {
+      "cycle": 19,
+      "bus": "front",
+      "phase": "cycle_19_output",
+      "motor_id": 6,
+      "rx_hex": "4154140037ec08b4a9819b7f8201400d0a",
+      "received_monotonic_ns": 1858909529585,
+      "velocity_u16": 33179,
+      "velocity_rad_s": 0.6279087510490555,
+      "velocity_limit_rad_s": 0.5,
+      "mode_state": 2,
+      "fault_bits": 0,
+      "temperature_c": 32.0,
+      "protocol_position_rad": 5.171662623025867,
+      "initial_center_rad": 5.159387045090412,
+      "position_delta_from_initial_deg": 0.7033388067854801,
+      "position_delta_limit_deg": 3,
+      "cycle_requests_and_complete_replies": 26,
+      "last_complete_reply_after_begin_ms": 18.506601,
+      "last_complete_reply_to_cycle_end_ms": 0.872945,
+      "cycle_elapsed_ms": 19.379546
+    },
+    "timer_slack_optimization_applied": true,
+    "timer_slack_restoration_complete": true,
+    "timer_slack_owners": {
+      "front": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      },
+      "rear": {
+        "original_ns": 50000,
+        "during_ns": 1000,
+        "after_ns": 50000,
+        "restored": true
+      }
+    },
+    "cpu_frequency_restored_reported": true,
+    "cpu_frequency_evidence_source": "execution tool stdout; distinct from native diagnostic report",
+    "application_requests_and_complete_replies_total_including_setup_and_stop": 650,
+    "cyclic_requests_and_complete_replies_total": 494,
+    "rejected_bytes": 0,
+    "unparsed_bytes": 0,
+    "reply_loss_observed": false,
+    "bus_totals": {
+      "front": {
+        "application_requests": 325,
+        "application_complete_replies": 325,
+        "cyclic_requests_and_complete_replies": 247,
+        "application_tx_bytes": 5525,
+        "application_rx_bytes": 5525,
+        "xhci_out_enqueued": 325,
+        "xhci_out_completed": 325,
+        "xhci_out_bytes": 5525,
+        "xhci_in_enqueued": 235,
+        "xhci_in_completed": 235,
+        "xhci_in_bytes": 5525,
+        "xhci_in_length_counts": {
+          "17": 49,
+          "32": 138,
+          "6": 46,
+          "0": 2
+        },
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true,
+        "stop_ambiguous_ids": []
+      },
+      "rear": {
+        "application_requests": 325,
+        "application_complete_replies": 325,
+        "cyclic_requests_and_complete_replies": 247,
+        "application_tx_bytes": 5525,
+        "application_rx_bytes": 5525,
+        "xhci_out_enqueued": 325,
+        "xhci_out_completed": 325,
+        "xhci_out_bytes": 5525,
+        "xhci_in_enqueued": 235,
+        "xhci_in_completed": 235,
+        "xhci_in_bytes": 5525,
+        "xhci_in_length_counts": {
+          "17": 49,
+          "32": 138,
+          "6": 46,
+          "0": 2
+        },
+        "xhci_in_dequeues_at_close": 2,
+        "stop_attempts": 1,
+        "stop_confirmed": true,
+        "stop_ambiguous_ids": []
+      }
+    },
+    "xhci_report_sha256": "abbbb909cd1766cac2bcc49c16670da5508b11c3dc8acbd2a844a353b033aa05",
+    "xhci_trace_sha256": "e61e318b2de5cafdd0d1c3292d15af81c48e3428fb57a1e10160622d295e38d9",
+    "xhci_trace_events": 2244,
+    "xhci_trace_lossless": true,
+    "xhci_trace_overlapped": true,
+    "xhci_capture_begin_monotonic_ns": 1841159204375,
+    "xhci_capture_end_monotonic_ns": 1871159540114,
+    "application_first_write_monotonic_ns": 1856566581148,
+    "application_last_stop_reply_monotonic_ns": 1859058280773,
+    "xhci_capture_margin_before_first_write_s": 15.407376773,
+    "xhci_capture_margin_after_last_stop_reply_s": 12.101259341,
+    "xhci_overrun_or_dropped_events": 0,
+    "recovery_history": {
+      "initial_evidence_status": "TOOL_STDOUT_ONLY_RAW_LOGS_PENDING",
+      "initial_fetches_failed": 3,
+      "initial_local_files_zero_bytes": true,
+      "zero_byte_files_accepted_as_evidence": false,
+      "nonempty_raw_files_recovered_after_jetson_reboot": true,
+      "raw_file_sizes_bytes": {
+        "report": 250928,
+        "xhci_metadata": 2150,
+        "xhci_trace": 383201
+      },
+      "post_reboot_activity_reported": "log recovery and root-side checks; no new QDD commands"
+    },
+    "limitations": [
+      "Velocity-threshold stop is not a communication-reply loss or timeout",
+      "Raw position delta remained within the 3-degree envelope; the velocity-reading cause remains undetermined",
+      "18 completed cycles and a fully received but rejected 19th cycle do not constitute a 500-cycle pass",
+      "Zero gain and no learned-model inference; active-controller validation remains separate"
+    ]
+  }
+}

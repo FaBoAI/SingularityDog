@@ -40,8 +40,6 @@ def main(argv=None,*,execution=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--profile',required=True)
     p.add_argument('--execute-supported',action='store_true')
-    p.add_argument('--execute-fixed-catch',action='store_true')
-    p.add_argument('--fixed-catch-ready',action='store_true')
     p.add_argument('--support-in-place',action='store_true');p.add_argument('--cutoff-ready',action='store_true')
     for key in ('front-port','rear-port','library','output','audio','audio-sha256','audio-device'):
         p.add_argument('--'+key)
@@ -66,39 +64,21 @@ def main(argv=None,*,execution=None):
                    help='Opt in to OMP/OPENBLAS/MKL thread counts of 1 before NumPy/Torch import')
     add_transport_arguments(p)
     a=p.parse_args(argv)
-    if a.execute_fixed_catch and (a.execute_supported or execution is not None or
-                                  not a.fixed_catch_ready):
-        p.error('Fixed catch requires its dedicated execution and ready flags')
-    if a.fixed_catch_ready and not a.execute_fixed_catch:
-        p.error('Fixed-catch readiness may only accompany its dedicated execution')
     try:math_startup=math_threads.configure_single_thread_math(a.single_thread_math)
     except math_threads.MathThreadStartupError as error:p.error(str(error))
     r22=a.main_thread_cpu is not None or a.pre_cycle_policy_warmup_calls is not None or a.post_pin_policy_prime_calls is not None
     if r22 and (a.main_thread_cpu!=4 or a.pre_cycle_policy_warmup_calls!=10):
         p.error('R22 startup requires --pre-cycle-policy-warmup-calls 10 and --main-thread-cpu 4 together')
-    if a.exclude_policy_cpu_from_workers and (not r22 or
-                                                  execution is not None and not a.execute_fixed_catch):
+    if a.exclude_policy_cpu_from_workers and (not r22 or execution is not None):
         p.error('--exclude-policy-cpu-from-workers requires R22 supported-only output')
     if a.release_spin_us is not None and not a.absolute_epoch_cadence:
         p.error('--release-spin-us requires --absolute-epoch-cadence')
-    active=a.execute_supported or a.execute_fixed_catch
-    profile=load_profile(a.profile,require_approved=active)
-    if a.execute_fixed_catch:
-        from .fixed_catch_hold import FixedCatchExecution
-        try:
-            # The CPU performance wrapper starts a new session. Its child has
-            # the operator's terminal on inherited stdin/stdout, but no
-            # controlling /dev/tty. Use those verified descriptors directly.
-            execution=FixedCatchExecution(0,write_fd=1)
-        except (ValueError,OSError) as error:p.error(str(error))
-        a.execute_supported=True
-    elif profile.get('scope')=='fixed_catch_current_hold_only':
-        p.error('Fixed-catch profile requires the dedicated terminal execution path')
+    profile=load_profile(a.profile,require_approved=a.execute_supported)
     try:
         pacing=transport_settings(profile,request_gap_us=a.request_gap_us,request_window=a.request_window)
     except ProfileError as error:
         p.error(str(error))
-    if execution is not None:execution.bind_profile(profile,active=active)
+    if execution is not None:execution.bind_profile(profile,active=a.execute_supported)
     if not a.execute_supported:
         print(json.dumps({'status':'PLAN_ONLY','output_allowed':False,'profile_reviewed':profile['output_allowed'],
             'scope':profile['scope'],'duration_s':profile['duration_s'],
@@ -113,8 +93,7 @@ def main(argv=None,*,execution=None):
             'active_timer_slack_ns':a.active_timer_slack_ns,
             'math_thread_startup':math_startup,
             'actual_policy_output_20ms_verified':False},ensure_ascii=False,indent=2));return 0
-    if (not a.support_in_place and not a.execute_fixed_catch) or not a.cutoff_ready:
-        p.error('Reviewed support or fixed catch and immediate cutoff are required')
+    if not a.support_in_place or not a.cutoff_ready:p.error('Supported trial requires support-in-place and cutoff-ready')
     if any(not getattr(a,k) for k in ('front_port','rear_port','library','output','audio','audio_sha256','audio_device','power_epoch')):
         p.error('Explicit ports, library, private output, pinned audio/device and current power epoch required')
     if a.power_epoch!=profile['motor_power_epoch']:p.error('Motor power epoch differs; review/capture again')
@@ -221,22 +200,19 @@ def main(argv=None,*,execution=None):
         report['imu_restore_status']=device.restore_status if device is not None else 'not_started'
         if device is not None and device.restore_status not in ('restored','not_needed'):
             report['errors'].append('IMU restoration unconfirmed')
-            if report['status'] in ('COMPLETE_SUPPORTED_OUTPUT', 'COMPLETE_FIXED_CATCH_HOLD'):
-                report['status']='ABORTED_RESTORE'
+            if report['status']=='COMPLETE_SUPPORTED_OUTPUT':report['status']='ABORTED_RESTORE'
         report['transport_settings']=pacing
         report['telemetry_cadence']=telemetry_settings(profile)
         report['math_thread_startup']=math_startup
         report['actual_policy_output_20ms_verified']=False
         if execution is not None:report=execution.decorate_report(report)
-        if a.execute_fixed_catch:execution.close()
         # The ground operator reader can signal cancellation. Join it before
         # closing its notification pipe, including setup/early-failure paths.
         os.close(cr);os.close(cw)
         with os.fdopen(os.open(out/'report.json',os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600),'w') as f:
             json.dump(report,f,ensure_ascii=False,allow_nan=False);f.write('\n')
         print(json.dumps({k:report.get(k) for k in ('status','errors','motor_enable_sent','learned_targets_sent','stop_confirmed','deadline20ms_misses','transport_settings')},ensure_ascii=False))
-    return 0 if report['status'] in ('COMPLETE_SUPPORTED_OUTPUT','COMPLETE_BOUNDED_GROUND_TRIAL',
-                                    'COMPLETE_FIXED_CATCH_HOLD') else 2
+    return 0 if report['status'] in ('COMPLETE_SUPPORTED_OUTPUT','COMPLETE_BOUNDED_GROUND_TRIAL') else 2
 
 
 if __name__=='__main__':raise SystemExit(main())

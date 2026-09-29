@@ -1,0 +1,58 @@
+{
+  "schema": "singularitydog.supported-results-summary.v1",
+  "date": "2026-09-29",
+  "scope": "box-supported finite tests only",
+  "raw_logs_published": false,
+  "hardware_output_authorized_by_this_summary": false,
+  "runs": {
+    "r63": {
+      "status": "COMPLETE_SUPPORTED_OUTPUT",
+      "errors": [],
+      "learned_targets_sent": true,
+      "normal_ramp_completed": true,
+      "stop_confirmed": true,
+      "stop_faults_by_id": {},
+      "startup_20ms_misses": 1,
+      "steady_deadline20ms_misses": 0,
+      "max_start_interval_ms": 20.10128,
+      "full_controller_50Hz_verified": false,
+      "report_sha256": "3352f7ecfef4f3915339eb41b2efbca1c074ed458d5abb7a16292604f780f95d",
+      "cycles": 95,
+      "first_cycle_ms": 20.042935,
+      "steady_max_cycle_ms": 19.971275,
+      "max_feedback_torque_nm": 0.030296787975890638,
+      "max_model_mix": 0.005,
+      "max_measured_displacement_deg": 0.04395867542424517,
+      "operator_observation": "Audio heard; no physical anomaly; high box and lower fixed catch retained"
+    },
+    "r64": {
+      "status": "COMPLETE_SUPPORTED_OUTPUT",
+      "errors": [],
+      "learned_targets_sent": true,
+      "normal_ramp_completed": true,
+      "stop_confirmed": true,
+      "stop_faults_by_id": {},
+      "startup_20ms_misses": 1,
+      "steady_deadline20ms_misses": 0,
+      "max_start_interval_ms": 20.134555,
+      "full_controller_50Hz_verified": false,
+      "report_sha256": "5e55383bf47e31fb8472a423bacf9a98494c1d6d5c2617db15e708dc33142f57",
+      "cycles": 143,
+      "first_cycle_ms": 20.075576,
+      "steady_max_cycle_ms": 19.91464,
+      "max_feedback_torque_nm": 0.0648737315938046,
+      "max_model_mix": 0.01,
+      "max_measured_displacement_deg": 0.06593801313596065,
+      "operator_observation": "Audio heard; no physical anomaly; high box and lower fixed catch retained"
+    }
+  },
+  "r65": {
+    "scope": "read-only posture capture and file-only preload planning",
+    "four_foot_paper_contact": "operator confirmed light paper pinch at all four feet",
+    "load_fraction_measured": false,
+    "preload_motor_output_sent": false,
+    "dedicated_preload_runtime_integrated": false,
+    "standing_verified": false,
+    "walking_verified": false
+  }
+}

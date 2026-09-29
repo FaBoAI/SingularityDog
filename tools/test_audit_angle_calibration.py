@@ -81,6 +81,31 @@ class AuditCLITests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "error bound"):
                 tool.load_profile(profile)
 
+    def test_fresh_capture_hash_replaces_current_without_losing_profile_provenance(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            profile_path, _ = profile_fixture(root)
+            profile = json.loads(profile_path.read_text())
+            original_sources = {"current": "a" * 64, "candidate": "b" * 64,
+                                "camera_l_by_leg": {"FR": "c" * 64}}
+            profile["source_sha256"] = original_sources
+            profile_path.write_text(json.dumps(profile))
+            original_profile_bytes = profile_path.read_bytes()
+            capture = capture_fixture(root)
+            current_hash = hashlib.sha256(capture.read_bytes()).hexdigest()
+            output, exported = root / "report.json", root / "profile-copy.json"
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(tool.main(["--profile", str(profile_path), "--capture", str(capture),
+                                            "--output", str(output), "--profile-output", str(exported)]), 0)
+            report = json.loads(output.read_text())
+            self.assertEqual(report["source_sha256"]["current"], current_hash)
+            self.assertEqual(report["current_capture_sha256"], current_hash)
+            self.assertEqual(report["profile_source_sha256"], original_sources)
+            self.assertEqual(report["source_sha256"]["candidate"], original_sources["candidate"])
+            self.assertEqual(report["source_sha256"]["camera_l_by_leg"], original_sources["camera_l_by_leg"])
+            self.assertEqual(json.loads(exported.read_text()), profile)
+            self.assertEqual(profile_path.read_bytes(), original_profile_bytes)
+
     def test_duplicate_json_and_nonfinite_rejected(self):
         for source in ('{"a":1,"a":2}', '{"a":NaN}'):
             with self.assertRaises(ValueError):

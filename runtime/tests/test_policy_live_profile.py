@@ -135,6 +135,28 @@ class ProfileTests(unittest.TestCase):
         self.assertIsNone(parsed['watchdog_by_id']['7']['firmware_version'])
         self.assertNotIn('lower_rad', self.data['axes']['1'])
 
+    def test_full_charge_voltage_requires_matching_diagnostic_and_review(self):
+        self.select_scalar()
+        self.assertEqual(profile.template()['voltage_max_v'], 42.)
+        self.data['voltage_max_v'] = 43.
+        with self.assertRaisesRegex(profile.ProfileError, 'Diagnostic voltage envelope'):
+            profile.load_profile(self.save(bind_review=True))
+        self.docs['pipeline_diagnostic']['plan']['voltage_max_v'] = 43.
+        with self.assertRaisesRegex(profile.ProfileError, 'Diagnostic voltage range'):
+            profile.load_profile(self.save(bind_review=True))
+        self.docs['pipeline_diagnostic']['plan']['voltage_range_v'] = [35., 43.]
+        self.docs['pipeline_diagnostic']['voltage_range_v'] = [35., 43.]
+        self.docs['pipeline_diagnostic']['voltage_max_v'] = 43.
+        self.assertTrue(profile.load_profile(self.save(bind_review=True))['output_allowed'])
+        self.data['voltage_max_v'] = 43.001
+        with self.assertRaisesRegex(profile.ProfileError, 'voltage_max_v'):
+            profile.load_profile(self.save(bind_review=True))
+
+    def test_legacy_voltage_ceiling_remains_42(self):
+        self.data['voltage_max_v'] = 43.
+        with self.assertRaisesRegex(profile.ProfileError, 'voltage_max_v'):
+            profile.load_profile(self.save(bind_review=True))
+
     def select_scalar(self):
         self.data.update(schema=profile.SCHEMA_V3, telemetry_cadence=profile.CADENCE_PRE_ENABLE,
             cadence_source_sha256=profile.cadence_source_hashes(), model_backend=profile.SCALAR_BACKEND,
@@ -740,7 +762,7 @@ class ProfileTests(unittest.TestCase):
 
     def test_non_supported_scope_and_nonzero_walk_command_rejected(self):
         self.data['scope'] = 'walking'
-        with self.assertRaisesRegex(profile.ProfileError, 'Only short supported'):
+        with self.assertRaisesRegex(profile.ProfileError, 'Only reviewed supported or fixed-catch'):
             profile.load_profile(self.save())
         self.data['scope'] = 'supported_characterization_only'; self.data['command'] = [.1,0.,0.]
         with self.assertRaisesRegex(profile.ProfileError, 'zero locomotion'):

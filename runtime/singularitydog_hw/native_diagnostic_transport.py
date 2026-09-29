@@ -118,7 +118,13 @@ class NativeSession:
         self.poisoned, self.busy = False, threading.Lock()
         self.last_finish_ns = 0
 
-    def exchange(self, wires, *, timeout_ns=100_000_000):
+    def exchange(self, wires, *, timeout_ns=100_000_000, before_native=None):
+        """Optionally publish completed prior work after preparing this call.
+
+        The hook runs once, after FD checks and buffer/deadline preparation,
+        immediately before entering the GIL-releasing native call. A hook
+        failure poisons the session without issuing this batch.
+        """
         if not self.busy.acquire(blocking=False):
             raise RuntimeError('Concurrent exchange on one native session')
         try:
@@ -129,14 +135,18 @@ class NativeSession:
                 raise ValueError('Native FD binding/configuration changed')
             wires = tuple(wires)
             if (not 1 <= len(wires) <= 12 or any(type(w) is not bytes or len(w) != 17 for w in wires)
-                    or type(timeout_ns) is not int or not 1_000_000 <= timeout_ns <= 250_000_000):
+                    or type(timeout_ns) is not int or not 1_000_000 <= timeout_ns <= 250_000_000
+                    or (before_native is not None and not callable(before_native))):
                 raise ValueError('Invalid native request batch/deadline')
             raw = (C.c_ubyte*(17*len(wires))).from_buffer_copy(b''.join(wires))
             records, stats, error = (Record*len(wires))(), Stats(), C.create_string_buffer(256)
-            status = self.lib.sd_exchange(self.fd, self.cancel_fd, self.boot_fd, self.boot_id,
+            native_call = self.lib.sd_exchange
+            arguments = (self.fd, self.cancel_fd, self.boot_fd, self.boot_id,
                 raw, len(wires), self.first_id, int(self.stop_proxy), self.gap_ns,
                 self.window, time.monotonic_ns()+timeout_ns, self.last_finish_ns,
                 records, C.byref(stats), error, 256)
+            if before_native is not None:before_native()
+            status = native_call(*arguments)
             self.last_finish_ns = max(r.finish_ns for r in records)
             if status:
                 raise ExchangeError(error.value.decode(), records, stats)

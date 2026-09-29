@@ -351,8 +351,12 @@ def main(argv=None):
             current, current_hash = read(args.capture)
             raw, uids = current_values(current)
         report = audit_twelve_axes(contracts, raw, uids)
-        report["source_sha256"] = profile.get("source_sha256", {})
+        report["source_sha256"] = dict(profile.get("source_sha256", {}))
         if not args.history_root:
+            # Keep the calibration profile's original evidence references, but
+            # make "current" identify the fresh capture actually audited here.
+            report["profile_source_sha256"] = dict(report["source_sha256"])
+            report["source_sha256"]["current"] = current_hash
             report["current_capture_sha256"] = current_hash
         report["current_boot_id"] = current.get("boot_id")
         report["motor_power_epoch"] = current.get("motor_power_epoch")

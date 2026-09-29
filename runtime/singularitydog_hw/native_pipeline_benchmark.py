@@ -44,6 +44,10 @@ _TRACE_SCOPE_INDEX = {scope:index for index,scope in enumerate(dual.SCOPES)}
 _READ_WIRES = {(i,p):codec.read_request(i,p) for i in range(1,13)
                for p in ('position','velocity','voltage')}
 _STOP_WIRES = {i:native.stop_wire(i) for i in range(1,13)}
+# Exact Type2, disabled/fault-free, destination 0xfd, extended-frame flag4,
+# DLC8 headers. Matching these bytes is equivalent to decoding flags/can_id.
+_STOP_REPLY_HEADERS = {i:b'AT'+((((2<<24)|(i<<8)|0xfd)<<3)|4).to_bytes(4,'big')+b'\x08'
+                       for i in range(1,13)}
 _OUTPUT_DISPATCH_FIELDS = (
     'infer_end_ns', 'main_check_start_ns', 'main_check_end_ns',
     'front_submit_end_ns', 'rear_submit_end_ns',
@@ -325,26 +329,39 @@ def _timing_scalars(acquired,sample,output):
 
 
 def _feedback_then_voltage(exchange,scope,feedback_wires,voltage_wire,feedback_ready,
-                           proof=None,clock=None):
+                           proof=None,clock=None,*,publish_before_native=False):
     """One bus owner publishes six replies, then makes its separate voltage read.
 
     A single worker performs both calls in order; there is never a second task
     racing the same session. Both calls keep their own native Stats and records.
     """
+    feedback=None
+    def publish_feedback():
+        if proof is not None:
+            proof.setdefault('feedback_published_ns_by_bus',{})[scope]=clock()
+        feedback_ready.set_result(feedback)
     try:
         if proof is not None:proof['feedback_dispatch_ns_by_bus'][scope]=clock()
         feedback=exchange(scope,feedback_wires)
         if proof is not None:
             proof['feedback_reply_end_ns_by_bus'][scope]=max(r.received_ns for r in feedback[0])
             proof['feedback_ready_ns_by_bus'][scope]=clock()
-        feedback_ready.set_result(feedback)
+        if not publish_before_native:publish_feedback()
         if proof is not None:proof['voltage_dispatch_ns_by_bus'][scope]=clock()
-        voltage=exchange(scope,(voltage_wire,))
+        if publish_before_native:
+            voltage=exchange(scope,(voltage_wire,),before_native=publish_feedback)
+            if not feedback_ready.done():
+                raise RuntimeError('Native voltage call omitted feedback publication')
+        else:voltage=exchange(scope,(voltage_wire,))
         if proof is not None:
             proof['voltage_reply_end_ns_by_bus'][scope]=max(r.received_ns for r in voltage[0])
         return voltage
     except BaseException as error:
-        if not feedback_ready.done():feedback_ready.set_exception(error)
+        if not feedback_ready.done():
+            # FD/check/preparation failures must retain the complete feedback
+            # already received; the separate voltage future still fails.
+            if feedback is not None:feedback_ready.set_result(feedback)
+            else:feedback_ready.set_exception(error)
         raise
 
 
@@ -396,9 +413,9 @@ def _verify_final_proxy_stop_records(output,clock):
             if not (bytes(row.tx)==_STOP_WIRES[mid] and row.written==row.received==17 and
                     0<row.start_ns<=row.finish_ns<=row.received_ns<row.deadline_ns):
                 raise ValueError('Invalid final proxy STOP record')
-            reply=_native_record_frame(bytes(row.rx))
-            if (reply.flags!=4 or reply.can_id!=((2<<24)|(mid<<8)|0xfd) or
-                    reply.data[:3]==b'\x00\xc4\x56'):
+            reply=bytes(row.rx)
+            if (len(reply)!=17 or reply[:7]!=_STOP_REPLY_HEADERS[mid] or
+                    reply[15:]!=b'\r\n' or reply[7:10]==b'\x00\xc4\x56'):
                 raise ValueError('Invalid final proxy STOP reply')
         reply_ends[scope]=max(row.received_ns for row in records)
     verified_at=clock()
@@ -417,7 +434,7 @@ def _retain_submitted_feedback(feedback_ready,voltage_futures,record):
 
 
 def _verify_voltage_after_inference(acquired,voltage,sample,feedback_snapshot,
-                                    expected_voltage_by_bus,clock):
+                                    expected_voltage_by_bus,clock,voltage_max_v=42):
     """Revalidate retained feedback and both late replies before a proxy STOP.
 
     This second snapshot is a validation copy, never a replacement for the
@@ -435,16 +452,16 @@ def _verify_voltage_after_inference(acquired,voltage,sample,feedback_snapshot,
     for key in ('accel_m_s2','gyro_rad_s','read_started_ns','read_finished_ns'):
         if full['imu'][key]!=feedback_snapshot['imu'][key]:
             raise ValueError('IMU changed while voltage was pending')
-    # The supported-profile voltage envelope is 35..42 V. This is only a
-    # disabled-motor diagnostic screen, never an output approval.
-    if any(not 35. <= row['value_v'] <= 42.
+    # The upper limit is explicitly selected; 42 V remains the default.
+    # This disabled-motor diagnostic screen is never an output approval.
+    if any(not 35. <= row['value_v'] <= voltage_max_v
            for row in full['voltage_by_bus'].values()):
-        raise ValueError('Voltage outside 35..42 V before proxy STOP')
+        raise ValueError(f'Voltage outside 35..{voltage_max_v:g} V before proxy STOP')
     return full,clock()
 
 
 def _validate_voltage_during_inference(voltage_futures,acquired,sample,
-                                       feedback_snapshot,expected_voltage_by_bus,clock):
+                                       feedback_snapshot,expected_voltage_by_bus,clock,voltage_max_v=42):
     """Join both bus-owned voltage reads and validate on the free IMU worker.
 
     Submitted only after the IMU future has completed, so the three-worker pool
@@ -454,12 +471,12 @@ def _validate_voltage_during_inference(voltage_futures,acquired,sample,
     voltage={scope:future.result() for scope,future in voltage_futures.items()}
     started=clock()
     full,finished=_verify_voltage_after_inference(
-        acquired,voltage,sample,feedback_snapshot,expected_voltage_by_bus,clock)
+        acquired,voltage,sample,feedback_snapshot,expected_voltage_by_bus,clock,voltage_max_v)
     return full,started,finished
 
 
 def _verify_voltage_final_freshness(acquired,voltage,sample,feedback_snapshot,
-                                    full,expected_voltage_by_bus,clock):
+                                    full,expected_voltage_by_bus,clock,voltage_max_v=42):
     """Check the worker proof against the actual post-inference STOP gate time.
 
     The worker already decoded every frame and compared feedback/IMU with the
@@ -482,7 +499,7 @@ def _verify_voltage_final_freshness(acquired,voltage,sample,feedback_snapshot,
         raise ValueError('Voltage validation snapshot differs before proxy STOP')
     if ({scope:row['motor_id'] for scope,row in full['voltage_by_bus'].items()}!=
             expected_voltage_by_bus or
-            any(not 35.<=row['value_v']<=42.
+            any(not 35.<=row['value_v']<=voltage_max_v
                 for row in full['voltage_by_bus'].values())):
         raise ValueError('Voltage changed before proxy STOP')
     oldest=latest=earliest_receive=None
@@ -629,11 +646,14 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
             v3_voltage_overlap=False,v3_voltage_validation_overlap=False,
             v3_voltage_pipeline=False,v3_voltage_fast_pipeline=False,
             inference_thread_cpu_trace=False,absolute_epoch_cadence=False,
-            exclude_policy_cpu_from_workers=False,startup_cycle_allowance=0,deadline_wait=None):
+            exclude_policy_cpu_from_workers=False,startup_cycle_allowance=0,deadline_wait=None,
+            voltage_max_v=42):
     """Finite no-catchup benchmark, injectable transports for failure testing."""
     if (mode not in ('type17','stop-proxy') or not 1<=cycles<=3000 or
             record_storage not in ('objects','encoded','trace')):
         raise ValueError('Invalid mode or cycle budget')
+    if type(voltage_max_v) not in (int,float) or voltage_max_v not in (42,43):
+        raise ValueError('Voltage maximum must be explicitly 42 or 43 V')
     if (type(startup_cycle_allowance) is not int or startup_cycle_allowance not in (0,1) or
             startup_cycle_allowance and (mode!='stop-proxy' or policy_observer is None or
                                          not 2<=cycles<=501)):
@@ -747,13 +767,16 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
             if sample is not None:return sample
             sleep(.0005)
         raise TimeoutError('No new IMU within20ms')
-    def exchange(scope,wires,dispatch_base=None):
+    def exchange(scope,wires,dispatch_base=None,*,before_native=None):
         if dispatch_base is not None:
             dispatch_values[dispatch_base+(5 if scope=='front' else 9)]=clock()
         check()
         if dispatch_base is not None:
             dispatch_values[dispatch_base+(6 if scope=='front' else 10)]=clock()
-        try:return sessions[scope].exchange(wires)
+        try:
+            if before_native is not None:
+                return sessions[scope].exchange(wires,before_native=before_native)
+            return sessions[scope].exchange(wires)
         except native.ExchangeError as error:
             records.append({'failure_scope':scope,'native_failure':error})
             raise
@@ -893,7 +916,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                             voltage_futures[scope]=pool.submit(
                                 _feedback_then_voltage,exchange,scope,wires[scope],
                                 _READ_WIRES[ids[cycle%6],'voltage'],feedback_ready[scope],
-                                record['voltage_fast_pipeline'],clock)
+                                record['voltage_fast_pipeline'],clock,publish_before_native=True)
                         else:
                             voltage_futures[scope]=pool.submit(
                                 _feedback_then_voltage,exchange,scope,wires[scope],
@@ -960,7 +983,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                         # task waits on the two bus-owned voltage futures, then
                         # validates their immutable records during inference.
                         validation_future=pool.submit(_validate_voltage_during_inference,
-                            voltage_futures,acquired,sample,snapshot,expected_voltage,clock)
+                            voltage_futures,acquired,sample,snapshot,expected_voltage,clock,voltage_max_v)
                 prepared=clock()
                 if inference_cpu_values is not None:
                     inference_cpu_base=cycle*2
@@ -1003,7 +1026,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                     try:
                         final_freshness_checked=_verify_voltage_final_freshness(
                             acquired,record['voltage'],sample,snapshot,full_voltage,
-                            expected_voltage,clock)
+                            expected_voltage,clock,voltage_max_v)
                     except BaseException as freshness_error:
                         record['voltage_freshness_error']=(
                             type(freshness_error).__name__+': '+str(freshness_error))
@@ -1012,7 +1035,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                 else:
                     if voltage_errors:raise voltage_errors[0]
                     full_voltage,verified_at=_verify_voltage_after_inference(
-                        acquired,record['voltage'],sample,snapshot,expected_voltage,clock)
+                        acquired,record['voltage'],sample,snapshot,expected_voltage,clock,voltage_max_v)
                 record['voltage_overlap']={
                     'status':'VALIDATED_BEFORE_PROXY_STOP',
                     'feedback_ready_ns':gather_end,'inference_end_ns':inferred,
@@ -1023,7 +1046,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                         for scope,value in record['voltage'].items()},
                     'voltage_v_by_bus':{
                         scope:row['value_v'] for scope,row in full_voltage['voltage_by_bus'].items()},
-                    'range_v':[35.,42.], 'observer_snapshot_voltage_pending':True,
+                    'range_v':[35.,voltage_max_v], 'observer_snapshot_voltage_pending':True,
                     'output_allowed':False}
                 if v3_voltage_validation_overlap:
                     record['voltage_overlap'].update(
@@ -1034,7 +1057,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                     record[pipeline_key].update(
                         status='POST_INFERENCE_VALIDATED',
                         inference_end_ns=inferred,post_inference_verified_ns=verified_at,
-                        range_v=[35.,42.])
+                        range_v=[35.,voltage_max_v])
             if policy_observer is not None:record['observed']=observed
             if mode=='stop-proxy' and policy_observer is not None:
                 if output_dispatch_trace:
@@ -1050,7 +1073,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                         # dispatch point. STOP is the only possible output here.
                         final_gate=_verify_voltage_final_freshness(
                             acquired,record['voltage'],sample,snapshot,full_voltage,
-                            expected_voltage,clock)
+                            expected_voltage,clock,voltage_max_v)
                         if final_gate>=pipeline_hard_end:
                             raise TimeoutError('Voltage pipeline exceeded 20 ms hard deadline before proxy STOP')
                     except BaseException as gate_error:
@@ -1216,6 +1239,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
     report={'status':'COMPLETE_DIAGNOSTIC' if not errors else 'ABORTED',
         'mode':mode,'errors':errors,'cycles_requested':cycles,'cycles_completed':len(measurements),
         'v3_voltage_proxy':v3_voltage_proxy,
+        'voltage_max_v':voltage_max_v,'voltage_range_v':[35.,voltage_max_v],
         'motor_enable_sent':False,'learned_targets_sent':False,'approved_for_runtime':False,
         'full_controller_50Hz_verified':False,'worker_startup':startup,
         'main_thread_affinity':affinity,'worker_affinity':worker_affinity,
@@ -1229,7 +1253,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
         'release_lateness_over_1ms':sum(r['release_lateness_ms']>1. for r in measurements),
         'release_intervals_over_21ms':sum((r['actual_release_interval_ms'] or 0)>21. for r in measurements)}
     if v3_voltage_overlap:
-        report['v3_voltage_overlap']={'enabled':True,'voltage_range_v':[35.,42.],
+        report['v3_voltage_overlap']={'enabled':True,'voltage_range_v':[35.,voltage_max_v],
             'validation_overlap_enabled':v3_voltage_validation_overlap,
             'voltage_dispatch_schedule':('after_complete_feedback_imu_snapshot'
                                          if v3_voltage_pipeline else 'after_each_bus_feedback'),
@@ -1268,12 +1292,14 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
         report['v3_voltage_fast_pipeline']={
             'enabled':True,'schema':'immediate-feedback-voltage-proxy-v1',
             'period_ns':PERIOD_NS,'voltage_dispatch_schedule':'after_each_bus_feedback',
+            'feedback_publication':'after_voltage_native_preparation',
             'voltage_may_precede_global_feedback_validation':True,
             'active_feedback_safety_equivalent':False,
             'voltage_verified_before_proxy_stop':report['status']=='COMPLETE_DIAGNOSTIC',
             'timing_fields':{name:'records[].voltage_fast_pipeline.'+name for name in (
                 'feedback_dispatch_ns_by_bus','feedback_reply_end_ns_by_bus',
-                'feedback_ready_ns_by_bus','feedback_join_ns','feedback_snapshot_validated_ns',
+                'feedback_ready_ns_by_bus','feedback_published_ns_by_bus',
+                'feedback_join_ns','feedback_snapshot_validated_ns',
                 'hard_deadline_ns','voltage_dispatch_ns_by_bus','voltage_reply_end_ns_by_bus',
                 'voltage_join_ns','post_inference_verified_ns','voltage_verified_ns',
                 'inference_end_ns','stop_reply_end_ns_by_bus','stop_reply_count',
@@ -1469,7 +1495,9 @@ def main(argv=None):
     p.add_argument('--v3-voltage-proxy',action='store_true',
                    help='Disabled-only 26-request proxy: six STOP feedback plus one rotating voltage read per bus, then six STOP; never Type1 or motor enable')
     p.add_argument('--v3-voltage-overlap',action='store_true',
-                   help='Diagnostic-only: infer from six feedback replies while each bus reads its separate voltage; verify 35..42 V on both buses before proxy STOP')
+                   help='Diagnostic-only: infer from six feedback replies while each bus reads its separate voltage; verify selected voltage range on both buses before proxy STOP')
+    p.add_argument('--voltage-max-v',type=int,choices=(42,43),default=42,
+                   help='Explicit voltage upper bound; lower bound remains 35 V, default upper bound 42 V')
     p.add_argument('--v3-voltage-validation-overlap',action='store_true',
                    help='Diagnostic-only: validate completed voltage replies on the released IMU worker during inference; recheck all input timestamps before proxy STOP')
     p.add_argument('--v3-voltage-pipeline',action='store_true',
@@ -1624,6 +1652,7 @@ def main(argv=None):
           'steady_cycles_requested':args.cycles-args.startup_cycle_allowance,
           'release_spin_us':args.release_spin_us,
           'v3_voltage_proxy':args.v3_voltage_proxy,
+          'voltage_max_v':args.voltage_max_v,'voltage_range_v':[35.,args.voltage_max_v],
           'v3_voltage_pipeline':args.v3_voltage_pipeline,
           'v3_voltage_fast_pipeline':args.v3_voltage_fast_pipeline,
           'absolute_epoch_cadence':args.absolute_epoch_cadence,
@@ -1836,7 +1865,8 @@ def main(argv=None):
                             prime['duration_ms']=(prime['end_ns']-prime['begin_ns'])/1e6
                     if not pre_cycle_warmup:prepare_policy()
                 with timer_slack:
-                    options={'mode':args.mode,'cycles':args.cycles,'check':check}
+                    options={'mode':args.mode,'cycles':args.cycles,'check':check,
+                             'voltage_max_v':args.voltage_max_v}
                     if args.startup_cycle_allowance:
                         options['startup_cycle_allowance']=args.startup_cycle_allowance
                     if args.release_spin_us is not None:

@@ -2,6 +2,7 @@
 from contextlib import redirect_stdout
 import io
 import json
+import math
 import socket
 import threading
 import time
@@ -58,7 +59,17 @@ class FakeChannel:
                 return value
             if self.bad == 'late': self.clock.now += 41_000_000
             if self.bad != 'no_disable': self.enabled.discard(mid)
-            return fb(2 if mid in self.enabled else 0, self.clock)
+            value = fb(2 if mid in self.enabled else 0, self.clock)
+            probe_overrides = {
+                'probe_angle': {'protocol_position_rad': math.radians(3)+1e-6},
+                'probe_velocity': {'velocity_rad_s': 10.1312275883},
+                'probe_hot': {'temperature_c': 60.},
+                'probe_cold': {'temperature_c': -10.01},
+                'probe_bounds': {'protocol_position_rad': math.radians(3),
+                                 'velocity_rad_s': -.5, 'temperature_c': -10.},
+            }
+            value.update(probe_overrides.get(self.bad, {}))
+            return value
         raise AssertionError(step)
     def stop_all(self):
         self.stop_calls += 1; self.enabled.clear()
@@ -75,6 +86,44 @@ class CommissioningTests(unittest.TestCase):
         expected = {mid: (bytes([mid])*8).hex() for mid in watchdog.IDS}
         report = watchdog.run(channels, expected, group=group, clock=clock, wait=clock.wait, **kwargs)
         return report, channels
+    def test_explicit_full_charge_limit_preserves_lower_bound_and_default(self):
+        original=FakeChannel.exchange
+        for maximum,value,complete in ((42,42.247,False),(43,42.247,True),
+                (43,43.,True),(43,35.,True),(43,43.01,False),(43,34.99,False),
+                (43,float('nan'),False),(43,float('inf'),False)):
+            with self.subTest(maximum=maximum,value=value):
+                def reply(channel,mid,step,center=0.):
+                    if step=='voltage':return {'value':value}
+                    return original(channel,mid,step,center)
+                with patch.object(FakeChannel,'exchange',reply):
+                    report,channels=self.run_case(voltage_max_v=maximum)
+                self.assertEqual(report['status'],
+                    'COMPLETE_COMMAND_LOSS_DIAGNOSTIC' if complete else 'ABORTED')
+                self.assertEqual(report['voltage_max_v'],maximum)
+                self.assertEqual(report['voltage_range_v'],[35,maximum])
+                self.assertTrue(report['stop_confirmed'])
+                if not complete:
+                    self.assertFalse(report['motor_enable_sent'])
+                    self.assertFalse(any(step=='enable' for c in channels.values() for _,_,step in c.calls))
+        self.assertEqual(watchdog.plan()['voltage_max_v'],42)
+        for value in (41,44,True,float('nan'),float('inf')):
+            with self.subTest(value=value),self.assertRaisesRegex(ValueError,'Voltage maximum'):
+                watchdog.plan(voltage_max_v=value)
+
+    def test_voltage_cli_selection_is_saved_in_plan_without_hardware(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'uids.json'
+            path.write_text(json.dumps({str(mid):(bytes([mid])*8).hex() for mid in watchdog.IDS}))
+            for extra,maximum in (([],42),(['--voltage-max-v','43'],43)):
+                output=io.StringIO()
+                with redirect_stdout(output):
+                    self.assertEqual(watchdog.main(['--expected-uids',str(path),*extra]),0)
+                result=json.loads(output.getvalue())
+                self.assertFalse(result['hardware_opened'])
+                self.assertEqual(result['voltage_max_v'],maximum)
+                self.assertEqual(result['voltage_range_v'],[35,maximum])
+            with patch('sys.stderr',io.StringIO()),self.assertRaises(SystemExit):
+                watchdog.main(['--expected-uids',str(path),'--voltage-max-v','44'])
     def test_all12_one_run_checks_watchdog_no_usb_or_approval_claim(self):
         report, channels = self.run_case()
         self.assertEqual(report['status'], 'COMPLETE_COMMAND_LOSS_DIAGNOSTIC')
@@ -121,6 +170,47 @@ class CommissioningTests(unittest.TestCase):
         report, _ = self.run_case(bad='stop')
         self.assertEqual(report['status'], 'STOP_UNCONFIRMED_POWER_OFF_REQUIRED')
         self.assertFalse(report['stop_confirmed'])
+    def test_disabled_probe_outside_motion_bounds_stops_before_next_enable(self):
+        for bad, field, value in (
+                ('probe_angle', 'protocol_position_rad', math.radians(3)+1e-6),
+                ('probe_velocity', 'velocity_rad_s', 10.1312275883),
+                ('probe_hot', 'temperature_c', 60.),
+                ('probe_cold', 'temperature_c', -10.01)):
+            with self.subTest(bad=bad):
+                report, channels = self.run_case(bad=bad)
+                self.assertEqual(report['status'], 'ABORTED')
+                self.assertTrue(report['stop_confirmed'])
+                self.assertIn('after command silence', report['errors'][0])
+                axis = report['axes']['1']
+                self.assertEqual(axis['stop_probe']['mode_state'], 0)
+                self.assertEqual(axis['stop_probe'][field], value)
+                self.assertLessEqual(axis['disable_reply_upper_bound_ms'], 250)
+                self.assertFalse(axis['command_loss_tested'])
+                self.assertFalse(axis['disabled_on_command_loss'])
+                self.assertEqual([mid for c in channels.values()
+                                  for _, mid, step in c.calls if step == 'enable'], [1])
+                self.assertTrue(all(c.stop_calls == 1 for c in channels.values()))
+                self.assertFalse(any(c.enabled for c in channels.values()))
+    def test_disabled_probe_uses_existing_inclusive_motion_bounds(self):
+        report, _ = self.run_case(bad='probe_bounds')
+        self.assertEqual(report['status'], 'COMPLETE_COMMAND_LOSS_DIAGNOSTIC', report['errors'])
+        self.assertTrue(report['stop_confirmed'])
+    def test_unsafe_disabled_probe_with_missing_stop_keeps_cutoff_requirement(self):
+        original = FakeChannel.stop_all
+        def stop_with_front_failure(channel):
+            result = original(channel)
+            if channel.ids == watchdog.BUSES['front']:
+                result.update(complete=False, confirmed_ids=[],
+                              unconfirmed_ids=list(channel.ids), errors=['STOP reply missing'])
+            return result
+        with patch.object(FakeChannel, 'stop_all', stop_with_front_failure):
+            report, channels = self.run_case(bad='probe_velocity')
+        self.assertEqual(report['status'], 'STOP_UNCONFIRMED_POWER_OFF_REQUIRED')
+        self.assertFalse(report['stop_confirmed'])
+        self.assertEqual(report['axes']['1']['stop_probe']['velocity_rad_s'], 10.1312275883)
+        self.assertTrue(all(c.stop_calls == 1 for c in channels.values()))
+        self.assertEqual([mid for c in channels.values()
+                          for _, mid, step in c.calls if step == 'enable'], [1])
     def test_interrupt_and_announcement_failure_stop_without_enable(self):
         def interrupt(): raise InterruptedError('cancel')
         for kwargs in ({'check': interrupt}, {'announce': interrupt}):

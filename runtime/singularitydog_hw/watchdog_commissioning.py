@@ -32,10 +32,13 @@ REQUEST_NS = 250_000_000
 TOTAL_NS = 25_000_000_000
 
 
-def plan(group='all'):
+def plan(group='all', *, voltage_max_v=42):
     if group not in GROUPS:
         raise ValueError('Choose one fixed joint group or all twelve axes')
+    if type(voltage_max_v) not in (int, float) or voltage_max_v not in (42, 43):
+        raise ValueError('Voltage maximum must be explicitly 42 or 43 V')
     return {'status': 'PLAN_ONLY', 'hardware_opened': False, 'group': group,
+            'voltage_max_v': voltage_max_v, 'voltage_range_v': [35, voltage_max_v],
             'selected_ids': list(GROUPS[group]), 'kp': 0, 'kd': 0,
             'nominal_velocity_reference': 0, 'nominal_feedforward_reference': 0,
             'quantized_zero_bias_present': True, 'watchdog_ticks': 4000,
@@ -259,13 +262,13 @@ class Channel:
 
 
 def run(channels, expected_uids, *, group='all', check=lambda: None,
-        clock=time.monotonic_ns, wait=time.sleep, announce=lambda: None):
+        clock=time.monotonic_ns, wait=time.sleep, announce=lambda: None, voltage_max_v=42):
     """Independent finite command-loss experiment; channels may be fake in tests."""
     expected = validate_uids(expected_uids)
-    selected = GROUPS[plan(group)['group']]
+    selected = GROUPS[plan(group, voltage_max_v=voltage_max_v)['group']]
     _need(set(channels) == set(BUSES), 'Exactly two independently owned buses required')
     _need(channels['front'] is not channels['rear'], 'Shared transport rejected')
-    report = {**plan(group), 'status': 'ABORTED', 'errors': [], 'axes': {},
+    report = {**plan(group, voltage_max_v=voltage_max_v), 'status': 'ABORTED', 'errors': [], 'axes': {},
               'motor_enable_sent': False, 'positive_gain_sent': False,
               'learned_targets_sent': False, 'usb_disconnect_tested': False,
               'stop_confirmed': False, 'approved_for_runtime': False}
@@ -287,8 +290,8 @@ def run(channels, expected_uids, *, group='all', check=lambda: None,
             mode = channel.exchange(mid, 'run_mode')['value']
             volts = channel.exchange(mid, 'voltage')['value']
             _need(mode == 0, 'MIT run_mode0 required')
-            _need(type(volts) in (int, float) and math.isfinite(volts) and 35 <= volts <= 42,
-                  'Voltage outside supported commissioning range35..42V')
+            _need(type(volts) in (int, float) and math.isfinite(volts) and 35 <= volts <= voltage_max_v,
+                  f'Voltage outside supported commissioning range35..{voltage_max_v:g}V')
             _need(math.isfinite(stopped['protocol_position_rad']) and
                   -12.57 <= stopped['protocol_position_rad'] <= 12.57,
                   'Invalid Type2 center')
@@ -330,14 +333,19 @@ def run(channels, expected_uids, *, group='all', check=lambda: None,
             # gives a conservative host-side bound without subtracting any
             # unmeasured time that could already count toward device expiry.
             elapsed = fb['received_ns']-axis['last_zero_write_start_ns']
+            # Keep the received values even when this probe aborts the run.
+            # A disabled-state reply proves neither small motion nor low speed.
+            axis.update(stop_probe=fb, disable_reply_upper_bound_ms=elapsed/1e6,
+                        disable_upper_bound_origin='last_zero_host_write_started_ns',
+                        configured_timeout_ms=200)
             _need(SILENCE_NS <= elapsed <= MAX_DISABLE_UPPER_BOUND_NS,
                   f'ID{mid} stopped-state reply exceeded250ms conservative upper bound')
             _need(fb['mode_state'] == 0 and fb['fault_bits'] == 0,
                   f'ID{mid} did not report disabled after command silence')
-            axis.update(command_loss_tested=True, disabled_on_command_loss=True,
-                        disable_reply_upper_bound_ms=elapsed/1e6,
-                        disable_upper_bound_origin='last_zero_host_write_started_ns',
-                        stop_probe=fb, configured_timeout_ms=200)
+            _need(abs(fb['protocol_position_rad']-axis['center_rad']) <= math.radians(3) and
+                  abs(fb['velocity_rad_s']) <= .5 and -10 <= fb['temperature_c'] < 60,
+                  f'ID{mid} unexpected motion/temperature after command silence')
+            axis.update(command_loss_tested=True, disabled_on_command_loss=True)
         report['status'] = 'COMPLETE_COMMAND_LOSS_DIAGNOSTIC'
     except BaseException as error:
         report['errors'].append(type(error).__name__+': '+str(error))
@@ -364,6 +372,7 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--expected-uids', required=True)
     p.add_argument('--group', choices=GROUPS, default='all')
+    p.add_argument('--voltage-max-v', type=int, choices=(42, 43), default=42)
     p.add_argument('--execute-supported-zero-gain', action='store_true')
     for name in ('support-in-place', 'cutoff-ready', 'rs05-model-confirmed'):
         p.add_argument('--'+name, action='store_true')
@@ -373,7 +382,7 @@ def main(argv=None):
     source = Path(a.expected_uids).read_bytes()
     expected = validate_uids(json.loads(source))
     if not a.execute_supported_zero_gain:
-        print(json.dumps(plan(a.group), ensure_ascii=False, indent=2)); return 0
+        print(json.dumps(plan(a.group, voltage_max_v=a.voltage_max_v), ensure_ascii=False, indent=2)); return 0
     if not all((a.support_in_place, a.cutoff_ready, a.rs05_model_confirmed)):
         p.error('Current mechanical support, physical cutoff and actual RS05 model confirmation required')
     if not all(getattr(a, key) for key in ('front_port', 'rear_port', 'power_epoch', 'output',
@@ -390,7 +399,8 @@ def main(argv=None):
     from .sensor_pipeline_benchmark import BootIdentityGuard
     cancelled = []
     handlers = {}
-    report = {'status': 'ABORTED_BEFORE_ENABLE', 'errors': [], 'motor_enable_sent': False}
+    report = {**plan(a.group, voltage_max_v=a.voltage_max_v),
+              'status': 'ABORTED_BEFORE_ENABLE', 'errors': [], 'motor_enable_sent': False}
     channels = {}
     try:
         bindings = dual.validate_ports(a.front_port, a.rear_port)
@@ -420,7 +430,8 @@ def main(argv=None):
                 check()
                 subprocess.run(['aplay', '-D', a.audio_device, str(audio)], check=True, timeout=8.,
                                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-            report = run(channels, expected, group=a.group, check=check, announce=announce)
+            report = run(channels, expected, group=a.group, check=check, announce=announce,
+                         voltage_max_v=a.voltage_max_v)
             report.update(boot_id=boot.boot_id, motor_power_epoch=a.power_epoch,
                           expected_uids_sha256=hashlib.sha256(source).hexdigest())
             report['events_by_bus'] = {scope: channel.events for scope, channel in channels.items()}

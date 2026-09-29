@@ -71,7 +71,7 @@ def local_fixture(base):
             velocity_scale_and_sign_verified=False, torque_interpretation_verified=False, limited_trial_reviewed=True)
         hardware['device_watchdog'][mid].update(usb_disconnect_test_passed=False,
             max_observed_disable_ms=225.)
-        command_loss['axes'][mid] = dict(uid=a['uid'], command_loss_tested=True,
+        command_loss['axes'][mid] = dict(uid=a['uid'], voltage_v=40., command_loss_tested=True,
             disabled_on_command_loss=True, usb_disconnect_tested=False, configured_timeout_ms=200,
             disable_reply_upper_bound_ms=225., version={'version_bytes_hex':'05001300'},
             disable_upper_bound_origin='last_zero_host_write_started_ns',
@@ -100,6 +100,23 @@ class LocalProfileTests(unittest.TestCase):
     def load(self):
         seal_local(self.base,self.data,self.docs)
         return profile.load_profile(self.base/'profile.json')
+
+    def test_full_charge_requires_explicit_watchdog_envelope_and_axis_values(self):
+        self.data['voltage_max_v'] = 43.
+        diagnostic = self.docs['pipeline_diagnostic']
+        diagnostic['plan'].update(voltage_max_v=43., voltage_range_v=[35.,43.])
+        diagnostic['voltage_range_v'] = [35.,43.]
+        diagnostic['voltage_max_v'] = 43.
+        with self.assertRaisesRegex(profile.ProfileError, 'Command-loss voltage envelope'):
+            self.load()
+        watchdog = self.docs['command_loss_report']
+        watchdog.update(voltage_max_v=43., voltage_range_v=[35.,43.])
+        watchdog['axes']['3']['voltage_v'] = 42.25
+        self.assertTrue(self.load()['output_allowed'])
+        for invalid in (43.01, 34.99, True):
+            watchdog['axes']['3']['voltage_v'] = invalid
+            with self.assertRaisesRegex(profile.ProfileError, 'command-loss voltage'):
+                self.load()
 
     def test_reviewed_all_axis_zero_gain_comparison_preserves_monitors(self):
         self.data['policy_weight']=0.

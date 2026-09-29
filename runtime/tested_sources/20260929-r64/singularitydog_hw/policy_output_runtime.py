@@ -22,8 +22,7 @@ from .policy_live_profile import (SCHEMA_V3, SCALAR_BACKEND, MEASURED_R17_STARTU
                                   telemetry_settings, validate_cadence_sources,
                                   execution_settings, local_characterization_settings,
                                   post_reply_deadline_settings, current_position_hold_only,
-                                  reviewed_startup_cycle_allowance,
-                                  fixed_catch_current_hold_settings)
+                                  reviewed_startup_cycle_allowance)
 from .policy_post_reply_timing import PostReplyDeadlineBudget
 from .policy_observer import _TARGET_LOWER, _TARGET_UPPER
 from .native_diagnostic_transport import exchange_evidence
@@ -563,28 +562,19 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
     need(profile.get('output_allowed') is True,'Reviewed supported output profile required')
     local_characterization=local_characterization_settings(profile)
     fixed_position_hold=current_position_hold_only(profile)
-    fixed_catch=fixed_catch_current_hold_settings(profile)
-    if fixed_catch is not None:
-        from .fixed_catch_hold import FixedCatchExecution
-        need(type(supervision) is FixedCatchExecution,
-             'Fixed-catch current hold requires its exact terminal supervisor')
-    else:
-        need(supervision is None or fixed_catch is None,
-             'No fixed catch supervisor outside its reviewed scope')
     need(not fixed_position_hold or callable(getattr(policy,'validate_inputs',None)),
          'Current-position hold must retain full model input validation')
     post_reply_settings=post_reply_deadline_settings(profile)
     need(post_reply_settings is None or supervision is None,
          'Post-reply deadline policy requires the supported-only runner')
     post_reply_budget=None if post_reply_settings is None else PostReplyDeadlineBudget(post_reply_settings)
-    need(local_characterization is None or supervision is None or fixed_catch is not None,
+    need(local_characterization is None or supervision is None,
          'Local characterization requires the supported-only runner')
     r22=(main_thread_cpu is not None or pre_cycle_policy_warmup_calls is not None or
          post_pin_policy_prime_calls is not None)
     need(type(exclude_policy_cpu_from_workers) is bool,
          'I/O worker CPU exclusion selection must be a bool')
-    need(not exclude_policy_cpu_from_workers or r22 and
-         (supervision is None or fixed_catch is not None),
+    need(not exclude_policy_cpu_from_workers or r22 and supervision is None,
          'I/O worker CPU exclusion requires explicit R22 supported-only output')
     need(r22 or startup_model is None,'Startup model requires an explicit R22 selection')
     need(not r22 or (type(main_thread_cpu) is int and main_thread_cpu==4 and
@@ -633,8 +623,7 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
     timer_slack=ActiveOutputTimerSlack(active_timer_slack_ns)
     stop_requested=stop_requested or threading.Event()
     report={'status':'ABORTED','errors':[],'cycles':[],'motor_enable_sent':False,'motor_enable_attempted':False,
-            'learned_targets_sent':False,'learned_targets_attempted':False,
-            'scope':profile.get('scope','supported_characterization_only'),
+            'learned_targets_sent':False,'learned_targets_attempted':False,'scope':'supported_characterization_only',
             'full_controller_50Hz_verified':False,'normal_ramp_completed':False,
             'current_position_hold_only':fixed_position_hold,
             'cyclic_inference_skipped':fixed_position_hold,
@@ -1189,9 +1178,6 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             if absolute_epoch_cadence:previous_slot=slot
             last_command_ns=computed;last_sample_ns=pending_timing.sample_start_ns
             pending_timing.active=False
-            if fixed_catch is not None:
-                supervision.after_cycle_validated(
-                    begun,end,command.phase,stop_requested=stop_requested.is_set())
             if command.phase=='stopped':report['normal_ramp_completed']=True;break
             if not absolute_epoch_cadence:release=max(begun+PERIOD_NS,end)
         need(report['normal_ramp_completed'],'Finite run budget expired before normal stop')
@@ -1312,6 +1298,4 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 'skipped_slots':sum(right-left-1 for left,right in zip(slots,slots[1:])),
                 'strict_20ms_start_interval_verified':report['strict_start_interval_20ms_met']}
         report['host_watchdog_reason']=workers.reason
-    if fixed_catch is not None and report['status']=='COMPLETE_SUPPORTED_OUTPUT':
-        report['status']='COMPLETE_FIXED_CATCH_HOLD'
     return report
