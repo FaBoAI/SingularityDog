@@ -30,6 +30,10 @@ CHECK_TESTS = {
         PATH_CASE+'test_repeated_reversed_or_skipped_slots_are_rejected',
         PROFILE_CASE+'test_token_is_not_reusable_with_changed_targets_gains_epoch_or_artifacts'),
     'return_target_and_measured_confirmation': (RUNTIME_CASE+'test_measured_return_is_required_before_gain_down',),
+    'wire_reference_quantization_checked': (
+        PATH_CASE+'test_float_path_at_limit_cannot_hide_out_of_bounds_encoded_reference',
+        PATH_CASE+'test_wire_position_matches_canonical_python_at_grid_boundaries',
+        PATH_CASE+'test_wire_position_matches_cpp_byte_encoder_for_complete_signed_branch_path'),
 }
 
 

@@ -5,7 +5,7 @@
   "live_output_authorized": false,
   "scope": "Python and C++ runtime source files only; excludes settings, binaries, models, raw logs and documentation.",
   "source_count": 178,
-  "archived_source_count": 4,
+  "archived_source_count": 5,
   "evidence": {
     "report_name": "supported-gain-step-3s-20260929-r64/report.json",
     "report_sha256": "5e55383bf47e31fb8472a423bacf9a98494c1d6d5c2617db15e708dc33142f57",
@@ -633,7 +633,7 @@
     },
     {
       "source_path": "singularitydog_hw/ground_trial_review.py",
-      "storage_path": "runtime/singularitydog_hw/ground_trial_review.py",
+      "storage_path": "runtime/tested_sources/20260929-r64/singularitydog_hw/ground_trial_review.py",
       "sha256": "fd9c60b9b6825a3a09293057cf30cb6e50b92b198c0112c4905743f95b8cdac6",
       "size_bytes": 48425
     },

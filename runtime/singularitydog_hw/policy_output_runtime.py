@@ -564,7 +564,7 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
     local_characterization=local_characterization_settings(profile)
     fixed_position_hold=current_position_hold_only(profile)
     preload_settings=supported_preload_settings(profile)
-    preload_path=None;preload_bound=None
+    preload_path=None;preload_bound=None;preload_wire_audit=None
     if preload_settings is not None:
         from .supported_preload_path import (validate_path, RETURN_COMPLETE_S,
             COMMAND_RETURN_TOLERANCE_RAD, MEASURED_RETURN_TOLERANCE_RAD)
@@ -573,6 +573,9 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
         need(callable(getattr(policy,'validate_inputs',None)),
              'Geometric preload must retain full model input validation')
         preload_path=validate_path(preload_settings['path'],profile)
+        # Descriptive full-path analysis belongs to setup, before live samples
+        # and enable. Fresh anchors use check_origin's extrema checks below.
+        preload_wire_audit=preload_path.audit_wire_reference()
     fixed_catch=fixed_catch_current_hold_settings(profile)
     if fixed_catch is not None:
         from .fixed_catch_hold import FixedCatchExecution
@@ -652,6 +655,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             'preload_targets_attempted':False,'preload_targets_sent':False,
             'preload_return_commanded':False,'preload_return_measured':False,
             'preload_return_max_error_rad':None,
+            'preload_wire_reference_audit':preload_wire_audit,
+            'preload_wire_reference_audit_origin':'reviewed_capture' if preload_path is not None else None,
             'stop_is_physical_torque_cap':False,'firmware_versions_by_id':{},
             'firmware_versions_match_watchdog_review':False,
             'telemetry_cadence':cadence,

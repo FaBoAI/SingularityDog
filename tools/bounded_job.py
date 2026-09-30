@@ -11,7 +11,7 @@ import signal
 import subprocess
 import sys
 import time
-from artifact_manifest import digest, verify
+from artifact_manifest import digest, read_json, verify
 
 
 def stamp():
@@ -44,7 +44,7 @@ def validated_request(path):
     manifest = Path(data['manifest_file'])
     if digest(manifest) != data['manifest_sha256']:
         raise ValueError('Manifest file SHA mismatch')
-    verify(Path(data['artifact_root']), json.loads(manifest.read_text()))
+    verify(Path(data['artifact_root']), read_json(manifest))
     return data
 
 

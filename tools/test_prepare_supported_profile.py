@@ -111,6 +111,37 @@ class PreparationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'unapproved'):
             prep.live.load_profile(self.base/'assembled/profile.json')
 
+    def test_v3_diagnostic_without_source_pins_is_not_current_source_evidence(self):
+        self.run_prepare(profile_schema=prep.live.SCHEMA_V3)
+        preparation=self.result('preparation.json')
+        self.assertFalse(preparation['diagnostic_binding']['cadence_sources_match'])
+        self.assertEqual(preparation['timing_diagnostic_review_only']['status'],'NOT_ELIGIBLE')
+        self.assertIn('diagnostic_cadence_sources_unavailable_or_inconsistent',
+            [row['code'] for row in preparation['blockers_by_kind']['missing_measurements']])
+        self.assertFalse(self.result('profile.json')['approved_for_supported_policy_output'])
+
+    def test_v3_stale_source_diagnostic_does_not_inherit_template_source_pins(self):
+        self.diagnostic['cadence_source_sha256']=prep.live.cadence_source_hashes()
+        first=next(iter(self.diagnostic['cadence_source_sha256']))
+        self.diagnostic['cadence_source_sha256'][first]='a'*64
+        self.refresh();self.run_prepare(profile_schema=prep.live.SCHEMA_V3)
+        preparation=self.result('preparation.json')
+        self.assertFalse(preparation['diagnostic_binding']['cadence_sources_match'])
+        self.assertEqual(preparation['timing_diagnostic_review_only']['status'],'NOT_ELIGIBLE')
+        self.assertNotEqual(self.result('profile.json')['cadence_source_sha256'],
+                            self.diagnostic['cadence_source_sha256'])
+
+    def test_matching_v3_diagnostic_provenance_is_recorded_without_approval(self):
+        self.diagnostic['cadence_source_sha256']=prep.live.cadence_source_hashes()
+        self.refresh();self.run_prepare(profile_schema=prep.live.SCHEMA_V3)
+        preparation=self.result('preparation.json');binding=preparation['diagnostic_binding']
+        self.assertTrue(binding['cadence_sources_match'])
+        self.assertTrue(binding['boot_matches_capture_and_calibration'])
+        self.assertTrue(binding['motor_power_epoch_matches'])
+        self.assertFalse(binding['freshness_or_physical_power_transition_verified'])
+        self.assertEqual(preparation['timing_diagnostic_review_only']['kind'],'stop_proxy_diagnostic_only')
+        self.assertFalse(self.result('profile.json')['approved_for_supported_policy_output'])
+
     def test_group_settings_cannot_silently_select_v3_cadence(self):
         settings=prep.settings_template()
         settings['run_settings']['telemetry_cadence']=prep.live.CADENCE_PRE_ENABLE
@@ -303,6 +334,19 @@ class PreparationTests(unittest.TestCase):
             [x['code'] for x in result['blockers_by_kind']['file_assembly']])
         self.assertEqual(self.result('hardware-review.json')['reviewed_settings_sha256'],
             prep.live.reviewed_settings_sha256(profile))
+        preparation=self.result('preparation.json')
+        self.assertFalse(preparation['diagnostic_binding']['motor_power_epoch_matches'])
+        self.assertEqual(preparation['timing_diagnostic_review_only']['status'],'NOT_ELIGIBLE')
+        self.assertIn('diagnostic_motor_power_epoch_unavailable_or_inconsistent',
+            [row['code'] for row in preparation['blockers_by_kind']['missing_measurements']])
+
+    def test_stale_diagnostic_power_epoch_is_not_associated_with_new_capture(self):
+        self.diagnostic['motor_power_epoch']='SYNTHETIC OLDER POWER EPOCH'
+        self.refresh();self.run_prepare()
+        preparation=self.result('preparation.json')
+        self.assertIsNone(self.result('profile.json')['motor_power_epoch'])
+        self.assertFalse(preparation['diagnostic_binding']['motor_power_epoch_matches'])
+        self.assertEqual(preparation['timing_diagnostic_review_only']['status'],'NOT_ELIGIBLE')
 
     def test_declared_power_epoch_invalid_or_conflicting_labels_rejected(self):
         for label in ('',' ',' UNKNOWN','UNKNOWN','NOT_INFERRED_FROM_JETSON_BOOT','x'*129,
@@ -360,6 +404,18 @@ class PreparationTests(unittest.TestCase):
     def test_private_output_cannot_be_inside_git(self):
         folder=self.base/'repo';folder.mkdir();(folder/'.git').mkdir()
         with self.assertRaisesRegex(ValueError,'outside Git'):self.run_prepare(output=folder/'private')
+
+    def test_bundle_changed_after_initial_verification_is_rejected_before_publication(self):
+        member=next((self.base/'bundle').iterdir())
+        serialize=prep._json_bytes
+        def mutate_after_bundle_check(value):
+            if value.get('schema')==prep.live.REVIEW_SCHEMA:
+                member.write_bytes(b'SYNTHETIC CHANGED BUNDLE')
+            return serialize(value)
+        with patch.object(prep,'_json_bytes',side_effect=mutate_after_bundle_check):
+            with self.assertRaisesRegex(ValueError,'Model bundle source changed during assembly'):
+                self.run_prepare()
+        self.assertFalse((self.base/'assembled').exists())
 
 
 if __name__=='__main__':unittest.main()

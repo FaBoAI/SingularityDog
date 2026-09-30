@@ -93,7 +93,7 @@ def prepare(*, calibration, angle_profile, mount, bias, model_manifest, pipeline
             or power_epoch!=power_epoch.strip() or power_epoch in UNKNOWN_EPOCHS
             or not power_epoch.isprintable()):
         raise ValueError('Invalid operator-declared motor power epoch')
-    pinned={};documents={};references={}
+    pinned={};documents={};references={};bundle_members={}
     def pin(label,path):
         path=Path(path).expanduser().absolute()
         doc,digest=live._read_json(path)
@@ -247,12 +247,37 @@ def prepare(*, calibration, angle_profile, mount, bias, model_manifest, pipeline
         'matched_boot_id':profile['boot_id'],
         'physical_power_transition_verified_by_this_tool':False,
         'note':'An operator label associates these files; it is not a measurement of motor power transitions or permission to drive.'}
+    # A template's current source pins do not upgrade an old diagnostic. Preserve
+    # its timing numbers for review while keeping missing/stale bindings explicit.
+    diagnostic_binding={
+        'boot_matches_capture_and_calibration': bool(profile['boot_id'] and capture is not None
+            and capture.get('boot_id')==profile['boot_id']),
+        'motor_power_epoch_matches': bool(profile['motor_power_epoch'] and
+            report.get('motor_power_epoch')==profile['motor_power_epoch']),
+        'cadence_sources_match': None,
+        'freshness_or_physical_power_transition_verified': False,
+    }
+    binding_blockers=[]
+    if not diagnostic_binding['boot_matches_capture_and_calibration']:
+        binding_blockers.append('diagnostic_boot_not_bound_to_capture_and_calibration')
+    if not diagnostic_binding['motor_power_epoch_matches']:
+        binding_blockers.append('diagnostic_motor_power_epoch_unavailable_or_inconsistent')
+    if profile['schema']==live.SCHEMA_V3:
+        diagnostic_binding['cadence_sources_match']=(
+            report.get('cadence_source_sha256')==profile['cadence_source_sha256'])
+        if not diagnostic_binding['cadence_sources_match']:
+            binding_blockers.append('diagnostic_cadence_sources_unavailable_or_inconsistent')
+    for code in binding_blockers:block('missing_measurements',code)
+    if binding_blockers and timing.get('status')!='NOT_ELIGIBLE':
+        timing={'status':'NOT_ELIGIBLE','reason':'Diagnostic provenance is not bound to this preparation',
+            'binding_blockers':binding_blockers,'timestamp_review':timing}
     if bundle is not None:
         bundle=Path(bundle).expanduser().absolute()
         for name,digest in live.shadow.SOURCE_HASHES.items():
             path=bundle/name
             if path.is_symlink() or not path.is_file() or _sha(path.read_bytes())!=digest:
                 raise ValueError('Model bundle source mismatch: '+name)
+            bundle_members[path.resolve()]=digest
         profile['bundle_path']=str(bundle.resolve())
     else:block('file_assembly','explicit_pinned_bundle_path_required')
     imu={key:None for key in IMU_PHYSICAL}
@@ -303,6 +328,7 @@ def prepare(*, calibration, angle_profile, mount, bias, model_manifest, pipeline
         'transport_settings':live.transport_settings(profile),
         'telemetry_cadence':live.telemetry_settings(profile),
         'motor_power_epoch_binding':epoch_binding,
+        'diagnostic_binding':diagnostic_binding,
         'calibration_source_capture_pinned':source_capture is not None,
         'instructions':['Review existing evidence first; missing attachment is not proof a measurement was never taken.',
             'Fill physical review from observations, never replace null with true to bypass a missing test.',
@@ -310,10 +336,13 @@ def prepare(*, calibration, angle_profile, mount, bias, model_manifest, pipeline
             'The original calibration stays unapproved; the separate named hardware review is required.']}
     for path,raw in pinned.values():
         if path.is_symlink() or path.read_bytes()!=raw:raise ValueError('Source changed during assembly: '+str(path))
+    for path,digest in bundle_members.items():
+        if path.is_symlink() or not path.is_file() or _sha(path.read_bytes())!=digest:
+            raise ValueError('Model bundle source changed during assembly: '+str(path))
     # Exclusive directory publication, only after all validations and source rechecks.
-    out.mkdir(mode=0o700,parents=True,exist_ok=False);os.chmod(out,0o700)
     files={'profile.json':_json_bytes(profile),'hardware-review.json':hardware_bytes,
         'group-settings-template.json':_json_bytes(settings_template()),'preparation.json':_json_bytes(result)}
+    out.mkdir(mode=0o700,parents=True,exist_ok=False);os.chmod(out,0o700)
     for name,raw in files.items():
         with os.fdopen(os.open(out/name,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600),'wb') as stream:stream.write(raw)
     # Public CLI loader must accept PLAN while retaining all null physical fields.

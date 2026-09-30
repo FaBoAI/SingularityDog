@@ -17,6 +17,7 @@ RETURN_COMPLETE_S = 4.
 MAX_ANCHOR_DIFFERENCE_RAD = math.radians(.05)
 COMMAND_RETURN_TOLERANCE_RAD = 2*25.14/65535
 MEASURED_RETURN_TOLERANCE_RAD = math.radians(.15)
+POSITION_LSB_RAD = 25.14/65535
 _MODEL_LIMITS = {str(mid): (lo, hi) for mid, lo, hi in
                  zip(policy_shadow.CAN_ORDER, policy_shadow.LOWER, policy_shadow.UPPER)}
 
@@ -58,6 +59,18 @@ def _fraction(t):
     return x*x*x*(10+x*(-15+6*x))
 
 
+def _wire_position(raw):
+    """Canonical Type1 position encoding, with the encoder's operation order.
+
+    This is a reference calculation only: it neither builds a motion request
+    nor opens a transport. uint16 floor quantization creates discrete target
+    steps even when the unencoded reference is smooth.
+    """
+    _need(_finite(raw) and -12.57 <= raw <= 12.57, 'wire raw target outside range')
+    code = int((raw+12.57)*65535./25.14)
+    return code, code*25.14/65535-12.57
+
+
 @dataclass(frozen=True)
 class PreloadPath:
     initial_model: tuple
@@ -68,6 +81,11 @@ class PreloadPath:
     upper: tuple
     kp: tuple
     pd_limits: tuple
+    offsets: tuple
+    displacement_limits: tuple
+    speed_limits: tuple
+    acceleration_limits: tuple
+    delta_bounds: tuple
 
     def check_origin(self, model, raw):
         model = _vector(model, 'fresh model origin')
@@ -78,9 +96,12 @@ class PreloadPath:
                   f'ID{n+1} capture/origin mismatch or encoder branch changed')
             _need(abs((r-self.initial_raw[n])-self.signs[n]*(q-self.initial_model[n])) < 1e-8,
                   f'ID{n+1} raw/model origin disagree')
-        # Check every shifted target, not just the original mathematical path.
-        for delta in self.deltas:
-            for n, d in enumerate(delta):
+        # Model->raw->uint16 floor->model is monotone for either sign.
+        # Per-axis extrema therefore bound every shifted mathematical and
+        # encoded target. Keep this 24-target check cheap for fresh startup
+        # samples; the full finite-difference audit belongs before bus access.
+        for n, bounds in enumerate(self.delta_bounds):
+            for d in bounds:
                 target = model[n]+d
                 lo, hi = _MODEL_LIMITS[str(n+1)]
                 _need(max(lo, self.lower[n]) <= target <= min(hi, self.upper[n]),
@@ -89,11 +110,92 @@ class PreloadPath:
                       f'ID{n+1} fresh-anchored raw target outside range')
                 _need(self.kp[n]*abs(d) <= self.pd_limits[n],
                       f'ID{n+1} stationary PD estimate exceeds reviewed limit')
+                _, wire_raw = _wire_position((target-self.offsets[n])/self.signs[n])
+                wire_q = self.signs[n]*wire_raw+self.offsets[n]
+                _need(max(lo, self.lower[n]) <= wire_q <= min(hi, self.upper[n]),
+                      f'ID{n+1} quantized reference outside reviewed bounds')
+                _need(-12.57+math.radians(5) <= wire_raw <= 12.57-math.radians(5),
+                      f'ID{n+1} quantized raw reference outside range')
+                _need(abs(wire_q-model[n]) <= self.displacement_limits[n],
+                      f'ID{n+1} quantized reference displacement limit')
+                _need(self.kp[n]*abs(wire_q-model[n]) <= self.pd_limits[n],
+                      f'ID{n+1} quantized stationary PD estimate limit')
         return tuple(q-q0 for q, q0 in zip(model, self.initial_model))
 
     def bind(self, model, raw):
         differences = self.check_origin(model, raw)
         return BoundPreloadPath(self, tuple(model), tuple(raw), differences)
+
+    def audit_wire_reference(self, model=None, raw=None):
+        """Audit every encoded target before enable; no physical-motion proof.
+
+        The runtime still shapes the target and checks each actual wire. These
+        are the sampled path references, encoded using the same operation order
+        as both Type1 encoders. Derivatives of the staircase are reported apart
+        from continuous-reference limits: they are not measured joint speeds or
+        physical acceleration/torque guarantees.
+        """
+        _need((model is None) == (raw is None), 'wire audit needs both fresh origins')
+        model = self.initial_model if model is None else _vector(model, 'wire model origin')
+        raw = self.initial_raw if raw is None else _vector(raw, 'wire raw origin')
+        self.check_origin(model, raw)
+        maxima = dict(quantization_error_rad=0., encoded_reference_step_rad=0.,
+            continuous_reference_speed_rad_s=0., continuous_reference_acceleration_rad_s2=0.,
+            encoded_reference_speed_rad_s=0., encoded_reference_acceleration_rad_s2=0.,
+            encoded_stationary_pd_estimate_nm=0.)
+        previous = previous_wire = previous_speed = previous_wire_speed = None
+        speed_exceeded = acceleration_exceeded = False
+        for delta in self.deltas:
+            target = tuple(q+d for q, d in zip(model, delta))
+            encoded = []
+            for n, q in enumerate(target):
+                _, wire_raw = _wire_position((q-self.offsets[n])/self.signs[n])
+                wire_q = self.signs[n]*wire_raw+self.offsets[n]
+                lo, hi = _MODEL_LIMITS[str(n+1)]
+                _need(max(lo, self.lower[n]) <= wire_q <= min(hi, self.upper[n]),
+                      f'ID{n+1} quantized reference outside reviewed bounds')
+                _need(-12.57+math.radians(5) <= wire_raw <= 12.57-math.radians(5),
+                      f'ID{n+1} quantized raw reference outside range')
+                _need(abs(wire_q-model[n]) <= self.displacement_limits[n],
+                      f'ID{n+1} quantized reference displacement limit')
+                # Mirror the encoder's correction to the unencoded estimate.
+                pd = self.kp[n]*(wire_q-q)+self.kp[n]*(q-model[n])
+                _need(abs(pd) <= self.pd_limits[n],
+                      f'ID{n+1} quantized stationary PD estimate limit')
+                maxima['quantization_error_rad'] = max(maxima['quantization_error_rad'], abs(wire_q-q))
+                maxima['encoded_stationary_pd_estimate_nm'] = max(
+                    maxima['encoded_stationary_pd_estimate_nm'], abs(pd))
+                encoded.append(wire_q)
+            if previous is not None:
+                speed = tuple((q-p)/PERIOD_S for q, p in zip(target, previous))
+                wire_speed = tuple((q-p)/PERIOD_S for q, p in zip(encoded, previous_wire))
+                maxima['encoded_reference_step_rad'] = max(maxima['encoded_reference_step_rad'],
+                    max(abs(q-p) for q, p in zip(encoded, previous_wire)))
+                maxima['continuous_reference_speed_rad_s'] = max(maxima['continuous_reference_speed_rad_s'],
+                    max(map(abs, speed)))
+                maxima['encoded_reference_speed_rad_s'] = max(maxima['encoded_reference_speed_rad_s'],
+                    max(map(abs, wire_speed)))
+                speed_exceeded |= any(abs(v) > limit+1e-10 for v, limit in zip(wire_speed, self.speed_limits))
+                if previous_speed is not None:
+                    acceleration = tuple(abs(v-p)/PERIOD_S for v, p in zip(speed, previous_speed))
+                    wire_acceleration = tuple(abs(v-p)/PERIOD_S for v, p in zip(wire_speed, previous_wire_speed))
+                    maxima['continuous_reference_acceleration_rad_s2'] = max(
+                        maxima['continuous_reference_acceleration_rad_s2'], max(acceleration))
+                    maxima['encoded_reference_acceleration_rad_s2'] = max(
+                        maxima['encoded_reference_acceleration_rad_s2'], max(wire_acceleration))
+                    acceleration_exceeded |= any(v > limit+1e-10 for v, limit in
+                                                  zip(wire_acceleration, self.acceleration_limits))
+                previous_speed, previous_wire_speed = speed, wire_speed
+            previous, previous_wire = target, tuple(encoded)
+        return dict(schema='singularitydog.preload-wire-reference-audit.v1',
+            period_s=PERIOD_S, sample_count=len(self.deltas), position_lsb_rad=POSITION_LSB_RAD,
+            quantization='uint16_floor_position_reference', maxima=maxima,
+            derivative_limits_apply_to='continuous_unencoded_reference',
+            quantized_static_bounds_passed=True,
+            encoded_speed_exceeds_continuous_reference_limit=speed_exceeded,
+            encoded_acceleration_exceeds_continuous_reference_limit=acceleration_exceeded,
+            actual_runtime_commands_audited=False, measured_physical_motion_verified=False,
+            physical_speed_acceleration_or_torque_cap=False)
 
 
 @dataclass(frozen=True)
@@ -163,12 +265,14 @@ def validate_path(data, profile):
             _need(0 < axis[name] <= maximum, f'ID{mid} invalid {name}')
     signs = tuple(axes[mid].get('sign') for mid in IDS)
     _need(all(type(s) is int and s in (-1, 1) for s in signs), 'invalid signs')
+    offsets = []
     for n, mid in enumerate(IDS):
         offset = axes[mid]['offset_rad']
         _need(_finite(offset), 'invalid calibration offset')
         turns = (raw_start[n]-signs[n]*(initial[n]-offset))/(2*math.pi)
         _need(_finite(turns) and abs(turns-round(turns)) <= 1e-8,
               f'ID{mid} calibration/path mismatch')
+        offsets.append(offset-signs[n]*round(turns)*2*math.pi)
     samples = data.get('samples')
     _need(type(samples) is list and len(samples) == SAMPLE_COUNT, '251 complete samples required')
     deltas = []
@@ -204,9 +308,15 @@ def validate_path(data, profile):
                          tuple(axes[i]['lower_rad'] for i in IDS),
                          tuple(axes[i]['upper_rad'] for i in IDS),
                          tuple(axes[i]['kp'] for i in IDS),
-                         tuple(axes[i]['max_estimated_pd_torque_nm'] for i in IDS))
+                         tuple(axes[i]['max_estimated_pd_torque_nm'] for i in IDS),
+                         tuple(offsets),
+                         tuple(axes[i]['max_displacement_from_start_rad'] for i in IDS),
+                         tuple(axes[i]['max_command_velocity_rad_s'] for i in IDS),
+                         tuple(axes[i]['max_command_acceleration_rad_s2'] for i in IDS),
+                         tuple((min(delta[n] for delta in deltas), max(delta[n] for delta in deltas))
+                               for n in range(12)))
     _need(all(_finite(v) for values in (result.lower, result.upper, result.kp, result.pd_limits)
               for v in values) and all(0 <= v <= 6 for v in result.kp) and
           all(0 < v <= .2 for v in result.pd_limits), 'invalid preload limits')
-    result.check_origin(initial, raw_start)
+    result.audit_wire_reference()
     return result

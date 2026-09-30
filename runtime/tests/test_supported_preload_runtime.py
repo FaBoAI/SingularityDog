@@ -121,6 +121,14 @@ class SupportedPreloadRuntimeTests(unittest.TestCase):
         self.assertTrue(report['preload_targets_sent'])
         self.assertTrue(report['preload_return_commanded'])
         self.assertTrue(report['preload_return_measured'])
+        audit = report['preload_wire_reference_audit']
+        self.assertEqual(report['preload_wire_reference_audit_origin'], 'reviewed_capture')
+        self.assertEqual(audit['sample_count'], 251)
+        self.assertTrue(audit['quantized_static_bounds_passed'])
+        self.assertGreater(audit['maxima']['quantization_error_rad'], 0.)
+        self.assertFalse(audit['actual_runtime_commands_audited'])
+        self.assertFalse(audit['measured_physical_motion_verified'])
+        self.assertFalse(audit['physical_speed_acceleration_or_torque_cap'])
         self.assertLessEqual(report['preload_return_max_error_rad'],
                              preload.MEASURED_RETURN_TOLERANCE_RAD)
         self.assertTrue(report['normal_ramp_completed'])

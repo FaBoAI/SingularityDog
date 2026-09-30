@@ -59,25 +59,29 @@ def fixture(base,stage='supported_stance'):
     cycles=[]
     for index in range(111):
         begin=start+index*20_000_000;end=begin+10_000_000
+        final=index==110
+        gains=(0.,0.) if final else (6.,.15)
         out=[]
         for bus,ids in review.BUSES.items():
             ins=[];outs=[]
             for order,mid in enumerate(ids):
-                tx=encode_motion(mid,q[mid],6.,.15)
+                tx=encode_motion(mid,q[mid],*gains)
                 ins.append(native_record(tx,reply(mid),begin+order*10_000))
                 r=native_record(tx,reply(mid),begin+5_000_000+order*10_000);outs.append(r);out.append(r)
             # Refresh every axis in fixture; actual runner refreshes a rotating pair.
             for order,mid in enumerate(ids):
                 body=struct.pack('<H',codec.PARAMETERS['voltage'][0])+b'\x00\x00'+struct.pack('<f',39.)
                 ins.append(native_record(codec.read_request(mid,'voltage'),wire((17<<24)|(mid<<8)|codec.HOST_ID,body),begin+100_000+order*10_000))
-            journal.append(batch(bus,'feedback_hold',ins));journal.append(batch(bus,'policy_output',outs))
+            journal.append(batch(bus,'feedback_hold',ins));journal.append(batch(bus,'graceful_stop' if final else 'policy_output',outs))
         sample=dict(q_model_rad=list(q.values()),velocity_rad_s=[32767*100/65535-50.]*12,
                     torque_nm=[32767*11/65535-5.5]*12,temperature_c=[25.]*12,monotonic_s=(begin+5_000_000)/1e9)
         imu=dict(frame='sensor',read_started_monotonic_ns=begin+100,
                  read_finished_monotonic_ns=begin+3_000_000,accel_m_s2=[0.,0.,-9.81],gyro_rad_s=[0.,0.,0.])
-        command=dict(q_model_rad=list(q.values()),kp=[6.]*12,kd=[.15]*12,command_velocity_rad_s=[0.]*12,
-                     velocity_reference_rad_s=[0.]*12,feedforward_torque_nm=[0.]*12,gain_scale=1.,monotonic_s=(begin+4_000_000)/1e9)
-        cycles.append(dict(index=index,begin_ns=begin,end_ns=end,phase='active',feedback=sample,command=command,
+        command=dict(q_model_rad=list(q.values()),kp=[gains[0]]*12,kd=[gains[1]]*12,command_velocity_rad_s=[0.]*12,
+                     velocity_reference_rad_s=[0.]*12,feedforward_torque_nm=[0.]*12,gain_scale=0. if final else 1.,
+                     phase='stopped' if final else 'active',stop_stage='complete' if final else None,
+                     monotonic_s=(begin+4_000_000)/1e9)
+        cycles.append(dict(index=index,begin_ns=begin,end_ns=end,phase=command['phase'],feedback=sample,command=command,
             imu=imu,effective_policy_weight=1.,deadline20ms_missed=False,
             oldest_input_to_final_host_write_ms=(max(r['finish_ns'] for r in out)-begin)/1e6))
     stops={}
@@ -300,6 +304,90 @@ class GroundReviewTests(unittest.TestCase):
     def test_missing_stop_or_fault_fails(self):
         self.report['runtime_report']['stop_reports']['rear']['evidence']['records'].pop()
         self.assertIn('STOP incomplete',str(self.evaluate()['errors']))
+
+    def test_every_final_stop_must_follow_the_last_motion_cycle(self):
+        runtime=self.report['runtime_report']
+        rows=runtime['stop_reports']['front']['evidence']['records']
+        # Eleven fresh replies must not conceal one STOP taken before output.
+        row=rows[0]
+        for key in ('start_ns','finish_ns','read_start_ns','received_ns','deadline_ns'):
+            row[key]-=500_000_000
+        result=self.evaluate()
+        self.assertEqual(result['status'],'FAIL',result)
+        self.assertFalse(result['all_axis_stop_confirmed'])
+        self.assertIn('STOP preceded final control/output completion',str(result['errors']))
+
+    def test_motion_after_final_stop_cannot_be_reviewed_as_stopped(self):
+        runtime=self.report['runtime_report']
+        batch=copy.deepcopy(runtime['journal'][-1])
+        row=batch['records'][0]
+        latest=max(r['received_ns'] for stop in runtime['stop_reports'].values()
+                   for r in stop['evidence']['records'])
+        shift=latest+1_000_000-row['start_ns']
+        for item in batch['records']:
+            for key in ('start_ns','finish_ns','read_start_ns','received_ns','deadline_ns'):
+                item[key]+=shift
+        batch['phase']='startup_zero_gain'
+        runtime['journal'].append(batch)
+        result=self.evaluate()
+        self.assertEqual(result['status'],'FAIL',result)
+        self.assertFalse(result['all_axis_stop_confirmed'])
+
+    def test_final_stop_requires_the_canonical_stop_command(self):
+        row=self.report['runtime_report']['stop_reports']['front']['evidence']['records'][0]
+        frame=review._frame(row['tx_hex'])
+        row['tx_hex']=wire(frame.can_id,b'\x01'+frame.data[1:]).hex()
+        result=self.evaluate()
+        self.assertEqual(result['status'],'FAIL',result)
+        self.assertIn('Final STOP request mismatch',str(result['errors']))
+
+    def test_logged_zero_velocity_cannot_hide_a_target_position_jump(self):
+        runtime=self.report['runtime_report'];cycle=runtime['cycles'][1]
+        old=cycle['command']['q_model_rad'][0]
+        delta=self.profile['axes']['1']['max_command_velocity_rad_s']*.02*2
+        cycle['command']['q_model_rad'][0]=old+delta
+        row=next(row for batch in runtime['journal'] if batch['phase']=='policy_output'
+                 for row in batch['records'] if row['start_ns']==cycle['begin_ns']+5_000_000)
+        row['tx_hex']=encode_motion(1,old+delta,6.,.15).hex()
+        result=self.evaluate()
+        self.assertEqual(result['status'],'FAIL',result)
+        self.assertIn('Actual target position slew',str(result['errors']))
+
+    def test_normal_ramp_summary_cannot_replace_final_zero_gain_output(self):
+        runtime=self.report['runtime_report'];cycle=runtime['cycles'][-1]
+        cycle['command'].update(kp=[6.]*12,kd=[.15]*12,gain_scale=1.)
+        for batch in runtime['journal']:
+            if batch['phase']!='graceful_stop':continue
+            for row in batch['records']:
+                frame=review._frame(row['tx_hex']);mid=frame.destination
+                row['tx_hex']=encode_motion(mid,cycle['command']['q_model_rad'][mid-1],6.,.15).hex()
+        result=self.evaluate()
+        self.assertEqual(result['status'],'FAIL',result)
+        self.assertIn('Final command did not complete zero-gain ramp',str(result['errors']))
+
+    def test_nominal_slew_does_not_differentiate_quantized_wire_positions(self):
+        runtime=self.report['runtime_report'];cycles=runtime['cycles']
+        axis=self.profile['axes']['1'];axis['max_command_velocity_rad_s']=.0001
+        lsb=25.14/65535
+        boundary=cycles[0]['command']['q_model_rad'][0]+lsb
+        for index,cycle in enumerate(cycles):
+            cycle['command']['q_model_rad'][0]=boundary+(-1e-7 if index<50 else 1e-7)
+        by_begin={cycle['begin_ns']:cycle for cycle in cycles}
+        for batch in runtime['journal']:
+            if batch['phase'] not in ('policy_output','graceful_stop'):continue
+            for row in batch['records']:
+                frame=review._frame(row['tx_hex'])
+                if frame.destination!=1:continue
+                command=by_begin[row['start_ns']-5_000_000]['command']
+                row['tx_hex']=encode_motion(1,command['q_model_rad'][0],command['kp'][0],command['kd'][0]).hex()
+        before=review._frame(encode_motion(1,cycles[49]['command']['q_model_rad'][0],6.,.15).hex())
+        after=review._frame(encode_motion(1,cycles[50]['command']['q_model_rad'][0],6.,.15).hex())
+        self.assertEqual(int.from_bytes(after.data[:2],'big')-int.from_bytes(before.data[:2],'big'),1)
+        self.assertGreater(lsb/.02,axis['max_command_velocity_rad_s'])
+        # Wire quantization is not an observed velocity or the nominal target
+        # derivative. The original continuous target remains the checked value.
+        result=self.evaluate()
+        self.assertEqual(result['status'],'PASS_REVIEWED_STAGE',result)
 
     def test_unrecognized_or_nonfinite_telemetry_fails(self):
         for field in ('temperature_c','torque_nm','velocity_rad_s','q_model_rad'):

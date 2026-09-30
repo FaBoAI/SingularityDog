@@ -1,7 +1,12 @@
 """Finite path mathematics only: no runtime arming, bus access or STOP proof."""
 import copy
+import ctypes
 from dataclasses import FrozenInstanceError
 import math
+from pathlib import Path
+import shutil
+import subprocess
+import tempfile
 import unittest
 
 from singularitydog_hw import supported_preload_path as preload
@@ -198,6 +203,126 @@ class SupportedPreloadPathTests(unittest.TestCase):
         self.data['samples'][70]['q_raw_rad_by_id']['1'] -= .001
         with self.assertRaisesRegex(ValueError, 'speed limit|acceleration limit'):
             self.path()
+
+    def test_wire_audit_distinguishes_quantized_steps_from_physical_motion(self):
+        audit = self.path().audit_wire_reference()
+        maximum = audit['maxima']
+        self.assertEqual(audit['sample_count'], 251)
+        self.assertEqual(audit['period_s'], .02)
+        self.assertTrue(audit['quantized_static_bounds_passed'])
+        self.assertFalse(audit['measured_physical_motion_verified'])
+        self.assertFalse(audit['actual_runtime_commands_audited'])
+        self.assertFalse(audit['physical_speed_acceleration_or_torque_cap'])
+        self.assertLessEqual(maximum['quantization_error_rad'], preload.POSITION_LSB_RAD+1e-14)
+        self.assertLess(maximum['continuous_reference_speed_rad_s'], math.radians(1.))
+        self.assertLess(maximum['continuous_reference_acceleration_rad_s2'], math.radians(5.))
+        self.assertGreater(maximum['encoded_reference_speed_rad_s'], math.radians(1.))
+        self.assertGreater(maximum['encoded_reference_acceleration_rad_s2'], math.radians(5.))
+        self.assertTrue(audit['encoded_speed_exceeds_continuous_reference_limit'])
+        self.assertTrue(audit['encoded_acceleration_exceeds_continuous_reference_limit'])
+
+    def test_float_path_at_limit_cannot_hide_out_of_bounds_encoded_reference(self):
+        # Negative sign turns raw floor quantization into positive model error.
+        # The mathematical peak fits each cap; its actual uint16 target does not.
+        for field, value, phrase in (
+                ('upper_rad', -.8+.006, 'quantized reference outside'),
+                ('max_displacement_from_start_rad', .006+1e-12, 'quantized reference displacement'),
+                ('max_estimated_pd_torque_nm', .036+1e-12, 'quantized stationary PD')):
+            data, profile = fixture()
+            profile['axes']['1'][field] = value
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, phrase):
+                preload.validate_path(data, profile)
+
+    def test_wire_audit_requires_consistent_fresh_anchors_and_never_changes_path(self):
+        path = self.path()
+        original = path.audit_wire_reference()
+        delta = math.radians(.025)
+        model = tuple(q+delta for q in path.initial_model)
+        raw = tuple(r+s*delta for r, s in zip(path.initial_raw, path.signs))
+        self.assertTrue(path.audit_wire_reference(model, raw)['quantized_static_bounds_passed'])
+        self.assertEqual(path.audit_wire_reference(), original)
+        for model, raw in ((model, None), (None, raw), (model, path.initial_raw),
+                           ((math.nan,)*12, raw)):
+            with self.subTest(model=model, raw=raw), self.assertRaises(ValueError):
+                path.audit_wire_reference(model, raw)
+
+    def test_cheap_fresh_anchor_check_rejects_encoded_endpoint_beyond_bound(self):
+        self.profile['axes']['1']['upper_rad'] = -.79389
+        path = self.path()  # Original capture's encoded peak remains below bound.
+        shift = .0001
+        model = (path.initial_model[0]+shift, *path.initial_model[1:])
+        raw = (path.initial_raw[0]+path.signs[0]*shift, *path.initial_raw[1:])
+        self.assertLess(model[0]+max(d[0] for d in path.deltas), path.upper[0])
+        for check in (path.check_origin, path.bind):
+            with self.subTest(check=check.__name__), self.assertRaisesRegex(ValueError, 'quantized reference outside'):
+                check(model, raw)
+
+    def test_cheap_extrema_cover_every_encoded_target_for_both_signs(self):
+        path = self.path()
+        for shift in (-.0003, -.0001, 0., .0001, .0003):
+            model = tuple(q+shift for q in path.initial_model)
+            raw = tuple(r+s*shift for r, s in zip(path.initial_raw, path.signs))
+            path.check_origin(model, raw)
+            for n in range(12):
+                def encoded(delta):
+                    _, wire_raw = preload._wire_position((model[n]+delta-path.offsets[n])/path.signs[n])
+                    return path.signs[n]*wire_raw+path.offsets[n]
+                endpoints = tuple(encoded(d) for d in path.delta_bounds[n])
+                all_targets = tuple(encoded(delta[n]) for delta in path.deltas)
+                self.assertEqual(min(all_targets), min(endpoints))
+                self.assertEqual(max(all_targets), max(endpoints))
+
+    def test_wire_position_matches_canonical_python_at_grid_boundaries(self):
+        from singularitydog_hw.native_active_transport import encode_motion
+        for code in (0, 1, 2, 32766, 32767, 32768, 65533, 65534, 65535):
+            exact = code*25.14/65535-12.57
+            for raw in (exact, math.nextafter(exact, -math.inf), math.nextafter(exact, math.inf)):
+                if not -12.57 <= raw <= 12.57:
+                    continue
+                with self.subTest(raw=raw):
+                    got, decoded = preload._wire_position(raw)
+                    wire = encode_motion(1, raw, 6., .15)
+                    expected = int.from_bytes(wire[7:9], 'big')
+                    self.assertEqual(got, expected)
+                    self.assertEqual(decoded, expected*25.14/65535-12.57)
+        for raw in (True, None, '0', math.nan, math.inf, -12.5701, 12.5701, 10**1000):
+            with self.subTest(raw=str(raw)[:30]), self.assertRaises(ValueError):
+                preload._wire_position(raw)
+
+    def test_wire_position_matches_cpp_byte_encoder_for_complete_signed_branch_path(self):
+        compiler = shutil.which('c++')
+        if compiler is None:
+            self.skipTest('C++ compiler unavailable; native byte parity not verified')
+        source = Path(__file__).resolve().parents[1]/'experiments/native_policy_batch_encode/batch_encode.cpp'
+        class AxisSpec(ctypes.Structure):
+            _fields_ = [(name, ctypes.c_double) for name in ('offset', 'sign', 'lower', 'upper',
+                        'initial', 'max_displacement', 'max_estimated_pd')]
+        path = self.path()
+        specs = (AxisSpec*12)(*(AxisSpec(path.offsets[n], path.signs[n], path.lower[n],
+                    path.upper[n], path.initial_model[n], path.displacement_limits[n], path.pd_limits[n])
+                    for n in range(12)))
+        vector = ctypes.c_double*12
+        with tempfile.TemporaryDirectory() as directory:
+            binary = Path(directory)/'preload-byte-parity.so'
+            subprocess.run([compiler, '-std=c++17', '-O2', '-shared', '-fPIC', '-ffp-contract=off',
+                            str(source), '-o', str(binary)], check=True, capture_output=True)
+            library = ctypes.CDLL(str(binary))
+            encode = library.sdbe_encode
+            encode.restype = ctypes.c_int32
+            encode.argtypes = [ctypes.POINTER(AxisSpec)]+[ctypes.POINTER(ctypes.c_double)]*4+[
+                ctypes.POINTER(ctypes.c_uint8), ctypes.POINTER(ctypes.c_int32)]
+            for slot, delta in enumerate(path.deltas):
+                model = tuple(q+d for q, d in zip(path.initial_model, delta))
+                estimated = tuple(kp*d for kp, d in zip(path.kp, delta))
+                output = (ctypes.c_uint8*204)()
+                failed_id = ctypes.c_int32()
+                self.assertEqual(encode(specs, vector(*model), vector(*path.kp), vector(*((.15,)*12)),
+                                 vector(*estimated), output, ctypes.byref(failed_id)), 0, (slot, failed_id.value))
+                for n, q in enumerate(model):
+                    raw = (q-path.offsets[n])/path.signs[n]
+                    expected, _ = preload._wire_position(raw)
+                    self.assertEqual(int.from_bytes(bytes(output)[n*17+7:n*17+9], 'big'), expected,
+                                     (slot, n+1))
 
 
 if __name__ == '__main__':
