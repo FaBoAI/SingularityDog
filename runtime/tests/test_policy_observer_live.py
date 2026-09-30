@@ -342,6 +342,22 @@ class QueueTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     for row in rows: inputs.ingest(row)
 
+    def test_live_ingest_cannot_erase_imu_correction_state(self):
+        flags=('calibration_applied','orientation_applied','mount_rotation_applied',
+               'gyro_bias_subtracted','accel_bias_subtracted','accel_scale_corrected',
+               'mount_correction_applied','gyro_bias_correction_applied')
+        for flag in flags:
+            for value in (True,None,0,'false'):
+                with self.subTest(flag=flag,value=value):
+                    clock=Clock();bus=live.SessionBus(clock=clock);seed(bus)
+                    rows=list(bus.available(clock()));rows[-1][flag]=value
+                    inputs=live.LiveInputs(plan())
+                    for row in rows[:-1]:inputs.ingest(row)
+                    with self.assertRaisesRegex(ValueError,'raw IMU correction'):
+                        inputs.ingest(rows[-1])
+                    self.assertEqual(inputs.last_imu_sequence,0)
+                    self.assertFalse(inputs.ready())
+
     def test_audit_writer_serializes_committed_times_and_flushes(self):
         bus = live.SessionBus(clock=Clock())
         with tempfile.TemporaryDirectory() as directory:

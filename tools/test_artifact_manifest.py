@@ -34,6 +34,12 @@ class ArtifactManifestTests(unittest.TestCase):
         self.assertEqual(value['files']['empty.txt']['bytes'], 0)
         self.assertEqual(set(value['files']), set(self.names))
 
+    def test_strict_json_rejects_float_overflow_in_nested_values(self):
+        for number in ('1e9999','-1e9999'):
+            with self.subTest(number=number),self.assertRaisesRegex(ValueError,'Nonfinite JSON number'):
+                manifest.parse_json('{"nested":['+number+']}')
+        self.assertEqual(manifest.parse_json('{"finite":1e3}'),{'finite':1000.0})
+
     def test_direct_create_and_load_names_reject_empty_duplicate_and_non_list(self):
         for names in ([], ['a/b.txt', 'a/b.txt'], 'a/b.txt', {'a/b.txt': 1}, None, [1]):
             with self.subTest(names=names):

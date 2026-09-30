@@ -2,6 +2,7 @@
 import os
 import pty
 import unittest
+from unittest.mock import patch
 
 from singularitydog_hw.fixed_catch_hold import FixedCatchExecution
 
@@ -42,6 +43,15 @@ class FixedCatchHoldTests(unittest.TestCase):
         self.assertTrue(self.execution.before_cycle(1_000_000_000+8_000_000_000))
         self.assertEqual(self.cancelled,[])
 
+    def test_late_enter_does_not_extend_expired_removal_window(self):
+        self._step(2.1)
+        os.write(self.master,b'\n')
+        self.now=1_000_000_000+8_100_000_000
+        self.assertTrue(self.execution.before_cycle(self.now))
+        self.assertIsNone(self.execution.ack_ns)
+        self.assertTrue(any(row['key']=='UPPER_SUPPORT_REMOVAL_ACK_LATE' for row in self.execution.events))
+        self.assertEqual(self.cancelled,[])
+
     def test_operator_q_cancels_and_cue_is_not_repeated(self):
         self._step(2.1)
         self._step(2.5)
@@ -58,6 +68,48 @@ class FixedCatchHoldTests(unittest.TestCase):
                 FixedCatchExecution(read)
         finally:
             os.close(read);os.close(write)
+
+    def test_independently_opened_output_is_nonblocking_and_restored(self):
+        writer=os.open(os.ttyname(self.slave),os.O_WRONLY|os.O_NOCTTY)
+        self.addCleanup(os.close,writer)
+        self.assertTrue(os.get_blocking(writer))
+        execution=FixedCatchExecution(self.slave,write_fd=writer,clock=lambda:self.now)
+        self.addCleanup(execution.close)
+        self.assertFalse(os.get_blocking(self.slave))
+        self.assertFalse(os.get_blocking(writer))
+        execution.close()
+        self.assertTrue(os.get_blocking(writer))
+        self.assertFalse(os.get_blocking(self.slave))  # Original execution still owns its input state.
+
+    def test_full_independent_terminal_output_fails_without_blocking_control_loop(self):
+        writer=os.open(os.ttyname(self.slave),os.O_WRONLY|os.O_NOCTTY)
+        self.addCleanup(os.close,writer)
+        execution=FixedCatchExecution(self.slave,write_fd=writer,clock=lambda:self.now)
+        self.addCleanup(execution.close)
+        cancelled=[];execution.connect_cancel(lambda:cancelled.append(True))
+        # A real unread local PTY provides deterministic backpressure; no robot
+        # device or unbounded blocking write is used for this test.
+        for _ in range(1024):
+            try:os.write(writer,b'x'*4096)
+            except BlockingIOError:break
+        else:self.fail('Synthetic terminal queue did not fill')
+        with self.assertRaisesRegex(RuntimeError,'terminal cue'):
+            execution.on_start(self.now)
+        self.assertTrue(cancelled)
+        self.assertTrue(any(event['key'].startswith('TERMINAL_CUE_') for event in execution.events))
+
+    def test_partial_nonblocking_setup_restores_original_descriptor_states(self):
+        writer=os.open(os.ttyname(self.slave),os.O_WRONLY|os.O_NOCTTY)
+        self.addCleanup(os.close,writer)
+        before=(os.get_blocking(self.slave),os.get_blocking(writer))
+        set_blocking=os.set_blocking
+        def fail_output(fd,blocking):
+            if fd==writer and blocking is False:raise OSError('Synthetic setup failure')
+            set_blocking(fd,blocking)
+        with patch('singularitydog_hw.fixed_catch_hold.os.set_blocking',side_effect=fail_output):
+            with self.assertRaisesRegex(OSError,'setup failure'):
+                FixedCatchExecution(self.slave,write_fd=writer)
+        self.assertEqual((os.get_blocking(self.slave),os.get_blocking(writer)),before)
 
 
 if __name__=='__main__': unittest.main()

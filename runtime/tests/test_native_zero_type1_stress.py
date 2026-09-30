@@ -224,11 +224,23 @@ class NativeZeroStressTests(unittest.TestCase):
             def set(self, value):
                 tid = threading.get_native_id()
                 calls.append((tid, value)); values[tid] = value
+        def prepared_boundary():
+            # Exercise real C++/socket preflight and both STOP owners, then end
+            # this ownership/restoration fixture before its unrelated 20/25ms
+            # active-I/O deadlines can depend on host load. Full active native
+            # timing and explicit restoration failures have separate tests.
+            raise RuntimeError("Timer-slack fixture ended after native preflight")
         rig = self.make_rig()
         with patch.object(stress.timer_slack, "require_supported_platform"), \
                 patch.object(stress.timer_slack, "_load_prctl", return_value=Backend()) as load:
-            result = rig.run(timer_slack_ns=1000)
-        self.assertEqual(result["status"], "COMPLETE_NATIVE_ZERO_TYPE1_DIAGNOSTIC", result["errors"])
+            result = rig.run(timer_slack_ns=1000,announce=prepared_boundary)
+        self.assertEqual(result["status"], "ABORTED", result["errors"])
+        self.assertEqual(result["errors"],["RuntimeError: Timer-slack fixture ended after native preflight"])
+        self.assertTrue(result["stop_confirmed"],result["errors"])
+        self.assertFalse(result["motor_enable_attempted"])
+        self.assertEqual(result["cycles_completed"],0)
+        self.assertEqual({request.destination for _,request,_ in rig.seen if request.kind==0},set(EXPECTED))
+        self.assertEqual({request.destination for _,request,_ in rig.seen if request.kind==18},set(EXPECTED))
         report = result["timer_slack"]
         self.assertTrue(report["apply_verified"])
         self.assertTrue(report["restoration_complete"])
@@ -245,8 +257,10 @@ class NativeZeroStressTests(unittest.TestCase):
             self.assertEqual(scope["parent"]["after_ns"], 50_000)
             self.assertTrue(scope["parent"]["restored"])
         with patch.object(stress.timer_slack, "_load_prctl") as load:
-            result = self.make_rig().run()
+            result = self.make_rig().run(announce=prepared_boundary)
         load.assert_not_called()
+        self.assertEqual(result["errors"],["RuntimeError: Timer-slack fixture ended after native preflight"])
+        self.assertTrue(result["stop_confirmed"],result["errors"])
         self.assertEqual(result["timer_slack"]["status"], "inactive")
 
     def test_timer_slack_apply_and_restore_failures_are_not_success(self):

@@ -25,7 +25,20 @@ class FixedCatchExecution:
         self.close_fd = close_fd
         self.clock = clock
         self.was_blocking = os.get_blocking(tty_fd)
-        os.set_blocking(tty_fd, False)
+        self.was_write_blocking = os.get_blocking(write_fd)
+        try:
+            os.set_blocking(tty_fd, False)
+            if write_fd != tty_fd:
+                # stdin/stdout can be independent opens of the same terminal.
+                # Nonblocking input alone does not bound a cue write when its
+                # output queue is full or the terminal consumer stops reading.
+                os.set_blocking(write_fd, False)
+        except BaseException:
+            for fd, blocking in ((tty_fd, self.was_blocking),
+                                 (write_fd, self.was_write_blocking)):
+                try:os.set_blocking(fd, blocking)
+                except OSError:pass
+            raise
         self.cancel = None
         self.started_ns = None
         self.cue_ns = None
@@ -99,7 +112,13 @@ class FixedCatchExecution:
                 self._failure('OPERATOR_STOP')
                 raise RuntimeError('Operator requested immediate stop')
             if self.cue_ns is not None and self.ack_ns is None and word in (b'', b'done'):
-                self.ack_ns = self.clock()
+                stamp = self.clock()
+                # Polling runs before before_cycle checks its deadline. A late
+                # Enter must not turn an expired window into an accepted ACK.
+                if stamp >= self.started_ns + 8_000_000_000:
+                    self.events.append({'key': 'UPPER_SUPPORT_REMOVAL_ACK_LATE', 'monotonic_ns': stamp})
+                    continue
+                self.ack_ns = stamp
                 self.events.append({'key': 'UPPER_SUPPORT_REMOVAL_ACK', 'monotonic_ns': self.ack_ns})
 
     def on_start(self, started_ns):
@@ -159,9 +178,9 @@ class FixedCatchExecution:
         if self.closed:
             return
         self.closed = True
-        try:
-            os.set_blocking(self.tty_fd, self.was_blocking)
-        except OSError:
-            pass
+        for fd, blocking in ((self.tty_fd, self.was_blocking),
+                             (self.write_fd, self.was_write_blocking)):
+            try:os.set_blocking(fd, blocking)
+            except OSError:pass
         if self.close_fd:
             os.close(self.tty_fd)

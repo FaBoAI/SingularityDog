@@ -29,6 +29,7 @@ class PolicyOutputBundleTests(unittest.TestCase):
         write_fixture(repo, tool.DESIGN_PATH, b'Synthetic supported-policy design\n')
         write_fixture(repo, tool.GROUND_RUNBOOK_PATH, b'Synthetic ground review runbook\n')
         if with_validation: write_fixture(repo, tool.VALIDATION_PATH, b'Synthetic offline validation\n')
+        for name in tool.PRELOAD_DOC_PATHS:write_fixture(repo,name,b'Synthetic current preparation runbook\n')
         write_fixture(repo, 'runtime/experiments/native_active_transport/libdog_active_transport.so', b'MAC HOST BINARY DO NOT COPY')
         output = root/'private-policy-kit'
         with patch.object(tool, 'ROOT', repo), patch.object(tool.overnight, 'ROOT', repo), \
@@ -64,6 +65,12 @@ class PolicyOutputBundleTests(unittest.TestCase):
             self.assertFalse(policy['active_transport_binary_included'])
             self.assertTrue(policy['build_active_library_on_target_required'])
             self.assertEqual(policy['profile_schema'], live.SCHEMA_V2)
+            preload=config['supported_preload']
+            self.assertFalse(preload['template_included']);self.assertIsNone(preload['profile_template'])
+            self.assertFalse(preload['approved_for_supported_policy_output'])
+            self.assertEqual(preload['default_mode'],'PLAN_ONLY')
+            self.assertEqual(preload['runbooks'],list(tool.PRELOAD_DOC_PATHS))
+            for name in preload['runbooks']:self.assertTrue((output/name).is_file())
             for key in ('expected_uids','angle_profile','calibration','mount','bundle'):
                 self.assertTrue((output/config[key]).exists())
 
@@ -72,6 +79,7 @@ class PolicyOutputBundleTests(unittest.TestCase):
             root = Path(folder)
             repo, home, profile, uids = synthetic_inputs(root)
             for name in (*tool.ACTIVE_SOURCE_PATHS, *tool.GROUND_SOURCE_PATHS,
+                         tool.PRELOAD_SOURCE_PATH,
                          *('runtime/'+name for name in live.CADENCE_SOURCE_PATHS)):
                 write_fixture(repo, name, b'// synthetic source\n' if name.endswith('.cpp') else b'# synthetic source\n')
             write_fixture(repo, tool.DESIGN_PATH, b'Synthetic policy output design\n')
@@ -81,7 +89,9 @@ class PolicyOutputBundleTests(unittest.TestCase):
             output = root/'private-v3-kit'
             with patch.object(tool, 'ROOT', repo), patch.object(tool.overnight, 'ROOT', repo), \
                  patch.object(tool.overnight, 'history_profile', return_value=(profile, {}, {}, {}, uids)), \
-                 patch.object(live, 'cadence_source_hashes', return_value=copied):
+                 patch.object(live, 'cadence_source_hashes', side_effect=lambda profile=None:
+                     {name:hashlib.sha256((repo/'runtime'/name).read_bytes()).hexdigest()
+                      for name in live.cadence_source_paths(profile)}):
                 result = tool.build(home, output, profile_schema=live.SCHEMA_V3)
             candidate = json.loads((output/tool.PROFILE_PATH).read_text())
             config = json.loads((output/'kit-config.json').read_text())['supported_policy_output']
@@ -93,6 +103,21 @@ class PolicyOutputBundleTests(unittest.TestCase):
             self.assertFalse(config['approved_for_supported_policy_output'])
             self.assertIsNone(candidate['review'])
             self.assertTrue(candidate['blockers'])
+            preload_config=json.loads((output/'kit-config.json').read_text())['supported_preload']
+            self.assertTrue(preload_config['template_included'])
+            self.assertFalse(preload_config['support_removal_authorized'])
+            self.assertFalse(preload_config['walking_authorized']);self.assertFalse(preload_config['automatic_retry'])
+            preload_raw=(output/preload_config['profile_template']).read_bytes()
+            self.assertEqual(hashlib.sha256(preload_raw).hexdigest(),preload_config['profile_template_sha256'])
+            preload=json.loads(preload_raw)
+            self.assertEqual(preload['diagnostic_timing_acceptance'],live.SUPPORTED_PRELOAD_5S)
+            self.assertFalse(preload['approved_for_supported_policy_output']);self.assertIsNone(preload['review'])
+            self.assertTrue(preload['blockers'])
+            self.assertTrue(all(v is None for row in preload['axes'].values() for v in row.values()))
+            self.assertTrue(all(v is None for ref in preload['artifacts'].values() for v in ref.values()))
+            self.assertEqual(preload['cadence_source_sha256'],{
+                name:hashlib.sha256((output/'runtime'/name).read_bytes()).hexdigest()
+                for name in live.cadence_source_paths(preload)})
             diagnostic.verify_kit(output)
 
     def test_v3_rejects_source_mismatch_before_publication(self):
@@ -100,6 +125,7 @@ class PolicyOutputBundleTests(unittest.TestCase):
             root = Path(folder)
             repo, home, profile, uids = synthetic_inputs(root)
             for name in (*tool.ACTIVE_SOURCE_PATHS, *tool.GROUND_SOURCE_PATHS,
+                         tool.PRELOAD_SOURCE_PATH,
                          *('runtime/'+name for name in live.CADENCE_SOURCE_PATHS)):
                 write_fixture(repo, name, b'// synthetic source\n' if name.endswith('.cpp') else b'# synthetic source\n')
             write_fixture(repo, tool.DESIGN_PATH, b'Synthetic policy output design\n')

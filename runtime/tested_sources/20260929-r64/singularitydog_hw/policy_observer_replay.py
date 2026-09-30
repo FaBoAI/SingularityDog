@@ -64,7 +64,9 @@ def translate_records(records, calibration):
             source, key = "motor", (mid, parameter)
         elif row.get("kind") == "imu":
             _require(row.get("frame") == "sensor", "Require original sensor-frame IMU")
-            observer._raw_imu_corrections(row)
+            for flag in ("calibration_applied", "orientation_applied", "mount_rotation_applied",
+                         "gyro_bias_subtracted", "accel_bias_subtracted", "accel_scale_corrected"):
+                _require(flag not in row or row[flag] is False, "Already corrected IMU: " + flag)
             start, midpoint, finish = (_stamp(row.get(k)) for k in (
                 "read_started_monotonic_ns", "monotonic_ns", "read_finished_monotonic_ns"))
             _require(start <= midpoint <= finish, "Invalid original IMU read interval")

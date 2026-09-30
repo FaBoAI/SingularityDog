@@ -5,7 +5,7 @@
   "live_output_authorized": false,
   "scope": "Python and C++ runtime source files only; excludes settings, binaries, models, raw logs and documentation.",
   "source_count": 178,
-  "archived_source_count": 5,
+  "archived_source_count": 9,
   "evidence": {
     "report_name": "supported-gain-step-3s-20260929-r64/report.json",
     "report_sha256": "5e55383bf47e31fb8472a423bacf9a98494c1d6d5c2617db15e708dc33142f57",
@@ -483,7 +483,7 @@
     },
     {
       "source_path": "singularitydog_hw/angle_calibration_audit.py",
-      "storage_path": "runtime/singularitydog_hw/angle_calibration_audit.py",
+      "storage_path": "runtime/tested_sources/20260929-r64/singularitydog_hw/angle_calibration_audit.py",
       "sha256": "8366c1e18fe17ab5851ced1591b5c9c6695d5f0ff9512bd686a646547e35c759",
       "size_bytes": 22917
     },
@@ -825,19 +825,19 @@
     },
     {
       "source_path": "singularitydog_hw/policy_observer.py",
-      "storage_path": "runtime/singularitydog_hw/policy_observer.py",
+      "storage_path": "runtime/tested_sources/20260929-r64/singularitydog_hw/policy_observer.py",
       "sha256": "4df0fcdde3a10ecbe2ec4837509ecba3c3a79b60180aac631f6a7b4c9c61bea9",
       "size_bytes": 35324
     },
     {
       "source_path": "singularitydog_hw/policy_observer_live.py",
-      "storage_path": "runtime/singularitydog_hw/policy_observer_live.py",
+      "storage_path": "runtime/tested_sources/20260929-r64/singularitydog_hw/policy_observer_live.py",
       "sha256": "f7245dbcf0d872f4aa06377846d7f8e222bf98f1adc084ee791e80ab7db5da70",
       "size_bytes": 30059
     },
     {
       "source_path": "singularitydog_hw/policy_observer_replay.py",
-      "storage_path": "runtime/singularitydog_hw/policy_observer_replay.py",
+      "storage_path": "runtime/tested_sources/20260929-r64/singularitydog_hw/policy_observer_replay.py",
       "sha256": "2c9d87d137b06e5a87399298b9d94bfa55bfde249e2675291ea7e47e5eb70df2",
       "size_bytes": 18546
     },

@@ -22,11 +22,6 @@ from .angle_branch_comparison import (IDS as BRANCH_IDS, MAX_STATIC_POSE_DELTA_R
 from .event_snapshot import snapshot_event
 
 DT_NS = 20_000_000
-RAW_IMU_CORRECTION_FLAGS = (
-    "calibration_applied", "orientation_applied", "mount_rotation_applied",
-    "gyro_bias_subtracted", "accel_bias_subtracted", "accel_scale_corrected",
-    "mount_correction_applied", "gyro_bias_correction_applied")
-_FLOAT32_MAX = float.fromhex("0x1.fffffep+127")
 _EXPECTED_MOTOR_KEYS = frozenset((i, p) for i in range(1, 13)
                                for p in ("position", "velocity"))
 _OWNERS = weakref.WeakKeyDictionary()
@@ -54,14 +49,6 @@ def _vector(value, size, label):
 def _stamp(value, label):
     _require(type(value) is int and 0 <= value < 2**63, "Invalid " + label)
     return value
-
-
-def _raw_imu_corrections(value):
-    # Original drivers predate these flags, so absence retains the raw-frame
-    # contract. An explicit unknown/nonboolean value cannot establish it.
-    for flag in RAW_IMU_CORRECTION_FLAGS:
-        _require(value.get(flag, False) is False,
-                 "Invalid raw IMU correction state: " + flag)
 
 
 def _digest(value):
@@ -469,11 +456,6 @@ class StatefulPolicyObserver:
             inputs, provenance, selected_sources, branch_raw = self._inputs(snapshot, profile)
             if profile is not None:
                 profile.next("tensor_conversion")
-            # Finite JSON/Python doubles can overflow when narrowed to the
-            # policy's float32 inputs. Reject before touching recurrent state,
-            # consistently for newly allocated and reused input tensors.
-            _require(all(abs(x) <= _FLOAT32_MAX for row in inputs for x in row),
-                     "Policy input is not finite-representable in float32")
             with self._torch.inference_mode():
                 if self._input_buffers is None:
                     tensors = tuple(self._torch.tensor([x], dtype=self._torch.float32) for x in inputs)
@@ -575,7 +557,6 @@ class StatefulPolicyObserver:
         _require(values.keys() == _EXPECTED_MOTOR_KEYS, "Missing motor input; no zero filling")
         imu = snapshot.get("imu")
         _require(isinstance(imu, dict) and imu.get("frame") == "raw_sensor", "Missing raw sensor IMU")
-        _raw_imu_corrections(imu)
         accel = _vector(imu.get("accel_m_s2"), 3, "raw acceleration")
         gyro = _vector(imu.get("gyro_rad_s"), 3, "raw gyro")
         start = _stamp(imu.get("read_started_ns"), "IMU read start")

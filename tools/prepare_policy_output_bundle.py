@@ -31,6 +31,10 @@ TODAY_PATH = 'docs/today-test-plan-20260928.md'
 TODAY_EVIDENCE_PATH = 'evidence/today-preparation-20260928.json'
 PUBLIC_EVIDENCE_PATH = 'evidence/policy-output-software-validation-20260928.json'
 PREPARATION_EVIDENCE_PATH = 'evidence/commissioning-preparation-20260928.json'
+PRELOAD_PROFILE_PATH = 'inputs/supported-preload-profile-template.json'
+PRELOAD_SOURCE_PATH = 'runtime/singularitydog_hw/supported_preload_path.py'
+PRELOAD_DOC_PATHS = ('docs/supported-preload-runtime-20260930.md',
+                     'docs/walking-plan-20260930.md', 'docs/system-readiness-20260930.md')
 GROUND_SOURCE_PATHS = (
     'runtime/singularitydog_hw/ground_trial_plan.py',
     'runtime/singularitydog_hw/ground_trial_trajectory.py',
@@ -80,7 +84,9 @@ def build(snapshot_home, output, *, profile_schema=live.SCHEMA_V2):
         raise ValueError('An explicit supported V2 or V3 profile schema is required')
     out = _new_private_output(output)
     # Fail before making an output if this checkout lacks part of the new path.
-    for name in (*ACTIVE_SOURCE_PATHS, *GROUND_SOURCE_PATHS, DESIGN_PATH, GROUND_RUNBOOK_PATH):
+    required = (*ACTIVE_SOURCE_PATHS, *GROUND_SOURCE_PATHS, DESIGN_PATH, GROUND_RUNBOOK_PATH)
+    if profile_schema == live.SCHEMA_V3:required += (PRELOAD_SOURCE_PATH,)
+    for name in required:
         source = ROOT/name
         if not source.is_file() or source.is_symlink():
             raise ValueError('Required policy-output source missing or symlinked: '+name)
@@ -88,6 +94,7 @@ def build(snapshot_home, output, *, profile_schema=live.SCHEMA_V2):
     with tempfile.TemporaryDirectory(prefix='.policy-kit-stage-', dir=out.parent) as stage_dir:
         stage = Path(stage_dir)/'kit'
         overnight.build(snapshot_home, stage)
+        source_pins = {}
         candidate = live.template(schema=profile_schema)
         if profile_schema == live.SCHEMA_V3:
             # Pin the bytes actually copied into the kit. A concurrent source
@@ -102,24 +109,37 @@ def build(snapshot_home, output, *, profile_schema=live.SCHEMA_V2):
                 any(value is not None for axis in candidate.get('axes', {}).values() for value in axis.values())):
             raise ValueError('Packaging must never create an approved output profile')
         _save(stage/PROFILE_PATH, candidate)
+        preload = None
+        if profile_schema == live.SCHEMA_V3:
+            preload = live.supported_preload_template()
+            preload['cadence_source_sha256'] = {
+                name: _sha(stage/'runtime'/name) for name in live.cadence_source_paths(preload)}
+            if preload['cadence_source_sha256'] != live.cadence_source_hashes(preload):
+                raise ValueError('Preload source changed while packaging V3')
+            if (preload.get('approved_for_supported_policy_output') is not False
+                    or preload.get('review') is not None or not preload.get('blockers')
+                    or any(value is not None for axis in preload['axes'].values() for value in axis.values())
+                    or any(value is not None for ref in preload['artifacts'].values() for value in ref.values())):
+                raise ValueError('Packaging must never approve a preload profile or invent its evidence')
+            _save(stage/PRELOAD_PROFILE_PATH, preload)
         copied_docs = []
         for name in (DESIGN_PATH, VALIDATION_PATH, GROUND_RUNBOOK_PATH, READINESS_PATH, LATENCY_PATH, TODAY_PATH,
-                     'docs/hardware-native-host-processing-20260925.md'):
-            source = ROOT/name
+                     'docs/hardware-native-host-processing-20260925.md', *PRELOAD_DOC_PATHS):
+            source = ROOT.resolve()/name
             if source.exists():
                 if not source.is_file() or source.is_symlink():
                     raise ValueError('Nonregular documentation source: '+name)
                 target = stage/name; target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(source, target); copied_docs.append(name)
+                overnight.copy_source(source, target, source_pins); copied_docs.append(name)
         # Compact public software results only; raw robot logs remain private
         # inputs selected by the base builder, never added by this document link.
         for name in (PUBLIC_EVIDENCE_PATH, PREPARATION_EVIDENCE_PATH, TODAY_EVIDENCE_PATH):
-            evidence = ROOT/name
+            evidence = ROOT.resolve()/name
             if evidence.exists():
                 if not evidence.is_file() or evidence.is_symlink():
                     raise ValueError('Nonregular public validation evidence')
                 target=stage/name;target.parent.mkdir(parents=True,exist_ok=True)
-                shutil.copyfile(evidence,target)
+                overnight.copy_source(evidence,target,source_pins)
         # Every active source is pinned independently of its eventual target-ABI
         # binary. The global kit manifest also covers every copied source byte.
         sources = {name: _sha(stage/name) for name in ACTIVE_SOURCE_PATHS}
@@ -173,12 +193,28 @@ def build(snapshot_home, output, *, profile_schema=live.SCHEMA_V2):
             'usb_disconnect_evidence_generated': False,
             'supported_policy_profile_approved': False,
         }
+        config['supported_preload'] = {
+            'default_mode': 'PLAN_ONLY', 'approved_for_supported_policy_output': False,
+            'profile_schema': live.SCHEMA_V3, 'diagnostic_timing_acceptance': live.SUPPORTED_PRELOAD_5S,
+            'template_included': preload is not None,
+            'profile_template': PRELOAD_PROFILE_PATH if preload is not None else None,
+            'profile_template_sha256': _sha(stage/PRELOAD_PROFILE_PATH) if preload is not None else None,
+            'entry_module': 'singularitydog_hw.policy_output',
+            'execution_flag': '--execute-supported-preload',
+            'absolute_epoch_cadence_required': True, 'support_must_remain': True,
+            'support_removal_authorized': False, 'walking_authorized': False,
+            'physical_evidence_required': True, 'current_power_diagnostic_required': True,
+            'automatic_retry': False,
+            'runbooks': [name for name in PRELOAD_DOC_PATHS if name in copied_docs],
+            'preparation_note': ('Fill current, reviewed evidence; this template never authorizes output.'
+                if preload is not None else 'Rebuild with --profile-schema singularitydog.supported-policy-profile.v3 for the opt-in preload template.'),
+        }
         _save(config_path, config)
         files = {}
         for path in sorted(stage.rglob('*')):
             if path.is_symlink():
                 raise ValueError('Symlink in staged kit: '+str(path.relative_to(stage)))
-            if path.is_file() and path.name != 'kit-manifest.json':
+            if path.is_file() and path != stage/'kit-manifest.json':
                 # The one intentional binary is the pinned private model.
                 if path.suffix in ('.so', '.dylib', '.dll', '.pyc'):
                     raise ValueError('Host binary/cache cannot be included')
@@ -194,18 +230,17 @@ def build(snapshot_home, output, *, profile_schema=live.SCHEMA_V2):
         _save(stage/'kit-manifest.json', manifest)
         for path in (stage, *stage.rglob('*')):
             os.chmod(path, 0o700 if path.is_dir() else 0o600)
+        overnight.recheck_sources(source_pins)
         # copytree refuses an existing destination even if another process
         # created it since the first check. Never overwrite a prior package.
         # Exclude the manifest until the remaining files have copied fully.
-        shutil.copytree(stage, out, ignore=shutil.ignore_patterns('kit-manifest.json'))
-        with (out/'kit-manifest.json').open('xb') as stream:
-            os.chmod(out/'kit-manifest.json', 0o600)
-            stream.write((stage/'kit-manifest.json').read_bytes())
+        overnight.publish(stage, out, manifest)
     return {'output': str(out), 'file_count': len(files), 'model_and_logs_private': True,
             'hardware_accessed': False, 'supported_policy_profile_approved': False,
             'profile_schema': profile_schema,
             'active_transport_binary_included': False, 'profile_template': PROFILE_PATH,
             'validation_included': VALIDATION_PATH in copied_docs, 'ground_trials_approved': False,
+            'preload_template_included': preload is not None, 'preload_profile_approved': False,
             'ground_stage_templates': ground_templates}
 
 

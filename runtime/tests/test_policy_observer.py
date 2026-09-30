@@ -699,6 +699,58 @@ class ObserverTests(unittest.TestCase):
         o.consume(s)
         self.assertEqual(o.ticks_completed, 1)
 
+    def test_raw_imu_does_not_accept_applied_or_unknown_correction_flags(self):
+        flags=("calibration_applied", "orientation_applied", "mount_rotation_applied",
+               "gyro_bias_subtracted", "accel_bias_subtracted", "accel_scale_corrected",
+               "mount_correction_applied", "gyro_bias_correction_applied")
+        for flag in flags:
+            for value in (True, None, 0, "false"):
+                with self.subTest(flag=flag,value=value):
+                    p=Policy();o=make(p);s=snapshot();s['imu'][flag]=value
+                    o.reset_run(s['tick_ns'],warmup_completed=True)
+                    with self.assertRaisesRegex(observer.ObserverError,"raw IMU correction"):
+                        o.consume(s)
+                    self.assertEqual(p.calls,[])
+                    self.assertEqual(o.status,'INCOMPLETE')
+
+    def test_finite_double_that_overflows_float32_is_rejected_before_model(self):
+        for kind in ('gyro','velocity'):
+            with self.subTest(kind=kind):
+                p=Policy();o=make(p);s=snapshot()
+                if kind=='gyro':s['imu']['gyro_rad_s'][0]=1e100
+                else:next(row for row in s['motors'] if row['parameter']=='velocity')['value']=1e100
+                o.reset_run(s['tick_ns'],warmup_completed=True)
+                with self.assertRaisesRegex(observer.ObserverError,'float32'):
+                    o.consume(s)
+                self.assertEqual(p.calls,[])
+                self.assertEqual(o.status,'INCOMPLETE')
+
+    def test_float32_overflow_guard_precedes_real_tensor_forward_and_buffer_writes(self):
+        import torch
+        self.assertFalse(bool(torch.isfinite(torch.tensor(1e100,dtype=torch.float32))))
+        for reuse in (False,True):
+            with self.subTest(reuse_input_buffers=reuse):
+                p=Policy()
+                o=observer.StatefulPolicyObserver(p,calibration(),imu_mount_candidate=mount(),
+                    h_hypothesis=0,command=[0.,0.,0.],max_ticks=1,max_age_ns=10_000_000,
+                    max_spread_ns=5_000_000,torch_module=torch,reuse_input_buffers=reuse)
+                s=snapshot();s['imu']['gyro_rad_s'][0]=1e100
+                o.reset_run(s['tick_ns'],warmup_completed=True)
+                before=None if not reuse else [list(row) for row in o._input_buffers]
+                with self.assertRaisesRegex(observer.ObserverError,'float32'):
+                    o.consume(s)
+                self.assertEqual(p.calls,[])
+                if reuse:self.assertEqual([list(row) for row in o._input_buffers],before)
+
+    def test_explicit_false_imu_flags_and_largest_float32_input_remain_valid(self):
+        p=Policy();o=make(p);s=snapshot()
+        s['imu'].update({flag:False for flag in observer.RAW_IMU_CORRECTION_FLAGS})
+        s['imu']['gyro_rad_s'][0]=float.fromhex('0x1.fffffep+127')
+        o.reset_run(s['tick_ns'],warmup_completed=True)
+        result=o.consume(s)
+        self.assertEqual(result['status'],'TICK_OBSERVED_NO_OUTPUT')
+        self.assertEqual(len(p.calls),1)
+
     def test_missing_nan_bounds_future_and_false_ready_all_block_before_forward(self):
         def stale(s):
             for row in s["motors"]:

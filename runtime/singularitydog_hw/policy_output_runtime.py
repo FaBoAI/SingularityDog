@@ -182,8 +182,8 @@ class BusWorkers:
         need(set(sessions)==set(BUSES) and sessions['front'] is not sessions['rear'],'Two independent buses required')
         self.sessions=sessions;self.cancel_io=cancel_io;self.clock=clock
         self.pools={s:ThreadPoolExecutor(max_workers=1,thread_name_prefix='policy-'+s) for s in BUSES}
-        self.lock=threading.Lock();self.aborted=threading.Event();self.reason=None
-        self.stop_futures=None;self.journal=[]
+        self.lock=threading.RLock();self.aborted=threading.Event();self.reason=None
+        self.stop_futures=None;self.journal=[];self.emergency_errors=[]
 
     def _exchange(self,scope,wires,timeout_ns=100_000_000,send_only=False,label='preflight',
                   deadline_ns=None):
@@ -320,12 +320,26 @@ class BusWorkers:
         with self.lock:
             if self.stop_futures is not None:return
             self.reason=str(reason);self.aborted.set()
+            # Latch before invoking the external cancellation hook, including
+            # reentrant hooks. A cancellation error must not suppress either
+            # STOP owner or escape the coordinator's final evidence report.
+            self.stop_futures={}
             try:self.cancel_io()
-            finally:
-                # Queued on the same owners: never race a writer on its FD.
-                self.stop_futures={s:self.pools[s].submit(
-                    getattr(self.sessions[s],'emergency_stop_repeated',self.sessions[s].emergency_stop))
-                    for s in BUSES}
+            except BaseException as error:
+                self.emergency_errors.append({'stage':'cancel_io','bus':None,
+                    'error':type(error).__name__+': '+str(error)})
+            for scope in BUSES:
+                try:
+                    session=self.sessions[scope]
+                    stop=getattr(session,'emergency_stop_repeated',None)
+                    if stop is None:stop=session.emergency_stop
+                    # Queued on the same owner: never race a writer on its FD.
+                    self.stop_futures[scope]=self.pools[scope].submit(stop)
+                except BaseException as error:
+                    self.emergency_errors.append({'stage':'stop_submission','bus':scope,
+                        'error':type(error).__name__+': '+str(error)})
+                    failure=Future();failure.set_exception(error)
+                    self.stop_futures[scope]=failure
 
     def finish_stops(self):
         self.emergency('normal completion')
@@ -1306,6 +1320,12 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                         affinity['restored']=False
                         report['errors'].append(type(error).__name__+': '+str(error))
                         if report['status']=='COMPLETE_SUPPORTED_OUTPUT':report['status']='ABORTED_AFFINITY_RESTORE'
+        report['stop_dispatch_errors']=list(workers.emergency_errors)
+        if workers.emergency_errors:
+            report['errors'].extend('STOP dispatch '+row['stage']+
+                (' '+row['bus'] if row['bus'] is not None else '')+': '+row['error']
+                for row in workers.emergency_errors)
+            if report['status']=='COMPLETE_SUPPORTED_OUTPUT':report['status']='ABORTED_STOP_DISPATCH'
         report['stop_confirmed']=all(set(stops[s].get('confirmed_ids',[]))==set(BUSES[s]) and
             stops[s].get('complete',True) is True and not stops[s].get('unconfirmed_ids') and
             not stops[s].get('ambiguous_ids') for s in BUSES)

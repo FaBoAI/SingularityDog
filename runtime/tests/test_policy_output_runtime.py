@@ -373,6 +373,50 @@ class OutputRuntimeTests(unittest.TestCase):
         self.assertTrue(owners[7].startswith('policy-rear'))
         self.assertTrue(all(r['retry_policy']['stop_only'] for r in report['stop_reports'].values()))
 
+    def test_cancellation_hook_error_keeps_both_stops_and_returns_failure_report(self):
+        for normal in (False,True):
+            with self.subTest(normal=normal):
+                clock=SimulatedClock()
+                sessions={'front':FakeSession(1,clock=clock),'rear':FakeSession(7,clock=clock)}
+                def cancel():raise OSError('Synthetic cancellation descriptor failed')
+                def check():
+                    if not normal:raise RuntimeError('Synthetic preparation failure')
+                report=runtime.run_supported_policy(profile(),sessions,FakeIMU(clock=clock),
+                    lambda *_:(.04,)*12,cancel_io=cancel,check=check,encode_motion=encode_motion,
+                    clock=clock,sleep=clock.sleep)
+                self.assertTrue(report['stop_confirmed'],report['errors'])
+                self.assertEqual(report['status'],'ABORTED_STOP_DISPATCH' if normal else 'ABORTED')
+                self.assertEqual(report['stop_dispatch_errors'],[{
+                    'stage':'cancel_io','bus':None,'error':'OSError: Synthetic cancellation descriptor failed'}])
+                self.assertTrue(any('cancellation descriptor failed' in error for error in report['errors']))
+                self.assertTrue(all(len(s.stop_times)==1 for s in sessions.values()))
+
+    def test_failed_stop_submission_on_one_owner_does_not_skip_other_owner(self):
+        sessions={'front':FakeSession(1),'rear':FakeSession(7)}
+        workers=runtime.BusWorkers(sessions,lambda:None)
+        try:
+            with patch.object(workers.pools['front'],'submit',side_effect=RuntimeError('Synthetic owner unavailable')):
+                stopped=workers.finish_stops()
+            self.assertEqual(stopped['front']['unconfirmed_ids'],list(runtime.BUSES['front']))
+            self.assertIn('owner unavailable',stopped['front']['error'])
+            self.assertEqual(stopped['rear']['confirmed_ids'],list(runtime.BUSES['rear']))
+            self.assertEqual(len(sessions['rear'].stop_times),1)
+            self.assertEqual(workers.emergency_errors[0]['bus'],'front')
+            self.assertEqual(workers.emergency_errors[0]['stage'],'stop_submission')
+        finally:workers.close()
+
+    def test_reentrant_cancel_callback_schedules_only_one_stop_per_owner(self):
+        sessions={'front':FakeSession(1),'rear':FakeSession(7)}
+        workers=runtime.BusWorkers(sessions,lambda:workers.emergency('Nested cancellation'))
+        try:
+            workers.emergency('Original failure')
+            stopped=workers.finish_stops()
+            self.assertEqual(workers.reason,'Original failure')
+            self.assertEqual(workers.emergency_errors,[])
+            self.assertTrue(all(len(s.stop_times)==1 for s in sessions.values()))
+            self.assertTrue(all(stopped[scope]['complete'] for scope in runtime.BUSES))
+        finally:workers.close()
+
     def test_stop_collection_has_one_shared_deadline_with_dispatch_margin(self):
         timeouts=[]
         future=SimpleNamespace(result=lambda *,timeout:timeouts.append(timeout) or {'complete':True})
@@ -618,7 +662,15 @@ class OutputRuntimeTests(unittest.TestCase):
         self.assertFalse(runtime._start_interval_metrics(rows[:1])['strict_start_interval_20ms_met'])
 
     def test_success_runs_startup_policy_and_normal_stop_on_both_buses(self):
-        report, sessions = self.run_case()
+        # This case checks phase order, encoded output and both STOP owners.
+        # Share causal simulated time across buses/IMU/coordinator so host
+        # scheduling during the full suite cannot turn it into a timing test.
+        # test_policy_stall_watchdog_stops_before_stalled_call_returns retains
+        # real wall time and independently verifies asynchronous STOP.
+        clock=SimulatedClock()
+        report, sessions = self.run_case(front=FakeSession(1,clock=clock),
+            rear=FakeSession(7,clock=clock),imu=FakeIMU(clock=clock),
+            clock=clock,sleep=clock.sleep)
         self.assertEqual(report["status"], "COMPLETE_SUPPORTED_OUTPUT", report["errors"])
         self.assertTrue(report["motor_enable_sent"])
         self.assertTrue(report["learned_targets_sent"])

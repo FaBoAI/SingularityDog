@@ -136,6 +136,79 @@ class OvernightBundleTests(unittest.TestCase):
                 tool.build(home, output)
             self.assertEqual((output / "kit-manifest.json").read_bytes(), before)
 
+    def test_git_output_and_dangling_output_link_fail_before_reading_history(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);repo=root/'repo';repo.mkdir();(repo/'.git').mkdir()
+            link=root/'linked-kit';link.symlink_to(root/'missing-destination',target_is_directory=True)
+            with patch.object(tool,'history_profile') as history:
+                for output in (repo/'kit',link):
+                    with self.subTest(output=output),self.assertRaises(ValueError):
+                        tool.build(root/'missing-input',output)
+                history.assert_not_called()
+            self.assertFalse((root/'missing-destination').exists())
+
+    def test_missing_input_leaves_no_output_or_staging_directory(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);repo,home,profile,uids=synthetic_inputs(root)
+            (home/'singularitydog-policy-shadow/20260921-r1/model_149.pt').unlink()
+            with patch.object(tool,'ROOT',repo),self.assertRaisesRegex(ValueError,'Regular nonsymlink'):
+                tool.build(home,root/'kit')
+            self.assertFalse((root/'kit').exists())
+            self.assertFalse(list(root.glob('.overnight-kit-stage-*')))
+
+    def test_symlinked_source_and_snapshot_parent_rejected(self):
+        for location in ('source','snapshot'):
+            with self.subTest(location=location),tempfile.TemporaryDirectory() as folder:
+                root=Path(folder);repo,home,profile,uids=synthetic_inputs(root)
+                if location=='source':
+                    member=repo/'tools/injected.py';member.symlink_to(repo/'tools/dog_tomorrow.py')
+                else:
+                    parent=home/'singularitydog-policy-shadow/20260921-r1'
+                    original=home/'saved-policy';parent.rename(original);parent.symlink_to(original,target_is_directory=True)
+                with patch.object(tool,'ROOT',repo),patch.object(tool,'history_profile',return_value=(profile,{},{},{},uids)):
+                    with self.assertRaisesRegex(ValueError,'[Ss]ymlink'):
+                        tool.build(home,root/'kit')
+                self.assertFalse((root/'kit').exists())
+
+    def test_source_changed_after_copy_is_rejected_before_manifest_publication(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);repo,home,profile,uids=synthetic_inputs(root)
+            copy=tool.shutil.copyfile
+            def change_earlier_source(source,target):
+                result=copy(source,target)
+                if Path(source).name=='model_149.pt':
+                    (repo/'tools/dog_tomorrow.py').write_bytes(b'changed after source copy')
+                return result
+            with patch.object(tool,'ROOT',repo),patch.object(tool,'history_profile',return_value=(profile,{},{},{},uids)),\
+                 patch.object(tool.shutil,'copyfile',side_effect=change_earlier_source):
+                with self.assertRaisesRegex(ValueError,'Source changed during packaging'):
+                    tool.build(home,root/'kit')
+            self.assertFalse((root/'kit').exists())
+
+    def test_history_candidate_hash_must_match_the_copied_calibration(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);repo,home,profile,uids=synthetic_inputs(root)
+            profile['source_sha256']={'candidate':'a'*64}
+            with patch.object(tool,'ROOT',repo),patch.object(tool,'history_profile',return_value=(profile,{},{},{},uids)):
+                with self.assertRaisesRegex(ValueError,'Historical profile'):
+                    tool.build(home,root/'kit')
+            self.assertFalse((root/'kit').exists())
+
+    def test_corrupted_destination_cannot_receive_completion_manifest(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);repo,home,profile,uids=synthetic_inputs(root)
+            copytree=tool.shutil.copytree
+            def corrupt(source,destination,*args,**kwargs):
+                result=copytree(source,destination,*args,**kwargs)
+                if Path(source).name=='kit':
+                    (Path(destination)/'kit-config.json').write_bytes(b'corrupt')
+                return result
+            with patch.object(tool,'ROOT',repo),patch.object(tool,'history_profile',return_value=(profile,{},{},{},uids)),\
+                 patch.object(tool.shutil,'copytree',side_effect=corrupt):
+                with self.assertRaisesRegex(ValueError,'Published kit file differs'):
+                    tool.build(home,root/'kit')
+            self.assertFalse((root/'kit/kit-manifest.json').exists())
+
 
 if __name__ == "__main__":
     unittest.main()

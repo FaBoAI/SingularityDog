@@ -167,6 +167,16 @@ class ReplayTests(unittest.TestCase):
                 last["request_monotonic_ns"] = first["request_monotonic_ns"]
             with self.subTest(change=change), self.assertRaises(ValueError): self.run_replay(data)
 
+    def test_replay_rejects_correction_aliases_before_model_state_changes(self):
+        for flag in ('mount_correction_applied','gyro_bias_correction_applied'):
+            for value in (True,None,0,'false'):
+                with self.subTest(flag=flag,value=value):
+                    data=records();next(r for r in data if r['kind']=='imu')[flag]=value
+                    policies=[Policy(),Policy()]
+                    with self.assertRaisesRegex(ValueError,'raw IMU correction'):
+                        self.run_replay(data,policies=policies)
+                    self.assertTrue(all(not p.calls and p.resets==0 for p in policies))
+
     def test_capture_end_and_shared_policy_cannot_produce_extra_ticks(self):
         result, _, _ = self.run_replay(records(1))
         self.assertEqual(result["hypotheses"][0]["ticks_completed"], 1)

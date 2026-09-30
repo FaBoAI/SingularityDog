@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 
 
@@ -34,8 +35,20 @@ def _unique_object(pairs):
     return result
 
 
+def parse_json(raw):
+    def invalid_constant(value):
+        raise ValueError('Nonfinite JSON constant: '+value)
+    def finite_float(value):
+        number = float(value)
+        if not math.isfinite(number):
+            raise ValueError('Nonfinite JSON number: '+value)
+        return number
+    return json.loads(raw, object_pairs_hook=_unique_object, parse_constant=invalid_constant,
+                      parse_float=finite_float)
+
+
 def read_json(path):
-    return json.loads(Path(path).read_text(), object_pairs_hook=_unique_object)
+    return parse_json(Path(path).read_bytes())
 
 
 def digest(path):

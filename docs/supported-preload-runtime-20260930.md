@@ -69,3 +69,5 @@ python3 tools/verify_tested_jetson_sources.py
 [追加監査の修正](additional-fixes-20260930.md)後は、専用54件が合格。[新しいソース付き実行結果](../evidence/supported-preload-software-20260930-r2.json)と[そのログ](../evidence/supported-preload-software-20260930-r2.json.log)を別保存した。Python／C++位置コードの照合と、整数変換後の範囲・変位・静止PD上限も検証した。詳細監査は有効化前の準備で行い、周期内には追加していない。
 
 関連ランタイム43モジュールは789件中786件合格、保存モデル比較データ未指定の3件はskip。関連ツール78件が合格。履歴ソース178件も一致し、旧評価器の追加保存により現行版と異なる履歴コピーは5件となった。実機の合格項目は増やしていない。
+
+上記はコミット91136ffの履歴。その後の[全体監査](system-readiness-20260930.md)を含む現在のソースは[専用54件の結果r3](../evidence/supported-preload-software-20260930-r3.json)と[ログ](../evidence/supported-preload-software-20260930-r3.json.log)に固定した。全件回帰は2,792件成功・5件skip・失敗0。現物とJetsonの時間計測は未実施。

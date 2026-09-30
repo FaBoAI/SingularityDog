@@ -381,25 +381,17 @@ def fit_reference_observations(observations):
         rows.append((raw, q, error))
     _need(len({row["source_sha256"] for row in observations}) == len(observations),
           "Reference observations must have independent sources")
-    span = _finite(max(row[1] for row in rows) - min(row[1] for row in rows),
-                   "physical reference span")
-    _need(span >= math.radians(5),
+    _need(max(row[1] for row in rows) - min(row[1] for row in rows) >= math.radians(5),
           "Physical reference span below five degrees")
     candidates = []
     for sign in (-1, 1):
-        # Finite source numbers need not have finite arithmetic results.
-        # Never return an Inf interval/NaN uncertainty as a review candidate.
-        centers = [(_finite(q - sign * raw, "reference offset"), error)
-                   for raw, q, error in rows]
-        lower = max(_finite(center - error, "offset lower bound") for center, error in centers)
-        upper = min(_finite(center + error, "offset upper bound") for center, error in centers)
+        lower = max(q - sign * raw - error for raw, q, error in rows)
+        upper = min(q - sign * raw + error for raw, q, error in rows)
         if lower <= upper:
             candidates.append({"sign_candidate": sign,
-                               "offset_candidate_rad": _finite(lower / 2 + upper / 2,
-                                                               "offset candidate"),
+                               "offset_candidate_rad": (lower + upper) / 2,
                                "offset_interval_rad": [lower, upper],
-                               "uncertainty_rad": _finite(upper / 2 - lower / 2,
-                                                          "offset uncertainty")})
+                               "uncertainty_rad": (upper - lower) / 2})
     _need(len(candidates) == 1,
           f"Physical observations do not identify one consistent sign: {len(candidates)} candidates")
     return {**candidates[0], "status": "PHYSICAL_REFERENCE_FIT_REVIEW_REQUIRED",

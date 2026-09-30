@@ -19,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from artifact_manifest import member as manifest_member, read_json as manifest_json
 
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -131,17 +132,23 @@ def active_build_record(library):
             'active_transport_build_record_sha256':digest(record_path)}
 
 def verify_kit(root):
-    manifest=json.loads((root/'kit-manifest.json').read_text())
-    if manifest.get('schema')!='private-overnight-kit-v1' or not manifest.get('files'):
+    root=Path(root).resolve()
+    manifest_path=manifest_member(root,'kit-manifest.json')
+    manifest=manifest_json(manifest_path)
+    if (type(manifest) is not dict or manifest.get('schema')!='private-overnight-kit-v1'
+            or type(manifest.get('files')) is not dict or not manifest['files']):
         raise ValueError('Missing private kit manifest; prepare and copy the complete kit')
     for name,digest in manifest['files'].items():
-        path=root/name
-        if Path(name).is_absolute() or '..' in Path(name).parts or path.is_symlink():
-            raise ValueError('Nonlocal kit manifest path')
+        path=manifest_member(root,name)
+        if (name=='kit-manifest.json' or type(digest) is not str or len(digest)!=64
+                or any(c not in '0123456789abcdef' for c in digest)):
+            raise ValueError('Invalid kit manifest member/hash')
         if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=digest:
             raise ValueError('Kit file missing or changed: '+name)
     for tree in ('runtime','tools'):
-        for path in (root/tree).rglob('*'):
+        base=manifest_member(root,tree)
+        for path in base.rglob('*'):
+            if path.is_symlink():raise ValueError('Symlinked executable kit source: '+str(path.relative_to(root)))
             if path.is_file() and path.suffix in ('.py','.cpp','.h') and str(path.relative_to(root)) not in manifest['files']:
                 raise ValueError('Unlisted executable kit source: '+str(path.relative_to(root)))
 

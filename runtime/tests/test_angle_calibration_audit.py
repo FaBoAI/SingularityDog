@@ -271,6 +271,15 @@ def observation(deg, *, sign=1, sequence=0):
 
 
 class PhysicalReferenceTests(unittest.TestCase):
+    def test_finite_extreme_sources_cannot_produce_infinite_offset_candidate(self):
+        rows=[observation(0),observation(15,sequence=1)]
+        for row in rows:row['raw_rad']=1e308
+        rows[0]['model_rad']=1e308
+        rows[1]['model_rad']=math.nextafter(1e308,math.inf)
+        # Previously this returned sign=-1, offset=Inf, uncertainty=NaN.
+        with self.assertRaisesRegex(AngleEvidenceError,'Nonfinite'):
+            fit_reference_observations(rows)
+
     def test_known_reference_move_return_fits_both_signs(self):
         for sign in (-1, 1):
             rows = [observation(deg, sign=sign, sequence=n)

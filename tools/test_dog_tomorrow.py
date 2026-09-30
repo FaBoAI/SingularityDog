@@ -120,6 +120,27 @@ class TomorrowTests(unittest.TestCase):
         code.write_text('pass\n');(code.parent/'extra.py').write_text('pass\n')
         with self.assertRaisesRegex(ValueError,'Unlisted'):dog.verify_kit(self.root)
 
+    def test_kit_manifest_rejects_symlinked_parent_and_unlisted_symlink_tree(self):
+        external=self.root/'external';external.mkdir();code=external/'main.py';code.write_text('pass\n')
+        link=self.root/'tools';link.symlink_to(external,target_is_directory=True)
+        value={'schema':'private-overnight-kit-v1','files':{'tools/main.py':hashlib.sha256(code.read_bytes()).hexdigest()}}
+        path=self.root/'kit-manifest.json';path.write_text(json.dumps(value))
+        with self.assertRaisesRegex(ValueError,'symbolic links'):dog.verify_kit(self.root)
+        link.unlink();link.mkdir();(link/'nested').symlink_to(external,target_is_directory=True)
+        value['files']={'external/main.py':hashlib.sha256(code.read_bytes()).hexdigest()};path.write_text(json.dumps(value))
+        with self.assertRaisesRegex(ValueError,'Symlinked'):dog.verify_kit(self.root)
+
+    def test_kit_manifest_rejects_path_aliases_bad_shape_and_duplicate_keys(self):
+        path=self.root/'kit-manifest.json'
+        for value in ([],{'schema':'private-overnight-kit-v1','files':['file']},
+                      {'schema':'private-overnight-kit-v1','files':{'tools//main.py':'a'*64}},
+                      {'schema':'private-overnight-kit-v1','files':{'tools/main.py':None}}):
+            with self.subTest(value=value):
+                path.write_text(json.dumps(value))
+                with self.assertRaises(ValueError):dog.verify_kit(self.root)
+        path.write_text('{"schema":"bad","schema":"private-overnight-kit-v1","files":{}}')
+        with self.assertRaisesRegex(ValueError,'Duplicate'):dog.verify_kit(self.root)
+
     def test_changed_capture_refuses_before_process(self):
         self.work.mkdir();candidate=self.work/'candidate.json';capture=self.work/'capture.json'
         capture.write_text('{}');candidate.write_text(json.dumps({'source_capture_sha256':hashlib.sha256(b'old').hexdigest()}))

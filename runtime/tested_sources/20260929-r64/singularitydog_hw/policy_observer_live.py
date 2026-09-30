@@ -309,10 +309,6 @@ class LiveInputs:
         elif row['kind'] == 'imu':
             require(row.get('frame') == 'sensor' and type(row.get('sequence')) is int
                     and row['sequence'] == self.last_imu_sequence+1, 'Invalid/missing IMU sequence or frame')
-            # Check before the snapshot buffer intentionally retains only SI
-            # values/timestamps and labels its result raw_sensor. Otherwise an
-            # upstream corrected sample could be relabelled and corrected twice.
-            observer._raw_imu_corrections(row)
             require(row['read_started_monotonic_ns'] <= row['read_finished_monotonic_ns'] <= available,
                     'Future IMU source timestamp')
             self.buffer.ingest_imu(accel_m_s2=row['accel_m_s2'], gyro_rad_s=row['gyro_rad_s'],

@@ -2,7 +2,7 @@
 
 これは過去の実機結果を再検討するためのソース記録です。**現在の機体・電源・姿勢に対する実行許可ではありません。ここから直接実機試験を起動しないでください。**
 
-`manifest.json` は r64 キット内の Python 162 ファイルと C++ 16 ファイル、合計 178 ファイルの SHA-256・サイズ・保存先を記録します。リポジトリの現行版と一致する 173 ファイルは `runtime/` 内を参照し、異なる `policy_output.py`、`policy_output_runtime.py`、`policy_live_profile.py`、`native_pipeline_benchmark.py`、`ground_trial_review.py` の 5 ファイルをこのディレクトリに保存しました。現行版の置換や実行パスへの追加は行いません。
+`manifest.json` は r64 キット内の Python 162 ファイルと C++ 16 ファイル、合計 178 ファイルの SHA-256・サイズ・保存先を記録します。リポジトリの現行版と一致する 169 ファイルは `runtime/` 内を参照し、異なる9ファイルをこのディレクトリに保存しました。内訳は `policy_output.py`、`policy_output_runtime.py`、`policy_live_profile.py`、`native_pipeline_benchmark.py`、`ground_trial_review.py`、`angle_calibration_audit.py`、`policy_observer.py`、`policy_observer_live.py`、`policy_observer_replay.py` です。現行版の置換や実行パスへの追加は行いません。
 
 対応する r64 は箱を残した学習目標 1%・Kp6/Kd0.15・3 秒試験です。報告は `COMPLETE_SUPPORTED_OUTPUT`、143 周期、学習目標送信あり、正常ランプ終了、全軸 STOP 確認、定常 20ms 超過 0 回（初回を含む超過は 1 回）でした。報告ファイル名、報告自体と当時のプロフィールのハッシュを manifest の `evidence` に記録しています。報告の生データや現起動の駆動設定は公開ソースに含めていません。この結果は自立・荷重移行・歩行の合格を示しません。
 

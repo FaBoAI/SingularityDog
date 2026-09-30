@@ -3,7 +3,9 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
+import prepare_ground_review as tool
 from prepare_ground_review import prepare, review_template
 
 
@@ -74,6 +76,32 @@ class GroundReviewPreparationTests(unittest.TestCase):
         link=self.base/'link';link.symlink_to(self.video)
         with self.assertRaisesRegex(ValueError,'Regular'):
             prepare(self.report,self.plan,self.profile,link,self.base/'review')
+
+    def test_source_mutation_while_preparing_does_not_publish_association(self):
+        for source in (self.report,self.video):
+            with self.subTest(source=source):
+                original=source.read_bytes()
+                make=tool.physical_review_template
+                def mutate():
+                    value=make();source.write_bytes(original+b' ');return value
+                with patch.object(tool,'physical_review_template',side_effect=mutate):
+                    with self.assertRaisesRegex(ValueError,'Source changed during preparation'):
+                        prepare(self.report,self.plan,self.profile,self.video,self.base/'review')
+                self.assertFalse((self.base/'review').exists());source.write_bytes(original)
+
+    def test_review_binding_rejects_sources_changed_since_association(self):
+        out=self.base/'review';prepare(self.report,self.plan,self.profile,self.video,out)
+        self.video.write_bytes(b'NEW RECORDING')
+        with self.assertRaisesRegex(ValueError,'Source changed during preparation'):
+            review_template(out/'association.json',out/'bound.json')
+        self.assertFalse((out/'bound.json').exists())
+
+    def test_aborted_null_runtime_leaves_timing_unknown(self):
+        report=json.loads(self.report.read_text());report.update(status='ABORTED',runtime_report=None)
+        self.report.write_text(json.dumps(report))
+        prepare(self.report,self.plan,self.profile,self.video,self.base/'review')
+        sync=json.loads((self.base/'review/association.json').read_text())['sync']
+        self.assertIsNone(sync['trial_start_ns']);self.assertIsNone(sync['trial_end_ns'])
 
 
 if __name__=='__main__':unittest.main()
