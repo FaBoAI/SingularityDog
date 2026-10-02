@@ -15,6 +15,7 @@ import math
 import statistics
 from pathlib import Path
 import uuid
+import wave
 
 from . import policy_shadow as shadow
 from .policy_observer import _bias
@@ -51,7 +52,7 @@ TOP_KEYS_V3 = TOP_KEYS | CADENCE_KEYS
 V3_EXECUTION_KEYS = {'model_backend', 'voltage_overlap', 'diagnostic_timing_acceptance',
                      'watchdog_review_policy', 'local_characterization', 'post_reply_deadline_policy',
                      'voltage_pipeline', 'native_batch_encoder', 'startup_damping_duration_s',
-                     'startup_cycle_allowance', 'fixed_catch'}
+                     'startup_cycle_allowance', 'fixed_catch', 'human_supported_hold'}
 COMMAND_LOSS_ONLY_SUPPORTED = 'command_loss_only_supported_trial'
 LOCAL_RELATIVE_SUPPORTED = 'bounded_relative_supported_v1'
 LOCAL_NUMERICAL_MARGIN_RAD = 2*25.14/65535
@@ -71,11 +72,30 @@ _FIXED_CATCH_NEW_SOURCE = 'singularitydog_hw/fixed_catch_hold.py'
 _FIXED_CATCH_CHANGED_SOURCES = frozenset(('singularitydog_hw/policy_live_profile.py',
     'singularitydog_hw/policy_output_runtime.py', 'singularitydog_hw/policy_output.py',
     _FIXED_CATCH_NEW_SOURCE))
+HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S = 'human-supported-partial-current-hold-audio-8s-v1'
+HUMAN_SUPPORTED_PARTIAL_SCOPE = 'human_supported_partial_current_hold_only'
+_HUMAN_SUPPORTED_TOKEN = object()
+_HUMAN_SUPPORTED_ARTIFACTS = ('human_supported_preparation', 'human_supported_source_review',
+                            'human_supported_audio_manifest',
+                            'prior_current_hold_profile', 'prior_current_hold_report',
+                            'prior_current_hold_observation')
+_HUMAN_SUPPORTED_NEW_SOURCE = 'singularitydog_hw/human_supported_hold.py'
+_HUMAN_SUPPORTED_CHANGED_SOURCES = frozenset(('singularitydog_hw/policy_live_profile.py',
+    'singularitydog_hw/policy_output_runtime.py', 'singularitydog_hw/policy_output.py',
+    'singularitydog_hw/native_pipeline_benchmark.py',
+    _HUMAN_SUPPORTED_NEW_SOURCE))
 SUPPORTED_POLICY_PROBE = 'supported-policy-probe-v1'
 SUPPORTED_POLICY_PROBE_5S = 'supported-policy-probe-5s-v1'
 SUPPORTED_POLICY_PROBE_2S_RARE_JITTER = 'supported-policy-probe-2s-rare-jitter-v1'
 SUPPORTED_POLICY_PROBE_10S_AFTER_2S = 'supported-policy-probe-10s-after-2s-v1'
+SUPPORTED_POLICY_PROBE_20S_AFTER_10S = 'supported-policy-probe-20s-after-10s-v1'
 SUPPORTED_POLICY_GAIN_STEP_3S = 'supported-policy-gain-step-3s-v1'
+SUPPORTED_POLICY_MIX_STEP_10PCT = 'supported-policy-mix-step-10pct-5s-v1'
+_MIX_STEP_TOKEN = object()
+_MIX_STEP_ARTIFACTS = ('saved_policy_target_sequence', 'policy_mixture_analysis',
+                       'mix_step_clearance', 'mix_step_source_review')
+_MIX_STEP_CHANGED_SOURCES = frozenset(('singularitydog_hw/policy_live_profile.py',
+    'singularitydog_hw/native_pipeline_benchmark.py'))
 SUPPORTED_PRELOAD_5S = 'supported-geometric-preload-5s-v1'
 _PRELOAD_TOKEN = object()
 _PRELOAD_ARTIFACTS = ('preload_source_profile', 'preload_path', 'preload_review')
@@ -203,9 +223,11 @@ def execution_settings(profile):
     timing = profile.get('diagnostic_timing_acceptance')
     _need(timing in (None, OBSERVED_R17_TIMING, MEASURED_R17_STARTUP_TIMING,
                     CURRENT_HOLD_PROBE, CURRENT_HOLD_AFTER_SUPPORTED_10S, FIXED_CATCH_CURRENT_HOLD_30S,
+                    HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S,
                     SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S,
                     SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-                    SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_PRELOAD_5S),
+                    SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+                    SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_PRELOAD_5S, SUPPORTED_POLICY_MIX_STEP_10PCT),
           'Unsupported diagnostic timing acceptance')
     _need(profile.get('watchdog_review_policy') in (None, COMMAND_LOSS_ONLY_SUPPORTED),
           'Unsupported watchdog review policy')
@@ -219,14 +241,34 @@ def execution_settings(profile):
 def current_position_hold_only(profile):
     """The probe omits inference, never input validation or active deadlines."""
     selected = profile.get('diagnostic_timing_acceptance') in (
-        CURRENT_HOLD_PROBE, CURRENT_HOLD_AFTER_SUPPORTED_10S, FIXED_CATCH_CURRENT_HOLD_30S)
+        CURRENT_HOLD_PROBE, CURRENT_HOLD_AFTER_SUPPORTED_10S, FIXED_CATCH_CURRENT_HOLD_30S,
+        HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S)
     if selected:
         _need(profile.get('_current_hold_token') is _CURRENT_HOLD_TOKEN and
               profile['policy_weight'] == 0, 'Current-position hold requires loader proof')
+        if profile.get('diagnostic_timing_acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S:
+            human_supported_partial_current_hold_settings(profile)
     return selected
 
 
+def _mix_step_selected(profile):
+    return profile.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_MIX_STEP_10PCT
+
+
+def _mix_step_binding(profile):
+    payload = {'settings': reviewed_settings_sha256(profile), 'artifacts': profile['artifacts'],
+               'sources': profile['cadence_source_sha256'], 'axes': profile['axes']}
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(',', ':'),
+                                    allow_nan=False).encode()).hexdigest()
+
+
 def _supported_duration_cap(profile):
+    if _mix_step_selected(profile):
+        return 5
+    if profile.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_20S_AFTER_10S:
+        return 20
+    if profile.get('diagnostic_timing_acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S:
+        return 8
     if profile.get('diagnostic_timing_acceptance') == FIXED_CATCH_CURRENT_HOLD_30S:
         return 30
     if profile.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_10S_AFTER_2S:
@@ -271,7 +313,55 @@ def fixed_catch_current_hold_settings(profile):
     return value
 
 
+def _human_supported_settings(profile):
+    selected = profile.get('diagnostic_timing_acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S
+    if not selected:
+        _need('human_supported_hold' not in profile and
+              profile.get('scope') != HUMAN_SUPPORTED_PARTIAL_SCOPE,
+              'Human-supported partial hold requires its dedicated current-hold mode')
+        return None
+    # The supervisor owns the same pure, exact finite contract. Importing it
+    # opens no hardware and grants no execution permission.
+    from .human_supported_hold import human_supported_hold_settings
+    try:
+        human_supported_hold_settings(profile)
+        return dict(profile['human_supported_hold'])
+    except (ValueError, TypeError, KeyError) as error:
+        raise ProfileError('Invalid human-supported partial hold settings: '+str(error)) from error
+
+
+def human_supported_partial_current_hold_settings(profile):
+    """Loader proof for continuous human catch; never fixed-catch/ground permission."""
+    value = _human_supported_settings(profile)
+    if value is not None:
+        _need(profile.get('_human_supported_token') is _HUMAN_SUPPORTED_TOKEN and
+              profile.get('_human_supported_binding') == _human_supported_binding(profile),
+              'Human-supported partial current hold requires validated loader proof')
+    return value
+
+
+def _human_supported_binding(data):
+    payload = dict(settings=reviewed_settings_sha256(data), axes=data['axes'],
+        artifacts=data['artifacts'], boot_id=data['boot_id'],
+        motor_power_epoch=data['motor_power_epoch'], bundle_path=data['bundle_path'],
+        audio=data.get('_human_supported_audio'))
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(',', ':'),
+                                    allow_nan=False).encode()).hexdigest()
+
+
+def human_supported_audio_settings(profile):
+    """Return detached loader-bound spoken clips, without playing any audio."""
+    if _human_supported_settings(profile) is None:
+        return None
+    human_supported_partial_current_hold_settings(profile)
+    _need(type(profile.get('_human_supported_audio')) is dict,
+          'Human-supported audio requires validated loader proof')
+    return copy.deepcopy(profile['_human_supported_audio'])
+
+
 def _approval_decision(profile):
+    if profile.get('diagnostic_timing_acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S:
+        return 'APPROVED_HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD'
     return ('APPROVED_FIXED_CATCH_CURRENT_HOLD' if
             profile.get('diagnostic_timing_acceptance') == FIXED_CATCH_CURRENT_HOLD_30S
             else 'APPROVED_SUPPORTED_CHARACTERIZATION')
@@ -286,7 +376,8 @@ def _startup_cycle_policy(profile):
           profile['scope'] == 'supported_characterization_only' and
           profile.get('diagnostic_timing_acceptance') in (
               SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-              SUPPORTED_POLICY_GAIN_STEP_3S) and
+              SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+              SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_POLICY_MIX_STEP_10PCT) and
           profile.get('model_backend') == SCALAR_BACKEND and profile.get('voltage_overlap') is True and
           profile['hard_cycle_ms'] == 20 and profile['max_sample_age_ms'] <= 20 and
           profile['max_consecutive_20ms_misses'] == 0 and _post_reply_policy(profile) is not None,
@@ -327,8 +418,11 @@ def artifact_names(profile):
         ('local_reference_capture',) if profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED else ()) + (
         _EXTENSION_ARTIFACTS if profile.get('diagnostic_timing_acceptance') in (
             SUPPORTED_POLICY_PROBE_10S_AFTER_2S, CURRENT_HOLD_AFTER_SUPPORTED_10S,
-            SUPPORTED_POLICY_GAIN_STEP_3S) else ()) + (
+            SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+            SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_POLICY_MIX_STEP_10PCT) else ()) + (
+        _MIX_STEP_ARTIFACTS if _mix_step_selected(profile) else ()) + (
         _FIXED_CATCH_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == FIXED_CATCH_CURRENT_HOLD_30S else ()) + (
+        _HUMAN_SUPPORTED_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S else ()) + (
         _PRELOAD_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == SUPPORTED_PRELOAD_5S else ())
 
 
@@ -371,23 +465,34 @@ def local_characterization_settings(profile):
     _need(profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
           profile.get('_local_validation_token') is _LOCAL_VALIDATION_TOKEN,
           'Local characterization requires validated loader proof')
+    mix_step = _mix_step_selected(profile)
+    if mix_step:
+        _need(profile.get('_mix_step_token') is _MIX_STEP_TOKEN and
+              profile.get('_mix_step_binding') == _mix_step_binding(profile),
+              'Ten-percent mix step requires its immutable loader evidence binding')
     return {'mode': LOCAL_RELATIVE_SUPPORTED, 'numerical_position_margin_rad': LOCAL_NUMERICAL_MARGIN_RAD,
-            'absolute_zero_uncertainty_rad': None, 'max_displacement_rad': math.radians(1)}
+            'absolute_zero_uncertainty_rad': None,
+            'max_displacement_rad': math.radians(6 if mix_step else 1)}
 
 
 def _supported_command_loss_acceptance(acceptance, report, data):
     """An explicit bounded experiment choice; never fabricate a USB test result."""
     fixed_catch = _fixed_catch_settings(data)
+    human_supported = _human_supported_settings(data)
     _need(data['schema'] == SCHEMA_V3 and
-          (data['scope'] == 'supported_characterization_only' or fixed_catch is not None),
+          (data['scope'] == 'supported_characterization_only' or fixed_catch is not None or
+           human_supported is not None),
           'Command-loss-only review is limited to supported V3 characterization')
     _need(type(acceptance) is dict and
-          acceptance.get('schema') == ('singularitydog.fixed-catch-hold-operator-acceptance.v1' if fixed_catch
+          acceptance.get('schema') == ('singularitydog.human-supported-hold-operator-acceptance.v1'
+                                      if human_supported else
+                                      'singularitydog.fixed-catch-hold-operator-acceptance.v1' if fixed_catch
                                       else 'singularitydog.supported-trial-operator-acceptance.v1') and
           acceptance.get('scope') == data['scope'] and
           acceptance.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED,
           'Explicit supported command-loss-only operator acceptance required')
-    _review(acceptance.get('review'), 'ACCEPT_COMMAND_LOSS_ONLY_FIXED_CATCH_HOLD' if fixed_catch
+    _review(acceptance.get('review'), 'ACCEPT_COMMAND_LOSS_ONLY_HUMAN_SUPPORTED_PARTIAL_TRIAL'
+            if human_supported else 'ACCEPT_COMMAND_LOSS_ONLY_FIXED_CATCH_HOLD' if fixed_catch
             else 'ACCEPT_COMMAND_LOSS_ONLY_SUPPORTED_TRIAL')
     _text(acceptance.get('user_statement'), 'explicit user instruction to omit USB test')
     if fixed_catch:
@@ -395,8 +500,17 @@ def _supported_command_loss_acceptance(acceptance, report, data):
               acceptance.get('fixed_catch_settings') == fixed_catch and
               acceptance.get('upper_box_must_remain') is False and 'box_must_remain' not in acceptance,
               'Fixed catch operator acceptance must preserve the fixed full-weight catch')
+    if human_supported:
+        _need(acceptance.get('human_supported_hold_settings') == human_supported and
+              acceptance.get('continuous_body_catch_required') is True and
+              acceptance.get('hands_remain_on_body_required') is True and
+              acceptance.get('two_operators_required') is True and
+              acceptance.get('fixed_catch_authorized') is False and
+              not {'box_must_remain', 'fixed_catch_settings', 'upper_box_must_remain'}.intersection(acceptance),
+              'Human-supported acceptance requires continuous two-person catch without fixed-catch permission')
     _need(acceptance.get('usb_disconnect_test_waived') is True and
-          (fixed_catch is not None or acceptance.get('box_must_remain') is True) and
+          (fixed_catch is not None or human_supported is not None or
+           acceptance.get('box_must_remain') is True) and
           acceptance.get('immediate_40v_cutoff_required') is True and
           acceptance.get('ground_progression_allowed') is False,
           'Supported-only acceptance must preserve box/cutoff and prohibit ground progression')
@@ -466,6 +580,8 @@ def cadence_source_paths(profile=None):
     """Keep historical manifests stable; preload explicitly pins its extra runtime."""
     extra = (_PRELOAD_SOURCE_PATH,) if profile is not None and profile.get(
         'diagnostic_timing_acceptance') == SUPPORTED_PRELOAD_5S else ()
+    if profile is not None and profile.get('diagnostic_timing_acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S:
+        extra = (_HUMAN_SUPPORTED_NEW_SOURCE,)
     return CADENCE_SOURCE_PATHS+extra
 
 
@@ -579,7 +695,8 @@ def reviewed_settings_sha256(profile):
 def _structure(data):
     keys = _profile_keys(data)
     _need(set(data) == keys, 'Unsupported profile fields')
-    _need(data['scope'] == 'supported_characterization_only' or
+    human_supported = _human_supported_settings(data)
+    _need(data['scope'] == 'supported_characterization_only' or human_supported is not None or
           _fixed_catch_settings(data) is not None,
           'Only reviewed supported or fixed-catch characterization is supported')
     _need(type(data['approved_for_supported_policy_output']) is bool, 'Explicit approval boolean required')
@@ -607,7 +724,35 @@ def _settings(data):
     # deadlines. This1ms margin never changes either20ms computation criterion.
     _number(data['max_sample_gap_ms'], 'max_sample_gap_ms', 1, hard+1)
     fixed_catch = _fixed_catch_settings(data)
-    duration = _number(data['duration_s'], 'duration_s', .5, 30 if fixed_catch else 10)
+    human_supported = _human_supported_settings(data)
+    if human_supported:
+        _need(data['schema'] == SCHEMA_V3 and
+              data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+              data.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED and
+              data.get('model_backend') == SCALAR_BACKEND and data.get('voltage_overlap') is True and
+              not {'startup_damping_duration_s', 'startup_cycle_allowance',
+                   'post_reply_deadline_policy', 'fixed_catch'}.intersection(data),
+              'Human-supported partial hold requires separate local V3 proof and strict live deadlines')
+    mix_step = _mix_step_selected(data)
+    if mix_step:
+        _need(data['schema'] == SCHEMA_V3 and data['scope'] == 'supported_characterization_only' and
+              data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+              data.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED and
+              data.get('model_backend') == SCALAR_BACKEND and data.get('voltage_overlap') is True and
+              data['policy_weight'] == .1 and
+              data['duration_s'] == 5. and data['startup_duration_s'] == 1. and
+              data['policy_ramp_s'] == 2. and data['stop_duration_s'] == .4 and
+              hard == 20 and data['max_sample_age_ms'] == 20 and data['max_sample_gap_ms'] == 21 and
+              data['max_consecutive_20ms_misses'] == 0 and
+              not {'startup_damping_duration_s', 'fixed_catch', 'human_supported_hold'}.intersection(data),
+              'Ten-percent mix step requires its exact five-second boxed contract and hard20ms')
+    extension_20s = data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_20S_AFTER_10S
+    duration = _number(data['duration_s'], 'duration_s', .5, 30 if fixed_catch else 20 if extension_20s else 10)
+    if extension_20s:
+        _need(data['schema'] == SCHEMA_V3 and data['scope'] == 'supported_characterization_only' and
+              data.get('model_backend') == SCALAR_BACKEND and data.get('voltage_overlap') is True and
+              duration == 20.,
+              'Twenty-second extension requires its exact supported V3 scalar/overlap mode and duration')
     if data.get('diagnostic_timing_acceptance') in (CURRENT_HOLD_PROBE, CURRENT_HOLD_AFTER_SUPPORTED_10S):
         _need(data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
               data['policy_weight'] == 0 and duration <= 3 and
@@ -642,12 +787,14 @@ def _settings(data):
     policy_probe_5s = data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_5S
     rare_jitter_probe = data.get('diagnostic_timing_acceptance') in (
         SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
+        SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
         SUPPORTED_POLICY_GAIN_STEP_3S)
     if data.get('diagnostic_timing_acceptance') in (
             SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S, SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
-            SUPPORTED_POLICY_PROBE_10S_AFTER_2S):
+            SUPPORTED_POLICY_PROBE_10S_AFTER_2S, SUPPORTED_POLICY_PROBE_20S_AFTER_10S):
         _need(data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
               0 < data['policy_weight'] <= .005 and duration <= (
+                  20 if extension_20s else
                   10 if data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_10S_AFTER_2S
                   else 5 if policy_probe_5s else 2) and
               data['startup_duration_s'] >= .4 and hard == 20 and
@@ -695,7 +842,7 @@ def _settings(data):
         _need(data['schema'] == SCHEMA_V3 and
               data.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED,
               'Local characterization requires explicit supported V3 review')
-        _need(duration <= _supported_duration_cap(data) and data['policy_weight'] <= .01 and hard == 20 and
+        _need(duration <= _supported_duration_cap(data) and data['policy_weight'] <= (.1 if mix_step else .01) and hard == 20 and
               data['max_consecutive_20ms_misses'] == 0,
               'Local characterization requires bounded duration, <=1percent mix and hard20ms')
 
@@ -744,19 +891,21 @@ def _axes(data, calibration):
                 _need(data['startup_duration_s'] >= 1.,
                       'Higher-gain current-position hold requires at least1s gain ramp')
             gain_step = data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_GAIN_STEP_3S
+            mix_step = _mix_step_selected(data)
             for key, cap in {'kp':6. if preload else 12. if current_position_hold or gain_step else 3., 'kd':.15,
-                    'max_command_velocity_rad_s':math.radians(1),
-                    'max_command_acceleration_rad_s2':math.radians(5),
-                    'max_tracking_error_rad':math.radians(2),
+                    'max_command_velocity_rad_s':.12 if mix_step else math.radians(1),
+                    'max_command_acceleration_rad_s2':.5 if mix_step else math.radians(5),
+                    'max_tracking_error_rad':math.radians(3 if mix_step else 2),
                     # Retain the already bounded five-second probe's monitor
                     # for its shorter rare-jitter admission; gains/motion stay fixed.
                     'max_measured_velocity_rad_s':(.35 if data.get('diagnostic_timing_acceptance') in
                         (SUPPORTED_POLICY_PROBE_5S, SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
                          SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-                         SUPPORTED_POLICY_GAIN_STEP_3S) else .25),
+                         SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+                         SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_POLICY_MIX_STEP_10PCT) else .25),
                     'max_measured_torque_nm':1.,
-                    'max_estimated_pd_torque_nm':.2 if preload else .5 if current_position_hold or gain_step else .1,
-                    'max_temperature_c':45., 'max_displacement_from_start_rad':math.radians(1)}.items():
+                    'max_estimated_pd_torque_nm':.2 if preload else .25 if mix_step else .5 if current_position_hold or gain_step else .1,
+                    'max_temperature_c':45., 'max_displacement_from_start_rad':math.radians(6 if mix_step else 1)}.items():
                 _need(row[key] <= cap, 'Local characterization limit exceeded: '+key+' ID'+mid)
         _need(row['max_estimated_pd_torque_nm'] <= row['max_measured_torque_nm'],
               'Estimated PD budget must not exceed hard measured torque monitor')
@@ -822,25 +971,31 @@ def _timing(report, data):
     if model_key == 'scalar_step_manifest':
         _need(report.get('model_source', {}).get('baseline_provenance', {}).get('manifest_sha256') ==
               data['artifacts']['model_manifest']['sha256'], 'Scalar timing baseline differs')
+    mix_step = _mix_step_selected(data)
     observed_r17 = execution['diagnostic_timing_acceptance'] == OBSERVED_R17_TIMING
     hold_after_supported = execution['diagnostic_timing_acceptance'] == CURRENT_HOLD_AFTER_SUPPORTED_10S
     fixed_catch_hold = execution['diagnostic_timing_acceptance'] == FIXED_CATCH_CURRENT_HOLD_30S
+    human_supported_hold = execution['diagnostic_timing_acceptance'] == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S
     hold_probe = execution['diagnostic_timing_acceptance'] in (
-        CURRENT_HOLD_PROBE, CURRENT_HOLD_AFTER_SUPPORTED_10S, FIXED_CATCH_CURRENT_HOLD_30S)
+        CURRENT_HOLD_PROBE, CURRENT_HOLD_AFTER_SUPPORTED_10S, FIXED_CATCH_CURRENT_HOLD_30S,
+        HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S)
     rare_jitter_probe = execution['diagnostic_timing_acceptance'] in (
         SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
+        SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
         SUPPORTED_POLICY_GAIN_STEP_3S, CURRENT_HOLD_AFTER_SUPPORTED_10S,
-        FIXED_CATCH_CURRENT_HOLD_30S)
+        FIXED_CATCH_CURRENT_HOLD_30S, SUPPORTED_POLICY_MIX_STEP_10PCT)
     policy_probe = execution['diagnostic_timing_acceptance'] in (
         SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S, SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
-        SUPPORTED_POLICY_PROBE_10S_AFTER_2S, SUPPORTED_POLICY_GAIN_STEP_3S)
+        SUPPORTED_POLICY_PROBE_10S_AFTER_2S, SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+        SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_POLICY_MIX_STEP_10PCT)
     bounded_probe = hold_probe or policy_probe
     measured_r17 = execution['diagnostic_timing_acceptance'] in (
         MEASURED_R17_STARTUP_TIMING, CURRENT_HOLD_PROBE, CURRENT_HOLD_AFTER_SUPPORTED_10S,
-        FIXED_CATCH_CURRENT_HOLD_30S,
+        FIXED_CATCH_CURRENT_HOLD_30S, HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S,
         SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S,
         SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-        SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_PRELOAD_5S)
+        SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+        SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_PRELOAD_5S, SUPPORTED_POLICY_MIX_STEP_10PCT)
     accepted_r17 = observed_r17 or measured_r17
     if observed_r17:
         _need(data['artifacts']['pipeline_diagnostic']['sha256'] in OBSERVED_R17_REPORT_SHA256,
@@ -865,7 +1020,7 @@ def _timing(report, data):
               type(schedule.get('epoch_ns')) is int and schedule['epoch_ns'] > 0 and
               type(schedule.get('period_ns')) is int and schedule['period_ns'] == 20_000_000,
               'Fresh R17 requires a bound 1+500 disabled absolute-epoch diagnostic')
-    if execution['diagnostic_timing_acceptance'] == SUPPORTED_PRELOAD_5S:
+    if execution['diagnostic_timing_acceptance'] in (SUPPORTED_PRELOAD_5S, HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S, SUPPORTED_POLICY_MIX_STEP_10PCT):
         _need(report.get('motor_power_epoch') == data['motor_power_epoch'] and
               report.get('cadence_source_sha256') == data['cadence_source_sha256'],
               'Preload diagnostic must bind current power epoch and exact execution sources')
@@ -899,6 +1054,10 @@ def _timing(report, data):
               'Diagnostic scope or real inference timestamps invalid')
         _need(previous_end is None or release >= previous_end, 'Overlapping diagnostic cycles')
         elapsed = (end-release)/1e6
+        if human_supported_hold:
+            _need(elapsed <= 20 and end-oldest <= 20_000_000 and
+                  replied-release <= 20_000_000,
+                  'Human-supported diagnostic must meet strict whole-cycle/reply/age20ms including startup')
         maximum = max(maximum, elapsed)
         startup = accepted_r17 and index == 0
         if accepted_r17:
@@ -937,7 +1096,8 @@ def _timing(report, data):
               'Diagnostic scheduling gap exceeds reviewed budget')
         late_intervals += int(interval is not None and interval > 21)
         missed = not startup and (elapsed > 20 or (sent-oldest)/1e6 > 20 or
-            bounded_probe and (end > scheduled+20_000_000 or replied-oldest > 20_000_000))
+            bounded_probe and not human_supported_hold and
+            (end > scheduled+20_000_000 or replied-oldest > 20_000_000))
         if accepted_r17 and not startup and not bounded_probe:
             _need(elapsed <= 20 and (replied-oldest)/1e6 <= 20,
                   'Observed cadence acceptance does not waive steady20ms processing/reply limits')
@@ -958,12 +1118,16 @@ def _timing(report, data):
         else:
             _need(longest <= data['max_consecutive_20ms_misses'], 'Diagnostic exceeds20ms consecutive-miss budget')
         previous, previous_end = release, end
-    return {'kind': ('supported_preload_5s_diagnostic_admission_only'
+    return {'kind': ('supported_policy_mix_step_10pct_5s_admission_only' if mix_step else
+                     'supported_preload_5s_diagnostic_admission_only'
                      if execution['diagnostic_timing_acceptance'] == SUPPORTED_PRELOAD_5S else
+                     'human_supported_partial_current_hold_admission_only' if human_supported_hold else
                      'fixed_catch_current_hold_30s_admission_only' if fixed_catch_hold else
                      'current_hold_after_supported_10s_admission_only' if hold_after_supported else
                      'supported_policy_10s_after_2s_admission_only'
                      if execution['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_10S_AFTER_2S else
+                     'supported_policy_20s_after_10s_admission_only'
+                     if execution['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_20S_AFTER_10S else
                      'supported_policy_gain_step_3s_admission_only'
                      if execution['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_GAIN_STEP_3S else
                      'supported_policy_2s_rare_jitter_admission_only' if rare_jitter_probe else
@@ -1172,9 +1336,10 @@ def _voltage_fast_pipeline_trace(report, data, measurements):
 def _local_reference(review, capture, data):
     """Bind a local relative envelope to a current, non-driving twelve-axis read."""
     local = review.get('local_characterization', {})
+    clearance = math.radians(7 if _mix_step_selected(data) else 3)
     _need(type(local) is dict and local.get('schema') == 'singularitydog.local-relative-review.v1' and
           local.get('operator_confirmed_local_clearance') is True and
-          local.get('local_clearance_rad') == math.radians(3) and
+          local.get('local_clearance_rad') == clearance and
           'absolute_zero_uncertainty_rad' in local and local['absolute_zero_uncertainty_rad'] is None and
           local.get('absolute_calibration_not_certified') is True and
           local.get('full_dynamic_feedback_not_certified') is True,
@@ -1200,7 +1365,7 @@ def _local_reference(review, capture, data):
         _need(type(turns[mid]) is int and -20 <= turns[mid] <= 20, 'Invalid local branch: ID'+mid)
         q = a['sign']*(statistics.median(values)-turns[mid]*2*math.pi)+a['offset_rad']
         index = shadow.CAN_ORDER.index(int(mid))
-        lower, upper = max(shadow.LOWER[index], q-math.radians(3)), min(shadow.UPPER[index], q+math.radians(3))
+        lower, upper = max(shadow.LOWER[index], q-clearance), min(shadow.UPPER[index], q+clearance)
         _need(abs(a['physical_lower_rad']-lower) <= 1e-12 and
               abs(a['physical_upper_rad']-upper) <= 1e-12 and
               lower+LOCAL_NUMERICAL_MARGIN_RAD < q < upper-LOCAL_NUMERICAL_MARGIN_RAD,
@@ -1410,6 +1575,462 @@ def _supported_extension_evidence(documents, data):
           acceptance.get('prior_observation_sha256') == data['artifacts']['prior_supported_observation']['sha256'],
           'Explicit hash-bound supported extension review required')
     _review(acceptance.get('review'), 'ACCEPT_10S_SUPPORTED_AFTER_2S')
+
+
+def _supported_20s_extension_evidence(documents, data, base):
+    """Extend only a completed same-pose 2s -> 10s learned-output sequence.
+
+    Historical profiles keep their original source pins. Only this admission
+    loader may differ; neither numerical limits nor the physical reference may
+    change. A supported run remains evidence of bounded output, not load bearing
+    or a learned rise from the box.
+    """
+    prior = documents['prior_supported_profile']
+    report = documents['prior_supported_report']
+    observed = documents['prior_supported_observation']
+    _structure(prior)
+    _need(data['duration_s'] == 20. and prior['schema'] == SCHEMA_V3 and
+          prior['scope'] == data['scope'] == 'supported_characterization_only' and
+          prior['approved_for_supported_policy_output'] is True and prior['blockers'] == [] and
+          prior.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_10S_AFTER_2S and
+          prior['duration_s'] == 10. and prior['policy_weight'] > 0,
+          'Twenty-second extension requires an approved ten-second box-supported learned predecessor')
+    _review(prior['review'], 'APPROVED_SUPPORTED_CHARACTERIZATION')
+
+    def contract(value):
+        omitted = {'artifacts', 'review', 'blockers', 'approved_for_supported_policy_output',
+                   'assembly_id', 'bundle_path', 'duration_s', 'diagnostic_timing_acceptance',
+                   'cadence_source_sha256'}
+        result = {k:v for k,v in value.items() if k not in omitted}
+        _need(type(value['cadence_source_sha256']) is dict, 'Twenty-second source pins must be a mapping')
+        result['sources'] = {k:v for k,v in value['cadence_source_sha256'].items()
+                            if k != 'singularitydog_hw/policy_live_profile.py'}
+        result['artifacts'] = {k:v['sha256'] for k,v in value['artifacts'].items()
+            if k not in (*_EXTENSION_ARTIFACTS, 'hardware_review', 'operator_acceptance')}
+        return result
+
+    _need(contract(prior) == contract(data),
+          'Twenty-second extension changes predecessor pose, execution, model, calibration, UID, boot, power or limits')
+    # Verify the old ten-second review's hash graph without recursively loading
+    # its historical loader bytes against the current frozen kit.
+    _, prior_ref = _artifact(data['artifacts']['prior_supported_profile'], base)
+    prior_base = Path(prior_ref['path']).parent
+    nested = {key:_artifact(prior['artifacts'][key], prior_base)[0]
+              for key in artifact_names(prior)}
+    _supported_extension_evidence(nested, prior)
+    earlier = nested['prior_supported_profile']
+    _need(earlier['axes'] == prior['axes'] and
+          earlier['start_pose_bounds'] == prior['start_pose_bounds'] and
+          earlier['artifacts']['local_reference_capture']['sha256'] ==
+              prior['artifacts']['local_reference_capture']['sha256'],
+          'Twenty-second extension requires the same physical pose throughout two/ten/twenty-second trials')
+    checked_prior = copy.deepcopy(prior)
+    checked_prior['cadence_source_sha256']['singularitydog_hw/policy_live_profile.py'] = (
+        data['cadence_source_sha256']['singularitydog_hw/policy_live_profile.py'])
+    _settings(checked_prior)
+    _axes(checked_prior, nested['calibration'])
+    _supported_command_loss_acceptance(nested['operator_acceptance'], nested['command_loss_report'], prior)
+    _hardware(nested['hardware_review'], prior,
+              Path(_artifact(prior['artifacts']['hardware_review'], prior_base)[1]['path']).parent,
+              command_loss_report=nested['command_loss_report'],
+              local_reference_capture=nested['local_reference_capture'])
+    _timing(nested['pipeline_diagnostic'], prior)
+
+    profile_sha = data['artifacts']['prior_supported_profile']['sha256']
+    report_sha = data['artifacts']['prior_supported_report']['sha256']
+    _need(type(report) is dict and report.get('profile_sha256') == profile_sha and
+          report.get('boot_id') == data['boot_id'] and
+          report.get('motor_power_epoch') == data['motor_power_epoch'] and
+          report.get('cadence_source_sha256') == prior['cadence_source_sha256'] and
+          report.get('status') == 'COMPLETE_SUPPORTED_OUTPUT' and report.get('errors') == [] and
+          report.get('scope') == data['scope'] and report.get('normal_ramp_completed') is True and
+          all(report.get(k) is True for k in ('motor_enable_sent', 'motion_gain_sent',
+              'command_output_sent', 'learned_targets_sent', 'stop_confirmed')) and
+          report.get('current_position_hold_only') is False and report.get('cyclic_inference_skipped') is False and
+          report.get('post_reply_deadline_rejections') == [] and
+          report.get('trial_displacement_origin') == 'final_pre_enable_feedback',
+          'Twenty-second extension requires successful same-session learned output and normal STOP')
+    native, provenance = report.get('native_batch_encoder', {}), report.get('model_provenance', {})
+    pacing, stops = report.get('transport_settings'), report.get('stop_reports')
+    _need(all(type(value) is dict for value in (native, provenance, pacing, stops)) and
+          type(provenance.get('baseline_provenance')) is dict,
+          'Twenty-second predecessor model/pacing/STOP mappings missing')
+    _need(type(prior.get('native_batch_encoder')) is dict and native.get('enabled') is True and
+          native.get('binary_sha256') == prior['native_batch_encoder']['sha256'] and
+          report.get('execution_settings') == execution_settings(prior) and
+          provenance.get('manifest_sha256') == data['artifacts']['scalar_step_manifest']['sha256'] and
+          provenance.get('baseline_provenance', {}).get('manifest_sha256') ==
+              data['artifacts']['model_manifest']['sha256'] and
+          pacing.get('request_gap_us') == data['request_gap_us'] and
+          pacing.get('request_window') == data['request_window'],
+          'Twenty-second predecessor encoder/model/backend/pacing differs')
+    for scope, ids in (('front', list(range(1,7))), ('rear', list(range(7,13)))):
+        stop = stops.get(scope, {})
+        _need(type(stop) is dict and stop.get('complete') is True and stop.get('confirmed_ids') == ids and
+              stop.get('unconfirmed_ids') == [] and stop.get('ambiguous_ids') == [] and
+              stop.get('fault_by_id') == {str(mid):0 for mid in ids},
+              'Twenty-second predecessor STOP evidence incomplete or faulted')
+    rows = report.get('cycles')
+    _need(type(rows) is list and 475 <= len(rows) <= 502 and
+          type(report.get('actual_model_calls')) is int and 400 <= report['actual_model_calls'] <= len(rows),
+          'Twenty-second extension requires completed ten-second learned cycles')
+    post_reply = _post_reply_policy(prior)
+    _need(post_reply is not None and report.get('post_reply_deadline_policy') == post_reply,
+          'Twenty-second predecessor post-reply policy differs')
+    startup_enabled = _startup_cycle_policy(prior) is not None
+    _need(report.get('startup_20ms_allowance_enabled', False) is startup_enabled,
+          'Twenty-second predecessor startup policy differs')
+    origin = report.get('trial_origin_model_rad_by_id')
+    _need(type(origin) is dict and set(origin) == set(IDS),
+          'Twenty-second predecessor requires twelve final pre-enable displacement origins')
+    for mid, value in origin.items():
+        axis = prior['axes'][mid]
+        _number(value, 'predecessor origin ID'+mid, axis['physical_lower_rad'], axis['physical_upper_rad'])
+    misses, startup_misses, previous_end, active_seen = [], 0, None, False
+    for index, row in enumerate(rows):
+        _need(type(row) is dict and row.get('index') == index, 'Twenty-second predecessor cycle sequence invalid')
+        stamps = [row.get(k) for k in ('begin_ns', 'output_reply_end_ns', 'end_ns')]
+        _need(all(type(v) is int and v > 0 for v in stamps) and stamps == sorted(stamps),
+              'Twenty-second predecessor timestamps invalid')
+        begin, replied, end = stamps
+        missed = end-begin > 20_000_000
+        startup_used = index == 0 and startup_enabled and missed
+        steady_missed = missed and not startup_used
+        if startup_used: startup_misses += 1
+        if steady_missed: misses.append(index)
+        rolling_misses = sum(i > index-100 for i in misses)
+        timing = row.get('post_reply_deadline', {})
+        _need(type(timing) is dict and end-begin <= 20_000_000+int(post_reply['max_lateness_ms']*1e6) and
+              replied-begin <= 20_000_000 and (previous_end is None or begin >= previous_end) and
+              (index == 0 or begin-rows[index-1]['begin_ns'] <= 21_000_000) and
+              rolling_misses <= 1 and timing.get('accepted') is True and timing.get('checked_ns') == end and
+              timing.get('allowance_used') is steady_missed and timing.get('startup_allowance_used') is startup_used and
+              timing.get('rolling_misses') == rolling_misses and timing.get('consecutive_misses') == int(steady_missed) and
+              row.get('deadline20ms_missed') is missed and row.get('steady_deadline20ms_missed') is steady_missed and
+              row.get('startup_20ms_allowance_used') is startup_used,
+              'Twenty-second predecessor exceeds its unchanged live timing policy')
+        previous_end = end
+        _number(row.get('oldest_input_to_final_host_write_ms'), 'predecessor input age', 0, prior['max_sample_age_ms'])
+        _need(row.get('phase') in ('starting', 'active', 'stopping', 'stopped'),
+              'Twenty-second predecessor phase invalid')
+        mix = _number(row.get('effective_policy_weight'), 'predecessor policy mixture', 0, prior['policy_weight'])
+        command, feedback = row.get('command', {}), row.get('feedback', {})
+        _need(type(command) is dict and type(feedback) is dict and command.get('phase') == row['phase'],
+              'Twenty-second predecessor command/feedback record missing')
+        required = (('command', command, ('q_model_rad', 'kp', 'kd', 'velocity_reference_rad_s',
+            'feedforward_torque_nm', 'command_velocity_rad_s', 'tracking_error_rad', 'estimated_pd_torque_nm')),
+            ('feedback', feedback, ('q_model_rad', 'velocity_rad_s', 'torque_nm', 'temperature_c')))
+        for label, vectors, names in required:
+            _need(all(type(vectors.get(name)) is list and len(vectors[name]) == 12 for name in names),
+                  'Twenty-second predecessor twelve-axis '+label+' vectors incomplete')
+        for order, mid in enumerate(map(str, shadow.CAN_ORDER)):
+            axis = prior['axes'][mid]
+            lo, hi = axis['physical_lower_rad'], axis['physical_upper_rad']
+            for vectors in (command, feedback):
+                q = _number(vectors['q_model_rad'][order], 'predecessor position ID'+mid, lo, hi)
+                _need(abs(q-origin[mid]) <= axis['max_displacement_from_start_rad'],
+                      'Twenty-second predecessor exceeds displacement ID'+mid)
+            for key in ('kp', 'kd'):
+                _number(command[key][order], 'predecessor '+key, 0, axis[key])
+            for key in ('velocity_reference_rad_s', 'feedforward_torque_nm'):
+                _need(type(command[key][order]) in (int, float) and command[key][order] == 0.,
+                      'Twenty-second predecessor has unreviewed velocity/torque feedforward')
+            for key, limit in (('command_velocity_rad_s', 'max_command_velocity_rad_s'),
+                               ('tracking_error_rad', 'max_tracking_error_rad'),
+                               ('estimated_pd_torque_nm', 'max_estimated_pd_torque_nm')):
+                _number(command[key][order], 'predecessor '+key, -axis[limit], axis[limit])
+            for key, limit in (('velocity_rad_s', 'max_measured_velocity_rad_s'), ('torque_nm', 'max_measured_torque_nm')):
+                _number(feedback[key][order], 'predecessor '+key, -axis[limit], axis[limit])
+            _number(feedback['temperature_c'][order], 'predecessor temperature', 0, axis['max_temperature_c'])
+        if row['phase'] == 'active' and mix == prior['policy_weight']:
+            active_seen = active_seen or (command['kp'] == [prior['axes'][str(mid)]['kp'] for mid in shadow.CAN_ORDER] and
+                                         command['kd'] == [prior['axes'][str(mid)]['kd'] for mid in shadow.CAN_ORDER])
+    for key, count in (('deadline20ms_misses', len(misses)+startup_misses),
+                       ('steady_deadline20ms_misses', len(misses)),
+                       ('post_reply_deadline_allowance_uses', len(misses)),
+                       ('startup_20ms_allowance_uses', startup_misses)):
+        _need(type(report.get(key)) is int and report[key] == count,
+              'Twenty-second predecessor deadline counts differ')
+    _need(rows[0]['phase'] == 'starting' and rows[-1]['phase'] == 'stopped' and
+          9_500_000_000 <= rows[-1]['end_ns']-rows[0]['begin_ns'] <= 10_040_000_000 and active_seen and
+          all(value == 0 for key in ('kp', 'kd') for value in rows[-1]['command'][key]),
+          'Twenty-second predecessor did not complete learned gain ramp and stop')
+    _need(type(observed) is dict and observed.get('report_sha256') == report_sha and
+          observed.get('observed_by') == 'operator' and observed.get('audio_heard') is True and
+          observed.get('abnormal_noise_vibration_slip_sinking_contact') is False and
+          observed.get('box_support_maintained') is True and
+          observed.get('autonomous_standing_or_walking_observed') is False,
+          'Twenty-second extension requires a matching real operator observation of the ten-second supported run')
+    _text(observed.get('user_statement'), 'ten-second physical observation')
+    acceptance = documents['hardware_review'].get('supported_extension_acceptance', {})
+    _need(type(acceptance) is dict and acceptance.get('mode') == SUPPORTED_POLICY_PROBE_20S_AFTER_10S and
+          acceptance.get('scope') == data['scope'] and acceptance.get('only_duration_extended') is True and
+          acceptance.get('live_limits_unchanged') is True and acceptance.get('support_must_remain') is True and
+          acceptance.get('load_bearing_not_established') is True and acceptance.get('walking_allowed') is False and
+          acceptance.get('prior_profile_sha256') == profile_sha and acceptance.get('prior_report_sha256') == report_sha and
+          acceptance.get('prior_observation_sha256') == data['artifacts']['prior_supported_observation']['sha256'],
+          'Explicit hash-bound twenty-second supported-only extension review required')
+    _review(acceptance.get('review'), 'ACCEPT_20S_SUPPORTED_AFTER_10S')
+
+
+def _supported_mix_step_evidence(documents, data, base):
+    """A reviewed 10% target experiment, never standing or support-transfer proof.
+
+    Validate original ten-second evidence without rewriting its source pins. The
+    model replay uses that historical feedback, not feedback produced by 10%.
+    Recompute all target excursions rather than trusting analysis summary flags.
+    This screen is anchored to the recorded pre-enable trial origin. Live blending
+    uses its fresh zero-gain sample and retains the separate displacement guard.
+    """
+    prior = documents['prior_supported_profile']
+    report = documents['prior_supported_report']
+    observed = documents['prior_supported_observation']
+    _structure(prior)
+    _need(prior['approved_for_supported_policy_output'] is True and prior['blockers'] == [] and
+          prior['scope'] == data['scope'] == 'supported_characterization_only' and
+          prior.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_10S_AFTER_2S and
+          prior['duration_s'] == 10. and prior['policy_weight'] == .005,
+          'Ten-percent mix step requires the approved boxed 0.5-percent ten-second predecessor')
+    _review(prior['review'], 'APPROVED_SUPPORTED_CHARACTERIZATION')
+    for key in ('schema', 'boot_id', 'motor_power_epoch', 'command', 'h_hypothesis',
+                'start_pose_bounds', 'model_backend', 'voltage_overlap', 'voltage_pipeline',
+                'native_batch_encoder', 'request_gap_us', 'request_window', 'telemetry_cadence',
+                'period_ms', 'hard_cycle_ms', 'max_sample_age_ms', 'max_sample_gap_ms',
+                'max_consecutive_20ms_misses', 'post_reply_deadline_policy', 'startup_cycle_allowance',
+                'voltage_min_v', 'voltage_max_v',
+                'imu_tilt_limit_rad', 'imu_gyro_limit_rad_s', 'imu_accel_norm_min_m_s2',
+                'imu_accel_norm_max_m_s2', 'watchdog_review_policy', 'local_characterization'):
+        _need(prior.get(key) == data.get(key), 'Mix step changes protected predecessor setting: '+key)
+    for name in ('calibration', 'mount', 'bias', 'model_manifest', 'scalar_step_manifest',
+                 'local_reference_capture'):
+        _need(data['artifacts'][name]['sha256'] == prior['artifacts'][name]['sha256'],
+              'Mix step changes pinned model, calibration or measured reference: '+name)
+    for mid in IDS:
+        for key in ('uid', 'sign', 'offset_rad', 'uncertainty_rad', 'kp', 'kd',
+                    'max_measured_velocity_rad_s', 'max_measured_torque_nm', 'max_temperature_c'):
+            _need(data['axes'][mid][key] == prior['axes'][mid][key],
+                  'Mix step changes protected axis setting: ID'+mid+' '+key)
+        _need(all(documents['hardware_review']['type2_dynamic'][mid].get(k) is False for k in
+                  ('output_shaft_position_verified', 'velocity_scale_and_sign_verified',
+                   'torque_interpretation_verified')),
+              'Mix step must preserve unverified dynamic feedback rather than certify it')
+    # The prior profile has a separate original 2s->10s graph. Verify it in place.
+    _, prior_ref = _artifact(data['artifacts']['prior_supported_profile'], base)
+    prior_base = Path(prior_ref['path']).parent
+    nested = {key: _artifact(prior['artifacts'][key], prior_base)[0] for key in artifact_names(prior)}
+    _supported_extension_evidence(nested, prior)
+    sources = documents['mix_step_source_review']
+    old, new = prior['cadence_source_sha256'], data['cadence_source_sha256']
+    _need(set(old) == set(new), 'Mix step source set differs from the prior supported runtime')
+    changed = {key: {'before': old[key], 'after': new[key]} for key in old if old[key] != new[key]}
+    _need(set(changed) <= _MIX_STEP_CHANGED_SOURCES and
+          type(sources) is dict and sources.get('schema') == 'singularitydog.supported-mix-step-source-review.v1' and
+          sources.get('prior_source_sha256') == old and sources.get('new_source_sha256') == new and
+          sources.get('changed_sources') == changed,
+          'Mix step requires the exact narrow loader/diagnostic source delta')
+    _review(sources.get('review'), 'ACCEPT_SUPPORTED_MIX_STEP_SOURCE_DELTA')
+    checked_prior = copy.deepcopy(prior)
+    checked_prior['cadence_source_sha256'] = copy.deepcopy(new)
+    _settings(checked_prior)
+    _axes(checked_prior, nested['calibration'])
+    _supported_command_loss_acceptance(nested['operator_acceptance'], nested['command_loss_report'], prior)
+    _hardware(nested['hardware_review'], prior,
+              Path(_artifact(prior['artifacts']['hardware_review'], prior_base)[1]['path']).parent,
+              command_loss_report=nested['command_loss_report'],
+              local_reference_capture=nested['local_reference_capture'])
+    _timing(nested['pipeline_diagnostic'], prior)
+    profile_sha = data['artifacts']['prior_supported_profile']['sha256']
+    report_sha = data['artifacts']['prior_supported_report']['sha256']
+    _need(report.get('profile_sha256') == profile_sha and
+          report.get('boot_id') == data['boot_id'] and report.get('motor_power_epoch') == data['motor_power_epoch'] and
+          report.get('cadence_source_sha256') == old and report.get('scope') == data['scope'] and
+          report.get('status') == 'COMPLETE_SUPPORTED_OUTPUT' and report.get('errors') == [] and
+          all(report.get(k) is True for k in ('motor_enable_sent', 'motion_gain_sent', 'command_output_sent',
+              'learned_targets_sent', 'normal_ramp_completed', 'stop_confirmed')) and
+          report.get('current_position_hold_only') is False and report.get('cyclic_inference_skipped') is False and
+          all(type(report.get(k)) is int and report[k] == 0 for k in ('deadline20ms_misses',
+              'steady_deadline20ms_misses', 'post_reply_deadline_allowance_uses', 'startup_20ms_allowance_uses')) and
+          report.get('post_reply_deadline_rejections') == [] and
+          report.get('trial_displacement_origin') == 'final_pre_enable_feedback' and
+          report.get('execution_settings') == execution_settings(prior),
+          'Mix step requires a complete original ten-second learned run without timing allowances')
+    _need(report.get('native_batch_encoder', {}).get('binary_sha256') == prior['native_batch_encoder']['sha256'] and
+          report.get('transport_settings', {}).get('request_gap_us') == prior['request_gap_us'] and
+          report.get('transport_settings', {}).get('request_window') == prior['request_window'] and
+          report.get('model_provenance', {}).get('manifest_sha256') == prior['artifacts']['scalar_step_manifest']['sha256'] and
+          report.get('model_provenance', {}).get('baseline_provenance', {}).get('manifest_sha256') ==
+              prior['artifacts']['model_manifest']['sha256'], 'Mix step predecessor model or transport differs')
+    for bus, ids in (('front', list(range(1, 7))), ('rear', list(range(7, 13)))):
+        stop = report.get('stop_reports', {}).get(bus, {})
+        _need(stop.get('complete') is True and stop.get('confirmed_ids') == ids and
+              stop.get('unconfirmed_ids') == [] and stop.get('ambiguous_ids') == [] and
+              stop.get('fault_by_id') == {str(mid): 0 for mid in ids},
+              'Mix step predecessor STOP is incomplete or faulted')
+    rows, count = report.get('cycles'), report.get('actual_model_calls')
+    _need(type(rows) is list and 475 <= len(rows) <= 502 and type(count) is int and
+          400 <= count < len(rows), 'Mix step predecessor must contain the complete ten-second model-call sequence')
+    origin = report.get('trial_origin_model_rad_by_id')
+    _need(type(origin) is dict and set(origin) == set(IDS), 'Mix step requires twelve original displacement origins')
+    previous_end = None
+    active = False
+    for index, row in enumerate(rows):
+        _need(type(row) is dict and row.get('index') == index, 'Mix step predecessor cycle sequence invalid')
+        begin, replied, end = (row.get(k) for k in ('begin_ns', 'output_reply_end_ns', 'end_ns'))
+        _need(all(type(v) is int and v > 0 for v in (begin, replied, end)) and
+              begin <= replied <= end <= begin+20_000_000 and
+              (previous_end is None or begin >= previous_end) and
+              (index == 0 or begin-rows[index-1]['begin_ns'] <= 21_000_000),
+              'Mix step predecessor timing is noncausal or exceeds live deadlines')
+        previous_end = end
+        _number(row.get('oldest_input_to_final_host_write_ms'), 'prior sample age', 0, 20)
+        timing = row.get('post_reply_deadline', {})
+        _need(timing.get('accepted') is True and timing.get('checked_ns') == end and
+              timing.get('allowance_used') is False and timing.get('startup_allowance_used') is False and
+              row.get('deadline20ms_missed') is False and row.get('steady_deadline20ms_missed') is False and
+              row.get('startup_20ms_allowance_used') is False and
+              row.get('phase') in (('starting', 'active') if index < count else ('stopping', 'stopped')),
+              'Mix step predecessor model-call prefix or deadline proof differs')
+        command, feedback = row.get('command', {}), row.get('feedback', {})
+        _need(command.get('phase') == row['phase'], 'Mix step predecessor command phase differs')
+        for values, names in ((command, ('q_model_rad', 'kp', 'kd', 'command_velocity_rad_s',
+              'tracking_error_rad', 'estimated_pd_torque_nm', 'velocity_reference_rad_s', 'feedforward_torque_nm')),
+              (feedback, ('q_model_rad', 'velocity_rad_s', 'torque_nm', 'temperature_c'))):
+            _need(all(type(values.get(k)) is list and len(values[k]) == 12 for k in names),
+                  'Mix step predecessor twelve-axis feedback/command is incomplete')
+        # Active-output records are ID1..12 order, unlike model tensors' CAN_ORDER.
+        for order, mid in enumerate(IDS):
+            axis = prior['axes'][mid]
+            q0 = _number(origin[mid], 'prior origin ID'+mid, axis['physical_lower_rad'], axis['physical_upper_rad'])
+            for values in (command, feedback):
+                q = _number(values['q_model_rad'][order], 'prior q ID'+mid,
+                            axis['physical_lower_rad'], axis['physical_upper_rad'])
+                _need(abs(q-q0) <= axis['max_displacement_from_start_rad'], 'Mix step predecessor displacement invalid')
+            for key in ('kp', 'kd'): _number(command[key][order], 'prior '+key, 0, axis[key])
+            for key in ('command_velocity_rad_s', 'tracking_error_rad', 'estimated_pd_torque_nm'):
+                _number(command[key][order], 'prior '+key, -axis['max_'+key], axis['max_'+key])
+            for key in ('velocity_reference_rad_s', 'feedforward_torque_nm'):
+                _need(type(command[key][order]) in (int, float) and command[key][order] == 0,
+                      'Mix step predecessor contains unreviewed feedforward')
+            for key in ('velocity_rad_s', 'torque_nm'):
+                limit = axis['max_measured_velocity_rad_s' if key == 'velocity_rad_s' else 'max_measured_torque_nm']
+                _number(feedback[key][order], 'prior measured '+key, -limit, limit)
+            _number(feedback['temperature_c'][order], 'prior measured temperature', 0, axis['max_temperature_c'])
+        mix = _number(row.get('effective_policy_weight'), 'prior mixture', 0, prior['policy_weight'])
+        active |= row['phase'] == 'active' and mix == prior['policy_weight']
+    _need(rows[0]['phase'] == 'starting' and rows[-1]['phase'] == 'stopped' and active and
+          9_500_000_000 <= rows[-1]['end_ns']-rows[0]['begin_ns'] <= 10_040_000_000 and
+          all(v == 0 for key in ('kp', 'kd') for v in rows[-1]['command'][key]),
+          'Mix step predecessor did not complete the learned gain ramp and stop')
+    _need(observed.get('report_sha256') == report_sha and observed.get('observed_by') == 'operator' and
+          observed.get('audio_heard') is True and observed.get('abnormal_noise_vibration_slip_sinking_contact') is False and
+          observed.get('box_support_maintained') is True and observed.get('autonomous_standing_or_walking_observed') is False,
+          'Mix step requires the real matching predecessor observation')
+    _text(observed.get('user_statement'), 'ten-second operator observation')
+    targets, analysis = documents['saved_policy_target_sequence'], documents['policy_mixture_analysis']
+    target_sha = data['artifacts']['saved_policy_target_sequence']['sha256']
+    _need(targets.get('schema') == 'singularitydog.saved-policy-target-sequence.v1' and
+          targets.get('id_order') == list(range(1, 13)) and
+          all(type(mid) is int for mid in targets['id_order']) and targets.get('profile_sha256') == profile_sha and
+          targets.get('report_sha256') == report_sha and targets.get('historical_boot_id') == data['boot_id'] and
+          targets.get('historical_motor_power_epoch') == data['motor_power_epoch'] and
+          targets.get('model_backend') == SCALAR_BACKEND and targets.get('command') == data['command'] and
+          targets.get('h_hypothesis') == data['h_hypothesis'] and targets.get('model_provenance') == report['model_provenance'] and
+          all(targets.get(k) is False for k in ('output_allowed', 'hardware_accessed', 'closed_loop_prediction',
+              'load_bearing_verified', 'standing_verified', 'box_removal_allowed')),
+          'Mix step requires the pinned original-input model replay without output or standing claims')
+    replay_manifest, replay_ref = _artifact(sources.get('replay_kit_manifest'), base)
+    _need(replay_ref['sha256'] == targets.get('kit_manifest_sha256') and
+          type(replay_manifest.get('files')) is dict and
+          all(replay_manifest['files'].get('runtime/'+name) == digest for name, digest in old.items()),
+          'Mix step replay kit must contain the exact predecessor runtime sources')
+    replay_source = sources.get('replay_source')
+    _need(type(replay_source) is dict and set(replay_source) == {'path', 'sha256'}, 'Pinned replay source required')
+    replay_path = Path(_text(replay_source['path'], 'replay source path'))
+    if not replay_path.is_absolute(): replay_path = base/replay_path
+    _need(replay_path.is_file() and not replay_path.is_symlink() and replay_path.stat().st_size <= 512*1024 and
+          hashlib.sha256(replay_path.read_bytes()).hexdigest() == _hash(replay_source['sha256'], 'replay source'),
+          'Mix step replay source differs from the reviewed file-only program')
+    _need(sources.get('target_sequence_sha256') == target_sha and sources.get('replay_input_report_sha256') == report_sha and
+          all(sources.get(k) is True for k in ('model_values_unchanged', 'replay_uses_original_inputs',
+              'recorded_feedback_not_new_mix_feedback')) and
+          all(sources.get(k) is False for k in ('closed_loop_prediction', 'standing_prediction', 'output_allowed')),
+          'Mix step source review must preserve original-input and no-prediction limitations')
+    target_rows = targets.get('rows')
+    _need(type(target_rows) is list and len(target_rows) == count, 'Mix step replay omitted or added model calls')
+    initial = [origin[mid] for mid in IDS]
+    peaks = [0.]*12
+    for index, row in enumerate(target_rows):
+        _need(type(row) is dict and type(row.get('cycle_index')) is int and row['cycle_index'] == rows[index]['index'] and
+              type(row.get('raw_target_model_rad')) is list and len(row['raw_target_model_rad']) == 12,
+              'Mix step target sequence differs from the original model-call prefix')
+        for order, mid in enumerate(IDS):
+            model_index = shadow.CAN_ORDER.index(int(mid))
+            raw = _number(row['raw_target_model_rad'][order], 'replayed full target ID'+mid,
+                          shadow.LOWER[model_index], shadow.UPPER[model_index])
+            target = initial[order]+.1*(raw-initial[order])
+            axis = data['axes'][mid]
+            _need(axis['lower_rad'] <= target <= axis['upper_rad'] and
+                  abs(target-initial[order]) <= axis['max_displacement_from_start_rad'],
+                  'Ten-percent replayed target exceeds the reviewed physical/displacement envelope: ID'+mid)
+            peaks[order] = max(peaks[order], abs(math.degrees(target-initial[order])))
+    _need(analysis.get('schema') == 'singularitydog.saved-policy-target-mixture-analysis.v1' and
+          analysis.get('input_sha256') == {'report': report_sha, 'targets': target_sha} and
+          analysis.get('id_order') == list(range(1, 13)) and
+          all(type(mid) is int for mid in analysis['id_order']) and type(analysis.get('target_rows')) is int and analysis['target_rows'] == count and
+          analysis.get('initial_pose_source') == 'report_trial_origin_model_rad_by_id' and
+          analysis.get('initial_q_model_rad_by_id') == initial and
+          analysis.get('sequence_extent') == 'logged_model_call_count_matches' and
+          analysis.get('first_cycle_index') == rows[0]['index'] and analysis.get('last_cycle_index') == rows[count-1]['index'] and
+          analysis.get('cap_deg') == {'physical_clearance': [7.]*12, 'maximum_displacement': [6.]*12} and
+          all(analysis.get(k) is False for k in ('physical_clearance_independently_verified',
+              'model_replay_verified_by_this_tool', 'closed_loop_prediction', 'standing_prediction',
+              'timestamps_predict_future_motion', 'hardware_accessed', 'model_executed', 'approvals_created', 'output_allowed')),
+          'Mix step analysis must preserve exact inputs, numerical caps and limited algebraic scope')
+    matches = [item for item in analysis.get('mixtures', []) if type(item) is dict and item.get('weight') == .1]
+    _need(len(matches) == 1 and matches[0].get('output_allowed') is False and
+          matches[0].get('physical_clearance_exceeded_ids') == [] and matches[0].get('maximum_displacement_exceeded_ids') == [] and
+          type(matches[0].get('per_axis')) is list and len(matches[0]['per_axis']) == 12,
+          'Ten-percent analysis reports an exceeded or incomplete numerical envelope')
+    for order, axis in enumerate(matches[0]['per_axis']):
+        _need(type(axis.get('id')) is int and axis['id'] == order+1 and type(axis.get('peak_absolute_delta_deg')) in (int, float) and
+              abs(axis['peak_absolute_delta_deg']-peaks[order]) <= 1e-10 and
+              axis.get('exceeds_supplied_physical_clearance') is False and
+              axis.get('exceeds_supplied_maximum_displacement') is False,
+              'Ten-percent analysis extrema differ from independent target recomputation')
+    _need(type(matches[0].get('maximum_absolute_delta_deg')) in (int, float) and
+          abs(matches[0]['maximum_absolute_delta_deg']-max(peaks)) <= 1e-10,
+          'Ten-percent analysis maximum differs from the raw target sequence')
+    clearance = documents['mix_step_clearance']
+    expected = dict(schema='singularitydog.supported-mix-step-clearance.v1', mode=SUPPORTED_POLICY_MIX_STEP_10PCT,
+        scope=data['scope'], boot_id=data['boot_id'], motor_power_epoch=data['motor_power_epoch'],
+        capture_sha256=data['artifacts']['local_reference_capture']['sha256'],
+        uids_by_id={mid: data['axes'][mid]['uid'] for mid in IDS},
+        reference_turns_by_id=documents['hardware_review']['local_characterization']['reference_turns_by_id'],
+        local_clearance_rad=math.radians(7))
+    _need(all(clearance.get(k) == v for k, v in expected.items()) and
+          all(clearance.get(k) is True for k in ('support_must_remain', 'four_paws_floor', 'hands_off',
+              'cutoff_ready', 'current_pose_unchanged', 'current_power_unchanged')) and
+          all(clearance.get(k) is False for k in ('box_removal_allowed', 'standing_allowed',
+              'walking_allowed', 'load_bearing_verified')), 'Mix step requires current seven-degree operator clearance and support')
+    source_statement, _ = _artifact(clearance.get('source_receipt'), base)
+    _need(clearance.get('user_statement') == source_statement.get('user_statement', source_statement.get('answer')),
+          'Mix step clearance must retain the original pinned operator statement')
+    _text(clearance.get('user_statement'), 'current seven-degree operator statement')
+    _review(clearance.get('review'), 'ACCEPT_CURRENT_7DEG_SUPPORTED_MIX_STEP_CLEARANCE')
+    acceptance = documents['hardware_review'].get('supported_mix_step_acceptance', {})
+    refs = dict(prior_profile_sha256=profile_sha, prior_report_sha256=report_sha,
+        prior_observation_sha256=data['artifacts']['prior_supported_observation']['sha256'],
+        target_sequence_sha256=target_sha, mixture_analysis_sha256=data['artifacts']['policy_mixture_analysis']['sha256'],
+        clearance_sha256=data['artifacts']['mix_step_clearance']['sha256'],
+        source_review_sha256=data['artifacts']['mix_step_source_review']['sha256'],
+        capture_sha256=data['artifacts']['local_reference_capture']['sha256'],
+        diagnostic_sha256=data['artifacts']['pipeline_diagnostic']['sha256'])
+    _need(acceptance.get('mode') == SUPPORTED_POLICY_MIX_STEP_10PCT and acceptance.get('scope') == data['scope'] and
+          all(acceptance.get(k) == v for k, v in refs.items()) and acceptance.get('support_must_remain') is True and
+          acceptance.get('load_bearing_not_established') is True and
+          all(acceptance.get(k) is False for k in ('box_removal_allowed', 'standing_allowed', 'walking_allowed')),
+          'Explicit hash-bound five-second ten-percent boxed review required')
+    _review(acceptance.get('review'), 'ACCEPT_5S_SUPPORTED_LEARNED_MIX_STEP_10PCT')
 
 
 def _supported_gain_step_evidence(documents, data):
@@ -1793,6 +2414,274 @@ def _fixed_catch_evidence(documents, data, base):
     _review(acceptance.get('review'), 'ACCEPT_FIXED_CATCH_CURRENT_HOLD_30S')
 
 
+def _human_supported_audio_manifest(document, data, base):
+    """Pin real WAV bytes and duration; a process exit never proves audibility."""
+    _need(type(document) is dict and
+          document.get('schema') == 'singularitydog.human-supported-audio-manifest.v1' and
+          document.get('scope') == HUMAN_SUPPORTED_PARTIAL_SCOPE and
+          document.get('acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S and
+          document.get('prepare_ease_is_not_go') is True and
+          document.get('go_is_short_tone') is True and
+          document.get('resupport_starts_with_urgent_tone') is True and
+          document.get('operator_must_resupport_before_voice_finishes') is True and
+          document.get('audio_process_completion_is_not_proof_of_audibility') is True and
+          document.get('physical_ease_duration_not_verified_by_audio') is True,
+          'Explicit stage meaning and audibility limitations are required for human-supported audio')
+    _review(document.get('review'), 'ACCEPT_HUMAN_SUPPORTED_SPOKEN_CUES')
+    clips = document.get('clips')
+    stages = ('brief','prepare_ease','go','resupport','abort')
+    _need(type(clips) is dict and set(clips) == set(stages), 'Five pinned human-supported audio stages required')
+    resolved = {}
+    for stage in stages:
+        clip = clips[stage]
+        _need(type(clip) is dict and set(clip) == {'path','sha256','duration_s','transcript'},
+              'Audio stage requires exact file, duration and reviewed transcript: '+stage)
+        name = _text(clip['path'], 'audio file '+stage)
+        _text(clip['transcript'], 'audio meaning '+stage)
+        digest = _hash(clip['sha256'], 'audio stage '+stage)
+        path = Path(name).expanduser()
+        if not path.is_absolute(): path = base/path
+        _need(path.is_file() and not path.is_symlink() and 0 < path.stat().st_size <= 16*1024*1024,
+              'Regular bounded audio file required: '+stage)
+        raw = path.read_bytes()
+        _need(hashlib.sha256(raw).hexdigest() == digest, 'Audio file SHA256 mismatch: '+stage)
+        # Parse the exact hashed bytes, avoiding a second file-open race.
+        import io
+        try:
+            with wave.open(io.BytesIO(raw), 'rb') as recording:
+                _need(recording.getcomptype() == 'NONE' and recording.getnchannels() == 2 and
+                      recording.getsampwidth() == 2 and recording.getframerate() == 48000,
+                      'Audio must be 48kHz stereo PCM16 WAV: '+stage)
+                frames = recording.getnframes()
+                _need(frames > 0 and len(recording.readframes(frames)) == frames*4,
+                      'Truncated human-supported audio: '+stage)
+                actual_duration = frames/48000.
+        except (wave.Error, EOFError) as error:
+            raise ProfileError('Invalid human-supported WAV: '+stage) from error
+        duration = _number(clip['duration_s'], 'audio duration '+stage, 0, 30, positive=True)
+        _need(abs(duration-actual_duration) <= 1e-9, 'Audio duration differs from hashed WAV: '+stage)
+        if stage == 'go':
+            _need(duration <= .12, 'Human-supported go tone must be at most120ms')
+        resolved[stage] = dict(path=str(path.absolute()), sha256=digest, duration_s=actual_duration)
+    settings = data['human_supported_hold']
+    # Both spoken completion gates get a real-duration+.25s timeout. Fresh
+    # feedback after each completion, ease, ACK and fading remain budgeted.
+    brake_s = max(axis['max_command_velocity_rad_s']/axis['max_command_acceleration_rad_s2']
+                  for axis in data['axes'].values())
+    reserve = (settings['cue_not_before_s'] + resolved['prepare_ease']['duration_s']+.25 +
+        resolved['go']['duration_s']+.25 + settings['slight_ease_max_duration_s'] +
+        resolved['resupport']['duration_s']+.25 + settings['resupport_ack_window_s'] +
+        brake_s + data['stop_duration_s'] + .06)
+    _need(reserve < data['duration_s'], 'Spoken cues/ease/ACK/fade do not fit the bounded eight-second hold')
+    return dict(clips=resolved, cue_reserve_s=reserve,
+                audio_completion_does_not_prove_audibility=True,
+                physical_ease_duration_not_verified_by_audio=True)
+
+
+def _human_supported_evidence(documents, data, base):
+    """Fresh human pose/session proof; previous box output is supplemental only.
+
+    Named source receipts record operator statements, never manufacture their
+    physical truth. No fixed receiver, unsupported stance or walking is granted.
+    """
+    settings = _human_supported_settings(data)
+    prep = documents['human_supported_preparation']
+    uids = {mid:data['axes'][mid]['uid'] for mid in IDS}
+    capture_pin = data['artifacts']['local_reference_capture']['sha256']
+    watchdog_pin = data['artifacts']['command_loss_report']['sha256']
+    diagnostic_pin = data['artifacts']['pipeline_diagnostic']['sha256']
+    _need(type(prep) is dict and prep.get('schema') == 'singularitydog.human-supported-preparation.v1' and
+          prep.get('scope') == HUMAN_SUPPORTED_PARTIAL_SCOPE and prep.get('settings') == settings and
+          prep.get('boot_id') == data['boot_id'] and prep.get('motor_power_epoch') == data['motor_power_epoch'] and
+          prep.get('uids_by_id') == uids and
+          prep.get('local_reference_capture_sha256') == capture_pin and
+          prep.get('command_loss_report_sha256') == watchdog_pin and
+          prep.get('pipeline_diagnostic_sha256') == diagnostic_pin and
+          prep.get('reviewed_settings_sha256') == reviewed_settings_sha256(data) and
+          prep.get('fixed_catch_authorized') is False and prep.get('ground_progression_allowed') is False and
+          prep.get('absolute_calibration_certified') is False and prep.get('dynamic_feedback_certified') is False,
+          'Fresh human-supported preparation must pin exact pose, power, diagnostic and bounded settings')
+    _review(prep.get('review'), 'ACCEPT_HUMAN_SUPPORTED_PARTIAL_PREPARATION')
+    receipt_keys = ('power', 'pose', 'rehearsal', 'video', 'clearance', 'physical_observation')
+    references = prep.get('source_receipts')
+    _need(type(references) is dict and set(references) == set(receipt_keys),
+          'Human-supported preparation needs every pinned physical source receipt')
+    receipts = {}
+    for kind in receipt_keys:
+        receipt, _ = _artifact(references[kind], base)
+        _need(type(receipt) is dict and
+              receipt.get('schema') == 'singularitydog.human-supported-operator-receipt.v1' and
+              receipt.get('kind') == kind and receipt.get('observed_by') == 'operator',
+              'Explicit operator source receipt required: '+kind)
+        _text(receipt.get('source_message_id'), 'operator source message '+kind)
+        _text(receipt.get('user_statement'), 'operator statement '+kind)
+        _review(receipt.get('review'), 'ACCEPT_HUMAN_SUPPORTED_OPERATOR_RECEIPT')
+        if kind in ('power', 'pose', 'clearance', 'physical_observation'):
+            _need(receipt.get('boot_id') == data['boot_id'] and
+                  receipt.get('motor_power_epoch') == data['motor_power_epoch'],
+                  'Human-supported source receipt is from another boot/power epoch: '+kind)
+        receipts[kind] = receipt
+    power = receipts['power']
+    _need(power.get('power_epoch_origin') == 'operator_statement' and
+          power.get('off_on_confirmed') is True and power.get('motor_power_on') is True and
+          power.get('no_power_operation_since_capture') is True,
+          'Human-supported power generation must be operator confirmed, never inferred from boot')
+    pose = receipts['pose']
+    _need(pose.get('capture_sha256') == capture_pin and pose.get('pose_kind') == 'human_full_support' and
+          pose.get('box_removed') is True and pose.get('operator_count') == 2 and
+          type(pose.get('operator_count')) is int and pose.get('full_body_weight_supported') is True and
+          pose.get('all_four_paws_on_floor') is True and pose.get('all_axes_simultaneously_stationary') is True and
+          pose.get('continuous_body_catch') is True and pose.get('hands_remain_on_body') is True and
+          pose.get('legs_and_wiring_contact_free') is True,
+          'A fresh human full-support all-axis pose is required; box poses cannot be substituted')
+    rehearsal = receipts['rehearsal']
+    _need(type(rehearsal.get('operator_count')) is int and rehearsal['operator_count'] == 2 and
+          rehearsal.get('motor_power_off') is True and rehearsal.get('body_full_support_continuous') is True and
+          rehearsal.get('box_removed_and_restored') is True and rehearsal.get('cutoff_role_maintained') is True and
+          rehearsal.get('abnormal_noise_vibration_slip_sinking_contact') is False,
+          'Two-operator off-power remove/restore rehearsal is required')
+    video = receipts['video']
+    _need(video.get('side_view_recording_ready') is True and video.get('camera_fixed') is True and
+          video.get('body_four_paws_and_supporting_hands_visible') is True,
+          'Fixed side video must show the body, four paws and continuously supporting hands')
+    clearance = receipts['clearance']
+    _need(clearance.get('capture_sha256') == capture_pin and clearance.get('selected_ids') == list(range(1,13)) and
+          clearance.get('local_clearance_rad') == math.radians(3) and
+          clearance.get('legs_and_wiring_contact_free') is True and
+          clearance.get('pose_maintained_since_capture') is True and clearance.get('immediate_40v_cutoff_ready') is True,
+          'Current human pose requires all-axis local clearance and immediate cutoff')
+    physical = receipts['physical_observation']
+    _need(physical.get('report_sha256') == watchdog_pin and physical.get('audio_heard') is True and
+          physical.get('abnormal_noise_vibration_slip_sinking_contact') is False and
+          physical.get('human_full_support_maintained') is True and
+          physical.get('pose_maintained_since_capture') is True,
+          'Fresh zero-gain observation must retain human full support without anomalies')
+    capture = documents['local_reference_capture']
+    _need(capture.get('approved_for_runtime') is False and
+          capture.get('motor_power_epoch') in (data['motor_power_epoch'], 'NOT_INFERRED_FROM_JETSON_BOOT') and
+          capture.get('stop_state') == 'UNVERIFIED_BY_READ_ONLY_PROTOCOL',
+          'Read-only capture must preserve unverified STOP and separately bound operator power provenance')
+    oldest, newest = [], []
+    for mid in IDS:
+        identity = capture['identities'][mid]
+        row = capture['telemetry']['rows'][mid]
+        _need(type(identity.get('request_monotonic_ns')) is int and
+              type(identity.get('reply_monotonic_ns')) is int and
+              0 < identity['request_monotonic_ns'] <= identity['reply_monotonic_ns'],
+              'Human pose identity request/reply causality missing: ID'+mid)
+        _need(type(row.get('current')) in (int,float) and row['current'] == 0,
+              'Human pose must be captured in current-zero mode: ID'+mid)
+        _number(row.get('voltage'), 'human pose voltage ID'+mid, data['voltage_min_v'], data['voltage_max_v'])
+        previous = identity['reply_monotonic_ns']
+        for sample in row['position_samples']:
+            start, end = sample.get('request_monotonic_ns'), sample.get('reply_monotonic_ns')
+            _need(type(start) is int and type(end) is int and 0 < previous <= start <= end and
+                  end-start <= 30_000_000, 'Human pose position reply causality invalid: ID'+mid)
+            oldest.append(start); newest.append(end); previous = end
+    _need(max(newest)-min(oldest) <= 2_000_000_000,
+          'Human pose all-axis read interval is too long to bind one stationary posture')
+    watchdog = documents['command_loss_report']
+    for mid in IDS:
+        start = watchdog['axes'][mid].get('version', {}).get('request_start_ns')
+        end = watchdog['axes'][mid].get('stop_probe', {}).get('received_ns')
+        _need(type(start) is int and type(end) is int and max(newest) <= start < end,
+              'Fresh human-pose watchdog evidence must follow the capture: ID'+mid)
+    diagnostic = documents['pipeline_diagnostic']
+    _need(diagnostic['measurements'][0]['release_ns'] >= max(
+        watchdog['axes'][mid]['stop_probe']['received_ns'] for mid in IDS),
+        'Human-pose diagnostic must follow the fresh all-axis watchdog')
+    hardware = documents['hardware_review']
+    for mid in IDS:
+        dynamic = hardware['type2_dynamic'][mid]
+        _need(all(dynamic.get(k) is False for k in ('output_shaft_position_verified',
+              'velocity_scale_and_sign_verified', 'torque_interpretation_verified')) and
+              data['axes'][mid]['uncertainty_rad'] is None,
+              'Human-supported trial must preserve unknown absolute calibration and dynamic scales: ID'+mid)
+    prior = documents['prior_current_hold_profile']
+    report = documents['prior_current_hold_report']
+    observed = documents['prior_current_hold_observation']
+    _structure(prior)
+    _need(type(prior) is dict and prior.get('schema') == SCHEMA_V3 and
+          prior.get('scope') == 'supported_characterization_only' and
+          prior.get('diagnostic_timing_acceptance') == CURRENT_HOLD_AFTER_SUPPORTED_10S and
+          prior.get('approved_for_supported_policy_output') is True and prior.get('blockers') == [] and
+          prior.get('duration_s') == 3 and prior.get('policy_weight') == 0 and
+          prior.get('motor_power_epoch') != data['motor_power_epoch'],
+          'Prior box hold is supplemental only; a separate human-pose power epoch is required')
+    _review(prior.get('review'), 'APPROVED_SUPPORTED_CHARACTERIZATION')
+    for key in ('calibration', 'mount', 'bias', 'model_manifest', 'scalar_step_manifest'):
+        _need(prior.get('artifacts', {}).get(key, {}).get('sha256') == data['artifacts'][key]['sha256'],
+              'Supplemental box hold changes model/calibration provenance: '+key)
+    for mid in IDS:
+        _need(all(prior.get('axes', {}).get(mid, {}).get(k) == data['axes'][mid][k]
+                  for k in AXIS_KEYS-{'physical_lower_rad','physical_upper_rad'}),
+              'Human hold must retain supplemental box-hold gains, calibration and monitor caps: ID'+mid)
+    old_hashes, new_hashes = prior.get('cadence_source_sha256'), data['cadence_source_sha256']
+    _need(type(old_hashes) is dict and set(old_hashes) == set(CADENCE_SOURCE_PATHS) and
+          set(new_hashes) == {*CADENCE_SOURCE_PATHS, _HUMAN_SUPPORTED_NEW_SOURCE},
+          'Human-supported source set must add only its dedicated supervisor')
+    changed = {name for name in old_hashes if old_hashes[name] != new_hashes[name]}
+    _need(changed <= _HUMAN_SUPPORTED_CHANGED_SOURCES and
+          'singularitydog_hw/policy_live_profile.py' in changed,
+          'Unreviewable unrelated source changes in human-supported hold')
+    source_review = documents['human_supported_source_review']
+    _need(type(source_review) is dict and
+          source_review.get('schema') == 'singularitydog.human-supported-source-review.v1' and
+          source_review.get('scope') == HUMAN_SUPPORTED_PARTIAL_SCOPE and
+          source_review.get('prior_profile_sha256') == data['artifacts']['prior_current_hold_profile']['sha256'] and
+          source_review.get('changes') == [{'path':name, 'before_sha256':old_hashes[name],
+              'after_sha256':new_hashes[name]} for name in sorted(changed)] and
+          source_review.get('new_source') == {'path':_HUMAN_SUPPORTED_NEW_SOURCE,
+              'sha256':new_hashes[_HUMAN_SUPPORTED_NEW_SOURCE]},
+          'Human-supported source review must bind the exact executable delta')
+    _review(source_review.get('review'), 'ACCEPT_HUMAN_SUPPORTED_PARTIAL_SOURCE_DELTA')
+    _need(type(report) is dict and report.get('profile_sha256') ==
+          data['artifacts']['prior_current_hold_profile']['sha256'] and
+          report.get('boot_id') == prior['boot_id'] and report.get('motor_power_epoch') == prior['motor_power_epoch'] and
+          report.get('cadence_source_sha256') == old_hashes and
+          report.get('status') == 'COMPLETE_SUPPORTED_OUTPUT' and report.get('errors') == [] and
+          report.get('normal_ramp_completed') is True and report.get('stop_confirmed') is True and
+          report.get('current_position_hold_only') is True and report.get('cyclic_inference_skipped') is True and
+          report.get('actual_model_calls') == 0 and report.get('learned_targets_sent') is False and
+          report.get('deadline20ms_misses') == 0 and report.get('startup_20ms_misses') == 0 and
+          report.get('steady_deadline20ms_misses') == 0,
+          'Supplemental box current hold must be complete with strict timing and no learned output')
+    cycles = report.get('cycles')
+    _need(type(cycles) is list and 125 <= len(cycles) <= 151 and
+          cycles[0].get('phase') == 'starting' and cycles[-1].get('phase') == 'stopped',
+          'Supplemental box three-second hold sequence is incomplete')
+    previous = None
+    for index, row in enumerate(cycles):
+        begin, replied, end = (row.get(k) for k in ('begin_ns','output_reply_end_ns','end_ns'))
+        _need(row.get('index') == index and all(type(v) is int for v in (begin,replied,end)) and
+              0 < begin <= replied <= end and end-begin <= 20_000_000 and
+              (previous is None or begin >= previous) and row.get('deadline20ms_missed') is False,
+              'Supplemental box hold timing sequence is invalid')
+        previous = end
+    for bus, ids in (('front',list(range(1,7))),('rear',list(range(7,13)))):
+        stop = report.get('stop_reports', {}).get(bus, {})
+        _need(stop.get('complete') is True and stop.get('confirmed_ids') == ids and
+              stop.get('unconfirmed_ids') == [] and stop.get('ambiguous_ids') == [] and
+              stop.get('fault_by_id') == {str(mid):0 for mid in ids},
+              'Supplemental box hold must have all twelve fault-free STOP replies')
+    _need(type(observed) is dict and observed.get('report_sha256') == data['artifacts']['prior_current_hold_report']['sha256'] and
+          observed.get('observed_by') == 'operator' and observed.get('audio_heard') is True and
+          observed.get('abnormal_noise_vibration_slip_sinking_contact') is False and
+          observed.get('box_support_maintained') is True and
+          observed.get('autonomous_standing_or_walking_observed') is False,
+          'Supplemental box hold physical observation must remain limited to supported output')
+    acceptance = hardware.get('human_supported_partial_acceptance', {})
+    _need(type(acceptance) is dict and acceptance.get('mode') == data['diagnostic_timing_acceptance'] and
+          acceptance.get('scope') == HUMAN_SUPPORTED_PARTIAL_SCOPE and acceptance.get('settings') == settings and
+          acceptance.get('strict_current_hold_deadline') is True and
+          acceptance.get('load_bearing_not_yet_observed') is True and
+          acceptance.get('fixed_catch_authorized') is False and acceptance.get('ground_progression_allowed') is False and
+          acceptance.get('artifact_sha256') == {name:data['artifacts'][name]['sha256'] for name in
+              (*_HUMAN_SUPPORTED_ARTIFACTS, 'local_reference_capture','command_loss_report','pipeline_diagnostic')},
+          'Dedicated bounded human-supported engineering acceptance must pin all fresh and supplemental evidence')
+    _review(acceptance.get('review'), 'ACCEPT_HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD')
+
+
 def supported_preload_template():
     """Incomplete opt-in plan; numerical success cannot authorize motor output."""
     data = template(schema=SCHEMA_V3)
@@ -2011,14 +2900,23 @@ def load_profile(path, *, require_approved=True):
                                      local_reference_capture=documents.get('local_reference_capture'))
     if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_10S_AFTER_2S:
         _supported_extension_evidence(documents, original)
+    if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_20S_AFTER_10S:
+        _supported_20s_extension_evidence(documents, original, path.parent)
     if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_GAIN_STEP_3S:
         _supported_gain_step_evidence(documents, original)
+    if _mix_step_selected(data):
+        _supported_mix_step_evidence(documents, data, path.parent)
     if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_PRELOAD_5S:
         _supported_preload_evidence(documents, data, path.parent)
     if execution_settings(data)['diagnostic_timing_acceptance'] == CURRENT_HOLD_AFTER_SUPPORTED_10S:
         _current_hold_after_supported_evidence(documents, original)
     if execution_settings(data)['diagnostic_timing_acceptance'] == FIXED_CATCH_CURRENT_HOLD_30S:
         _fixed_catch_evidence(documents, original, path.parent)
+    if execution_settings(data)['diagnostic_timing_acceptance'] == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S:
+        data['_human_supported_audio'] = _human_supported_audio_manifest(
+            documents['human_supported_audio_manifest'], original,
+            Path(data['artifacts']['human_supported_audio_manifest']['path']).parent)
+        _human_supported_evidence(documents, original, path.parent)
     if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_2S_RARE_JITTER:
         acceptance = documents['hardware_review'].get('rare_jitter_diagnostic_acceptance', {})
         _need(type(acceptance) is dict and
@@ -2065,17 +2963,25 @@ def load_profile(path, *, require_approved=True):
               'Explicit first-cycle post-reply acceptance required')
         _review(acceptance.get('review'), 'ACCEPT_FIRST_CYCLE_POST_REPLY')
         data['_startup_cycle_token'] = _STARTUP_CYCLE_TOKEN
+    if _mix_step_selected(data):
+        data['_mix_step_token'] = _MIX_STEP_TOKEN
+        data['_mix_step_binding'] = _mix_step_binding(data)
     data['mode0_readback_required_before_enable'] = True
     if data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED:
         data['_local_validation_token'] = _LOCAL_VALIDATION_TOKEN
     if data.get('diagnostic_timing_acceptance') in (
-            CURRENT_HOLD_PROBE, CURRENT_HOLD_AFTER_SUPPORTED_10S, FIXED_CATCH_CURRENT_HOLD_30S):
+            CURRENT_HOLD_PROBE, CURRENT_HOLD_AFTER_SUPPORTED_10S, FIXED_CATCH_CURRENT_HOLD_30S,
+            HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S):
         data['_current_hold_token'] = _CURRENT_HOLD_TOKEN
     if data.get('diagnostic_timing_acceptance') == FIXED_CATCH_CURRENT_HOLD_30S:
         data['_fixed_catch_token'] = _FIXED_CATCH_TOKEN
+    if data.get('diagnostic_timing_acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S:
+        data['_human_supported_token'] = _HUMAN_SUPPORTED_TOKEN
+        data['_human_supported_binding'] = _human_supported_binding(data)
     return {**data, 'output_allowed': True, 'profile_path': str(path), 'profile_sha256': digest,
             'actual_policy_output_20ms_verified': False,
-            'support_must_remain': data['scope'] == 'supported_characterization_only'}
+            'support_must_remain': data['scope'] in ('supported_characterization_only', HUMAN_SUPPORTED_PARTIAL_SCOPE),
+            'human_body_catch_must_remain': data['scope'] == HUMAN_SUPPORTED_PARTIAL_SCOPE}
 
 
 def main(argv=None):

@@ -8,7 +8,7 @@ and warmup are outside the timed cycle; every measured cycle uses new inputs.
 import argparse
 from array import array
 from collections import namedtuple
-from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
+from concurrent.futures import FIRST_COMPLETED, FIRST_EXCEPTION, Future, ThreadPoolExecutor, wait
 from contextlib import ExitStack
 import ctypes as C
 import gc
@@ -40,6 +40,8 @@ ABSOLUTE_MIN_START_SEPARATION_NS = 15_000_000
 LIMIT_NS = 100_000_000
 WORKER_STARTUP_TIMEOUT_S = .5
 _TimingRecord = namedtuple('_TimingRecord','start_ns finish_ns received_ns')
+_FeedbackProof = namedtuple('_FeedbackProof','images sample snapshot')
+_VoltageProof = namedtuple('_VoltageProof','images values')
 _TRACE_SCOPE_INDEX = {scope:index for index,scope in enumerate(dual.SCOPES)}
 _READ_WIRES = {(i,p):codec.read_request(i,p) for i in range(1,13)
                for p in ('position','velocity','voltage')}
@@ -60,18 +62,19 @@ _OUTPUT_DISPATCH_FIELDS = (
 def _start_source_provenance(mode, power_epoch):
     """Optional file provenance; no power detection or output authorization.
 
-    Legacy diagnostic invocations remain unbound. A preload timing record must
-    explicitly name its epoch and pin the preload source set before opening any
+    Legacy diagnostic invocations remain unbound. A scoped timing record must
+    explicitly name its epoch and pin its own source set before opening any
     devices. The caller's epoch string is an assertion, not a sensor reading.
     """
     if mode is None and power_epoch is None:
         return None
     from . import policy_live_profile as profiles
-    if mode != profiles.SUPPORTED_PRELOAD_5S:
-        raise ValueError('Explicit preload --provenance-mode is required with --power-epoch')
+    if mode not in (profiles.SUPPORTED_PRELOAD_5S,
+                    profiles.HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S):
+        raise ValueError('Explicit supported --provenance-mode is required with --power-epoch')
     if (type(power_epoch) is not str or not 0 < len(power_epoch) <= 256 or
             power_epoch.strip() != power_epoch or not power_epoch.isprintable()):
-        raise ValueError('Preload source provenance requires an explicit nonempty --power-epoch')
+        raise ValueError('Scoped source provenance requires an explicit nonempty --power-epoch')
     return {'schema':'singularitydog.diagnostic-source-provenance.v1',
             'mode':mode,'motor_power_epoch':power_epoch,
             'power_epoch_source':'explicit_operator_argument_not_hardware_detected',
@@ -431,6 +434,72 @@ def _feedback_then_gated_voltage(exchange,scope,feedback_wires,voltage_wire,
         raise
 
 
+def _await_voltage_ready(futures,validation_future,*,deadline_ns,deadline_wait=None,
+                         clock=time.monotonic_ns,check=lambda:None,
+                         thread_clock=time.thread_time_ns):
+    """Wait only for readiness before taking already-owned voltage results.
+
+    The existing native release wait releases the GIL and spins for targets at
+    most 200 us apart. It does not read an FD or publish/replace a source time.
+    Without that callback, use one bounded all-future condition wait. Result
+    and frame/proof validation stay with the existing owners and dispatch gate.
+    """
+    if set(futures)!=set(dual.SCOPES) or any(not isinstance(f,Future) for f in futures.values()):
+        raise ValueError('Exact voltage owner futures required')
+    if validation_future is not None and not isinstance(validation_future,Future):
+        raise ValueError('Voltage validation future required')
+    if type(deadline_ns) is not int or deadline_ns<=0 or (deadline_wait is not None and not callable(deadline_wait)):
+        raise ValueError('Absolute voltage join deadline required')
+    owners=tuple(futures.values())+(() if validation_future is None else (validation_future,))
+    if len({id(future) for future in owners})!=len(owners):
+        raise ValueError('Distinct voltage owner/validation futures required')
+    begin=clock();cpu_begin=thread_clock();calls=0
+    if type(begin) is not int or begin<=0:
+        raise ValueError('Causal voltage join clock required')
+    while True:
+        ready=tuple(f for f in owners if f.done())
+        # A ready error wins over an unfinished second owner; never wait on it.
+        for future in ready:
+            if future.cancelled():raise RuntimeError('Voltage owner future cancelled')
+            error=future.exception()
+            if error is not None:raise error
+        check()
+        now=clock()
+        if type(now) is not int or now<begin:
+            raise ValueError('Noncausal voltage join clock')
+        if now>=deadline_ns:
+            raise TimeoutError('Voltage pipeline exceeded 20 ms hard deadline at voltage join')
+        if len(ready)==len(owners):
+            cpu_end=thread_clock();end=clock()
+            if type(end) is not int or end<now or cpu_end<cpu_begin:
+                raise ValueError('Noncausal voltage join completion clock')
+            if end>=deadline_ns:
+                raise TimeoutError('Voltage pipeline exceeded 20 ms hard deadline at voltage join')
+            return {'mode':'native_readiness_poll_v1' if deadline_wait is not None else 'bounded_future_wait_v1',
+                    'native_tick_max_us':200 if deadline_wait is not None else None,
+                    'wait_calls':calls,'begin_ns':begin,'end_ns':end,
+                    'thread_cpu_begin_ns':cpu_begin,'thread_cpu_end_ns':cpu_end,
+                    'future_results_taken_only_after_ready':True}
+        if deadline_wait is None:
+            wait(owners,timeout=(deadline_ns-now)/1e9,return_when=FIRST_EXCEPTION)
+        else:
+            wake=min(deadline_ns,now+200_000)
+            try:deadline_wait(wake)
+            except BaseException:
+                # Cancellation can wake the native wait after an owner failed.
+                # Retain that original owner error rather than hiding it with
+                # the cancellation notification raised by the wait callback.
+                for future in owners:
+                    if future.done() and not future.cancelled():
+                        error=future.exception()
+                        if error is not None:raise error
+                raise
+            returned=clock()
+            if type(returned) is not int or returned<wake:
+                raise ValueError('Native voltage readiness wait returned before requested wake')
+        calls+=1
+
+
 def _settle_voltage(futures,record):
     """Keep each completed voltage exchange, even if inference failed first."""
     errors=[]
@@ -474,13 +543,152 @@ def _retain_submitted_feedback(feedback_ready,voltage_futures,record):
                 type(error).__name__+': '+str(error))
 
 
+def _owned_record_images(owned,count):
+    """Freeze complete native input records, including every header/timestamp.
+
+    Each bus has already finished its exchange before these buffers are read.
+    Whole-buffer comparison also catches mutations outside decoded SI values;
+    no frame is reparsed just to prove the completed buffer is unchanged.
+    """
+    if set(owned)!=set(dual.SCOPES):raise ValueError('Incomplete voltage validation buses')
+    images=[]
+    for scope in dual.SCOPES:
+        records,_=owned[scope]
+        if (not isinstance(records,C.Array) or type(records)._type_ is not native.Record or
+                len(records)!=count):
+            raise ValueError('Incomplete native records before voltage validation')
+        images.append(bytes(records))
+    return tuple(images)
+
+
+def _sample_signature(sample):
+    return (sample['read_started_monotonic_ns'],sample['read_finished_monotonic_ns'],
+            tuple(sample['accel_m_s2']),tuple(sample['gyro_rad_s']))
+
+
+def _feedback_snapshot_signature(snapshot):
+    # This locally constructed snapshot contains only bounded primitive fields.
+    # Tuple ownership freezes its nested numeric values without a JSON hash or
+    # recursive deepcopy. Keep units/ages/flags as well as the model SI values.
+    imu_value=snapshot['imu']
+    return (tuple((k,v) for k,v in snapshot.items()
+                  if k not in ('motors','imu','source_flags','blocked_reasons','voltage_by_bus')),
+            tuple(tuple(row.items()) for row in snapshot['motors']),
+            tuple((k,tuple(v) if isinstance(v,list) else v) for k,v in imu_value.items()),
+            tuple(snapshot['source_flags'].items()),tuple(snapshot['blocked_reasons']),
+            tuple((s,tuple(v.items())) for s,v in snapshot['voltage_by_bus'].items()))
+
+
+def _validated_feedback_for_voltage(acquired,sample,tick_ns):
+    """Validate feedback once, then seal evidence before worker submission."""
+    images=_owned_record_images(acquired,6)
+    sample_value=_sample_signature(sample)
+    snapshot=snapshot_from_records({s:x[0] for s,x in acquired.items()},sample,tick_ns,
+                                   expected_voltage_by_bus=None)
+    snapshot['source_flags']['v3_voltage_overlap_pending_at_inference']=True
+    if images!=_owned_record_images(acquired,6) or sample_value!=_sample_signature(sample):
+        raise ValueError('Feedback/IMU changed during initial voltage validation')
+    return snapshot,_FeedbackProof(images,sample_value,_feedback_snapshot_signature(snapshot))
+
+
+def _check_feedback_proof(acquired,sample,snapshot,proof):
+    if (type(proof) is not _FeedbackProof or
+            proof.images!=_owned_record_images(acquired,6) or
+            proof.sample!=_sample_signature(sample) or
+            proof.snapshot!=_feedback_snapshot_signature(snapshot)):
+        raise ValueError('Feedback/IMU changed while voltage was pending')
+
+
+def _voltage_from_records(voltage,expected_voltage_by_bus,tick_ns,voltage_max_v):
+    """Decode only the two new voltage replies; retain the same wire checks."""
+    if set(expected_voltage_by_bus)!=set(dual.SCOPES):
+        raise ValueError('Missing or incorrect rotating voltage input')
+    images=_owned_record_images(voltage,1);values={}
+    for scope in dual.SCOPES:
+        row=voltage[scope][0][0];mid=expected_voltage_by_bus[scope]
+        if mid not in dual.SCOPES[scope]:raise ValueError('Cross-bus voltage input')
+        if not (row.written==row.received==17 and
+                0<row.start_ns<=row.finish_ns<=row.received_ns<row.deadline_ns and
+                row.received_ns<=tick_ns):
+            raise ValueError('Incomplete/noncausal native voltage input')
+        if bytes(row.tx)!=_READ_WIRES[mid,'voltage']:
+            raise ValueError('Missing or incorrect rotating voltage input')
+        rx=_native_record_frame(bytes(row.rx))
+        decoded=codec.decode_reply(rx,mid,'voltage')
+        if not decoded['ok']:raise ValueError('Rejected Type17 voltage value')
+        value=decoded['value']
+        if not math.isfinite(value) or not 35.<=value<=voltage_max_v:
+            raise ValueError(f'Voltage outside 35..{voltage_max_v:g} V before proxy STOP')
+        values[scope]={'motor_id':mid,'value_v':value}
+    if images!=_owned_record_images(voltage,1):
+        raise ValueError('Voltage records changed during validation')
+    return values,_VoltageProof(images,tuple((s,mid['motor_id'],mid['value_v'])
+                                           for s,mid in values.items()))
+
+
+def _check_voltage_proof(voltage,full):
+    proof=full.get('_validated_voltage_proof')
+    if (type(proof) is not _VoltageProof or
+            proof.images!=_owned_record_images(voltage,1) or
+            proof.values!=tuple((s,v['motor_id'],v['value_v'])
+                                for s,v in full['voltage_by_bus'].items())):
+        raise ValueError('Voltage changed before proxy STOP')
+
+
+def _verify_joined_voltage_proof(acquired,voltage,sample,snapshot,full,proof,clock):
+    """Verify the joined worker result without a second fourteen-record walk."""
+    _check_feedback_proof(acquired,sample,snapshot,proof)
+    _check_voltage_proof(voltage,full)
+    now=clock()
+    if (not snapshot['tick_ns']<=full['tick_ns']<=now or
+            now-(snapshot['tick_ns']-snapshot['oldest_observation_age_ns'])>LIMIT_NS):
+        raise ValueError('Expired feedback/voltage/IMU before proxy STOP')
+    return now
+
+
+def _verify_voltage_with_feedback_proof(acquired,voltage,sample,feedback_snapshot,
+                                       expected_voltage_by_bus,clock,voltage_max_v,proof):
+    if type(proof) is not _FeedbackProof:raise ValueError('Missing validated feedback proof')
+    tick=clock()
+    values,voltage_proof=_voltage_from_records(voltage,expected_voltage_by_bus,tick,voltage_max_v)
+    # Preserve the complete validation-snapshot schema and actual age fields.
+    # Build from the immutable seal, not live mutable snapshot descendants.
+    # A concurrent mutation cannot influence this validation result even if
+    # it occurs while voltage parsing releases/interleaves the Python thread.
+    metadata,motors,imu_fields,flags,blocked,_=proof.snapshot
+    full=dict(metadata)
+    original_tick=full['tick_ns'];oldest=original_tick-full['oldest_observation_age_ns']
+    motor_rows=[dict(row) for row in motors]
+    for row in motor_rows:row['age_upper_bound_ns']=tick-row['request_ns']
+    imu_value=dict(imu_fields)
+    for key in ('accel_m_s2','gyro_rad_s'):imu_value[key]=list(imu_value[key])
+    imu_value['age_upper_bound_ns']=tick-imu_value['read_started_ns']
+    source_flags=dict(flags);source_flags.pop('v3_voltage_overlap_pending_at_inference',None)
+    source_flags['v3_voltage_cadence_proxy']=True
+    full.update(tick_ns=tick,motors=motor_rows,imu=imu_value,voltage_by_bus=values,
+                source_flags=source_flags,blocked_reasons=list(blocked),
+                oldest_observation_age_ns=tick-oldest,_validated_voltage_proof=voltage_proof)
+    # Frozen timestamps were causal at feedback validation; both new voltage
+    # replies were checked against tick above. Recheck the buffer and actual
+    # oldest age here; the coordinator still walks all fourteen timestamps at
+    # its final pre-STOP gate. No source timestamp is updated or backdated.
+    _check_feedback_proof(acquired,sample,feedback_snapshot,proof)
+    verified=clock()
+    if verified<tick or tick<original_tick or verified-oldest>LIMIT_NS:
+        raise ValueError('Expired/noncausal feedback/voltage/IMU validation')
+    return full,verified
+
+
 def _verify_voltage_after_inference(acquired,voltage,sample,feedback_snapshot,
-                                    expected_voltage_by_bus,clock,voltage_max_v=42):
+                                    expected_voltage_by_bus,clock,voltage_max_v=42,feedback_proof=None):
     """Revalidate retained feedback and both late replies before a proxy STOP.
 
     This second snapshot is a validation copy, never a replacement for the
     feedback-only snapshot whose canonical hash the observer consumed.
     """
+    if feedback_proof is not None:
+        return _verify_voltage_with_feedback_proof(acquired,voltage,sample,feedback_snapshot,
+            expected_voltage_by_bus,clock,voltage_max_v,feedback_proof)
     combined={scope:list(acquired[scope][0])+list(voltage[scope][0])
               for scope in dual.SCOPES}
     validation_tick=clock()
@@ -502,7 +710,8 @@ def _verify_voltage_after_inference(acquired,voltage,sample,feedback_snapshot,
 
 
 def _validate_voltage_during_inference(voltage_futures,acquired,sample,
-                                       feedback_snapshot,expected_voltage_by_bus,clock,voltage_max_v=42):
+                                       feedback_snapshot,expected_voltage_by_bus,clock,voltage_max_v=42,
+                                       feedback_proof=None):
     """Join both bus-owned voltage reads and validate on the free IMU worker.
 
     Submitted only after the IMU future has completed, so the three-worker pool
@@ -512,12 +721,14 @@ def _validate_voltage_during_inference(voltage_futures,acquired,sample,
     voltage={scope:future.result() for scope,future in voltage_futures.items()}
     started=clock()
     full,finished=_verify_voltage_after_inference(
-        acquired,voltage,sample,feedback_snapshot,expected_voltage_by_bus,clock,voltage_max_v)
+        acquired,voltage,sample,feedback_snapshot,expected_voltage_by_bus,clock,voltage_max_v,
+        feedback_proof)
     return full,started,finished
 
 
 def _verify_voltage_final_freshness(acquired,voltage,sample,feedback_snapshot,
-                                    full,expected_voltage_by_bus,clock,voltage_max_v=42):
+                                    full,expected_voltage_by_bus,clock,voltage_max_v=42,
+                                    feedback_proof=None):
     """Check the worker proof against the actual post-inference STOP gate time.
 
     The worker already decoded every frame and compared feedback/IMU with the
@@ -526,6 +737,9 @@ def _verify_voltage_final_freshness(acquired,voltage,sample,feedback_snapshot,
     without repeating frame parsing or nested equality work.
     """
     now=clock()
+    if feedback_proof is not None:
+        _check_feedback_proof(acquired,sample,feedback_snapshot,feedback_proof)
+        _check_voltage_proof(voltage,full)
     if (full.get('status')!='DIAGNOSTIC_READY' or full.get('output_allowed') is not False or
             not 0<full.get('tick_ns',0)<=now or
             feedback_snapshot.get('source_flags',{}).get('v3_voltage_overlap_pending_at_inference') is not True or
@@ -998,8 +1212,12 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                 last_imu=sample['read_started_monotonic_ns']
                 expected_voltage=({scope:ids[cycle%6] for scope,ids in dual.SCOPES.items()}
                                   if v3_voltage_proxy else None)
-                snapshot=snapshot_from_records({s:x[0] for s,x in acquired.items()},sample,gather_end,
-                    expected_voltage_by_bus=None if v3_voltage_overlap else expected_voltage)
+                feedback_proof=None
+                if v3_voltage_overlap:
+                    snapshot,feedback_proof=_validated_feedback_for_voltage(acquired,sample,gather_end)
+                else:
+                    snapshot=snapshot_from_records({s:x[0] for s,x in acquired.items()},sample,gather_end,
+                                                  expected_voltage_by_bus=expected_voltage)
                 if v3_voltage_overlap:
                     snapshot['source_flags']['v3_voltage_overlap_pending_at_inference']=True
                     if pipeline_key is not None:
@@ -1024,7 +1242,8 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                         # task waits on the two bus-owned voltage futures, then
                         # validates their immutable records during inference.
                         validation_future=pool.submit(_validate_voltage_during_inference,
-                            voltage_futures,acquired,sample,snapshot,expected_voltage,clock,voltage_max_v)
+                            voltage_futures,acquired,sample,snapshot,expected_voltage,clock,voltage_max_v,
+                            feedback_proof)
                 prepared=clock()
                 if inference_cpu_values is not None:
                     inference_cpu_base=cycle*2
@@ -1049,6 +1268,29 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                                 type(validation_error).__name__+': '+str(validation_error))
                 raise
             if v3_voltage_overlap:
+                # This scheduling comparison is selected only by the existing
+                # native release-wait callback. Legacy no-callback diagnostic
+                # sequencing and its failure-stage metadata stay unchanged.
+                if pipeline_key is not None and deadline_wait is not None:
+                    try:
+                        record[pipeline_key]['voltage_join_wait']=_await_voltage_ready(
+                            voltage_futures,validation_future,deadline_ns=pipeline_hard_end,
+                            deadline_wait=deadline_wait,clock=clock,check=check)
+                    except BaseException as join_error:
+                        # Preserve every completed owner record on the failure
+                        # path. This blocking settlement is cleanup, not an
+                        # admission for another proxy STOP output batch.
+                        _settle_voltage(voltage_futures,record)
+                        if validation_future is not None:
+                            try:validation_future.result()
+                            except BaseException as validation_error:
+                                record['voltage_validation_error']=(
+                                    type(validation_error).__name__+': '+str(validation_error))
+                        record[pipeline_key].update(
+                            status='REJECTED_BEFORE_PROXY_STOP',
+                            voltage_join_error=type(join_error).__name__+': '+str(join_error))
+                        record.pop('observed',None)
+                        raise
                 voltage_errors=_settle_voltage(voltage_futures,record)
                 voltage_wait_end=clock()
                 if pipeline_key is not None:
@@ -1064,19 +1306,28 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                         if voltage_errors:raise voltage_errors[0]
                         raise
                     if voltage_errors:raise voltage_errors[0]
-                    try:
-                        final_freshness_checked=_verify_voltage_final_freshness(
-                            acquired,record['voltage'],sample,snapshot,full_voltage,
-                            expected_voltage,clock,voltage_max_v)
-                    except BaseException as freshness_error:
-                        record['voltage_freshness_error']=(
-                            type(freshness_error).__name__+': '+str(freshness_error))
-                        raise
-                    verified_at=final_freshness_checked
+                    if pipeline_key is None:
+                        try:
+                            final_freshness_checked=_verify_voltage_final_freshness(
+                                acquired,record['voltage'],sample,snapshot,full_voltage,
+                                expected_voltage,clock,voltage_max_v,feedback_proof)
+                        except BaseException as freshness_error:
+                            record['voltage_freshness_error']=(
+                                type(freshness_error).__name__+': '+str(freshness_error))
+                            raise
+                        verified_at=final_freshness_checked
+                    else:
+                        # The worker completed frame/mutation/age validation.
+                        # This route has a second, actual dispatch gate below:
+                        # walk fourteen timestamps once there, immediately
+                        # before submitting STOP rather than twice in succession.
+                        verified_at=_verify_joined_voltage_proof(
+                            acquired,record['voltage'],sample,snapshot,full_voltage,feedback_proof,clock)
                 else:
                     if voltage_errors:raise voltage_errors[0]
                     full_voltage,verified_at=_verify_voltage_after_inference(
-                        acquired,record['voltage'],sample,snapshot,expected_voltage,clock,voltage_max_v)
+                        acquired,record['voltage'],sample,snapshot,expected_voltage,clock,voltage_max_v,
+                        feedback_proof)
                 record['voltage_overlap']={
                     'status':'VALIDATED_BEFORE_PROXY_STOP',
                     'feedback_ready_ns':gather_end,'inference_end_ns':inferred,
@@ -1114,7 +1365,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                         # dispatch point. STOP is the only possible output here.
                         final_gate=_verify_voltage_final_freshness(
                             acquired,record['voltage'],sample,snapshot,full_voltage,
-                            expected_voltage,clock,voltage_max_v)
+                            expected_voltage,clock,voltage_max_v,feedback_proof)
                         if final_gate>=pipeline_hard_end:
                             raise TimeoutError('Voltage pipeline exceeded 20 ms hard deadline before proxy STOP')
                     except BaseException as gate_error:
@@ -1172,6 +1423,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                 records[record_index]=traced
                 record=traced=acquired=sample=output=snapshot=imu_future=f=None
                 voltage_futures=validation_future=full_voltage=observed=None
+                feedback_proof=None
                 futures.clear()
             elif record_storage=='encoded':
                 # Every output future is settled. Keep the raw in-flight row
@@ -1532,8 +1784,9 @@ def _encoded_records_for_output(records,encoding_failure=None):
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--execute',action='store_true');p.add_argument('--supported-disabled',action='store_true')
-    p.add_argument('--provenance-mode',choices=('supported-geometric-preload-5s-v1',),
-                   help='Explicitly pin current preload execution sources in this disabled diagnostic; requires --power-epoch and grants no output approval')
+    p.add_argument('--provenance-mode',choices=('supported-geometric-preload-5s-v1',
+                   'human-supported-partial-current-hold-audio-8s-v1'),
+                   help='Pin current sources for the named supported scope in this disabled diagnostic; requires --power-epoch and grants no output approval')
     p.add_argument('--power-epoch',
                    help='Explicit current motor-power epoch assertion for --provenance-mode; never inferred from an earlier report')
     p.add_argument('--mode',choices=('type17','stop-proxy'),default='type17')

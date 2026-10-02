@@ -60,6 +60,45 @@ class NativePipelineProvenanceTests(unittest.TestCase):
         self.assertTrue(value['source_files_unchanged'])
         self.assertFalse(value['approved_for_runtime'])
 
+    def test_human_hold_pins_its_supervisor_without_changing_legacy_sources(self):
+        mode = profiles.HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S
+        value = benchmark._start_source_provenance(mode, 'human-epoch')
+        self.assertEqual(value['cadence_source_sha256'], profiles.cadence_source_hashes(
+            {'diagnostic_timing_acceptance': mode}))
+        self.assertIn('singularitydog_hw/human_supported_hold.py', value['cadence_source_sha256'])
+        for legacy in (None, {'diagnostic_timing_acceptance': profiles.SUPPORTED_PRELOAD_5S}):
+            self.assertNotIn('singularitydog_hw/human_supported_hold.py', profiles.cadence_source_paths(legacy))
+        self.assertFalse(value['output_allowed'])
+        self.assertFalse(value['approved_for_runtime'])
+        self.assertEqual(value['power_epoch_source'], 'explicit_operator_argument_not_hardware_detected')
+
+    def test_human_epoch_and_source_drift_fail_before_approval(self):
+        mode = profiles.HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S
+        for epoch in (None, '', ' ', ' epoch', 'epoch ', 'x\ny', False):
+            with self.subTest(epoch=epoch), self.assertRaises(ValueError):
+                benchmark._start_source_provenance(mode, epoch)
+        value = benchmark._start_source_provenance(mode, 'human-epoch')
+        changed = dict(value['cadence_source_sha256'])
+        changed['singularitydog_hw/human_supported_hold.py'] = '0'*64
+        report = {'status':'COMPLETE_DIAGNOSTIC','errors':[]}
+        with patch.object(profiles, 'cadence_source_hashes', return_value=changed):
+            benchmark._finish_source_provenance(report, value)
+        self.assertEqual(report['status'], 'ABORTED')
+        self.assertFalse(value['source_files_unchanged'])
+        self.assertFalse(value['output_allowed'])
+
+    def test_human_plan_only_is_accepted_without_device_access(self):
+        mode = profiles.HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output), patch.object(benchmark.native, 'load_library') as load:
+            self.assertEqual(benchmark.main(['--provenance-mode',mode,'--power-epoch','human-epoch']), 0)
+        load.assert_not_called()
+        plan = json.loads(output.getvalue())
+        self.assertEqual(plan['source_provenance']['mode'], mode)
+        self.assertFalse(plan['enable_available'])
+        self.assertFalse(plan['learned_targets_sent'])
+        self.assertFalse(plan['source_provenance']['approved_for_runtime'])
+
     def test_changed_or_missing_sources_abort_successful_diagnostic(self):
         original = benchmark._start_source_provenance(profiles.SUPPORTED_PRELOAD_5S, 'epoch-current')
         changed = dict(original['cadence_source_sha256'])

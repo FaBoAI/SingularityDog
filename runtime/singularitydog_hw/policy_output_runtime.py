@@ -6,7 +6,7 @@ a polling instruction. An independent host timer cancels acquisition and queues
 STOP on both owners if a model/IMU call stalls. Process/kernel failure still
 requires the independently tested actuator watchdog and physical support.
 """
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import FIRST_EXCEPTION, Future, ThreadPoolExecutor, wait
 from dataclasses import asdict, replace
 import gc
 import math
@@ -23,7 +23,8 @@ from .policy_live_profile import (SCHEMA_V3, SCALAR_BACKEND, MEASURED_R17_STARTU
                                   execution_settings, local_characterization_settings,
                                   post_reply_deadline_settings, current_position_hold_only,
                                   reviewed_startup_cycle_allowance,
-                                  fixed_catch_current_hold_settings, supported_preload_settings)
+                                  fixed_catch_current_hold_settings, supported_preload_settings,
+                                  human_supported_partial_current_hold_settings)
 from .policy_post_reply_timing import PostReplyDeadlineBudget
 from .policy_observer import _TARGET_LOWER, _TARGET_UPPER
 from .native_diagnostic_transport import exchange_evidence
@@ -109,9 +110,12 @@ def _absolute_epoch_slot(epoch_ns,previous_slot,previous_begin_ns,now_ns):
 class _PendingCycleTiming:
     """One reused scalar record; materialize failure evidence only after STOP."""
     _fields=('index','release_ns','begin_ns','previous_candidate_ns','previous_sample_start_ns',
-             'hold_checked_ns','acquisition_complete_ns','sample_start_ns','policy_call_begin_ns',
+             'hold_checked_ns','combined_acquisition_wait_begin_ns','combined_acquisition_wait_end_ns',
+             'feedback_collect_begin_ns','feedback_collect_end_ns',
+             'imu_wait_begin_ns','imu_wait_end_ns','imu_read_started_ns','imu_read_finished_ns',
+             'acquisition_complete_ns','sample_start_ns','policy_call_begin_ns',
              'policy_call_return_ns','target_ready_ns','voltage_owner_validated_ns',
-             'voltage_join_complete_ns','candidate_ns',
+             'voltage_join_complete_ns','voltage_join_cpu_begin_ns','voltage_join_cpu_end_ns','candidate_ns',
              'output_submit_ns','output_return_ns','cycle_end_ns')
     __slots__=(*_fields,'active','stage')
 
@@ -137,6 +141,7 @@ class _PendingCycleTiming:
                 ('candidate_sample_age_ms',self.candidate_ns,self.sample_start_ns),
                 ('policy_call_ms',self.policy_call_return_ns,self.policy_call_begin_ns),
                 ('voltage_join_ms',self.voltage_join_complete_ns,self.target_ready_ns),
+                ('voltage_join_cpu_ms',self.voltage_join_cpu_end_ns,self.voltage_join_cpu_begin_ns),
                 ('voltage_owner_to_join_ms',self.voltage_join_complete_ns,self.voltage_owner_validated_ns)):
             result[name]=None if new is None or old is None else (new-old)/1e6
         return result
@@ -178,12 +183,13 @@ def decode_records(result):
 
 class BusWorkers:
     """One owner per bus; emergency scheduling prevents subsequent active work."""
-    def __init__(self,sessions,cancel_io,clock=time.monotonic_ns):
+    def __init__(self,sessions,cancel_io,clock=time.monotonic_ns,*,before_emergency_stop=None):
         need(set(sessions)==set(BUSES) and sessions['front'] is not sessions['rear'],'Two independent buses required')
         self.sessions=sessions;self.cancel_io=cancel_io;self.clock=clock
         self.pools={s:ThreadPoolExecutor(max_workers=1,thread_name_prefix='policy-'+s) for s in BUSES}
         self.lock=threading.RLock();self.aborted=threading.Event();self.reason=None
         self.stop_futures=None;self.journal=[];self.emergency_errors=[]
+        self.before_emergency_stop=before_emergency_stop
 
     def _exchange(self,scope,wires,timeout_ns=100_000_000,send_only=False,label='preflight',
                   deadline_ns=None):
@@ -243,6 +249,97 @@ class BusWorkers:
                 self.emergency(type(e).__name__+': '+str(e))
         if failure:raise failure
         return results
+
+    def collect_acquisition(self,futures,imu_future,*,deadline_ns,timing=None):
+        """Wait once for both CAN owners and this cycle's fresh IMU.
+
+        FIRST_EXCEPTION wakes immediately on a worker failure; otherwise the
+        coordinator resumes only when all three inputs are ready. Do not move
+        the IMU read earlier or reuse a previous input to save time. A timeout
+        cancels bus I/O and queues STOP without joining unfinished input work;
+        the existing finalizer owns that cleanup.
+        """
+        try:
+            need(set(futures)==set(BUSES),'Two-bus acquisition required')
+            need(type(deadline_ns) is int,'Integer acquisition deadline required')
+            inputs=(*futures.values(),imu_future)
+            remaining=deadline_ns-self.clock()
+            if remaining<=0:raise TimeoutError('Input acquisition hard deadline')
+            # A cancelled Future may not yet have executor notification state.
+            # Never wait on it or treat cancellation as an available input.
+            for future in inputs:
+                if future.cancelled():future.result()
+            if timing is not None:timing.combined_acquisition_wait_begin_ns=self.clock()
+            completed,unfinished=wait(inputs,timeout=remaining/1e9,return_when=FIRST_EXCEPTION)
+            for future in inputs:
+                if future.cancelled():future.result()
+                if future in completed and future.exception() is not None:future.result()
+            if unfinished or self.clock()>=deadline_ns:
+                raise TimeoutError('Input acquisition hard deadline')
+            need(not self.aborted.is_set(),self.reason or 'Output aborted during acquisition')
+            if timing is not None:
+                timing.combined_acquisition_wait_end_ns=self.clock()
+                timing.feedback_collect_begin_ns=self.clock()
+            results=self.collect(futures)
+            if timing is not None:
+                timing.feedback_collect_end_ns=self.clock()
+                timing.imu_wait_begin_ns=self.clock()
+            imu_value=imu_future.result()
+            if timing is not None:timing.imu_wait_end_ns=self.clock()
+            return results,imu_value
+        except BaseException as error:
+            self.emergency(type(error).__name__+': '+str(error))
+            raise
+
+    def collect_voltage(self,futures,*,deadline_ns,deadline_wait=None,timing=None):
+        """Join both original owner proofs without sequential blocking result calls.
+
+        The selected native waiter releases the GIL and checks cancellation;
+        poll readiness at most every 200 us instead of sleeping on a Future's
+        condition notification. This bounds the requested wait, not OS wake
+        latency. Without that waiter, use one finite FIRST_EXCEPTION wait.
+        No unfinished result, previous voltage, or late proof may be reused.
+        """
+        if timing is not None:timing.voltage_join_cpu_begin_ns=time.thread_time_ns()
+        try:
+            need(set(futures)==set(BUSES),'Two-bus voltage proofs required')
+            need(type(deadline_ns) is int,'Integer voltage join deadline required')
+            need(deadline_wait is None or callable(deadline_wait),'Callable native voltage wait required')
+            inputs=tuple(futures.values())
+            need(len(set(inputs))==len(BUSES),'Distinct voltage owner futures required')
+            def ready_failure():
+                for future in inputs:
+                    if future.cancelled():future.result()
+                    if future.done() and future.exception() is not None:future.result()
+            while True:
+                ready_failure()
+                need(not self.aborted.is_set(),self.reason or 'Output aborted during voltage join')
+                now=self.clock()
+                if now>=deadline_ns:raise TimeoutError('Voltage join hard cycle deadline')
+                if all(future.done() for future in inputs):break
+                if deadline_wait is None:
+                    _,unfinished=wait(inputs,timeout=(deadline_ns-now)/1e9,return_when=FIRST_EXCEPTION)
+                    ready_failure()
+                    if unfinished:raise TimeoutError('Voltage join hard cycle deadline')
+                    need(all(future.done() for future in inputs),'Incomplete voltage readiness wait')
+                else:
+                    wake=min(deadline_ns,now+200_000)
+                    try:deadline_wait(wake)
+                    except BaseException:
+                        # Cancellation may have come from a failed owner. Keep
+                        # that original error when its Future is already ready.
+                        ready_failure()
+                        raise
+                    need(self.clock()>=wake,'Native voltage wait returned before its deadline')
+            results={scope:future.result() for scope,future in futures.items()}
+            need(not self.aborted.is_set(),self.reason or 'Output aborted during voltage result takeout')
+            if self.clock()>=deadline_ns:raise TimeoutError('Voltage result takeout hard cycle deadline')
+            return results
+        except BaseException as error:
+            self.emergency(type(error).__name__+': '+str(error))
+            raise
+        finally:
+            if timing is not None:timing.voltage_join_cpu_end_ns=time.thread_time_ns()
 
     def _voltage(self,scope,wires,ids,profile,timeout_ns=None,deadline_ns=None):
         """The existing bus owner receives and validates before returning.
@@ -316,7 +413,7 @@ class BusWorkers:
     def exchange(self,wires,*,timeout_ns=100_000_000,send_only=False,label='preflight'):
         return self.collect(self.submit(wires,timeout_ns=timeout_ns,send_only=send_only,label=label))
 
-    def emergency(self,reason):
+    def emergency(self,reason,*,normal_completion=False):
         with self.lock:
             if self.stop_futures is not None:return
             self.reason=str(reason);self.aborted.set()
@@ -324,6 +421,11 @@ class BusWorkers:
             # reentrant hooks. A cancellation error must not suppress either
             # STOP owner or escape the coordinator's final evidence report.
             self.stop_futures={}
+            if not normal_completion and self.before_emergency_stop is not None:
+                try:self.before_emergency_stop(self.reason)
+                except BaseException as error:
+                    self.emergency_errors.append({'stage':'recovery_notification','bus':None,
+                        'error':type(error).__name__+': '+str(error)})
             try:self.cancel_io()
             except BaseException as error:
                 self.emergency_errors.append({'stage':'cancel_io','bus':None,
@@ -342,7 +444,7 @@ class BusWorkers:
                     self.stop_futures[scope]=failure
 
     def finish_stops(self):
-        self.emergency('normal completion')
+        self.emergency('normal completion',normal_completion=True)
         result={}
         # Both owners run concurrently. Allow the one-second STOP budget plus
         # cancellation/dispatch overhead, with one shared collection deadline.
@@ -591,6 +693,23 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
         # and enable. Fresh anchors use check_origin's extrema checks below.
         preload_wire_audit=preload_path.audit_wire_reference()
     fixed_catch=fixed_catch_current_hold_settings(profile)
+    human_supported=human_supported_partial_current_hold_settings(profile)
+    if human_supported is not None:
+        from .human_supported_hold import HumanSupportedHoldExecution
+        need(type(supervision) is HumanSupportedHoldExecution,
+             'Human-supported current hold requires its exact terminal supervisor')
+        need(absolute_epoch_cadence and fixed_position_hold,
+             'Human-supported current hold requires current-hold absolute-epoch execution')
+        need(callable(supervision.cancel),
+             'Human-supported current hold requires connected emergency cancellation')
+        # Recheck the loader-bound finite/audio contract before opening workers
+        # or sending Enable. An exact but unbound/previously started object
+        # cannot postpone this gate until on_start after hardware is armed.
+        supervision.bind_profile(profile,active=True)
+    else:
+        from .human_supported_hold import HumanSupportedHoldExecution
+        need(type(supervision) is not HumanSupportedHoldExecution,
+             'Human-supported supervisor requires its reviewed dedicated scope')
     if fixed_catch is not None:
         from .fixed_catch_hold import FixedCatchExecution
         need(type(supervision) is FixedCatchExecution,
@@ -604,14 +723,14 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
     need(post_reply_settings is None or supervision is None,
          'Post-reply deadline policy requires the supported-only runner')
     post_reply_budget=None if post_reply_settings is None else PostReplyDeadlineBudget(post_reply_settings)
-    need(local_characterization is None or supervision is None or fixed_catch is not None,
+    need(local_characterization is None or supervision is None or fixed_catch is not None or human_supported is not None,
          'Local characterization requires the supported-only runner')
     r22=(main_thread_cpu is not None or pre_cycle_policy_warmup_calls is not None or
          post_pin_policy_prime_calls is not None)
     need(type(exclude_policy_cpu_from_workers) is bool,
          'I/O worker CPU exclusion selection must be a bool')
     need(not exclude_policy_cpu_from_workers or r22 and
-         (supervision is None or fixed_catch is not None),
+         (supervision is None or fixed_catch is not None or human_supported is not None),
          'I/O worker CPU exclusion requires explicit R22 supported-only output')
     need(r22 or startup_model is None,'Startup model requires an explicit R22 selection')
     need(not r22 or (type(main_thread_cpu) is int and main_thread_cpu==4 and
@@ -640,6 +759,9 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
     need(not voltage_pipeline or
          profile['schema']==SCHEMA_V3 and execution['voltage_overlap'],
          'Voltage pipeline requires V3 voltage overlap')
+    need(human_supported is None or
+         not reviewed_startup_cycle_allowance(profile) and post_reply_settings is None,
+         'Human-supported current hold must not permit startup or post-reply deadline allowances')
     validate_cadence_sources(profile)
     native_batch_config=profile.get('native_batch_encoder')
     native_batch_module=None;native_batch_encoder=None;native_batch_sources=None
@@ -653,7 +775,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             profile['_native_batch_encoder_path'],
             expected_binary_sha256=native_batch_config['sha256'])
         native_batch_sources=dict(PINNED_SOURCE_SHA256)
-    workers=BusWorkers(sessions,cancel_io,clock)
+    workers=BusWorkers(sessions,cancel_io,clock,
+        before_emergency_stop=None if human_supported is None else supervision.on_abort)
     watcher=OutputWatchdog(workers,PERIOD_NS+int(profile['hard_cycle_ms']*1e6),clock)
     imu_pool=ThreadPoolExecutor(max_workers=1,thread_name_prefix='policy-imu')
     from .active_output_timer_slack import ActiveOutputTimerSlack
@@ -675,6 +798,9 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             'firmware_versions_match_watchdog_review':False,
             'telemetry_cadence':cadence,
             'execution_settings':execution,
+            'input_acquisition_wait':'all_inputs_first_exception.v1',
+            'voltage_join_wait':('native_ready_poll_200us.v1' if deadline_wait is not None
+                                 else 'all_ready_first_exception.v1'),
             'absolute_epoch_cadence':absolute_epoch_cadence,
             'native_release_wait':deadline_wait is not None,
             'timer_slack':timer_slack.report,
@@ -729,6 +855,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
     previous=None;last_imu=0;pending_timing=_PendingCycleTiming()
     def safety_check():
         check();need(not workers.aborted.is_set(),workers.reason or 'Output aborted')
+        need(human_supported is None or supervision.failed is None,
+             getattr(supervision,'failed',None) or 'Human-supported supervision failed')
         need(preload_path is None or not stop_requested.is_set(),
              'Geometric preload cancelled; STOP without a forced return')
     def require_voltage_before_type1():
@@ -881,16 +1009,29 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 'value_v':voltage_cache[i][0],'received_ns':voltage_cache[i][1]} for i in IDS}
             need(clock()/1e9-initial_sample.monotonic_s<=profile['max_sample_age_ms']/1000,
                  'Initial motor samples became stale during voltage refresh')
-        # Finite zero-gain transition: every enabled pair is checked before the next.
+        # V3 startup follows the successful one-axis command-loss handshake:
+        # enable and check zero gain for one axis before touching the next bus.
+        # This is a comparison strategy, not a claim that simultaneous enable
+        # caused the observed missing Type3 reply. Legacy schemas keep their
+        # original paired-bus startup.
         # Enable is startup work, before any positive gains. A cold Type3 reply
         # can take longer than the 20 ms control period. Give it 30 ms in V3,
         # while keeping zero-gain Type1 and every cyclic deadline unchanged.
-        # Bound the entire pair-by-pair enable sequence, not just each request.
+        # Bound the entire enable sequence, not just each request. No motion
+        # request is retried and a failed check prevents the next axis.
+        enable_steps=([{scope:ids[index]} for index in range(6)
+                      for scope,ids in BUSES.items()] if v3 else
+                      [{scope:ids[index] for scope,ids in BUSES.items()}
+                       for index in range(6)])
         transition_begin=clock()
         transition_deadline=transition_begin+120_000_000 if v3 else None
         if v3:
             report['zero_gain_enable_transition']={
                 'enable_reply_budget_ms':30., 'total_budget_ms':120.,
+                'strategy':'serial_axis_enable_then_zero_gain_v1',
+                'ordered_axes':[{'bus':scope,'motor_id':mid}
+                    for step in enable_steps for scope,mid in step.items()],
+                'completed_axes':[], 'current_axis':None, 'current_stage':None,
                 'begin_ns':transition_begin,'deadline_ns':transition_deadline,
                 'complete':False,'motion_retry_allowed':False}
         def transition_timeout(desired):
@@ -899,27 +1040,34 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             need(remaining>=1_000_000,'Zero-gain enable sequence deadline exceeded')
             return min(desired,remaining)
         watcher.kick()
-        for index in range(6):
+        for step in enable_steps:
             safety_check()
             require_voltage_before_type1()
+            if v3:
+                scope,mid=next(iter(step.items()))
+                report['zero_gain_enable_transition'].update(
+                    current_axis={'bus':scope,'motor_id':mid},current_stage='enable')
             report['motor_enable_attempted']=True
-            reply=rows_from_pair(workers.exchange({s:[protocol.enable_request(phase=protocol.TrialPhase.ENABLE,motor_id=ids[index])]
-                for s,ids in BUSES.items()},timeout_ns=transition_timeout(
+            reply=rows_from_pair(workers.exchange({s:[protocol.enable_request(phase=protocol.TrialPhase.ENABLE,motor_id=mid)]
+                for s,mid in step.items()},timeout_ns=transition_timeout(
                     30_000_000 if v3 else int(profile['hard_cycle_ms']*1e6)),label='startup_enable'))
             for (i,_),(f,_,_) in reply.items():need(f.mode_state in (0,2) and f.fault_bits==0,'Enable transition failed')
             check_startup_displacement(reply,'enable')
             watcher.kick()
             require_voltage_before_type1()
-            reply=rows_from_pair(workers.exchange({s:[encode_motion(ids[index],starts[ids[index]],0.,0.)]
-                for s,ids in BUSES.items()},timeout_ns=transition_timeout(
+            if v3:report['zero_gain_enable_transition']['current_stage']='zero_gain'
+            reply=rows_from_pair(workers.exchange({s:[encode_motion(mid,starts[mid],0.,0.)]
+                for s,mid in step.items()},timeout_ns=transition_timeout(
                     int(profile['hard_cycle_ms']*1e6)),label='startup_zero_gain'))
             for (i,_),(f,_,_) in reply.items():need(f.mode_state==2 and f.fault_bits==0,'Zero-gain transition failed')
             check_startup_displacement(reply,'zero_gain')
+            if v3:report['zero_gain_enable_transition']['completed_axes'].extend(step.values())
             watcher.kick()
         if v3:
             transition_end=clock()
             need(transition_end<transition_deadline,'Zero-gain enable sequence deadline exceeded')
-            report['zero_gain_enable_transition'].update(complete=True,end_ns=transition_end)
+            report['zero_gain_enable_transition'].update(
+                complete=True,end_ns=transition_end,current_axis=None,current_stage=None)
             # Enabling all twelve motors takes much of the first six-cycle
             # voltage rotation's age budget. Renew the complete cache while
             # gains are still zero, before the final all-axis hold establishes
@@ -1035,14 +1183,24 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                     incoming=workers.submit(acquisition,deadline_ns=hard_end,
                                             label='feedback_hold')
                 imu_future=imu_pool.submit(read_imu)
+                gathered,imu_value=workers.collect_acquisition(
+                    incoming,imu_future,deadline_ns=hard_end,timing=pending_timing)
                 if voltage_pipeline:
-                    decoded_feedback=workers.collect(incoming)
+                    decoded_feedback=gathered
                     replies={scope:result for scope,(result,_) in decoded_feedback.items()}
                     rows=rows_from_decoded_pair(decoded_feedback)
                 else:
-                    replies=workers.collect(incoming);rows=rows_from_pair(replies)
-                imu_value=imu_future.result();safety_check();acquired=clock()
+                    replies=gathered
+                    rows=rows_from_pair(replies)
+                safety_check();acquired=clock()
                 pending_timing.acquisition_complete_ns=acquired
+                # Raw IMU read stamps are diagnostic evidence, not another guard.
+                # Validation below retains its existing clock and failure policy.
+                if isinstance(imu_value,dict):
+                    begin=imu_value.get('read_started_monotonic_ns')
+                    end=imu_value.get('read_finished_monotonic_ns')
+                    pending_timing.imu_read_started_ns=begin if type(begin) is int else None
+                    pending_timing.imu_read_finished_ns=end if type(end) is int else None
                 last_imu=validate_imu_metadata(imu_value,acquired,profile,previous=last_imu)
                 first=min(last_imu,*(r.start_ns for result in replies.values() for r in result[0]))
                 hard_end=min(hard_end,first+int(profile['max_sample_age_ms']*1e6))
@@ -1080,6 +1238,7 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             if supervision is not None and (begun-start)/1e9>=stop_at_s and not (wants_stop or stop_started):
                 raise RuntimeError('Ground shutdown reserve reached without fresh re-support confirmation')
             if not stop_started and wants_stop:
+                if human_supported is not None:supervision.before_stop(emergency=False)
                 if preload_bound is not None:
                     need(report['preload_return_commanded'] and report['preload_return_measured'],
                          'Geometric preload return was not verified before gain-down')
@@ -1126,7 +1285,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             pending_timing.target_ready_ns=policy_computed;pending_timing.stage='voltage_join'
             voltage_validated_ns={}
             if voltage_pending is not None:
-                validated=workers.collect(voltage_pending)
+                validated=workers.collect_voltage(voltage_pending,deadline_ns=hard_end,
+                    deadline_wait=deadline_wait,timing=pending_timing)
                 pending_timing.voltage_join_complete_ns=clock()
                 for scope,(_,values,stamp) in validated.items():
                     voltage_cache.update(values);voltage_validated_ns[scope]=stamp
@@ -1161,6 +1321,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 'policy_return_ns':policy_computed,
                 'overlapped_voltage_validated_ns':voltage_validated_ns,
                 'voltage_join_ms':(computed-policy_computed)/1e6 if voltage_overlap else 0.,
+                'voltage_join_cpu_ms':None if pending_timing.voltage_join_cpu_begin_ns is None else
+                    (pending_timing.voltage_join_cpu_end_ns-pending_timing.voltage_join_cpu_begin_ns)/1e6,
                 'envelope_and_encode_ms':(encoded-computed)/1e6,
                 'policy_and_envelope_ms':(encoded-acquired)/1e6,
                 'effective_policy_weight':weight,'command':command,'imu':imu_value}
@@ -1260,6 +1422,21 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             if fixed_catch is not None:
                 supervision.after_cycle_validated(
                     begun,end,command.phase,stop_requested=stop_requested.is_set())
+            elif human_supported is not None:
+                full_gain=(command.phase=='active' and command.gain_scale==1. and
+                    all(kp==axis['kp'] and kd==axis['kd']
+                        for kp,kd,axis in zip(command.kp,command.kd,axis_profiles)))
+                pending_timing.active=True;pending_timing.stage='human_hold_supervision'
+                supervision.after_cycle_validated(begun,end,command.phase,
+                    stop_requested=stop_requested.is_set(),full_gain=full_gain)
+                safety_check()
+                end=clock();pending_timing.cycle_end_ns=end
+                cycle_row.update(end_ns=end,iteration_ms=(end-begun)/1e6,
+                    post_output_processing_ms=(end-reply_return)/1e6,
+                    deadline20ms_missed=end-begun>PERIOD_NS or final_write-first>PERIOD_NS,
+                    steady_deadline20ms_missed=end-begun>PERIOD_NS or final_write-first>PERIOD_NS)
+                need(end<hard_end,'Human-supported cycle supervision exceeded hard deadline')
+                pending_timing.active=False
             if command.phase=='stopped':report['normal_ramp_completed']=True;break
             if not absolute_epoch_cadence:release=max(begun+PERIOD_NS,end)
         need(report['normal_ramp_completed'],'Finite run budget expired before normal stop')
@@ -1390,4 +1567,6 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
         report['host_watchdog_reason']=workers.reason
     if fixed_catch is not None and report['status']=='COMPLETE_SUPPORTED_OUTPUT':
         report['status']='COMPLETE_FIXED_CATCH_HOLD'
+    if human_supported is not None and report['status']=='COMPLETE_SUPPORTED_OUTPUT':
+        report['status']='COMPLETE_HUMAN_SUPPORTED_PARTIAL_HOLD'
     return report

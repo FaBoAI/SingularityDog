@@ -32,12 +32,20 @@ REQUEST_NS = 250_000_000
 TOTAL_NS = 25_000_000_000
 
 
-def plan(group='all', *, voltage_max_v=42):
+def plan(group='all', *, voltage_max_v=42, position_window_deg=3, velocity_limit_rad_s=.5):
     if group not in GROUPS:
         raise ValueError('Choose one fixed joint group or all twelve axes')
     if type(voltage_max_v) not in (int, float) or voltage_max_v not in (42, 43):
         raise ValueError('Voltage maximum must be explicitly 42 or 43 V')
+    if (type(position_window_deg) not in (int, float) or
+            not math.isfinite(position_window_deg) or position_window_deg not in (3, 6)):
+        raise ValueError('Zero-gain position window must be explicitly 3 or 6 degrees')
+    if (type(velocity_limit_rad_s) not in (int, float) or
+            not math.isfinite(velocity_limit_rad_s) or velocity_limit_rad_s not in (.5, 1.)):
+        raise ValueError('Zero-gain velocity limit must be explicitly 0.5 or 1.0 rad/s')
     return {'status': 'PLAN_ONLY', 'hardware_opened': False, 'group': group,
+            'zero_gain_position_window_deg': position_window_deg,
+            'zero_gain_velocity_limit_rad_s': velocity_limit_rad_s,
             'voltage_max_v': voltage_max_v, 'voltage_range_v': [35, voltage_max_v],
             'selected_ids': list(GROUPS[group]), 'kp': 0, 'kd': 0,
             'nominal_velocity_reference': 0, 'nominal_feedforward_reference': 0,
@@ -261,14 +269,47 @@ class Channel:
                 'complete': boundary_ok and not errors and len(confirmed)==len(self.ids)}
 
 
+
+def _record_zero_gain_observation(axis, mid, phase, reply, position_window_deg=3, velocity_limit_rad_s=.5):
+    """Preserve decoded evidence before a guard raises; no wrapping or control change."""
+    delta = reply['protocol_position_rad']-axis['center_rad']
+    expected_mode = 2 if phase == 'active_zero_before_silence' else 0
+    velocity_check = ('velocity_abs_within_0_5rad_s' if velocity_limit_rad_s == .5
+                      else 'velocity_abs_within_1_0rad_s')
+    checks = {
+        'mode_state_expected': reply['mode_state'] == expected_mode,
+        'fault_bits_zero': reply['fault_bits'] == 0,
+        'position_delta_within_window': abs(delta) <= math.radians(position_window_deg),
+        velocity_check: abs(reply['velocity_rad_s']) <= velocity_limit_rad_s,
+        'temperature_at_least_minus10c': reply['temperature_c'] >= -10,
+        'temperature_below_60c': reply['temperature_c'] < 60,
+    }
+    observation = dict(motor_id=mid, phase=phase,
+        position_delta_rad=delta, position_delta_deg=math.degrees(delta),
+        position_basis='raw_protocol_reply_minus_initial_protocol_center',
+        velocity_rad_s=reply['velocity_rad_s'], temperature_c=reply['temperature_c'],
+        reference_center_rad=axis['center_rad'], reply=dict(reply), checks=checks,
+        failed_checks=[name for name,passed in checks.items() if not passed],
+        limits=dict(position_delta_abs_max_deg=position_window_deg, velocity_abs_max_rad_s=velocity_limit_rad_s,
+                    temperature_min_c=-10., temperature_max_exclusive_c=60., mode_state_expected=expected_mode))
+    axis.setdefault('zero_gain_observations', []).append(observation)
+    return (f"ID{mid} phase={phase} positionDeltaDeg={observation['position_delta_deg']:+.9g} "
+            f"velocityRadS={observation['velocity_rad_s']:+.9g} "
+            f"temperatureC={observation['temperature_c']:.9g} "
+            f"failedChecks={','.join(observation['failed_checks']) or 'none'}")
+
+
 def run(channels, expected_uids, *, group='all', check=lambda: None,
-        clock=time.monotonic_ns, wait=time.sleep, announce=lambda: None, voltage_max_v=42):
+        clock=time.monotonic_ns, wait=time.sleep, announce=lambda: None, voltage_max_v=42,
+        position_window_deg=3, velocity_limit_rad_s=.5):
     """Independent finite command-loss experiment; channels may be fake in tests."""
     expected = validate_uids(expected_uids)
-    selected = GROUPS[plan(group, voltage_max_v=voltage_max_v)['group']]
+    selected = GROUPS[plan(group, voltage_max_v=voltage_max_v, position_window_deg=position_window_deg,
+                          velocity_limit_rad_s=velocity_limit_rad_s)['group']]
     _need(set(channels) == set(BUSES), 'Exactly two independently owned buses required')
     _need(channels['front'] is not channels['rear'], 'Shared transport rejected')
-    report = {**plan(group, voltage_max_v=voltage_max_v), 'status': 'ABORTED', 'errors': [], 'axes': {},
+    report = {**plan(group, voltage_max_v=voltage_max_v, position_window_deg=position_window_deg,
+                    velocity_limit_rad_s=velocity_limit_rad_s), 'status': 'ABORTED', 'errors': [], 'axes': {},
               'motor_enable_sent': False, 'positive_gain_sent': False,
               'learned_targets_sent': False, 'usb_disconnect_tested': False,
               'stop_confirmed': False, 'approved_for_runtime': False}
@@ -318,10 +359,12 @@ def run(channels, expected_uids, *, group='all', check=lambda: None,
             enabled = owner(mid).exchange(mid, 'enable')
             _need(enabled['mode_state'] in (0, 2) and enabled['fault_bits'] == 0, 'Enable rejected')
             fb = owner(mid).exchange(mid, 'zero', center=axis['center_rad'])
-            _need(fb['mode_state'] == 2 and fb['fault_bits'] == 0, 'Zero-gain active reply not confirmed')
-            _need(abs(fb['protocol_position_rad']-axis['center_rad']) <= math.radians(3) and
-                  abs(fb['velocity_rad_s']) <= .5 and -10 <= fb['temperature_c'] < 60,
-                  'Unexpected motion/temperature in zero-gain commissioning')
+            observed = _record_zero_gain_observation(axis, mid, 'active_zero_before_silence', fb,
+                                                     position_window_deg, velocity_limit_rad_s)
+            _need(fb['mode_state'] == 2 and fb['fault_bits'] == 0, 'Zero-gain active reply not confirmed; '+observed)
+            _need(abs(fb['protocol_position_rad']-axis['center_rad']) <= math.radians(position_window_deg) and
+                  abs(fb['velocity_rad_s']) <= velocity_limit_rad_s and -10 <= fb['temperature_c'] < 60,
+                  'Unexpected motion/temperature in zero-gain commissioning; '+observed)
             axis['last_zero_write_finish_ns'] = fb['write_finish_ns']
             axis['last_zero_write_start_ns'] = fb['request_start_ns']
             # No request on either bus, including watchdog-resetting polls.
@@ -338,13 +381,15 @@ def run(channels, expected_uids, *, group='all', check=lambda: None,
             axis.update(stop_probe=fb, disable_reply_upper_bound_ms=elapsed/1e6,
                         disable_upper_bound_origin='last_zero_host_write_started_ns',
                         configured_timeout_ms=200)
+            observed = _record_zero_gain_observation(axis, mid, 'disabled_zero_after_silence', fb,
+                                                     position_window_deg, velocity_limit_rad_s)
             _need(SILENCE_NS <= elapsed <= MAX_DISABLE_UPPER_BOUND_NS,
                   f'ID{mid} stopped-state reply exceeded250ms conservative upper bound')
             _need(fb['mode_state'] == 0 and fb['fault_bits'] == 0,
                   f'ID{mid} did not report disabled after command silence')
-            _need(abs(fb['protocol_position_rad']-axis['center_rad']) <= math.radians(3) and
-                  abs(fb['velocity_rad_s']) <= .5 and -10 <= fb['temperature_c'] < 60,
-                  f'ID{mid} unexpected motion/temperature after command silence')
+            _need(abs(fb['protocol_position_rad']-axis['center_rad']) <= math.radians(position_window_deg) and
+                  abs(fb['velocity_rad_s']) <= velocity_limit_rad_s and -10 <= fb['temperature_c'] < 60,
+                  f'ID{mid} unexpected motion/temperature after command silence; '+observed)
             axis.update(command_loss_tested=True, disabled_on_command_loss=True)
         report['status'] = 'COMPLETE_COMMAND_LOSS_DIAGNOSTIC'
     except BaseException as error:
@@ -373,6 +418,10 @@ def main(argv=None):
     p.add_argument('--expected-uids', required=True)
     p.add_argument('--group', choices=GROUPS, default='all')
     p.add_argument('--voltage-max-v', type=int, choices=(42, 43), default=42)
+    p.add_argument('--position-window-deg', type=int, choices=(3, 6), default=3,
+                   help='Explicit zero-gain protocol-position delta window only; not a learned-output limit')
+    p.add_argument('--velocity-limit-rad-s', type=float, choices=(.5, 1.), default=.5,
+                   help='Explicit zero-gain feedback velocity limit only; not a learned-output limit')
     p.add_argument('--execute-supported-zero-gain', action='store_true')
     for name in ('support-in-place', 'cutoff-ready', 'rs05-model-confirmed'):
         p.add_argument('--'+name, action='store_true')
@@ -382,7 +431,8 @@ def main(argv=None):
     source = Path(a.expected_uids).read_bytes()
     expected = validate_uids(json.loads(source))
     if not a.execute_supported_zero_gain:
-        print(json.dumps(plan(a.group, voltage_max_v=a.voltage_max_v), ensure_ascii=False, indent=2)); return 0
+        print(json.dumps(plan(a.group, voltage_max_v=a.voltage_max_v, position_window_deg=a.position_window_deg,
+                              velocity_limit_rad_s=a.velocity_limit_rad_s), ensure_ascii=False, indent=2)); return 0
     if not all((a.support_in_place, a.cutoff_ready, a.rs05_model_confirmed)):
         p.error('Current mechanical support, physical cutoff and actual RS05 model confirmation required')
     if not all(getattr(a, key) for key in ('front_port', 'rear_port', 'power_epoch', 'output',
@@ -399,7 +449,8 @@ def main(argv=None):
     from .sensor_pipeline_benchmark import BootIdentityGuard
     cancelled = []
     handlers = {}
-    report = {**plan(a.group, voltage_max_v=a.voltage_max_v),
+    report = {**plan(a.group, voltage_max_v=a.voltage_max_v, position_window_deg=a.position_window_deg,
+                    velocity_limit_rad_s=a.velocity_limit_rad_s),
               'status': 'ABORTED_BEFORE_ENABLE', 'errors': [], 'motor_enable_sent': False}
     channels = {}
     try:
@@ -431,7 +482,8 @@ def main(argv=None):
                 subprocess.run(['aplay', '-D', a.audio_device, str(audio)], check=True, timeout=8.,
                                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
             report = run(channels, expected, group=a.group, check=check, announce=announce,
-                         voltage_max_v=a.voltage_max_v)
+                         voltage_max_v=a.voltage_max_v, position_window_deg=a.position_window_deg,
+                         velocity_limit_rad_s=a.velocity_limit_rad_s)
             report.update(boot_id=boot.boot_id, motor_power_epoch=a.power_epoch,
                           expected_uids_sha256=hashlib.sha256(source).hexdigest())
             report['events_by_bus'] = {scope: channel.events for scope, channel in channels.items()}

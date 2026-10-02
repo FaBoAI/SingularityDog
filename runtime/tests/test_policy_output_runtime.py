@@ -13,7 +13,7 @@ import threading
 import time
 import unittest
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from singularitydog_hw import can_readonly as codec
 from singularitydog_hw import policy_live_profile as live
@@ -229,6 +229,13 @@ class FakeIMU:
 
 
 class OutputRuntimeTests(unittest.TestCase):
+    _FAILED_ACQUISITION_TIMESTAMPS = (
+        'combined_acquisition_wait_begin_ns', 'combined_acquisition_wait_end_ns',
+        'feedback_collect_begin_ns', 'feedback_collect_end_ns',
+        'imu_wait_begin_ns', 'imu_wait_end_ns',
+        'imu_read_started_ns', 'imu_read_finished_ns',
+    )
+
     def run_case(self, *, front=None, rear=None, imu=None, policy=None, profile_data=None, **kwargs):
         sessions = {"front": front or FakeSession(1), "rear": rear or FakeSession(7)}
         cancelled = threading.Event()
@@ -422,12 +429,13 @@ class OutputRuntimeTests(unittest.TestCase):
         future=SimpleNamespace(result=lambda *,timeout:timeouts.append(timeout) or {'complete':True})
         workers=runtime.BusWorkers.__new__(runtime.BusWorkers)
         workers.stop_futures={'front':future,'rear':future}
-        workers.emergency=lambda reason:None
+        workers.emergency=Mock()
         with patch.object(runtime.time,'monotonic',side_effect=[100.,100.,100.8]):
             result=workers.finish_stops()
         self.assertEqual(set(result),{'front','rear'})
         self.assertAlmostEqual(timeouts[0],1.25)
         self.assertAlmostEqual(timeouts[1],.45)
+        workers.emergency.assert_called_once_with('normal completion',normal_completion=True)
 
     def test_stop_collection_does_not_timeout_at_old_one_second_boundary(self):
         class SlowCleanup(FakeSession):
@@ -576,6 +584,119 @@ class OutputRuntimeTests(unittest.TestCase):
         self.assertFalse(report['learned_targets_sent'])
         self.assertTrue(report['stop_confirmed'])
         self.assertTrue(all(s.positive_gain_writes==0 for s in sessions.values()))
+
+    def test_v3_startup_checks_one_axis_enable_and_zero_before_next_bus(self):
+        clock=SimulatedClock()
+        report,sessions=self.run_case(profile_data=measured_startup_profile(),
+            front=FakeSession(1,clock=clock),rear=FakeSession(7,clock=clock),
+            imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
+        self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
+        expected=[mid for index in range(6) for mid in (index+1,index+7)]
+        transition=report['zero_gain_enable_transition']
+        self.assertEqual(transition['strategy'],'serial_axis_enable_then_zero_gain_v1')
+        self.assertEqual([row['motor_id'] for row in transition['ordered_axes']],expected)
+        self.assertEqual(transition['completed_axes'],expected)
+        self.assertIsNone(transition['current_axis']);self.assertIsNone(transition['current_stage'])
+        self.assertEqual(transition['enable_reply_budget_ms'],30.)
+        self.assertEqual(transition['total_budget_ms'],120.)
+        self.assertLess(transition['end_ns']-transition['begin_ns'],120_000_000)
+        events=[row for row in report['journal'] if row['phase'] in ('startup_enable','startup_zero_gain')]
+        self.assertEqual(len(events),24)
+        for index,mid in enumerate(expected):
+            pair=events[2*index:2*index+2]
+            self.assertEqual([row['phase'] for row in pair],['startup_enable','startup_zero_gain'])
+            self.assertEqual([row['bus'] for row in pair],['front' if mid<=6 else 'rear']*2)
+            for row in pair:
+                self.assertEqual(len(row['records']),1)
+                record=row['records'][0]
+                self.assertEqual(codec.ATParser().feed(bytes.fromhex(record['tx_hex']))[0].destination,mid)
+                self.assertEqual(record['received'],17)
+            if index:
+                previous=events[2*index-1]['records'][0]
+                self.assertGreater(pair[0]['records'][0]['start_ns'],previous['received_ns'])
+        self.assertTrue(report['stop_confirmed'])
+
+    def test_v3_all_twelve_startup_axes_fail_before_next_step_or_model(self):
+        expected=[mid for index in range(6) for mid in (index+1,index+7)]
+        for failure in ('invalid_mode','missing_reply'):
+            for stage in ('enable','zero_gain'):
+                for target in expected:
+                    with self.subTest(failure=failure,stage=stage,target=target):
+                        clock=SimulatedClock();model_calls=[]
+                        class FailedHandshake(FakeSession):
+                            def _exchange(self,wires,timeout_ns,send_only):
+                                result=super()._exchange(wires,timeout_ns,send_only)
+                                for record in result[0]:
+                                    tx=codec.ATParser().feed(bytes(record.tx))[0]
+                                    selected=(tx.kind==3 if stage=='enable' else tx.kind==1 and len(wires)==1)
+                                    if tx.destination!=target or not selected:continue
+                                    if failure=='missing_reply':
+                                        # The request was written; no reply is admitted.
+                                        raise TimeoutError('Synthetic startup reply missing after write')
+                                    response_id=(int.from_bytes(bytes(record.rx)[2:6],'big')>>3)
+                                    response_id=(response_id&~(3<<22))|(1<<22)
+                                    record.rx[2:6]=((response_id<<3)|4).to_bytes(4,'big')
+                                return result
+                        front=(FailedHandshake if target<=6 else FakeSession)(1,clock=clock)
+                        rear=(FailedHandshake if target>=7 else FakeSession)(7,clock=clock)
+                        report,sessions=self.run_case(profile_data=measured_startup_profile(),
+                            front=front,rear=rear,imu=FakeIMU(clock=clock),
+                            policy=lambda *args:model_calls.append(1) or (.04,)*12,
+                            clock=clock,sleep=clock.sleep)
+                        self.assertEqual(report['status'],'ABORTED',report['errors'])
+                        self.assertEqual(model_calls,[])
+                        self.assertFalse(report['motion_gain_sent']);self.assertFalse(report['learned_targets_sent'])
+                        self.assertFalse(report['zero_gain_enable_transition']['complete'])
+                        current=report['zero_gain_enable_transition']['current_axis']
+                        self.assertEqual(current,{'bus':'front' if target<=6 else 'rear','motor_id':target})
+                        self.assertEqual(report['zero_gain_enable_transition']['current_stage'],stage)
+                        stop_index=expected.index(target)
+                        self.assertEqual(report['zero_gain_enable_transition']['completed_axes'],expected[:stop_index])
+                        calls=sorted(call for session in sessions.values() for call in session.calls)
+                        self.assertEqual([mid for _,kind,mid,_ in calls if kind==3],expected[:stop_index+1])
+                        zeros=[mid for _,kind,mid,_ in calls if kind==1]
+                        self.assertEqual(zeros,expected[:stop_index+(stage=='zero_gain')])
+                        self.assertTrue(report['stop_confirmed'])
+                        self.assertTrue(all(s.positive_gain_writes==0 for s in sessions.values()))
+
+    def test_v3_missing_id3_enable_preserves_unconfirmed_ambiguous_stop(self):
+        clock=SimulatedClock()
+        class MissingID3(FakeSession):
+            def _exchange(self,wires,timeout_ns,send_only):
+                result=super()._exchange(wires,timeout_ns,send_only)
+                if any(codec.ATParser().feed(bytes(r.tx))[0].kind==3 and
+                       codec.ATParser().feed(bytes(r.tx))[0].destination==3 for r in result[0]):
+                    raise TimeoutError('Synthetic ID3 enable reply missing after write')
+                return result
+            def emergency_stop(self):
+                row=super().emergency_stop()
+                row.update(complete=False,confirmed_ids=[i for i in self.ids if i!=3],
+                           unconfirmed_ids=[3],ambiguous_ids=[3])
+                return row
+        report,sessions=self.run_case(profile_data=measured_startup_profile(),
+            front=MissingID3(1,clock=clock),rear=FakeSession(7,clock=clock),
+            imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
+        self.assertEqual(report['status'],'STOP_UNCONFIRMED_POWER_OFF_REQUIRED',report['errors'])
+        self.assertFalse(report['stop_confirmed'])
+        self.assertEqual(report['stop_reports']['front']['ambiguous_ids'],[3])
+        self.assertFalse(report['motion_gain_sent']);self.assertFalse(report['learned_targets_sent'])
+        self.assertEqual(report['zero_gain_enable_transition']['completed_axes'],[1,7,2,8])
+        self.assertEqual([mid for _,kind,mid,_ in sessions['rear'].calls if kind==3],[7,8])
+
+    def test_non_v3_startup_retains_paired_bus_exchange(self):
+        clock=SimulatedClock()
+        report,_=self.run_case(profile_data=profile(),
+            front=FakeSession(1,clock=clock),rear=FakeSession(7,clock=clock),
+            imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
+        self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
+        self.assertNotIn('zero_gain_enable_transition',report)
+        events=[row for row in report['journal'] if row['phase'] in ('startup_enable','startup_zero_gain')]
+        for index in range(6):
+            group=events[index*4:(index+1)*4]
+            self.assertEqual({row['phase'] for row in group[:2]},{'startup_enable'})
+            self.assertEqual({row['bus'] for row in group[:2]},{'front','rear'})
+            self.assertEqual({row['phase'] for row in group[2:]},{'startup_zero_gain'})
+            self.assertEqual({row['bus'] for row in group[2:]},{'front','rear'})
 
     def run_measured_startup_timing_case(self, *, delayed_cycle=None, late_reply=False,
                                          acceptance=True, delayed_elapsed_ns=20_010_000,
@@ -1461,6 +1582,105 @@ class OutputRuntimeTests(unittest.TestCase):
         self.assertIsNone(trace['output_return_ns'])
         self.assertTrue(all(session.stop_times[0]>trace['candidate_ns'] for session in sessions.values()))
         self.assertIn('Command gap exceeded',str(report['errors']))
+
+    def test_wait_and_read_stamps_are_causal_failure_evidence_in_both_paths(self):
+        for pipeline in (False, True):
+            with self.subTest(pipeline=pipeline):
+                clock = SimulatedClock(); calls = []
+                data = measured_startup_profile()
+                def policy(*args):
+                    calls.append(True)
+                    clock.advance(3_500_000 if len(calls) == 3 else 2_000_000)
+                    return (.04,) * 12
+                original_settings = runtime.execution_settings
+                with patch.object(runtime, 'execution_settings', side_effect=lambda data:
+                        {**original_settings(data), 'voltage_pipeline': pipeline}):
+                    report, _ = self.run_case(
+                        profile_data=data, clock=clock, sleep=clock.sleep,
+                        front=FakeSession(1, clock=clock), rear=FakeSession(7, clock=clock),
+                        imu=FakeIMU(clock=clock), policy=policy)
+                self.assertEqual(report['status'], 'ABORTED', report['errors'])
+                trace = report['failed_cycle_timing']
+                self.assertEqual(trace['stage'], 'motion_envelope')
+                ordered = ('begin_ns', 'combined_acquisition_wait_begin_ns',
+                           'combined_acquisition_wait_end_ns',
+                           'feedback_collect_begin_ns', 'feedback_collect_end_ns',
+                           'imu_wait_begin_ns', 'imu_wait_end_ns', 'acquisition_complete_ns',
+                           'policy_call_begin_ns', 'policy_call_return_ns', 'candidate_ns')
+                self.assertTrue(all(type(trace[key]) is int for key in ordered))
+                self.assertEqual([trace[key] for key in ordered],
+                                 sorted(trace[key] for key in ordered))
+                self.assertLessEqual(trace['imu_read_started_ns'], trace['imu_read_finished_ns'])
+                self.assertLessEqual(trace['imu_read_finished_ns'], trace['imu_wait_end_ns'])
+                self.assertGreater(trace['command_interval_ms'], 21.)
+                self.assertIsNone(trace['output_submit_ns'])
+                self.assertTrue(report['stop_confirmed'])
+                # Detailed acquisition timestamps remain failure-only evidence.
+                self.assertTrue(all(not set(self._FAILED_ACQUISITION_TIMESTAMPS).intersection(row)
+                                    for row in report['cycles']))
+
+    def test_acquisition_failure_does_not_fill_unreached_stages(self):
+        for pipeline in (False, True):
+            for fail_at in ('feedback_collect', 'imu_wait'):
+                with self.subTest(pipeline=pipeline, fail_at=fail_at):
+                    clock = SimulatedClock(); pending = []; calls = []
+                    original_begin = runtime._PendingCycleTiming.begin
+                    original_collect = runtime.BusWorkers.collect
+                    original_settings = runtime.execution_settings
+                    imu = FakeIMU(clock=clock)
+                    def capture_begin(record, *args):
+                        original_begin(record, *args)
+                        pending.append(record)
+                    def collect(workers, futures):
+                        if fail_at == 'feedback_collect' and pending and pending[-1].active:
+                            raise OSError('Injected feedback collection failure')
+                        return original_collect(workers, futures)
+                    def read_imu():
+                        calls.append(True)
+                        if fail_at == 'imu_wait' and len(calls) == 2:
+                            raise TimeoutError('Injected IMU acquisition failure')
+                        return imu()
+                    with patch.object(runtime._PendingCycleTiming, 'begin', capture_begin), \
+                         patch.object(runtime.BusWorkers, 'collect', collect), \
+                         patch.object(runtime, 'execution_settings', side_effect=lambda data:
+                            {**original_settings(data), 'voltage_pipeline': pipeline}):
+                        report, sessions = self.run_case(
+                            profile_data=measured_startup_profile(), clock=clock, sleep=clock.sleep,
+                            front=FakeSession(1, clock=clock), rear=FakeSession(7, clock=clock),
+                            imu=read_imu)
+                    self.assertEqual(report['status'], 'ABORTED', report['errors'])
+                    self.assertEqual(report['cycles'], [])
+                    trace = report['failed_cycle_timing']
+                    self.assertEqual(trace['stage'], 'input_acquisition')
+                    self.assertIsNotNone(trace['combined_acquisition_wait_begin_ns'])
+                    if fail_at == 'feedback_collect':
+                        self.assertIsNotNone(trace['combined_acquisition_wait_end_ns'])
+                        self.assertIsNotNone(trace['feedback_collect_begin_ns'])
+                        self.assertIsNone(trace['feedback_collect_end_ns'])
+                        self.assertIsNone(trace['imu_wait_begin_ns'])
+                    else:
+                        # An IMU failure now interrupts the joint wait before
+                        # either CAN result is collected or inputs are used.
+                        self.assertIsNone(trace['combined_acquisition_wait_end_ns'])
+                        self.assertIsNone(trace['feedback_collect_begin_ns'])
+                        self.assertIsNone(trace['feedback_collect_end_ns'])
+                        self.assertIsNone(trace['imu_wait_begin_ns'])
+                    for key in ('imu_wait_end_ns', 'imu_read_started_ns', 'imu_read_finished_ns',
+                                'acquisition_complete_ns', 'policy_call_begin_ns',
+                                'candidate_ns', 'output_submit_ns'):
+                        self.assertIsNone(trace[key], key)
+                    self.assertTrue(report['stop_confirmed'])
+                    self.assertTrue(all(session.positive_gain_writes == 0
+                                        for session in sessions.values()))
+
+    def test_reused_scalar_record_clears_previous_read_timestamps(self):
+        record = runtime._PendingCycleTiming()
+        record.begin(0, 1, 2, None, None)
+        for name in self._FAILED_ACQUISITION_TIMESTAMPS:
+            setattr(record, name, 3)
+        record.begin(1, 4, 5, 3, 3)
+        self.assertTrue(all(getattr(record, name) is None
+                            for name in self._FAILED_ACQUISITION_TIMESTAMPS))
 
     def test_host_wakeup_gap_stops_before_reusing_positive_gain_hold(self):
         data=profile();data.update(hard_cycle_ms=20.,max_sample_age_ms=20.,max_sample_gap_ms=21.)

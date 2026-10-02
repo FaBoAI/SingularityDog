@@ -7,14 +7,196 @@ import argparse
 from contextlib import ExitStack
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
+import queue
 import signal
 import subprocess
+import tempfile
+import threading
+import time
+import wave
 
 from . import math_thread_startup as math_threads
 from .policy_live_profile import (ProfileError, add_transport_arguments, load_profile,
-                                  transport_settings, telemetry_settings, SUPPORTED_PRELOAD_5S)
+                                  transport_settings, telemetry_settings, SUPPORTED_PRELOAD_5S,
+                                  human_supported_partial_current_hold_settings)
+
+
+HUMAN_AUDIO_STAGES=('prepare_ease','go','resupport','abort')
+
+
+def pinned_audio_file(path,digest,*,go=False):
+    """Pin real PCM metadata before opening hardware, never trust declared time."""
+    candidate=Path(path).expanduser()
+    if candidate.is_symlink():raise ValueError('Pinned audio must not be a symlink')
+    target=candidate.resolve(strict=True)
+    if not target.is_file() or hashlib.sha256(target.read_bytes()).hexdigest()!=digest:
+        raise ValueError('Pinned stage audio SHA256 mismatch')
+    with wave.open(str(target),'rb') as audio:
+        frames,rate=audio.getnframes(),audio.getframerate()
+        if (audio.getcomptype()!='NONE' or frames<=0 or rate<=0 or
+                audio.getnchannels() not in (1,2) or audio.getsampwidth() not in (1,2,3,4)):
+            raise ValueError('Finite uncompressed PCM stage audio is required')
+        if len(audio.readframes(frames))!=frames*audio.getnchannels()*audio.getsampwidth():
+            raise ValueError('Pinned PCM audio is truncated')
+        duration=frames/rate
+    if go and duration>.12:raise ValueError('Human-supported Go audio exceeds 0.12 seconds')
+    return {'path':str(target),'sha256':digest,'duration_s':duration}
+
+
+class HumanStageAudioPlayer:
+    """One prestarted actor owns all playback processes; motor calls never wait.
+
+    Cancellation prevents queued preparation/Go and interrupts running playback.
+    Real process start/exit timestamps describe issued cues, not physical sound
+    onset or human load transfer. Recovery audio remains allowed after cancel.
+    """
+    def __init__(self,stages,device,*,clock=time.monotonic_ns,popen=None):
+        if set(stages)!=set(HUMAN_AUDIO_STAGES) or not device:
+            raise ValueError('All four pinned human audio stages and device are required')
+        self.stages={key:dict(value) for key,value in stages.items()}
+        if any(type(source.get('duration_s')) not in (int,float) or
+               not math.isfinite(source['duration_s']) or source['duration_s']<=0
+               for source in self.stages.values()):
+            raise ValueError('Real finite stage audio durations are required')
+        self._snapshots={}
+        try:
+            for stage,source in self.stages.items():
+                raw=Path(source['path']).read_bytes()
+                if hashlib.sha256(raw).hexdigest()!=source['sha256']:
+                    raise ValueError('Pinned human audio changed before worker setup')
+                snapshot=tempfile.TemporaryFile()
+                self._snapshots[stage]=snapshot
+                snapshot.write(raw);snapshot.flush();snapshot.seek(0)
+        except BaseException:
+            for snapshot in self._snapshots.values():snapshot.close()
+            raise
+        self.device=device;self.clock=clock;self.popen=popen or subprocess.Popen
+        self._pending=queue.Queue(maxsize=2)
+        self._cancelled=threading.Event();self._closed=threading.Event()
+        self._shutdown=threading.Event()
+        self._ready=threading.Event();self.events=[];self.closed=False;self.cleanup_error=None
+        self._thread=threading.Thread(target=self._run,name='human-hold-audio',daemon=True)
+        try:self._thread.start()
+        except BaseException:
+            for snapshot in self._snapshots.values():snapshot.close()
+            raise
+        if not self._ready.wait(1.):
+            self._closed.set()
+            self._thread.join(timeout=.5)
+            if not self._thread.is_alive():
+                for snapshot in self._snapshots.values():snapshot.close()
+            raise RuntimeError('Human audio worker did not start before enable')
+
+    def start(self,stage,on_complete,on_failure,on_started=None):
+        if (stage not in self.stages or not callable(on_complete) or
+                not callable(on_failure) or on_started is not None and not callable(on_started)):
+            raise ValueError('Invalid stage audio callback contract')
+        if self._closed.is_set() or self._shutdown.is_set() or self._cancelled.is_set() and stage in ('prepare_ease','go'):
+            raise RuntimeError('Human audio preparation/Go was cancelled')
+        try:self._pending.put_nowait((stage,on_complete,on_failure,on_started))
+        except queue.Full as error:raise RuntimeError('Human audio stage queue is full') from error
+
+    def cancel(self):
+        self._cancelled.set()
+
+    @staticmethod
+    def _terminate(process):
+        if process.poll() is not None:return
+        process.terminate()
+        try:process.wait(timeout=.2)
+        except subprocess.TimeoutExpired:
+            process.kill();process.wait(timeout=.2)
+
+    def _run(self):
+        self._ready.set()
+        while not self._closed.is_set():
+            if self._shutdown.is_set() and self._pending.empty():return
+            # Idle actors do not wake every control cycle and contend for the
+            # GIL. close sends a sentinel; a full queue drains before exit.
+            item=self._pending.get()
+            if item is None:
+                self._pending.task_done();return
+            stage,complete,failure,started_callback=item
+            process=None;started=None;row={'stage':stage,'status':'queued'}
+            self.events.append(row)
+            try:
+                if self._cancelled.is_set() and stage in ('prepare_ease','go'):
+                    raise RuntimeError('Stage cancelled before owned playback')
+                source=self.stages[stage]
+                # Verify the pinned bytes again at the actor boundary. A file
+                # replaced during the hold must not turn into an unreviewed Go.
+                if hashlib.sha256(Path(source['path']).read_bytes()).hexdigest()!=source['sha256']:
+                    raise RuntimeError('Pinned stage audio changed before playback')
+                if self._closed.is_set() or self._cancelled.is_set() and stage in ('prepare_ease','go'):
+                    raise RuntimeError('Stage cancelled before process start')
+                snapshot=self._snapshots[stage];snapshot.seek(0)
+                # Play the anonymous approved byte snapshot through stdin. The
+                # original path cannot race the hash check and child file open.
+                process=self.popen(['aplay','-D',self.device],
+                    stdin=snapshot,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+                started=self.clock();row.update(status='started',started_ns=started)
+                if self._closed.is_set() or self._cancelled.is_set() and stage in ('prepare_ease','go'):
+                    raise RuntimeError('Stage cancelled during process start')
+                if started_callback is not None:started_callback(stage,started)
+                deadline=time.monotonic()+source['duration_s']+.25
+                while process.poll() is None:
+                    if self._closed.is_set() or self._cancelled.is_set() and stage in ('prepare_ease','go'):
+                        raise RuntimeError('Stage playback cancelled')
+                    if time.monotonic()>=deadline:raise TimeoutError('Stage playback completion deadline')
+                    self._closed.wait(.005)
+                if process.returncode!=0:raise RuntimeError('Stage playback exited '+str(process.returncode))
+                finished=self.clock();row.update(status='complete',finished_ns=finished)
+                if self._closed.is_set() or self._cancelled.is_set() and stage in ('prepare_ease','go'):
+                    raise RuntimeError('Stage completion cancelled')
+                complete(stage,started,finished)
+            except BaseException as error:
+                if process is not None:
+                    try:self._terminate(process)
+                    except BaseException as cleanup:
+                        row['cleanup_error']=repr(cleanup);self.cleanup_error=repr(cleanup)
+                        self._closed.set()  # Never overlap recovery playback with an unclosed process.
+                row.update(status='failed',error=type(error).__name__+': '+str(error),finished_ns=self.clock())
+                try:failure(stage,row['error'])
+                except BaseException as callback:row['callback_error']=repr(callback)
+            finally:self._pending.task_done()
+
+    def close(self):
+        if self.closed:return
+        # Called only after STOP collection. Preparation/Go cancel immediately,
+        # while urgent recovery already queued or playing drains to completion.
+        # Nothing on the motor loop waits for speech or an operator ACK.
+        self._cancelled.set();self._shutdown.set()
+        try:self._pending.put_nowait(None)
+        except queue.Full:pass
+        recovery_max=max(self.stages[stage]['duration_s']+.25
+                         for stage in ('resupport','abort'))
+        self._thread.join(timeout=3*recovery_max+.7)
+        if self._thread.is_alive():raise RuntimeError('Human audio worker cleanup unconfirmed')
+        self.closed=True;self._closed.set()
+        for snapshot in self._snapshots.values():snapshot.close()
+        if self.cleanup_error is not None:raise RuntimeError('Stage process cleanup unconfirmed: '+self.cleanup_error)
+        failed_recovery=[row for row in self.events
+                         if row['stage'] in ('resupport','abort') and row['status']=='failed']
+        if failed_recovery:
+            raise RuntimeError('Human recovery audio playback unconfirmed: '+failed_recovery[-1]['error'])
+
+
+def human_audio_report(execution,player):
+    """Post-STOP process evidence; keep it separate from STOP and audibility."""
+    events=[] if player is None else [dict(row) for row in player.events]
+    requested=set() if execution is None else set(execution.audio_requests)&{'resupport','abort'}
+    recovery=[row for row in events if row['stage'] in ('resupport','abort')]
+    completed={row['stage'] for row in recovery if row['status']=='complete'}
+    failed=[row['stage']+': '+row.get('error','Playback unconfirmed')
+            for row in recovery if row['status']!='complete']
+    missing=requested-{row['stage'] for row in recovery}
+    errors=failed+['No owned playback completion evidence: '+stage for stage in sorted(missing)]
+    return dict(human_audio_playback=events,human_audio_recovery_requested=bool(requested),
+        human_audio_recovery_confirmed=bool(requested) and requested<=completed and not errors,
+        human_audio_recovery_errors=errors,human_audio_completion_proves_audibility=False)
 
 
 class SignalState:
@@ -44,6 +226,14 @@ def main(argv=None,*,execution=None):
                    help='Execute only the separately reviewed five-second geometric extend/return path')
     p.add_argument('--execute-fixed-catch',action='store_true')
     p.add_argument('--fixed-catch-ready',action='store_true')
+    p.add_argument('--execute-human-supported-partial',action='store_true',
+                   help='Only the separately reviewed eight-second current hold with two continuous body-support operators and pinned spoken cues')
+    human_flags=('two-operators-full-weight-catch','slight-ease-only','resupport-before-stop',
+                 'off-power-rehearsal','side-view-video-ready','paws-floor')
+    for flag in human_flags:p.add_argument('--'+flag,action='store_true')
+    for stage in HUMAN_AUDIO_STAGES:
+        option='--human-'+stage.replace('_','-')+'-audio'
+        p.add_argument(option);p.add_argument(option+'-sha256')
     p.add_argument('--support-in-place',action='store_true');p.add_argument('--cutoff-ready',action='store_true')
     for key in ('front-port','rear-port','library','output','audio','audio-sha256','audio-device'):
         p.add_argument('--'+key)
@@ -68,25 +258,44 @@ def main(argv=None,*,execution=None):
                    help='Opt in to OMP/OPENBLAS/MKL thread counts of 1 before NumPy/Torch import')
     add_transport_arguments(p)
     a=p.parse_args(argv)
-    if a.execute_fixed_catch and (a.execute_supported_preload or a.execute_supported or execution is not None or
+    if a.execute_fixed_catch and (a.execute_human_supported_partial or a.execute_supported_preload or a.execute_supported or execution is not None or
                                   not a.fixed_catch_ready):
         p.error('Fixed catch requires its dedicated execution and ready flags')
     if a.fixed_catch_ready and not a.execute_fixed_catch:
         p.error('Fixed-catch readiness may only accompany its dedicated execution')
+    fresh_human_flags=[getattr(a,flag.replace('-','_')) for flag in human_flags]
+    if a.execute_human_supported_partial:
+        if (a.execute_supported or a.execute_supported_preload or a.execute_fixed_catch or
+                execution is not None or not all(fresh_human_flags) or not a.cutoff_ready):
+            p.error('Human-supported partial hold requires its dedicated execution, fresh two-operator confirmations and cutoff readiness')
+        if not a.absolute_epoch_cadence:
+            p.error('Human-supported partial hold requires --absolute-epoch-cadence')
+    elif any(fresh_human_flags):
+        p.error('Human-support confirmations may only accompany the dedicated partial-hold execution')
+    human_audio_flags={stage:(getattr(a,'human_'+stage+'_audio'),
+                             getattr(a,'human_'+stage+'_audio_sha256'))
+                       for stage in HUMAN_AUDIO_STAGES}
+    if a.execute_human_supported_partial and not all(all(values) for values in human_audio_flags.values()):
+        p.error('All four pinned stage audio files and SHA256 values are required')
+    if not a.execute_human_supported_partial and any(any(values) for values in human_audio_flags.values()):
+        p.error('Human stage audio belongs only to its dedicated partial-hold execution')
     try:math_startup=math_threads.configure_single_thread_math(a.single_thread_math)
     except math_threads.MathThreadStartupError as error:p.error(str(error))
     r22=a.main_thread_cpu is not None or a.pre_cycle_policy_warmup_calls is not None or a.post_pin_policy_prime_calls is not None
     if r22 and (a.main_thread_cpu!=4 or a.pre_cycle_policy_warmup_calls!=10):
         p.error('R22 startup requires --pre-cycle-policy-warmup-calls 10 and --main-thread-cpu 4 together')
     if a.exclude_policy_cpu_from_workers and (not r22 or
-                                                  execution is not None and not a.execute_fixed_catch):
+                                                  execution is not None and not (a.execute_fixed_catch or a.execute_human_supported_partial)):
         p.error('--exclude-policy-cpu-from-workers requires R22 supported-only output')
     if a.release_spin_us is not None and not a.absolute_epoch_cadence:
         p.error('--release-spin-us requires --absolute-epoch-cadence')
-    if a.execute_supported_preload and (a.execute_supported or a.execute_fixed_catch or execution is not None):
+    if a.execute_supported_preload and (a.execute_supported or a.execute_fixed_catch or a.execute_human_supported_partial or execution is not None):
         p.error('Geometric preload requires its dedicated supported-only execution')
-    active=a.execute_supported or a.execute_fixed_catch or a.execute_supported_preload
+    active=a.execute_supported or a.execute_fixed_catch or a.execute_supported_preload or a.execute_human_supported_partial
     profile=load_profile(a.profile,require_approved=active)
+    human_mode=human_supported_partial_current_hold_settings(profile)
+    if bool(human_mode is not None)!=a.execute_human_supported_partial:
+        p.error('Human-supported profile requires its dedicated terminal execution path')
     preload_mode=profile.get('diagnostic_timing_acceptance')==SUPPORTED_PRELOAD_5S
     if active and preload_mode!=a.execute_supported_preload:
         p.error('Geometric preload profile and --execute-supported-preload must match')
@@ -105,11 +314,17 @@ def main(argv=None,*,execution=None):
         a.execute_supported=True
     elif profile.get('scope')=='fixed_catch_current_hold_only':
         p.error('Fixed-catch profile requires the dedicated terminal execution path')
+    if a.execute_human_supported_partial:
+        a.execute_supported=True
     try:
         pacing=transport_settings(profile,request_gap_us=a.request_gap_us,request_window=a.request_window)
     except ProfileError as error:
         p.error(str(error))
-    if execution is not None:execution.bind_profile(profile,active=active)
+    if execution is not None:
+        try:execution.bind_profile(profile,active=active)
+        except BaseException:
+            if a.execute_fixed_catch or a.execute_human_supported_partial:execution.close()
+            raise
     if not a.execute_supported:
         print(json.dumps({'status':'PLAN_ONLY','output_allowed':False,'profile_reviewed':profile['output_allowed'],
             'scope':profile['scope'],'duration_s':profile['duration_s'],
@@ -124,13 +339,26 @@ def main(argv=None,*,execution=None):
             'active_timer_slack_ns':a.active_timer_slack_ns,
             'math_thread_startup':math_startup,
             'actual_policy_output_20ms_verified':False},ensure_ascii=False,indent=2));return 0
-    if (not a.support_in_place and not a.execute_fixed_catch) or not a.cutoff_ready:
+    if (not a.support_in_place and not (a.execute_fixed_catch or a.execute_human_supported_partial)) or not a.cutoff_ready:
         p.error('Reviewed support or fixed catch and immediate cutoff are required')
     if any(not getattr(a,k) for k in ('front_port','rear_port','library','output','audio','audio_sha256','audio_device','power_epoch')):
         p.error('Explicit ports, library, private output, pinned audio/device and current power epoch required')
     if a.power_epoch!=profile['motor_power_epoch']:p.error('Motor power epoch differs; review/capture again')
     audio=Path(a.audio).expanduser().resolve(strict=True)
     if hashlib.sha256(audio.read_bytes()).hexdigest()!=a.audio_sha256:p.error('Audio SHA256 mismatch')
+    reviewed_human_audio=None;human_stages=None
+    if a.execute_human_supported_partial:
+        from .policy_live_profile import human_supported_audio_settings
+        reviewed_human_audio=human_supported_audio_settings(profile)
+        checked={'brief':pinned_audio_file(a.audio,a.audio_sha256)}
+        checked.update({stage:pinned_audio_file(path,digest,go=stage=='go')
+                        for stage,(path,digest) in human_audio_flags.items()})
+        for stage,value in checked.items():
+            approved=reviewed_human_audio['clips'][stage]
+            if (value['path']!=str(Path(approved['path']).resolve(strict=True)) or value['sha256']!=approved['sha256'] or
+                    abs(value['duration_s']-approved['duration_s'])>1e-9):
+                p.error('Stage audio differs from reviewed manifest: '+stage)
+        human_stages={stage:checked[stage] for stage in HUMAN_AUDIO_STAGES}
     out=Path(a.output).expanduser().resolve()
     if any((x/'.git').exists() for x in (out,*out.parents)):p.error('Raw records must be outside Git')
     out.mkdir(parents=True,mode=0o700,exist_ok=False)
@@ -144,8 +372,13 @@ def main(argv=None,*,execution=None):
             'active_timer_slack_ns':a.active_timer_slack_ns,
             'math_thread_startup':math_startup}
     cr,cw=os.pipe();signals=SignalState(cw);handlers={}
-    device=None
+    device=None;stage_audio=None
     try:
+        if a.execute_human_supported_partial:
+            from .human_supported_hold import HumanSupportedHoldExecution
+            stage_audio=HumanStageAudioPlayer(human_stages,a.audio_device)
+            execution=HumanSupportedHoldExecution(0,write_fd=1,stage_audio=stage_audio)
+            execution.bind_profile(profile,active=True)
         from . import dual_can_pipeline_benchmark as dual
         from . import policy_observer_live as live
         from . import native_active_transport as native
@@ -195,8 +428,18 @@ def main(argv=None,*,execution=None):
             device=imu.ICM20948();stack.callback(device.close);configuration=device.start()
             def announce():
                 check()
-                subprocess.run(['aplay','-D',a.audio_device,str(audio)],check=True,timeout=8.,
-                               stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
+                if reviewed_human_audio is None:
+                    subprocess.run(['aplay','-D',a.audio_device,str(audio)],check=True,timeout=8.,
+                                   stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
+                else:
+                    raw=audio.read_bytes()
+                    if hashlib.sha256(raw).hexdigest()!=a.audio_sha256:
+                        raise RuntimeError('Pinned human pre-enable brief changed')
+                    with tempfile.TemporaryFile() as brief:
+                        brief.write(raw);brief.flush();brief.seek(0)
+                        subprocess.run(['aplay','-D',a.audio_device],check=True,
+                            timeout=reviewed_human_audio['clips']['brief']['duration_s']+.25,
+                            stdin=brief,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
             startup_options={}
             if r22:
                 startup_options.update(startup_model=raw_model,main_thread_cpu=4,
@@ -232,14 +475,31 @@ def main(argv=None,*,execution=None):
         report['imu_restore_status']=device.restore_status if device is not None else 'not_started'
         if device is not None and device.restore_status not in ('restored','not_needed'):
             report['errors'].append('IMU restoration unconfirmed')
-            if report['status'] in ('COMPLETE_SUPPORTED_OUTPUT', 'COMPLETE_FIXED_CATCH_HOLD'):
+            if report['status'] in ('COMPLETE_SUPPORTED_OUTPUT', 'COMPLETE_FIXED_CATCH_HOLD',
+                                    'COMPLETE_HUMAN_SUPPORTED_PARTIAL_HOLD'):
                 report['status']='ABORTED_RESTORE'
         report['transport_settings']=pacing
         report['telemetry_cadence']=telemetry_settings(profile)
         report['math_thread_startup']=math_startup
         report['actual_policy_output_20ms_verified']=False
+        if a.execute_human_supported_partial:
+            try:
+                if execution is not None:execution.close()
+                if stage_audio is not None:stage_audio.close()
+                if execution is not None and execution.failed is not None:
+                    raise RuntimeError('Human supervisor recovery/cleanup failed: '+execution.failed)
+            except BaseException as error:
+                report['errors'].append('Human stage cleanup: '+type(error).__name__+': '+str(error))
+                if report['status']=='COMPLETE_HUMAN_SUPPORTED_PARTIAL_HOLD':
+                    report['status']='ABORTED_HUMAN_AUDIO_CLEANUP'
+            report.update(human_audio_report(execution,stage_audio))
+            if report['human_audio_recovery_requested'] and not report['human_audio_recovery_confirmed']:
+                report['errors'].extend('Human recovery audio: '+error
+                                        for error in report['human_audio_recovery_errors'])
+                if report['status']=='COMPLETE_HUMAN_SUPPORTED_PARTIAL_HOLD':
+                    report['status']='ABORTED_HUMAN_AUDIO_CLEANUP'
         if execution is not None:report=execution.decorate_report(report)
-        if a.execute_fixed_catch:execution.close()
+        if a.execute_fixed_catch and execution is not None:execution.close()
         # The ground operator reader can signal cancellation. Join it before
         # closing its notification pipe, including setup/early-failure paths.
         os.close(cr);os.close(cw)
@@ -247,7 +507,7 @@ def main(argv=None,*,execution=None):
             json.dump(report,f,ensure_ascii=False,allow_nan=False);f.write('\n')
         print(json.dumps({k:report.get(k) for k in ('status','errors','motor_enable_sent','learned_targets_sent','preload_targets_sent','output_kind','preload_return_commanded','preload_return_measured','stop_confirmed','deadline20ms_misses','transport_settings')},ensure_ascii=False))
     return 0 if report['status'] in ('COMPLETE_SUPPORTED_OUTPUT','COMPLETE_BOUNDED_GROUND_TRIAL',
-                                    'COMPLETE_FIXED_CATCH_HOLD') else 2
+                                    'COMPLETE_FIXED_CATCH_HOLD','COMPLETE_HUMAN_SUPPORTED_PARTIAL_HOLD') else 2
 
 
 if __name__=='__main__':raise SystemExit(main())
