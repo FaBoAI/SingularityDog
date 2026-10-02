@@ -29,6 +29,11 @@ SETTINGS_SCHEMA = 'singularitydog.supported-group-settings.v1'
 GROUPS = {'calf': (1,4,7,10), 'thigh': (2,5,8,11), 'hip': (3,6,9,12)}
 RUN_KEYS = live.TOP_KEYS-{'schema','scope','approved_for_supported_policy_output','blockers','review',
     'boot_id','motor_power_epoch','assembly_id','axes','artifacts','bundle_path','start_pose_bounds'}
+# Formal candidates can retain explicitly selected fast implementations. Local
+# clearances, stage transitions and supported-only deadline/watchdog exceptions
+# still belong to their separate preparation/review paths.
+FAST_EXECUTION_KEYS = {'model_backend','voltage_overlap','voltage_pipeline','native_batch_encoder'}
+RUN_KEYS |= FAST_EXECUTION_KEYS
 IMU_PHYSICAL = ('right_handed_mount_physically_verified','nose_up_verified','left_up_verified',
     'yaw_left_verified','gyro_bias_independent_stationary_validation','gravity_direction_verified')
 
@@ -75,7 +80,8 @@ def _apply_settings(profile, settings):
 
 def prepare(*, calibration, angle_profile, mount, bias, model_manifest, pipeline_diagnostic,
             assembly_id, output, imu_fragment=None, group_settings=None, source_capture=None, bundle=None,
-            power_epoch=None, request_gap_us=None, request_window=None, profile_schema=live.SCHEMA):
+            power_epoch=None, request_gap_us=None, request_window=None, profile_schema=live.SCHEMA,
+            scalar_step_manifest=None):
     """Pin source JSON and emit a review skeleton. Always returns output_allowed=False."""
     out=Path(output).expanduser().absolute()
     if out.exists() or out.is_symlink():raise FileExistsError('Use a new private output directory')
@@ -198,6 +204,19 @@ def prepare(*, calibration, angle_profile, mount, bias, model_manifest, pipeline
                 raise ValueError('Explicit pacing conflicts with group settings: '+key)
             profile[key]=value
     live._settings(profile)
+    execution=live.execution_settings(profile)
+    if execution['model_backend']==live.SCALAR_BACKEND:
+        if scalar_step_manifest is None:
+            raise ValueError('Explicit scalar-step manifest required for selected backend')
+        scalar=pin('scalar_step_manifest',scalar_step_manifest)
+        if (scalar.get('schema')!='native-step-scalar-file-only-v1'
+                or scalar.get('status')!='PASS_FILE_ONLY_COMPARE'
+                or scalar.get('baseline_manifest_sha256')!=references['model_manifest']['sha256']
+                or any(scalar.get(k) is not False for k in
+                    ('hardware_opened','output_allowed','approved_for_runtime','live_50hz_verified'))):
+            raise ValueError('Pinned scalar file-only manifest must match the exact baseline')
+    elif scalar_step_manifest is not None:
+        raise ValueError('Scalar-step manifest requires explicit scalar backend selection')
     if all(value is not None for row in profile['axes'].values() for value in row.values()):
         # Validate complete numeric preparations against the same live contract,
         # without mutating its exact file schema or creating physical approval.
@@ -205,7 +224,8 @@ def prepare(*, calibration, angle_profile, mount, bias, model_manifest, pipeline
     for group,ids in GROUPS.items():
         missing=[k for k in live.LIMIT_CAPS if profile['axes'][str(ids[0])][k] is None]
         if missing:block('file_assembly','explicit_'+group+'_settings_missing:'+','.join(sorted(missing)),ids)
-    for key in ('calibration','mount','bias','model_manifest','pipeline_diagnostic'):
+    for key in ('calibration','mount','bias','model_manifest','pipeline_diagnostic',
+                *(('scalar_step_manifest',) if scalar_step_manifest is not None else ())):
         profile['artifacts'][key]=dict(references[key])
     report=documents['pipeline_diagnostic']
     for key,name in (('calibration','calibration'),('mount','mount'),('gyro_bias','bias')):
@@ -213,8 +233,13 @@ def prepare(*, calibration, angle_profile, mount, bias, model_manifest, pipeline
         if actual is not None and actual!=references[name]['sha256']:
             raise ValueError('Diagnostic input hash mismatch: '+key)
     model_hash=report.get('model_source',{}).get('manifest_sha256')
-    if model_hash is not None and model_hash!=references['model_manifest']['sha256']:
+    model_key='scalar_step_manifest' if execution['model_backend']==live.SCALAR_BACKEND else 'model_manifest'
+    if model_hash is not None and model_hash!=references[model_key]['sha256']:
         raise ValueError('Diagnostic model hash mismatch')
+    if model_key=='scalar_step_manifest':
+        baseline_hash=report.get('model_source',{}).get('baseline_provenance',{}).get('manifest_sha256')
+        if baseline_hash is not None and baseline_hash!=references['model_manifest']['sha256']:
+            raise ValueError('Diagnostic scalar baseline hash mismatch')
     try:timing=live._timing(report,profile)
     except (ValueError,TypeError,KeyError) as error:
         timing={'status':'NOT_ELIGIBLE','reason':str(error)}
@@ -280,6 +305,14 @@ def prepare(*, calibration, angle_profile, mount, bias, model_manifest, pipeline
             bundle_members[path.resolve()]=digest
         profile['bundle_path']=str(bundle.resolve())
     else:block('file_assembly','explicit_pinned_bundle_path_required')
+    encoder=live.native_batch_encoder_settings(profile)
+    if encoder is not None:
+        if bundle is None:
+            raise ValueError('Selected native batch encoder requires its explicit pinned bundle')
+        path=bundle/encoder['path']
+        if path.is_symlink() or not path.is_file() or _sha(path.read_bytes())!=encoder['sha256']:
+            raise ValueError('Native batch encoder binary mismatch')
+        bundle_members[path.resolve()]=encoder['sha256']
     imu={key:None for key in IMU_PHYSICAL}
     imu.update(gravity_direction_max_error_rad=None,corrected_static_gyro_max_rad_s=None,
         raw_gravity_norm_min_m_s2=None,raw_gravity_norm_max_m_s2=None,norm_deviation_rationale='')
@@ -301,12 +334,23 @@ def prepare(*, calibration, angle_profile, mount, bias, model_manifest, pipeline
     block('missing_measurements','type2_dynamic_evidence_to_attach',range(1,13))
     block('missing_measurements','actual_command_loss_and_usb_disconnect_evidence_to_attach',range(1,13))
     block('named_review','named_supported_profile_and_hardware_review_pending')
+    if execution['voltage_pipeline']:
+        block('named_review','feedback_then_voltage_pipeline_acceptance_pending')
+    if encoder is not None:
+        block('named_review','native_batch_encoder_acceptance_pending')
     hardware={'schema':live.REVIEW_SCHEMA,'scope':profile['scope'],'review':None,
         'assembly_id':assembly_id,'uids_by_id':dict(cal['identities']),
         'reviewed_settings_sha256':live.reviewed_settings_sha256(profile),
-        'artifact_sha256':{k:profile['artifacts'][k]['sha256'] for k in live.ARTIFACTS if k!='hardware_review'},
+        'artifact_sha256':{k:profile['artifacts'][k]['sha256'] for k in live.artifact_names(profile) if k!='hardware_review'},
         'source_captures':list(references.values()),'angles':{},'type2_dynamic':{},'device_watchdog':{},
         'imu':imu,'mode0_readback_required_before_enable':True,'timing_budget_rationale':''}
+    if execution['voltage_pipeline']:
+        hardware['voltage_pipeline_acceptance']={'pipeline':'feedback_then_voltage.fast_v1',
+            'diagnostic_sha256':references['pipeline_diagnostic']['sha256'],'scope':profile['scope'],
+            'hard_output_and_freshness_limits_unchanged':None,'review':None}
+    if encoder is not None:
+        hardware['native_batch_encoder_acceptance']={'binary_sha256':encoder['sha256'],
+            'scope':profile['scope'],'hard_output_and_freshness_limits_unchanged':None,'review':None}
     for mid,row in profile['axes'].items():
         hardware['angles'][mid]={key:row[key] for key in ('sign','offset_rad','uncertainty_rad','physical_lower_rad','physical_upper_rad')}
         hardware['angles'][mid].update(zero_and_sign_physically_verified=None,
@@ -326,6 +370,7 @@ def prepare(*, calibration, angle_profile, mount, bias, model_manifest, pipeline
         'blockers_by_kind':blockers,'physical_evidence_status_by_id':physical_status,
         'timing_diagnostic_review_only':timing,'group_ids':GROUPS,
         'transport_settings':live.transport_settings(profile),
+        'execution_settings':execution,
         'telemetry_cadence':live.telemetry_settings(profile),
         'motor_power_epoch_binding':epoch_binding,
         'diagnostic_binding':diagnostic_binding,
@@ -351,6 +396,7 @@ def prepare(*, calibration, angle_profile, mount, bias, model_manifest, pipeline
     return {'status':result['status'],'output':str(out),'profile':str(out/'profile.json'),
         'profile_sha256':_sha(files['profile.json']),'output_allowed':False,'hardware_opened':False,
         'transport_settings':live.transport_settings(profile),
+        'execution_settings':execution,
         'blockers_by_kind':blockers}
 
 
@@ -363,7 +409,7 @@ def main(argv=None):
     live.add_transport_arguments(parser,reviewed=False)
     parser.add_argument('--profile-schema',choices=(live.SCHEMA_V2,live.SCHEMA_V3),default=live.SCHEMA,
                         help='V3 cadence must be explicitly selected and remains unapproved')
-    for name in ('imu-fragment','group-settings','source-capture','bundle'):
+    for name in ('imu-fragment','group-settings','source-capture','bundle','scalar-step-manifest'):
         parser.add_argument('--'+name,type=Path)
     args=vars(parser.parse_args(argv));print(json.dumps(prepare(**args),ensure_ascii=False,indent=2));return 0
 

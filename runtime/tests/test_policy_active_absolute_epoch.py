@@ -1,8 +1,10 @@
 """Offline checks for the opt-in active release schedule; no motor devices."""
 
 import ctypes
+from concurrent.futures import wait
 import threading
 import unittest
+from unittest.mock import patch
 
 from singularitydog_hw import native_active_transport as native
 from singularitydog_hw import policy_output_runtime as active
@@ -59,6 +61,22 @@ class NativeActiveReleaseWaitTests(unittest.TestCase):
 
 
 class ActiveRuntimeEpochIntegrationTests(unittest.TestCase):
+    def ready_acquisition_fixture(self):
+        """Keep this schedule test independent of synthetic executor wakeup.
+
+        The injected epoch waiter only advances virtual time; unlike a native
+        CDLL waiter it cannot release the GIL while waiting for live workers.
+        Let all three real fixture Futures complete before the unchanged join,
+        so early callback return is tested at the next epoch deliberately.
+        Native pending-input polling has its own deadline/cancellation tests.
+        """
+        original=active.BusWorkers.collect_acquisition
+        def collect(workers,futures,imu_future,**options):
+            _,pending=wait((*futures.values(),imu_future),timeout=1.)
+            self.assertFalse(pending,'Synthetic acquisition worker did not finish')
+            return original(workers,futures,imu_future,**options)
+        return patch.object(active.BusWorkers,'collect_acquisition',autospec=True,side_effect=collect)
+
     def test_opt_in_uses_contiguous_fixed_slots_and_restores_stop(self):
         clock=fixtures.SimulatedClock()
         stop=threading.Event();stop.set()
@@ -83,11 +101,12 @@ class ActiveRuntimeEpochIntegrationTests(unittest.TestCase):
             waits.append(target);clock.advance_to(target)
             return clock()
         case=fixtures.OutputRuntimeTests()
-        report,_=case.run_case(profile_data=fixtures.profile(),
-            front=fixtures.FakeSession(1,clock=clock),
-            rear=fixtures.FakeSession(7,clock=clock),
-            imu=fixtures.FakeIMU(clock=clock),clock=clock,sleep=clock.sleep,
-            absolute_epoch_cadence=True,deadline_wait=wait_until,stop_requested=stop)
+        with self.ready_acquisition_fixture():
+            report,_=case.run_case(profile_data=fixtures.profile(),
+                front=fixtures.FakeSession(1,clock=clock),
+                rear=fixtures.FakeSession(7,clock=clock),
+                imu=fixtures.FakeIMU(clock=clock),clock=clock,sleep=clock.sleep,
+                absolute_epoch_cadence=True,deadline_wait=wait_until,stop_requested=stop)
         self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
         self.assertTrue(waits)
         self.assertEqual(report['absolute_epoch_schedule']['skipped_slots'],0)
@@ -99,11 +118,12 @@ class ActiveRuntimeEpochIntegrationTests(unittest.TestCase):
             waits.append(target)
             return clock()
         case=fixtures.OutputRuntimeTests()
-        report,sessions=case.run_case(profile_data=fixtures.profile(),
-            front=fixtures.FakeSession(1,clock=clock),
-            rear=fixtures.FakeSession(7,clock=clock),
-            imu=fixtures.FakeIMU(clock=clock),clock=clock,sleep=clock.sleep,
-            absolute_epoch_cadence=True,deadline_wait=early_wait,stop_requested=stop)
+        with self.ready_acquisition_fixture():
+            report,sessions=case.run_case(profile_data=fixtures.profile(),
+                front=fixtures.FakeSession(1,clock=clock),
+                rear=fixtures.FakeSession(7,clock=clock),
+                imu=fixtures.FakeIMU(clock=clock),clock=clock,sleep=clock.sleep,
+                absolute_epoch_cadence=True,deadline_wait=early_wait,stop_requested=stop)
         self.assertTrue(waits)
         self.assertEqual(report['status'],'ABORTED')
         self.assertTrue(any('release before scheduled slot' in error for error in report['errors']))

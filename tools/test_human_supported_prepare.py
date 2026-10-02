@@ -196,6 +196,25 @@ class PreparationTests(unittest.TestCase):
         self.assertEqual(rc,0);run.assert_not_called();self.assertFalse(output.exists())
         self.assertEqual(json.loads(stream.getvalue())['status'],'PLAN_ONLY')
 
+    def test_parent_alias_into_checkout_rejected_before_private_output_or_dispatch(self):
+        repo=self.base/'checkout';repo.mkdir();(repo/'.git').mkdir()
+        nested=repo/'nested';nested.mkdir();alias=self.base/'outside-looking-alias';alias.symlink_to(nested)
+        output=alias/'raw-session';stream=io.StringIO()
+        with patch('sys.stdout',new=stream),patch.object(prep,'visible_terminal',return_value=True), \
+             patch.object(prep,'run') as run:
+            rc=prep.main(self.main_args(output)+['--execute-human-full-support-diagnostics'])
+        self.assertEqual(rc,2);run.assert_not_called();self.assertFalse(output.exists())
+        self.assertEqual(json.loads(stream.getvalue().splitlines()[-1])['status'],'ABORTED_PREPARATION')
+
+    def test_private_parent_alias_resolves_canonically_and_leaf_alias_is_not_fresh(self):
+        private=self.base/'private';private.mkdir();alias=self.base/'private-alias';alias.symlink_to(private)
+        selected=prep.start_requirements(alias/'fresh',lambda:True)
+        self.assertEqual(selected,private.resolve()/'fresh');self.assertFalse(selected.exists())
+        dangling=private/'dangling';dangling.symlink_to(private/'not-created')
+        with self.assertRaisesRegex(ValueError,'Fresh private output'):
+            prep.start_requirements(dangling,lambda:True)
+        self.assertFalse((private/'not-created').exists())
+
     def test_announcement_failure_prevents_hardware_and_next_stage(self):
         def fail(*a,**k):raise RuntimeError('audio failure')
         result=self.execute(play=fail);self.assertTrue(result['errors']);self.assertEqual(self.called,[])

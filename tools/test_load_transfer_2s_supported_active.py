@@ -67,6 +67,10 @@ class SupportedActiveTests(unittest.TestCase):
         failed = Path('/private/tmp/fabo-stance-20260927-private/load-transfer-2s-preflight-20260927-r6')
         prior_package = Path('/private/tmp/fabo-stance-20260927-private/load-transfer-2s-supported-active-r1')
         prior_log = Path('/private/tmp/fabo-stance-20260927-private/load-transfer-2s-supported-active-20260927-r1')
+        if not all(path.is_file() for path in (source / 'manifest.json',
+                failed / 'summary.json', failed / 'events.jsonl',
+                prior_package / 'manifest.json',prior_log / 'summary.json',prior_log / 'events.jsonl')):
+            self.skipTest('Optional 2026-09-27 private raw capture/package is unavailable')
         with tempfile.TemporaryDirectory() as td:
             out = Path(td) / 'active'
             with self.assertRaises(ValueError):

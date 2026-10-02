@@ -111,6 +111,7 @@ class _PendingCycleTiming:
     """One reused scalar record; materialize failure evidence only after STOP."""
     _fields=('index','release_ns','begin_ns','previous_candidate_ns','previous_sample_start_ns',
              'hold_checked_ns','combined_acquisition_wait_begin_ns','combined_acquisition_wait_end_ns',
+             'combined_acquisition_wait_cpu_begin_ns','combined_acquisition_wait_cpu_end_ns',
              'feedback_collect_begin_ns','feedback_collect_end_ns',
              'imu_wait_begin_ns','imu_wait_end_ns','imu_read_started_ns','imu_read_finished_ns',
              'acquisition_complete_ns','sample_start_ns','policy_call_begin_ns',
@@ -140,6 +141,7 @@ class _PendingCycleTiming:
                 ('sample_interval_ms',self.sample_start_ns,self.previous_sample_start_ns),
                 ('candidate_sample_age_ms',self.candidate_ns,self.sample_start_ns),
                 ('policy_call_ms',self.policy_call_return_ns,self.policy_call_begin_ns),
+                ('acquisition_join_cpu_ms',self.combined_acquisition_wait_cpu_end_ns,self.combined_acquisition_wait_cpu_begin_ns),
                 ('voltage_join_ms',self.voltage_join_complete_ns,self.target_ready_ns),
                 ('voltage_join_cpu_ms',self.voltage_join_cpu_end_ns,self.voltage_join_cpu_begin_ns),
                 ('voltage_owner_to_join_ms',self.voltage_join_complete_ns,self.voltage_owner_validated_ns)):
@@ -250,32 +252,58 @@ class BusWorkers:
         if failure:raise failure
         return results
 
-    def collect_acquisition(self,futures,imu_future,*,deadline_ns,timing=None):
-        """Wait once for both CAN owners and this cycle's fresh IMU.
+    def collect_acquisition(self,futures,imu_future,*,deadline_ns,deadline_wait=None,timing=None):
+        """Join the current CAN owners and current IMU before result takeout.
 
-        FIRST_EXCEPTION wakes immediately on a worker failure; otherwise the
-        coordinator resumes only when all three inputs are ready. Do not move
-        the IMU read earlier or reuse a previous input to save time. A timeout
-        cancels bus I/O and queues STOP without joining unfinished input work;
-        the existing finalizer owns that cleanup.
+        A selected native waiter releases the GIL and requests wake targets at
+        most 200 us apart, bounded by this cycle's unchanged absolute deadline.
+        It avoids depending on a condition notification for all-ready inputs;
+        this is a requested polling interval, not an OS wake latency guarantee.
+        The no-callback route retains its one finite FIRST_EXCEPTION wait.
         """
+        if timing is not None:
+            timing.combined_acquisition_wait_cpu_begin_ns=time.thread_time_ns()
         try:
             need(set(futures)==set(BUSES),'Two-bus acquisition required')
-            need(type(deadline_ns) is int,'Integer acquisition deadline required')
+            need(type(deadline_ns) is int and deadline_ns>0,'Integer acquisition deadline required')
+            need(deadline_wait is None or callable(deadline_wait),'Callable native acquisition wait required')
             inputs=(*futures.values(),imu_future)
+            need(all(isinstance(future,Future) for future in inputs),
+                 'Current acquisition Future owners required')
+            need(len({id(future) for future in inputs})==3,
+                 'Distinct CAN and IMU acquisition futures required')
+            need(not self.aborted.is_set(),self.reason or 'Output aborted before acquisition wait')
             remaining=deadline_ns-self.clock()
             if remaining<=0:raise TimeoutError('Input acquisition hard deadline')
-            # A cancelled Future may not yet have executor notification state.
-            # Never wait on it or treat cancellation as an available input.
+            # Cancellation before executor notification must not enter wait().
             for future in inputs:
                 if future.cancelled():future.result()
             if timing is not None:timing.combined_acquisition_wait_begin_ns=self.clock()
-            completed,unfinished=wait(inputs,timeout=remaining/1e9,return_when=FIRST_EXCEPTION)
-            for future in inputs:
-                if future.cancelled():future.result()
-                if future in completed and future.exception() is not None:future.result()
-            if unfinished or self.clock()>=deadline_ns:
-                raise TimeoutError('Input acquisition hard deadline')
+            if deadline_wait is None:
+                completed,unfinished=wait(inputs,timeout=remaining/1e9,return_when=FIRST_EXCEPTION)
+                for future in inputs:
+                    if future.cancelled():future.result()
+                    if future in completed and future.exception() is not None:future.result()
+                if unfinished or self.clock()>=deadline_ns:
+                    raise TimeoutError('Input acquisition hard deadline')
+                need(all(future.done() for future in inputs),'Incomplete acquisition readiness wait')
+            else:
+                def ready_failure():
+                    for future in inputs:
+                        if future.cancelled():future.result()
+                        if future.done() and future.exception() is not None:future.result()
+                while True:
+                    ready_failure()
+                    need(not self.aborted.is_set(),self.reason or 'Output aborted during acquisition wait')
+                    now=self.clock()
+                    if now>=deadline_ns:raise TimeoutError('Input acquisition hard deadline')
+                    if all(future.done() for future in inputs):break
+                    wake=min(deadline_ns,now+200_000)
+                    try:deadline_wait(wake)
+                    except BaseException:
+                        ready_failure()
+                        raise
+                    need(self.clock()>=wake,'Native acquisition wait returned before its deadline')
             need(not self.aborted.is_set(),self.reason or 'Output aborted during acquisition')
             if timing is not None:
                 timing.combined_acquisition_wait_end_ns=self.clock()
@@ -286,10 +314,17 @@ class BusWorkers:
                 timing.imu_wait_begin_ns=self.clock()
             imu_value=imu_future.result()
             if timing is not None:timing.imu_wait_end_ns=self.clock()
+            # Result takeout and merger hooks are work, even for ready Futures.
+            # A late/cancelled result must not reach input validation or policy.
+            need(not self.aborted.is_set(),self.reason or 'Output aborted during acquisition result takeout')
+            if self.clock()>=deadline_ns:raise TimeoutError('Input acquisition result takeout hard deadline')
             return results,imu_value
         except BaseException as error:
             self.emergency(type(error).__name__+': '+str(error))
             raise
+        finally:
+            if timing is not None:
+                timing.combined_acquisition_wait_cpu_end_ns=time.thread_time_ns()
 
     def collect_voltage(self,futures,*,deadline_ns,deadline_wait=None,timing=None):
         """Join both original owner proofs without sequential blocking result calls.
@@ -798,7 +833,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             'firmware_versions_match_watchdog_review':False,
             'telemetry_cadence':cadence,
             'execution_settings':execution,
-            'input_acquisition_wait':'all_inputs_first_exception.v1',
+            'input_acquisition_wait':('native_ready_poll_200us.v1' if deadline_wait is not None
+                                       else 'all_inputs_first_exception.v1'),
             'voltage_join_wait':('native_ready_poll_200us.v1' if deadline_wait is not None
                                  else 'all_ready_first_exception.v1'),
             'absolute_epoch_cadence':absolute_epoch_cadence,
@@ -1184,7 +1220,7 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                                             label='feedback_hold')
                 imu_future=imu_pool.submit(read_imu)
                 gathered,imu_value=workers.collect_acquisition(
-                    incoming,imu_future,deadline_ns=hard_end,timing=pending_timing)
+                    incoming,imu_future,deadline_ns=hard_end,deadline_wait=deadline_wait,timing=pending_timing)
                 if voltage_pipeline:
                     decoded_feedback=gathered
                     replies={scope:result for scope,(result,_) in decoded_feedback.items()}
@@ -1318,6 +1354,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 'release_interval_ms':None if previous_release is None else (begun-previous_release)/1e6,
                 'cadence_slot':slot,'scheduled_release_ns':release if absolute_epoch_cadence else None,
                 'acquisition_ms':(acquired-first)/1e6,'inference_ms':(computed-acquired)/1e6,
+                'acquisition_join_cpu_ms':None if pending_timing.combined_acquisition_wait_cpu_begin_ns is None else
+                    (pending_timing.combined_acquisition_wait_cpu_end_ns-pending_timing.combined_acquisition_wait_cpu_begin_ns)/1e6,
                 'policy_return_ns':policy_computed,
                 'overlapped_voltage_validated_ns':voltage_validated_ns,
                 'voltage_join_ms':(computed-policy_computed)/1e6 if voltage_overlap else 0.,

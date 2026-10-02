@@ -153,6 +153,33 @@ class GroundReviewTests(unittest.TestCase):
         self.assertEqual(result['metrics']['max_release_interval_ms'],20.)
         self.assertEqual(result['metrics']['release_intervals_over_21ms'],0)
 
+    def test_final_stop_records_cannot_override_explicit_unconfirmed_bus_result(self):
+        original=copy.deepcopy(self.report)
+        for field,value in (('ambiguous_ids',[1]),('unconfirmed_ids',[1]),
+                            ('complete',False),('complete',1),
+                            ('errors',['unresolved Enable reply']),
+                            ('error','deadline exceeded'),
+                            ('sticky_boundary_uncertain',True)):
+            with self.subTest(field=field,value=value):
+                self.report=copy.deepcopy(original)
+                self.report['runtime_report']['stop_reports']['front'][field]=value
+                result=self.evaluate()
+                self.assertEqual(result['status'],'FAIL',result)
+                self.assertFalse(result['dependency_eligible'])
+                self.assertFalse(result['all_axis_stop_confirmed'])
+
+    def test_final_stop_bus_confirmed_ids_must_be_exact_integer_unique_set(self):
+        original=copy.deepcopy(self.report)
+        for ids in ([2,3,4,5,6],[1,1,2,3,4,5,6],[True,2,3,4,5,6],
+                    ['1',2,3,4,5,6],[1,2,3,4,5,7],None):
+            with self.subTest(ids=ids):
+                self.report=copy.deepcopy(original)
+                self.report['runtime_report']['stop_reports']['front']['confirmed_ids']=ids
+                result=self.evaluate()
+                self.assertEqual(result['status'],'FAIL',result)
+                self.assertFalse(result['dependency_eligible'])
+                self.assertFalse(result['all_axis_stop_confirmed'])
+
     def test_wrong_or_missing_firmware_rejects_stage_even_with_good_motion(self):
         original=copy.deepcopy(self.report)
         for missing in (True, False):

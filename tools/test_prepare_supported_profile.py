@@ -68,6 +68,152 @@ class PreparationTests(unittest.TestCase):
 
     def result(self,name):return json.loads((self.base/'assembled'/name).read_text())
 
+    def fast_args(self, *, overlap=True, pipeline=True, encoder=True):
+        """Fake files only; no shared library or policy is loaded."""
+        scalar={'schema':'native-step-scalar-file-only-v1','status':'PASS_FILE_ONLY_COMPARE',
+            'baseline_manifest_sha256':hashlib.sha256((self.base/'model_manifest.json').read_bytes()).hexdigest(),
+            **dict.fromkeys(('hardware_opened','output_allowed','approved_for_runtime','live_50hz_verified'),False)}
+        scalar_path=self.write('scalar.json',scalar)
+        settings=prep.settings_template()
+        settings['run_settings'].update(model_backend=prep.live.SCALAR_BACKEND,
+            voltage_overlap=overlap,voltage_pipeline=pipeline,policy_weight=1.,duration_s=3.)
+        for group,kp in [('calf',4.),('thigh',8.),('hip',6.)]:settings['groups'][group]['kp']=kp
+        if encoder:
+            binary=self.base/'bundle'/'synthetic_batch.so'
+            binary.write_bytes(b'SYNTHETIC ONLY: never dlopen')
+            settings['run_settings']['native_batch_encoder']={'path':binary.name,
+                'sha256':hashlib.sha256(binary.read_bytes()).hexdigest()}
+        self.diagnostic['model_source']={'manifest_sha256':hashlib.sha256(scalar_path.read_bytes()).hexdigest(),
+            'baseline_provenance':{'manifest_sha256':scalar['baseline_manifest_sha256']}}
+        self.diagnostic['plan'].update(v3_voltage_overlap=overlap,v3_voltage_validation_overlap=overlap,
+            v3_voltage_fast_pipeline=pipeline)
+        self.diagnostic['cadence_source_sha256']=prep.live.cadence_source_hashes()
+        self.refresh()
+        return {'profile_schema':prep.live.SCHEMA_V3,'scalar_step_manifest':scalar_path,
+                'group_settings':self.write('fast-settings.json',settings)}
+
+    def test_fast_formal_cli_pins_exact_backend_and_binary_without_promoting_review(self):
+        args=self.args();args.update(self.fast_args())
+        originals={path:path.read_bytes() for path in self.base.rglob('*') if path.is_file()}
+        argv=[]
+        for key,value in args.items():argv.extend(('--'+key.replace('_','-'),str(value)))
+        with redirect_stdout(io.StringIO()) as stdout:
+            self.assertEqual(prep.main(argv),0)
+        result=json.loads(stdout.getvalue());profile=self.result('profile.json')
+        hardware=self.result('hardware-review.json');prepared=self.result('preparation.json')
+        self.assertEqual(profile['model_backend'],prep.live.SCALAR_BACKEND)
+        self.assertTrue(profile['voltage_overlap']);self.assertTrue(profile['voltage_pipeline'])
+        self.assertEqual(profile['policy_weight'],1.)
+        self.assertFalse(result['output_allowed']);self.assertFalse(result['hardware_opened'])
+        self.assertEqual(result['execution_settings'],prep.live.execution_settings(profile))
+        self.assertEqual(prepared['execution_settings'],result['execution_settings'])
+        self.assertNotIn('local_characterization',profile);self.assertNotIn('watchdog_review_policy',profile)
+        self.assertFalse(profile['approved_for_supported_policy_output']);self.assertIsNone(profile['review'])
+        for group,ids in prep.GROUPS.items():
+            for mid in ids:self.assertEqual(profile['axes'][str(mid)]['kp'],{'calf':4.,'thigh':8.,'hip':6.}[group])
+        self.assertEqual(hardware['artifact_sha256'],{key:ref['sha256']
+            for key,ref in profile['artifacts'].items() if key!='hardware_review'})
+        self.assertEqual(hardware['artifact_sha256']['scalar_step_manifest'],
+            hashlib.sha256((self.base/'scalar.json').read_bytes()).hexdigest())
+        self.assertEqual(hardware['reviewed_settings_sha256'],prep.live.reviewed_settings_sha256(profile))
+        self.assertIsNone(hardware['native_batch_encoder_acceptance']['review'])
+        self.assertIsNone(hardware['voltage_pipeline_acceptance']['review'])
+        self.assertIsNone(hardware['native_batch_encoder_acceptance']['hard_output_and_freshness_limits_unchanged'])
+        self.assertEqual(hardware['native_batch_encoder_acceptance']['binary_sha256'],profile['native_batch_encoder']['sha256'])
+        self.assertEqual(hardware['voltage_pipeline_acceptance']['diagnostic_sha256'],
+                         profile['artifacts']['pipeline_diagnostic']['sha256'])
+        for path,raw in originals.items():self.assertEqual(path.read_bytes(),raw)
+        plan=prep.live.load_profile(self.base/'assembled/profile.json',require_approved=False)
+        self.assertFalse(plan['output_allowed'])
+        with self.assertRaisesRegex(ValueError,'unapproved'):
+            prep.live.load_profile(self.base/'assembled/profile.json')
+
+    def test_formal_ten_second_fast_candidate_uses_scalar_timing_without_short_pipeline_cap(self):
+        args=self.fast_args(pipeline=False)
+        settings=json.loads(args['group_settings'].read_text());settings['run_settings']['duration_s']=10.
+        self.write('fast-settings.json',settings)
+        result=self.run_prepare(**args)
+        timing=self.result('preparation.json')['timing_diagnostic_review_only']
+        profile=self.result('profile.json')
+        self.assertEqual(profile['duration_s'],10.);self.assertEqual(profile['policy_weight'],1.)
+        self.assertTrue(profile['voltage_overlap']);self.assertFalse(profile['voltage_pipeline'])
+        self.assertIsNotNone(profile['native_batch_encoder'])
+        self.assertNotIn('voltage_pipeline_acceptance',self.result('hardware-review.json'))
+        self.assertEqual(timing['kind'],'stop_proxy_diagnostic_only')
+        self.assertFalse(timing['actual_policy_output_20ms_verified']);self.assertFalse(result['output_allowed'])
+
+    def test_scalar_selection_and_manifest_must_both_be_explicit_v3_inputs(self):
+        args=self.fast_args()
+        with self.assertRaisesRegex(ValueError,'Explicit scalar-step manifest'):
+            self.run_prepare(**dict(args,scalar_step_manifest=None))
+        with self.assertRaisesRegex(ValueError,'V3 profile'):
+            self.run_prepare(**dict(args,profile_schema=prep.live.SCHEMA_V2))
+        with self.assertRaisesRegex(ValueError,'explicit scalar backend'):
+            self.run_prepare(scalar_step_manifest=args['scalar_step_manifest'])
+        self.assertFalse((self.base/'assembled').exists())
+
+    def test_scalar_manifest_flags_schema_status_and_exact_baseline_are_required(self):
+        args=self.fast_args();original=json.loads(args['scalar_step_manifest'].read_text())
+        changes=[{'schema':'other'},{'status':'UNVERIFIED'},{'baseline_manifest_sha256':'f'*64}]
+        changes.extend({key:value} for key in ('hardware_opened','output_allowed','approved_for_runtime','live_50hz_verified')
+                       for value in (True,0,None))
+        for change in changes:
+            self.write('scalar.json',dict(original,**change))
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'file-only manifest'):
+                self.run_prepare(**args)
+        self.assertFalse((self.base/'assembled').exists())
+
+    def test_scalar_diagnostic_conflicting_model_and_baseline_pins_are_rejected(self):
+        args=self.fast_args();original=copy.deepcopy(self.diagnostic)
+        for kind in ('selected','baseline'):
+            self.diagnostic=copy.deepcopy(original)
+            if kind=='selected':self.diagnostic['model_source']['manifest_sha256']='e'*64
+            else:self.diagnostic['model_source']['baseline_provenance']['manifest_sha256']='e'*64
+            self.write('pipeline_diagnostic.json',self.diagnostic)
+            with self.subTest(kind=kind),self.assertRaisesRegex(ValueError,'hash mismatch'):
+                self.run_prepare(**args)
+        self.assertFalse((self.base/'assembled').exists())
+
+    def test_native_encoder_selection_requires_exact_regular_bundle_member(self):
+        args=self.fast_args();settings=json.loads(args['group_settings'].read_text())
+        original=copy.deepcopy(settings['run_settings']['native_batch_encoder'])
+        cases=[({'path':'../escape.so','sha256':original['sha256']},'bundle-relative'),
+               ({'path':'missing.so','sha256':original['sha256']},'binary mismatch'),
+               (dict(original,sha256='a'*64),'binary mismatch')]
+        link=self.base/'bundle'/'alias.so';link.symlink_to(self.base/'bundle'/original['path'])
+        cases.append((dict(original,path=link.name),'binary mismatch'))
+        for selection,message in cases:
+            settings['run_settings']['native_batch_encoder']=selection;self.write('fast-settings.json',settings)
+            with self.subTest(selection=selection),self.assertRaisesRegex(ValueError,message):self.run_prepare(**args)
+        settings['run_settings']['native_batch_encoder']=original;self.write('fast-settings.json',settings)
+        with self.assertRaisesRegex(ValueError,'explicit pinned bundle'):self.run_prepare(**dict(args,bundle=None))
+        self.assertFalse((self.base/'assembled').exists())
+
+    def test_fast_settings_cannot_copy_supported_only_waivers_or_new_stage_scope(self):
+        args=self.fast_args();original=json.loads(args['group_settings'].read_text())
+        for key,value in [('local_characterization',prep.live.LOCAL_RELATIVE_SUPPORTED),
+                          ('watchdog_review_policy',prep.live.COMMAND_LOSS_ONLY_SUPPORTED),
+                          ('diagnostic_timing_acceptance',prep.live.SUPPORTED_POLICY_MIX_STEP_10PCT),
+                          ('post_reply_deadline_policy',{}),('fixed_catch',{}),('human_supported_hold',{}),
+                          ('cadence_source_sha256',{})]:
+            settings=copy.deepcopy(original);settings['run_settings'][key]=value;self.write('fast-settings.json',settings)
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'Invalid three-group settings'):
+                self.run_prepare(**args)
+        self.assertFalse((self.base/'assembled').exists())
+
+    def test_fast_manifest_and_encoder_mutation_before_publication_are_rejected(self):
+        args=self.fast_args();serialize=prep._json_bytes
+        for path,message in [(self.base/'scalar.json','Source changed during assembly'),
+                             (self.base/'bundle'/'synthetic_batch.so','Model bundle source changed')]:
+            original=path.read_bytes()
+            def mutate(value):
+                if value.get('schema')==prep.live.REVIEW_SCHEMA:path.write_bytes(b'SYNTHETIC MUTATION')
+                return serialize(value)
+            with self.subTest(path=path.name),patch.object(prep,'_json_bytes',side_effect=mutate):
+                with self.assertRaisesRegex(ValueError,message):self.run_prepare(**args)
+            path.write_bytes(original)
+        self.assertFalse((self.base/'assembled').exists())
+
     def test_unapproved_profile_pins_sources_and_leaves_unknowns_null(self):
         sources={p:p.read_bytes() for p in self.base.rglob('*') if p.is_file()}
         result=self.run_prepare();profile=self.result('profile.json');review=self.result('hardware-review.json')

@@ -434,10 +434,10 @@ def _feedback_then_gated_voltage(exchange,scope,feedback_wires,voltage_wire,
         raise
 
 
-def _await_voltage_ready(futures,validation_future,*,deadline_ns,deadline_wait=None,
+def _await_owned_ready(futures,validation_future,*,phase,deadline_ns,deadline_wait=None,
                          clock=time.monotonic_ns,check=lambda:None,
                          thread_clock=time.thread_time_ns):
-    """Wait only for readiness before taking already-owned voltage results.
+    """Wait only for readiness; taking/validating results stays with the owner.
 
     The existing native release wait releases the GIL and spins for targets at
     most 200 us apart. It does not read an FD or publish/replace a source time.
@@ -445,36 +445,36 @@ def _await_voltage_ready(futures,validation_future,*,deadline_ns,deadline_wait=N
     and frame/proof validation stay with the existing owners and dispatch gate.
     """
     if set(futures)!=set(dual.SCOPES) or any(not isinstance(f,Future) for f in futures.values()):
-        raise ValueError('Exact voltage owner futures required')
+        raise ValueError('Exact '+phase.lower()+' owner futures required')
     if validation_future is not None and not isinstance(validation_future,Future):
-        raise ValueError('Voltage validation future required')
+        raise ValueError(phase+' validation/IMU future required')
     if type(deadline_ns) is not int or deadline_ns<=0 or (deadline_wait is not None and not callable(deadline_wait)):
-        raise ValueError('Absolute voltage join deadline required')
+        raise ValueError('Absolute '+phase.lower()+' join deadline required')
     owners=tuple(futures.values())+(() if validation_future is None else (validation_future,))
     if len({id(future) for future in owners})!=len(owners):
-        raise ValueError('Distinct voltage owner/validation futures required')
+        raise ValueError('Distinct '+phase.lower()+' owner/validation futures required')
     begin=clock();cpu_begin=thread_clock();calls=0
     if type(begin) is not int or begin<=0:
-        raise ValueError('Causal voltage join clock required')
+        raise ValueError('Causal '+phase.lower()+' join clock required')
     while True:
         ready=tuple(f for f in owners if f.done())
         # A ready error wins over an unfinished second owner; never wait on it.
         for future in ready:
-            if future.cancelled():raise RuntimeError('Voltage owner future cancelled')
+            if future.cancelled():raise RuntimeError(phase+' owner future cancelled')
             error=future.exception()
             if error is not None:raise error
         check()
         now=clock()
         if type(now) is not int or now<begin:
-            raise ValueError('Noncausal voltage join clock')
+            raise ValueError('Noncausal '+phase.lower()+' join clock')
         if now>=deadline_ns:
-            raise TimeoutError('Voltage pipeline exceeded 20 ms hard deadline at voltage join')
+            raise TimeoutError(phase+' pipeline exceeded 20 ms hard deadline at '+phase.lower()+' join')
         if len(ready)==len(owners):
             cpu_end=thread_clock();end=clock()
             if type(end) is not int or end<now or cpu_end<cpu_begin:
-                raise ValueError('Noncausal voltage join completion clock')
+                raise ValueError('Noncausal '+phase.lower()+' join completion clock')
             if end>=deadline_ns:
-                raise TimeoutError('Voltage pipeline exceeded 20 ms hard deadline at voltage join')
+                raise TimeoutError(phase+' pipeline exceeded 20 ms hard deadline at '+phase.lower()+' join')
             return {'mode':'native_readiness_poll_v1' if deadline_wait is not None else 'bounded_future_wait_v1',
                     'native_tick_max_us':200 if deadline_wait is not None else None,
                     'wait_calls':calls,'begin_ns':begin,'end_ns':end,
@@ -496,8 +496,17 @@ def _await_voltage_ready(futures,validation_future,*,deadline_ns,deadline_wait=N
                 raise
             returned=clock()
             if type(returned) is not int or returned<wake:
-                raise ValueError('Native voltage readiness wait returned before requested wake')
+                raise ValueError('Native '+phase.lower()+' readiness wait returned before requested wake')
         calls+=1
+
+def _await_voltage_ready(futures,validation_future,**options):
+    return _await_owned_ready(futures,validation_future,phase='Voltage',**options)
+
+
+def _await_acquisition_ready(futures,imu_future,**options):
+    if not isinstance(imu_future,Future):
+        raise ValueError('Current acquisition IMU Future required')
+    return _await_owned_ready(futures,imu_future,phase='Acquisition',**options)
 
 
 def _settle_voltage(futures,record):
@@ -1186,13 +1195,36 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
             else:
                 futures={s:pool.submit(exchange,s,w) for s,w in acquisition_wires.items()}
                 imu_future=pool.submit(read_imu)
-            # Retrieve every future before propagating an error, keeping all completed evidence.
+            # Native-ready mode does not sleep sequentially on condition
+            # notifications for front, rear and IMU. Readiness is not validation:
+            # keep the original snapshot/causal/frame checks below unchanged.
             acquired={};failure=None
+            if pipeline_key is not None and deadline_wait is not None:
+                try:
+                    record[pipeline_key]['acquisition_join_wait']=_await_acquisition_ready(
+                        futures,imu_future,deadline_ns=actual_release+PERIOD_NS,
+                        deadline_wait=deadline_wait,clock=clock,check=check)
+                except BaseException as error:
+                    failure=error
+                    record[pipeline_key].update(status='REJECTED_BEFORE_FEEDBACK_VALIDATION',
+                        acquisition_join_error=type(error).__name__+': '+str(error))
+                    if v3_voltage_pipeline:voltage_cancelled.set();voltage_gate.set()
+            # Every result is ready on success. Failure-only settlement retains
+            # complete native evidence; it cannot reach inference or proxy STOP.
             for s,f in futures.items():
                 try:acquired[s]=f.result()
                 except BaseException as e:failure=failure or e
             try:sample=imu_future.result()
             except BaseException as e:sample=None;failure=failure or e
+            if failure is None and pipeline_key is not None and deadline_wait is not None:
+                try:
+                    check()
+                    if clock()>=actual_release+PERIOD_NS:
+                        raise TimeoutError('Acquisition result takeout exceeded 20 ms hard deadline')
+                except BaseException as error:
+                    failure=error
+                    record[pipeline_key].update(status='REJECTED_BEFORE_FEEDBACK_VALIDATION',
+                        acquisition_join_error=type(error).__name__+': '+str(error))
             if v3_voltage_overlap:
                 record['acquired']=acquired;record['imu']=sample
             else:
@@ -1535,6 +1567,8 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
         'voltage_max_v':voltage_max_v,'voltage_range_v':[35.,voltage_max_v],
         'motor_enable_sent':False,'learned_targets_sent':False,'approved_for_runtime':False,
         'full_controller_50Hz_verified':False,'worker_startup':startup,
+        'input_acquisition_wait':('native_ready_poll_200us.v1'
+            if pipeline_key is not None and deadline_wait is not None else 'legacy_result_collection.v1'),
         'main_thread_affinity':affinity,'worker_affinity':worker_affinity,
         'measurements':measurements,'observer':summary,
         'distributions_ms':{k:distribution([r[k] for r in measurements if r[k] is not None]) for k in

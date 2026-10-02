@@ -1773,6 +1773,31 @@ def _supported_20s_extension_evidence(documents, data, base):
     _review(acceptance.get('review'), 'ACCEPT_20S_SUPPORTED_AFTER_10S')
 
 
+def _supported_mix_step_operator_receipt(receipt, data):
+    """Validate the pinned original statement, not a derived copy's flags.
+
+    A named clearance review cannot turn an older-power statement or a denied
+    support/path confirmation into current physical evidence. The file-only
+    preparation tool checks this same receipt contract before making a draft;
+    the loader independently enforces it for hand-assembled profiles as well.
+    """
+    _need(type(receipt) is dict and
+          receipt.get('schema') == 'singularitydog.supported-mix-step-operator-receipt.v1' and
+          receipt.get('boot_id') == data['boot_id'] and
+          receipt.get('motor_power_epoch') == data['motor_power_epoch'],
+          'Mix step source receipt is from another boot/power or has no original receipt schema')
+    for key in ('source_id', 'question', 'answer'):
+        _need(type(receipt.get(key)) is str and bool(receipt[key].strip()),
+              'Mix step source receipt needs original operator '+key)
+    _need(type(receipt.get('clearance_deg')) in (int, float) and receipt['clearance_deg'] == 7 and
+          all(receipt.get(key) is True for key in ('all_twelve_current_clearance_confirmed',
+              'box_supports_body', 'four_paws_floor', 'hands_clear', 'cutoff_ready',
+              'power_and_pose_unchanged_since_prior_10s')) and
+          all(receipt.get(key) is False for key in ('box_removal_authorized',
+              'load_bearing_verified', 'standing_verified')),
+          'Mix step source receipt lacks current seven-degree boxed physical confirmation')
+
+
 def _supported_mix_step_evidence(documents, data, base):
     """A reviewed 10% target experiment, never standing or support-transfer proof.
 
@@ -2013,7 +2038,8 @@ def _supported_mix_step_evidence(documents, data, base):
           all(clearance.get(k) is False for k in ('box_removal_allowed', 'standing_allowed',
               'walking_allowed', 'load_bearing_verified')), 'Mix step requires current seven-degree operator clearance and support')
     source_statement, _ = _artifact(clearance.get('source_receipt'), base)
-    _need(clearance.get('user_statement') == source_statement.get('user_statement', source_statement.get('answer')),
+    _supported_mix_step_operator_receipt(source_statement, data)
+    _need(clearance.get('user_statement') == source_statement['answer'],
           'Mix step clearance must retain the original pinned operator statement')
     _text(clearance.get('user_statement'), 'current seven-degree operator statement')
     _review(clearance.get('review'), 'ACCEPT_CURRENT_7DEG_SUPPORTED_MIX_STEP_CLEARANCE')

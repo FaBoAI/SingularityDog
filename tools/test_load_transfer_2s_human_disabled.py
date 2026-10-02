@@ -22,9 +22,16 @@ def write_json(path, value):
     path.write_text(json.dumps(value, allow_nan=False) + '\n')
 
 
+def require_saved_files(*paths):
+    """Historical private captures are optional; present corrupt files still fail."""
+    if any(not path.is_file() for path in paths):
+        raise unittest.SkipTest('Optional 2026-09-27 private raw capture/package is unavailable')
+
+
 class HumanDisabledOffline(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        require_saved_files(SOURCE / 'prepared_load_transfer.py', SOURCE / 'manifest.json')
         cls.prior_review = builder._load_frozen_wrapper(
             SOURCE / 'prepared_load_transfer.py').verify_files(
                 SOURCE, builder.REVIEWED_PACKAGE_MANIFEST_SHA256)
@@ -63,6 +70,8 @@ class HumanDisabledOffline(unittest.TestCase):
         self.assertFalse(review['load_transfer_hold_authorized'])
 
     def test_known_center_stand_r2_is_rejected_without_output(self):
+        require_saved_files(*(KNOWN_STAND_R2 / name for name in
+                              ('summary.json','events.jsonl','capture-draft.json')))
         frozen = self.fixture.root / 'must-not-exist'
         with self.assertRaisesRegex(ValueError, 'Center-stand r2'):
             builder.build(
@@ -85,6 +94,7 @@ class HumanDisabledOffline(unittest.TestCase):
         # Match a synthetic capture to an already recorded r8 disabled center
         # set, then rebind only its file-only review and wrapper hashes. Nothing
         # here invokes a serial/CAN implementation or creates a real approval.
+        require_saved_files(PRIOR_LOG / 'summary.json', PRIOR_LOG / 'events.jsonl')
         old = json.loads((PRIOR_LOG / 'summary.json').read_text())
         for bus in ('front', 'rear'):
             for mid, center in old['result']['workers'][bus]['centers'].items():

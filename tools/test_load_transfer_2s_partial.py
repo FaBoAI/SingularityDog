@@ -27,6 +27,12 @@ PRIOR_PARTIAL = PRIVATE / 'load-transfer-2s-partial-r3'
 PRIOR_RUN = PRIVATE / 'load-transfer-2s-partial-20260927-r1'
 
 
+def require_saved_files(*paths):
+    """Skip only log replay when private historical files are not supplied."""
+    if any(not path.is_file() for path in paths):
+        raise unittest.SkipTest('Optional 2026-09-27 private raw capture/package is unavailable')
+
+
 def tick0(start):
     return [{'kind': 'load_transfer_cycle', 'bus': bus, 'tick': 0,
              'due_monotonic_s': start, 'completed_monotonic_s': start + .06}
@@ -55,6 +61,8 @@ class PartialPackageTests(unittest.TestCase):
         self.assertTrue(raw.assert_stop)
 
     def test_frozen_source_and_successful_supported_evidence(self):
+        require_saved_files(SUPPORTED / 'manifest.json', PARTIAL / 'manifest.json',
+                            PARTIAL / 'review.json')
         self.assertEqual(sha(SUPPORTED / 'manifest.json'), SUPPORTED_R2_MANIFEST_SHA)
         digest = sha(PARTIAL / 'manifest.json')
         review = verify_files(PARTIAL, digest)
@@ -71,6 +79,10 @@ class PartialPackageTests(unittest.TestCase):
         self.assertEqual(original, unpatch_partial_source(changed))
 
     def test_builder_rejects_failed_supported_run(self):
+        require_saved_files(SUPPORTED / 'manifest.json', SUPPORTED / 'review.json',
+                            RUN / 'summary.json', RUN / 'events.jsonl',
+                            PRIOR_PARTIAL / 'manifest.json',
+                            PRIOR_RUN / 'summary.json', PRIOR_RUN / 'events.jsonl')
         with tempfile.TemporaryDirectory(dir=PRIVATE) as temp:
             bad = Path(temp) / 'bad-summary.json'
             report = json.loads((RUN / 'summary.json').read_text())
@@ -82,6 +94,8 @@ class PartialPackageTests(unittest.TestCase):
                       Path(temp) / 'new-package')
 
     def test_runtime_tamper_rejected_even_if_manifest_rehashed(self):
+        require_saved_files(PARTIAL / 'manifest.json',
+                            PARTIAL / 'singularitydog_hw/rs05_bus_transport.py')
         with tempfile.TemporaryDirectory(dir=PRIVATE) as temp:
             folder = Path(temp) / 'tampered'
             shutil.copytree(PARTIAL, folder)
@@ -101,6 +115,7 @@ class PartialPackageTests(unittest.TestCase):
         self.assertIsNone(partial_cue_deadline(tick0(start)[:1], 100.07))
 
     def test_only_reviewed_id3_full_window_range_exception(self):
+        require_saved_files(PRIOR_RUN / 'summary.json', PARTIAL / 'review.json')
         scope = {'math': math, 'FULLBODY_POSITION_PROFILE': 'position-v2-all'}
         exec(SOURCE_HELPER, scope)
         adjust = scope['reviewed_human_supported_id3_window']

@@ -1,0 +1,289 @@
+{
+  "schema": "singularitydog.walking-preparation-summary.v1",
+  "date": "2026-10-03",
+  "status": "OFFLINE_FIXES_VERIFIED_HARDWARE_RETEST_REQUIRED",
+  "starting_commit": "aba35ef995f629232b1a7cf30ba4842d18805322",
+  "hardware_opened": false,
+  "deployed_to_jetson": false,
+  "physical_motor_enable_sent": false,
+  "physical_learned_targets_sent": false,
+  "physical_review_generated": false,
+  "output_allowed": false,
+  "standing_verified": false,
+  "walking_verified": false,
+  "new_jetson_latency_measured": false,
+  "full_controller_50Hz_verified": false,
+  "source_sha256": {
+    "runtime/singularitydog_hw/ground_trial_review.py": "789bb9e95146f8afd368450c63d674eb039bb0f48248547fc7a11353b4b17efc",
+    "runtime/singularitydog_hw/native_pipeline_benchmark.py": "0bebd7f0f72cfe145591c3ddb428f4d39899a3a5c3622bc5e9f3db4c26d5cd6a",
+    "runtime/singularitydog_hw/policy_live_profile.py": "52d8478bb945d41fcb5739f85e632d5ba9522dcd2f35ae3d81024ac744111001",
+    "runtime/singularitydog_hw/policy_output.py": "183714ec9119cc4b59fa95926de9c2acf213f8261275c56c8bb8a947209a4939",
+    "runtime/singularitydog_hw/policy_output_runtime.py": "5b7b9e961f122d21c9e4ff5c0fdc7f56c1c396c443d7f0ed6dbe041b688cc98e",
+    "runtime/singularitydog_hw/watchdog_commissioning.py": "db446499b528249ad239c912ce5dd8bbd127663b7c323743fd97583d88de3a29",
+    "runtime/tests/test_acquisition_wait.py": "ac89aa9dcd6aa4632ef34e60ab80ab5e1a68d201363690269e7e1cd6aa958215",
+    "runtime/tests/test_dual_policy_once.py": "6e9f4696eaf175992040ed026ac405044399dd33ed37a583973c56d6c058c2c0",
+    "runtime/tests/test_ground_trial_review.py": "233fef9c5dee47352190931331234bfcee76fcdcc3aca8d5863ffb6da53d5911",
+    "runtime/tests/test_native_acquisition_join_wait.py": "b1b00fb31ddd6d3e3a68d7e8b9c930930612d8ca4b744bbfa56e46da75825e8f",
+    "runtime/tests/test_policy_active_absolute_epoch.py": "f29a59af057e688769875721d31d365858b18d2dcf306695c719418752ef17fb",
+    "runtime/tests/test_policy_output_cli.py": "20a84776df3f5ec78553f7d3fed9b89fe7a369ea983008f4548875670e7cddac",
+    "runtime/tests/test_policy_supported_mix_step_profile.py": "10b219559e1da6617e9919c8eb3fc8a405b190ffdecc19e17058550fd78fc38c",
+    "runtime/tests/test_watchdog_stop_ambiguity.py": "49d1a8304bef7f58a90ffa122cf41c1e43a69674d4f5aec633157bdf2a685a60",
+    "tools/analyze_motor_reply_failure.py": "0a5e266ecb71447ef6989bcd844e1449761fbf57e24814a689f81630e0a5f883",
+    "tools/human_supported_prepare.py": "80c36a010315292c03c433d9c52bfb41047eaf6ea91533014764ff9d0073ec71",
+    "tools/prepare_supported_profile.py": "9a6dd6a1ce548f2ffd589755e73ba450a766618afb95ab46ceb20eaa3f6b89da",
+    "tools/test_analyze_motor_reply_failure.py": "59fbc5b58f7210b8f30224a9b702859d3811fb843bafb983549d8346a1fee1cc",
+    "tools/test_compare_dual_policy_saved.py": "cb65da3874651921ef372c722cb8fac80c1c42cbe4bbc85adab7304986fac7d6",
+    "tools/test_human_supported_prepare.py": "c65edffb9e0a430bdc4d5310af5653d61dc24cedcd5013fb73c845ad410e113f",
+    "tools/test_load_transfer_2s_human_disabled.py": "d6219d19024d06f65807f825ffcf12ee68513b054ec3759cf7dc1b2a8fdb0663",
+    "tools/test_load_transfer_2s_partial.py": "fc519a354b9ad293126611e2b3ccfd5f95325e502357388ee040a42065a5d81c",
+    "tools/test_load_transfer_2s_rebased.py": "d60ff962c6f30a9ed7b61d10fb5f0279b41f25078a0863ef68313ab87425db91",
+    "tools/test_load_transfer_2s_supported_active.py": "a9d9c2e36a883ccaf31da1220202bdeb950a554ab0c94b4041fe80e05f3581df",
+    "tools/test_prepare_supported_profile.py": "058788c0628c9004228b3ffa512e6fff2c7a2fc1d7b72cc61fab7402ed2bc640"
+  },
+  "fixes": [
+    {
+      "area": "commissioning_stop",
+      "change": "Preserve unresolved Enable/STOP and receive-boundary ambiguity across repeated STOP; still attempt finite all-axis STOP; tolerate broken exception formatting."
+    },
+    {
+      "area": "ground_review",
+      "change": "Require exact per-bus owner confirmation with no ambiguous/unconfirmed/errors or uncertain boundary, independently of outer STOP flag."
+    },
+    {
+      "area": "acquisition_join",
+      "change": "Wait for three distinct current CAN/IMU Futures using existing native release waiter in at most 200us requested slices; retain absolute deadline/error/cancel/abort checks and original result validation."
+    },
+    {
+      "area": "fixed_catch_terminal",
+      "change": "Validate profile/flags before acquiring TTY; close and restore through finally on setup/execution errors."
+    },
+    {
+      "area": "mix_step_receipt",
+      "change": "Independently validate original current-boot/power operator receipt and physical flags, not only derived review."
+    },
+    {
+      "area": "private_capture_destination",
+      "change": "Resolve parent aliases and reject destination in Git or a symlink leaf."
+    },
+    {
+      "area": "formal_fast_profile_assembly",
+      "change": "Retain explicitly selected scalar/voltage overlap/native encoder settings; pin scalar to exact baseline and diagnostic, verify actual encoder binary; candidate remains unapproved."
+    },
+    {
+      "area": "saved_reply_failure_analysis",
+      "change": "Bounded file-only host write/read classification without claiming physical cause, reply causality or output permission."
+    },
+    {
+      "area": "test_portability",
+      "change": "Fix package/top-level test imports and virtual-clock worker fixture; skip only missing optional historical raw files; present evidence still gets original checks."
+    }
+  ],
+  "regression": {
+    "runtime": {
+      "tests_run": 2623,
+      "passed": 2619,
+      "skipped": 4,
+      "status": "PASS",
+      "private_output_sha256": "605c4ae35f19eeb1868ab32d1486d342fb4913d9b6ff580b2be94cad0057bb4c",
+      "command": "PYTHONPATH=runtime:. python3 -m unittest discover -s runtime/tests -q"
+    },
+    "tools": {
+      "tests_run": 503,
+      "passed": 490,
+      "skipped": 13,
+      "status": "PASS",
+      "private_output_sha256": "5a1fe78547aaad4fbdeb0cb47241d4ad435609b446a3d06b426836e524bbe4fd",
+      "command": "PYTHONPATH=runtime:tools:. python3 -m unittest discover -s tools -q",
+      "missing_historical_raw_skips": 10
+    },
+    "post_runtime_fixture_import_checks": {
+      "package_import_tests": 11,
+      "top_level_tests": 11,
+      "status": "PASS",
+      "production_changed_after_runtime_regression": false
+    },
+    "native_model_build": {
+      "status": "PASS_FILE_ONLY",
+      "hardware_opened": false,
+      "manifest_sha256": "d640064d463a3e4656b98aa34a826b8abab68d9889b83a189aa6b234d1349251"
+    },
+    "real_model_native_socket_integration": {
+      "status": "PASS",
+      "simulation_only": true,
+      "hardware_opened": false,
+      "physical_validation_bypassed_for_local_sockets": true,
+      "relaxed_mac_timing_not_valid_for_hardware": true,
+      "plant": "Instantaneous joint tracking; no physical contact/load/balance emulation",
+      "summary_sha256": "bd4cd0729ebe25785806c56f037e7e6ed340d39d4fe9b38855d0707705eaaef4",
+      "library_sha256": "3395669d77c9c7012f84f0d7bf5f6d4ab09dc565b9ce71e62ca1d38e5bcabd1b",
+      "all_sources_unchanged": true,
+      "cases": {
+        "supported_stance": {
+          "status": "PASS_OFFLINE_GROUND_SIMULATION",
+          "ground_status": "COMPLETE_BOUNDED_GROUND_TRIAL",
+          "real_model_calls": 183,
+          "stop_confirmed": true,
+          "tx_frames": 5724,
+          "rx_frames": 5724,
+          "report_sha256": "034dbfed3cbb7c48658e686bd445734a1cb9eddc1a607ebc596eb920b64424c8",
+          "eager_target_and_state_parity": "PASS",
+          "maximum_parity_error": 0.0
+        },
+        "walk": {
+          "status": "PASS_OFFLINE_GROUND_SIMULATION",
+          "ground_status": "COMPLETE_BOUNDED_GROUND_TRIAL",
+          "real_model_calls": 183,
+          "stop_confirmed": true,
+          "tx_frames": 5668,
+          "rx_frames": 5668,
+          "report_sha256": "e3b9b052c33025606f87dd84350f5132f9c51a85966f2118cccbb192bce4a88d",
+          "eager_target_and_state_parity": "PASS",
+          "maximum_parity_error": 0.0
+        },
+        "walk-missing-ack": {
+          "status": "PASS_OFFLINE_GROUND_SIMULATION",
+          "ground_status": "ABORTED",
+          "real_model_calls": 183,
+          "stop_confirmed": true,
+          "tx_frames": 5304,
+          "rx_frames": 5304,
+          "report_sha256": "40f099bfb2feaaf7b63b841da1245057c3e13b2502973e80fec2bb4359a33c21",
+          "eager_target_and_state_parity": "PASS",
+          "maximum_parity_error": 0.0
+        }
+      }
+    }
+  },
+  "independent_review": {
+    "stop_by_separate_agent": "NO_BLOCKER_IDENTIFIED",
+    "ground_review_and_reply_analysis_by_separate_agent": "NO_BLOCKER_IDENTIFIED",
+    "acquisition_join_by_separate_agent": "NO_BLOCKER_IDENTIFIED",
+    "formal_fast_assembly_by_separate_agent": "NO_BLOCKER_IDENTIFIED",
+    "weekly_plan_source_consistency": "NO_BLOCKER_IDENTIFIED"
+  },
+  "saved_failure_analysis": {
+    "report_sha256": "b8ce650978ee6797d4392cfa265a1bbc6ed58304bed666cb367ed1da788be4dc",
+    "analysis_source_sha256": "0a5e266ecb71447ef6989bcd844e1449761fbf57e24814a689f81630e0a5f883",
+    "root_cause_established": false,
+    "reported_stop_confirmed": false,
+    "unresolved_stop_evidence": true,
+    "motor_id": 10,
+    "step": "enable",
+    "host_write_bytes": 17,
+    "rx_bytes_before_next_tx": 0,
+    "buses": {
+      "front": {
+        "transactions": 72,
+        "suspicious_exchanges": [],
+        "confirmed_stop_ids_from_owner": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "unconfirmed_stop_ids_from_owner": [],
+        "ambiguous_stop_ids_from_owner": [],
+        "owner_stop_incomplete_or_errored": false,
+        "reset_observed_during_stop_ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "parser_partial_bytes_at_end": 0,
+        "parser_discarded_bytes": 0,
+        "rejected_receive_chunks": 0,
+        "receive_chunks_without_valid_time": 0,
+        "orphan_receive_bytes": 0
+      },
+      "rear": {
+        "transactions": 64,
+        "suspicious_exchanges": [
+          {
+            "motor_id": 10,
+            "step": "enable",
+            "write_wall_ms": 0.054337,
+            "host_write_complete": true,
+            "received_bytes": 0,
+            "reply_candidate_count": 0,
+            "first_reply_after_write_ms": null,
+            "observed_reset": false,
+            "rx_partial_before_send_bytes": 0,
+            "rejected_receive_chunk_count": 0,
+            "causal_confirmation_inferred": false,
+            "observed_until_next_tx_ms": 269.272928,
+            "classification": "FULL_HOST_WRITE_WITHOUT_RECORDED_RX"
+          }
+        ],
+        "confirmed_stop_ids_from_owner": [
+          7,
+          8,
+          9,
+          11,
+          12
+        ],
+        "unconfirmed_stop_ids_from_owner": [
+          10
+        ],
+        "ambiguous_stop_ids_from_owner": [
+          10
+        ],
+        "owner_stop_incomplete_or_errored": true,
+        "reset_observed_during_stop_ids": [
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "parser_partial_bytes_at_end": 0,
+        "parser_discarded_bytes": 0,
+        "rejected_receive_chunks": 0,
+        "receive_chunks_without_valid_time": 0,
+        "orphan_receive_bytes": 0
+      }
+    },
+    "confirmation_not_created_from_later_mode0": true
+  },
+  "unchanged_requirements": {
+    "control_period_ms": 20,
+    "frame_and_input_freshness_validation_retained": true,
+    "all_axis_stop_reply_requirement_retained": true,
+    "new_hardware_gain_or_motion_caps_approved": false
+  },
+  "formal_candidate_path": {
+    "schema": "singularitydog.supported-policy-profile.v3",
+    "model_backend": "scalar_step_cpp",
+    "voltage_overlap": true,
+    "voltage_pipeline": false,
+    "native_batch_encoder": "explicit bundle-relative path and exact SHA256 required",
+    "duration_s": 10,
+    "policy_weight": 1,
+    "candidate_generation_tested": true,
+    "approved_for_runtime": false,
+    "reason_pipeline_disabled": "Ordinary formal voltage_pipeline=true remains limited to 3s; no cap relaxation applied."
+  },
+  "remaining": [
+    "Current kit/power all-twelve command-loss and STOP verification, including missing ID10 Enable reply cause investigation",
+    "Absolute twelve-axis angle accuracy/sign/range and dynamic Type2 scale; independent final IMU calibration",
+    "New source real Jetson no-output and actual MIT-output timing, initially 5/50/501 cycles then supported 2s/10s",
+    "Formal load-bearing model target/PD/torque/voltage/trajectory validation with support",
+    "Required ground stop-protection evidence; supported-only waivers cannot transfer",
+    "Partial load -> stand -> bounded forward walk with physical video and all-axis STOP"
+  ],
+  "weekly_plan": {
+    "dates": "2026-10-05 through 2026-10-11",
+    "hands_on_hours_including_reserve": [
+      10,
+      18
+    ],
+    "target": "First video-verified few forward steps, approximately 5-10cm; hardware gates must pass",
+    "autonomous_get_up_from_box_verified": false,
+    "schedule_document": "docs/walking-week-20261005.md"
+  }
+}

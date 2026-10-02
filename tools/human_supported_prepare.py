@@ -313,7 +313,13 @@ def run_child(argv, timeout_s, cancelled):
 
 def start_requirements(out, visible):
     need(visible(), 'stdin/stdout must be the same visible local terminal')
-    out = Path(out).expanduser().absolute()
+    candidate = Path(out).expanduser().absolute()
+    need(not candidate.is_symlink(), 'Fresh private output required')
+    # A parent alias may point to a subdirectory inside Git, whose lexical
+    # ancestors have no .git entry. Inspect the real destination before writing
+    # raw identities, boot/power labels and operator receipts. Normal system
+    # aliases such as /var remain usable when they resolve outside a checkout.
+    out = candidate.resolve(strict=False)
     need(not out.exists() and not any((p/'.git').exists() for p in (out,*out.parents)), 'Fresh private output required')
     return out
 

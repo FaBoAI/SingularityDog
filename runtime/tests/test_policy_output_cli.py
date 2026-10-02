@@ -5,6 +5,7 @@ import io
 import json
 import os
 from pathlib import Path
+import pty
 import signal
 import subprocess
 import sys
@@ -358,6 +359,51 @@ class PolicyOutputCLITests(unittest.TestCase):
              patch('singularitydog_hw.policy_output_model.LivePolicyModel') as model:
             with self.assertRaises(FileExistsError): self.run_quiet(self.args())
         self.assertEqual((self.out/'report.json').read_text(), 'preserve'); model.assert_not_called()
+
+    def fixed_catch_args(self):
+        args=self.args();args.remove('--execute-supported');args.remove('--support-in-place')
+        return args+['--execute-fixed-catch','--fixed-catch-ready']
+
+    def test_fixed_catch_invalid_admission_never_takes_terminal_ownership(self):
+        profile=dict(self.fake,scope='fixed_catch_current_hold_only')
+        cases=('cutoff','power','digest','existing','wrong_scope')
+        for case in cases:
+            args=self.fixed_catch_args();selected=profile
+            if case=='cutoff':args.remove('--cutoff-ready')
+            elif case=='power':args[args.index('--power-epoch')+1]='old-power'
+            elif case=='digest':args[args.index('--audio-sha256')+1]='0'*64
+            elif case=='existing':self.out.mkdir()
+            else:selected=self.fake
+            try:
+                with self.subTest(case=case),patch.object(cli,'load_profile',return_value=selected), \
+                     patch('singularitydog_hw.fixed_catch_hold.FixedCatchExecution') as supervisor, \
+                     patch('singularitydog_hw.policy_output_model.LivePolicyModel') as model:
+                    with self.assertRaises((SystemExit,FileExistsError)):
+                        self.run_quiet(args)
+                    supervisor.assert_not_called();model.assert_not_called()
+            finally:
+                if case=='existing':self.out.rmdir()
+
+    def test_fixed_catch_setup_failure_restores_tty_descriptors_and_saves_report(self):
+        from singularitydog_hw.fixed_catch_hold import FixedCatchExecution
+        master,reader=pty.openpty();writer=os.open(os.ttyname(reader),os.O_RDWR)
+        self.addCleanup(os.close,master);self.addCleanup(os.close,reader);self.addCleanup(os.close,writer)
+        original=[os.get_blocking(fd) for fd in (reader,writer)];owners=[]
+        def supervisor(*args,**kwargs):
+            execution=FixedCatchExecution(reader,write_fd=writer);owners.append(execution)
+            return execution
+        torch=SimpleNamespace(set_num_threads=Mock(),set_num_interop_threads=Mock())
+        with patch.object(cli,'load_profile',return_value=dict(self.fake,scope='fixed_catch_current_hold_only')), \
+             patch('singularitydog_hw.fixed_catch_hold.FixedCatchExecution',side_effect=supervisor), \
+             patch.object(FixedCatchExecution,'bind_profile'),patch.dict('sys.modules',{'torch':torch}), \
+             patch('singularitydog_hw.policy_output_model.LivePolicyModel',side_effect=RuntimeError('synthetic model failure')), \
+             patch('singularitydog_hw.native_active_transport.load_library') as native:
+            self.assertEqual(self.run_quiet(self.fixed_catch_args()),2)
+        self.assertEqual([os.get_blocking(fd) for fd in (reader,writer)],original)
+        self.assertEqual(len(owners),1);self.assertTrue(owners[0].closed)
+        saved=json.loads((self.out/'report.json').read_text())
+        self.assertEqual(saved['status'],'ABORTED_BEFORE_OUTPUT')
+        self.assertIn('synthetic model failure',saved['errors'][0]);native.assert_not_called()
 
     def test_setup_model_failure_is_preserved_as_before_output_report(self):
         torch = SimpleNamespace(set_num_threads=Mock(), set_num_interop_threads=Mock())

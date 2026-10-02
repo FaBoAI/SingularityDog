@@ -66,8 +66,14 @@ class SupportedMixStepTests(unittest.TestCase):
             model_provenance=copy.deepcopy(prior_report['model_provenance']),kit_manifest_sha256=self.kit['sha256'],
             output_allowed=False,hardware_accessed=False,closed_loop_prediction=False,
             load_bearing_verified=False,standing_verified=False,box_removal_allowed=False)
-        self.statement=_write(self.base/'real_statement.json',dict(
-            answer='SYNTHETIC ONLY all twelve 7-degree paths, box, paws, hands-off, immediate cutoff unchanged'))
+        self.original_statement=dict(schema='singularitydog.supported-mix-step-operator-receipt.v1',
+            boot_id=self.data['boot_id'],motor_power_epoch=self.data['motor_power_epoch'],
+            source_id='SYNTHETIC original current physical question',question='SYNTHETIC seven-degree boxed readiness?',
+            answer='SYNTHETIC ONLY all twelve 7-degree paths, box, paws, hands-off, immediate cutoff unchanged',
+            clearance_deg=7,all_twelve_current_clearance_confirmed=True,box_supports_body=True,
+            four_paws_floor=True,hands_clear=True,cutoff_ready=True,power_and_pose_unchanged_since_prior_10s=True,
+            box_removal_authorized=False,load_bearing_verified=False,standing_verified=False)
+        self.statement=_write(self.base/'real_statement.json',self.original_statement)
         source=dict(schema='singularitydog.supported-mix-step-source-review.v1',
             prior_source_sha256=copy.deepcopy(self.ten['cadence_source_sha256']),
             new_source_sha256=copy.deepcopy(self.data['cadence_source_sha256']),
@@ -280,6 +286,31 @@ class SupportedMixStepTests(unittest.TestCase):
             lambda d:d['cap_deg'].update(maximum_displacement=[7.]*12)):
             self.docs['policy_mixture_analysis']=copy.deepcopy(original);change(self.docs['policy_mixture_analysis'])
             with self.subTest(change=change),self.assertRaises(profile.ProfileError):profile.load_profile(self.seal(refresh_analysis=False))
+
+    def test_derived_clearance_cannot_override_stale_or_denied_original_receipt(self):
+        changes=(('schema','answer-only'),('boot_id','old-boot'),('motor_power_epoch','old-power'),
+            ('source_id',''),('question',''),('answer','invented answer'),('clearance_deg',3),
+            ('clearance_deg',True),('all_twelve_current_clearance_confirmed',False),
+            ('box_supports_body',False),('four_paws_floor',False),('hands_clear',False),
+            ('cutoff_ready',False),('power_and_pose_unchanged_since_prior_10s',False),
+            ('box_removal_authorized',True),('load_bearing_verified',True),('standing_verified',True))
+        for key,value in changes:
+            statement=copy.deepcopy(self.original_statement);statement[key]=value
+            reference=_write(self.base/'real_statement.json',statement)
+            self.docs['mix_step_clearance']['source_receipt']=reference
+            with self.subTest(key=key,value=value),self.assertRaisesRegex(profile.ProfileError,'source receipt|original pinned'):
+                self.load()
+
+    def test_missing_original_receipt_fields_and_alternate_statement_cannot_admit(self):
+        for key in self.original_statement:
+            statement=copy.deepcopy(self.original_statement);statement.pop(key)
+            self.docs['mix_step_clearance']['source_receipt']=_write(self.base/'real_statement.json',statement)
+            with self.subTest(key=key),self.assertRaises(profile.ProfileError):self.load()
+        statement=copy.deepcopy(self.original_statement)
+        statement['answer']='different original answer'
+        statement['user_statement']=self.original_statement['answer']
+        self.docs['mix_step_clearance']['source_receipt']=_write(self.base/'real_statement.json',statement)
+        with self.assertRaisesRegex(profile.ProfileError,'original pinned'):self.load()
 
     def test_diagnostic_keeps_initial_admission_but_current_boot_power_sources(self):
         self.assertEqual(self.load()['timing_review']['kind'],'supported_policy_mix_step_10pct_5s_admission_only')

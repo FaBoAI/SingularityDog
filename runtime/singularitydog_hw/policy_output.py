@@ -304,13 +304,8 @@ def main(argv=None,*,execution=None):
             p.error('Geometric preload requires --absolute-epoch-cadence')
         a.execute_supported=True
     if a.execute_fixed_catch:
-        from .fixed_catch_hold import FixedCatchExecution
-        try:
-            # The CPU performance wrapper starts a new session. Its child has
-            # the operator's terminal on inherited stdin/stdout, but no
-            # controlling /dev/tty. Use those verified descriptors directly.
-            execution=FixedCatchExecution(0,write_fd=1)
-        except (ValueError,OSError) as error:p.error(str(error))
+        if profile.get('scope')!='fixed_catch_current_hold_only':
+            p.error('Fixed-catch execution requires its dedicated reviewed profile')
         a.execute_supported=True
     elif profile.get('scope')=='fixed_catch_current_hold_only':
         p.error('Fixed-catch profile requires the dedicated terminal execution path')
@@ -374,6 +369,15 @@ def main(argv=None,*,execution=None):
     cr,cw=os.pipe();signals=SignalState(cw);handlers={}
     device=None;stage_audio=None
     try:
+        if a.execute_fixed_catch:
+            from .fixed_catch_hold import FixedCatchExecution
+            # Take ownership only after every file/flag/power/output check has
+            # passed. Setup errors below reach finally and restore both TTY
+            # descriptors before returning control to the operator's shell.
+            # A CPU wrapper may leave no controlling /dev/tty, so retain the
+            # inherited, same-visible-terminal stdin/stdout contract.
+            execution=FixedCatchExecution(0,write_fd=1)
+            execution.bind_profile(profile,active=True)
         if a.execute_human_supported_partial:
             from .human_supported_hold import HumanSupportedHoldExecution
             stage_audio=HumanStageAudioPlayer(human_stages,a.audio_device)

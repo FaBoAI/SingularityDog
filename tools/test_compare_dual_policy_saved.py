@@ -8,8 +8,8 @@ import tempfile
 import unittest
 
 from singularitydog_hw import dual_policy_once as once
-from test_dual_policy_once import captured
-from test_policy_observer import FakeTorch, Policy
+from runtime.tests.test_dual_policy_once import captured
+from runtime.tests.test_policy_observer import FakeTorch, Policy, mount
 from tools import compare_dual_policy_saved as comparison
 
 
@@ -27,7 +27,6 @@ def fixture(root):
     for row in calibration["candidates"]:
         row.update({"approved_for_runtime": False,
                     "physical_angle_accuracy_verified": False})
-    from test_policy_observer import mount
     mount_candidate = mount()
     original = once.observe_one(dual_report, events, imu, calibration, mount_candidate,
                                 SensitivePolicy(), FakeTorch, h_hypothesis=0,

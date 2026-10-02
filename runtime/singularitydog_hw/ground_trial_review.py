@@ -271,7 +271,25 @@ def _journal(runtime, profile, *, tested_firmware=None):
 
 def _stops(runtime, *, after_ns):
     need(runtime.get('stop_confirmed') is True and not runtime.get('stop_faults_by_id'), 'All-axis STOP is unconfirmed/faulted')
-    evidence = {bus: value.get('evidence') for bus,value in runtime.get('stop_reports', {}).items()}
+    reports = runtime.get('stop_reports')
+    need(type(reports) is dict and set(reports) == set(BUSES), 'Missing final raw STOP evidence')
+    for bus, ids in BUSES.items():
+        report = reports[bus]
+        need(type(report) is dict, 'Malformed final STOP report')
+        confirmed = report.get('confirmed_ids')
+        need(type(confirmed) is list and len(confirmed) == len(ids) and
+             all(type(mid) is int for mid in confirmed) and set(confirmed) == set(ids),
+             'Final STOP confirmed IDs incomplete/duplicated')
+        need(report.get('complete') is True and
+             not report.get('unconfirmed_ids') and not report.get('ambiguous_ids') and
+             not report.get('errors') and not report.get('error'),
+             'Final STOP report is incomplete/ambiguous/errored')
+        # Mode0 records prove an observed reset state only. They cannot erase
+        # unresolved same-key replies recorded by the session owner, even when
+        # the outer runtime summary incorrectly says stop_confirmed=True.
+        need(report.get('sticky_boundary_uncertain', False) is False,
+             'Final STOP receive boundary remains uncertain')
+    evidence = {bus: value.get('evidence') for bus,value in reports.items()}
     need(set(evidence) == set(BUSES) and all(type(v) is dict for v in evidence.values()), 'Missing final raw STOP evidence')
     last = 0
     for bus, ids in BUSES.items():

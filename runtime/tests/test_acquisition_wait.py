@@ -5,6 +5,7 @@ measure host scheduling or establish physical 20ms operation.
 """
 from concurrent.futures import CancelledError, Future, wait as real_wait
 import threading
+import time
 import unittest
 from unittest.mock import Mock, patch
 
@@ -184,6 +185,204 @@ class AcquisitionWaitTests(unittest.TestCase):
                 self.assertIs(caught.exception, failure)
                 workers.emergency.assert_called_once()
                 self.assertFalse(any(event[0] == 'result' for event in events))
+
+
+class NativeAcquisitionWaitTests(unittest.TestCase):
+    """The selected native waiter cannot admit pending, stale or failed input."""
+    fixture = AcquisitionWaitTests.fixture
+    assert_no_unfinished_result = AcquisitionWaitTests.assert_no_unfinished_result
+
+    def collect(self, workers, futures, native_wait, *, timing=None, deadline_ns=DEADLINE_NS):
+        return workers.collect_acquisition(
+            {name: futures[name] for name in ('front', 'rear')}, futures['imu'],
+            deadline_ns=deadline_ns, deadline_wait=native_wait, timing=timing)
+
+    def complete(self, futures):
+        values = {name: object() for name in futures}
+        for name, future in futures.items():
+            future.set_result(values[name])
+        return values
+
+    def test_ready_inputs_return_original_values_without_native_or_condition_wait(self):
+        workers, _, events, futures = self.fixture()
+        values = self.complete(futures); native_wait = Mock()
+        with patch.object(runtime, 'wait', side_effect=AssertionError('Condition wait is forbidden')):
+            buses, imu = self.collect(workers, futures, native_wait)
+        native_wait.assert_not_called()
+        self.assertIs(buses['front'], values['front'])
+        self.assertIs(buses['rear'], values['rear'])
+        self.assertIs(imu, values['imu'])
+        self.assert_no_unfinished_result(events)
+
+    def test_poll_waits_for_current_imu_and_requests_at_most_200us(self):
+        workers, clock, events, futures = self.fixture(); targets = []
+        values = {name: object() for name in futures}
+        def native_wait(target):
+            self.assertGreater(target, clock.now)
+            self.assertLessEqual(target-clock.now, 200_000)
+            targets.append(target); clock.now = target
+            if len(targets) == 1:
+                for name in ('front', 'rear'): futures[name].set_result(values[name])
+            else: futures['imu'].set_result(values['imu'])
+        with patch.object(runtime, 'wait', side_effect=AssertionError('Condition wait is forbidden')):
+            buses, imu = self.collect(workers, futures, native_wait)
+        self.assertEqual(targets, [START_NS+200_000, START_NS+400_000])
+        self.assertIs(imu, values['imu']); self.assertIs(buses['rear'], values['rear'])
+        self.assert_no_unfinished_result(events)
+
+    def test_error_on_each_input_preempts_other_pending_inputs(self):
+        for failed in ('front', 'rear', 'imu'):
+            with self.subTest(failed=failed):
+                workers, _, events, futures = self.fixture(); native_wait = Mock()
+                error = OSError('current '+failed+' failed'); futures[failed].set_exception(error)
+                with self.assertRaises(OSError) as caught:
+                    self.collect(workers, futures, native_wait)
+                self.assertIs(caught.exception, error); native_wait.assert_not_called()
+                workers.emergency.assert_called_once(); self.assert_no_unfinished_result(events)
+
+    def test_error_published_during_native_cancel_preserves_original_error(self):
+        workers, _, events, futures = self.fixture(); error = OSError('rear decode failed')
+        def native_wait(target):
+            futures['rear'].set_exception(error)
+            raise RuntimeError('native wait cancelled')
+        with self.assertRaises(OSError) as caught:
+            self.collect(workers, futures, native_wait)
+        self.assertIs(caught.exception, error); self.assert_no_unfinished_result(events)
+
+    def test_cancelled_future_before_or_during_native_wait_stops(self):
+        for during in (False, True):
+            with self.subTest(during=during):
+                workers, clock, events, futures = self.fixture(); calls = []
+                if not during: futures['imu'].cancel()
+                def native_wait(target):
+                    calls.append(target); clock.now = target; futures['imu'].cancel()
+                with self.assertRaises(CancelledError):
+                    self.collect(workers, futures, native_wait)
+                self.assertEqual(len(calls), int(during)); workers.emergency.assert_called_once()
+                self.assert_no_unfinished_result(events)
+
+    def test_abort_before_or_during_wait_does_not_read_pending_inputs(self):
+        for during in (False, True):
+            with self.subTest(during=during):
+                workers, clock, events, futures = self.fixture(); calls = []
+                if not during: workers.aborted.set()
+                def native_wait(target):
+                    calls.append(target); clock.now = target; workers.aborted.set()
+                with self.assertRaisesRegex(RuntimeError, 'aborted'):
+                    self.collect(workers, futures, native_wait)
+                self.assertEqual(len(calls), int(during)); self.assert_no_unfinished_result(events)
+
+    def test_native_last_target_clipped_to_deadline_and_equality_rejected(self):
+        workers, clock, events, futures = self.fixture(); targets = []
+        deadline = START_NS+300_000
+        def native_wait(target):
+            targets.append(target); clock.now = target
+            if target == deadline: self.complete(futures)
+        with self.assertRaises(TimeoutError):
+            self.collect(workers, futures, native_wait, deadline_ns=deadline)
+        self.assertEqual(targets, [START_NS+200_000, deadline])
+        self.assertFalse(any(event[0] == 'result' for event in events))
+
+    def test_native_oversleep_not_backdated_even_when_all_inputs_are_ready(self):
+        workers, clock, events, futures = self.fixture()
+        def native_wait(target):
+            self.complete(futures); clock.now = DEADLINE_NS+1
+        with self.assertRaises(TimeoutError): self.collect(workers, futures, native_wait)
+        self.assertFalse(any(event[0] == 'result' for event in events))
+
+    def test_native_early_or_backdated_return_rejected(self):
+        for offset in (-1, -200_001):
+            with self.subTest(offset=offset):
+                workers, clock, events, futures = self.fixture()
+                def native_wait(target): clock.now = target+offset
+                with self.assertRaisesRegex(RuntimeError, 'before its deadline'):
+                    self.collect(workers, futures, native_wait)
+                self.assert_no_unfinished_result(events)
+
+    def test_aliases_non_futures_and_invalid_deadlines_fail_before_wait(self):
+        for invalid in ('can-alias', 'imu-alias', 'non-future', 'missing-bus', 'zero', 'boolean', 'callback'):
+            with self.subTest(invalid=invalid):
+                workers, _, events, futures = self.fixture(); native_wait = Mock()
+                buses = {name: futures[name] for name in ('front', 'rear')}; imu = futures['imu']
+                deadline = DEADLINE_NS
+                if invalid == 'can-alias': buses['rear'] = buses['front']
+                if invalid == 'imu-alias': imu = buses['front']
+                if invalid == 'non-future': imu = object()
+                if invalid == 'missing-bus': del buses['rear']
+                if invalid == 'zero': deadline = 0
+                if invalid == 'boolean': deadline = True
+                if invalid == 'callback': native_wait = object()
+                with self.assertRaises(RuntimeError):
+                    workers.collect_acquisition(buses, imu, deadline_ns=deadline, deadline_wait=native_wait)
+                if isinstance(native_wait, Mock): native_wait.assert_not_called()
+                self.assertFalse(any(event[0] == 'result' for event in events))
+
+    def test_ready_result_takeout_crossing_deadline_or_aborting_is_rejected(self):
+        for abort in (False, True):
+            for native in (False, True):
+                with self.subTest(abort=abort, native=native):
+                    workers, clock, events, futures = self.fixture(); self.complete(futures)
+                    original = futures['imu'].result
+                    def result(timeout=None):
+                        value = original(timeout)
+                        if abort: workers.aborted.set()
+                        else: clock.now = DEADLINE_NS
+                        return value
+                    with patch.object(futures['imu'], 'result', side_effect=result):
+                        with self.assertRaises((RuntimeError, TimeoutError)):
+                            self.collect(workers, futures, Mock() if native else None)
+                    workers.emergency.assert_called_once(); self.assert_no_unfinished_result(events)
+
+    def test_wall_and_cpu_timing_record_actual_ready_and_takeout_boundaries(self):
+        workers, clock, _, futures = self.fixture(); timing = runtime._PendingCycleTiming()
+        timing.begin(0, START_NS, START_NS, None, None)
+        def native_wait(target): clock.now = target; self.complete(futures)
+        with patch.object(runtime.time, 'thread_time_ns', side_effect=[1000, 3000]):
+            self.collect(workers, futures, native_wait, timing=timing)
+        self.assertEqual(timing.combined_acquisition_wait_begin_ns, START_NS)
+        self.assertEqual(timing.combined_acquisition_wait_end_ns, START_NS+200_000)
+        self.assertEqual(timing.combined_acquisition_wait_cpu_begin_ns, 1000)
+        self.assertEqual(timing.combined_acquisition_wait_cpu_end_ns, 3000)
+        self.assertAlmostEqual(timing.snapshot({'hard_cycle_ms':20.,'max_sample_age_ms':20.})['acquisition_join_cpu_ms'], .002)
+
+    def test_failure_cpu_stamp_retained_but_completed_ready_stamp_is_unset(self):
+        workers, _, _, futures = self.fixture(); timing = runtime._PendingCycleTiming()
+        timing.begin(0, START_NS, START_NS, None, None)
+        with patch.object(runtime.time, 'thread_time_ns', side_effect=[1000, 4000]):
+            with self.assertRaises(OSError):
+                self.collect(workers, futures, Mock(side_effect=OSError('wait failed')), timing=timing)
+        self.assertEqual(timing.combined_acquisition_wait_cpu_end_ns, 4000)
+        self.assertIsNone(timing.combined_acquisition_wait_end_ns)
+        self.assertAlmostEqual(timing.snapshot({'hard_cycle_ms':20.,'max_sample_age_ms':20.})['acquisition_join_cpu_ms'], .003)
+
+
+class NativeAcquisitionRuntimeIntegrationTests(unittest.TestCase):
+    def test_selected_runtime_passes_same_native_waiter_and_records_cpu_time(self):
+        from test_policy_output_runtime import OutputRuntimeTests, SimulatedClock, FakeSession, FakeIMU
+        original = runtime.BusWorkers.collect_acquisition
+        selected = []; waiting=[]; clock=SimulatedClock()
+        # Give real executor workers CPU while advancing shared causal fixture
+        # time, without making macOS wake jitter decide an argument-wire test.
+        def native_wait(target):
+            limit=time.monotonic()+1.
+            while waiting and not all(future.done() for future in waiting):
+                self.assertLess(time.monotonic(),limit,'Synthetic executor input did not complete')
+                time.sleep(0)
+            clock.advance_to(target); time.sleep(0)
+        def collect(workers, *args, **kwargs):
+            selected.append(kwargs.get('deadline_wait'))
+            waiting[:]=[*args[0].values(),args[1]]
+            try: return original(workers,*args,**kwargs)
+            finally: waiting.clear()
+        with patch.object(runtime.BusWorkers,'collect_acquisition',side_effect=collect,autospec=True):
+            report,sessions=OutputRuntimeTests.run_case(self,absolute_epoch_cadence=True,
+                deadline_wait=native_wait,clock=clock,sleep=clock.sleep,
+                front=FakeSession(1,clock=clock),rear=FakeSession(7,clock=clock),imu=FakeIMU(clock=clock))
+        self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
+        self.assertTrue(selected); self.assertTrue(all(wait is native_wait for wait in selected))
+        self.assertEqual(report['input_acquisition_wait'],'native_ready_poll_200us.v1')
+        self.assertTrue(all(row['acquisition_join_cpu_ms']>=0 for row in report['cycles']))
+        self.assertTrue(report['stop_confirmed']); self.assertEqual(set(sessions),{'front','rear'})
 
 
 if __name__ == '__main__':

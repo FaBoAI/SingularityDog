@@ -68,6 +68,13 @@ def _need(condition, message):
         raise RuntimeError(message)
 
 
+def _error_text(error):
+    # A transport-controlled exception formatter must not suppress later STOPs.
+    args = BaseException.args.__get__(error)
+    detail = args[0][:240] if args and type(args[0]) is str else 'exception text unavailable'
+    return type(error).__name__+': '+detail
+
+
 class Channel:
     """One bus owner, exact outgoing allowlist, finite requests, no retries.
 
@@ -83,6 +90,9 @@ class Channel:
         self.pending = {}
         self.events = []
         self.failed = False
+        self._ambiguous_ids = set()
+        self._unresolved_state_steps = {}
+        self._stop_boundary_uncertain = False
         self.reader = reader or DeadlineSerialReader(port, clock=clock, check=check)
 
     def event(self, value):
@@ -113,7 +123,7 @@ class Channel:
             if rejected is not None:
                 try:
                     self.event({'kind': 'rx_rejected', **rejected.record(),
-                                'error': type(error).__name__+': '+str(error)})
+                                'error': _error_text(error)})
                 except BaseException:
                     self.unlogged_receive_failure = True
             raise
@@ -191,18 +201,39 @@ class Channel:
             raise
 
     def stop_all(self):
-        """Attempt all six STOPs even after cancellation, parser or write error."""
+        """Attempt six STOPs, keeping unresolved Type2 attribution across calls.
+
+        A later empty receive boundary or mode-zero frame cannot repair an
+        earlier uncertain transaction. No motion or automatic retry is added.
+        """
         from .serial_deadline_reader import DeadlineSerialReader
-        ambiguous = {mid for mid, step in self.pending.items()
-                     if step in ('zero', 'enable', 'stop', 'watchdog_write')}
+        self.failed = True  # STOP cleanup never re-arms a commissioning session.
+        prior_pending = dict(self.pending)
+        unresolved = dict(getattr(self, '_unresolved_state_steps', {}))
+        for mid, step in prior_pending.items():
+            if step in ('zero', 'enable', 'stop', 'watchdog_write'):
+                unresolved.setdefault(mid, step)
+        ambiguous = set(getattr(self, '_ambiguous_ids', ())) | {
+            mid for mid, step in prior_pending.items()
+            if step in ('zero', 'enable', 'stop', 'watchdog_write')}
+        self._ambiguous_ids = ambiguous
+        boundary_uncertain = getattr(self, '_stop_boundary_uncertain', False)
         self.pending.clear()
         # A broken receive path must not prevent six physical STOP attempts.
-        errors, sent, confirmed = [], {}, set()
+        errors, sent, confirmed, attempted = [], {}, set(), set()
         boundary_ok = False
+        boundary = {'partial_hex': bytes(self.parser.buffer).hex(),
+                    'discarded_bytes': self.parser.discarded_bytes, 'backlogged_bytes': None}
         try:
-            boundary_ok = not self.parser.buffer and not self.port.in_waiting
+            boundary['backlogged_bytes'] = self.port.in_waiting
+            boundary_ok = (not boundary_uncertain and not self.parser.buffer
+                           and not self.parser.discarded_bytes and not boundary['backlogged_bytes'])
         except BaseException as error:
-            errors.append('STOP boundary: '+type(error).__name__+': '+str(error))
+            errors.append('STOP boundary: '+_error_text(error))
+        if not boundary_ok:
+            self._stop_boundary_uncertain = True
+        # Preserve the old parser boundary before replacing it for best-effort
+        # STOP delivery. It is diagnostic evidence, never a fresh reply.
         self.parser = codec.ATParser()
         old_check, old_reader = self.check, self.reader
         self.check = lambda: None
@@ -223,7 +254,7 @@ class Channel:
                 self.reader = DeadlineSerialReader(self.port, clock=self.clock, check=lambda: None)
                 reader_ready = True
             except BaseException as error:
-                errors.append('STOP reader: '+type(error).__name__+': '+str(error))
+                errors.append('STOP reader: '+_error_text(error))
             last_stop_finish = None
             for mid in self.ids:
                 try:
@@ -231,11 +262,12 @@ class Channel:
                         gap_end = last_stop_finish+800_000
                         while self.clock() < gap_end:
                             time.sleep(min(.0008, max(0., (gap_end-self.clock())/1e9)))
+                    attempted.add(mid)
                     start, finish = self._send(mid, 'stop')
                     sent[mid] = finish
                     last_stop_finish = finish
                 except BaseException as error:
-                    errors.append(f'ID{mid}: {type(error).__name__}: {error}')
+                    errors.append(f'ID{mid}: '+_error_text(error))
                 if mid in sent and reader_ready:
                     # Cleanup has no 20ms budget. Await this axis before the
                     # next STOP, instead of overfilling the serial adapter with
@@ -247,25 +279,43 @@ class Channel:
                             frames, received = self._read(axis_deadline, axis_deadline)
                             consume(frames, received)
                     except BaseException as error:
-                        errors.append(f'ID{mid} STOP wait: '+type(error).__name__+': '+str(error))
+                        errors.append(f'ID{mid} STOP wait: '+_error_text(error))
             deadline = self.clock()+REQUEST_NS
-            while reader_ready and self.clock() < deadline and len(confirmed) < len(self.ids):
+            # More mode-zero replies cannot resolve a sticky prior transaction.
+            # Once each sent STOP has a reset observation, do not spend another
+            # full receive budget waiting for an impossible confirmation.
+            while reader_ready and self.clock() < deadline and len(acknowledged) < len(sent):
                 try:
                     frames, received = self._read(deadline, deadline)
                     consume(frames, received)
                 except BaseException as error:
-                    errors.append(type(error).__name__+': '+str(error)); break
+                    errors.append(_error_text(error)); break
             try:
-                _need(not self.parser.buffer and not self.port.in_waiting, 'STOP has trailing/partial/backlogged bytes')
+                _need(not self.parser.buffer and not self.parser.discarded_bytes and not self.port.in_waiting,
+                      'STOP has trailing/partial/backlogged bytes')
             except BaseException as error:
-                errors.append(type(error).__name__+': '+str(error))
+                self._stop_boundary_uncertain = True
+                errors.append(_error_text(error))
         except BaseException as error:
-            errors.append(type(error).__name__+': '+str(error))
+            errors.append(_error_text(error))
         finally:
+            # A missing/partial STOP write or reply also has no sequence number.
+            # Clearing pending work for cleanup must not clear that uncertainty.
+            ambiguous.update(attempted-acknowledged)
+            for mid in attempted-acknowledged:
+                unresolved.setdefault(mid, 'stop')
+            self._unresolved_state_steps = unresolved
+            confirmed.difference_update(ambiguous)
             self.check, self.reader = old_check, old_reader
             self.pending.clear()
         return {'confirmed_ids': sorted(confirmed), 'unconfirmed_ids': sorted(set(self.ids)-confirmed),
                 'ambiguous_ids': sorted(ambiguous), 'errors': errors,
+                'observed_reset_ids': sorted(acknowledged), 'attempted_ids': sorted(attempted),
+                'prior_unresolved_steps': {str(mid): step for mid, step in prior_pending.items()},
+                'unresolved_state_steps': {str(mid): step for mid, step in unresolved.items()},
+                'receive_boundary_evidence': boundary,
+                'sticky_boundary_uncertain': getattr(self, '_stop_boundary_uncertain', False),
+                'ambiguity_preserved': True,
                 'complete': boundary_ok and not errors and len(confirmed)==len(self.ids)}
 
 
@@ -393,7 +443,7 @@ def run(channels, expected_uids, *, group='all', check=lambda: None,
             axis.update(command_loss_tested=True, disabled_on_command_loss=True)
         report['status'] = 'COMPLETE_COMMAND_LOSS_DIAGNOSTIC'
     except BaseException as error:
-        report['errors'].append(type(error).__name__+': '+str(error))
+        report['errors'].append(_error_text(error))
     finally:
         stops = {}
         for scope, channel in channels.items():
@@ -401,7 +451,7 @@ def run(channels, expected_uids, *, group='all', check=lambda: None,
                 stops[scope] = channel.stop_all()
             except BaseException as error:
                 stops[scope] = {'confirmed_ids': [], 'unconfirmed_ids': list(BUSES[scope]),
-                                'errors': [type(error).__name__+': '+str(error)]}
+                                'errors': [_error_text(error)]}
         report['stop_reports'] = stops
         report['stop_confirmed'] = all(item.get('complete') is True and not item['unconfirmed_ids']
                                        and not item['errors'] for item in stops.values())
@@ -488,7 +538,7 @@ def main(argv=None):
                           expected_uids_sha256=hashlib.sha256(source).hexdigest())
             report['events_by_bus'] = {scope: channel.events for scope, channel in channels.items()}
     except BaseException as error:
-        report['errors'].append(type(error).__name__+': '+str(error))
+        report['errors'].append(_error_text(error))
     finally:
         for sig, handler in handlers.items():
             signal.signal(sig, handler)

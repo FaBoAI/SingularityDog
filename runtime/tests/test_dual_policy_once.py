@@ -10,7 +10,10 @@ from unittest.mock import patch
 
 from singularitydog_hw import dual_policy_once as once
 from singularitydog_hw import policy_shadow as shadow
-from test_policy_observer import FakeTorch, Policy, calibration, mount
+if __package__:
+    from .test_policy_observer import FakeTorch, Policy, calibration, mount
+else:
+    from test_policy_observer import FakeTorch, Policy, calibration, mount
 
 
 def captured(calib=None):
