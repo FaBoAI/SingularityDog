@@ -47,22 +47,60 @@ python3 -m singularitydog_hw.imu_capture --execute \
 
 各`summary.json`で`RECORDED_NOT_CALIBRATED`、`restore_status: restored`、エラーなしを確認します。値のばらつき、温度、取得周期も記録します。内部のトリム・補正レジスターは読み取るだけで、変更前後の一致を検査します。
 
-6個の実測データが揃ったら、次を実行します。
+6個の実測データが揃ったら、完了した収録ディレクトリーを指定して次を実行します。すべての向きと収録中の静止を現物で確認した場合だけ、`--operator-confirmed-stationary`を付けます。JSONLだけを渡す旧`--face`経路は診断用として残りますが、取得設定・raw/SI換算・トリム・終了復元を監査した結果ではありません。
 
 ```sh
 python3 -m singularitydog_hw.imu_calibration \
-  --face "x+=$HOME/singularitydog-logs/imu-six-face/xplus/events.jsonl" \
-  --face "x-=$HOME/singularitydog-logs/imu-six-face/xminus/events.jsonl" \
-  --face "y+=$HOME/singularitydog-logs/imu-six-face/yplus/events.jsonl" \
-  --face "y-=$HOME/singularitydog-logs/imu-six-face/yminus/events.jsonl" \
-  --face "z+=$HOME/singularitydog-logs/imu-six-face/zplus/events.jsonl" \
-  --face "z-=$HOME/singularitydog-logs/imu-six-face/zminus/events.jsonl" \
+  --capture-face "x+=$HOME/singularitydog-logs/imu-six-face/xplus" \
+  --capture-face "x-=$HOME/singularitydog-logs/imu-six-face/xminus" \
+  --capture-face "y+=$HOME/singularitydog-logs/imu-six-face/yplus" \
+  --capture-face "y-=$HOME/singularitydog-logs/imu-six-face/yminus" \
+  --capture-face "z+=$HOME/singularitydog-logs/imu-six-face/zplus" \
+  --capture-face "z-=$HOME/singularitydog-logs/imu-six-face/zminus" \
+  --operator-confirmed-stationary \
   --output "$HOME/singularitydog-logs/imu-six-face/candidate.json"
 ```
 
 補正候補は、加速度の各軸オフセットと倍率、ジャイロの静止時バイアスです。各記録の前75%で計算し、最後25%で確認します。データ量・時刻・静止時ばらつき・ラベルの向き・補正量・重力ベクトルの誤差を検査し、同じ記録の使い回しや大きな揺れは拒否します。受入れしきい値は診断用の仮基準です。
 
-出力は`candidate`、`approved_for_runtime: false`のままです。検算に使った最後25%も同じ姿勢の記録なので、独立した物理検証の代わりにはなりません。別の姿勢・時間で再測定し、取付軸も確かめてから採用します。対角倍率以外の軸間誤差・温度補償やジャイロ感度は推定しません。
+出力は`candidate`、`approved_for_runtime: false`のままです。検算に使った最後25%も同じ姿勢の記録なので、独立した物理検証の代わりにはなりません。監査付き経路は、6記録の設定・ソース・デバイス・トリムの一致、raw/SI換算、時刻と連番、復元、温度安定を追加検査します。`capture_audit_verified=true`はこの入力監査を意味し、校正の物理承認ではありません。
+
+補正係数を変えずに検算する場合は、いったん元の支持姿勢へ戻してから6方向を再設置し、別名の`check-xplus`等へ新しく収録します。40VはOff、IMUの取付は固定したままです。機体全体を安全に支持できる治具と既知姿勢がない場合、この追加測定は行わず、加速度bias/scaleは未識別と記録します。センサーを取り外す指示ではありません。
+
+上のコマンドへ次の6指定を追加し、出力を新しい`candidate-independent.json`へ変更します。
+
+```sh
+  --validation-capture-face "x+=$HOME/singularitydog-logs/imu-six-face/check-xplus" \
+  --validation-capture-face "x-=$HOME/singularitydog-logs/imu-six-face/check-xminus" \
+  --validation-capture-face "y+=$HOME/singularitydog-logs/imu-six-face/check-yplus" \
+  --validation-capture-face "y-=$HOME/singularitydog-logs/imu-six-face/check-yminus" \
+  --validation-capture-face "z+=$HOME/singularitydog-logs/imu-six-face/check-zplus" \
+  --validation-capture-face "z-=$HOME/singularitydog-logs/imu-six-face/check-zminus"
+```
+
+独立6収録は係数の計算へ混ぜず、各標本の重力ノルムと3成分、向き、ジャイロ残差を固定した係数で検算します。収録や測定列の使い回し、重なった時間区間、温度・設定・トリムの変更を拒否します。合格時は`validation.independent_capture_gates_passed=true`となりますが、基準器の精度、取付角、動的加速度と温度変化の影響、実機への採用は別に確認します。対角倍率以外の軸間誤差・温度補償やジャイロ感度は推定しません。
+
+### 最終reviewのある補正を明示して実入力へ使う場合
+
+独立6収録も通過した候補から、既存のgyro-bias候補を変えずに未審査の拡張ファイルを作ります。リポジトリー直下から実行し、各変数にGit外の実ファイルを設定します。
+
+```sh
+PYTHONPATH=runtime python3 -m singularitydog_hw.imu_calibration_review \
+  --bias "$DOG_IMU_GYRO_BIAS" --candidate "$DOG_IMU_ACCEL_CANDIDATE" \
+  --mount "$DOG_IMU_MOUNT" --output "$DOG_IMU_BIAS_REVIEW_TEMPLATE"
+```
+
+出力は外側の`approved_for_runtime=false`を維持し、内側の`accel_calibration_review`は`UNREVIEWED`、現物確認はすべてfalseです。基準器の精度、6方向の静止・再設置、取付不変を現物で確認した人が、`review`の氏名・時刻・理由・`ACCEPT_DIAGONAL_ACCEL_CALIBRATION_INPUT`、4つの現物確認、`external_reference_uncertainty_rad`、補正後ノルムの監視上下限を記入します。不確かさは0より大きく3°以下の明示値が必要です。既存の水平器の精度は未記録なので、この記録だけから不確かさを0へ置き換えません。
+
+加速度の採用はV3の`run_settings.apply_reviewed_accel_calibration=true`と審査済み拡張biasファイルの明示指定を必要とします。正式候補は`prepare_supported_profile.py --bias`へこのファイルを渡し、通常どおり未承認のprofileを作ります。無出力`native_pipeline_benchmark`にも`--gyro-bias`で同じファイルと`--apply-reviewed-accel-calibration`を明示します。診断と正式設定でこの指定が違えば拒否し、既存のbias SHA固定・最終hardware reviewへ結び付けます。デフォルトはrawで、未審査の候補だけでは有効になりません。
+
+ロード時に、候補SHA、元のfit6収録と独立6収録、補正係数と検算の再計算、6つの実入力ソースのSHAを再検査します。候補と全収録は、記録された絶対パスでロード先から読める必要があります。記録を移す場合はその保存先から候補を再作成し、reviewとbias SHAも結び直します。ソースを変更した場合も再審査が必要です。ロードは補正候補自体や生ログを書き換えません。
+
+実入力はセンサー座標で`(raw-bias)*scale`を計算してから機体座標へ回します。取得時刻・鮮度・20ms条件とrawノルム監視は維持し、補正後ノルムにも別の審査済み上下限を使います。モデルと診断の記録へraw/補正後ノルム、補正係数とreview SHAを両方残します。加速度の大きさを毎周期gへ置き換える処理ではありません。重力方向を作る正規化は従来の方向仮説のままで、動的加速度下の融合・温度補償・ジャイロ感度の保証は追加しません。
+
+9月28日の水平器記録はセンサーZ平均−10.6867m/s²、ノルム偏差+8.9745%です。1姿勢では、Zのbiasを−0.8801m/s²・scaleを1とする説明と、biasを0・scaleを0.91765とする説明を区別できません。X/Yを含む3軸bias/scaleや軸間誤差も識別できません。固定行列による回転はノルムを変えず、±2g/±4gのreadbackと換算の一致も絶対校正の完了にはなりません。既存の水平・3方向の記録は取付方向と符号の証拠として再利用し、偏差を一律正規化で隠しません。外部水平器の精度は未記録です。[レンジ比較](../docs/imu-range-crosscheck-20260928.md)・[水平比較](../evidence/imu-level-reference-20260928.json)。
+
+ICM-20948の公称感度は±2gで16,384LSB/g、±4gで8,192LSB/gです。現ドライバーは設定readbackのFSビットからこの換算を選びます。[TDK DS-000189 v1.5、Table 2](https://product.tdk.com/system/files/dam/doc/product/sensor/mortion-inertial/imu/data_sheet/ds-000189-icm-20948-v1.5.pdf)。この仕様との一致は、装着した個体の絶対校正の証明ではありません。
 
 ## 関節と停止の記録
 

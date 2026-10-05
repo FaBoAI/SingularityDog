@@ -123,6 +123,88 @@ class FeedbackReplayTests(unittest.TestCase):
         self.assertLess(v["host_interval_fraction_range"][0], v["host_midpoint_fraction"])
         self.assertGreater(v["host_interval_fraction_range"][1], v["host_midpoint_fraction"])
 
+    def test_zero_position_change_does_not_clear_unstable_velocity_gate(self):
+        self.e["cycles"][0]["before"] = phase("before", 2_000_000_000, velocity=-.06)
+        self.e["cycles"][0]["after"] = phase("after", 2_040_000_000, velocity=.06)
+        original = copy.deepcopy(self.e)
+        result = self.run_report()
+        self.assertEqual(self.e, original)
+        for row in result["rows"]:
+            self.assertEqual(row["failed_diagnostic_gates"], ["speed_endpoints_stable"])
+            self.assertEqual(row["comparison_result"], "INCONCLUSIVE_MOTION_OR_TIMING")
+            self.assertFalse(row["direct_comparison_agrees"])
+            self.assertEqual(row["host_endpoint_diagnostics"]["position_finite_difference_rad_s"], 0.)
+        values = result["per_motor"]["1"]["all_sample_statistics"]
+        speed = values["type17_velocity_endpoints_rad_s"]
+        self.assertEqual(speed["samples"], 2)
+        self.assertEqual(speed["mean"], 0.)
+        self.assertAlmostEqual(speed["rms"], .06)
+        self.assertAlmostEqual(speed["population_std"], .06)
+        self.assertFalse(values["affects_comparison_result"])
+        self.assertFalse(result["approved_for_runtime"])
+        self.assertFalse(result["dynamic_scale_validated"])
+
+    def test_position_finite_difference_uses_position_host_interval_and_keeps_read_offsets(self):
+        self.e["cycles"][0]["after"] = phase("after", 2_040_000_000, position=.251, velocity=.08)
+        # Delay only the velocity requests, preserving every causal interval.
+        for exchange in self.e["cycles"][0]["after"].values():
+            for record in exchange["records"][6:]:
+                for name in ("start_ns", "finish_ns", "read_start_ns", "received_ns", "deadline_ns"):
+                    record[name] += 600_000
+        row = self.run_report()["rows"][0]
+        diagnostic = row["host_endpoint_diagnostics"]
+        self.assertEqual(diagnostic["position_midpoint_delta_ns"], 40_000_000)
+        self.assertEqual(diagnostic["velocity_midpoint_delta_ns"], 40_600_000)
+        self.assertEqual(diagnostic["velocity_minus_position_before_midpoint_ns"], 4_200_000)
+        self.assertEqual(diagnostic["velocity_minus_position_after_midpoint_ns"], 4_800_000)
+        self.assertAlmostEqual(diagnostic["position_finite_difference_rad_s"], .001/.04, places=6)
+        self.assertFalse(diagnostic["position_and_velocity_read_together"])
+        self.assertFalse(diagnostic["sensor_sample_time_verified"])
+        self.assertFalse(diagnostic["affects_comparison_result"])
+        self.assertIn("not sensor-time velocity", diagnostic["scope"])
+        self.assertEqual(row["comparison_result"], "STATIC_CANDIDATE_AGREES")
+
+    def test_all_sample_statistics_include_inconclusive_cycles_and_separate_type2(self):
+        self.e["cycles"] = []
+        for number, (before_v, feedback_v, after_v) in enumerate(
+                ((0., 0., 0.), (-.06, .04, .06), (-.02, -.03, .02)), 1):
+            start = 2_000_000_000+(number-1)*100_000_000
+            self.e["cycles"].append({"cycle": number,
+                "before": phase("before", start, velocity=before_v),
+                "feedback": phase("feedback", start+20_000_000, velocity=feedback_v),
+                "after": phase("after", start+40_000_000, velocity=after_v)})
+        result = self.run_report()
+        motor = result["per_motor"]["1"]
+        self.assertEqual(motor["static_bracket_samples"], 2)
+        self.assertFalse(motor["all_direct_static_comparisons_agree"])
+        diagnostics = motor["all_sample_statistics"]
+        self.assertTrue(diagnostics["all_cycles_included"])
+        self.assertFalse(diagnostics["sample_filtering_applied"])
+        self.assertEqual(diagnostics["type17_position_endpoints_rad"]["samples"], 6)
+        self.assertEqual(diagnostics["type17_position_endpoints_rad"]["range"], 0.)
+        speed = diagnostics["type17_velocity_endpoints_rad_s"]
+        self.assertEqual(speed["samples"], 6)
+        self.assertEqual(speed["mean"], 0.)
+        self.assertAlmostEqual(speed["rms"], math.sqrt((2*.06**2+2*.02**2)/6))
+        feedback = diagnostics["type2_feedback_velocity_rad_s_candidate"]
+        self.assertEqual(feedback["samples"], 3)
+        decoded = [round((v+50)/100*65535)*100/65535-50 for v in (0., .04, -.03)]
+        self.assertAlmostEqual(feedback["mean"], sum(decoded)/3)
+        self.assertAlmostEqual(feedback["rms"], math.sqrt(sum(v*v for v in decoded)/3))
+        self.assertEqual(diagnostics["failed_gate_counts"], {
+            "short_host_bracket": 0, "position_endpoints_stable": 0,
+            "speed_endpoints_small": 0, "speed_endpoints_stable": 1})
+
+    def test_failed_gate_names_retain_every_failed_existing_condition(self):
+        self.e["cycles"][0]["after"] = phase("after", 2_200_000_000, position=.50, velocity=.5)
+        result = self.run_report()
+        expected = sorted(("short_host_bracket", "position_endpoints_stable",
+                           "speed_endpoints_small", "speed_endpoints_stable"))
+        for row in result["rows"]:
+            self.assertEqual(row["failed_diagnostic_gates"], expected)
+            self.assertEqual(row["comparison_result"], "INCONCLUSIVE_MOTION_OR_TIMING")
+            self.assertFalse(row["endpoint_stationarity_heuristic_passed"])
+
     def test_uid_mismatch_and_context_rejected(self):
         bad = dict(UIDS);bad["1"] = "ff"*8
         with self.assertRaisesRegex(ValueError, "UID"):
@@ -187,6 +269,12 @@ class FeedbackCollectTests(unittest.TestCase):
         self.assertEqual(report["status"], "COMPLETE_DIAGNOSTIC")
         self.assertEqual(len(sessions["front"].calls), 10)
         self.assertEqual([len(w) for w in sessions["front"].calls], [6,12,6,12,12,6,12,12,6,12])
+        for scope, session in sessions.items():
+            ids = compare.SCOPES[scope]
+            identity = [read_request(i) for i in ids]
+            parameters = [read_request(i, p) for p in ("position", "velocity") for i in ids]
+            feedback = [native.stop_wire(i) for i in ids]
+            self.assertEqual(session.calls, [identity]+[parameters, feedback, parameters]*3)
         self.assertEqual(report["per_motor"], compare.analyze_feedback_comparison(raw, UIDS)["per_motor"])
         kinds = {ATParser().feed(w)[0].kind for s in sessions.values() for batch in s.calls for w in batch}
         self.assertEqual(kinds, {0,4,17})

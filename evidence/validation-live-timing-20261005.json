@@ -1,0 +1,2419 @@
+{
+  "schema": "singularitydog.validation-live-timing-summary.v1",
+  "date": "2026-10-05",
+  "status": "SCOPED_NO_OUTPUT_R2_STEADY_20MS_AND_ZERO_GAIN_COMMAND_LOSS_VERIFIED_FINAL_CALIBRATION_AND_MODEL_TARGET_OUTPUT_PENDING",
+  "hardware_opened": true,
+  "deployed_to_jetson": true,
+  "new_jetson_latency_measured": true,
+  "physical_motor_enable_sent_in_recorded_timing_runs": false,
+  "physical_learned_targets_sent": false,
+  "full_diagnostics_passed": false,
+  "final_joint_calibration_verified": false,
+  "final_imu_calibration_verified": false,
+  "full_controller_50Hz_verified": false,
+  "standing_verified": false,
+  "walking_verified": false,
+  "approved_for_runtime": false,
+  "output_allowed": false,
+  "kit_and_file_preflight": {
+    "files_verified": 576,
+    "transport_built_on_target": true,
+    "baseline_scalar_source_sha_and_target_abi_verified": true,
+    "status": "TARGET_FILE_ONLY_VERIFIED",
+    "preflight_sha256": "0b395133748ce8f117dedda123270dc4ae3988191069b687455616b33a114888",
+    "kit_manifest_sha256": "02ed305db1ddb819e4ea4c6146722ba6ea10749adf141aaa9a5f6063eaa009ac",
+    "transport_source_sha256": "5461c925575bd10bbca2a0c8c8d2c28cd119f22228bf7f8d7ed3976dcd73da0e",
+    "transport_binary_sha256": "7ae63f318794a3a87a097c3e08539e84a3ed581d15862dc73329005854f89147",
+    "scalar_model_proof_sha256": {
+      "manifest_sha256": "7ad6670368feb10d36bd62f594c7a53e89f28a5462fd1c3cf2292e2c1987f666",
+      "model_sha256": "7401bf982aff06c9394f36c26acf8c295fe1dd15826e6732e789e979e159113b",
+      "library_sha256": "3dfe86772586c4322de751f61fe4684fbe0c3ee1603181b0afafca4e66270457",
+      "loader_source_sha256": "829b0109e0064c104d689052052804f59bf40470c82ea994cbe9a549ef3d912b"
+    }
+  },
+  "static_comparisons": [
+    {
+      "status": "DIAGNOSTIC_BLOCKED",
+      "blocked_at": "static_type17_type2_comparison",
+      "all_axis_identity_match_verified": true,
+      "axes": 12,
+      "capture_voltage_min_v": 40.14204406738281,
+      "capture_position_span_max_deg": 0.011365434778901218,
+      "position_endpoint_change_max_deg": 0.019834869349717028,
+      "direct_position_error_abs_max_deg": 0.028469811296880813,
+      "velocity_endpoint_change_max_rad_s": 0.12896006926894188,
+      "comparison_limits": {
+        "maximum_bracket_ms": 100.0,
+        "maximum_position_drift_deg": 0.5,
+        "maximum_endpoint_speed_rad_s": 0.15,
+        "maximum_speed_change_rad_s": 0.1,
+        "position_comparison_deg": 0.2,
+        "velocity_comparison_rad_s": 0.2
+      },
+      "failed_diagnostic_gate_names": [
+        "speed_endpoints_stable"
+      ],
+      "physical_failure_inferred": false,
+      "dynamic_scale_validated": false,
+      "full_diagnostics_passed": false,
+      "artifacts_sha256": {
+        "summary": "3435a68d828966ccdf671ec784225d8fbaa32f4a266c33f1c0e89831f58e0989",
+        "capture": "85302b291836fc5692fa20728b1326b79ec29a04d5951071a45f73bdd3acb80c",
+        "comparison_report": "21496cac9f94a5c5fbee9ee04ba928eb7174adba715d376630305339aeabdffe",
+        "comparison_records": "d77eb3323df7e2b4f1d1aeb2901d7d405c1f9f5e3d7ff98469f6870f46d11b2c"
+      },
+      "first_failure_velocity_endpoint_change_rad_s": 0.12896006926894188,
+      "comparison_rows": 36,
+      "failed_rows": 1,
+      "failed_motor_ids": [
+        3
+      ],
+      "maximum_change_cycle": 3,
+      "maximum_change_motor_id": 3
+    },
+    {
+      "status": "DIAGNOSTIC_BLOCKED",
+      "blocked_at": "static_type17_type2_comparison",
+      "all_axis_identity_match_verified": true,
+      "axes": 12,
+      "capture_voltage_min_v": 40.14204406738281,
+      "capture_position_span_max_deg": 0.014206793473626522,
+      "position_endpoint_change_max_deg": 0.016993510654991724,
+      "direct_position_error_abs_max_deg": 0.028030175583686378,
+      "velocity_endpoint_change_max_rad_s": 0.1326286904513836,
+      "comparison_limits": {
+        "maximum_bracket_ms": 100.0,
+        "maximum_position_drift_deg": 0.5,
+        "maximum_endpoint_speed_rad_s": 0.15,
+        "maximum_speed_change_rad_s": 0.1,
+        "position_comparison_deg": 0.2,
+        "velocity_comparison_rad_s": 0.2
+      },
+      "failed_diagnostic_gate_names": [
+        "speed_endpoints_stable"
+      ],
+      "physical_failure_inferred": false,
+      "dynamic_scale_validated": false,
+      "full_diagnostics_passed": false,
+      "artifacts_sha256": {
+        "summary": "783553b0fd5dd101124284b0cc1d75d69ce9dce3c6bdec330ee08bffa86cf721",
+        "capture": "ef0e191dfac76beb5f44007eed756e0d4e8843390e8a2676f4b31253b77c37d2",
+        "comparison_report": "72cd18788fe272666fe92a807f4dc2553d83d20bcdcf4e4fac8d9eabfc775315",
+        "comparison_records": "c63dbb16f1d465d511578a6708d889ecb2dae2f84c951da3024a3e1047485c43"
+      },
+      "prior_first_failure_value_mislabeled_as_max_rad_s": 0.1204633554443717,
+      "first_failure_velocity_endpoint_change_rad_s": 0.1204633554443717,
+      "comparison_rows": 36,
+      "failed_rows": 6,
+      "failed_motor_ids": [
+        2,
+        3,
+        6,
+        8,
+        9
+      ],
+      "maximum_change_cycle": 2,
+      "maximum_change_motor_id": 3
+    }
+  ],
+  "timing_scope": {
+    "qualification": "TIMING_CHARACTERIZATION_ONLY",
+    "full_diagnostics_passed": false,
+    "state_promotion_allowed": false,
+    "motor_enable_available": false,
+    "learned_targets_available": false,
+    "mode": "stop-proxy",
+    "requests_per_cycle": 26,
+    "type1_requests_per_cycle": 0,
+    "request_gap_us": 900,
+    "request_window": 3,
+    "model_backend": "pinned_scalar_cpp",
+    "voltage_overlap": true,
+    "voltage_pipeline": false,
+    "input_acquisition_wait": "native_ready_poll_200us.v1",
+    "voltage_join_wait": "native_ready_poll_200us.v1",
+    "policy_cpu": 4,
+    "math_threads": 1,
+    "pre_cycle_policy_warmup_calls": 10,
+    "post_pin_policy_prime_calls": 10,
+    "defer_gc_during_cycles": true,
+    "disk_io_during_cycles": false,
+    "gyro_bias_assumption": "zero; uncalibrated characterization",
+    "apply_reviewed_accel_calibration": false,
+    "timing_includes": [
+      "CAN and IMU acquisition",
+      "actual scalar inference",
+      "STOP proxy host dispatch",
+      "final replies",
+      "postprocessing"
+    ],
+    "model_targets_generated_but_not_transmitted": true
+  },
+  "timing_runs": [
+    {
+      "condition": "cpu_floor_nice_only",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "qualification": "TIMING_CHARACTERIZATION_ONLY",
+      "cycles_requested": 501,
+      "cycles_completed": 501,
+      "startup_whole_iteration_ms": [
+        20.935433
+      ],
+      "startup_iteration_deadline_misses": 1,
+      "all_whole_iteration_ms": {
+        "count": 501,
+        "median": 19.041896,
+        "p95": 19.507836,
+        "p99": 20.001315,
+        "max": 20.935433
+      },
+      "iteration_deadline_misses": 6,
+      "host_deadline_misses": 0,
+      "steady_timing": {
+        "startup_cycle_allowance": 1,
+        "startup_cycles_recorded": 1,
+        "startup_whole_iteration_ms": [
+          20.935433
+        ],
+        "startup_iteration_deadline_misses": 1,
+        "startup_to_steady_interval_ms": 20.986154,
+        "steady_cycles_requested": 500,
+        "steady_cycles_completed": 500,
+        "steady_whole_iteration_ms": {
+          "count": 500,
+          "median": 19.0414155,
+          "p95": 19.482202,
+          "p99": 19.844483,
+          "max": 20.439221
+        },
+        "steady_iteration_deadline_misses": 5,
+        "steady_processing_20ms_met": false,
+        "steady_scheduled_completion_slack_ms": {
+          "count": 500,
+          "median": 0.941004,
+          "p95": 1.106756,
+          "p99": 1.13882,
+          "max": 1.159814
+        },
+        "steady_min_completion_slack_ms": -0.452866,
+        "steady_scheduled_deadline_misses": 6,
+        "steady_slots_skipped": 0,
+        "steady_scheduled_deadlines_met": false,
+        "steady_start_interval_ms": {
+          "count": 499,
+          "median": 19.999976,
+          "p95": 20.0027,
+          "p99": 20.042564,
+          "max": 20.482294
+        },
+        "steady_start_intervals_over_20ms": 248,
+        "strict_steady_start_interval_20ms_met": false,
+        "all_cycles_retained": true,
+        "diagnostic_only": true,
+        "full_controller_50Hz_verified": false
+      },
+      "errors": [],
+      "imu_restore_status": "restored",
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "apply_reviewed_accel_calibration": false,
+      "full_controller_50Hz_verified": false,
+      "output_allowed": false,
+      "source_summary_sha256": "783553b0fd5dd101124284b0cc1d75d69ce9dce3c6bdec330ee08bffa86cf721",
+      "input_artifact_sha256": {
+        "expected_uids": "0309d78f52500cd7bbf82997beabec4bb393853459d46b67e63c00178a228db8",
+        "calibration": "893c9f524a6ac8b4e0292c8a1545e90085c405a20dba081159be2e4239a1bf3c",
+        "mount": "b9f6814e13141e82efca0fbb64772847ae7ad91434282b8c9b1e038b3c42b420"
+      },
+      "artifacts_sha256": {
+        "report": "06193183db3dea41166a4a8e7a43f2361ae875a42dd936ab98ae046120fa5bf5",
+        "records": "79a492d03e0ac7dc3ac9f0fbcff186047d3a85e2e4bb4bdaca8677031fcf5aeb",
+        "scope": "d47111a335817dde7cd5cd882be0d9d33e0421a2c85bdd638f906da13fea8be1",
+        "completion": "f92c4994e6d6cbf194c7d6b1cb8af3fca7810eb16fd681f6e6261f7f5000eb62"
+      },
+      "raw_transaction_completeness": {
+        "cycles": 501,
+        "requests_per_cycle": 26,
+        "transactions": 13026,
+        "incomplete_17byte_host_transactions": 0,
+        "batches_with_rejected_bytes": 0
+      }
+    },
+    {
+      "condition": "c7_disabled_emc_cpu_floors_r1",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "qualification": "TIMING_CHARACTERIZATION_ONLY",
+      "cycles_requested": 501,
+      "cycles_completed": 501,
+      "startup_whole_iteration_ms": [
+        19.996916
+      ],
+      "startup_iteration_deadline_misses": 0,
+      "all_whole_iteration_ms": {
+        "count": 501,
+        "median": 19.071738,
+        "p95": 19.516132,
+        "p99": 19.764045,
+        "max": 19.996916
+      },
+      "iteration_deadline_misses": 0,
+      "host_deadline_misses": 0,
+      "steady_timing": {
+        "startup_cycle_allowance": 1,
+        "startup_cycles_recorded": 1,
+        "startup_whole_iteration_ms": [
+          19.996916
+        ],
+        "startup_iteration_deadline_misses": 0,
+        "startup_to_steady_interval_ms": 20.042101,
+        "steady_cycles_requested": 500,
+        "steady_cycles_completed": 500,
+        "steady_whole_iteration_ms": {
+          "count": 500,
+          "median": 19.0716255,
+          "p95": 19.508518,
+          "p99": 19.76139,
+          "max": 19.814799
+        },
+        "steady_iteration_deadline_misses": 0,
+        "steady_processing_20ms_met": true,
+        "steady_scheduled_completion_slack_ms": {
+          "count": 500,
+          "median": 0.9152485,
+          "p95": 1.129562,
+          "p99": 1.162984,
+          "max": 1.198601
+        },
+        "steady_min_completion_slack_ms": 0.171389,
+        "steady_scheduled_deadline_misses": 0,
+        "steady_slots_skipped": 0,
+        "steady_scheduled_deadlines_met": true,
+        "steady_start_interval_ms": {
+          "count": 499,
+          "median": 19.999986,
+          "p95": 20.001426,
+          "p99": 20.002611,
+          "max": 20.004659
+        },
+        "steady_start_intervals_over_20ms": 247,
+        "strict_steady_start_interval_20ms_met": false,
+        "all_cycles_retained": true,
+        "diagnostic_only": true,
+        "full_controller_50Hz_verified": false
+      },
+      "errors": [],
+      "imu_restore_status": "restored",
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "apply_reviewed_accel_calibration": false,
+      "full_controller_50Hz_verified": false,
+      "output_allowed": false,
+      "source_summary_sha256": "783553b0fd5dd101124284b0cc1d75d69ce9dce3c6bdec330ee08bffa86cf721",
+      "input_artifact_sha256": {
+        "expected_uids": "0309d78f52500cd7bbf82997beabec4bb393853459d46b67e63c00178a228db8",
+        "calibration": "893c9f524a6ac8b4e0292c8a1545e90085c405a20dba081159be2e4239a1bf3c",
+        "mount": "b9f6814e13141e82efca0fbb64772847ae7ad91434282b8c9b1e038b3c42b420"
+      },
+      "artifacts_sha256": {
+        "report": "babcb2266e88b166595d3e2727b854b448ba2786e9e3e9aafc6e4bc38556e64c",
+        "records": "3ee1442532aaa2fda7234b654379c3c9de9ac48463d488929c85e3b120c46ed8",
+        "scope": "e364fd6b30ee56b7014195c20a7e8c0b20a9ab03a5dda6fd4158a37ed479c044",
+        "completion": "cdece99a30c1a1a73347fe09c7d636205b47062293cc5479ded77638f1145d17"
+      },
+      "temporary_settings_restoration": {
+        "restored": true,
+        "cpu_performance_restored": true,
+        "restore_errors": [],
+        "emc_max_unchanged": 3199000000,
+        "outer_record_sha256": "28ac1ab76ea2355934077f146264e9ea61384d446f8bb9a605b596c278124066"
+      },
+      "raw_transaction_completeness": {
+        "cycles": 501,
+        "requests_per_cycle": 26,
+        "transactions": 13026,
+        "incomplete_17byte_host_transactions": 0,
+        "batches_with_rejected_bytes": 0
+      }
+    },
+    {
+      "condition": "c7_disabled_emc_cpu_floors_repeat",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "qualification": "TIMING_CHARACTERIZATION_ONLY",
+      "cycles_requested": 501,
+      "cycles_completed": 501,
+      "startup_whole_iteration_ms": [
+        20.046395
+      ],
+      "startup_iteration_deadline_misses": 1,
+      "all_whole_iteration_ms": {
+        "count": 501,
+        "median": 19.044546,
+        "p95": 19.288295,
+        "p99": 19.606959,
+        "max": 20.046395
+      },
+      "iteration_deadline_misses": 1,
+      "host_deadline_misses": 0,
+      "steady_timing": {
+        "startup_cycle_allowance": 1,
+        "startup_cycles_recorded": 1,
+        "startup_whole_iteration_ms": [
+          20.046395
+        ],
+        "startup_iteration_deadline_misses": 1,
+        "startup_to_steady_interval_ms": 20.093053,
+        "steady_cycles_requested": 500,
+        "steady_cycles_completed": 500,
+        "steady_whole_iteration_ms": {
+          "count": 500,
+          "median": 19.04421,
+          "p95": 19.282376,
+          "p99": 19.564463,
+          "max": 19.705298
+        },
+        "steady_iteration_deadline_misses": 0,
+        "steady_processing_20ms_met": true,
+        "steady_scheduled_completion_slack_ms": {
+          "count": 500,
+          "median": 0.9419375,
+          "p95": 1.163165,
+          "p99": 1.18175,
+          "max": 1.192971
+        },
+        "steady_min_completion_slack_ms": 0.281911,
+        "steady_scheduled_deadline_misses": 0,
+        "steady_slots_skipped": 0,
+        "steady_scheduled_deadlines_met": true,
+        "steady_start_interval_ms": {
+          "count": 499,
+          "median": 19.999961,
+          "p95": 20.001337,
+          "p99": 20.003001,
+          "max": 20.004983
+        },
+        "steady_start_intervals_over_20ms": 242,
+        "strict_steady_start_interval_20ms_met": false,
+        "all_cycles_retained": true,
+        "diagnostic_only": true,
+        "full_controller_50Hz_verified": false
+      },
+      "errors": [],
+      "imu_restore_status": "restored",
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "apply_reviewed_accel_calibration": false,
+      "full_controller_50Hz_verified": false,
+      "output_allowed": false,
+      "source_summary_sha256": "783553b0fd5dd101124284b0cc1d75d69ce9dce3c6bdec330ee08bffa86cf721",
+      "input_artifact_sha256": {
+        "expected_uids": "0309d78f52500cd7bbf82997beabec4bb393853459d46b67e63c00178a228db8",
+        "calibration": "893c9f524a6ac8b4e0292c8a1545e90085c405a20dba081159be2e4239a1bf3c",
+        "mount": "b9f6814e13141e82efca0fbb64772847ae7ad91434282b8c9b1e038b3c42b420"
+      },
+      "artifacts_sha256": {
+        "report": "7b35d95ec4148d506cae7dc0786f4d040606f25f57f725acc6030a87ae49f9b8",
+        "records": "e1f143b31d805fd7da6aa8fb2f6b41c0a6d79a35a6aedf833708d0601d27ef1b",
+        "scope": "c23a3a374ec960785e1d63b0b38ff4cb5f6baf615bd172be2e36cbac390d0799",
+        "completion": "ee843a75726cf6dfecfc5c71aa5f2e71da3c2be783800ed3efdec98a1fefd828"
+      },
+      "temporary_settings_restoration": {
+        "restored": true,
+        "cpu_performance_restored": true,
+        "restore_errors": [],
+        "emc_max_unchanged": 3199000000,
+        "outer_record_sha256": "fcefec763cfe565127c0e4842c22886d550e93599ba9386e88e03e9455210f9d"
+      },
+      "raw_transaction_completeness": {
+        "cycles": 501,
+        "requests_per_cycle": 26,
+        "transactions": 13026,
+        "incomplete_17byte_host_transactions": 0,
+        "batches_with_rejected_bytes": 0
+      }
+    },
+    {
+      "condition": "cpu_floor_nice_only_r2_default_switch",
+      "kit_revision": "r2",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "qualification": "TIMING_CHARACTERIZATION_ONLY",
+      "cycles_requested": 501,
+      "cycles_completed": 501,
+      "startup_whole_iteration_ms": [
+        20.7903
+      ],
+      "startup_iteration_deadline_misses": 1,
+      "all_whole_iteration_ms": {
+        "count": 501,
+        "median": 19.107067,
+        "p95": 19.357152,
+        "p99": 19.476834,
+        "max": 20.7903
+      },
+      "iteration_deadline_misses": 2,
+      "host_deadline_misses": 0,
+      "steady_timing": {
+        "startup_cycle_allowance": 1,
+        "startup_cycles_recorded": 1,
+        "startup_whole_iteration_ms": [
+          20.7903
+        ],
+        "startup_iteration_deadline_misses": 1,
+        "startup_to_steady_interval_ms": 20.839933,
+        "steady_cycles_requested": 500,
+        "steady_cycles_completed": 500,
+        "steady_whole_iteration_ms": {
+          "count": 500,
+          "median": 19.107067,
+          "p95": 19.355904,
+          "p99": 19.466114,
+          "max": 20.030157
+        },
+        "steady_iteration_deadline_misses": 1,
+        "steady_processing_20ms_met": false,
+        "steady_scheduled_completion_slack_ms": {
+          "count": 500,
+          "median": 0.8798235000000001,
+          "p95": 1.004443,
+          "p99": 1.070814,
+          "max": 1.118032
+        },
+        "steady_min_completion_slack_ms": -0.067674,
+        "steady_scheduled_deadline_misses": 2,
+        "steady_slots_skipped": 0,
+        "steady_scheduled_deadlines_met": false,
+        "steady_start_interval_ms": {
+          "count": 499,
+          "median": 19.999948,
+          "p95": 20.001293,
+          "p99": 20.002061,
+          "max": 20.077326
+        },
+        "steady_start_intervals_over_20ms": 235,
+        "strict_steady_start_interval_20ms_met": false,
+        "all_cycles_retained": true,
+        "diagnostic_only": true,
+        "full_controller_50Hz_verified": false
+      },
+      "errors": [],
+      "imu_restore_status": "restored",
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "apply_reviewed_accel_calibration": false,
+      "full_controller_50Hz_verified": false,
+      "output_allowed": false,
+      "source_summary_sha256": "783553b0fd5dd101124284b0cc1d75d69ce9dce3c6bdec330ee08bffa86cf721",
+      "input_artifact_sha256": {
+        "expected_uids": "0309d78f52500cd7bbf82997beabec4bb393853459d46b67e63c00178a228db8",
+        "calibration": "893c9f524a6ac8b4e0292c8a1545e90085c405a20dba081159be2e4239a1bf3c",
+        "mount": "b9f6814e13141e82efca0fbb64772847ae7ad91434282b8c9b1e038b3c42b420"
+      },
+      "artifacts_sha256": {
+        "report": "430abfe6fd59967d03468822615deb6e91b7265ba874fe3b544fbcef6223c8bc",
+        "records": "654c51616352a6d4c42f66060175771a6e14c88b308abd593ce9fb6cd980d7f2",
+        "scope": "a32fe452478299ed9e2975e3d251eb20cf05717ce668484c8217a52f51b52896",
+        "completion": "d229219279cd775299adcd5624eb02d6e544fffdcc5b21acf76aced3a23ffae4"
+      },
+      "temporary_settings_restoration": {
+        "restored": true,
+        "child_exit_code": 0,
+        "outer_record_sha256": "87aa96294d2a74742d19225d0156fc3cf154ed4f0337ffd41e1ff5b258546a41",
+        "cpu_frequency_readback": [
+          {
+            "name": "policy0",
+            "original_min": 729600,
+            "raised_min": 1728000,
+            "related_cpus": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "name": "policy4",
+            "original_min": 729600,
+            "raised_min": 1728000,
+            "related_cpus": [
+              4,
+              5
+            ]
+          }
+        ]
+      },
+      "raw_transaction_completeness": {
+        "cycles": 501,
+        "requests_per_cycle": 26,
+        "transactions": 13026,
+        "incomplete_17byte_host_transactions": 0,
+        "batches_with_rejected_bytes": 0
+      },
+      "feedback_publication": "after_voltage_native_preparation",
+      "source_and_state_unchanged": true,
+      "python_thread_switch": {
+        "interval_us_requested": null,
+        "child_readback_recorded": false,
+        "qualification": "default interval comparison; not independently read back"
+      }
+    },
+    {
+      "condition": "c7_disabled_emc_cpu_floors_r2_default_switch",
+      "kit_revision": "r2",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "qualification": "TIMING_CHARACTERIZATION_ONLY",
+      "cycles_requested": 501,
+      "cycles_completed": 501,
+      "startup_whole_iteration_ms": [
+        19.832552
+      ],
+      "startup_iteration_deadline_misses": 0,
+      "all_whole_iteration_ms": {
+        "count": 501,
+        "median": 19.035833,
+        "p95": 19.193019,
+        "p99": 19.286814,
+        "max": 21.364423
+      },
+      "iteration_deadline_misses": 1,
+      "host_deadline_misses": 0,
+      "steady_timing": {
+        "startup_cycle_allowance": 1,
+        "startup_cycles_recorded": 1,
+        "startup_whole_iteration_ms": [
+          19.832552
+        ],
+        "startup_iteration_deadline_misses": 0,
+        "startup_to_steady_interval_ms": 19.988299,
+        "steady_cycles_requested": 500,
+        "steady_cycles_completed": 500,
+        "steady_whole_iteration_ms": {
+          "count": 500,
+          "median": 19.0355445,
+          "p95": 19.191227,
+          "p99": 19.274685,
+          "max": 21.364423
+        },
+        "steady_iteration_deadline_misses": 1,
+        "steady_processing_20ms_met": false,
+        "steady_scheduled_completion_slack_ms": {
+          "count": 500,
+          "median": 0.9514795,
+          "p95": 1.177694,
+          "p99": 1.215221,
+          "max": 1.277045
+        },
+        "steady_min_completion_slack_ms": -1.376229,
+        "steady_scheduled_deadline_misses": 1,
+        "steady_slots_skipped": 0,
+        "steady_scheduled_deadlines_met": false,
+        "steady_start_interval_ms": {
+          "count": 499,
+          "median": 20.000011,
+          "p95": 20.00126,
+          "p99": 20.003148,
+          "max": 20.005036
+        },
+        "steady_start_intervals_over_20ms": 253,
+        "strict_steady_start_interval_20ms_met": false,
+        "all_cycles_retained": true,
+        "diagnostic_only": true,
+        "full_controller_50Hz_verified": false
+      },
+      "errors": [],
+      "imu_restore_status": "restored",
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "apply_reviewed_accel_calibration": false,
+      "full_controller_50Hz_verified": false,
+      "output_allowed": false,
+      "source_summary_sha256": "783553b0fd5dd101124284b0cc1d75d69ce9dce3c6bdec330ee08bffa86cf721",
+      "input_artifact_sha256": {
+        "expected_uids": "0309d78f52500cd7bbf82997beabec4bb393853459d46b67e63c00178a228db8",
+        "calibration": "893c9f524a6ac8b4e0292c8a1545e90085c405a20dba081159be2e4239a1bf3c",
+        "mount": "b9f6814e13141e82efca0fbb64772847ae7ad91434282b8c9b1e038b3c42b420"
+      },
+      "artifacts_sha256": {
+        "report": "83972a0b7afa1c913614e0624580f9d13b8c4a82e7a58ee51c0443dbb24b0443",
+        "records": "2257554e4328e6cdb77ea516b04f3aee2d4bb3b6ab8db47121c2473f0bda3e47",
+        "scope": "96c1a0b75ac2291c55efa7ed8581063193f3eaa9122b8150f2fea85b9b8126b4",
+        "completion": "3d42e39c34f232e458587630d555fc80ad56135f00cdc19434bca7d6ed68f90c"
+      },
+      "temporary_settings_restoration": {
+        "restored": true,
+        "child_exit_code": 0,
+        "outer_record_sha256": "bb9aaa59617fca76660981337c47b03c385edb67867a09575441eb9d1e7632b2",
+        "cpu_performance_restored": true,
+        "restore_errors": [],
+        "emc_max_unchanged": 3199000000,
+        "settings_readback": [
+          {
+            "name": "cpu0/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu1/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu2/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu3/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu4/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu5/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "emc/min_freq",
+            "original": 204000000,
+            "scoped": 3199000000
+          }
+        ],
+        "cpu_frequency_readback": [
+          {
+            "name": "policy0",
+            "original_min": 729600,
+            "scoped_min": 1728000,
+            "related_cpus": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "name": "policy4",
+            "original_min": 729600,
+            "scoped_min": 1728000,
+            "related_cpus": [
+              4,
+              5
+            ]
+          }
+        ],
+        "unchanged_idle_states": [
+          {
+            "cpu": 0,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 1,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 2,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 3,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 4,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 5,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          }
+        ],
+        "scope_output_permission_granted": false
+      },
+      "raw_transaction_completeness": {
+        "cycles": 501,
+        "requests_per_cycle": 26,
+        "transactions": 13026,
+        "incomplete_17byte_host_transactions": 0,
+        "batches_with_rejected_bytes": 0
+      },
+      "feedback_publication": "after_voltage_native_preparation",
+      "source_and_state_unchanged": true,
+      "python_thread_switch": {
+        "interval_us_requested": null,
+        "child_readback_recorded": false,
+        "qualification": "default interval comparison; not independently read back"
+      }
+    },
+    {
+      "condition": "c7_disabled_emc_cpu_floors_r2_switch100us",
+      "kit_revision": "r2",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "qualification": "TIMING_CHARACTERIZATION_ONLY",
+      "cycles_requested": 501,
+      "cycles_completed": 501,
+      "startup_whole_iteration_ms": [
+        19.957671
+      ],
+      "startup_iteration_deadline_misses": 0,
+      "all_whole_iteration_ms": {
+        "count": 501,
+        "median": 18.936146,
+        "p95": 19.117846,
+        "p99": 19.207479,
+        "max": 19.957671
+      },
+      "iteration_deadline_misses": 0,
+      "host_deadline_misses": 0,
+      "steady_timing": {
+        "startup_cycle_allowance": 1,
+        "startup_cycles_recorded": 1,
+        "startup_whole_iteration_ms": [
+          19.957671
+        ],
+        "startup_iteration_deadline_misses": 0,
+        "startup_to_steady_interval_ms": 20.001608,
+        "steady_cycles_requested": 500,
+        "steady_cycles_completed": 500,
+        "steady_whole_iteration_ms": {
+          "count": 500,
+          "median": 18.935986,
+          "p95": 19.117814,
+          "p99": 19.190807,
+          "max": 19.249016
+        },
+        "steady_iteration_deadline_misses": 0,
+        "steady_processing_20ms_met": true,
+        "steady_scheduled_completion_slack_ms": {
+          "count": 500,
+          "median": 1.0493485,
+          "p95": 1.185307,
+          "p99": 1.226544,
+          "max": 1.308602
+        },
+        "steady_min_completion_slack_ms": 0.736261,
+        "steady_scheduled_deadline_misses": 0,
+        "steady_slots_skipped": 0,
+        "steady_scheduled_deadlines_met": true,
+        "steady_start_interval_ms": {
+          "count": 499,
+          "median": 19.999975,
+          "p95": 20.001575,
+          "p99": 20.001959,
+          "max": 20.004071
+        },
+        "steady_start_intervals_over_20ms": 242,
+        "strict_steady_start_interval_20ms_met": false,
+        "all_cycles_retained": true,
+        "diagnostic_only": true,
+        "full_controller_50Hz_verified": false
+      },
+      "errors": [],
+      "imu_restore_status": "restored",
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "apply_reviewed_accel_calibration": false,
+      "full_controller_50Hz_verified": false,
+      "output_allowed": false,
+      "source_summary_sha256": "783553b0fd5dd101124284b0cc1d75d69ce9dce3c6bdec330ee08bffa86cf721",
+      "input_artifact_sha256": {
+        "expected_uids": "0309d78f52500cd7bbf82997beabec4bb393853459d46b67e63c00178a228db8",
+        "calibration": "893c9f524a6ac8b4e0292c8a1545e90085c405a20dba081159be2e4239a1bf3c",
+        "mount": "b9f6814e13141e82efca0fbb64772847ae7ad91434282b8c9b1e038b3c42b420"
+      },
+      "artifacts_sha256": {
+        "report": "fafd4ac203883005660eef45ac937ed2eb9f42f96991c02915b1aca4997068cc",
+        "records": "0ab35cbd6c13e77a56b487bb85cd1494b89f11b7cddc3e33151004710e4f1547",
+        "scope": "a511155c6bceef07f84796ebfeb109af7a27800c04243cae989a6cc6836f654a",
+        "completion": "2833b25e3e459e9af2919666a0e598d13c02861ff7327a13768b9be92eb57a2e"
+      },
+      "temporary_settings_restoration": {
+        "restored": true,
+        "child_exit_code": 0,
+        "outer_record_sha256": "c3e9c4edb1641c2c6345fa0a43544464a077bedbc6b4c96d9064983cc1eb7a23",
+        "cpu_performance_restored": true,
+        "restore_errors": [],
+        "emc_max_unchanged": 3199000000,
+        "settings_readback": [
+          {
+            "name": "cpu0/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu1/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu2/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu3/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu4/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu5/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "emc/min_freq",
+            "original": 204000000,
+            "scoped": 3199000000
+          }
+        ],
+        "cpu_frequency_readback": [
+          {
+            "name": "policy0",
+            "original_min": 729600,
+            "scoped_min": 1728000,
+            "related_cpus": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "name": "policy4",
+            "original_min": 729600,
+            "scoped_min": 1728000,
+            "related_cpus": [
+              4,
+              5
+            ]
+          }
+        ],
+        "unchanged_idle_states": [
+          {
+            "cpu": 0,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 1,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 2,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 3,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 4,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 5,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          }
+        ],
+        "scope_output_permission_granted": false
+      },
+      "raw_transaction_completeness": {
+        "cycles": 501,
+        "requests_per_cycle": 26,
+        "transactions": 13026,
+        "incomplete_17byte_host_transactions": 0,
+        "batches_with_rejected_bytes": 0
+      },
+      "feedback_publication": "after_voltage_native_preparation",
+      "source_and_state_unchanged": true,
+      "python_thread_switch": {
+        "interval_us": 100,
+        "scope_source_sha256": "80772f9e9dd0a733b3ea90d0b02de0038677385a5069e67ae360bb1f69e6f09a",
+        "characterization_source_sha256": "78ccdf85a231c28cafef8fc6e8914d5073415886cea9b2a78f83e18cba273162",
+        "readback_and_restoration": [
+          {
+            "kind": "python_switch_interval",
+            "module": "singularitydog_hw.native_pipeline_benchmark",
+            "before_s": 0.005,
+            "during_s": 9.999999999999999e-05
+          },
+          {
+            "kind": "python_switch_interval_restore",
+            "after_s": 0.005,
+            "restored": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "c7_disabled_emc_cpu_floors_r2_switch100us_repeat",
+      "kit_revision": "r2",
+      "status": "COMPLETE_DIAGNOSTIC",
+      "qualification": "TIMING_CHARACTERIZATION_ONLY",
+      "cycles_requested": 501,
+      "cycles_completed": 501,
+      "startup_whole_iteration_ms": [
+        20.03716
+      ],
+      "startup_iteration_deadline_misses": 1,
+      "all_whole_iteration_ms": {
+        "count": 501,
+        "median": 18.949107,
+        "p95": 19.12879,
+        "p99": 19.187383,
+        "max": 20.03716
+      },
+      "iteration_deadline_misses": 1,
+      "host_deadline_misses": 0,
+      "steady_timing": {
+        "startup_cycle_allowance": 1,
+        "startup_cycles_recorded": 1,
+        "startup_whole_iteration_ms": [
+          20.03716
+        ],
+        "startup_iteration_deadline_misses": 1,
+        "startup_to_steady_interval_ms": 20.082121,
+        "steady_cycles_requested": 500,
+        "steady_cycles_completed": 500,
+        "steady_whole_iteration_ms": {
+          "count": 500,
+          "median": 18.9488345,
+          "p95": 19.126806,
+          "p99": 19.183832,
+          "max": 19.363259
+        },
+        "steady_iteration_deadline_misses": 0,
+        "steady_processing_20ms_met": true,
+        "steady_scheduled_completion_slack_ms": {
+          "count": 500,
+          "median": 1.036715,
+          "p95": 1.18659,
+          "p99": 1.238451,
+          "max": 1.316044
+        },
+        "steady_min_completion_slack_ms": 0.622801,
+        "steady_scheduled_deadline_misses": 0,
+        "steady_slots_skipped": 0,
+        "steady_scheduled_deadlines_met": true,
+        "steady_start_interval_ms": {
+          "count": 499,
+          "median": 20.000007,
+          "p95": 20.003207,
+          "p99": 20.004743,
+          "max": 20.006119
+        },
+        "steady_start_intervals_over_20ms": 252,
+        "strict_steady_start_interval_20ms_met": false,
+        "all_cycles_retained": true,
+        "diagnostic_only": true,
+        "full_controller_50Hz_verified": false
+      },
+      "errors": [],
+      "imu_restore_status": "restored",
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "apply_reviewed_accel_calibration": false,
+      "full_controller_50Hz_verified": false,
+      "output_allowed": false,
+      "source_summary_sha256": "783553b0fd5dd101124284b0cc1d75d69ce9dce3c6bdec330ee08bffa86cf721",
+      "input_artifact_sha256": {
+        "expected_uids": "0309d78f52500cd7bbf82997beabec4bb393853459d46b67e63c00178a228db8",
+        "calibration": "893c9f524a6ac8b4e0292c8a1545e90085c405a20dba081159be2e4239a1bf3c",
+        "mount": "b9f6814e13141e82efca0fbb64772847ae7ad91434282b8c9b1e038b3c42b420"
+      },
+      "artifacts_sha256": {
+        "report": "d5facd0f827855876bf759fb4b66602d55efcb69380f5b6f9701ca0e19e5191f",
+        "records": "947510fedf4df9ac38563c15eee0ed70aed5a663c31ef2a1caaa4044878bfb37",
+        "scope": "3e57ff7f46e53170ae69b2ddd0a80b76616e28c17d98f2894ab05bb829aef51f",
+        "completion": "26dad5190ff4070f9bba53585ca77d87e8e2eb3588bc274c5aed268a73c7a385"
+      },
+      "temporary_settings_restoration": {
+        "restored": true,
+        "child_exit_code": 0,
+        "outer_record_sha256": "a7a3f2e0e85ab16264a14f3f689c0af0d1a5a0b5637e2f8e84914ceffb291575",
+        "cpu_performance_restored": true,
+        "restore_errors": [],
+        "emc_max_unchanged": 3199000000,
+        "settings_readback": [
+          {
+            "name": "cpu0/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu1/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu2/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu3/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu4/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu5/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "emc/min_freq",
+            "original": 204000000,
+            "scoped": 3199000000
+          }
+        ],
+        "cpu_frequency_readback": [
+          {
+            "name": "policy0",
+            "original_min": 729600,
+            "scoped_min": 1728000,
+            "related_cpus": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "name": "policy4",
+            "original_min": 729600,
+            "scoped_min": 1728000,
+            "related_cpus": [
+              4,
+              5
+            ]
+          }
+        ],
+        "unchanged_idle_states": [
+          {
+            "cpu": 0,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 1,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 2,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 3,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 4,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 5,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          }
+        ],
+        "scope_output_permission_granted": false
+      },
+      "raw_transaction_completeness": {
+        "cycles": 501,
+        "requests_per_cycle": 26,
+        "transactions": 13026,
+        "incomplete_17byte_host_transactions": 0,
+        "batches_with_rejected_bytes": 0
+      },
+      "feedback_publication": "after_voltage_native_preparation",
+      "source_and_state_unchanged": true,
+      "python_thread_switch": {
+        "interval_us": 100,
+        "scope_source_sha256": "80772f9e9dd0a733b3ea90d0b02de0038677385a5069e67ae360bb1f69e6f09a",
+        "characterization_source_sha256": "78ccdf85a231c28cafef8fc6e8914d5073415886cea9b2a78f83e18cba273162",
+        "readback_and_restoration": [
+          {
+            "kind": "python_switch_interval",
+            "module": "singularitydog_hw.native_pipeline_benchmark",
+            "before_s": 0.005,
+            "during_s": 9.999999999999999e-05
+          },
+          {
+            "kind": "python_switch_interval_restore",
+            "after_s": 0.005,
+            "restored": true
+          }
+        ]
+      }
+    }
+  ],
+  "physical_calibration_limits": {
+    "support": "box only",
+    "angle_reference": "bubble level",
+    "reference_accuracy_known": false,
+    "reference_uncertainty_rad": null,
+    "independent_six_face_reference_available": false,
+    "three_axis_acceleration_bias_and_scale_identified": false,
+    "all_axis_final_origin_review_completed": false,
+    "reviewed_acceleration_calibration_selected": false,
+    "next_imu_scope": "Selected gyro bias has been used in scoped live no-output model timing. Absolute level/direction, acceleration bias/scale, full controller and formal output remain unverified."
+  },
+  "limitations": [
+    "Static comparison remained blocked; independent timing is not a full diagnostic pass.",
+    "C7, EMC and CPU settings were changed together; their separate causal effects were not measured.",
+    "r1 history and both r2 default-interval steady deadline failures are retained.",
+    "The second optimized r2 run startup exceeded 20ms; startup and all-cycle values are retained.",
+    "Both optimized r2 runs have strict steady start interval <=20ms false; measured maxima are retained.",
+    "Two short 100us core runs completed, but their wrappers failed an exact float readback comparison; missing completion receipts and original failures are retained.",
+    "The corrected receipt check tolerates only floating-point serialization precision; configured100us, timing deadlines and motion limits are unchanged.",
+    "STOP proxy does not establish learned-target output, final calibrated runtime dispatch or a full50Hz controller.",
+    "The separate zero-gain diagnostic enabled motors but sent neither positive gains nor learned targets; USB physical disconnect was not tested.",
+    "Bubble-level accuracy is unknown; zero instrument error and a certified3degree bound are not inferred.",
+    "Gyro bias remained zero and reviewed acceleration correction was not selected for the timing runs.",
+    "Prior preparation summary remains a historical source snapshot and is not overwritten.",
+    "Additional motor-power-off stationary A/B passed offline variability and heldout gyro-residual checks; actual stationarity and unchanged mount/posture were confirmed by the operator; the new gyro candidate remains unapproved and unapplied and acceleration norm still deviates by8.74/8.79percent. One pose does not identify full IMU calibration.",
+    "The final dog_tomorrow 100us opt-in passed 61 software checks and independent review, then was deployed in a separate r3 source-only kit. Its file-only preflight and PLAN passed, but no new CAN/IMU hardware measurement was performed; the immutable r2 measurements remain a distinct scope.",
+    "The original pre-confirmation baseline and audit retain operator-confirmation false. The later human receipt and gyro candidate were created as separate new files, without modifying capture originals or inferring absolute level/mount direction.",
+    "A later manual r3 gyro selection preserves the initial baseline-only state and unchanged unapproved candidate. Only diagnostic PLAN/full-stage input selection and saved-record transformation are checked; C actual stationarity is not yet operator-confirmed, and new coupled live inference/20ms or motor output was not measured."
+  ],
+  "public_redaction": {
+    "uids_included": false,
+    "boot_ids_included": false,
+    "ip_addresses_included": false,
+    "raw_frames_included": false,
+    "private_paths_included": false
+  },
+  "r2_kit_and_file_preflight": {
+    "files_verified": 577,
+    "transport_built_on_target": true,
+    "baseline_scalar_source_sha_and_target_abi_verified": true,
+    "status": "TARGET_FILE_ONLY_VERIFIED",
+    "preflight_sha256": "940db9f99c4b7fc505f6e17649b0b3a5cc1a8a255cde84969196d205576d77ca",
+    "kit_manifest_sha256": "31c8f5a5e62f04d8eb656e4d13e0cacdb733fdbe98b56224080a2f247c2c2d6c",
+    "native_pipeline_benchmark_source_sha256": "18d902cbafb8b34beca37058897511855413703353f7cae061f33a1ab253c7a8",
+    "transport_source_sha256": "5461c925575bd10bbca2a0c8c8d2c28cd119f22228bf7f8d7ed3976dcd73da0e",
+    "transport_binary_sha256": "7ae63f318794a3a87a097c3e08539e84a3ed581d15862dc73329005854f89147",
+    "scalar_model_proof_sha256": {
+      "manifest_sha256": "7ad6670368feb10d36bd62f594c7a53e89f28a5462fd1c3cf2292e2c1987f666",
+      "model_sha256": "7401bf982aff06c9394f36c26acf8c295fe1dd15826e6732e789e979e159113b",
+      "library_sha256": "3dfe86772586c4322de751f61fe4684fbe0c3ee1603181b0afafca4e66270457",
+      "loader_source_sha256": "829b0109e0064c104d689052052804f59bf40470c82ea994cbe9a549ef3d912b"
+    },
+    "approvals_inherited": false,
+    "output_allowed": false,
+    "feedback_publication": "after_voltage_native_preparation"
+  },
+  "short_wrapper_failures": [
+    {
+      "cycles_requested": 5,
+      "core_status": "COMPLETE_DIAGNOSTIC",
+      "core_cycles_completed": 5,
+      "core_steady_timing": {
+        "startup_cycle_allowance": 1,
+        "startup_cycles_recorded": 1,
+        "startup_whole_iteration_ms": [
+          20.260013
+        ],
+        "startup_iteration_deadline_misses": 1,
+        "startup_to_steady_interval_ms": 20.307022,
+        "steady_cycles_requested": 4,
+        "steady_cycles_completed": 4,
+        "steady_whole_iteration_ms": {
+          "count": 4,
+          "median": 19.042309,
+          "p95": 19.200504,
+          "p99": 19.200504,
+          "max": 19.200504
+        },
+        "steady_iteration_deadline_misses": 0,
+        "steady_processing_20ms_met": true,
+        "steady_scheduled_completion_slack_ms": {
+          "count": 4,
+          "median": 0.8560595,
+          "p95": 0.96201,
+          "p99": 0.96201,
+          "max": 0.96201
+        },
+        "steady_min_completion_slack_ms": 0.697277,
+        "steady_scheduled_deadline_misses": 0,
+        "steady_slots_skipped": 0,
+        "steady_scheduled_deadlines_met": true,
+        "steady_start_interval_ms": {
+          "count": 3,
+          "median": 19.99796,
+          "p95": 19.999433,
+          "p99": 19.999433,
+          "max": 19.999433
+        },
+        "steady_start_intervals_over_20ms": 0,
+        "strict_steady_start_interval_20ms_met": true,
+        "all_cycles_retained": true,
+        "diagnostic_only": true,
+        "full_controller_50Hz_verified": false
+      },
+      "wrapper_status": "FAILED_POST_CORE_FLOAT_READBACK_EQUALITY",
+      "completion_receipt_created": false,
+      "original_artifacts_preserved": true,
+      "failure_reason": "Exact float equality rejected the 100us setting serialized one ULP differently; no timing or motion threshold was changed.",
+      "artifacts_sha256": {
+        "report": "6c80bc821757afd6f8ce84bce9fd1402431beefd323c77d55bffd21d982f20a0",
+        "records": "45c7d36cdba27d1561378c120a3f842460f85793118552303bb161e99d0d4feb",
+        "scope": "5d363dabc1b7f8ad6eeb28376a9555b927a181b63dc897c4d19a09cc552688d8",
+        "stdout": "47b3e0c7e9593b11aff7d4fcb0e3ab59c2534a8dcd03ce1ad85780edf93ff098",
+        "stderr": "327daf974cc1bdd2459f590a38ee7012e3f6ad42fdb9d4e724bafde1299467dc"
+      },
+      "temporary_settings_restoration": {
+        "restored": true,
+        "child_exit_code": 1,
+        "outer_record_sha256": "06a998c66e11576432c341f828229141c0b771b26303bfd761082717784a78c7",
+        "cpu_performance_restored": true,
+        "restore_errors": [],
+        "emc_max_unchanged": 3199000000,
+        "settings_readback": [
+          {
+            "name": "cpu0/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu1/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu2/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu3/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu4/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu5/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "emc/min_freq",
+            "original": 204000000,
+            "scoped": 3199000000
+          }
+        ],
+        "cpu_frequency_readback": [
+          {
+            "name": "policy0",
+            "original_min": 729600,
+            "scoped_min": 1728000,
+            "related_cpus": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "name": "policy4",
+            "original_min": 729600,
+            "scoped_min": 1728000,
+            "related_cpus": [
+              4,
+              5
+            ]
+          }
+        ],
+        "unchanged_idle_states": [
+          {
+            "cpu": 0,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 1,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 2,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 3,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 4,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 5,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          }
+        ],
+        "scope_output_permission_granted": false
+      }
+    },
+    {
+      "cycles_requested": 50,
+      "core_status": "COMPLETE_DIAGNOSTIC",
+      "core_cycles_completed": 50,
+      "core_steady_timing": {
+        "startup_cycle_allowance": 1,
+        "startup_cycles_recorded": 1,
+        "startup_whole_iteration_ms": [
+          19.89303
+        ],
+        "startup_iteration_deadline_misses": 0,
+        "startup_to_steady_interval_ms": 19.991623,
+        "steady_cycles_requested": 49,
+        "steady_cycles_completed": 49,
+        "steady_whole_iteration_ms": {
+          "count": 49,
+          "median": 18.968628,
+          "p95": 19.131223,
+          "p99": 19.175703,
+          "max": 19.175703
+        },
+        "steady_iteration_deadline_misses": 0,
+        "steady_processing_20ms_met": true,
+        "steady_scheduled_completion_slack_ms": {
+          "count": 49,
+          "median": 1.017397,
+          "p95": 1.123281,
+          "p99": 1.145481,
+          "max": 1.145481
+        },
+        "steady_min_completion_slack_ms": 0.810764,
+        "steady_scheduled_deadline_misses": 0,
+        "steady_slots_skipped": 0,
+        "steady_scheduled_deadlines_met": true,
+        "steady_start_interval_ms": {
+          "count": 48,
+          "median": 20.000008,
+          "p95": 20.001224,
+          "p99": 20.00196,
+          "max": 20.00196
+        },
+        "steady_start_intervals_over_20ms": 25,
+        "strict_steady_start_interval_20ms_met": false,
+        "all_cycles_retained": true,
+        "diagnostic_only": true,
+        "full_controller_50Hz_verified": false
+      },
+      "wrapper_status": "FAILED_POST_CORE_FLOAT_READBACK_EQUALITY",
+      "completion_receipt_created": false,
+      "original_artifacts_preserved": true,
+      "failure_reason": "Exact float equality rejected the 100us setting serialized one ULP differently; no timing or motion threshold was changed.",
+      "artifacts_sha256": {
+        "report": "1fe5d078f604dabf80f0aa8fcf5526d44740d74ca45af6887b418d95cb062b20",
+        "records": "2336c3ae4a741f54e06cf85410f45dac8bb968c8beeb44f7063034b478b5f1d3",
+        "scope": "5e2c6be29bcdeddbef4e25dc434aaf8a4e9e0f2f8b01878f85805bb326f95292",
+        "stdout": "cdc198e47c6684e1c5cf7671b3809794f0c9761461e677cdfc4069d4ddb11fb1",
+        "stderr": "327daf974cc1bdd2459f590a38ee7012e3f6ad42fdb9d4e724bafde1299467dc"
+      },
+      "temporary_settings_restoration": {
+        "restored": true,
+        "child_exit_code": 1,
+        "outer_record_sha256": "5bc689d4a1ff807f99aad65e386b0c6dc5f0245c74c779f5d124926e1f1ecaba",
+        "cpu_performance_restored": true,
+        "restore_errors": [],
+        "emc_max_unchanged": 3199000000,
+        "settings_readback": [
+          {
+            "name": "cpu0/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu1/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu2/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu3/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu4/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "cpu5/state1/c7",
+            "original": 0,
+            "scoped": 1
+          },
+          {
+            "name": "emc/min_freq",
+            "original": 204000000,
+            "scoped": 3199000000
+          }
+        ],
+        "cpu_frequency_readback": [
+          {
+            "name": "policy0",
+            "original_min": 729600,
+            "scoped_min": 1728000,
+            "related_cpus": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "name": "policy4",
+            "original_min": 729600,
+            "scoped_min": 1728000,
+            "related_cpus": [
+              4,
+              5
+            ]
+          }
+        ],
+        "unchanged_idle_states": [
+          {
+            "cpu": 0,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 1,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 2,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 3,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 4,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          },
+          {
+            "cpu": 5,
+            "disable": 0,
+            "latency_us": 1,
+            "name": "WFI",
+            "state": "state0"
+          }
+        ],
+        "scope_output_permission_granted": false
+      }
+    }
+  ],
+  "zero_gain_command_loss_diagnostic": {
+    "scope": "supported_zero_gain_command_loss_only",
+    "status": "COMPLETE_COMMAND_LOSS_DIAGNOSTIC",
+    "axes_tested": 12,
+    "kp": 0,
+    "kd": 0,
+    "configured_timeout_ms": 200,
+    "silent_interval_ms": 210,
+    "accepted_disable_upper_bound_ms": 250,
+    "position_window_deg": 3,
+    "velocity_limit_rad_s": 0.5,
+    "motor_enable_sent": true,
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "stop_confirmed": true,
+    "usb_disconnect_tested": false,
+    "approved_for_runtime": false,
+    "errors": [],
+    "automatic_retry": false,
+    "operator_confirmed_current_state": true,
+    "power_epoch_inferred_from_boot": false,
+    "operator_observation": {
+      "explanation_and_start_audio_heard": true,
+      "physical_abnormality_reported": false,
+      "support_power_and_posture_maintained": true,
+      "source": "human reply after diagnostic"
+    },
+    "artifacts_sha256": {
+      "report": "ebbfc50d31e4ecb8a08ef9fac61334d9533bcb093e6bdc52b4c914806b1ffcde",
+      "operator_receipt": "b3d1cd0ed1060a2da24b21137e39af20722269ff44f793bbecba494c0581c8cc",
+      "console": "339072504b2372c198842fd1871fe74e376400e7d934de07bb5c8ebf7495f4d8"
+    },
+    "kit_manifest_sha256": "31c8f5a5e62f04d8eb656e4d13e0cacdb733fdbe98b56224080a2f247c2c2d6c",
+    "explanation_audio_sha256": "c81bd0db32f2fcc49d2c859d9e571260f4df1b38bb646ed7a3a8b03d5a1eac53",
+    "start_audio_sha256": "9fbb27573610dabda9a4e60745f44dcf17936a4f838b23d199e5b8aa1909182f"
+  },
+  "r2_steady_result": {
+    "condition": "voltage native preparation before feedback publication; Python switch100us; native wait200us; temporary C7/EMC/CPU scopes",
+    "independent_runs": 2,
+    "steady_cycles_per_run": 500,
+    "processing_deadline_misses": [
+      0,
+      0
+    ],
+    "scheduled_deadline_misses": [
+      0,
+      0
+    ],
+    "slots_skipped": [
+      0,
+      0
+    ],
+    "reply_loss_observed": [
+      0,
+      0
+    ],
+    "steady_processing_max_ms": [
+      19.249016,
+      19.363259
+    ],
+    "steady_processing_median_ms": [
+      18.935986,
+      18.9488345
+    ],
+    "startup_whole_iteration_ms": [
+      19.957671,
+      20.03716
+    ],
+    "startup_iteration_deadline_misses": [
+      0,
+      1
+    ],
+    "strict_start_interval_max_ms": [
+      20.004071,
+      20.006119
+    ],
+    "strict_start_interval_20ms_met": false,
+    "qualification": "TIMING_CHARACTERIZATION_ONLY",
+    "full_controller_50Hz_verified": false,
+    "approved_for_runtime": false
+  },
+  "imu_stationary_a_b": {
+    "scope": "motor_power_off_fixed_mount_single_pose_diagnostic",
+    "motor_power_off_confirmed_before_measurement": true,
+    "body_supported": true,
+    "can_opened": false,
+    "status": "RECORDED_NOT_CALIBRATED",
+    "captures": [
+      {
+        "label": "a",
+        "status": "RECORDED_NOT_CALIBRATED",
+        "samples": 2900,
+        "duration_s": 29.990071241,
+        "settle_seconds": 10,
+        "capture_seconds": 30,
+        "accel_norm_mean_m_s2": 10.664119933928255,
+        "gravity_norm_deviation_percent": 8.743759937677552,
+        "restore_status": "restored",
+        "register_audit_before_after_match": true,
+        "errors": [],
+        "source_sha256": {
+          "imu_capture.py": "76b75f69cd8b918cb7ece98da21335cb058f9e85bbee85afec4a513c5cee4200",
+          "imu.py": "fd48676b45e9badad98e0e0fa1fdc1aad628e03dc66b4bdc3e8b0f35ba7be0ff"
+        },
+        "artifacts_sha256": {
+          "summary": "f1bcbf417df1a0baebb10b01e652e1d11a3334409e07ece77b880ff45cc7c891",
+          "events": "ee4ac706edb207a1ab9c4cb73118109ed4ac3a60835b5916dad6cc6adf71f543"
+        }
+      },
+      {
+        "label": "b",
+        "status": "RECORDED_NOT_CALIBRATED",
+        "samples": 2921,
+        "duration_s": 29.990096294,
+        "settle_seconds": 10,
+        "capture_seconds": 30,
+        "accel_norm_mean_m_s2": 10.668527022293135,
+        "gravity_norm_deviation_percent": 8.788699732254512,
+        "restore_status": "restored",
+        "register_audit_before_after_match": true,
+        "errors": [],
+        "source_sha256": {
+          "imu_capture.py": "76b75f69cd8b918cb7ece98da21335cb058f9e85bbee85afec4a513c5cee4200",
+          "imu.py": "fd48676b45e9badad98e0e0fa1fdc1aad628e03dc66b4bdc3e8b0f35ba7be0ff"
+        },
+        "artifacts_sha256": {
+          "summary": "2b7c7e9e40a5ed4c08b85e5572beaf3599ed248e86bc7f3acb64298f3cc0869e",
+          "events": "f728e8eb7c9d158d23c203e6be5cd3a6376653da1fe762840ce15d31b5cba31d"
+        }
+      }
+    ],
+    "same_boot_confirmed": true,
+    "measurement_sequences_distinct": true,
+    "capture_sources_match_r2_kit": true,
+    "configuration_raw_si_scale_and_sequence_audited": true,
+    "operator_actual_stationarity_confirmation": true,
+    "gyro_bias_candidate_eligible": true,
+    "heldout_b_per_sample_corrected_gyro_norm_max_rad_s": 0.004140148949822009,
+    "heldout_b_per_sample_limit_rad_s": 0.02,
+    "heldout_b_all_samples_within_limit": true,
+    "analysis_only_a_mean_gyro_rad_s": [
+      0.012228330797665984,
+      0.019664931114073515,
+      -0.002345191427390222
+    ],
+    "specific_force_direction_repeatability_deg": 0.019526504813732554,
+    "absolute_level_verified": false,
+    "three_axis_accel_bias_scale_identified": false,
+    "accel_norm_deviation_resolved": false,
+    "approved_for_runtime": false,
+    "automatically_applied": false,
+    "failed_diagnostic_gates": [],
+    "warnings": [
+      "a: raw acceleration norm differs from 1g; not corrected or calibrated",
+      "b: raw acceleration norm differs from 1g; not corrected or calibrated"
+    ],
+    "artifacts_sha256": {
+      "archive": "ee045ef80fee4e9dd7ab62c9622d7d753da912dd4c86dabdc046c3069be7b30f",
+      "offline_audit": "21a832fac09c14d17325f7ac188b1d5e4b38bbf3d2d6daca68884e5357519fa4",
+      "baseline_without_operator_confirmation": "ee8bd631ddb45de0595b63e73d6ccb7244379bed8fb88c2c228f134928985dcd",
+      "operator_static_confirmation": "5a1ccdd32ab21a6f716507f81fe0dd18f43b3a355ec41101aae433d8e5e47b76",
+      "gyro_bias_candidate_operator_confirmed": "2ade7e77705f51f077386154bbc70180f3cec614cc5ecaea2c439dac964cb8f8"
+    },
+    "operator_mount_unchanged_confirmation_status": "CONFIRMED_BY_OPERATOR",
+    "mount_direction_verified": false,
+    "mount_unchanged_verified_by_software": false,
+    "before_operator_confirmation_history": {
+      "status": "DIAGNOSTIC_ONLY",
+      "operator_actual_stationarity_confirmation": false,
+      "gyro_bias_candidate_eligible": false,
+      "original_without_confirmation_and_audit_preserved": true,
+      "artifacts_sha256": {
+        "offline_audit": "21a832fac09c14d17325f7ac188b1d5e4b38bbf3d2d6daca68884e5357519fa4",
+        "baseline_without_operator_confirmation": "ee8bd631ddb45de0595b63e73d6ccb7244379bed8fb88c2c228f134928985dcd"
+      }
+    },
+    "candidate_status": "GYRO_BIAS_CANDIDATE",
+    "gyro_bias_candidate_rad_s": [
+      0.012228330797665984,
+      0.019664931114073515,
+      -0.002345191427390222
+    ],
+    "operator_confirmation_source": "Human final reply: both captures stationary, no mount or posture change.",
+    "calibration_verified": false,
+    "candidate_generated_as_new_file": true,
+    "new_candidate_saved_on_target_without_application": true
+  },
+  "followup_orchestration_source": {
+    "kind": "file_only_opt_in_diagnostic_child_switch_scope",
+    "source_sha256": {
+      "dog_tomorrow.py": "01c8b85db5b3d5ff77bd3b0ff7e3128a7548c93cd92798dcded1738ab6782ddf",
+      "python_thread_switch_scope.py": "80772f9e9dd0a733b3ea90d0b02de0038677385a5069e67ae360bb1f69e6f09a",
+      "test_dog_tomorrow.py": "a7dea6313cf4887ffa9d8bc063cc244bdc9a7b9485a8e40e4d2f5c9749f1d063"
+    },
+    "cli_option": "--python-switch-interval-us 100",
+    "accepted_interval_us": 100,
+    "default_interval_override": null,
+    "accepted_actions": [
+      "full",
+      "diagnostics"
+    ],
+    "accepted_timing_mode": "v3-overlap",
+    "diagnostics_scoped_stage": "full_only",
+    "plan_and_stage_and_summary_record_interval_and_wrapper_sha256": true,
+    "tests": {
+      "dog_tomorrow": 58,
+      "python_thread_switch_scope": 3,
+      "new_opt_in_cases": 8,
+      "passed": 61
+    },
+    "deployed_to_measured_r2_kit": false,
+    "new_orchestration_hardware_measured": false,
+    "measured_r2_characterization_used_same_existing_wrapper": true,
+    "approved_for_runtime": false,
+    "output_allowed": false,
+    "qualification": "Software opt-in connects the already measured wrapper with before/after pins; r3 source-only deployment is file/PLAN-verified, not hardware-measured. Measured r2 kit and raw records remain immutable.",
+    "independent_final_review": "PASS",
+    "wrapper_verified_immediately_before_and_after_selected_full_child": true,
+    "wrapper_verification_checks": [
+      "canonical bundled command path",
+      "regular file, no symlink",
+      "planned SHA256"
+    ],
+    "wrapper_changed_during_capture_or_compare_prevents_full_start": true,
+    "wrapper_changed_after_full_prevents_state_promotion": true,
+    "deployed_to_source_only_r3_kit": true
+  },
+  "r3_source_only_preparation": {
+    "status": "SOURCE_ONLY_DEPLOYED_TARGET_FILE_AND_PLAN_VERIFIED",
+    "scope": "FILE_ONLY_AND_PLAN_NO_DEVICE_OPEN",
+    "files_verified": 577,
+    "parent_kit_manifest_sha256": "31c8f5a5e62f04d8eb656e4d13e0cacdb733fdbe98b56224080a2f247c2c2d6c",
+    "kit_manifest_sha256": "0c57d0333a4fec787ce6d97b40840f431d3a18bfc290599d840891893f040ac8",
+    "kit_tar_sha256": "f900ad18341ba171e5c4c44a0b363bd9fd52eb09fc9199d3bcea54221a364b43",
+    "source_changes": [
+      {
+        "path": "tools/dog_tomorrow.py",
+        "parent_sha256": "21857225f87a5effb1590591bc3d6dda2ec10c9800b1f22092c8f867cac42cc6",
+        "source_sha256": "01c8b85db5b3d5ff77bd3b0ff7e3128a7548c93cd92798dcded1738ab6782ddf"
+      },
+      {
+        "path": "tools/test_dog_tomorrow.py",
+        "parent_sha256": "f25560839180f0e15db2ce48b85416efea8907d9b2cd53bddf3adca971556d38",
+        "source_sha256": "a7dea6313cf4887ffa9d8bc063cc244bdc9a7b9485a8e40e4d2f5c9749f1d063"
+      }
+    ],
+    "deployed_to_jetson": true,
+    "transport_built_on_target": true,
+    "transport_source_sha256": "5461c925575bd10bbca2a0c8c8d2c28cd119f22228bf7f8d7ed3976dcd73da0e",
+    "transport_binary_sha256": "7ae63f318794a3a87a097c3e08539e84a3ed581d15862dc73329005854f89147",
+    "baseline_scalar_source_sha_and_target_abi_verified": true,
+    "plan": {
+      "status": "PLAN",
+      "execute": false,
+      "action": "diagnostics",
+      "timing_mode": "v3-overlap",
+      "python_switch_interval_us": 100,
+      "wrapper_sha256": "80772f9e9dd0a733b3ea90d0b02de0038677385a5069e67ae360bb1f69e6f09a",
+      "scoped_stage": "full_only"
+    },
+    "initial_state_has_only_baseline_manifest_and_sha": true,
+    "current_capture_and_static_comparison_required": true,
+    "gyro_bias_candidate_selected": false,
+    "apply_reviewed_accel_calibration": false,
+    "hardware_accessed": false,
+    "hardware_measured": false,
+    "new_timing_20ms_verified": false,
+    "approvals_inherited": false,
+    "approved_for_runtime": false,
+    "output_allowed": false,
+    "artifacts_sha256": {
+      "file_preflight": "fee411dd7ea5fd5b9eea4cbf95a383eaf0618ed547edcc71808fcdcf081632b2",
+      "diagnostics_plan": "c2c5f973f7e189dd7cec51ff8edcafeeda301f5b410de91d122a3a86240ec3b4",
+      "deployment": "ccd76508f879dc1378d96d19ec0c48c2198b7a89a13519ce0c1149594b6066bd",
+      "private_verification": "bccfaa688a751684d8ea46ef6c6c42ae15faa4a196eccf90474c1dcd262110ca",
+      "recovered_file_only_archive": "01de2609451689954f963cad340c618aee5d40e6a1324863bc77978ee9799b66"
+    },
+    "native_pipeline_benchmark_source_sha256": "18d902cbafb8b34beca37058897511855413703353f7cae061f33a1ab253c7a8",
+    "state_scope": "Initial file-only deployment; later manual gyro diagnostic selection is recorded separately."
+  },
+  "r3_gyro_diagnostic_input_selection": {
+    "status": "DIAGNOSTIC_INPUT_SELECTED_AND_FILE_REPLAY_VERIFIED",
+    "qualification": "Diagnostic input selection and saved raw input transformation; not coupled live inference or motor output.",
+    "scope": "manual gyro bias selection for full diagnostic stage",
+    "bias_sensor_rad_s": [
+      0.012228330797665984,
+      0.019664931114073515,
+      -0.002345191427390222
+    ],
+    "formula": "gyro_body = R_body_from_sensor * (raw_gyro_sensor - bias_sensor)",
+    "candidate_file_and_approval_flags_unchanged": true,
+    "candidate_sha256": "2ade7e77705f51f077386154bbc70180f3cec614cc5ecaea2c439dac964cb8f8",
+    "operator_confirmed_stationary_a_b": true,
+    "operator_confirmed_stationary_c": false,
+    "initial_baseline_only_state_preserved": true,
+    "gyro_bias_selected_in_r3_work_state": true,
+    "work_state_after_sha256": "4e5e8bed84824fc30679fd3a25bc925529d4b293a0929de1307407a0ed7bda1a",
+    "plan": {
+      "status": "PLAN",
+      "execute": false,
+      "gyro_bias_argument_only_in_full_stage": true,
+      "accel_calibration_argument_selected": false
+    },
+    "capture_c": {
+      "status": "RECORDED_NOT_CALIBRATED",
+      "settle_seconds": 10,
+      "capture_seconds": 10,
+      "samples": 950,
+      "duration_s": 9.990109315,
+      "restore_status": "restored",
+      "errors": [],
+      "raw_mean_gyro_norm_rad_s": 0.02300152413742644,
+      "corrected_mean_gyro_rad_s": [
+        -0.0006460481994775003,
+        -1.5707262050895093e-05,
+        -0.0006261457250407833
+      ],
+      "corrected_mean_gyro_norm_rad_s": 0.0008998241289919401,
+      "mean_norm_decrease_percent": 96.08798041548991,
+      "per_sample_corrected_gyro_norm_max_rad_s": 0.0047775124238563695,
+      "comparison_limit_rad_s": 0.02,
+      "all_samples_within_limit": true,
+      "gravity_norm_deviation_percent": 8.76256108770399,
+      "operator_actual_stationarity_confirmed": false,
+      "absolute_level_verified": false
+    },
+    "independent_input_transform_check": {
+      "status": "PASS",
+      "scope": "Real StatefulPolicyObserver._inputs against saved sensor records with fake CAN/calibration/tensors; no model call.",
+      "checks": 41522,
+      "samples_b": 2921,
+      "samples_c": 950,
+      "maximum_transform_error": 0.0,
+      "model_calls": 0,
+      "hardware_opened": false,
+      "verified_runtime": false,
+      "total_audit_checks": 42150,
+      "focused_regression_tests": {
+        "ran": 18,
+        "failed": 0,
+        "skipped": 0
+      },
+      "audit_receipt_sha256": "a0ef766170cc5ca36b445eabdf03a720997a1e5a703122f5c28486b6fbd85ab0"
+    },
+    "artifacts_sha256": {
+      "candidate": "2ade7e77705f51f077386154bbc70180f3cec614cc5ecaea2c439dac964cb8f8",
+      "new_state": "4e5e8bed84824fc30679fd3a25bc925529d4b293a0929de1307407a0ed7bda1a",
+      "old_state": "950d5f887347500f7474c546dfeb12bf40af599721cab406b62ce4d92927ef10",
+      "selection_receipt": "2d988d08d3a766265e24e3afd21a3ac26c16e442414e20b56c084c38510b9aac",
+      "plan": "fd1e6896ec724fc8fc2691e56498701ff753f5414b2bda3549ad8a67593e9ac1",
+      "capture_c_summary": "64ba9ed9a5d090a9b8c225c2b3f2762a79ae5c5bb07c47231d8e95b8ae856b32",
+      "capture_c_events": "397e1411635355b1c690b2031043079aedf3f07263406e7a0c357a2d8adb5d6a",
+      "archive": "d5735d7f2b0900a0ab52be651dc7a3baf7f3afe9d4b56135aaeb06f844398a47",
+      "selection_script": "c2788aed6f115ed68ef6a26d7a893b4b9b7710c85d407f013198cd2615e7f19e",
+      "independent_input_transform_audit": "a0ef766170cc5ca36b445eabdf03a720997a1e5a703122f5c28486b6fbd85ab0",
+      "final_selection_readback": "a425aff417d4e49550b718f45d2ba72d44974c7df26ad79a4e431f99650af39a"
+    },
+    "private_index_sha256": "038bc817457033b281157abb6e9ca402f8296a23c3111b9d77cf3029e54463a4",
+    "device_opened_by_selection_script": false,
+    "can_opened_by_selection_or_plan": false,
+    "live_coupled_inference_with_new_bias_measured": true,
+    "new_coupled_20ms_with_bias_measured": true,
+    "learned_targets_sent": false,
+    "motor_enable_sent": false,
+    "acceleration_calibration_applied": false,
+    "absolute_level_verified": false,
+    "mount_direction_verified": false,
+    "approved_for_runtime": false,
+    "output_allowed": false,
+    "source_sha256": {
+      "policy_observer.py": "492cc46d0c8391107b1102c3d0239695e3b4eb8770f8e63d962d5f0bb2ffdc69",
+      "imu_fixed_mount_baseline.py": "67d8f0c19e3a30634d8d4338117f97011263b7fcffe5e0e7c8994af52a13800b"
+    }
+  },
+  "r3_selected_gyro_live_characterization": {
+    "qualification": "TIMING_CHARACTERIZATION_ONLY",
+    "scope": "Fresh current-boot capture, selected unapproved A/B gyro hypothesis, raw acceleration, actual scalar-model inference, Type4 STOP proxy. No state promotion or runtime approval.",
+    "gyro_bias_applied_as_unapproved_hypothesis": true,
+    "acceleration_calibration_applied": false,
+    "full_diagnostics_passed": false,
+    "current_consolidated_diagnostic": {
+      "status": "DIAGNOSTIC_BLOCKED",
+      "blocked_stage": "compare",
+      "motor_ids_pending": [
+        6,
+        9
+      ],
+      "capture_stage": "COMPLETE",
+      "can_cycles_completed": 5,
+      "compare_cycles_completed": 3,
+      "full_stage": "NOT_RUN",
+      "max_direct_position_error_deg": 0.03005023498776881,
+      "failed_gate": "speed_endpoints_stable",
+      "speed_endpoint_change_rad_s_by_id": {
+        "9": -0.12726709991693497,
+        "6": 0.13447627797722816
+      },
+      "fresh_capture_promoted": false,
+      "physical_failure_inferred": false,
+      "motor_enable_sent": false,
+      "learned_targets_sent": false,
+      "artifacts_sha256": {
+        "summary.json": "20c9b1beb638a3f319e8aee49cd51ffd7dc5b283a6986cd2f3f53ba280a9d080",
+        "capture.json": "d629eae1773a3eef45549828245386e3324a086d091a0815bb862f83f713e242",
+        "calibration.json": "12dc2e14b437e8b00d412fb13bc9dc6e217a81ded76a4a3d2d35b4abe48cd266",
+        "compare/report.json": "0ab48643dba709b3cbb12cabe3d7f9d4c3d11cc777efe592f51b7352c0fc5aab"
+      }
+    },
+    "runs": [
+      {
+        "label": "r3_gyro_5",
+        "qualification": "TIMING_CHARACTERIZATION_ONLY",
+        "status": "COMPLETE_DIAGNOSTIC",
+        "errors": [],
+        "cycles_completed": 5,
+        "real_model_ticks": 5,
+        "whole_iteration_ms": {
+          "count": 5,
+          "median": 19.13359,
+          "p95": 20.014758,
+          "p99": 20.014758,
+          "max": 20.014758
+        },
+        "steady_timing": {
+          "startup_cycle_allowance": 1,
+          "startup_cycles_recorded": 1,
+          "startup_whole_iteration_ms": [
+            20.014758
+          ],
+          "startup_iteration_deadline_misses": 1,
+          "startup_to_steady_interval_ms": 20.059335,
+          "steady_cycles_requested": 4,
+          "steady_cycles_completed": 4,
+          "steady_whole_iteration_ms": {
+            "count": 4,
+            "median": 19.057684000000002,
+            "p95": 19.221623,
+            "p99": 19.221623,
+            "max": 19.221623
+          },
+          "steady_iteration_deadline_misses": 0,
+          "steady_processing_20ms_met": true,
+          "steady_scheduled_completion_slack_ms": {
+            "count": 4,
+            "median": 0.8941585000000001,
+            "p95": 1.09597,
+            "p99": 1.09597,
+            "max": 1.09597
+          },
+          "steady_min_completion_slack_ms": 0.765359,
+          "steady_scheduled_deadline_misses": 0,
+          "steady_slots_skipped": 0,
+          "steady_scheduled_deadlines_met": true,
+          "steady_start_interval_ms": {
+            "count": 3,
+            "median": 19.998567,
+            "p95": 20.000646,
+            "p99": 20.000646,
+            "max": 20.000646
+          },
+          "steady_start_intervals_over_20ms": 1,
+          "strict_steady_start_interval_20ms_met": false,
+          "all_cycles_retained": true,
+          "diagnostic_only": true,
+          "full_controller_50Hz_verified": false
+        },
+        "host_deadline_misses": 0,
+        "iteration_deadline_misses": 1,
+        "output_stop_reply_records": 60,
+        "gyro_bias_sha256": "2ade7e77705f51f077386154bbc70180f3cec614cc5ecaea2c439dac964cb8f8",
+        "calibration_sha256": "12dc2e14b437e8b00d412fb13bc9dc6e217a81ded76a4a3d2d35b4abe48cd266",
+        "state_unchanged": true,
+        "blocked_summary_unchanged": true,
+        "gyro_input_sha256_verified": true,
+        "cpu_idle_memory_settings_restored": true,
+        "imu_configuration_restored": true,
+        "motor_enable_sent": false,
+        "learned_targets_sent": false,
+        "approved_for_runtime": false,
+        "output_allowed": false,
+        "artifacts_sha256": {
+          "report": "0a4b147b6c1e3cd50bbd98ed4d8a41f4c5ec4ee52bea664f96f554ca045813c2",
+          "records": "125ac15b2f98017c22f4a078cc58eb417878d1b68f4d3e57d90eaafc7fd60cfe",
+          "completion": "cd3cb72198233a188668bac9065a2ad5a4b27a3faa2e83ea2e68aefb8a83db6f",
+          "scope": "5e2fdd7c3cdf6ef52f3016cf16f24a5c8d9db74608a672647dc2cc1a5ca3f532",
+          "outer_settings_record": "84be5fde6cff10b2850263ed7373c0defd91d32a5d3e464961a727fc61381859"
+        }
+      },
+      {
+        "label": "r3_gyro_50",
+        "qualification": "TIMING_CHARACTERIZATION_ONLY",
+        "status": "COMPLETE_DIAGNOSTIC",
+        "errors": [],
+        "cycles_completed": 50,
+        "real_model_ticks": 50,
+        "whole_iteration_ms": {
+          "count": 50,
+          "median": 18.996595,
+          "p95": 19.336729,
+          "p99": 19.955621,
+          "max": 19.955621
+        },
+        "steady_timing": {
+          "startup_cycle_allowance": 1,
+          "startup_cycles_recorded": 1,
+          "startup_whole_iteration_ms": [
+            19.955621
+          ],
+          "startup_iteration_deadline_misses": 0,
+          "startup_to_steady_interval_ms": 19.998534,
+          "steady_cycles_requested": 49,
+          "steady_cycles_completed": 49,
+          "steady_whole_iteration_ms": {
+            "count": 49,
+            "median": 18.994227,
+            "p95": 19.191446,
+            "p99": 19.489884,
+            "max": 19.489884
+          },
+          "steady_iteration_deadline_misses": 0,
+          "steady_processing_20ms_met": true,
+          "steady_scheduled_completion_slack_ms": {
+            "count": 49,
+            "median": 0.992542,
+            "p95": 1.18662,
+            "p99": 1.201459,
+            "max": 1.201459
+          },
+          "steady_min_completion_slack_ms": 0.494257,
+          "steady_scheduled_deadline_misses": 0,
+          "steady_slots_skipped": 0,
+          "steady_scheduled_deadlines_met": true,
+          "steady_start_interval_ms": {
+            "count": 48,
+            "median": 20.0000385,
+            "p95": 20.001766,
+            "p99": 20.004102,
+            "max": 20.004102
+          },
+          "steady_start_intervals_over_20ms": 24,
+          "strict_steady_start_interval_20ms_met": false,
+          "all_cycles_retained": true,
+          "diagnostic_only": true,
+          "full_controller_50Hz_verified": false
+        },
+        "host_deadline_misses": 0,
+        "iteration_deadline_misses": 0,
+        "output_stop_reply_records": 600,
+        "gyro_bias_sha256": "2ade7e77705f51f077386154bbc70180f3cec614cc5ecaea2c439dac964cb8f8",
+        "calibration_sha256": "12dc2e14b437e8b00d412fb13bc9dc6e217a81ded76a4a3d2d35b4abe48cd266",
+        "state_unchanged": true,
+        "blocked_summary_unchanged": true,
+        "gyro_input_sha256_verified": true,
+        "cpu_idle_memory_settings_restored": true,
+        "imu_configuration_restored": true,
+        "motor_enable_sent": false,
+        "learned_targets_sent": false,
+        "approved_for_runtime": false,
+        "output_allowed": false,
+        "artifacts_sha256": {
+          "report": "1ffb9ee163681b26c0932bb197fd21055b4d7b8358fd0cd8ae29c2750d970f0b",
+          "records": "a40581329c78cb29ab74a2da25f5420fb0f06d472a7cddd842e37914c6a81a35",
+          "completion": "83e494b7b3b37db7fff453ecc0538f6f8136e46f13db0a8d09769fe8cbf35094",
+          "scope": "b053784733a36b1968398a59525b75dc32e2076305e9e9bafbf322cde0ad8d8f",
+          "outer_settings_record": "5b2a65f8f879cd09170cd9098079aec01f80a46b72bb2c9b47d4cb2f90800f1e"
+        }
+      },
+      {
+        "label": "r3_gyro_501-a",
+        "qualification": "TIMING_CHARACTERIZATION_ONLY",
+        "status": "COMPLETE_DIAGNOSTIC",
+        "errors": [],
+        "cycles_completed": 501,
+        "real_model_ticks": 501,
+        "whole_iteration_ms": {
+          "count": 501,
+          "median": 18.948114,
+          "p95": 19.176342,
+          "p99": 19.249752,
+          "max": 19.913317
+        },
+        "steady_timing": {
+          "startup_cycle_allowance": 1,
+          "startup_cycles_recorded": 1,
+          "startup_whole_iteration_ms": [
+            19.913317
+          ],
+          "startup_iteration_deadline_misses": 0,
+          "startup_to_steady_interval_ms": 19.995494,
+          "steady_cycles_requested": 500,
+          "steady_cycles_completed": 500,
+          "steady_whole_iteration_ms": {
+            "count": 500,
+            "median": 18.948082,
+            "p95": 19.171894,
+            "p99": 19.237783,
+            "max": 19.355386
+          },
+          "steady_iteration_deadline_misses": 0,
+          "steady_processing_20ms_met": true,
+          "steady_scheduled_completion_slack_ms": {
+            "count": 500,
+            "median": 1.036472,
+            "p95": 1.178731,
+            "p99": 1.210705,
+            "max": 1.364849
+          },
+          "steady_min_completion_slack_ms": 0.630702,
+          "steady_scheduled_deadline_misses": 0,
+          "steady_slots_skipped": 0,
+          "steady_scheduled_deadlines_met": true,
+          "steady_start_interval_ms": {
+            "count": 499,
+            "median": 20.000007,
+            "p95": 20.002246,
+            "p99": 20.004326,
+            "max": 20.073992
+          },
+          "steady_start_intervals_over_20ms": 255,
+          "strict_steady_start_interval_20ms_met": false,
+          "all_cycles_retained": true,
+          "diagnostic_only": true,
+          "full_controller_50Hz_verified": false
+        },
+        "host_deadline_misses": 0,
+        "iteration_deadline_misses": 0,
+        "output_stop_reply_records": 6012,
+        "gyro_bias_sha256": "2ade7e77705f51f077386154bbc70180f3cec614cc5ecaea2c439dac964cb8f8",
+        "calibration_sha256": "12dc2e14b437e8b00d412fb13bc9dc6e217a81ded76a4a3d2d35b4abe48cd266",
+        "state_unchanged": true,
+        "blocked_summary_unchanged": true,
+        "gyro_input_sha256_verified": true,
+        "cpu_idle_memory_settings_restored": true,
+        "imu_configuration_restored": true,
+        "motor_enable_sent": false,
+        "learned_targets_sent": false,
+        "approved_for_runtime": false,
+        "output_allowed": false,
+        "artifacts_sha256": {
+          "report": "3afe07b74230ebd247cebcb49d2901dbfdee144563b498f1aece8e43ce03768b",
+          "records": "92f4f7b38f1fd2b8795b58edc4f628fb1d364b607c811752e46e0e5892e5c435",
+          "completion": "beda23f8ea052f9401736bded158c2849d9675dbc0fb6badf86675289a5594de",
+          "scope": "f6d7dd8ad2385ba1f90870ebce5fc257efa52f79d5da7d82788021c158ee1297",
+          "outer_settings_record": "ffa56c43f021db70998598047d2e2127b67cf52b8fe1a54289f88a54a74c6acf"
+        }
+      },
+      {
+        "label": "r3_gyro_501-b",
+        "qualification": "TIMING_CHARACTERIZATION_ONLY",
+        "status": "COMPLETE_DIAGNOSTIC",
+        "errors": [],
+        "cycles_completed": 501,
+        "real_model_ticks": 501,
+        "whole_iteration_ms": {
+          "count": 501,
+          "median": 18.955442,
+          "p95": 19.127605,
+          "p99": 19.214391,
+          "max": 19.923077
+        },
+        "steady_timing": {
+          "startup_cycle_allowance": 1,
+          "startup_cycles_recorded": 1,
+          "startup_whole_iteration_ms": [
+            19.923077
+          ],
+          "startup_iteration_deadline_misses": 0,
+          "startup_to_steady_interval_ms": 20.006791,
+          "steady_cycles_requested": 500,
+          "steady_cycles_completed": 500,
+          "steady_whole_iteration_ms": {
+            "count": 500,
+            "median": 18.955394,
+            "p95": 19.127542,
+            "p99": 19.210998,
+            "max": 19.253048
+          },
+          "steady_iteration_deadline_misses": 0,
+          "steady_processing_20ms_met": true,
+          "steady_scheduled_completion_slack_ms": {
+            "count": 500,
+            "median": 1.0304285000000002,
+            "p95": 1.154186,
+            "p99": 1.204738,
+            "max": 1.368886
+          },
+          "steady_min_completion_slack_ms": 0.733282,
+          "steady_scheduled_deadline_misses": 0,
+          "steady_slots_skipped": 0,
+          "steady_scheduled_deadlines_met": true,
+          "steady_start_interval_ms": {
+            "count": 499,
+            "median": 20.000006,
+            "p95": 20.001286,
+            "p99": 20.00183,
+            "max": 20.005319
+          },
+          "steady_start_intervals_over_20ms": 252,
+          "strict_steady_start_interval_20ms_met": false,
+          "all_cycles_retained": true,
+          "diagnostic_only": true,
+          "full_controller_50Hz_verified": false
+        },
+        "host_deadline_misses": 0,
+        "iteration_deadline_misses": 0,
+        "output_stop_reply_records": 6012,
+        "gyro_bias_sha256": "2ade7e77705f51f077386154bbc70180f3cec614cc5ecaea2c439dac964cb8f8",
+        "calibration_sha256": "12dc2e14b437e8b00d412fb13bc9dc6e217a81ded76a4a3d2d35b4abe48cd266",
+        "state_unchanged": true,
+        "blocked_summary_unchanged": true,
+        "gyro_input_sha256_verified": true,
+        "cpu_idle_memory_settings_restored": true,
+        "imu_configuration_restored": true,
+        "motor_enable_sent": false,
+        "learned_targets_sent": false,
+        "approved_for_runtime": false,
+        "output_allowed": false,
+        "artifacts_sha256": {
+          "report": "9243c634abd3be4425663523e00536eb5cf8ccdfb534d3b821ef48dea3a52000",
+          "records": "c886feb72bd8d085241e43f9196c0ad567135e5a96dfc0d3474e7ff931ee6cf9",
+          "completion": "6e88b8dddcaae3030b00912eadf5d38cfcbb2b70041414f9036ed14f50c7b3b2",
+          "scope": "d2bbb99dcc63742defa9fc65620ddcc03c2478bcd18487d26c00caf02694946c",
+          "outer_settings_record": "a1fb16de93c02f528418a8abe75af6c627fafe2b6d49eafdda7e04bad04a7173"
+        }
+      }
+    ],
+    "source_sha256": {
+      "private_characterization_entry": "071e83fffc58637cbb1778fed7cb839ad5852eecb23b436999feb9b6f261ac90",
+      "frozen_kit_manifest": "0c57d0333a4fec787ce6d97b40840f431d3a18bfc290599d840891893f040ac8"
+    },
+    "archive_sha256": "8fc9c1fb54a6acebd6e0938bf56d0ec4886ad8231805f451d05d0c52f673ece8",
+    "independent_live_record_audit": {
+      "status": "PASS",
+      "errors": [],
+      "receipt_sha256": "29742dcf5ddfe43bc13254764115d169ab128346c574cb53b51d304588736362",
+      "measured_cycles": 1057,
+      "gyro_R_raw_minus_bias_max_error_rad_s": 0.0,
+      "gyro_float32_observation_max_error": 0.0,
+      "all_stop_replies_mode0_fault0_exact_id_verified": true,
+      "stop_replies_acquisition_and_output": 25368,
+      "stop_replies_output_only": 12684,
+      "rotating_voltage_replies": 2114,
+      "identity_requests": 48,
+      "type1_sent": false,
+      "enable_sent": false,
+      "all_gyro_inputs_verified": true,
+      "source_manifest_members_verified": 577,
+      "hardware_opened_by_audit": false,
+      "state_promoted": false,
+      "final_calibration_approved": false
+    },
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "approved_for_runtime": false,
+    "output_allowed": false,
+    "standing_verified": false,
+    "walking_verified": false
+  },
+  "static_feedback_diagnostic_visibility_patch": {
+    "scope": "Failed-gate names, host endpoint offsets, descriptive position finite difference, all-sample statistics. Separately read host samples; no sensor-time velocity or scale fit.",
+    "source_sha256": "8255f49eb4f34855d30c2223e42f6dd21a359c0a8beecac627af43e71e5d3fb8",
+    "test_sha256": "8eb8ec5ccf6bb16638c82750326e9179a8d69c9d5c153735f6684ebf9bc161e6",
+    "focused_tests_passed": 21,
+    "saved_original_replays_matching_all_prior_fields": 3,
+    "transport_sequence_unchanged": true,
+    "diagnostic_gates_unchanged": true,
+    "promotion_unchanged": true,
+    "deployed_to_frozen_r3_kit": false,
+    "independent_diff_review": "PASS: additive diagnostic fields only; no change to gates, comparison results, transport sequence or state promotion."
+  },
+  "imu_acceleration_cause_audit": {
+    "raw_rows_verified": 6771,
+    "raw_to_si_max_error": 0.0,
+    "accel_config_hex": "21",
+    "range_g": 2,
+    "raw_lsb_per_g": 16384,
+    "saturation_observed": false,
+    "range_switch_previous_record_si_agrees": true,
+    "factory_trim_write_performed": false,
+    "hardware_self_test_executed": false,
+    "software_conversion_defect_identified": false,
+    "bias_scale_identified": false,
+    "correction_applied": false,
+    "mock_driver_tests_passed": 24,
+    "reference_uncertainty_known": false,
+    "scope": "Fixed-pose A/B/C and historical 2g/4g/2g; axis bias/scale cannot be identified from one orientation."
+  },
+  "saved_velocity_cause_reanalysis": {
+    "schema": "singularitydog.saved-velocity-cause-reanalysis.v1",
+    "status": "SAVED_RECORD_REPLAY_COMPLETE_CAUSE_UNRESOLVED",
+    "audit_sha256": "e1d0b27fda9662fee7d631b6619d0cf1426e1c669d8d76f3ec41ab116cf5e28a",
+    "replay_script_sha256": "1a215c6af558d7a87a43fc4861ef23a3626f40ada6ff885afa992ef2d7237446",
+    "queries_replayed": 3012,
+    "independent_little_endian_float_decode_checks": 1200,
+    "comparison_rows": 108,
+    "comparison_failed_rows": 9,
+    "all_comparison_gate_decisions_replayed_exactly": true,
+    "software_defect_identified": false,
+    "hardware_opened": false,
+    "diagnostic_gates_changed": false,
+    "velocity_replaced_by_position_derivative": false,
+    "physical_stationarity_proven": false,
+    "approved_for_runtime": false,
+    "output_allowed": false,
+    "next_measurement_plan_status": "NOT_IMPLEMENTED_OR_EXECUTED",
+    "summary_correction": "r1 second comparison now uses maximum absolute velocity endpoint change across all36 rows; the original first failure value is preserved separately."
+  }
+}

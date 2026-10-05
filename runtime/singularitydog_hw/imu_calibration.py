@@ -7,6 +7,11 @@ They are operator assertions, not verified robot/body orientation labels.
 API: estimate_six_face({label: sequence_of_imu_dicts}) -> candidate dictionary.
 File API: calibrate_jsonl_files({label: path}, new_output_path). JSONL can contain
 other diagnostic events; only kind='imu' or untagged IMU records are used.
+Bare JSONL is diagnostic input; it does not establish range readback, raw/SI
+consistency, complete capture, unchanged trim, or successful restoration.
+calibrate_capture_directories audits all those fields in imu_capture directories.
+Six fresh --validation-capture-face inputs validate fixed fit coefficients;
+none of their samples participate in fitting.
 
 CLI (all six --face arguments are mandatory):
   python3 -m singularitydog_hw.imu_calibration --face x+=xplus.jsonl ... \
@@ -32,6 +37,8 @@ import os
 from pathlib import Path
 import statistics
 from typing import Mapping
+
+from . import imu_fixed_mount_baseline as baseline
 
 
 GRAVITY = 9.80665
@@ -122,7 +129,8 @@ def _validate_face(label, records, limits):
             raise CalibrationError("%s: sample%d is not an object" % (label, index))
         if record.get("frame") != "sensor":
             raise CalibrationError("%s: original sensor frame is required" % label)
-        for field in ("calibration_applied", "orientation_applied", "mount_rotation_applied"):
+        for field in ("calibration_applied", "orientation_applied", "mount_rotation_applied",
+                      "accel_bias_subtracted", "accel_scale_corrected", "gyro_bias_subtracted"):
             if field in record and record[field] is not False:
                 raise CalibrationError("%s: %s must be explicitly false when present" % (label, field))
         timestamp = record.get("monotonic_ns")
@@ -306,6 +314,7 @@ def estimate_six_face(face_datasets, *, provenance=None, limits=None):
         "requires_physical_validation": True,
         "approved_for_runtime": False,
         "automatically_applied": False,
+        "capture_audit_verified": False,
         "frame": "sensor",
         "axis_order": ["x", "y", "z"],
         "gravity_reference_m_s2": GRAVITY,
@@ -344,7 +353,7 @@ def _load_jsonl(path):
         if not line.strip():
             continue
         try:
-            record = json.loads(line)
+            record = baseline._json(line)
         except (ValueError, RecursionError) as error:
             raise CalibrationError("invalid JSONL at line%d" % line_number) from error
         if not isinstance(record, dict):
@@ -356,7 +365,8 @@ def _load_jsonl(path):
             if (not isinstance(configuration, dict) or configuration.get("frame") != "sensor" or
                     configuration.get("orientation_applied") is not False or
                     any(field in configuration and configuration[field] is not False
-                        for field in ("calibration_applied", "mount_rotation_applied"))):
+                        for field in ("calibration_applied", "mount_rotation_applied",
+                                      "accel_bias_subtracted", "accel_scale_corrected", "gyro_bias_subtracted"))):
                 raise CalibrationError("configuration event does not establish original sensor frame")
     return records, {"path": str(Path(path).resolve()), "sha256": hashlib.sha256(content).hexdigest(),
                      "bytes": len(content), "imu_records": len(records)}
@@ -376,10 +386,19 @@ def calibrate_jsonl_files(face_paths, output_path, *, limits=None):
     if len({v["sha256"] for v in provenance.values()}) != len(FACES):
         raise CalibrationError("reused input content hash across labeled faces")
     result = estimate_six_face(datasets, provenance=provenance, limits=limits)
+    result["input_audit"] = "JSONL measurements only; capture metadata and restoration not audited"
+    return _write_candidate(result, output)
+
+
+def _write_candidate(result, output):
+    output = Path(output).expanduser().resolve()
+    if any((parent / ".git").exists() for parent in (output.parent, *output.parents)):
+        raise CalibrationError("calibration output must be outside Git")
     result["generated_at_utc"] = datetime.now(timezone.utc).isoformat()
     serialized = json.dumps(result, indent=2, sort_keys=True, allow_nan=False) + "\n"
     # No parent-directory creation, overwrite, auto-install, or git operation.
-    descriptor = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    descriptor = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL |
+                         getattr(os, "O_NOFOLLOW", 0), 0o600)
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
             handle.write(serialized)
@@ -390,24 +409,136 @@ def calibrate_jsonl_files(face_paths, output_path, *, limits=None):
     return result
 
 
+def calibrate_capture_directories(face_paths, output_path, *, validation_face_paths=None,
+                                  operator_confirmed_stationary=False, limits=None):
+    output = Path(output_path).expanduser()
+    if output.exists() or output.is_symlink():
+        raise FileExistsError("output already exists: " + str(output))
+    result = estimate_capture_directories(face_paths,
+        validation_face_paths=validation_face_paths,
+        operator_confirmed_stationary=operator_confirmed_stationary, limits=limits)
+    return _write_candidate(result, output)
+
+
+def estimate_capture_directories(face_paths, *, validation_face_paths=None,
+                                 operator_confirmed_stationary=False, limits=None):
+    """Fit audited faces, then check six separately acquired faces without refit.
+
+    Face labels and stationarity still require operator assertions. Neither an
+    audited fit nor a separate validation set grants runtime approval.
+    """
+    if operator_confirmed_stationary is not True:
+        raise CalibrationError("all face captures require operator-confirmed stationarity")
+    if not isinstance(face_paths, Mapping) or set(face_paths) != set(FACES):
+        raise CalibrationError("exactly six distinct labeled capture directories required")
+    if validation_face_paths is not None and (not isinstance(validation_face_paths, Mapping)
+                                              or set(validation_face_paths) != set(FACES)):
+        raise CalibrationError("independent validation requires six distinct labeled capture directories")
+    limits = limits or CalibrationLimits()
+    if not isinstance(limits, CalibrationLimits):
+        raise TypeError("limits must be CalibrationLimits")
+    datasets, provenance, validation, validation_provenance = {}, {}, {}, {}
+    reference = None
+    seen_paths, seen_events, seen_sequences = set(), set(), set()
+    all_rows = {}
+    for partition, paths, destination, origins in (
+            ("fit", face_paths, datasets, provenance),
+            ("independent", validation_face_paths or {}, validation, validation_provenance)):
+        for label in FACES:
+            if label not in paths:
+                continue
+            meta, rows, stats, origin = baseline._load_capture(paths[label], expected_face=label)
+            if reference is None:
+                reference = meta
+            for key in ("source_sha256", "configuration", "register_audit_before"):
+                if meta[key] != reference[key]:
+                    raise CalibrationError("capture setup mismatch: " + key)
+            if any(meta["plan"][key] != reference["plan"][key] for key in ("bus", "address")):
+                raise CalibrationError("capture device mismatch")
+            for key, seen in (("directory", seen_paths), ("events_sha256", seen_events),
+                              ("measurement_sequence_sha256", seen_sequences)):
+                if origin[key] in seen:
+                    raise CalibrationError("reused capture or measurement sequence: " + key)
+                seen.add(origin[key])
+            temp = stats["temperature_c"]
+            if temp["max"] - temp["min"] > baseline.LIMITS["temperature_span_max_c"]:
+                raise CalibrationError("%s %s: temperature not stable" % (partition, label))
+            if abs(stats["first_to_last_quarter"]["temperature_mean_change_c"]) > baseline.LIMITS["temperature_drift_max_c"]:
+                raise CalibrationError("%s %s: temperature drift" % (partition, label))
+            if abs(temp["mean"] - reference["summary"]["temperature_c"]["mean"]) > baseline.LIMITS["temperature_mean_change_max_c"]:
+                raise CalibrationError("%s %s: temperature differs from fit" % (partition, label))
+            destination[label] = rows
+            origins[label] = {**origin, "sha256": origin["events_sha256"],
+                              "temperature_c": temp}
+            # Fit and independent acquisition intervals must be separate.
+            # Timing within each capture has already passed the input audit.
+            all_rows[partition + " " + label] = _validate_face(label, rows, limits)[0]
+    clock = _validate_interval_provenance(all_rows)
+    result = estimate_six_face(datasets, provenance=provenance, limits=limits)
+    result["capture_audit_verified"] = True
+    result["input_audit"] = "complete imu_capture directories; range readback, raw/SI, trim, timing, source and restoration checked"
+    result["operator_confirmed_stationary"] = True
+    result["all_capture_interval_clock"] = clock
+    result["capture_configuration"] = reference["configuration"]
+    if validation_face_paths is not None:
+        checked = {}
+        for label in FACES:
+            # The fixed fit is evaluated against every independent sample.
+            # Even a passing chronological split cannot replace this set.
+            parsed_rows = all_rows["independent " + label]
+            try:
+                checked[label] = _evaluate(label, parsed_rows,
+                    result["accel"]["bias_m_s2"], result["accel"]["scale"],
+                    result["gyro"]["bias_rad_s"], limits)
+            except CalibrationError as error:
+                raise CalibrationError("independent " + str(error)) from error
+        result["validation"]["independent_captures"] = checked
+        result["validation"]["independent_provenance"] = validation_provenance
+        result["validation"]["independent_capture_gates_passed"] = True
+        result["validation"]["independent_captures_used_for_fit"] = False
+        result["limitations"].append("Separate captures still share operator face/reference errors; the instrument accuracy and physical mount must be reviewed.")
+    return result
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--face", action="append", required=True, metavar="LABEL=JSONL",
+    inputs = parser.add_mutually_exclusive_group(required=True)
+    inputs.add_argument("--face", action="append", metavar="LABEL=JSONL",
                         help="repeat once for each x+,x-,y+,y-,z+,z- sensor face")
+    inputs.add_argument("--capture-face", action="append", metavar="LABEL=DIRECTORY",
+                        help="six imu_capture directories; audit complete captures before fitting")
+    parser.add_argument("--validation-capture-face", action="append", metavar="LABEL=DIRECTORY",
+                        help="six fresh captures not used for fitting; requires --capture-face")
+    parser.add_argument("--operator-confirmed-stationary", action="store_true",
+                        help="operator confirms every fit/validation face was stationary and correctly labeled")
     parser.add_argument("--output", required=True, help="new candidate JSON path; existing paths are rejected")
     args = parser.parse_args(argv)
-    face_paths = {}
-    for item in args.face:
-        label, separator, path = item.partition("=")
-        if not separator or label not in FACES or not path or label in face_paths:
-            parser.error("each --face must be one distinct LABEL=PATH using " + ", ".join(FACES))
-        face_paths[label] = path
+    def labeled_paths(items):
+        result = {}
+        for item in items or []:
+            label, separator, path = item.partition("=")
+            if not separator or label not in FACES or not path or label in result:
+                parser.error("each face input must be one distinct LABEL=PATH using " + ", ".join(FACES))
+            result[label] = path
+        return result
+    face_paths = labeled_paths(args.capture_face or args.face)
+    validation_paths = labeled_paths(args.validation_capture_face) if args.validation_capture_face else None
+    if args.validation_capture_face and not args.capture_face:
+        parser.error("--validation-capture-face requires --capture-face")
     try:
-        result = calibrate_jsonl_files(face_paths, args.output)
+        if args.capture_face:
+            result = calibrate_capture_directories(face_paths, args.output,
+                validation_face_paths=validation_paths,
+                operator_confirmed_stationary=args.operator_confirmed_stationary)
+        else:
+            result = calibrate_jsonl_files(face_paths, args.output)
     except (OSError, CalibrationError, ValueError) as error:
         parser.exit(2, "Calibration rejected: %s\n" % error)
     print(json.dumps({"output": str(Path(args.output).resolve()), "status": result["status"],
-                      "requires_physical_validation": True, "automatically_applied": False}))
+                      "capture_audit_verified": result["capture_audit_verified"],
+                      "independent_capture_gates_passed": result["validation"].get("independent_capture_gates_passed", False),
+                      "requires_physical_validation": True, "approved_for_runtime": False,
+                      "automatically_applied": False}))
     return 0
 
 

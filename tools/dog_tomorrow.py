@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shlex
 import stat
 import subprocess
@@ -163,7 +164,52 @@ def write_state(path,data):
         if temp.exists():temp.unlink()
 
 
-def diagnostics_plan(prefix,ports,input_path,work,state,stamp,cycles,*,request_window=3,request_gap_us=600):
+def full_timing_arguments(mode,scalar_manifest,scalar_sha,policy_cpu):
+    """Opt-in 26-request comparison; never select a model or waive a pin implicitly."""
+    if mode=='legacy':return []
+    if (mode!='v3-overlap' or type(scalar_manifest) is not str or not scalar_manifest or
+            type(scalar_sha) is not str or re.fullmatch('[0-9a-f]{64}',scalar_sha) is None or
+            type(policy_cpu) is not int or policy_cpu<0):
+        raise ValueError('Fast V3 needs explicit scalar manifest/SHA256 and a nonnegative policy CPU')
+    return ['--v3-voltage-proxy','--v3-voltage-overlap','--record-storage','trace',
+            '--absolute-epoch-cadence','--release-spin-us','200','--startup-cycle-allowance','1',
+            '--scalar-step-manifest',scalar_manifest,'--scalar-step-manifest-sha256',scalar_sha,
+            '--require-pinned-fast-model','--main-thread-cpu',str(policy_cpu),
+            '--exclude-policy-cpu-from-workers','--output-dispatch-trace','--inference-thread-cpu-trace',
+            '--single-thread-math','--setup-gc','before-warmup','--pre-cycle-policy-warmup-calls','10',
+            '--post-pin-policy-prime-calls','10','--defer-gc-during-cycles','--timer-slack-ns','1000']
+
+
+def full_python_switch_command(command,interval_us):
+    """Apply the opt-in interval inside the diagnostic child, retaining its arguments."""
+    if interval_us is None:return command,{}
+    module='singularitydog_hw.native_pipeline_benchmark'
+    if type(interval_us) is not int or interval_us!=100 or command[1:4]!=['-B','-m',module]:
+        raise ValueError('Python switch scope requires the native full child and explicit100us')
+    wrapper=manifest_member(ROOT,'tools/python_thread_switch_scope.py')
+    if not wrapper.is_file() or wrapper.is_symlink():raise ValueError('Missing regular Python switch wrapper')
+    digest=hashlib.sha256(wrapper.read_bytes()).hexdigest()
+    return ([command[0],'-B',str(wrapper),'--module',module,'--interval-us',str(interval_us),
+             '--',*command[4:]],
+            {'python_switch_interval_us':interval_us,'python_switch_wrapper_sha256':digest})
+
+
+def verify_python_switch_command(command,settings):
+    """Recheck the planned wrapper immediately around its selected full child."""
+    wrapper=manifest_member(ROOT,'tools/python_thread_switch_scope.py')
+    if not wrapper.is_file() or wrapper.is_symlink():raise ValueError('Missing regular Python switch wrapper')
+    interval=settings['python_switch_interval_us']
+    if (type(interval) is not int or interval!=100 or command[1:8]!=[
+            '-B',str(wrapper),'--module','singularitydog_hw.native_pipeline_benchmark',
+            '--interval-us',str(interval),'--']):
+        raise ValueError('Python switch wrapper path/command differs from plan')
+    if hashlib.sha256(wrapper.read_bytes()).hexdigest()!=settings['python_switch_wrapper_sha256']:
+        raise ValueError('Python switch wrapper SHA256 differs from plan')
+
+
+def diagnostics_plan(prefix,ports,input_path,work,state,stamp,cycles,*,request_window=3,request_gap_us=600,
+                     timing_mode='legacy',scalar_manifest=None,scalar_sha=None,policy_cpu=4,
+                     apply_reviewed_accel_calibration=False,python_switch_interval_us=None):
     """Fixed diagnostic sequence; config cannot introduce commands or actions."""
     output=work/('diagnostics-'+stamp)
     capture=output/'capture.json';candidate=output/'calibration.json';audit=output/'angle-audit.json'
@@ -172,6 +218,7 @@ def diagnostics_plan(prefix,ports,input_path,work,state,stamp,cycles,*,request_w
         [sys.executable,str(ROOT/'tools/audit_angle_calibration.py'),'--profile',input_path('angle_profile'),
          '--capture',str(capture),'--output',str(audit),'--policy-candidate-output',str(candidate)]]}]
     for name in ('can','compare','full'):
+        switch_settings={}
         destination=output/name;count=min(3,cycles) if name=='compare' else cycles
         command=prefix+['singularitydog_hw.native_pipeline_benchmark','--execute',*ports,
             '--library',str(ROOT/DIAGNOSTIC_DIR/'libdog_transport.so'),'--output',str(destination),'--cycles',str(count),
@@ -184,9 +231,18 @@ def diagnostics_plan(prefix,ports,input_path,work,state,stamp,cycles,*,request_w
                 '--native-policy-manifest',state.get('native_policy_manifest','<build-success-manifest>'),
                 '--native-policy-manifest-sha256',state.get('native_policy_manifest_sha256','<build-success-sha256>')]
             if state.get('gyro_bias'):command+=['--gyro-bias',state['gyro_bias']]
+            if apply_reviewed_accel_calibration:command+=['--apply-reviewed-accel-calibration']
+            command+=full_timing_arguments(timing_mode,scalar_manifest,scalar_sha,policy_cpu)
+            command,switch_settings=full_python_switch_command(command,python_switch_interval_us)
         stages.append({'name':name,'output':str(destination),'report':str(destination/'report.json'),
                        'cycles':count,'request_window':request_window,'request_gap_us':request_gap_us,
                        'commands':[command]})
+        stages[-1].update(switch_settings)
+        if name=='full' and timing_mode!='legacy':
+            stages[-1].update(timing_mode=timing_mode,scalar_step_manifest_sha256=scalar_sha)
+        if name=='full' and apply_reviewed_accel_calibration:
+            _,bias_sha=_diagnostic_json(state['gyro_bias'])
+            stages[-1].update(apply_reviewed_accel_calibration=True,gyro_bias_sha256=bias_sha)
     return output,stages,{'calibration':str(candidate),'angle_capture':str(capture),'angle_audit':str(audit)}
 
 
@@ -257,7 +313,26 @@ def _diagnostic_report(stage,boot,manifest_sha,candidate_sha):
         raise ValueError('Unexpected diagnostic mode')
     if stage['name']=='full':
         observer=report.get('observer') or {}
-        if (report.get('model_source',{}).get('manifest_sha256')!=manifest_sha
+        if (report.get('plan',{}).get('apply_reviewed_accel_calibration',False)
+                is not stage.get('apply_reviewed_accel_calibration',False)):
+            raise ValueError('Full diagnostic acceleration calibration selection differs from plan')
+        if (stage.get('apply_reviewed_accel_calibration') and
+                report.get('input_sha256',{}).get('gyro_bias')!=stage['gyro_bias_sha256']):
+            raise ValueError('Full diagnostic reviewed bias SHA256 differs from plan')
+        source=report.get('model_source',{})
+        if stage.get('timing_mode')=='v3-overlap':
+            if (source.get('manifest_sha256')!=stage['scalar_step_manifest_sha256'] or
+                    source.get('diagnostic_only') is not True or
+                    report.get('scalar_step_model_source')!=source or
+                    report.get('v3_voltage_proxy') is not True or
+                    report.get('v3_voltage_overlap',{}).get('enabled') is not True or
+                    report.get('v3_voltage_overlap',{}).get('native_readiness_wait_enabled') is not True or
+                    report.get('input_acquisition_wait')!='native_ready_poll_200us.v1' or
+                    report.get('voltage_join_wait')!='native_ready_poll_200us.v1' or
+                    report.get('v3_voltage_pipeline') or report.get('v3_voltage_fast_pipeline')):
+                raise ValueError('Full timing report lacks explicitly pinned ordinary V3 overlap evidence')
+            source=report.get('native_baseline_model_source',{})
+        if (source.get('manifest_sha256')!=manifest_sha
                 or report.get('input_sha256',{}).get('calibration')!=candidate_sha
                 or observer.get('status')!='COMPLETE_NO_OUTPUT_DIAGNOSTIC'
                 or observer.get('ticks_completed')!=stage['cycles'] or observer.get('ticks_requested')!=stage['cycles']
@@ -302,8 +377,12 @@ def execute_diagnostics(output,stages,updates,state,statefile,env):
                     if (capture_sha,candidate_sha)!=(expected_capture,expected_candidate):
                         raise ValueError('Fresh capture/calibration changed during diagnostics')
                 for number,command in enumerate(stage['commands']):
+                    if stage.get('python_switch_interval_us') is not None:
+                        verify_python_switch_command(command,stage)
                     result=subprocess.run(command,env=env,cwd=ROOT,check=False)
                     current.setdefault('returncodes',[]).append(result.returncode)
+                    if stage.get('python_switch_interval_us') is not None:
+                        verify_python_switch_command(command,stage)
                     if result.returncode:raise RuntimeError('Command failed with exit code '+str(result.returncode))
                     if stage['name']=='capture' and number==0:_diagnostic_capture(updates,with_candidate=False)
                 if stage['name']=='capture':
@@ -314,7 +393,12 @@ def execute_diagnostics(output,stages,updates,state,statefile,env):
                     report,digest=_diagnostic_report(stage,boot,manifest_sha,expected_candidate)
                     current.update(report_sha256=digest,report_status=report['status'],
                         timing_ms=report.get('distributions_ms'),phase_timings=report.get('phase_timings'),
+                        steady_timing=report.get('steady_timing'),
                         cycles_completed=report['cycles_completed'],comparison_by_id=report.get('per_motor'))
+                    if stage.get('apply_reviewed_accel_calibration'):
+                        _,bias_sha=_diagnostic_json(state['gyro_bias'])
+                        if bias_sha!=stage['gyro_bias_sha256']:
+                            raise ValueError('Reviewed bias changed during diagnostic child')
                     _,capture_sha,candidate_sha=_diagnostic_capture(updates,with_candidate=True)
                     if (capture_sha,candidate_sha)!=(expected_capture,expected_candidate):
                         raise ValueError('Fresh capture/calibration changed during diagnostic child')
@@ -357,7 +441,8 @@ def execute_diagnostics(output,stages,updates,state,statefile,env):
         save()
         terminal={key:summary[key] for key in ('status','summary','failed_stage','blocked_stage',
             'errors','pending_checks','motor_enable_sent','learned_targets_sent','fresh_capture_promoted')}
-        terminal['stages']=[{key:row[key] for key in ('name','status','output','elapsed_ms','report_status','report_errors')
+        terminal['stages']=[{key:row[key] for key in ('name','status','output','elapsed_ms','report_status','report_errors',
+                            'python_switch_interval_us','python_switch_wrapper_sha256')
                             if key in row} for row in summary['stages']]
         print(json.dumps(terminal,ensure_ascii=False,indent=2),flush=True)
     return 0 if summary['status']=='COMPLETE_DIAGNOSTICS' else 2
@@ -376,15 +461,38 @@ def main(argv=None):
                    help='Outstanding requests per bus for can/compare/full/diagnostics')
     p.add_argument('--request-gap-us',type=int,default=600,metavar='600..5000',
                    help='Write gap in microseconds for can/compare/full/diagnostics')
+    p.add_argument('--timing-mode',choices=('legacy','v3-overlap'),default='legacy',
+                   help='Explicit fast 26-request STOP proxy for full stage only; no motor enable or learned output')
+    p.add_argument('--python-switch-interval-us',type=int,choices=(100,),default=None,
+                   help='Opt-in Python switch interval inside the V3 overlap full child only')
+    p.add_argument('--scalar-step-manifest')
+    p.add_argument('--scalar-step-manifest-sha256')
+    p.add_argument('--policy-cpu',type=int,default=4)
+    p.add_argument('--apply-reviewed-accel-calibration',action='store_true',
+                   help='Explicitly use independently validated acceleration review from pinned gyro-bias; full stage only')
     args=p.parse_args(argv)
     if not 600<=args.request_gap_us<=5000:p.error('--request-gap-us must be 600..5000')
     if args.cycles is None:args.cycles=3 if args.action=='compare' else 20
     if not 1<=args.cycles<=3000:p.error('cycles must be1..3000')
     if args.action=='compare' and args.cycles>5:p.error('compare cycles must be1..5')
+    if args.python_switch_interval_us is not None and (
+            args.action not in ('full','diagnostics') or args.timing_mode!='v3-overlap'):
+        p.error('Python switch interval requires full/diagnostics with --timing-mode v3-overlap')
+    if args.timing_mode!='legacy':
+        if args.action not in ('full','diagnostics') or not 2<=args.cycles<=501:
+            p.error('Fast V3 timing requires full/diagnostics with 2..501 cycles (one startup plus steady cycles)')
+        try:full_timing_arguments(args.timing_mode,args.scalar_step_manifest,args.scalar_step_manifest_sha256,args.policy_cpu)
+        except ValueError as error:p.error(str(error))
+    elif args.scalar_step_manifest is not None or args.scalar_step_manifest_sha256 is not None:
+        p.error('Scalar manifest selection requires explicit --timing-mode v3-overlap')
+    if args.apply_reviewed_accel_calibration and args.action not in ('full','diagnostics'):
+        p.error('Reviewed acceleration selection requires full/diagnostics')
     config=json.loads(args.config.read_text());base=args.config.resolve().parent
     def input_path(key):return str((base/config[key]).resolve())
     work=args.work_dir.expanduser().resolve();statefile=work/'state.json'
     state=json.loads(statefile.read_text()) if statefile.exists() else {}
+    if args.apply_reviewed_accel_calibration and not state.get('gyro_bias'):
+        p.error('Reviewed acceleration selection requires an explicit gyro_bias in work state')
     stamp=datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f')
     py=sys.executable
     prefix=[py,'-B','-m']
@@ -395,7 +503,11 @@ def main(argv=None):
         if args.execute and not args.supported_disabled:
             p.error('Diagnostics require --supported-disabled; keep torso support in place')
         output,stages,updates=diagnostics_plan(prefix,ports,input_path,work,state,stamp,args.cycles,
-            request_window=args.request_window,request_gap_us=args.request_gap_us)
+            request_window=args.request_window,request_gap_us=args.request_gap_us,
+            timing_mode=args.timing_mode,scalar_manifest=args.scalar_step_manifest,
+            scalar_sha=args.scalar_step_manifest_sha256,policy_cpu=args.policy_cpu,
+            apply_reviewed_accel_calibration=args.apply_reviewed_accel_calibration,
+            python_switch_interval_us=args.python_switch_interval_us)
         commands=[command for stage in stages for command in stage['commands']]
     elif args.action=='build':
         artifact=work/('native-policy-'+stamp)
@@ -445,12 +557,24 @@ def main(argv=None):
                 '--native-policy-manifest',state.get('native_policy_manifest','<build-success-manifest>'),
                 '--native-policy-manifest-sha256',state.get('native_policy_manifest_sha256','<build-success-sha256>')]
             if state.get('gyro_bias'):command+=['--gyro-bias',state['gyro_bias']]
+            if args.apply_reviewed_accel_calibration:command+=['--apply-reviewed-accel-calibration']
+            command+=full_timing_arguments(args.timing_mode,args.scalar_step_manifest,args.scalar_step_manifest_sha256,
+                                           args.policy_cpu)
+        if args.action=='full':
+            command,switch_settings=full_python_switch_command(command,args.python_switch_interval_us)
         commands=[command]
     printed={'action':args.action,'execute':args.execute,'work_dir':str(work),
         'commands':[shlex.join(c) for c in commands],'motor_enable_available':False,
         'learned_targets_sent':False}
     if args.action in ('can','compare','full','diagnostics'):
-        printed.update(request_window=args.request_window,request_gap_us=args.request_gap_us)
+        printed.update(request_window=args.request_window,request_gap_us=args.request_gap_us,
+                       apply_reviewed_accel_calibration=args.apply_reviewed_accel_calibration)
+    if args.timing_mode!='legacy':printed.update(timing_mode=args.timing_mode,
+        scalar_step_manifest_sha256=args.scalar_step_manifest_sha256,positive_gains_available=False,
+        first_cycle_judged_separately=True,stop_proxy_is_not_learned_output=True)
+    if args.python_switch_interval_us is not None:
+        printed.update(switch_settings if args.action=='full' else {
+            key:stages[-1][key] for key in ('python_switch_interval_us','python_switch_wrapper_sha256')})
     if args.action=='diagnostics':printed.update(status='PLAN' if not args.execute else 'REQUESTED',
         stages=[{k:v for k,v in stage.items() if k!='commands'} for stage in stages],
         summary=str(output/'summary.json'),requires_successful_build=True,automatic_retry=False)
@@ -471,7 +595,11 @@ def main(argv=None):
     transaction=build_artifact_transaction(ROOT,include_active=bool(active),state_path=statefile) if args.action=='build' else nullcontext()
     with transaction:
         for command in commands:
+            if args.python_switch_interval_us is not None:
+                verify_python_switch_command(command,switch_settings)
             subprocess.run(command,env=env,cwd=ROOT,check=True)
+            if args.python_switch_interval_us is not None:
+                verify_python_switch_command(command,switch_settings)
         if args.action=='build':
             artifact=Path(updates['native_policy_manifest']).parent
             built=json.loads((artifact/'build-report.json').read_text())

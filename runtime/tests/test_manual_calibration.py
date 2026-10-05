@@ -193,6 +193,27 @@ class AnalysisTests(unittest.TestCase):
 
 
 class CandidateTests(unittest.TestCase):
+    def test_repeated_l_reference_cannot_reuse_old_direction_and_return(self):
+        stages = manual.make_stages(["FR"])
+        records = complete_records(stages)
+        new_baseline = synthetic_pose({1: 2, 2: -1})
+        records.append(observation(stages[0], new_baseline))
+        for candidate in manual.build_candidates(stages, records):
+            self.assertEqual(candidate["status"], "INSUFFICIENT_OBSERVATIONS")
+            self.assertIsNone(candidate["sign_candidate"])
+        # A new return alone must not relabel old direction readings either.
+        records.append(observation(stages[-1], new_baseline, new_baseline))
+        self.assertTrue(all(c["sign_candidate"] is None
+                            for c in manual.build_candidates(stages, records)))
+
+    def test_repeated_reference_for_one_leg_preserves_other_leg_records(self):
+        stages = manual.make_stages(["FR", "FL"])
+        records = complete_records(stages)
+        records.append(observation(stages[0], synthetic_pose({1: 1})))
+        candidates = manual.build_candidates(stages, records)
+        self.assertTrue(all(c["sign_candidate"] is None for c in candidates[:3]))
+        self.assertTrue(all(c["sign_candidate"] == 1 for c in candidates[3:]))
+
     def test_both_signs_and_offsets_follow_documented_model_convention(self):
         stages = manual.make_stages()
         for sign in (-1, 1):

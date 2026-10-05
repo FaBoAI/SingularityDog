@@ -2,7 +2,7 @@
 import threading
 import time
 import unittest
-from concurrent.futures import Future, FIRST_EXCEPTION
+from concurrent.futures import Future, FIRST_EXCEPTION, ThreadPoolExecutor
 from unittest.mock import Mock, patch
 
 from singularitydog_hw import native_pipeline_benchmark as bench
@@ -141,12 +141,16 @@ class VoltageJoinWaitTests(unittest.TestCase):
             with self.subTest(deadline=deadline),self.assertRaises(ValueError):
                 bench._await_voltage_ready(owners,checked,deadline_ns=deadline,clock=Clock())
 
-    def integration(self,wait=None):
+    def integration(self,wait=None,*,pipeline=True,validation_overlap=True,
+                    clock=None,output_dispatch_trace=False):
         started=(threading.Event(),threading.Event());release=threading.Event()
         sessions={scope:PreparedSession(started[index],release)for index,scope in enumerate(('front','rear'))}
         policy=OverlapObserver(started,release)
         options={'mode':'stop-proxy','cycles':1,'v3_voltage_proxy':True,'v3_voltage_overlap':True,
-                 'v3_voltage_validation_overlap':True,'v3_voltage_fast_pipeline':True,'record_storage':'trace'}
+                 'v3_voltage_validation_overlap':validation_overlap,
+                 'v3_voltage_fast_pipeline':pipeline,'record_storage':'trace',
+                 'output_dispatch_trace':output_dispatch_trace}
+        if clock is not None:options['clock']=clock
         if wait is not None:options.update(absolute_epoch_cadence=True,deadline_wait=wait)
         report,raw=bench.collect(sessions,Device(),policy,**options)
         return report,bench._serialize(raw),sessions,policy
@@ -158,6 +162,134 @@ class VoltageJoinWaitTests(unittest.TestCase):
         self.assertLessEqual(proof['voltage_join_wait']['end_ns'],proof['voltage_join_ns'])
         self.assertLess(proof['voltage_verified_ns'],proof['hard_deadline_ns']);self.assertEqual(proof['stop_reply_count'],12)
         self.assertFalse(report['motor_enable_sent']);self.assertFalse(report['learned_targets_sent'])
+
+    def test_ordinary_overlap_voltage_join_failure_retains_both_owners_and_stops_output(self):
+        with patch.object(bench,'_await_voltage_ready',side_effect=RuntimeError('synthetic readiness failure')):
+            report,rows,sessions,policy=self.integration(
+                lambda target:time.sleep(max(0,(target-time.monotonic_ns())/1e9)),pipeline=False)
+        self.assertEqual(report['status'],'ABORTED');self.assertEqual(rows[0]['output'],{})
+        self.assertEqual(set(rows[0]['voltage']),{'front','rear'});self.assertTrue(policy.invalid)
+        self.assertEqual(rows[0]['voltage_overlap']['status'],'REJECTED_BEFORE_PROXY_STOP')
+        self.assertTrue(all(s.phases==['feedback','voltage'] for s in sessions.values()))
+
+    def test_ordinary_overlap_current_dispatch_deadline_is_checked_after_ready_voltage(self):
+        original=bench._verify_voltage_final_freshness
+        calls=0
+        def final_gate(*args,**kwargs):
+            nonlocal calls
+            calls+=1
+            if calls==2: time.sleep(.021)
+            return original(*args,**kwargs)
+        with patch.object(bench,'_verify_voltage_final_freshness',side_effect=final_gate):
+            report,rows,sessions,policy=self.integration(
+                lambda target:time.sleep(max(0,(target-time.monotonic_ns())/1e9)),pipeline=False)
+        self.assertEqual(report['status'],'ABORTED');self.assertEqual(rows[0]['output'],{})
+        self.assertEqual(calls,2);self.assertTrue(policy.invalid)
+        proof=rows[0]['voltage_overlap']
+        self.assertEqual(proof['status'],'REJECTED_BEFORE_PROXY_STOP')
+        self.assertIn('final_gate_error',proof)
+        self.assertTrue(all(s.phases==['feedback','voltage'] for s in sessions.values()))
+
+    def test_validation_traversal_cannot_certify_an_entry_time_after_clock_advanced(self):
+        for pipeline in (False,True):
+            for advance in (21_000_000,101_000_000):
+                with self.subTest(pipeline=pipeline,advance=advance):
+                    offset=0;gates=0
+                    original_gate=bench._verify_voltage_final_freshness
+                    original_proof=bench._check_voltage_proof
+                    def clock(): return time.monotonic_ns()+offset
+                    def gate(*args,**kwargs):
+                        nonlocal gates
+                        gates+=1;return original_gate(*args,**kwargs)
+                    def proof(*args,**kwargs):
+                        nonlocal offset
+                        result=original_proof(*args,**kwargs)
+                        if gates==(1 if pipeline else 2): offset+=advance
+                        return result
+                    with (patch.object(bench,'_verify_voltage_final_freshness',side_effect=gate),
+                          patch.object(bench,'_check_voltage_proof',side_effect=proof)):
+                        report,rows,sessions,policy=self.integration(
+                            lambda target:time.sleep(max(0,(target-clock())/1e9)),
+                            pipeline=pipeline,clock=clock)
+                    self.assertEqual(report['status'],'ABORTED')
+                    self.assertEqual(rows[0]['output'],{})
+                    self.assertEqual(set(rows[0]['acquired']),{'front','rear'})
+                    self.assertEqual(set(rows[0]['voltage']),{'front','rear'})
+                    state=rows[0]['voltage_fast_pipeline' if pipeline else 'voltage_overlap']
+                    self.assertEqual(state['status'],'REJECTED_BEFORE_PROXY_STOP')
+                    self.assertIn('final_gate_error',state)
+                    self.assertTrue(policy.invalid)
+                    self.assertTrue(all(s.phases==['feedback','voltage'] for s in sessions.values()))
+
+    def test_clock_advance_after_validation_return_is_rejected_before_first_submit(self):
+        offset=0;gates=0;original=bench._verify_voltage_final_freshness
+        def clock(): return time.monotonic_ns()+offset
+        def gate(*args,**kwargs):
+            nonlocal gates,offset
+            gates+=1;result=original(*args,**kwargs)
+            if gates==2: offset+=21_000_000
+            return result
+        with patch.object(bench,'_verify_voltage_final_freshness',side_effect=gate):
+            report,rows,sessions,policy=self.integration(
+                lambda target:time.sleep(max(0,(target-clock())/1e9)),
+                pipeline=False,clock=clock,output_dispatch_trace=True)
+        self.assertEqual(report['status'],'ABORTED');self.assertEqual(rows[0]['output'],{})
+        state=rows[0]['voltage_overlap']
+        self.assertEqual(state['status'],'REJECTED_BEFORE_PROXY_STOP')
+        self.assertIn('proxy_submit_error',state);self.assertTrue(policy.invalid)
+        self.assertTrue(all(s.phases==['feedback','voltage'] for s in sessions.values()))
+
+    def test_first_submit_clock_advance_retains_accepted_output_and_rejects_second_bus(self):
+        offset=0;advanced=False
+        def clock(): return time.monotonic_ns()+offset
+        class PausingSubmitPool(ThreadPoolExecutor):
+            def submit(self,fn,*args,**kwargs):
+                nonlocal offset,advanced
+                future=super().submit(fn,*args,**kwargs)
+                if fn.__name__=='exchange' and not advanced:
+                    future.result(timeout=.5)
+                    advanced=True;offset+=21_000_000
+                return future
+        with patch.object(bench,'ThreadPoolExecutor',PausingSubmitPool):
+            report,rows,sessions,policy=self.integration(
+                lambda target:time.sleep(max(0,(target-clock())/1e9)),
+                pipeline=False,clock=clock)
+        self.assertEqual(report['status'],'ABORTED');self.assertEqual(set(rows[0]['output']),{'front'})
+        self.assertEqual(sessions['front'].phases,['feedback','voltage','output'])
+        self.assertEqual(sessions['rear'].phases,['feedback','voltage'])
+        self.assertIn('proxy_submit_error',rows[0]['voltage_overlap'])
+        self.assertTrue(policy.invalid);self.assertNotIn('observed',rows[0])
+
+    def test_late_recorded_worker_dispatch_cannot_complete_a_diagnostic(self):
+        class LateStartSession(PreparedSession):
+            def exchange(self,wires,**kwargs):
+                records,stats=super().exchange(wires,**kwargs)
+                if self.phases[-1]=='output':
+                    # Model an owner that began after queueing for 21 ms.
+                    # Every request keeps its write/read causal ordering.
+                    for row in records:
+                        for field in ('start_ns','finish_ns','read_start_ns','received_ns','deadline_ns'):
+                            setattr(row,field,getattr(row,field)+21_000_000)
+                return records,stats
+        with patch(__name__+'.PreparedSession',LateStartSession):
+            report,rows,_,policy=self.integration(
+                lambda target:time.sleep(max(0,(target-time.monotonic_ns())/1e9)),pipeline=False)
+        self.assertEqual(report['status'],'ABORTED')
+        state=rows[0]['voltage_overlap']
+        self.assertEqual(state['status'],'PROXY_STOP_DISPATCH_DEADLINE_MISSED')
+        self.assertTrue(all(start>=state['hard_deadline_ns']
+                            for start in state['proxy_actual_start_ns_by_bus'].values()))
+        self.assertEqual(set(rows[0]['output']),{'front','rear'})
+        self.assertTrue(policy.invalid);self.assertNotIn('observed',rows[0])
+
+    def test_ordinary_overlap_waits_without_validation_worker_and_keeps_actual_dispatch_gate(self):
+        report,rows,_,_=self.integration(
+            lambda target:time.sleep(max(0,(target-time.monotonic_ns())/1e9)),
+            pipeline=False,validation_overlap=False)
+        self.assertEqual(report['status'],'COMPLETE_DIAGNOSTIC',report['errors'])
+        proof=rows[0]['voltage_overlap']
+        self.assertEqual(proof['voltage_join_wait']['mode'],'native_readiness_poll_v1')
+        self.assertLess(proof['voltage_verified_ns'],proof['hard_deadline_ns'])
 
     def test_join_failure_keeps_native_voltages_and_no_later_output(self):
         with patch.object(bench,'_await_voltage_ready',side_effect=RuntimeError('synthetic readiness failure')):

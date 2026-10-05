@@ -372,9 +372,20 @@ class TransportTests(unittest.TestCase):
     def test_timed_out_enable_stop_reply_remains_ambiguous(self):
         channel,_=self.sockets(watchdog.BUSES['front'],failure='drop_enable')
         with self.assertRaises(TimeoutError): channel.exchange(1,'enable')
+        failure=next(event for event in channel.events if event['kind']=='exchange_failure')
+        counters=failure['reader_counters_delta']
+        self.assertGreaterEqual(counters['select_calls'],1)
+        self.assertEqual(counters['read_calls'],0)
+        self.assertEqual(counters['bytes_received'],0)
+        self.assertEqual(counters['hard_expiries'],1)
+        self.assertEqual(failure['hard_deadline_ns']-failure['request_start_ns'],watchdog.REQUEST_NS)
+        self.assertEqual(failure['receive_boundary_evidence'],
+                         dict(partial_hex='',discarded_bytes=0,backlogged_bytes=0))
+        saved=json.dumps(failure,sort_keys=True)
         stopped=channel.stop_all()
         self.assertIn(1,stopped['ambiguous_ids']);self.assertIn(1,stopped['unconfirmed_ids'])
         self.assertEqual(stopped['confirmed_ids'],[2,3,4,5,6])
+        self.assertEqual(json.dumps(failure,sort_keys=True),saved)
     def test_cleanup_awaits_each_axis_before_next_stop(self):
         channel,seen=self.sockets(watchdog.BUSES['front'])
         stopped=channel.stop_all()
@@ -399,6 +410,98 @@ class TransportTests(unittest.TestCase):
         result=channel.stop_all()
         self.assertEqual(result['confirmed_ids'],[1,2,3,4,5,6])
         self.assertFalse(result['complete']);self.assertTrue(result['errors'])
+
+
+class FailedExchangeEvidenceTests(unittest.TestCase):
+    """Keep host failure evidence without changing request or STOP semantics."""
+    def channel(self, *, chunks=(), returned_bytes=17, backlog=0, broken_stats=False):
+        clock=Clock()
+        class Port:
+            def __init__(self): self.writes=[]
+            def write(self,data): self.writes.append(data);return returned_bytes
+            @property
+            def in_waiting(self):
+                if isinstance(backlog,BaseException): raise backlog
+                return backlog
+        error=TimeoutError('fixed deadline')
+        class Reader:
+            def __init__(self): self.pending=list(chunks);self.calls=0;self.received=0
+            def stats(self):
+                if broken_stats: raise OSError('counter unavailable')
+                return dict(read_until_calls=self.calls,bytes_received=self.received)
+            def read_until(self,wake,hard):
+                self.calls+=1
+                if self.pending:
+                    data=self.pending.pop(0);self.received+=len(data);clock.now+=100_000
+                    return data,clock.now
+                clock.now=hard
+                raise error
+        port=Port();reader=Reader()
+        channel=watchdog.Channel(port,watchdog.BUSES['front'],clock=clock,reader=reader)
+        return channel,port,error
+
+    def test_partial_receive_boundary_and_exact_counters_survive_parser_replacement(self):
+        channel,port,error=self.channel(chunks=(b'AT',))
+        with self.assertRaises(TimeoutError) as caught: channel.exchange(1,'enable')
+        self.assertIs(caught.exception,error)
+        failure=channel.events[-1]
+        self.assertEqual(failure['kind'],'exchange_failure')
+        self.assertEqual(failure['reader_counters_delta'],dict(read_until_calls=2,bytes_received=2))
+        self.assertEqual(failure['receive_boundary_evidence']['partial_hex'],'4154')
+        self.assertEqual(failure['event_start_index'],0)
+        self.assertEqual(failure['event_end_index'],2)
+        self.assertFalse(failure['automatic_retry'])
+        self.assertEqual(channel.pending,{1:'enable'})
+        self.assertEqual(len(port.writes),1)
+        channel.parser=codec.ATParser()
+        self.assertEqual(failure['receive_boundary_evidence']['partial_hex'],'4154')
+
+    def test_unclean_start_boundary_records_no_request_or_receive_and_sends_nothing(self):
+        channel,port,_=self.channel(backlog=17)
+        with self.assertRaisesRegex(RuntimeError,'No fresh request boundary'):
+            channel.exchange(1,'enable')
+        failure=channel.events[-1]
+        self.assertIsNone(failure['request_start_ns']);self.assertIsNone(failure['hard_deadline_ns'])
+        self.assertEqual(failure['reader_counters_delta'],dict(read_until_calls=0,bytes_received=0))
+        self.assertEqual(failure['receive_boundary_evidence']['backlogged_bytes'],17)
+        self.assertFalse(port.writes)
+
+    def test_partial_write_is_recorded_with_no_receive_or_retry(self):
+        channel,port,_=self.channel(returned_bytes=16)
+        with self.assertRaisesRegex(RuntimeError,'Partial write; no retry'):
+            channel.exchange(1,'enable')
+        failure=channel.events[-1]
+        self.assertEqual(channel.events[0]['returned_bytes'],16)
+        self.assertEqual(failure['reader_counters_delta'],dict(read_until_calls=0,bytes_received=0))
+        self.assertEqual(failure['hard_deadline_ns']-failure['request_start_ns'],watchdog.REQUEST_NS)
+        self.assertEqual(channel.pending,{1:'enable'});self.assertEqual(len(port.writes),1)
+
+    def test_broken_counters_or_boundary_never_replace_the_original_error(self):
+        for options,expected in ((dict(broken_stats=True),'counter unavailable'),
+                                 (dict(backlog=OSError('boundary unavailable')),'boundary unavailable')):
+            with self.subTest(options=options):
+                channel,_,error=self.channel(**options)
+                with self.assertRaises((TimeoutError,OSError)) as caught: channel.exchange(1,'enable')
+                if options.get('broken_stats'): self.assertIs(caught.exception,error)
+                failure=channel.events[-1]
+                self.assertEqual(failure['kind'],'exchange_failure')
+                self.assertTrue(any(expected in item for item in failure['diagnostic_errors']))
+                if options.get('broken_stats'):
+                    self.assertIsNone(failure['reader_counters_before'])
+                    self.assertIsNone(failure['reader_counters_after'])
+                    self.assertIsNone(failure['reader_counters_delta'])
+
+    def test_failure_storage_error_keeps_original_exception_and_failed_channel(self):
+        channel,_,error=self.channel()
+        original_event=channel.event
+        def fail_only_failure(value):
+            if value['kind']=='exchange_failure': raise OSError('storage unavailable')
+            original_event(value)
+        channel.event=fail_only_failure
+        with self.assertRaises(TimeoutError) as caught: channel.exchange(1,'enable')
+        self.assertIs(caught.exception,error)
+        self.assertTrue(channel.failed);self.assertTrue(channel.unlogged_exchange_failure)
+        self.assertEqual(channel.pending,{1:'enable'})
 
 
 if __name__ == '__main__': unittest.main()

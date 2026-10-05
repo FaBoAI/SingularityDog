@@ -1,7 +1,9 @@
 import importlib.util
 import json
 import hashlib
+import os
 import shlex
+import sys
 from pathlib import Path
 import tempfile
 import unittest
@@ -21,6 +23,121 @@ class TomorrowTests(unittest.TestCase):
             'angle_profile':'angles.json','calibration':'calibration.json','mount':'mount.json'}))
         self.work=self.root/'work'
     def args(self,action):return [action,'--config',str(self.config),'--work-dir',str(self.work)]
+    def fast_args(self):return ['--timing-mode','v3-overlap','--scalar-step-manifest','/private/pinned-scalar.json',
+                               '--scalar-step-manifest-sha256','a'*64,'--cycles','501',
+                               '--request-gap-us','900','--policy-cpu','4']
+
+    def install_switch_wrapper(self):
+        raw=(dog.ROOT/'tools/python_thread_switch_scope.py').read_bytes()
+        path=self.root/'tools/python_thread_switch_scope.py'
+        path.parent.mkdir(exist_ok=True);path.write_bytes(raw)
+        return hashlib.sha256(raw).hexdigest()
+
+    def test_python_switch_plan_wraps_only_full_child_and_records_source_hash(self):
+        wrapper=dog.ROOT/'tools/python_thread_switch_scope.py'
+        sha=hashlib.sha256(wrapper.read_bytes()).hexdigest()
+        with patch.object(dog.subprocess,'run',side_effect=AssertionError('Process started')) as run:
+            for action in ('diagnostics','full'):
+                stream=io.StringIO()
+                with contextlib.redirect_stdout(stream):
+                    self.assertEqual(dog.main(self.args(action)+self.fast_args()+['--python-switch-interval-us','100']),0)
+                plan=json.loads(stream.getvalue());commands=[shlex.split(c) for c in plan['commands']]
+                full=commands[-1]
+                self.assertEqual(full[:8],[sys.executable,'-B',str(wrapper),'--module',
+                    'singularitydog_hw.native_pipeline_benchmark','--interval-us','100','--'])
+                self.assertEqual(full[8],'--execute')
+                self.assertEqual(plan['python_switch_interval_us'],100)
+                self.assertEqual(plan['python_switch_wrapper_sha256'],sha)
+                self.assertIn('--supported-disabled',full);self.assertIn('--v3-voltage-overlap',full)
+                self.assertEqual(full[full.index('--scalar-step-manifest-sha256')+1],'a'*64)
+                self.assertNotIn('--v3-voltage-fast-pipeline',full);self.assertNotIn('--v3-voltage-pipeline',full)
+                self.assertFalse(plan['motor_enable_available']);self.assertFalse(plan['learned_targets_sent'])
+                for earlier in commands[:-1]:self.assertNotIn(str(wrapper),earlier)
+                if action=='diagnostics':
+                    self.assertEqual(plan['stages'][-1]['python_switch_interval_us'],100)
+                    self.assertEqual(plan['stages'][-1]['python_switch_wrapper_sha256'],sha)
+                    for stage in plan['stages'][:-1]:
+                        self.assertNotIn('python_switch_interval_us',stage)
+                        self.assertNotIn('python_switch_wrapper_sha256',stage)
+            run.assert_not_called()
+        self.assertFalse(self.work.exists())
+
+    def test_invalid_python_switch_selection_rejected_before_config_work_or_process(self):
+        cases=[(action,['--python-switch-interval-us','100']) for action in
+               ('build','imu','capture','can','compare','full','diagnostics')]
+        cases += [(action,self.fast_args()+['--cycles','3','--python-switch-interval-us','100'])
+                  for action in ('build','imu','capture','can','compare')]
+        cases += [('full',self.fast_args()+['--python-switch-interval-us',value])
+                  for value in ('0','200','100.0','not-an-int')]
+        with patch.object(dog.Path,'read_text',side_effect=AssertionError('Config read')) as read,\
+             patch.object(dog.Path,'mkdir',side_effect=AssertionError('Work created')) as mkdir,\
+             patch.object(dog.subprocess,'run',side_effect=AssertionError('Process started')) as run,\
+             contextlib.redirect_stderr(io.StringIO()):
+            for action,extra in cases:
+                with self.subTest(action=action,extra=extra),self.assertRaises(SystemExit) as raised:
+                    dog.main(self.args(action)+extra)
+                self.assertEqual(raised.exception.code,2)
+            read.assert_not_called();mkdir.assert_not_called();run.assert_not_called()
+        self.assertFalse(self.work.exists())
+
+    def test_python_switch_is_applied_inside_child_preserves_arguments_and_exit_status(self):
+        package=self.root/'singularitydog_hw';package.mkdir()
+        (package/'__init__.py').write_text('')
+        source=package/'native_pipeline_benchmark.py'
+        arguments=['--cycles','501','--supported-disabled','--marker','argument with spaces']
+        before=sys.getswitchinterval()
+        for exit_status in (0,7):
+            with self.subTest(exit_status=exit_status):
+                source.write_text('import json, sys\n'
+                    'print(json.dumps({"kind":"child_probe","interval_s":sys.getswitchinterval(),"argv":sys.argv[1:]}))\n'
+                    'raise SystemExit('+str(exit_status)+')\n')
+                command,settings=dog.full_python_switch_command(
+                    [sys.executable,'-B','-m','singularitydog_hw.native_pipeline_benchmark',*arguments],100)
+                result=dog.subprocess.run(command,env=dict(os.environ,PYTHONPATH=str(self.root)),
+                                          capture_output=True,text=True,check=False)
+                self.assertEqual(result.returncode,exit_status,result.stderr)
+                events=[json.loads(line) for line in result.stdout.splitlines()]
+                self.assertEqual(events[1]['argv'],arguments)
+                self.assertAlmostEqual(events[1]['interval_s'],.0001)
+                self.assertEqual(events[0]['kind'],'python_switch_interval')
+                self.assertTrue(events[-1]['restored'])
+                self.assertEqual(events[-1]['after_s'],events[0]['before_s'])
+                self.assertEqual(sys.getswitchinterval(),before)
+                self.assertEqual(settings['python_switch_interval_us'],100)
+
+    def test_fast_plan_is_explicit_and_only_full_stage_uses_scalar_and_new_waits(self):
+        with patch.object(dog.subprocess,'run',side_effect=AssertionError('Process started')) as run:
+            for action in ('diagnostics','full'):
+                stream=io.StringIO()
+                with contextlib.redirect_stdout(stream):self.assertEqual(dog.main(self.args(action)+self.fast_args()),0)
+                plan=json.loads(stream.getvalue());commands=[shlex.split(x) for x in plan['commands']]
+                self.assertFalse(plan['motor_enable_available']);self.assertFalse(plan['learned_targets_sent'])
+                self.assertTrue(plan['first_cycle_judged_separately'])
+                full=commands[-1]
+                self.assertEqual(full[1:4],['-B','-m','singularitydog_hw.native_pipeline_benchmark'])
+                self.assertNotIn('python_switch_interval_us',plan)
+                self.assertNotIn('python_switch_wrapper_sha256',plan)
+                for flag in ('--v3-voltage-proxy','--v3-voltage-overlap','--require-pinned-fast-model',
+                             '--inference-thread-cpu-trace','--single-thread-math','--absolute-epoch-cadence'):
+                    self.assertIn(flag,full)
+                self.assertNotIn('--v3-voltage-pipeline',full);self.assertNotIn('--v3-voltage-fast-pipeline',full)
+                self.assertEqual(full[full.index('--startup-cycle-allowance')+1],'1')
+                self.assertEqual(full[full.index('--release-spin-us')+1],'200')
+                self.assertEqual(full[full.index('--scalar-step-manifest-sha256')+1],'a'*64)
+                for earlier in commands[:-1]:self.assertNotIn('--scalar-step-manifest',earlier)
+            run.assert_not_called()
+        self.assertFalse(self.work.exists())
+
+    def test_incomplete_fast_selection_rejected_before_config_or_process(self):
+        cases=[['--timing-mode','v3-overlap'],['--scalar-step-manifest','/private/pin'],
+               self.fast_args()+['--cycles','502'],self.fast_args()+['--policy-cpu','-1'],
+               self.fast_args()+['--scalar-step-manifest-sha256','invalid']]
+        with patch.object(dog.Path,'read_text',side_effect=AssertionError('Config read')),\
+             patch.object(dog.subprocess,'run',side_effect=AssertionError('Process started')),\
+             contextlib.redirect_stderr(io.StringIO()):
+            for extra in cases:
+                with self.subTest(extra=extra),self.assertRaises(SystemExit):dog.main(self.args('diagnostics')+extra)
+            with self.assertRaises(SystemExit):dog.main(self.args('capture')+self.fast_args())
     def test_all_plans_open_no_process_or_workdir(self):
         with patch.object(dog.subprocess,'run',side_effect=AssertionError('Process started')):
             for action in ('build','imu','capture','can','full','compare','diagnostics'):
@@ -375,6 +492,18 @@ class TomorrowTests(unittest.TestCase):
                     input_sha256={'calibration':hashlib.sha256(calibration.read_bytes()).hexdigest()},
                     observer={'status':'COMPLETE_NO_OUTPUT_DIAGNOSTIC','ticks_completed':cycles,
                               'ticks_requested':cycles,'failure':None,'incomplete':False,'output_allowed':False})
+                if '--apply-reviewed-accel-calibration' in command:
+                    bias=Path(command[command.index('--gyro-bias')+1])
+                    report.update(plan={'apply_reviewed_accel_calibration':True})
+                    report['input_sha256']['gyro_bias']=hashlib.sha256(bias.read_bytes()).hexdigest()
+                if '--scalar-step-manifest' in command:
+                    scalar=dict(manifest_sha256=command[command.index('--scalar-step-manifest-sha256')+1],
+                                diagnostic_only=True)
+                    report.update(native_baseline_model_source=report['model_source'],model_source=scalar,
+                                  scalar_step_model_source=scalar,v3_voltage_proxy=True,
+                                  v3_voltage_overlap={'enabled':True,'native_readiness_wait_enabled':True},
+                                  input_acquisition_wait='native_ready_poll_200us.v1',
+                                  voltage_join_wait='native_ready_poll_200us.v1')
             (out/'report.json').write_text(json.dumps(report))
         return dog.subprocess.CompletedProcess(command,0)
 
@@ -422,6 +551,185 @@ class TomorrowTests(unittest.TestCase):
         self.assertTrue(all('OLD_CAPTURE_MUST_NOT_BE_USED' not in command for command in commands))
         self.assertTrue(all('singularitydog_hw.policy_output' not in command for command in commands))
         self.assertFalse(summary['approved_for_runtime']);self.assertFalse(summary['automatic_retry'])
+
+    def test_fast_diagnostics_bind_fresh_capture_and_both_pinned_models_without_approving_timing(self):
+        self.diagnostic_state();status,state,summary,run=self.run_diagnostics(extra_args=self.fast_args())
+        self.assertEqual(status,0);self.assertEqual(run.call_count,5)
+        full=summary['stages'][-1]
+        self.assertEqual(full['timing_mode'],'v3-overlap');self.assertEqual(full['scalar_step_manifest_sha256'],'a'*64)
+        self.assertEqual(full['timing_ms']['whole_iteration_ms']['max'],22.)
+        self.assertFalse(summary['approved_for_runtime'])
+        self.assertFalse(summary['motor_enable_sent']);self.assertFalse(summary['learned_targets_sent'])
+        self.assertTrue(summary['fresh_capture_promoted'])
+
+    def test_python_switch_diagnostics_summary_pins_only_full_stage_without_output_approval(self):
+        sha=self.install_switch_wrapper();self.diagnostic_state()
+        status,state,summary,run=self.run_diagnostics(
+            extra_args=self.fast_args()+['--python-switch-interval-us','100'])
+        self.assertEqual(status,0);self.assertEqual(run.call_count,5)
+        full=summary['stages'][-1]
+        self.assertEqual(full['python_switch_interval_us'],100)
+        self.assertEqual(full['python_switch_wrapper_sha256'],sha)
+        self.assertEqual(full['timing_ms']['whole_iteration_ms']['max'],22.)
+        self.assertFalse(summary['approved_for_runtime']);self.assertFalse(summary['motor_enable_sent'])
+        self.assertFalse(summary['learned_targets_sent']);self.assertFalse(summary['automatic_retry'])
+        self.assertTrue(summary['fresh_capture_promoted'])
+        commands=[call.args[0] for call in run.call_args_list]
+        self.assertEqual(commands[-1][2],str((self.root/'tools/python_thread_switch_scope.py').resolve()))
+        for earlier in commands[:-1]:self.assertNotIn('--interval-us',earlier)
+        for stage in summary['stages'][:-1]:
+            self.assertNotIn('python_switch_interval_us',stage)
+            self.assertNotIn('python_switch_wrapper_sha256',stage)
+        self.assertEqual(state['last_diagnostics']['status'],'COMPLETE_DIAGNOSTICS')
+
+    def test_python_switch_child_failure_keeps_selection_and_does_not_promote_capture(self):
+        sha=self.install_switch_wrapper();self.diagnostic_state()
+        def failure(command,**kwargs):
+            result=self.diagnostic_child(command,**kwargs)
+            return dog.subprocess.CompletedProcess(command,7) if '--interval-us' in command else result
+        status,state,summary,run=self.run_diagnostics(failure,
+            extra_args=self.fast_args()+['--python-switch-interval-us','100'])
+        self.assertEqual(status,2);self.assertEqual(run.call_count,5)
+        self.assertEqual(summary['status'],'ABORTED');self.assertEqual(summary['failed_stage'],'full')
+        self.assertFalse(summary['fresh_capture_promoted']);self.assertFalse(summary['approved_for_runtime'])
+        self.assertEqual(summary['stages'][-1]['python_switch_interval_us'],100)
+        self.assertEqual(summary['stages'][-1]['python_switch_wrapper_sha256'],sha)
+        self.assertEqual(summary['stages'][-1]['returncodes'],[7])
+        self.assertEqual(state['calibration'],'OLD_CAPTURE_MUST_NOT_BE_USED')
+        self.assertEqual(state['last_diagnostics']['status'],'ABORTED')
+
+    def test_python_switch_changed_during_capture_compare_or_full_prevents_promotion(self):
+        for changed_stage in ('capture','compare','full'):
+            with self.subTest(changed_stage=changed_stage):
+                sha=self.install_switch_wrapper();self.diagnostic_state()
+                wrapper=self.root/'tools/python_thread_switch_scope.py'
+                original=wrapper.read_bytes()
+                def mutate(command,**kwargs):
+                    result=self.diagnostic_child(command,**kwargs)
+                    selected=(changed_stage=='capture' and 'singularitydog_hw.motor_epoch_readonly_capture' in command or
+                              changed_stage=='compare' and '--compare-feedback' in command or
+                              changed_stage=='full' and '--interval-us' in command)
+                    if selected:wrapper.write_bytes(original+b'\n# changed after initial verification\n')
+                    return result
+                status,state,summary,run=self.run_diagnostics(mutate,
+                    extra_args=self.fast_args()+['--python-switch-interval-us','100'])
+                self.assertEqual(status,2);self.assertEqual(summary['failed_stage'],'full')
+                self.assertEqual(summary['status'],'ABORTED');self.assertFalse(summary['fresh_capture_promoted'])
+                self.assertFalse(summary['approved_for_runtime']);self.assertIn('wrapper SHA256 differs',str(summary['errors']))
+                full_calls=[call for call in run.call_args_list if '--interval-us' in call.args[0]]
+                self.assertEqual(len(full_calls),1 if changed_stage=='full' else 0)
+                self.assertEqual(run.call_count,5 if changed_stage=='full' else 4)
+                self.assertEqual(summary['stages'][-1]['python_switch_wrapper_sha256'],sha)
+                self.assertEqual(state['calibration'],'OLD_CAPTURE_MUST_NOT_BE_USED')
+                self.assertEqual(state['last_diagnostics']['status'],'ABORTED')
+
+    def test_python_switch_single_full_checks_before_and_after_without_publishing_changed_source(self):
+        for changed_when in ('before','after'):
+            with self.subTest(changed_when=changed_when):
+                sha=self.install_switch_wrapper();self.work.mkdir(exist_ok=True)
+                capture=self.work/'capture.json';capture.write_text('{}')
+                candidate=self.work/'candidate.json'
+                candidate.write_text(json.dumps({'source_capture_sha256':hashlib.sha256(capture.read_bytes()).hexdigest()}))
+                state={'native_policy_manifest':'unused','calibration':str(candidate),'angle_capture':str(capture),
+                       'calibration_sha256':hashlib.sha256(candidate.read_bytes()).hexdigest()}
+                statefile=self.work/'state.json';statefile.write_text(json.dumps(state))
+                before=statefile.read_bytes();wrapper=self.root/'tools/python_thread_switch_scope.py'
+                original=wrapper.read_bytes()
+                def mutate():wrapper.write_bytes(original+b'\n# changed around selected full child\n')
+                def verify(root):
+                    if changed_when=='before':mutate()
+                def child(command,**kwargs):
+                    if changed_when=='after':mutate()
+                    return dog.subprocess.CompletedProcess(command,0)
+                stream=io.StringIO()
+                with patch.object(dog,'ROOT',self.root),patch.object(dog,'verify_kit',side_effect=verify),\
+                     patch.object(dog.subprocess,'run',side_effect=child) as run,contextlib.redirect_stdout(stream):
+                    with self.assertRaisesRegex(ValueError,'wrapper SHA256 differs'):
+                        dog.main(self.args('full')+self.fast_args()+[
+                            '--execute','--supported-disabled','--python-switch-interval-us','100'])
+                self.assertEqual(run.call_count,0 if changed_when=='before' else 1)
+                self.assertEqual(statefile.read_bytes(),before)
+                plan=json.loads(stream.getvalue())
+                self.assertEqual(plan['python_switch_wrapper_sha256'],sha)
+                self.assertFalse(plan['motor_enable_available']);self.assertFalse(plan['learned_targets_sent'])
+
+    def test_python_switch_recheck_rejects_symlink_directory_and_different_command_path(self):
+        for change in ('symlink','directory','command_path'):
+            with self.subTest(change=change):
+                self.install_switch_wrapper();wrapper=self.root/'tools/python_thread_switch_scope.py'
+                with patch.object(dog,'ROOT',self.root):
+                    command,settings=dog.full_python_switch_command(
+                        [sys.executable,'-B','-m','singularitydog_hw.native_pipeline_benchmark'],100)
+                    alias=wrapper.with_name('different-wrapper.py');alias.write_bytes(wrapper.read_bytes())
+                    if change=='symlink':wrapper.unlink();wrapper.symlink_to(alias)
+                    elif change=='directory':wrapper.unlink();wrapper.mkdir()
+                    else:command[2]=str(alias.resolve())
+                    with self.assertRaises(ValueError):dog.verify_python_switch_command(command,settings)
+                if wrapper.is_symlink():wrapper.unlink()
+                elif wrapper.is_dir():wrapper.rmdir()
+
+    def test_fast_diagnostics_reject_wrong_scalar_or_pipeline_report(self):
+        for mutation in ('scalar','baseline','pipeline','overlap','acquisition_wait','voltage_wait','wait_flag'):
+            with self.subTest(mutation=mutation):
+                self.diagnostic_state()
+                def wrong(command,**kwargs):
+                    result=self.diagnostic_child(command,**kwargs)
+                    if '--scalar-step-manifest' in command:
+                        path=Path(command[command.index('--output')+1])/'report.json';report=json.loads(path.read_text())
+                        if mutation=='scalar':report['model_source']['manifest_sha256']='b'*64
+                        elif mutation=='baseline':report['native_baseline_model_source']['manifest_sha256']='b'*64
+                        elif mutation=='pipeline':report['v3_voltage_pipeline']={'enabled':True}
+                        elif mutation=='acquisition_wait':report['input_acquisition_wait']='legacy_result_collection.v1'
+                        elif mutation=='voltage_wait':report.pop('voltage_join_wait')
+                        elif mutation=='wait_flag':report['v3_voltage_overlap']['native_readiness_wait_enabled']=False
+                        else:report['v3_voltage_overlap']['enabled']=False
+                        path.write_text(json.dumps(report))
+                    return result
+                status,state,summary,run=self.run_diagnostics(wrong,extra_args=self.fast_args())
+                self.assertEqual(status,2);self.assertEqual(summary['failed_stage'],'full')
+                self.assertFalse(summary['fresh_capture_promoted'])
+
+    def reviewed_bias_state(self):
+        state=self.diagnostic_state();bias=self.work/'reviewed-bias.json'
+        # This is only a wrapper fixture. Native input audit tests cover acceptance.
+        bias.write_text(json.dumps({'synthetic_wrapper_fixture':True}))
+        state['gyro_bias']=str(bias);(self.work/'state.json').write_text(json.dumps(state))
+        return bias
+
+    def test_reviewed_accel_option_only_reaches_full_stage_and_binds_bias_sha(self):
+        bias=self.reviewed_bias_state()
+        status,_,summary,run=self.run_diagnostics(extra_args=self.fast_args()+['--apply-reviewed-accel-calibration'])
+        self.assertEqual(status,0)
+        commands=[call.args[0] for call in run.call_args_list]
+        self.assertTrue(all('--apply-reviewed-accel-calibration' not in command for command in commands[:-1]))
+        self.assertIn('--apply-reviewed-accel-calibration',commands[-1])
+        self.assertTrue(summary['stages'][-1]['apply_reviewed_accel_calibration'])
+        self.assertEqual(summary['stages'][-1]['gyro_bias_sha256'],hashlib.sha256(bias.read_bytes()).hexdigest())
+        self.assertFalse(summary['approved_for_runtime'])
+
+    def test_reviewed_accel_requires_explicit_bias_and_full_action_before_process(self):
+        with patch.object(dog.subprocess,'run',side_effect=AssertionError('Process started')):
+            with self.assertRaises(SystemExit):
+                dog.main(self.args('can')+['--apply-reviewed-accel-calibration'])
+            with self.assertRaises(SystemExit):
+                dog.main(self.args('diagnostics')+['--apply-reviewed-accel-calibration'])
+
+    def test_reviewed_accel_changed_selection_bias_pin_or_file_cannot_promote_capture(self):
+        for mutation in ('selection','bias_pin','bias_file'):
+            with self.subTest(mutation=mutation):
+                bias=self.reviewed_bias_state()
+                def wrong(command,**kwargs):
+                    result=self.diagnostic_child(command,**kwargs)
+                    if '--apply-reviewed-accel-calibration' in command:
+                        path=Path(command[command.index('--output')+1])/'report.json';report=json.loads(path.read_text())
+                        if mutation=='selection':report['plan']['apply_reviewed_accel_calibration']=False
+                        elif mutation=='bias_pin':report['input_sha256']['gyro_bias']='b'*64
+                        else:bias.write_text('changed after read')
+                        path.write_text(json.dumps(report))
+                    return result
+                status,_,summary,_=self.run_diagnostics(wrong,extra_args=self.fast_args()+['--apply-reviewed-accel-calibration'])
+                self.assertEqual(status,2);self.assertEqual(summary['failed_stage'],'full')
+                self.assertFalse(summary['fresh_capture_promoted'])
 
     def test_diagnostics_custom_request_pacing_reaches_all_native_children_and_saved_stages(self):
         self.diagnostic_state()

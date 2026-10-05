@@ -19,7 +19,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "runtime"))
 from singularitydog_hw.angle_calibration_audit import (  # noqa: E402
     IDS, TAU, UNKNOWN_EPOCHS, MODEL_CAN_ORDER, AxisCalibration, audit_twelve_axes,
-    fit_reference_observations,
+    fit_reference_observations, signed_periodic_delta_rad,
 )
 
 
@@ -32,6 +32,24 @@ IDS_BY_LEG = {"FR": (1, 2, 3), "FL": (4, 5, 6), "RR": (7, 8, 9), "RL": (10, 11, 
 def need(condition, message):
     if not condition:
         raise ValueError(message)
+
+
+def finite_number(value, name):
+    """JSON booleans/strings are not physical readings, even when equal to 0."""
+    need(type(value) in (int, float), "Finite numeric " + name + " required")
+    try:
+        result = float(value)
+    except (OverflowError, ValueError) as error:
+        raise ValueError("Finite numeric " + name + " required") from error
+    need(math.isfinite(result), "Finite numeric " + name + " required")
+    return result
+
+
+def observed_quiet(row, name, *, current_key="current"):
+    need(type(row) is dict and type(row.get("run_mode")) is int
+         and row["run_mode"] == 0, "Current capture not observed quiet: " + name)
+    need(finite_number(row.get(current_key), name + " current") == 0,
+         "Current capture not observed quiet: " + name)
 
 
 def strict_json(source):
@@ -58,24 +76,33 @@ def read(path, expected_sha=None):
 
 
 def current_values(data):
-    need(data.get("status") == "RECORDED_REVIEW_REQUIRED" and data.get("errors") == []
+    need(type(data) is dict and data.get("status") == "RECORDED_REVIEW_REQUIRED" and data.get("errors") == []
          and data.get("motor_output_allowed") is False and data.get("angle_wrap_applied") is False,
          "An error-free unwrapped no-output current capture is required")
-    need(data.get("plan", {}).get("allowed_can_types") == [0, 17],
+    plan, telemetry = data.get("plan"), data.get("telemetry")
+    need(type(plan) is dict and type(plan.get("allowed_can_types")) is list
+         and plan["allowed_can_types"] == [0, 17]
+         and all(type(kind) is int for kind in plan["allowed_can_types"]),
          "Only the Type0/17 current capture schema is accepted")
-    identities, rows = data.get("identities"), data.get("telemetry", {}).get("rows")
+    need(type(telemetry) is dict, "Current capture needs twelve axes")
+    identities, rows = data.get("identities"), telemetry.get("rows")
     keys = {str(mid) for mid in IDS}
     need(type(identities) is dict and set(identities) == keys
          and type(rows) is dict and set(rows) == keys, "Current capture needs twelve axes")
     raw, uids = {}, {}
     for key in keys:
         row = rows[key]
-        need(row.get("run_mode") == 0 and row.get("current") == 0,
-             "Current capture not observed quiet: ID" + key)
-        span = row.get("position_span_deg")
-        need(type(span) in (int, float) and math.isfinite(span) and 0 <= span <= .1,
+        observed_quiet(row, "ID" + key)
+        span = finite_number(row.get("position_span_deg"), "ID" + key + " position span")
+        need(0 <= span <= .1,
              "Current raw samples not static: ID" + key)
-        raw[key], uids[key] = row.get("median_position_rad"), identities[key].get("mcu_uid_hex")
+        raw[key] = finite_number(row.get("median_position_rad"), "ID" + key + " raw position")
+        identity = identities[key]
+        need(type(identity) is dict, "Current capture identity object required: ID" + key)
+        uid = identity.get("mcu_uid_hex")
+        need(type(uid) is str and len(uid) == 16 and all(ch in "0123456789abcdef" for ch in uid),
+             "Current capture UID invalid: ID" + key)
+        uids[key] = uid
     return raw, uids
 
 
@@ -126,9 +153,9 @@ def history_profile(root):
         camera_hashes[leg] = digest
         for mid in ids:
             row = pose["rows"][str(mid)]
-            need(row.get("uid") == uids[str(mid)] and row.get("run_mode") == 0
-                 and row.get("current_A") == 0, "Camera-L UID or quiet-state mismatch")
-            camera_raw[mid] = row["position_median_rad"]
+            observed_quiet(row, "Camera-L ID" + str(mid), current_key="current_A")
+            need(row.get("uid") == uids[str(mid)], "Camera-L UID or quiet-state mismatch")
+            camera_raw[mid] = finite_number(row.get("position_median_rad"), "Camera-L raw position")
     axes = []
     for mid in IDS:
         old = by_id[mid]
@@ -270,6 +297,46 @@ def policy_input_candidate(contracts, current, *, capture_sha256):
             "motor_output_available": False, "output_allowed": False}
 
 
+def reference_observation_template(captures, contracts, selected_ids=IDS):
+    """Reuse saved quiet readings; leave external angles and error bounds blank.
+
+    Captures are supplied in physical observation order. No encoder reading is
+    interpreted as a known joint angle, and a capture's power-epoch label is
+    carried through without independently verifying its operator attestation.
+    """
+    selected_ids = tuple(selected_ids)
+    need(selected_ids and len(set(selected_ids)) == len(selected_ids)
+         and all(type(mid) is int and mid in IDS for mid in selected_ids),
+         "Reference IDs must be unique IDs 1..12")
+    need(len(captures) >= 2, "Reference template needs at least two distinct captures")
+    result = {str(mid): [] for mid in selected_ids}
+    seen, first_boot, first_epoch = set(), None, None
+    for capture, digest in captures:
+        need(type(digest) is str and len(digest) == 64
+             and all(ch in "0123456789abcdef" for ch in digest), "Reference capture hash invalid")
+        need(digest not in seen, "Reference template cannot repeat one capture")
+        seen.add(digest)
+        raw, uids = current_values(capture)
+        boot = capture.get("boot_id")
+        need(type(boot) is str and boot.strip(), "Reference capture boot ID missing")
+        if first_boot is None:
+            first_boot = boot
+            first_epoch = capture.get("motor_power_epoch")
+        need(boot == first_boot, "Reference captures must share one boot and motor-power epoch")
+        need(capture.get("motor_power_epoch") == first_epoch,
+             "Reference capture motor-power epoch label changed")
+        for mid in selected_ids:
+            key = str(mid)
+            need(uids[key] == contracts[mid].uid, f"ID{mid}: reference capture UID changed")
+            result[key].append({"uid": uids[key], "boot_id": boot,
+                "motor_power_epoch": capture.get("motor_power_epoch"),
+                "source_sha256": digest, "raw_rad": raw[key],
+                "model_rad": None, "uncertainty_rad": None,
+                "relative_output_shaft_observed": None, "physical_angle_method": None,
+                "measurement_note": "Fill externally measured model-convention angle and nonzero error bound; verify one power epoch. No nominal angle or approval inferred."})
+    return result
+
+
 def batch_review_plan(report):
     """Separate reusable numeric/history evidence from missing physical review.
 
@@ -302,7 +369,7 @@ def batch_review_plan(report):
             (history_matches if matched else history_conflicts).append(mid)
     epoch = report.get("motor_power_epoch")
     epoch_label_missing = type(epoch) is not str or epoch.strip() in UNKNOWN_EPOCHS
-    return {
+    result = {
         "status": "BATCH_REVIEW_PLAN_NOT_APPROVAL",
         "numeric_branch_screen_pass_ids": numeric,
         "numeric_branch_turns_by_id": turns,
@@ -326,6 +393,18 @@ def batch_review_plan(report):
         "approved_for_runtime": False,
         "output_allowed": False,
     }
+    if "reference_fits_by_id" in report:
+        fits = report["reference_fits_by_id"]
+        result["external_reference_fit_review_ids"] = [
+            mid for mid in IDS if fits.get(str(mid), {}).get("status")
+            == "PHYSICAL_REFERENCE_FIT_REVIEW_REQUIRED"]
+        result["external_reference_remeasure_ids"] = [
+            mid for mid in IDS if fits.get(str(mid), {}).get("status") == "REMEASURE_THIS_AXIS"]
+        result["external_reference_not_supplied_ids"] = [mid for mid in IDS if str(mid) not in fits]
+        result["external_reference_sign_conflict_ids"] = [
+            mid for mid in IDS if fits.get(str(mid), {}).get("profile_sign_matches") is False]
+    result["dynamic_type2_scale_verified_by_this_audit"] = False
+    return result
 
 
 def main(argv=None):
@@ -335,12 +414,20 @@ def main(argv=None):
     mode.add_argument("--profile", type=Path, help="Explicit twelve-axis reviewed-evidence profile")
     ap.add_argument("--capture", type=Path, help="Fresh motor_epoch_readonly_capture JSON, with --profile")
     ap.add_argument("--references", type=Path, help="Optional per-ID external angle observation lists to fit")
+    ap.add_argument("--reference-capture", type=Path, action="append", default=[],
+                    help="Additional saved captures in observation order for an external-reference template")
+    ap.add_argument("--reference-id", type=int, choices=IDS, action="append",
+                    help="Template only these axes; repeat for selected axes instead of redoing all twelve")
+    ap.add_argument("--reference-template-output", type=Path,
+                    help="Write blank external-angle fields over saved readings, compatible with --references")
     ap.add_argument("--profile-output", type=Path, help="Write imported candidate template; does not approve it")
     ap.add_argument("--policy-candidate-output", type=Path,
                     help="Write policy_shadow-compatible input candidate; diagnostic inference only")
     ap.add_argument("--output", type=Path, required=True)
     args = ap.parse_args(argv)
     try:
+        need(args.reference_template_output is not None or not args.reference_capture
+             and not args.reference_id, "Reference captures/IDs require --reference-template-output")
         if args.history_root:
             need(args.capture is None, "History mode already identifies its pinned current capture")
             profile, contracts, current, raw, uids = history_profile(args.history_root)
@@ -371,6 +458,11 @@ def main(argv=None):
                 "Unreviewed does not mean untested. Reuse matching historical evidence; "
                 "recheck conflicting axes first, then review the retained per-axis sources.")
         report["epoch_binding_created"] = False
+        reference_template = None
+        if args.reference_template_output:
+            captures = [(current, current_hash)] + [read(path) for path in args.reference_capture]
+            reference_template = reference_observation_template(captures, contracts,
+                                                                args.reference_id or IDS)
         if args.references:
             references, reference_hash = read(args.references)
             fits = {}
@@ -378,7 +470,14 @@ def main(argv=None):
                 need(key in {str(mid) for mid in IDS}, "Reference ID must be 1..12")
                 try:
                     fit = fit_reference_observations(observations)
-                    need(fit["uid"] == contracts[int(key)].uid, "Reference UID differs from this axis")
+                    axis = contracts[int(key)]
+                    need(fit["uid"] == axis.uid, "Reference UID differs from this axis")
+                    fit["profile_sign_matches"] = fit["sign_candidate"] == axis.sign
+                    if fit["profile_sign_matches"]:
+                        fit["offset_difference_rad_unwrapped"] = fit["offset_candidate_rad"] - axis.offset_rad
+                        fit["offset_difference_rad_orientation_only"] = signed_periodic_delta_rad(
+                            fit["offset_candidate_rad"], axis.offset_rad)
+                    fit["profile_changed"] = False
                     fits[key] = fit
                 except ValueError as error:
                     fits[key] = {"status": "REMEASURE_THIS_AXIS", "error": str(error)}
@@ -393,6 +492,8 @@ def main(argv=None):
             write_private(args.profile_output, profile)
         if args.policy_candidate_output:
             write_private(args.policy_candidate_output, candidate)
+        if args.reference_template_output:
+            write_private(args.reference_template_output, reference_template)
     except (OSError, ValueError, KeyError, TypeError) as error:
         ap.error(str(error))
     print(json.dumps({"output": str(args.output), "status": report["status"],

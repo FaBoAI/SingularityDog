@@ -51,6 +51,129 @@ def capture_fixture(root):
 
 
 class AuditCLITests(unittest.TestCase):
+    def test_current_capture_rejects_boolean_protocol_and_quiet_state_values(self):
+        with tempfile.TemporaryDirectory() as folder:
+            baseline = json.loads(capture_fixture(Path(folder)).read_text())
+            for field, value in (("allowed_can_types", [False, 17]),
+                                 ("allowed_can_types", [0., 17]),
+                                 ("run_mode", False), ("run_mode", 0.),
+                                 ("current", False), ("position_span_deg", False),
+                                 ("median_position_rad", True)):
+                changed = json.loads(json.dumps(baseline))
+                if field == "allowed_can_types":
+                    changed["plan"][field] = value
+                else:
+                    changed["telemetry"]["rows"]["5"][field] = value
+                with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                    tool.current_values(changed)
+
+    def test_current_capture_rejects_malformed_or_nonfinite_measurements(self):
+        with tempfile.TemporaryDirectory() as folder:
+            baseline = json.loads(capture_fixture(Path(folder)).read_text())
+            for field in ("current", "position_span_deg", "median_position_rad"):
+                for value in (None, "0.0", [], float("nan"), float("inf"), 10**400):
+                    changed = json.loads(json.dumps(baseline))
+                    changed["telemetry"]["rows"]["5"][field] = value
+                    with self.subTest(field=field, kind=type(value).__name__), self.assertRaises(ValueError):
+                        tool.current_values(changed)
+            for field in ("plan", "telemetry"):
+                changed = json.loads(json.dumps(baseline))
+                changed[field] = []
+                with self.subTest(field=field), self.assertRaises(ValueError):
+                    tool.current_values(changed)
+            for branch in ("identities", "telemetry"):
+                changed = json.loads(json.dumps(baseline))
+                rows = changed[branch] if branch == "identities" else changed[branch]["rows"]
+                rows["5"] = []
+                with self.subTest(branch=branch), self.assertRaises(ValueError):
+                    tool.current_values(changed)
+
+    def test_reference_template_cannot_transfer_invalid_raw_or_uid(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            profile, _ = profile_fixture(root)
+            _, contracts = tool.load_profile(profile)
+            baseline = json.loads(capture_fixture(root).read_text())
+            for value in ("0.2", True, None, float("inf")):
+                changed = json.loads(json.dumps(baseline))
+                changed["telemetry"]["rows"]["4"]["median_position_rad"] = value
+                with self.subTest(value=value), self.assertRaises(ValueError):
+                    tool.reference_observation_template([(baseline, "a"*64), (changed, "b"*64)], contracts, [4])
+            for value in (None, "", "a"*15, "A"*16, False):
+                changed = json.loads(json.dumps(baseline))
+                changed["identities"]["4"]["mcu_uid_hex"] = value
+                with self.subTest(uid=value), self.assertRaises(ValueError):
+                    tool.current_values(changed)
+
+    def test_observed_quiet_rejects_invalid_history_current(self):
+        tool.observed_quiet({"run_mode": 0, "current_A": 0.}, "fixture", current_key="current_A")
+        for row in ([], {"run_mode": False, "current_A": 0.},
+                    {"run_mode": 0, "current_A": False},
+                    {"run_mode": 0, "current_A": "0"}):
+            with self.subTest(row=row), self.assertRaises(ValueError):
+                tool.observed_quiet(row, "fixture", current_key="current_A")
+
+    def test_reference_template_reuses_selected_axis_raws_and_leaves_external_measurements_blank(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            profile, _ = profile_fixture(root)
+            baseline = capture_fixture(root)
+            moved_data = json.loads(baseline.read_text())
+            moved_data["telemetry"]["rows"]["4"]["median_position_rad"] += math.radians(10)
+            moved = root / "moved.json"
+            moved.write_text(json.dumps(moved_data))
+            template = root / "references.json"
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(tool.main(["--profile", str(profile), "--capture", str(baseline),
+                    "--reference-capture", str(moved), "--reference-id", "4",
+                    "--reference-template-output", str(template), "--output", str(root / "audit.json")]), 0)
+            refs = json.loads(template.read_text())
+            self.assertEqual(set(refs), {"4"})
+            self.assertEqual(len(refs["4"]), 2)
+            self.assertEqual(refs["4"][0]["raw_rad"], .1)
+            self.assertAlmostEqual(refs["4"][1]["raw_rad"], .1 + math.radians(10))
+            self.assertEqual(refs["4"][1]["source_sha256"], hashlib.sha256(moved.read_bytes()).hexdigest())
+            for row in refs["4"]:
+                for key in ("model_rad", "uncertainty_rad", "relative_output_shaft_observed", "physical_angle_method"):
+                    self.assertIsNone(row[key])
+            # External measurements make the same file consumable by the existing fit.
+            for index, row in enumerate(refs["4"]):
+                row.update(model_rad=math.radians(index * 10), uncertainty_rad=math.radians(.5),
+                    relative_output_shaft_observed=True, physical_angle_method="angle_gauge",
+                    motor_power_epoch="synthetic-known-power-epoch")
+            template.write_text(json.dumps(refs))
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(tool.main(["--profile", str(profile), "--capture", str(baseline),
+                    "--references", str(template), "--output", str(root / "fit-audit.json")]), 0)
+            report = json.loads((root / "fit-audit.json").read_text())
+            fit = report["reference_fits_by_id"]["4"]
+            self.assertTrue(fit["profile_sign_matches"])
+            self.assertAlmostEqual(fit["offset_difference_rad_unwrapped"], -.1)
+            self.assertFalse(fit["profile_changed"])
+            self.assertEqual(report["batch_review_plan"]["external_reference_fit_review_ids"], [4])
+            self.assertEqual(report["batch_review_plan"]["external_reference_not_supplied_ids"], [1,2,3,5,6,7,8,9,10,11,12])
+            self.assertFalse(report["batch_review_plan"]["dynamic_type2_scale_verified_by_this_audit"])
+            self.assertFalse(report["approved_for_runtime"])
+
+    def test_reference_template_rejects_duplicate_source_uid_boot_and_epoch_changes(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            profile, _ = profile_fixture(root)
+            _, contracts = tool.load_profile(profile)
+            baseline = json.loads(capture_fixture(root).read_text())
+            with self.assertRaisesRegex(ValueError, "repeat one capture"):
+                tool.reference_observation_template([(baseline, "a"*64), (baseline, "a"*64)], contracts)
+            for field, value, pattern in (("boot_id", "other-boot", "share one boot"),
+                ("motor_power_epoch", "other-power", "epoch label changed"),
+                ("uid", "f"*16, "UID changed")):
+                changed = json.loads(json.dumps(baseline))
+                if field == "uid":
+                    changed["identities"]["4"]["mcu_uid_hex"] = value
+                else:
+                    changed[field] = value
+                with self.subTest(field=field), self.assertRaisesRegex(ValueError, pattern):
+                    tool.reference_observation_template([(baseline, "a"*64), (changed, "b"*64)], contracts, [4])
+
     def test_profile_roundtrip_and_output_still_not_runtime(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

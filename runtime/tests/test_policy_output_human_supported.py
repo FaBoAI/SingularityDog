@@ -3,6 +3,7 @@ from contextlib import ExitStack, nullcontext, redirect_stderr, redirect_stdout
 import copy
 import io
 import hashlib
+import math
 import os
 from pathlib import Path
 import pty
@@ -311,6 +312,14 @@ class HumanRuntimeIntegrationTests(unittest.TestCase):
     def run_hold(self,*,auto_ack=True,after_valid=None,policy=None,supervision=None,announce=lambda:None):
         supervisor=self.supervisor if supervision is None else supervision
         before=supervisor.before_cycle;after=supervisor.after_cycle_validated
+        original_wait=runtime.wait
+        def fixture_wait(futures,*,timeout,return_when):
+            # These real owner threads use shared synthetic time. OS scheduling
+            # is not simulated bus latency: allow a finite readiness handshake
+            # without advancing that clock. Keep real Future states/errors and
+            # FIRST_EXCEPTION; runtime still checks its unchanged clock deadline.
+            self.assertTrue(math.isfinite(timeout) and timeout>0)
+            return original_wait(futures,timeout=2.,return_when=return_when)
         clips=live.human_supported_audio_settings(self.data)['clips'];ack_sent=False
         def drive_audio_and_input(begun_ns,**kwargs):
             nonlocal ack_sent
@@ -325,7 +334,8 @@ class HumanRuntimeIntegrationTests(unittest.TestCase):
             after(*args,**kwargs)
             if after_valid is not None:after_valid(*args,**kwargs)
         with patch.object(supervisor,'before_cycle',side_effect=drive_audio_and_input), \
-             patch.object(supervisor,'after_cycle_validated',side_effect=completed):
+             patch.object(supervisor,'after_cycle_validated',side_effect=completed), \
+             patch.object(runtime,'wait',side_effect=fixture_wait):
             report=runtime.run_supported_policy(self.data,self.sessions,FakeIMU(clock=self.clock),
                 self.policy if policy is None else policy,cancel_io=self.cancelled.set,
                 clock=self.clock,sleep=self.clock.sleep,encode_motion=encode_motion,

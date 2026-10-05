@@ -19,9 +19,10 @@ from . import rs05_trial_protocol as protocol
 from .motor_version_probe import version_request, decode_version
 from .native_feedback_compare import _frame
 from .native_active_transport import encode_motion
-from .policy_observer import _mount, _bias
+from .policy_observer import _mount, _bias, RAW_IMU_CORRECTION_FLAGS
+from .imu_calibration_review import reviewed_acceleration
 from .policy_shadow import _json
-from .policy_live_profile import SCHEMA_V3, telemetry_settings
+from .policy_live_profile import SCHEMA_V3, telemetry_settings, acceleration_calibration_selected
 
 SCHEMA = 'singularitydog.ground-trial-evaluation.v1'
 ASSOCIATION_SCHEMA = 'singularitydog.ground-video-association.v1'
@@ -311,7 +312,7 @@ def _stops(runtime, *, after_ns):
     return last
 
 
-def _cycles(runtime, profile, feedback, voltages, rotation, bias):
+def _cycles(runtime, profile, feedback, voltages, rotation, bias, accel_calibration=None):
     v3 = profile['schema'] == SCHEMA_V3
     cycles = runtime.get('cycles'); offsets = runtime.get('fixed_offsets_rad_by_id', {})
     need(type(cycles) is list and cycles and set(offsets) == set(IDS), 'Missing cycles/fixed calibration branch')
@@ -407,18 +408,21 @@ def _cycles(runtime, profile, feedback, voltages, rotation, bias):
         need(type(imu_start) is int and type(imu_end) is int and previous_imu < imu_start <= imu_end <= end,
              'IMU timestamp repeated/noncausal')
         previous_imu = imu_start
-        need(imu.get('frame') == 'sensor' and all(imu.get(k, False) is False for k in
-             ('mount_correction_applied','gyro_bias_correction_applied','mount_rotation_applied','gyro_bias_subtracted')),
+        need(imu.get('frame') == 'sensor' and all(imu.get(k, False) is False for k in RAW_IMU_CORRECTION_FLAGS),
              'IMU raw frame/correction state unknown')
         accel = vector(imu.get('accel_m_s2'),3,'IMU acceleration'); gyro = vector(imu.get('gyro_rad_s'),3,'IMU gyro')
-        body = [sum(rotation[i][j]*accel[j] for j in range(3)) for i in range(3)]
-        body_gyro = [sum(rotation[i][j]*(gyro[j]-bias[j]) for j in range(3)) for i in range(3)]
-        norm = math.hypot(*body)
+        # accel_norm_m_s2 retains its existing raw-input meaning. Selection
+        # adds a separate corrected norm; it never bypasses raw monitoring.
+        norm = math.hypot(*accel)
         need(profile['imu_accel_norm_min_m_s2'] <= norm <= profile['imu_accel_norm_max_m_s2'], 'IMU acceleration norm limit')
-        tilt = math.acos(max(-1., min(1., body[2]/norm)))
+        corrected, corrected_norm = (accel, norm) if accel_calibration is None else accel_calibration.correct(accel)
+        body = [sum(rotation[i][j]*corrected[j] for j in range(3)) for i in range(3)]
+        body_gyro = [sum(rotation[i][j]*(gyro[j]-bias[j]) for j in range(3)) for i in range(3)]
+        tilt = math.acos(max(-1., min(1., body[2]/corrected_norm)))
         need(tilt <= profile['imu_tilt_limit_rad'] and math.hypot(*body_gyro) <= profile['imu_gyro_limit_rad_s'],
              'IMU tilt/angular velocity limit')
         max_tilt = max(max_tilt, tilt)
+        need(accel_calibration is None or 'imu_body' in cycle, 'Selected acceleration calibration needs both norm records')
         if 'imu_body' in cycle:
             logged = cycle['imu_body']
             need(logged.get('frame') == 'body' and logged.get('source_monotonic_ns') == imu_start, 'IMU body source mismatch')
@@ -427,6 +431,20 @@ def _cycles(runtime, profile, feedback, voltages, rotation, bias):
                 need(all(abs(x-y) < 1e-8 for x,y in zip(actual,expected)), 'IMU transform/bias mismatch')
             need(finite(logged.get('tilt_rad')) and finite(logged.get('accel_norm_m_s2')) and
                  abs(logged['tilt_rad']-tilt) < 1e-8 and abs(logged['accel_norm_m_s2']-norm) < 1e-8, 'IMU angle/norm mismatch')
+            if accel_calibration is not None:
+                raw_accel = vector(logged.get('raw_accel_sensor_m_s2'),3,'raw sensor acceleration')
+                need(all(abs(x-y) < 1e-8 for x,y in zip(raw_accel,accel)) and
+                     finite(logged.get('raw_accel_norm_m_s2')) and
+                     abs(logged['raw_accel_norm_m_s2']-norm) < 1e-8 and
+                     finite(logged.get('corrected_accel_norm_m_s2')) and
+                     abs(logged['corrected_accel_norm_m_s2']-corrected_norm) < 1e-8 and
+                     logged.get('accel_bias_subtracted') is True and logged.get('accel_scale_corrected') is True and
+                     json.dumps(logged.get('reviewed_accel_calibration'),sort_keys=True,allow_nan=False) ==
+                     json.dumps(accel_calibration.provenance(),sort_keys=True,allow_nan=False),
+                     'Reviewed acceleration raw/corrected provenance mismatch')
+            else:
+                need(all(logged.get(key,False) is False for key in ('accel_bias_subtracted','accel_scale_corrected')),
+                     'Unselected acceleration correction was logged')
         acquisition = [r for r in feedback if r['phase'] == 'feedback_hold' and
                        begin <= r['row']['start_ns'] <= r['row']['received_ns'] <= end]
         need(len(acquisition) == 12 and {r['mid'] for r in acquisition} == set(range(1,13)), 'Missing fresh parallel input records')
@@ -646,13 +664,16 @@ def evaluate_bytes(report_raw, plan_raw, profile_raw, association_raw, *, video_
         need(mount_raw is not None and bias_raw is not None, 'Pinned IMU mount/bias bytes required')
         for name,raw in (('mount',mount_raw),('bias',bias_raw)):
             need(profile['artifacts'][name]['sha256'] == digest(raw), 'IMU artifact hash mismatch')
-        rotation = _mount(document(mount_raw))['R_body_from_sensor']; bias = _bias(document(bias_raw))['bias_sensor_rad_s']
+        bias_document = document(bias_raw)
+        rotation = _mount(document(mount_raw))['R_body_from_sensor']; bias = _bias(bias_document)['bias_sensor_rad_s']
+        accel_calibration = reviewed_acceleration(bias_document,rotation,
+            enabled=acceleration_calibration_selected(profile))
         need(hardware_review_raw is not None and
              profile['artifacts']['hardware_review']['sha256'] == digest(hardware_review_raw),
              'Pinned hardware/watchdog review bytes required')
         tested_firmware = document(hardware_review_raw).get('device_watchdog')
         feedback,voltages = _journal(runtime,profile,tested_firmware=tested_firmware)
-        metrics = _cycles(runtime,profile,feedback,voltages,rotation,bias); result['metrics'] = metrics
+        metrics = _cycles(runtime,profile,feedback,voltages,rotation,bias,accel_calibration); result['metrics'] = metrics
         last_output = max(r['row']['received_ns'] for r in feedback if r['tx'].kind in (1,3))
         end = _stops(runtime,after_ns=max(metrics['last_cycle_ns'],last_output))
         result['all_axis_stop_confirmed'] = True

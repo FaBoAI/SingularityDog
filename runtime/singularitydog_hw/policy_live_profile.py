@@ -19,6 +19,7 @@ import wave
 
 from . import policy_shadow as shadow
 from .policy_observer import _bias
+from .imu_calibration_review import reviewed_acceleration
 
 SCHEMA_V1 = 'singularitydog.supported-policy-profile.v1'
 SCHEMA_V2 = 'singularitydog.supported-policy-profile.v2'
@@ -52,7 +53,8 @@ TOP_KEYS_V3 = TOP_KEYS | CADENCE_KEYS
 V3_EXECUTION_KEYS = {'model_backend', 'voltage_overlap', 'diagnostic_timing_acceptance',
                      'watchdog_review_policy', 'local_characterization', 'post_reply_deadline_policy',
                      'voltage_pipeline', 'native_batch_encoder', 'startup_damping_duration_s',
-                     'startup_cycle_allowance', 'fixed_catch', 'human_supported_hold'}
+                     'startup_cycle_allowance', 'fixed_catch', 'human_supported_hold',
+                     'apply_reviewed_accel_calibration'}
 COMMAND_LOSS_ONLY_SUPPORTED = 'command_loss_only_supported_trial'
 LOCAL_RELATIVE_SUPPORTED = 'bounded_relative_supported_v1'
 LOCAL_NUMERICAL_MARGIN_RAD = 2*25.14/65535
@@ -210,6 +212,7 @@ def _profile_keys(data):
 def execution_settings(profile):
     """Explicit reviewed V3 choices; old profiles retain their original route."""
     _profile_keys(profile)
+    acceleration_calibration_selected(profile)
     if profile['schema'] != SCHEMA_V3:
         _need(not V3_EXECUTION_KEYS.intersection(profile), 'Fast execution requires a V3 profile')
     backend = profile.get('model_backend', 'native_baseline')
@@ -236,6 +239,13 @@ def execution_settings(profile):
     return {'model_backend': backend, 'voltage_overlap': overlap,
             'voltage_pipeline': pipeline,
             'diagnostic_timing_acceptance': timing}
+
+
+def acceleration_calibration_selected(profile):
+    selected = profile.get('apply_reviewed_accel_calibration', False)
+    _need(type(selected) is bool and (not selected or profile.get('schema') == SCHEMA_V3),
+          'Reviewed acceleration calibration requires an explicit V3 boolean selection')
+    return selected
 
 
 def current_position_hold_only(profile):
@@ -949,6 +959,9 @@ def _timing(report, data):
         _need(source.get('voltage_range_v', [35., 42.]) == [35., data['voltage_max_v']],
               'Diagnostic voltage range differs from reviewed profile')
     bindings = report.get('input_sha256', {})
+    _need(report.get('plan', {}).get('apply_reviewed_accel_calibration', False)
+          is acceleration_calibration_selected(data),
+          'Diagnostic acceleration calibration selection differs from reviewed profile')
     for source, key in (('calibration', 'calibration'), ('mount', 'mount'), ('bias', 'gyro_bias')):
         value = bindings.get(key, bindings.get('bias') if source == 'bias' else None)
         _need(value == data['artifacts'][source]['sha256'], 'Timing input mismatch: '+source)
@@ -2906,6 +2919,8 @@ def load_profile(path, *, require_approved=True):
     _axes(data, documents['calibration'])
     shadow.validate_imu_mount_candidate(documents['mount'])
     _bias(documents['bias'])
+    reviewed_acceleration(documents['bias'], documents['mount']['R_body_from_sensor'],
+                         enabled=acceleration_calibration_selected(data))
     manifest = documents['model_manifest']
     _need(type(manifest) is dict and manifest.get('schema') == 'native-policy-overnight-v1' and
           manifest.get('status') == 'VALIDATED_FILE_ONLY' and manifest.get('bundle_hashes') == shadow.SOURCE_HASHES and

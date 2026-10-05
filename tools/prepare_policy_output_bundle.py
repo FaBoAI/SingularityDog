@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'tools'))
 sys.path.insert(0, str(ROOT/'runtime'))
 import prepare_overnight_bundle as overnight
+import audit_angle_calibration as angle_audit
 from singularitydog_hw import policy_live_profile as live
 from singularitydog_hw.ground_trial_plan import template_ground_plan, STAGES
 from singularitydog_hw.ground_trial_review import physical_review_template
@@ -35,6 +36,10 @@ PRELOAD_PROFILE_PATH = 'inputs/supported-preload-profile-template.json'
 PRELOAD_SOURCE_PATH = 'runtime/singularitydog_hw/supported_preload_path.py'
 PRELOAD_DOC_PATHS = ('docs/supported-preload-runtime-20260930.md',
                      'docs/walking-plan-20260930.md', 'docs/system-readiness-20260930.md')
+CURRENT_VALIDATION_DOC_PATHS = ('docs/today-validation-20261005.md',
+                              'docs/walking-week-20261005.md',
+                              'docs/angle-final-review-20261005.md',
+                              'docs/imu-fixed-mount-20260922.md')
 GROUND_SOURCE_PATHS = (
     'runtime/singularitydog_hw/ground_trial_plan.py',
     'runtime/singularitydog_hw/ground_trial_trajectory.py',
@@ -78,13 +83,50 @@ def _new_private_output(output):
     return resolved
 
 
-def build(snapshot_home, output, *, profile_schema=live.SCHEMA_V2):
+def _select_angle_profile(stage, path, pins):
+    """Keep an explicitly selected review profile instead of a historical zero.
+
+    Selection copies provenance, not a current-power capture or runtime permit.
+    Referenced evidence is copied and rebound so the kit remains self-contained.
+    """
+    source=overnight._regular_source(Path(path).expanduser())
+    before=_sha(source)
+    profile,contracts=angle_audit.load_profile(source)
+    if any(row.calibration_sha256!=before for row in contracts.values()):
+        raise ValueError('Selected angle profile changed during validation')
+    expected=json.loads((stage/'inputs/expected-uids.json').read_text())
+    if {str(mid):row.uid for mid,row in contracts.items()}!=expected:
+        raise ValueError('Selected angle profile differs from snapshot motor UIDs')
+    overnight.copy_source(source,stage/'inputs/selected-angle-profile-original.json',pins)
+    if pins[source]!=before:raise ValueError('Selected angle profile changed during validation')
+    evidence_map={}
+    for digest,name in profile.get('evidence_files',{}).items():
+        if (type(digest) is not str or len(digest)!=64 or any(c not in '0123456789abcdef' for c in digest)
+                or type(name) is not str or not name):raise ValueError('Invalid selected angle evidence')
+        evidence=Path(name).expanduser()
+        if not evidence.is_absolute():evidence=source.parent/evidence
+        evidence=overnight._regular_source(evidence)
+        target='angle-evidence/'+digest+evidence.suffix
+        overnight.copy_source(evidence,stage/'inputs'/target,pins)
+        if pins[evidence]!=digest:raise ValueError('Selected angle evidence changed or hash differs')
+        evidence_map[digest]=target
+    profile=dict(profile,evidence_files=evidence_map)
+    _save(stage/'inputs/angle-profile.json',profile)
+    angle_audit.load_profile(stage/'inputs/angle-profile.json')
+    return {'selection':'explicit_review_profile','original_sha256':before,
+            'packaged_sha256':_sha(stage/'inputs/angle-profile.json'),
+            'motor_uid_match_verified':True,'current_boot_or_power_verified':False,
+            'approved_for_runtime':False}
+
+
+def build(snapshot_home, output, *, profile_schema=live.SCHEMA_V2, angle_profile=None):
     """Publish a new kit; final manifest exists only after all files are copied."""
     if profile_schema not in (live.SCHEMA_V2, live.SCHEMA_V3):
         raise ValueError('An explicit supported V2 or V3 profile schema is required')
     out = _new_private_output(output)
     # Fail before making an output if this checkout lacks part of the new path.
-    required = (*ACTIVE_SOURCE_PATHS, *GROUND_SOURCE_PATHS, DESIGN_PATH, GROUND_RUNBOOK_PATH)
+    required = (*ACTIVE_SOURCE_PATHS, *GROUND_SOURCE_PATHS, DESIGN_PATH, GROUND_RUNBOOK_PATH,
+                *CURRENT_VALIDATION_DOC_PATHS)
     if profile_schema == live.SCHEMA_V3:required += (PRELOAD_SOURCE_PATH,)
     for name in required:
         source = ROOT/name
@@ -95,6 +137,9 @@ def build(snapshot_home, output, *, profile_schema=live.SCHEMA_V2):
         stage = Path(stage_dir)/'kit'
         overnight.build(snapshot_home, stage)
         source_pins = {}
+        angle_selection=(_select_angle_profile(stage,angle_profile,source_pins) if angle_profile is not None else
+                         {'selection':'historical_snapshot_diagnostic_only','current_boot_or_power_verified':False,
+                          'approved_for_runtime':False})
         candidate = live.template(schema=profile_schema)
         if profile_schema == live.SCHEMA_V3:
             # Pin the bytes actually copied into the kit. A concurrent source
@@ -124,7 +169,8 @@ def build(snapshot_home, output, *, profile_schema=live.SCHEMA_V2):
             _save(stage/PRELOAD_PROFILE_PATH, preload)
         copied_docs = []
         for name in (DESIGN_PATH, VALIDATION_PATH, GROUND_RUNBOOK_PATH, READINESS_PATH, LATENCY_PATH, TODAY_PATH,
-                     'docs/hardware-native-host-processing-20260925.md', *PRELOAD_DOC_PATHS):
+                     'docs/hardware-native-host-processing-20260925.md', *PRELOAD_DOC_PATHS,
+                     *CURRENT_VALIDATION_DOC_PATHS):
             source = ROOT.resolve()/name
             if source.exists():
                 if not source.is_file() or source.is_symlink():
@@ -145,6 +191,14 @@ def build(snapshot_home, output, *, profile_schema=live.SCHEMA_V2):
         sources = {name: _sha(stage/name) for name in ACTIVE_SOURCE_PATHS}
         config_path = stage/'kit-config.json'
         config = json.loads(config_path.read_text())
+        config['validation_preparation'] = {
+            'runbooks': [name for name in CURRENT_VALIDATION_DOC_PATHS if name in copied_docs],
+            'hardware_results_included': False,
+            'calibration_approved_for_runtime': False,
+            'output_allowed': False,
+            'source_of_historical_inputs': 'saved snapshot; current boot/power must be acquired on target',
+            'angle_profile_selection':angle_selection,
+        }
         config['supported_policy_output'] = {
             'profile_template': PROFILE_PATH,
             'profile_template_sha256': _sha(stage/PROFILE_PATH),
@@ -248,11 +302,13 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--snapshot-home', required=True)
     parser.add_argument('--output', required=True)
+    parser.add_argument('--angle-profile',help='Explicit latest unapproved review profile; copy/pin evidence and verify snapshot UIDs')
     parser.add_argument('--profile-schema', choices=(live.SCHEMA_V2, live.SCHEMA_V3),
                         default=live.SCHEMA_V2,
                         help='V3 must be selected explicitly; neither schema approves output')
     args = parser.parse_args(argv)
-    print(json.dumps(build(args.snapshot_home, args.output, profile_schema=args.profile_schema), ensure_ascii=False))
+    print(json.dumps(build(args.snapshot_home, args.output, profile_schema=args.profile_schema,
+                           angle_profile=args.angle_profile), ensure_ascii=False))
     return 0
 
 

@@ -144,7 +144,18 @@ def analyse(stage, pose, baseline=None, replacement=None):
 
 def build_candidates(stages, records, replacement=None):
     """Nominal hand-aligned candidates only; never a motor configuration."""
-    by_stage = {r["stage_id"]: r for r in records if r["accepted"]}
+    by_stage = {}
+    for record in records:
+        if not record["accepted"]:
+            continue
+        if record["stage"]["kind"] == "l":
+            # A new L reference starts a new observation sequence for this leg.
+            # Old direction/return deltas were measured against the old raw
+            # reference and must not acquire a new zero by dictionary overwrite.
+            leg = record["stage"]["leg"]
+            by_stage = {key: value for key, value in by_stage.items()
+                        if value["stage"]["leg"] != leg}
+        by_stage[record["stage_id"]] = record
     result = []
     for stage in stages:
         if not stage["moving_id"]:

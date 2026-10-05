@@ -8,6 +8,7 @@ import unittest
 from unittest.mock import patch
 
 from test_prepare_overnight_bundle import synthetic_inputs, write_fixture
+from test_audit_angle_calibration import profile_fixture
 from singularitydog_hw import policy_live_profile as live
 
 
@@ -22,7 +23,7 @@ diagnostic = load_tool('dog_tomorrow')
 
 
 class PolicyOutputBundleTests(unittest.TestCase):
-    def build_fixture(self, root, *, with_validation=False):
+    def build_fixture(self, root, *, with_validation=False, angle_profile=None):
         repo, home, profile, uids = synthetic_inputs(root)
         for name in (*tool.ACTIVE_SOURCE_PATHS,*tool.GROUND_SOURCE_PATHS):
             write_fixture(repo, name, b'// synthetic source\n' if name.endswith('.cpp') else b'# synthetic source\n')
@@ -30,11 +31,12 @@ class PolicyOutputBundleTests(unittest.TestCase):
         write_fixture(repo, tool.GROUND_RUNBOOK_PATH, b'Synthetic ground review runbook\n')
         if with_validation: write_fixture(repo, tool.VALIDATION_PATH, b'Synthetic offline validation\n')
         for name in tool.PRELOAD_DOC_PATHS:write_fixture(repo,name,b'Synthetic current preparation runbook\n')
+        for name in tool.CURRENT_VALIDATION_DOC_PATHS:write_fixture(repo,name,b'Synthetic current validation runbook\n')
         write_fixture(repo, 'runtime/experiments/native_active_transport/libdog_active_transport.so', b'MAC HOST BINARY DO NOT COPY')
         output = root/'private-policy-kit'
         with patch.object(tool, 'ROOT', repo), patch.object(tool.overnight, 'ROOT', repo), \
              patch.object(tool.overnight, 'history_profile', return_value=(profile, {}, {}, {}, uids)):
-            result = tool.build(home, output)
+            result = tool.build(home, output, angle_profile=angle_profile)
         return output, result, home
 
     def test_unapproved_template_preserves_empty_axes_and_pending_evidence(self):
@@ -74,6 +76,68 @@ class PolicyOutputBundleTests(unittest.TestCase):
             for key in ('expected_uids','angle_profile','calibration','mount','bundle'):
                 self.assertTrue((output/config[key]).exists())
 
+    def test_current_validation_runbooks_are_delivered_and_manifest_pinned(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output,_,_=self.build_fixture(Path(folder))
+            config=json.loads((output/'kit-config.json').read_text())['validation_preparation']
+            self.assertEqual(config['runbooks'],list(tool.CURRENT_VALIDATION_DOC_PATHS))
+            self.assertFalse(config['output_allowed']);self.assertFalse(config['calibration_approved_for_runtime'])
+            self.assertFalse(config['hardware_results_included'])
+            manifest=json.loads((output/'kit-manifest.json').read_text())
+            for name in config['runbooks']:
+                self.assertEqual(manifest['files'][name],hashlib.sha256((output/name).read_bytes()).hexdigest())
+            (output/config['runbooks'][0]).write_text('changed instructions')
+            with self.assertRaisesRegex(ValueError,'changed'):diagnostic.verify_kit(output)
+
+    def test_latest_angle_selection_is_portable_preserves_geometry_and_never_arms(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder).resolve();profile,evidence=profile_fixture(root)
+            before=json.loads(profile.read_text())
+            output,_,_=self.build_fixture(root,angle_profile=profile)
+            copied=json.loads((output/'inputs/angle-profile.json').read_text())
+            self.assertEqual(copied['axes'],before['axes'])
+            self.assertFalse(copied['approved_for_runtime'])
+            self.assertEqual((output/'inputs/selected-angle-profile-original.json').read_bytes(),profile.read_bytes())
+            for digest,name in copied['evidence_files'].items():
+                self.assertFalse(Path(name).is_absolute())
+                self.assertEqual(hashlib.sha256((output/'inputs'/name).read_bytes()).hexdigest(),digest)
+            selection=json.loads((output/'kit-config.json').read_text())['validation_preparation']['angle_profile_selection']
+            self.assertEqual(selection['selection'],'explicit_review_profile')
+            self.assertEqual(selection['original_sha256'],hashlib.sha256(profile.read_bytes()).hexdigest())
+            self.assertFalse(selection['current_boot_or_power_verified']);self.assertFalse(selection['approved_for_runtime'])
+            evidence.unlink() # Target kit must no longer depend on the original absolute path.
+            tool.angle_audit.load_profile(output/'inputs/angle-profile.json')
+            diagnostic.verify_kit(output)
+
+    def test_latest_angle_selection_rejects_wrong_uid_approval_and_changed_evidence(self):
+        for mutation in ('uid','approval','evidence'):
+            with self.subTest(mutation=mutation),tempfile.TemporaryDirectory() as folder:
+                root=Path(folder).resolve();profile,evidence=profile_fixture(root);value=json.loads(profile.read_text())
+                if mutation=='uid':value['axes'][0]['uid']='f'*16
+                elif mutation=='approval':value['approved_for_runtime']=True
+                else:evidence.write_text('changed reference')
+                profile.write_text(json.dumps(value))
+                with self.assertRaises(ValueError):self.build_fixture(root,angle_profile=profile)
+                self.assertFalse((root/'private-policy-kit').exists())
+
+    def test_latest_angle_selection_rejects_transient_source_change_then_restoration(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder).resolve();profile,_=profile_fixture(root)
+            original=profile.read_bytes();changed=json.loads(original)
+            changed['axes'][0]['offset_rad']=0.123
+            real_load=tool.angle_audit.load_profile
+            def transient_load(path):
+                if Path(path)==profile:
+                    profile.write_text(json.dumps(changed))
+                    try:return real_load(path)
+                    finally:profile.write_bytes(original)
+                return real_load(path)
+            with patch.object(tool.angle_audit,'load_profile',side_effect=transient_load):
+                with self.assertRaisesRegex(ValueError,'changed during validation'):
+                    self.build_fixture(root,angle_profile=profile)
+            self.assertEqual(profile.read_bytes(),original)
+            self.assertFalse((root/'private-policy-kit').exists())
+
     def test_explicit_v3_kit_pins_copied_cadence_sources_and_stays_unapproved(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
@@ -84,6 +148,7 @@ class PolicyOutputBundleTests(unittest.TestCase):
                 write_fixture(repo, name, b'// synthetic source\n' if name.endswith('.cpp') else b'# synthetic source\n')
             write_fixture(repo, tool.DESIGN_PATH, b'Synthetic policy output design\n')
             write_fixture(repo, tool.GROUND_RUNBOOK_PATH, b'Synthetic ground review runbook\n')
+            for name in tool.CURRENT_VALIDATION_DOC_PATHS:write_fixture(repo,name,b'Synthetic current validation runbook\n')
             copied = {name: hashlib.sha256((repo/'runtime'/name).read_bytes()).hexdigest()
                       for name in live.CADENCE_SOURCE_PATHS}
             output = root/'private-v3-kit'
@@ -130,6 +195,7 @@ class PolicyOutputBundleTests(unittest.TestCase):
                 write_fixture(repo, name, b'// synthetic source\n' if name.endswith('.cpp') else b'# synthetic source\n')
             write_fixture(repo, tool.DESIGN_PATH, b'Synthetic policy output design\n')
             write_fixture(repo, tool.GROUND_RUNBOOK_PATH, b'Synthetic ground review runbook\n')
+            for name in tool.CURRENT_VALIDATION_DOC_PATHS:write_fixture(repo,name,b'Synthetic current validation runbook\n')
             output = root/'private-v3-kit'
             with patch.object(tool, 'ROOT', repo), patch.object(tool.overnight, 'ROOT', repo), \
                  patch.object(tool.overnight, 'history_profile', return_value=(profile, {}, {}, {}, uids)), \

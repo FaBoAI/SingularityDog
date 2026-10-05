@@ -115,6 +115,14 @@ class PeriodicMathTests(unittest.TestCase):
             with self.assertRaises(AngleEvidenceError):
                 resolve_current_branch(.1, replace(axis(), **{field: False}))
 
+    def test_reviewed_zero_cannot_bind_with_numeric_only_zero_uncertainty(self):
+        with self.assertRaisesRegex(AngleEvidenceError, "nonzero error bound"):
+            axis(uncertainty_rad=0.)
+        nominal = axis(uncertainty_rad=0., zero_reviewed=False)
+        self.assertEqual(len(equivalent_branch_candidates(.1, nominal)), 1)
+        with self.assertRaisesRegex(AngleEvidenceError, "ZERO_ACCURACY"):
+            resolve_current_branch(.1, nominal)
+
     def test_wide_interval_and_uncertain_edge_are_rejected(self):
         broad = axis(lower_rad=-TAU, upper_rad=TAU)
         self.assertEqual(len(equivalent_branch_candidates(0, broad)), 3)
@@ -271,6 +279,20 @@ def observation(deg, *, sign=1, sequence=0):
 
 
 class PhysicalReferenceTests(unittest.TestCase):
+    def test_touching_fit_intervals_do_not_claim_perfect_physical_accuracy(self):
+        rows = [observation(0), observation(15, sequence=1)]
+        # Opposite bounded errors narrow the offset intersection to one point.
+        rows[-1]["raw_rad"] -= math.radians(1)
+        fit = fit_reference_observations(rows)
+        self.assertAlmostEqual(fit["offset_fit_uncertainty_rad"], 0.)
+        self.assertAlmostEqual(fit["uncertainty_rad"], math.radians(.5))
+        self.assertAlmostEqual(fit["max_abs_residual_rad"], math.radians(.5))
+        self.assertAlmostEqual(fit["physical_span_rad"], math.radians(15))
+        self.assertAlmostEqual(fit["raw_span_rad"], math.radians(14))
+        self.assertAlmostEqual(fit["signed_displacement_scale_candidate"], 15 / 14)
+        self.assertTrue(fit["physical_accuracy_review_required"])
+        self.assertFalse(fit["dynamic_type2_scale_verified"])
+
     def test_finite_extreme_sources_cannot_produce_infinite_offset_candidate(self):
         rows=[observation(0),observation(15,sequence=1)]
         for row in rows:row['raw_rad']=1e308

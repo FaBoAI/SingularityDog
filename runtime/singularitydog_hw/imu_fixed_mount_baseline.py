@@ -175,7 +175,11 @@ def _statistics(rows):
     }
 
 
-def _load_capture(directory):
+def _load_capture(directory, *, expected_face="unverified"):
+    # Six-face calibration shares this integrity audit, without changing the
+    # default fixed-mount requirement or inferring a face from measured values.
+    _require(expected_face in ("unverified", "x+", "x-", "y+", "y-", "z+", "z-"),
+             "unknown expected sensor face")
     directory = Path(directory).expanduser().resolve()
     summary_bytes, event_bytes = (directory/"summary.json").read_bytes(), (directory/"events.jsonl").read_bytes()
     metadata = _json(summary_bytes)
@@ -183,8 +187,8 @@ def _load_capture(directory):
              and metadata.get("restore_status") == "restored", "capture incomplete or restoration not verified")
     plan = metadata.get("plan")
     _require(isinstance(plan, dict) and plan.get("can_opened") is False
-             and plan.get("calibration_applied") is False and plan.get("face_label") == "unverified",
-             "unmodified fixed-mount capture plan required")
+             and plan.get("calibration_applied") is False and plan.get("face_label") == expected_face,
+             "unmodified capture plan with expected face label required")
     _require(isinstance(plan.get("bus"), str) and bool(plan["bus"])
              and type(plan.get("address")) is int and plan["address"] in (0x68, 0x69),
              "capture device path/address missing")

@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 from singularitydog_hw import rs05_trial_protocol as protocol
-from tools.analyze_motor_reply_failure import analyze, load_report, main
+from tools.analyze_motor_reply_failure import READER_COUNTERS, analyze, load_report, main
 
 B = 1_000_000_000
 MS = 1_000_000
@@ -43,7 +43,87 @@ def fixture():
                 stop_reports=stops)
 
 
+def failed_exchange(*, before_write=False):
+    before = {key: 0 for key in READER_COUNTERS}
+    after = dict(before, read_until_calls=1, select_calls=1,
+                 select_wait_ns=250*MS, hard_expiries=1)
+    return dict(kind='exchange_failure',motor_id=10,step='enable',
+                event_start_index=0,event_end_index=0 if before_write else 1,
+                request_start_ns=None if before_write else B,
+                hard_deadline_ns=None if before_write else B+250*MS,
+                failed_at_ns=B+250*MS,error='PRIVATE_ORIGINAL_EXCEPTION_TEXT',
+                receive_boundary_evidence=dict(partial_hex='',discarded_bytes=0,backlogged_bytes=0),
+                reader_counters_before=before,reader_counters_after=after,reader_counters_delta=after.copy(),
+                diagnostic_errors=[],counter_scope='host_serial_reader_not_CAN_or_motor_delivery',
+                automatic_retry=False)
+
+
 class ReplyFailureAnalysisTests(unittest.TestCase):
+    def test_failure_boundary_counters_retained_without_can_root_cause_inference(self):
+        report=fixture();event=failed_exchange()
+        report['events_by_bus']['rear'].insert(1,event)
+        result=analyze(report);row=result['buses']['rear']['suspicious_exchanges'][0]
+        observation=row['failure_observation']
+        self.assertEqual(observation['request_deadline_ms'],250)
+        self.assertEqual(observation['failed_after_deadline_ms'],0)
+        self.assertEqual(observation['reader_counters_delta']['select_wait_ns'],250*MS)
+        self.assertEqual(observation['host_receive_condition'],'HOST_DEADLINE_WITHOUT_RECORDED_READ_BYTES')
+        self.assertFalse(result['root_cause_established']);self.assertTrue(result['unresolved_stop_evidence'])
+        self.assertNotIn('PRIVATE_ORIGINAL_EXCEPTION_TEXT',json.dumps(result))
+
+    def test_pre_write_failure_is_not_attached_to_previous_successful_transaction(self):
+        report=fixture();event=failed_exchange(before_write=True)
+        event.update(event_start_index=2,event_end_index=2)
+        report['events_by_bus']['rear']=[tx(9,'stop',B),rx(response(9),B+MS),event,
+                                       tx(10,'enable',B+255*MS),tx(10,'stop',B+260*MS),
+                                       rx(response(10),B+263*MS)]
+        bus=analyze(report)['buses']['rear']
+        self.assertEqual(len(bus['pre_write_failures']),1)
+        self.assertFalse(bus['pre_write_failures'][0]['request_written'])
+        self.assertNotIn('failure_observation',bus['suspicious_exchanges'][0])
+
+    def test_reader_eof_bytes_transients_and_unavailable_counters_are_separate_facts(self):
+        cases=[('eof_events',1,'HOST_READER_EOF_RECORDED'),
+               ('bytes_received',17,'HOST_READER_BYTES_RECORDED'),
+               ('select_eintr',1,'HOST_READER_TRANSIENT_EVENTS_RECORDED'),
+               (None,None,'READER_COUNTERS_UNAVAILABLE')]
+        for key,value,condition in cases:
+            with self.subTest(condition=condition):
+                report=fixture();event=failed_exchange()
+                if key is None:
+                    for name in ('reader_counters_before','reader_counters_after','reader_counters_delta'):event[name]=None
+                else:
+                    event['reader_counters_after'][key]=value;event['reader_counters_delta'][key]=value
+                report['events_by_bus']['rear'].insert(1,event)
+                obs=analyze(report)['buses']['rear']['suspicious_exchanges'][0]['failure_observation']
+                self.assertEqual(obs['host_receive_condition'],condition)
+
+    def test_corrupt_counter_delta_scope_or_transaction_binding_rejected(self):
+        for mutation in ('delta','boolean','scope','index','request','retry','backlog','deadline'):
+            with self.subTest(mutation=mutation):
+                report=fixture();event=failed_exchange()
+                if mutation=='delta':event['reader_counters_delta']['hard_expiries']=2
+                elif mutation=='boolean':event['reader_counters_after']['read_calls']=True
+                elif mutation=='scope':event['counter_scope']='CAN_delivered'
+                elif mutation=='index':event['event_end_index']=2
+                elif mutation=='request':event['request_start_ns']=B+1
+                elif mutation=='retry':event['automatic_retry']=True
+                elif mutation=='deadline':event['hard_deadline_ns']=B+5*MS
+                else:event['receive_boundary_evidence']['backlogged_bytes']=-1
+                report['events_by_bus']['rear'].insert(1,event)
+                with self.assertRaises(ValueError):analyze(report)
+
+    def test_incomplete_diagnostic_storage_flag_is_not_silently_ignored(self):
+        report=fixture()
+        report['diagnostic_storage_by_bus']={bus:dict(unlogged_receive_failure=False,unlogged_exchange_failure=False)
+                                            for bus in ('front','rear')}
+        self.assertTrue(analyze(report)['failure_diagnostic_storage_complete'])
+        report['diagnostic_storage_by_bus']['rear']['unlogged_exchange_failure']=True
+        self.assertFalse(analyze(report)['failure_diagnostic_storage_complete'])
+        self.assertIsNone(analyze(fixture())['failure_diagnostic_storage_complete'])
+        report['diagnostic_storage_by_bus']['front']['unlogged_receive_failure']=0
+        with self.assertRaises(ValueError):analyze(report)
+
     def test_full_enable_write_no_rx_not_repaired_by_later_reset_observation(self):
         result=analyze(fixture());bus=result['buses']['rear']
         failed=bus['suspicious_exchanges'][0]

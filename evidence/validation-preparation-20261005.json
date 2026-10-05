@@ -1,0 +1,202 @@
+{
+  "schema": "singularitydog.validation-preparation-summary.v1",
+  "date": "2026-10-05",
+  "record_scope": "historical_offline_preparation_before_live_validation_and_later_calibration_tools",
+  "source_sha256_scope": "files_at_preparation_time_not_a_manifest_of_current_repository_head",
+  "status": "OFFLINE_FIXES_VERIFIED_JETSON_CONNECTION_AND_PHYSICAL_REVIEW_PENDING",
+  "starting_commit": "b0cf2a416cdcba479a085ac89f8a8fb9a978969e",
+  "hardware_opened": false,
+  "deployed_to_jetson": false,
+  "new_jetson_latency_measured": false,
+  "physical_motor_enable_sent": false,
+  "physical_learned_targets_sent": false,
+  "physical_review_generated": false,
+  "final_joint_calibration_verified": false,
+  "final_imu_calibration_verified": false,
+  "full_controller_50Hz_verified": false,
+  "standing_verified": false,
+  "walking_verified": false,
+  "output_allowed": false,
+  "source_sha256": {
+    "README.md": "07c2fa5ddcad15f426e3c75e3aefec624acb2d2d02ce552ef36b4a42df92bfc6",
+    "docs/angle-final-review-20261005.md": "4a0b73ab3fbc54c6af0b8fff1fc8a6d3b2faf2a428414d7c53b6f59d9bc225b1",
+    "docs/today-validation-20261005.md": "5e163ddd58fb3ce5c9d5924323113e7aaa086ff8afb051b41f06cc232e1af703",
+    "docs/walking-week-20261005.md": "6b908552bb5446dbdeb38f70cf1fe94a89015bece63ec5f7d5f378f0b83af8f5",
+    "runtime/CALIBRATION.md": "75704147dc2a9cbb6de7073962dfa101c5f5ad7f087abe32f8cf1fdd244798b1",
+    "runtime/singularitydog_hw/angle_calibration_audit.py": "6e0b382ed7f0e213e08c684184852aa9d612df6182440d6df4f9dbe981868064",
+    "runtime/singularitydog_hw/ground_trial_review.py": "f4bc40d51412893eb3a67329d3a3c0025f9947590be6c84bcb82890e5faa54be",
+    "runtime/singularitydog_hw/imu_calibration.py": "0294de56c926e692cc9444dcc17c06934337e0327160ae1898270725ada561ce",
+    "runtime/singularitydog_hw/imu_calibration_review.py": "8540781c8c13b2db6aebac609ce9ad351f8ae3562219c04bf87d0c5376353cf0",
+    "runtime/singularitydog_hw/imu_fixed_mount_baseline.py": "67d8f0c19e3a30634d8d4338117f97011263b7fcffe5e0e7c8994af52a13800b",
+    "runtime/singularitydog_hw/manual_calibration.py": "7d6267338fff04fe67c1f452ce71fff652accdf5117481241b4fd9492839b3a8",
+    "runtime/singularitydog_hw/native_pipeline_benchmark.py": "18ed0b1ca678a59f2500f8f56862b85e55506127fb1c1dd5b654dfde48fef97a",
+    "runtime/singularitydog_hw/policy_live_profile.py": "ac72113a21f8c6ba3847cdd3b89747159914252c10aeca6d69447669b9c7b145",
+    "runtime/singularitydog_hw/policy_observer.py": "492cc46d0c8391107b1102c3d0239695e3b4eb8770f8e63d962d5f0bb2ffdc69",
+    "runtime/singularitydog_hw/policy_output_model.py": "aba63c2659c71cad4247a2360e83cfb3af7c16f39ebf0f9aa23da2abc877c409",
+    "runtime/singularitydog_hw/watchdog_commissioning.py": "4b45d94d972ecdf8f313bdfd687842e68a129f9a531651bf76936e11812d2b05",
+    "runtime/tests/test_angle_calibration_audit.py": "a9e86da28c7d5d1419f0b23278df10fc0c94cd88099df04974c2c52ff678a378",
+    "runtime/tests/test_imu_calibration.py": "82e6a6615daa3a3d8b5c5d75dcde78b80fd2018f17d6a8a3f52f14fc3d6440b3",
+    "runtime/tests/test_imu_calibration_review.py": "4746cd621e5574244806ada81db1434f8ecb2a5184c96821decec2b839ef8c39",
+    "runtime/tests/test_manual_calibration.py": "2c12ddbb56e7a5bea9f079aabb446d379a591e8575920c33f53ee8715dd636b9",
+    "runtime/tests/test_native_acquisition_join_wait.py": "915e513f85e05c3f4c99c6126b5bdeecb6af238a51adf296d10de21cbb92e90e",
+    "runtime/tests/test_native_voltage_join_wait.py": "a49e4e7484add8038332322c5814d5725e3a6887bed619ba93397c59ee70c63d",
+    "runtime/tests/test_watchdog_commissioning.py": "737c0294da969bbe0bf32a8ee3f3b5576ba26cbd0a9d0052439b4664974fc05d",
+    "tools/analyze_motor_reply_failure.py": "47ca876b9081b4bb3e27caeba33a4f8077f7724c3a79e1cf25d2134a6f2a68c9",
+    "tools/audit_angle_calibration.py": "88f6f2f98fff763bf7637143ed0d82aa11e40931499b0fd809c8ae1df386437b",
+    "tools/dog_tomorrow.py": "21857225f87a5effb1590591bc3d6dda2ec10c9800b1f22092c8f867cac42cc6",
+    "tools/prepare_policy_output_bundle.py": "caae7e51d5cac24b2a37ae7d33f0555e52a11b46898ebef7bedd02fda0f8b671",
+    "tools/prepare_supported_profile.py": "54e6cc7683dc017d2c41b75d44e4af28fbfbee41433b2fe7307833ac61a76ce2",
+    "tools/test_analyze_motor_reply_failure.py": "588703238966d02798037b84498774403f48a1053a2bb5876f89cbaa35a62742",
+    "tools/test_audit_angle_calibration.py": "5085d954ecdd2aba9d993119fe768ccad0abdc2127f2a97cf29c91c1ca340188",
+    "tools/test_dog_tomorrow.py": "f25560839180f0e15db2ce48b85416efea8907d9b2cd53bddf3adca971556d38",
+    "tools/test_prepare_policy_output_bundle.py": "7fd970bdc6b7da7afc8e4492b87142d73ff2e0acdccbb671a3ffa6ffd6e71e41"
+  },
+  "regression": {
+    "runtime": {
+      "tests_run": 2675,
+      "passed": 2671,
+      "skipped": 4,
+      "elapsed_s": 142.966,
+      "status": "PASS",
+      "private_output_sha256": "f1b256a808c2f77160a9416e25c32e08fdf1b27e38fa9592f4de565c67c4ded4"
+    },
+    "tools": {
+      "tests_run": 521,
+      "passed": 509,
+      "skipped": 12,
+      "elapsed_s": 20.066,
+      "status": "PASS",
+      "private_output_sha256": "bfc25d15608d4d5680c62d876b9019e64c75ba393ae2ff5995a75c2d14937728"
+    }
+  },
+  "real_model_local_socket_integration": {
+    "status": "PASS",
+    "simulation_only": true,
+    "hardware_opened": false,
+    "acceleration_input": "default_raw",
+    "physical_validation_bypassed_for_local_sockets": true,
+    "relaxed_mac_timing_not_valid_for_hardware": true,
+    "plant": "Instantaneous joint tracking; no physical contact/load/balance emulation",
+    "summary_sha256": "1e1531da2effadad7105be655213c3d895cea12fffade31615beb3ed20ecdb1b",
+    "library_sha256": "3395669d77c9c7012f84f0d7bf5f6d4ab09dc565b9ce71e62ca1d38e5bcabd1b",
+    "all_sources_unchanged": true,
+    "cases": {
+      "supported_stance": {
+        "status": "PASS_OFFLINE_GROUND_SIMULATION",
+        "ground_status": "COMPLETE_BOUNDED_GROUND_TRIAL",
+        "real_model_calls": 178,
+        "stop_confirmed": true,
+        "tx_frames": 5584,
+        "rx_frames": 5584,
+        "report_sha256": "be44be7ad52c2979855b347a2c6545a6f67d880674decbffca5e724c8d0b2846",
+        "eager_target_and_state_parity": "PASS",
+        "maximum_parity_error": 0.0
+      },
+      "walk": {
+        "status": "PASS_OFFLINE_GROUND_SIMULATION",
+        "ground_status": "COMPLETE_BOUNDED_GROUND_TRIAL",
+        "real_model_calls": 179,
+        "stop_confirmed": true,
+        "tx_frames": 5612,
+        "rx_frames": 5612,
+        "report_sha256": "6847fa49890260ee76818b6643d51996acf8ab9f7c4298ff62245dab0303be15",
+        "eager_target_and_state_parity": "PASS",
+        "maximum_parity_error": 0.0
+      },
+      "walk-missing-ack": {
+        "status": "PASS_OFFLINE_GROUND_SIMULATION",
+        "ground_status": "ABORTED",
+        "real_model_calls": 179,
+        "stop_confirmed": true,
+        "tx_frames": 5192,
+        "rx_frames": 5192,
+        "report_sha256": "cd8d609585797da45a51605123a33bd94303a1ea99a14351370093cd81d8c563",
+        "eager_target_and_state_parity": "PASS",
+        "maximum_parity_error": 0.0
+      }
+    }
+  },
+  "fixes": [
+    {
+      "area": "failure_only_reader_evidence",
+      "change": "Capture bounded counter/partial/backlog/deadline evidence immediately before STOP resets reader; logging failure preserves original exception; no automatic retry or causal inference."
+    },
+    {
+      "area": "ordinary_v3_waits",
+      "change": "Apply existing native readiness polling in at most 200 us requested slices to ordinary V3 acquisition and voltage overlap; retain formal deadlines/freshness and owner settlement."
+    },
+    {
+      "area": "dispatch_validation_time",
+      "change": "Recheck completion-time freshness and deadline, each submission clock and retained owner start; late evidence remains recorded and cannot submit overdue STOP proxy."
+    },
+    {
+      "area": "angle_and_input_provenance",
+      "change": "Invalidate stale leg direction/return after new L pose; reject zero physical uncertainty; emit measured fits/reference templates/work queue; bind selected kit profile to actual parsed SHA and all12 UIDs."
+    },
+    {
+      "area": "imu_fit_and_runtime_selection",
+      "change": "Audit raw/SI/config/restoration/temperature/times and independently collected heldout six faces; fixed diagonal correction selected only through named physical review and source/capture pins; raw guard and default input unchanged."
+    },
+    {
+      "area": "consolidated_diagnostics",
+      "change": "Explicit scalar+ordinary-overlap model pins and native wait-path evidence; separate startup and steady cycles; optional reviewed acceleration only in full stage with bias SHA and original-file recheck."
+    }
+  ],
+  "independent_review": {
+    "native_deadlines_and_loss": "PASS",
+    "packager_transient_source_change": "REPRODUCED_AND_FIXED",
+    "imu_zero_uncertainty_and_JSON_type_confusion": "REPRODUCED_AND_FIXED",
+    "imu_runtime_default_and_pins": "PASS",
+    "ground_review_corrected_input": "PASS"
+  },
+  "saved_failure_replay": {
+    "report_sha256": "b8ce650978ee6797d4392cfa265a1bbc6ed58304bed666cb367ed1da788be4dc",
+    "motor_id": 10,
+    "step": "enable",
+    "host_write_complete": true,
+    "recorded_receive_bytes_before_next_tx": 0,
+    "classification": "FULL_HOST_WRITE_WITHOUT_RECORDED_RX",
+    "reader_counters_recorded_in_historical_report": false,
+    "root_cause_established": false,
+    "reported_stop_confirmed": false,
+    "unresolved_stop_evidence": true
+  },
+  "saved_angle_review": {
+    "selected_profile_sha256": "efe07c086fefc0086fbfbe1ce9216b7eff4706c488c6068b921c927bf0fddf1b",
+    "water_level_offsets_signs_and_uids_match": true,
+    "physical_zero_reviewed_count": 0,
+    "motor_count": 12,
+    "external_reference_accuracy_and_datum_error_recorded": false,
+    "current_boot_and_power_verified": false
+  },
+  "saved_imu_review": {
+    "static_norm_error_percent": 8.9745,
+    "fs_readback_and_raw_to_si_consistent": true,
+    "single_pose_bias_scale_identifiable": false,
+    "new_independent_capture_exists": false,
+    "reviewed_correction_selected": false
+  },
+  "next_physical_sequence": [
+    "Connect Jetson, verify target software/model/ABI and current power/UID/pose",
+    "Zero-gain command-loss and all-axis STOP with failure counters; passive USB trace if needed",
+    "Same-source 5 then50 then501 STOP-proxy cycles; judge startup separately; actual output requires separate measurement",
+    "Known nonzero angle/reference uncertainty and dynamic Type2 scale review for missing axes",
+    "Fixed-mount independent IMU calibration references; leave unidentifiable coefficients unapproved",
+    "Assemble exact final calibration/model/transport and repeat no-output measurement"
+  ],
+  "public_scope": "Source/test/redacted facts only; no UID, boot ID, IP, raw CAN frames, private model or physical approval",
+  "private_kit_preparation": {
+    "status": "VERIFIED_PRIVATE_KIT",
+    "kit_manifest_sha256": "02ed305db1ddb819e4ea4c6146722ba6ea10749adf141aaa9a5f6063eaa009ac",
+    "files_verified": 576,
+    "angle_profile_original_sha256": "efe07c086fefc0086fbfbe1ce9216b7eff4706c488c6068b921c927bf0fddf1b",
+    "twelve_motor_uids_matched": true,
+    "preserved_latest_angle_geometry": true,
+    "zero_reviewed_count": 0,
+    "contains_host_binary": false,
+    "private_file_modes_verified": true,
+    "approved_for_runtime": false,
+    "deployed_to_jetson": false,
+    "hardware_accessed": false
+  }
+}

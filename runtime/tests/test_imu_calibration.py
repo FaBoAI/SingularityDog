@@ -12,8 +12,9 @@ import unittest
 
 from singularitydog_hw.imu_calibration import (
     CalibrationError, CalibrationLimits, FACES, GRAVITY, calibrate_jsonl_files,
-    estimate_six_face, main,
+    calibrate_capture_directories, estimate_six_face, main,
 )
+from test_imu_fixed_mount_baseline import synthetic_capture, refresh_summary
 
 
 TRUE_BIAS = [0.02 * GRAVITY, -0.015 * GRAVITY, -0.09 * GRAVITY]
@@ -122,6 +123,13 @@ class EstimatorTests(unittest.TestCase):
         datasets["x+"][0]["raw_accel"][0] = 32768
         with self.assertRaisesRegex(CalibrationError, "signed16"):
             estimate_six_face(datasets)
+
+    def test_already_corrected_samples_cannot_be_refitted(self):
+        for field in ("accel_bias_subtracted", "accel_scale_corrected", "gyro_bias_subtracted"):
+            datasets = fake_faces()
+            datasets["x+"][0][field] = True
+            with self.subTest(field=field), self.assertRaisesRegex(CalibrationError, field):
+                estimate_six_face(datasets)
 
     def test_timing_must_increase_without_large_gaps(self):
         for change in (0, -1, 1_000_000_000):
@@ -249,6 +257,26 @@ class FileAndCLITests(unittest.TestCase):
                     calibrate_jsonl_files(paths, output)
                 self.assertFalse(output.exists())
 
+    def test_duplicate_json_keys_are_rejected_without_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            paths = self.write_inputs(directory)
+            paths["x+"].write_text('{"kind":"ignored","kind":"imu"}\n')
+            with self.assertRaises(CalibrationError):
+                calibrate_jsonl_files(paths, Path(directory) / "candidate.json")
+
+    def test_jsonl_only_candidate_does_not_claim_capture_audit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result = calibrate_jsonl_files(self.write_inputs(directory), Path(directory) / "candidate.json")
+            self.assertFalse(result["capture_audit_verified"])
+
+    def test_output_inside_git_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / ".git").mkdir()
+            output = Path(directory) / "candidate.json"
+            with self.assertRaisesRegex(CalibrationError, "outside Git"):
+                calibrate_jsonl_files(self.write_inputs(directory), output)
+            self.assertFalse(output.exists())
+
     def test_rotated_configuration_event_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             paths = self.write_inputs(directory)
@@ -274,6 +302,175 @@ class FileAndCLITests(unittest.TestCase):
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
             main(["--face", "x+=a", "--face", "x+=b", "--output", "unused"])
         self.assertEqual(error.exception.code, 2)
+
+
+class AuditedCaptureTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.paths, self.validation_paths = {}, {}
+        self.fixtures = {}
+        for partition, paths, offset in (("fit", self.paths, 0),
+                                         ("check", self.validation_paths, 6)):
+            for i, face in enumerate(FACES):
+                number = offset + i
+                meta, rows = synthetic_capture(number + 11, 100 + 30 * number)
+                meta["plan"]["face_label"] = face
+                axis, sign = "xyz".index(face[0]), 1 if face[1] == "+" else -1
+                expected = [0.0, 0.0, 0.0]
+                expected[axis] = sign * GRAVITY
+                scale_a, scale_g = meta["configuration"]["accel_m_s2_per_lsb"], meta["configuration"]["gyro_rad_s_per_lsb"]
+                rng = random.Random(number + 83)
+                for row in rows:
+                    row["raw_accel"] = [round((expected[j] / TRUE_SCALE[j] + TRUE_BIAS[j]) / scale_a)
+                                         + rng.randint(-4, 4) for j in range(3)]
+                    row["accel_m_s2"] = [value * scale_a for value in row["raw_accel"]]
+                    row["raw_gyro"] = [round(value / scale_g) + rng.randint(-3, 3) for value in TRUE_GYRO_BIAS]
+                    row["gyro_rad_s"] = [value * scale_g for value in row["raw_gyro"]]
+                refresh_summary(meta, rows)
+                directory = self.root / (partition + face)
+                directory.mkdir()
+                self.fixtures[directory] = (meta, rows)
+                paths[face] = directory
+        self.save()
+
+    def save(self):
+        for directory, (meta, rows) in self.fixtures.items():
+            (directory / "summary.json").write_text(json.dumps(meta))
+            events = [{"kind": "capture_metadata", **meta["plan"]}, *rows]
+            (directory / "events.jsonl").write_text("\n".join(json.dumps(row) for row in events) + "\n")
+
+    def calibrate(self, *, validation=True, output="candidate.json", confirmed=True):
+        return calibrate_capture_directories(self.paths, self.root / output,
+            validation_face_paths=self.validation_paths if validation else None,
+            operator_confirmed_stationary=confirmed)
+
+    def test_independent_check_uses_fixed_fit_and_all_new_samples(self):
+        initial = self.calibrate(validation=False, output="fit-only.json")
+        meta, rows = self.fixtures[self.validation_paths["z+"]]
+        for row in rows:
+            row["raw_accel"][2] += 200
+            row["accel_m_s2"][2] = row["raw_accel"][2] * meta["configuration"]["accel_m_s2_per_lsb"]
+        refresh_summary(meta, rows)
+        self.save()
+        result = self.calibrate()
+        self.assertEqual(result["accel"], initial["accel"])
+        self.assertEqual(result["gyro"], initial["gyro"])
+        self.assertTrue(result["capture_audit_verified"])
+        self.assertTrue(result["validation"]["independent_capture_gates_passed"])
+        self.assertFalse(result["validation"]["independent_captures_used_for_fit"])
+        self.assertEqual(result["validation"]["independent_captures"]["z+"]["samples"], 1200)
+        self.assertGreater(result["validation"]["independent_captures"]["z+"]["norm_rms_error_m_s2"], 0.1)
+        self.assertFalse(result["approved_for_runtime"])
+        self.assertTrue(result["requires_physical_validation"])
+
+    def test_validation_drift_cannot_be_hidden_by_refitting(self):
+        meta, rows = self.fixtures[self.validation_paths["z+"]]
+        for row in rows:
+            row["raw_accel"][2] += 850
+            row["accel_m_s2"][2] = row["raw_accel"][2] * meta["configuration"]["accel_m_s2_per_lsb"]
+        refresh_summary(meta, rows)
+        self.save()
+        with self.assertRaisesRegex(CalibrationError, "independent.*gravity norm"):
+            self.calibrate()
+        self.assertFalse((self.root / "candidate.json").exists())
+
+    def test_raw_si_mismatch_and_failed_restoration_are_rejected(self):
+        path = self.paths["x+"]
+        meta, rows = self.fixtures[path]
+        rows[0]["accel_m_s2"][0] += 0.5
+        refresh_summary(meta, rows)
+        self.save()
+        with self.assertRaisesRegex(ValueError, "raw/SI"):
+            self.calibrate()
+        rows[0]["accel_m_s2"][0] -= 0.5
+        refresh_summary(meta, rows)
+        meta["restore_status"] = "failed"
+        self.save()
+        with self.assertRaisesRegex(ValueError, "restoration"):
+            self.calibrate()
+
+    def test_stale_or_differently_configured_capture_cannot_validate(self):
+        self.validation_paths["x+"] = self.paths["x+"]
+        with self.assertRaisesRegex(CalibrationError, "reused capture"):
+            self.calibrate()
+
+    def test_copied_samples_with_new_clock_cannot_validate(self):
+        fit = self.fixtures[self.paths["x+"]][1]
+        meta, rows = self.fixtures[self.validation_paths["x+"]]
+        for source, row in zip(fit, rows):
+            for key in ("raw_accel", "raw_gyro", "accel_m_s2", "gyro_rad_s"):
+                row[key] = copy.deepcopy(source[key])
+        refresh_summary(meta, rows)
+        self.save()
+        with self.assertRaisesRegex(CalibrationError, "measurement_sequence"):
+            self.calibrate()
+
+    def test_source_or_trim_changes_are_rejected(self):
+        meta, _ = self.fixtures[self.validation_paths["x+"]]
+        meta["source_sha256"]["imu.py"] = "c" * 64
+        self.save()
+        with self.assertRaisesRegex(CalibrationError, "source_sha256"):
+            self.calibrate()
+        meta["source_sha256"]["imu.py"] = "a" * 64
+        for key in ("register_audit_before", "register_audit_after"):
+            meta[key]["raw_registers"]["bank1:0x14"] = 1
+        self.save()
+        with self.assertRaisesRegex(CalibrationError, "register_audit_before"):
+            self.calibrate()
+
+    def test_independent_acquisition_interval_cannot_overlap_fit(self):
+        fit = self.fixtures[self.paths["x+"]][1]
+        _, rows = self.fixtures[self.validation_paths["x+"]]
+        for source, row in zip(fit, rows):
+            row["wall_time_ns"] = source["wall_time_ns"]
+        self.save()
+        with self.assertRaisesRegex(CalibrationError, "overlapping/reused acquisition"):
+            self.calibrate()
+
+    def test_mismatched_range_readback_is_rejected(self):
+        meta, _ = self.fixtures[self.paths["x+"]]
+        meta["configuration"]["registers"]["bank2:0x14"] = 35
+        self.save()
+        with self.assertRaisesRegex(ValueError, "range/scale readback"):
+            self.calibrate()
+
+    def test_face_assertion_and_stationarity_are_required(self):
+        with self.assertRaisesRegex(CalibrationError, "operator-confirmed"):
+            self.calibrate(confirmed=False)
+        meta, _ = self.fixtures[self.paths["x+"]]
+        meta["plan"]["face_label"] = "unverified"
+        self.save()
+        with self.assertRaisesRegex(ValueError, "expected face label"):
+            self.calibrate()
+
+    def test_temperature_change_is_rejected(self):
+        meta, rows = self.fixtures[self.validation_paths["x+"]]
+        for row in rows:
+            row["raw_temperature"] += 1100
+            row["temperature_c"] = row["raw_temperature"] / 333.87 + 21
+        refresh_summary(meta, rows)
+        self.save()
+        with self.assertRaisesRegex(CalibrationError, "temperature differs"):
+            self.calibrate()
+
+    def test_cli_audits_directories_without_runtime_approval(self):
+        arguments = [item for flag, paths in (("--capture-face", self.paths),
+                                             ("--validation-capture-face", self.validation_paths))
+                     for face, path in paths.items() for item in (flag, face + "=" + str(path))]
+        arguments += ["--operator-confirmed-stationary", "--output", str(self.root / "candidate.json")]
+        with contextlib.redirect_stdout(io.StringIO()) as stream:
+            self.assertEqual(main(arguments), 0)
+        result = json.loads(stream.getvalue())
+        self.assertTrue(result["capture_audit_verified"])
+        self.assertTrue(result["independent_capture_gates_passed"])
+        self.assertFalse(result["approved_for_runtime"])
+
+    def test_partial_independent_set_is_rejected(self):
+        del self.validation_paths["x-"]
+        with self.assertRaisesRegex(CalibrationError, "six distinct"):
+            self.calibrate()
 
 
 if __name__ == "__main__":

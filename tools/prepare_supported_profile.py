@@ -32,7 +32,8 @@ RUN_KEYS = live.TOP_KEYS-{'schema','scope','approved_for_supported_policy_output
 # Formal candidates can retain explicitly selected fast implementations. Local
 # clearances, stage transitions and supported-only deadline/watchdog exceptions
 # still belong to their separate preparation/review paths.
-FAST_EXECUTION_KEYS = {'model_backend','voltage_overlap','voltage_pipeline','native_batch_encoder'}
+FAST_EXECUTION_KEYS = {'model_backend','voltage_overlap','voltage_pipeline','native_batch_encoder',
+                       'apply_reviewed_accel_calibration'}
 RUN_KEYS |= FAST_EXECUTION_KEYS
 IMU_PHYSICAL = ('right_handed_mount_physically_verified','nose_up_verified','left_up_verified',
     'yaw_left_verified','gyro_bias_independent_stationary_validation','gravity_direction_verified')

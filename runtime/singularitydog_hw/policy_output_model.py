@@ -11,9 +11,10 @@ from pathlib import Path
 import sys
 
 from . import policy_shadow as shadow
-from .policy_observer import _mount, _bias, _tensor_row, _TARGET_LOWER, _TARGET_UPPER
+from .policy_observer import _mount, _bias, _tensor_row, _TARGET_LOWER, _TARGET_UPPER, RAW_IMU_CORRECTION_FLAGS
 from .policy_observer_replay import warmup_policy
-from .policy_live_profile import execution_settings, SCALAR_BACKEND
+from .policy_live_profile import execution_settings, SCALAR_BACKEND, acceleration_calibration_selected
+from .imu_calibration_review import reviewed_acceleration
 
 
 def _cpu_float32_row(value,count,label,torch_module):
@@ -56,6 +57,8 @@ class LivePolicyModel:
             documents[name]=json.loads(raw)
         self.rotation=_mount(documents['mount'])['R_body_from_sensor']
         self.bias=_bias(documents['bias'])['bias_sensor_rad_s']
+        self.accel_calibration=reviewed_acceleration(documents['bias'],self.rotation,
+            enabled=acceleration_calibration_selected(profile))
         if policy is None:
             sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'experiments'))
             from native_policy_overnight import load_verified
@@ -115,8 +118,7 @@ class LivePolicyModel:
 
     def validate_inputs(self,sample,imu,now_ns):
         if (imu.get('frame')!='sensor' or any(imu.get(key,False) is not False for key in
-                ('mount_correction_applied','gyro_bias_correction_applied',
-                 'mount_rotation_applied','gyro_bias_subtracted'))):
+                RAW_IMU_CORRECTION_FLAGS)):
             raise ValueError('Uncorrected sensor-frame IMU required')
         begin=imu.get('read_started_monotonic_ns');end=imu.get('read_finished_monotonic_ns')
         if not (type(begin) is int and type(end) is int and 0<begin<=end<=now_ns and
@@ -128,9 +130,10 @@ class LivePolicyModel:
         norm=math.hypot(*imu['accel_m_s2'])
         if not self.profile['imu_accel_norm_min_m_s2']<=norm<=self.profile['imu_accel_norm_max_m_s2']:
             raise ValueError('IMU gravity-proxy norm outside reviewed range')
-        body=[sum(row[j]*imu['accel_m_s2'][j] for j in range(3)) for row in self.rotation]
+        corrected_accel,corrected_norm=(imu['accel_m_s2'],norm) if self.accel_calibration is None else self.accel_calibration.correct(imu['accel_m_s2'])
+        body=[sum(row[j]*corrected_accel[j] for j in range(3)) for row in self.rotation]
         gyro=[sum(row[j]*(imu['gyro_rad_s'][j]-self.bias[j]) for j in range(3)) for row in self.rotation]
-        gravity=[-v/norm for v in body]
+        gravity=[-v/corrected_norm for v in body]
         tilt=math.acos(max(-1.,min(1.,-gravity[2])))
         if tilt>self.profile['imu_tilt_limit_rad'] or math.hypot(*gyro)>self.profile['imu_gyro_limit_rad_s']:
             raise ValueError('Body tilt/angular velocity exceeded')
@@ -141,6 +144,11 @@ class LivePolicyModel:
         self.last_validation={'accel_m_s2':body,'gyro_rad_s':gyro,'tilt_rad':tilt,
             'accel_norm_m_s2':norm,'source_monotonic_ns':begin,'frame':'body',
             'mount_rotation_applied':True,'gyro_bias_subtracted':True}
+        if self.accel_calibration is not None:
+            self.last_validation.update(raw_accel_sensor_m_s2=list(imu['accel_m_s2']),
+                raw_accel_norm_m_s2=norm,corrected_accel_norm_m_s2=corrected_norm,
+                accel_bias_subtracted=True,accel_scale_corrected=True)
+            self.last_validation['reviewed_accel_calibration']=self.accel_calibration.provenance()
         return gyro,gravity,list(self.profile['command']),q,dq,[float(self.profile['h_hypothesis'])]*12
 
     def __call__(self,sample,imu,now_ns,*,command_override=None):

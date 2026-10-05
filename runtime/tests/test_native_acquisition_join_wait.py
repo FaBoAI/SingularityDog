@@ -135,14 +135,15 @@ class NativeAcquisitionJoinWaitTests(unittest.TestCase):
 
 
 class NativeAcquisitionIntegrationTests(unittest.TestCase):
-    def integration(self, *, native=True, release_voltage=False, device=None, check=lambda:None):
+    def integration(self, *, native=True, release_voltage=False, device=None, check=lambda:None,
+                    pipeline=True):
         started=(threading.Event(),threading.Event()); release=threading.Event()
         if release_voltage: release.set()
         sessions={scope:PreparedSession(started[i],release) for i,scope in enumerate(('front','rear'))}
         observer=OverlapObserver(started,release)
         options={'mode':'stop-proxy','cycles':1,'v3_voltage_proxy':True,
                  'v3_voltage_overlap':True,'v3_voltage_validation_overlap':True,
-                 'v3_voltage_fast_pipeline':True,'record_storage':'trace'}
+                 'v3_voltage_fast_pipeline':pipeline,'record_storage':'trace'}
         if native:
             options.update(absolute_epoch_cadence=True,
                 deadline_wait=lambda target:time.sleep(max(0,(target-time.monotonic_ns())/1e9)))
@@ -162,6 +163,52 @@ class NativeAcquisitionIntegrationTests(unittest.TestCase):
             for phase in ('acquired','voltage','output') for scope in ('front','rear')),26)
         self.assertTrue(all(s.phases==['feedback','voltage','output'] for s in sessions.values()))
         self.assertFalse(report['motor_enable_sent']); self.assertFalse(report['learned_targets_sent'])
+
+    def test_ordinary_overlap_uses_both_native_waits_without_either_pipeline_variant(self):
+        report,rows,sessions,_=self.integration(pipeline=False)
+        self.assertEqual(report['status'],'COMPLETE_DIAGNOSTIC',report['errors'])
+        self.assertEqual(report['input_acquisition_wait'],'native_ready_poll_200us.v1')
+        self.assertEqual(report['voltage_join_wait'],'native_ready_poll_200us.v1')
+        self.assertTrue(report['v3_voltage_overlap']['native_readiness_wait_enabled'])
+        self.assertNotIn('v3_voltage_pipeline',report)
+        self.assertNotIn('v3_voltage_fast_pipeline',report)
+        proof=rows[0]['voltage_overlap']
+        for name in ('acquisition_join_wait','voltage_join_wait'):
+            self.assertEqual(proof[name]['mode'],'native_readiness_poll_v1')
+            self.assertEqual(proof[name]['native_tick_max_us'],200)
+        self.assertLess(proof['voltage_verified_ns'],proof['hard_deadline_ns'])
+        self.assertEqual(sum(len(rows[0][phase][scope]['records'])
+            for phase in ('acquired','voltage','output') for scope in ('front','rear')),26)
+        self.assertTrue(all(s.phases==['feedback','voltage','output'] for s in sessions.values()))
+        self.assertFalse(report['motor_enable_sent']);self.assertFalse(report['learned_targets_sent'])
+
+    def test_ordinary_overlap_acquisition_error_keeps_raw_evidence_and_never_infers(self):
+        with patch.object(bench,'_await_acquisition_ready',side_effect=RuntimeError('acquisition cancelled')):
+            report,rows,sessions,observer=self.integration(pipeline=False,release_voltage=True)
+        self.assertEqual(report['status'],'ABORTED');self.assertEqual(observer.calls,0)
+        self.assertEqual(set(rows[0]['acquired']),{'front','rear'})
+        self.assertEqual(rows[0]['output'],{})
+        self.assertEqual(rows[0]['voltage_overlap']['status'],'REJECTED_BEFORE_FEEDBACK_VALIDATION')
+        self.assertTrue(all(s.phases==['feedback','voltage'] for s in sessions.values()))
+
+    def test_ordinary_overlap_takeout_crossing_deadline_cannot_reach_inference(self):
+        original=bench._await_acquisition_ready
+        def ready_then_delay(*args,**kwargs):
+            result=original(*args,**kwargs);time.sleep(.021);return result
+        with patch.object(bench,'_await_acquisition_ready',side_effect=ready_then_delay):
+            report,rows,_,observer=self.integration(pipeline=False,release_voltage=True)
+        self.assertEqual(report['status'],'ABORTED');self.assertEqual(observer.calls,0)
+        self.assertEqual(rows[0]['output'],{})
+        self.assertTrue(any('Acquisition result takeout' in error for error in report['errors']))
+
+    def test_ordinary_overlap_without_native_callback_keeps_legacy_waits(self):
+        with (patch.object(bench,'_await_acquisition_ready',side_effect=AssertionError('Legacy acquisition changed')),
+              patch.object(bench,'_await_voltage_ready',side_effect=AssertionError('Legacy voltage changed'))):
+            report,rows,_,_=self.integration(native=False,pipeline=False)
+        self.assertEqual(report['status'],'COMPLETE_DIAGNOSTIC',report['errors'])
+        self.assertFalse(report['v3_voltage_overlap']['native_readiness_wait_enabled'])
+        self.assertNotIn('acquisition_join_wait',rows[0]['voltage_overlap'])
+        self.assertNotIn('voltage_join_wait',rows[0]['voltage_overlap'])
 
     def test_join_failure_preserves_raw_inputs_but_never_runs_inference_or_proxy_output(self):
         with patch.object(bench,'_await_acquisition_ready',side_effect=RuntimeError('acquisition cancelled')):

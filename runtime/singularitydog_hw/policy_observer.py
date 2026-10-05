@@ -20,6 +20,7 @@ from . import policy_shadow as shadow
 from .angle_branch_comparison import (IDS as BRANCH_IDS, MAX_STATIC_POSE_DELTA_RAD,
                                       StaticBranchComparison, TWO_PI)
 from .event_snapshot import snapshot_event
+from .imu_calibration_review import reviewed_acceleration
 
 DT_NS = 20_000_000
 RAW_IMU_CORRECTION_FLAGS = (
@@ -296,7 +297,7 @@ class StatefulPolicyObserver:
                  torch_module=None, gyro_bias_candidate=None,
                  profile_consume=False, monotonic_ns=None,
                  power_epoch_branch_comparison=None, measured_diagnostic_ticks=False,
-                 reuse_input_buffers=False):
+                 reuse_input_buffers=False, apply_reviewed_accel_calibration=False):
         _require(type(reuse_input_buffers) is bool, "reuse_input_buffers must be boolean")
         _require(type(measured_diagnostic_ticks) is bool, "measured_diagnostic_ticks must be boolean")
         self._measured_diagnostic_ticks = measured_diagnostic_ticks
@@ -315,6 +316,8 @@ class StatefulPolicyObserver:
                                                            self._calibration)
         self._mount = _mount(imu_mount_candidate)
         self._bias = _bias(gyro_bias_candidate)
+        self._accel_calibration = reviewed_acceleration(gyro_bias_candidate,
+            self._mount["R_body_from_sensor"], enabled=apply_reviewed_accel_calibration)
         # Private validated configuration is fixed for the observer's lifetime.
         # Only its digest/lookup plan is reused; live snapshot values and their
         # complete canonical digest are still recomputed for every tick.
@@ -624,9 +627,10 @@ class StatefulPolicyObserver:
         corrected_gyro = [g-b for g, b in zip(gyro, self._gyro_bias_values)]
         norm = math.hypot(*accel)
         _require(math.isfinite(norm) and norm > 1e-9, "Invalid acceleration gravity-proxy norm")
-        accel_body = [sum(r[j]*accel[j] for j in range(3)) for r in rotation]
+        corrected_accel, corrected_norm = (accel, norm) if self._accel_calibration is None else self._accel_calibration.correct(accel)
+        accel_body = [sum(r[j]*corrected_accel[j] for j in range(3)) for r in rotation]
         gyro_body = [sum(r[j]*corrected_gyro[j] for j in range(3)) for r in rotation]
-        gravity = [-x/norm for x in accel_body]
+        gravity = [-x/corrected_norm for x in accel_body]
         _require(all(shadow.finite(x) for x in gyro_body+gravity), "Nonfinite corrected IMU input")
         if profile is not None:
             profile.next("provenance_serialization")
@@ -647,10 +651,15 @@ class StatefulPolicyObserver:
             "gyro_bias_hypothesis": self._copy_static_provenance(2, self._bias),
             "raw_accel_m_s2": accel, "raw_gyro_rad_s": gyro,
             "raw_accel_norm_m_s2": norm, "raw_accel_norm_relative_deviation": norm/9.80665-1.,
-            "accel_bias_subtracted": False, "accel_scale_corrected": False,
+            "accel_bias_subtracted": self._accel_calibration is not None,
+            "accel_scale_corrected": self._accel_calibration is not None,
             "gravity_source": "negative normalized specific force; hypothesis only, not validated fusion",
             "command_source": "explicit configured diagnostic command",
             "model_can_order_candidate": list(self._can_order)}
+        if self._accel_calibration is not None:
+            provenance["corrected_accel_sensor_m_s2"] = list(corrected_accel)
+            provenance["corrected_accel_norm_m_s2"] = corrected_norm
+            provenance["reviewed_accel_calibration"] = self._accel_calibration.provenance()
         if branch_provenance is not None:
             provenance["power_epoch_branch_overlay"] = branch_provenance
         return ((gyro_body, gravity, list(self._command), q, dq, [self._h]*12),

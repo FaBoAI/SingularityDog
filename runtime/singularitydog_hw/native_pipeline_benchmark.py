@@ -42,6 +42,7 @@ WORKER_STARTUP_TIMEOUT_S = .5
 _TimingRecord = namedtuple('_TimingRecord','start_ns finish_ns received_ns')
 _FeedbackProof = namedtuple('_FeedbackProof','images sample snapshot')
 _VoltageProof = namedtuple('_VoltageProof','images values')
+_ORDINARY_FEEDBACK_PUBLICATION = 'after_voltage_native_preparation'
 _TRACE_SCOPE_INDEX = {scope:index for index,scope in enumerate(dual.SCOPES)}
 _READ_WIRES = {(i,p):codec.read_request(i,p) for i in range(1,13)
                for p in ('position','velocity','voltage')}
@@ -378,6 +379,8 @@ def _feedback_then_voltage(exchange,scope,feedback_wires,voltage_wire,feedback_r
 
     A single worker performs both calls in order; there is never a second task
     racing the same session. Both calls keep their own native Stats and records.
+    Publishing in before_native leaves FD/argument preparation with this owner
+    before the coordinator can begin inference, without gating the voltage read.
     """
     feedback=None
     def publish_feedback():
@@ -790,10 +793,16 @@ def _verify_voltage_final_freshness(acquired,voltage,sample,feedback_snapshot,
     oldest=min(oldest,imu_start)
     latest=max(latest,imu_end)
     earliest_receive=min(earliest_receive,imu_end)
-    if (now-oldest>LIMIT_NS or latest-oldest>LIMIT_NS or
+    # Proof/image comparisons and the fourteen-record walk can be descheduled.
+    # A timestamp taken before them cannot certify their completion or a later
+    # dispatch. Keep all source timestamps and measure the actual return time.
+    verified=clock()
+    if type(verified) is not int or verified<now:
+        raise ValueError('Noncausal final feedback/voltage/IMU validation clock')
+    if (verified-oldest>LIMIT_NS or latest-oldest>LIMIT_NS or
             latest-earliest_receive>LIMIT_NS):
         raise ValueError('Expired feedback/voltage/IMU before proxy STOP')
-    return now
+    return verified
 
 
 def _prestart_workers(pool, check):
@@ -948,6 +957,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
         raise ValueError('Fast voltage pipeline requires bounded V3 STOP-proxy trace and excludes gated pipeline')
     pipeline_key=('voltage_pipeline' if v3_voltage_pipeline else
                   'voltage_fast_pipeline' if v3_voltage_fast_pipeline else None)
+    native_overlap_wait=v3_voltage_overlap and deadline_wait is not None
     if (type(inference_thread_cpu_trace) is not bool or
             inference_thread_cpu_trace and not v3_voltage_proxy):
         raise ValueError('Inference thread CPU trace requires bounded 26-request STOP-proxy inference')
@@ -1159,6 +1169,8 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                 record={'cycle':cycle+1,'acquired':{},'voltage':{},'imu':None,'output':{},
                         'voltage_overlap':{'status':'PENDING_AT_INFERENCE',
                                            'output_allowed':False}}
+                if pipeline_key is None:
+                    record['voltage_overlap']['feedback_publication']=_ORDINARY_FEEDBACK_PUBLICATION
                 if pipeline_key is not None:
                     if v3_voltage_pipeline:
                         voltage_gate=threading.Event();voltage_cancelled=threading.Event()
@@ -1182,9 +1194,13 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                                 _READ_WIRES[ids[cycle%6],'voltage'],feedback_ready[scope],
                                 record['voltage_fast_pipeline'],clock,publish_before_native=True)
                         else:
+                            # Ordinary overlap keeps its independent bus order:
+                            # prepare the voltage call, publish this bus's six
+                            # replies, then enter the GIL-releasing native call.
                             voltage_futures[scope]=pool.submit(
                                 _feedback_then_voltage,exchange,scope,wires[scope],
-                                _READ_WIRES[ids[cycle%6],'voltage'],feedback_ready[scope])
+                                _READ_WIRES[ids[cycle%6],'voltage'],feedback_ready[scope],
+                                publish_before_native=True)
                     futures=feedback_ready
                     imu_future=pool.submit(read_imu)
                 except BaseException:
@@ -1199,14 +1215,15 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
             # notifications for front, rear and IMU. Readiness is not validation:
             # keep the original snapshot/causal/frame checks below unchanged.
             acquired={};failure=None
-            if pipeline_key is not None and deadline_wait is not None:
+            if native_overlap_wait:
+                wait_proof=record[pipeline_key] if pipeline_key is not None else record['voltage_overlap']
                 try:
-                    record[pipeline_key]['acquisition_join_wait']=_await_acquisition_ready(
+                    wait_proof['acquisition_join_wait']=_await_acquisition_ready(
                         futures,imu_future,deadline_ns=actual_release+PERIOD_NS,
                         deadline_wait=deadline_wait,clock=clock,check=check)
                 except BaseException as error:
                     failure=error
-                    record[pipeline_key].update(status='REJECTED_BEFORE_FEEDBACK_VALIDATION',
+                    wait_proof.update(status='REJECTED_BEFORE_FEEDBACK_VALIDATION',
                         acquisition_join_error=type(error).__name__+': '+str(error))
                     if v3_voltage_pipeline:voltage_cancelled.set();voltage_gate.set()
             # Every result is ready on success. Failure-only settlement retains
@@ -1216,14 +1233,14 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                 except BaseException as e:failure=failure or e
             try:sample=imu_future.result()
             except BaseException as e:sample=None;failure=failure or e
-            if failure is None and pipeline_key is not None and deadline_wait is not None:
+            if failure is None and native_overlap_wait:
                 try:
                     check()
                     if clock()>=actual_release+PERIOD_NS:
                         raise TimeoutError('Acquisition result takeout exceeded 20 ms hard deadline')
                 except BaseException as error:
                     failure=error
-                    record[pipeline_key].update(status='REJECTED_BEFORE_FEEDBACK_VALIDATION',
+                    wait_proof.update(status='REJECTED_BEFORE_FEEDBACK_VALIDATION',
                         acquisition_join_error=type(error).__name__+': '+str(error))
             if v3_voltage_overlap:
                 record['acquired']=acquired;record['imu']=sample
@@ -1252,14 +1269,14 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                                                   expected_voltage_by_bus=expected_voltage)
                 if v3_voltage_overlap:
                     snapshot['source_flags']['v3_voltage_overlap_pending_at_inference']=True
-                    if pipeline_key is not None:
+                    if pipeline_key is not None or native_overlap_wait:
                         # STOP-proxy feedback and IMU are validated before
                         # inference. The fast path may already be reading
                         # voltage on its bus owners at this point.
                         oldest=min(sample['read_started_monotonic_ns'],
                                    *(r.start_ns for value in acquired.values() for r in value[0]))
                         pipeline_hard_end=min(actual_release+PERIOD_NS,oldest+PERIOD_NS)
-                        proof=record[pipeline_key]
+                        proof=record[pipeline_key] if pipeline_key is not None else record['voltage_overlap']
                         proof['hard_deadline_ns']=pipeline_hard_end
                         snapshot_validated=clock()
                         if snapshot_validated>=pipeline_hard_end:
@@ -1303,9 +1320,10 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                 # This scheduling comparison is selected only by the existing
                 # native release-wait callback. Legacy no-callback diagnostic
                 # sequencing and its failure-stage metadata stay unchanged.
-                if pipeline_key is not None and deadline_wait is not None:
+                if native_overlap_wait:
+                    wait_proof=record[pipeline_key] if pipeline_key is not None else record['voltage_overlap']
                     try:
-                        record[pipeline_key]['voltage_join_wait']=_await_voltage_ready(
+                        wait_proof['voltage_join_wait']=_await_voltage_ready(
                             voltage_futures,validation_future,deadline_ns=pipeline_hard_end,
                             deadline_wait=deadline_wait,clock=clock,check=check)
                     except BaseException as join_error:
@@ -1318,7 +1336,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                             except BaseException as validation_error:
                                 record['voltage_validation_error']=(
                                     type(validation_error).__name__+': '+str(validation_error))
-                        record[pipeline_key].update(
+                        wait_proof.update(
                             status='REJECTED_BEFORE_PROXY_STOP',
                             voltage_join_error=type(join_error).__name__+': '+str(join_error))
                         record.pop('observed',None)
@@ -1360,7 +1378,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                     full_voltage,verified_at=_verify_voltage_after_inference(
                         acquired,record['voltage'],sample,snapshot,expected_voltage,clock,voltage_max_v,
                         feedback_proof)
-                record['voltage_overlap']={
+                record['voltage_overlap']={**record['voltage_overlap'],
                     'status':'VALIDATED_BEFORE_PROXY_STOP',
                     'feedback_ready_ns':gather_end,'inference_end_ns':inferred,
                     'voltage_wait_end_ns':voltage_wait_end,
@@ -1391,7 +1409,8 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                         infer_thread_cpu_end if v3_voltage_overlap else time.thread_time_ns())
                     dispatch_values[dispatch_base+1]=clock()
                 check()
-                if pipeline_key is not None:
+                if pipeline_key is not None or native_overlap_wait:
+                    gate_proof=record[pipeline_key] if pipeline_key is not None else record['voltage_overlap']
                     try:
                         # Mirror a pre-Type1 gate at the actual proxy
                         # dispatch point. STOP is the only possible output here.
@@ -1401,29 +1420,55 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                         if final_gate>=pipeline_hard_end:
                             raise TimeoutError('Voltage pipeline exceeded 20 ms hard deadline before proxy STOP')
                     except BaseException as gate_error:
-                        record[pipeline_key]['status']='REJECTED_BEFORE_PROXY_STOP'
-                        record[pipeline_key]['final_gate_error']=(
+                        gate_proof['status']='REJECTED_BEFORE_PROXY_STOP'
+                        gate_proof['final_gate_error']=(
                             type(gate_error).__name__+': '+str(gate_error))
                         record.pop('observed',None)
                         raise
-                    record[pipeline_key].update(
+                    gate_proof.update(
                         status='VALIDATED_BEFORE_PROXY_STOP',voltage_verified_ns=final_gate)
                     record['voltage_overlap']['voltage_verified_ns']=final_gate
                     record['voltage_overlap']['final_freshness_checked_ns']=final_gate
-                if output_dispatch_trace:
-                    dispatch_values[dispatch_base+2]=clock()
-                    futures={}
+                if output_dispatch_trace:dispatch_values[dispatch_base+2]=clock()
+                futures={};failure=None
+                gated_proxy=pipeline_key is not None or native_overlap_wait
+                try:
                     for scope,scope_wires in wires.items():
-                        futures[scope]=pool.submit(exchange,scope,scope_wires,dispatch_base)
-                        dispatch_values[dispatch_base+(3 if scope=='front' else 4)]=clock()
-                    dispatch_values[dispatch_base+14]=time.thread_time_ns()
-                else:
-                    futures={s:pool.submit(exchange,s,w) for s,w in wires.items()}
-                failure=None
+                        if gated_proxy:
+                            # Recheck immediately before each submit as tracing,
+                            # proof metadata or the first submit may deschedule
+                            # the coordinator after final validation completed.
+                            submit_now=clock()
+                            if type(submit_now) is not int or submit_now<final_gate:
+                                raise ValueError('Noncausal proxy STOP submission clock')
+                            if submit_now>=pipeline_hard_end:
+                                raise TimeoutError('Voltage pipeline exceeded 20 ms hard deadline before proxy STOP submit')
+                            gate_proof.setdefault('proxy_submit_checked_ns_by_bus',{})[scope]=submit_now
+                        options=(dispatch_base,) if output_dispatch_trace else ()
+                        futures[scope]=pool.submit(exchange,scope,scope_wires,*options)
+                        if output_dispatch_trace:
+                            dispatch_values[dispatch_base+(3 if scope=='front' else 4)]=clock()
+                    if output_dispatch_trace:dispatch_values[dispatch_base+14]=time.thread_time_ns()
+                except BaseException as submit_error:
+                    failure=submit_error
+                    if gated_proxy:
+                        gate_proof.update(status='REJECTED_BEFORE_PROXY_STOP',
+                            proxy_submit_error=type(submit_error).__name__+': '+str(submit_error))
+                    record.pop('observed',None)
+                # Retain any already submitted batch if a later submit fails.
+                # Settlement is diagnostic cleanup, never a fresh admission.
                 for s,f in futures.items():
                     try:record['output'][s]=f.result()
                     except BaseException as e:failure=failure or e
                 if failure:raise failure
+                if gated_proxy:
+                    actual_starts={scope:min(r.start_ns for r in result[0])
+                                   for scope,result in record['output'].items()}
+                    gate_proof['proxy_actual_start_ns_by_bus']=actual_starts
+                    if any(not 0<started<pipeline_hard_end for started in actual_starts.values()):
+                        gate_proof['status']='PROXY_STOP_DISPATCH_DEADLINE_MISSED'
+                        record.pop('observed',None)
+                        raise TimeoutError('Proxy STOP actual dispatch exceeded 20 ms hard deadline')
                 if v3_voltage_fast_pipeline:
                     try:
                         stop_reply_ends,stop_verified=_verify_final_proxy_stop_records(
@@ -1568,7 +1613,9 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
         'motor_enable_sent':False,'learned_targets_sent':False,'approved_for_runtime':False,
         'full_controller_50Hz_verified':False,'worker_startup':startup,
         'input_acquisition_wait':('native_ready_poll_200us.v1'
-            if pipeline_key is not None and deadline_wait is not None else 'legacy_result_collection.v1'),
+            if native_overlap_wait else 'legacy_result_collection.v1'),
+        'voltage_join_wait':('native_ready_poll_200us.v1'
+            if native_overlap_wait else 'legacy_result_collection.v1'),
         'main_thread_affinity':affinity,'worker_affinity':worker_affinity,
         'measurements':measurements,'observer':summary,
         'distributions_ms':{k:distribution([r[k] for r in measurements if r[k] is not None]) for k in
@@ -1582,6 +1629,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
     if v3_voltage_overlap:
         report['v3_voltage_overlap']={'enabled':True,'voltage_range_v':[35.,voltage_max_v],
             'validation_overlap_enabled':v3_voltage_validation_overlap,
+            'native_readiness_wait_enabled':native_overlap_wait,
             'voltage_dispatch_schedule':('after_complete_feedback_imu_snapshot'
                                          if v3_voltage_pipeline else 'after_each_bus_feedback'),
             'observer_snapshot_voltage_pending':True,
@@ -1592,6 +1640,8 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                 'voltage_verified_ns':'records[].voltage_overlap.voltage_verified_ns',
                 'whole_iteration_ms':'actual release through voltage validation, STOP replies, and trace capture'},
             'diagnostic_only':True,'motor_output_allowed':False}
+        if pipeline_key is None:
+            report['v3_voltage_overlap']['feedback_publication']=_ORDINARY_FEEDBACK_PUBLICATION
         if v3_voltage_validation_overlap:
             report['v3_voltage_overlap']['timing_fields'].update(
                 validation_started_ns='records[].voltage_overlap.validation_started_ns',
@@ -1872,6 +1922,8 @@ def main(argv=None):
     p.add_argument('--record-storage',choices=('objects','encoded','trace'),default='objects',
                    help='Keep objects, encode rows, or copy into a preallocated native trace within each measured cycle')
     p.add_argument('--acquisition-only',action='store_true')
+    p.add_argument('--apply-reviewed-accel-calibration',action='store_true',
+                   help='Explicitly use the named acceleration review in the pinned gyro-bias document; default raw')
     p.add_argument('--compare-feedback',action='store_true',
                    help='Separate Type17/STOP-Type2 comparison; no IMU or inference')
     for name in ('front-port','rear-port','expected-uids','library','output','calibration','mount','gyro-bias',
@@ -1881,6 +1933,8 @@ def main(argv=None):
         p.add_argument('--'+name)
     p.add_argument('--h-hypothesis',type=int,choices=(0,1),default=0)
     args=p.parse_args(argv)
+    if args.apply_reviewed_accel_calibration and (args.acquisition_only or args.compare_feedback or not args.gyro_bias):
+        p.error('--apply-reviewed-accel-calibration requires full inference and --gyro-bias')
     try:math_startup=math_threads.configure_single_thread_math(args.single_thread_math)
     except math_threads.MathThreadStartupError as error:p.error(str(error))
     if not 600<=args.request_gap_us<=5000:
@@ -2016,6 +2070,7 @@ def main(argv=None):
           'startup_identity_window':1,'startup_identity_retry':False,
           'compare_feedback':args.compare_feedback,
           'acquisition_only':args.acquisition_only,'enable_available':False,'learned_targets_sent':False,
+          'apply_reviewed_accel_calibration':args.apply_reviewed_accel_calibration,
           'state_changing_stop':args.mode=='stop-proxy',
           'input_workers':(['front6+voltage1','rear6+voltage1','IMU'] if args.v3_voltage_overlap
                            else ['front7','rear7','IMU'] if args.v3_voltage_proxy
@@ -2075,7 +2130,10 @@ def main(argv=None):
             if calibration['identities']!={str(i):uids[i] for i in range(1,13)}:
                 raise ValueError('Calibration UID binding mismatch')
             mount=shadow._json(Path(args.mount).read_bytes())
-            bias=shadow._json(Path(args.gyro_bias).read_bytes()) if args.gyro_bias else None
+            bias_raw=Path(args.gyro_bias).read_bytes() if args.gyro_bias else None
+            if bias_raw is not None and hashlib.sha256(bias_raw).hexdigest()!=report['input_sha256']['gyro_bias']:
+                raise ValueError('Gyro/acceleration bias artifact changed during diagnostic load')
+            bias=shadow._json(bias_raw) if bias_raw is not None else None
             if args.single_thread_math:
                 math_startup['before_torch_import_env']=math_threads.verify_before_math_import()
             else:
@@ -2112,7 +2170,7 @@ def main(argv=None):
                 h_hypothesis=args.h_hypothesis,command=[0.,0.,0.],max_ticks=args.cycles,
                 max_age_ns=LIMIT_NS,max_spread_ns=LIMIT_NS,torch_module=torch,
                 gyro_bias_candidate=bias,profile_consume=True,measured_diagnostic_ticks=True,
-                reuse_input_buffers=True)
+                reuse_input_buffers=True,apply_reviewed_accel_calibration=args.apply_reviewed_accel_calibration)
         bindings=dual.validate_ports(args.front_port,args.rear_port)
         with ExitStack() as stack:
             stack.enter_context(dual.pipeline.ownership_locks())

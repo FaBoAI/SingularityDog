@@ -18,10 +18,14 @@ import stat
 from singularitydog_hw import can_readonly as codec
 from singularitydog_hw import rs05_trial_protocol as protocol
 from singularitydog_hw.motor_version_probe import VERSION_PREFIX, version_request
+from singularitydog_hw.watchdog_commissioning import REQUEST_NS
 
 BUSES = {'front': tuple(range(1, 7)), 'rear': tuple(range(7, 13))}
 PARAMETERS = ('identity', 'run_mode', 'voltage', 'can_timeout')
 MAX_FILE_BYTES = 32 * 1024 * 1024
+READER_COUNTERS = ('read_until_calls', 'select_calls', 'select_wait_ns', 'read_calls',
+                  'read_wall_ns', 'bytes_received', 'select_eintr', 'read_eintr',
+                  'spurious_readiness', 'soft_expiries', 'hard_expiries', 'eof_events')
 
 
 def need(value, message):
@@ -45,6 +49,81 @@ def ids(value, bus):
          and len(value) == len(set(value)),
          'Invalid bus ID list')
     return sorted(value)
+
+
+def failure_observation(event, events, index, bus):
+    """Validate failure-boundary evidence and emit detached numeric facts only.
+
+    Counter snapshots precede cleanup's replacement reader. They are not USB
+    transfers or CAN delivery receipts. Older reports need not contain them.
+    A boundary failure before a new write belongs to no earlier transaction.
+    """
+    mid, step = event.get('motor_id'), event.get('step')
+    need(type(mid) is int and mid in BUSES[bus] and type(step) is str,
+         'Invalid failed exchange identity')
+    expected_wire(mid, step)
+    start, end = event.get('event_start_index'), event.get('event_end_index')
+    need(type(start) is int and type(end) is int and 0 <= start <= end == index,
+         'Invalid failure event interval')
+    writes = [row for row in events[start:end] if row.get('kind') == 'tx']
+    need(len(writes) <= 1, 'Multiple writes in single failed exchange')
+    request, deadline = event.get('request_start_ns'), event.get('hard_deadline_ns')
+    if writes:
+        tx = writes[0]
+        need(tx.get('motor_id') == mid and tx.get('step') == step and request == tx.get('start_ns'),
+             'Failure evidence belongs to another request')
+        request, deadline = stamp(request), stamp(deadline)
+        need(deadline == request+REQUEST_NS, 'Failure deadline differs from fixed commissioning deadline')
+    else:
+        need(request is None and deadline is None, 'Pre-write failure cannot claim a request')
+    failed = event.get('failed_at_ns')
+    if failed is not None:
+        failed = stamp(failed)
+        need(request is None or failed >= request, 'Noncausal failure timestamp')
+    need(event.get('counter_scope') == 'host_serial_reader_not_CAN_or_motor_delivery'
+         and event.get('automatic_retry') is False, 'Invalid failure evidence scope')
+    errors = event.get('diagnostic_errors')
+    need(type(errors) is list and len(errors) <= 32 and all(type(x) is str for x in errors),
+         'Invalid diagnostic errors')
+    counters = []
+    for field in ('reader_counters_before', 'reader_counters_after', 'reader_counters_delta'):
+        row = event.get(field)
+        need(row is None or type(row) is dict and set(row) == set(READER_COUNTERS) and
+             all(type(v) is int and 0 <= v < 2**63 for v in row.values()), 'Invalid reader counters')
+        counters.append(row)
+    before, after, delta = counters
+    if before is not None and after is not None:
+        need(delta is not None and all(after[key] - before[key] == delta[key] for key in READER_COUNTERS),
+             'Reader counters changed inconsistently')
+    else:
+        need(delta is None, 'Unverifiable counter delta')
+    boundary = event.get('receive_boundary_evidence')
+    need(type(boundary) is dict, 'Missing failure receive boundary')
+    partial = wire_bytes(boundary.get('partial_hex'))
+    discarded, backlog = boundary.get('discarded_bytes'), boundary.get('backlogged_bytes')
+    need(type(discarded) is int and 0 <= discarded < 2**63 and
+         (backlog is None or type(backlog) is int and 0 <= backlog < 2**63),
+         'Invalid failure receive boundary')
+    condition = 'READER_COUNTERS_UNAVAILABLE'
+    if delta is not None:
+        if delta['eof_events']:
+            condition = 'HOST_READER_EOF_RECORDED'
+        elif delta['bytes_received']:
+            condition = 'HOST_READER_BYTES_RECORDED'
+        elif delta['select_eintr'] or delta['read_eintr'] or delta['spurious_readiness']:
+            condition = 'HOST_READER_TRANSIENT_EVENTS_RECORDED'
+        elif delta['hard_expiries']:
+            condition = 'HOST_DEADLINE_WITHOUT_RECORDED_READ_BYTES'
+        else:
+            condition = 'HOST_FAILURE_WITHOUT_RECORDED_READ_BYTES'
+    return {'motor_id': mid, 'step': step, 'request_written': bool(writes),
+            'failed_after_request_ms': (failed-request)/1e6 if failed is not None and request is not None else None,
+            'request_deadline_ms': (deadline-request)/1e6 if request is not None else None,
+            'failed_after_deadline_ms': (failed-deadline)/1e6 if failed is not None and deadline is not None else None,
+            'host_receive_condition': condition, 'reader_counters_delta': delta,
+            'partial_receive_bytes_at_failure': len(partial), 'discarded_receive_bytes_at_failure': discarded,
+            'backlogged_receive_bytes_at_failure': backlog, 'diagnostic_error_count': len(errors),
+            'counter_scope': event['counter_scope'], 'causal_confirmation_inferred': False}
 
 
 def expected_wire(mid, step):
@@ -92,7 +171,8 @@ def analyze_bus(events, stop_report, bus):
     rejected_chunks = 0
     unknown_time_chunks = 0
     orphan_rx_bytes = 0
-    for event in events:
+    pre_write_failures = []
+    for index, event in enumerate(events):
         need(type(event) is dict, 'Malformed commissioning event')
         kind = event.get('kind')
         if kind == 'tx':
@@ -127,6 +207,19 @@ def analyze_bus(events, stop_report, bus):
                        'rejected_receive_chunk_count': 0, 'causal_confirmation_inferred': False}
             transactions.append(current)
             previous_time = finish
+        elif kind == 'exchange_failure':
+            observation = failure_observation(event, events, index, bus)
+            if observation['request_written']:
+                need(current is not None and current['motor_id'] == observation['motor_id'] and
+                     current['step'] == observation['step'] and 'failure_observation' not in current,
+                     'Duplicate or unbound failed exchange')
+                current['failure_observation'] = observation
+            else:
+                pre_write_failures.append(observation)
+            failed = event.get('failed_at_ns')
+            if failed is not None:
+                need(failed >= previous_time, 'Noncausal failure event')
+                previous_time = failed
         elif kind in ('rx_bytes', 'rx_rejected'):
             raw = wire_bytes(event.get('hex'))
             received = event.get('received_ns')
@@ -171,11 +264,12 @@ def analyze_bus(events, stop_report, bus):
             row['classification'] = 'FULL_HOST_WRITE_WITHOUT_RECORDED_RX'
     suspicious = [row for row in transactions if not row['reply_candidate_count'] or
                   not row['host_write_complete'] or row['rx_partial_before_send_bytes'] or
-                  row['rejected_receive_chunk_count']]
+                  row['rejected_receive_chunk_count'] or 'failure_observation' in row]
     stop_suspect = bool(unconfirmed or ambiguous or not stop_report['complete'] or
                         stop_report.get('errors') or stop_report.get('error') or
                         stop_report.get('sticky_boundary_uncertain'))
     return {'transactions': len(transactions), 'suspicious_exchanges': suspicious,
+            'pre_write_failures': pre_write_failures,
             'confirmed_stop_ids_from_owner': confirmed,
             'unconfirmed_stop_ids_from_owner': unconfirmed,
             'ambiguous_stop_ids_from_owner': ambiguous,
@@ -196,11 +290,21 @@ def analyze(report):
     need(type(events) is dict and type(stops) is dict and set(events) == set(stops) == set(BUSES),
          'Expected both commissioning buses and owner STOP results')
     buses = {bus: analyze_bus(events[bus], stops[bus], bus) for bus in BUSES}
+    storage = report.get('diagnostic_storage_by_bus')
+    storage_complete = None
+    if storage is not None:
+        need(type(storage) is dict and set(storage) == set(BUSES), 'Invalid diagnostic storage summary')
+        for row in storage.values():
+            need(type(row) is dict and all(type(row.get(flag)) is bool for flag in
+                 ('unlogged_receive_failure', 'unlogged_exchange_failure')), 'Missing diagnostic storage flags')
+        storage_complete = not any(row[flag] for row in storage.values() for flag in
+                                   ('unlogged_receive_failure', 'unlogged_exchange_failure'))
     owner_unconfirmed = any(row['owner_stop_incomplete_or_errored'] for row in buses.values())
     return {'schema': 'singularitydog.motor-reply-failure-analysis.v1',
             'status': 'ANALYZED_SAVED_EVENTS', 'hardware_opened': False,
             'output_allowed': False, 'root_cause_established': False,
             'stop_confirmation_created': False,
+            'failure_diagnostic_storage_complete': storage_complete,
             'reported_stop_confirmed': report['stop_confirmed'],
             'contradictory_stop_summary': report['stop_confirmed'] and owner_unconfirmed,
             'unresolved_stop_evidence': owner_unconfirmed, 'buses': buses,

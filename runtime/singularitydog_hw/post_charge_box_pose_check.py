@@ -17,10 +17,12 @@ import math
 import os
 from pathlib import Path
 import signal
+import stat
 import statistics
 import sys
 import threading
 import time
+import uuid
 
 from . import dual_can_pipeline_benchmark as dual
 from .can_readonly import PARAMETERS, ReadOnlyCAN, read_request
@@ -192,13 +194,90 @@ def private_output_path(path):
 
 
 def _write_private(path, payload):
-    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
-    if hasattr(os, "O_NOFOLLOW"):
-        flags |= os.O_NOFOLLOW
-    fd = os.open(path, flags, 0o600)
-    with os.fdopen(fd, "w", encoding="utf-8") as stream:
-        json.dump(payload, stream, ensure_ascii=False, indent=2, allow_nan=False)
-        stream.write("\n")
+    """Finalize private JSON after acquisition; never publish partial contents.
+
+    Reserved pending names are never result paths. Keep them on success and
+    failure: POSIX unlink cannot condition deletion on the checked inode.
+    Success uses a hard link to the same data; failures may retain separate
+    partial/full data. Repeated saves consume directory entries and storage;
+    this helper has no automatic cleanup or retention limit.
+    Never roll back a final pathname. A final may exist after a sync/close
+    error, so existence or JSON status cannot certify successful finalization.
+    """
+    data = (json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False) + "\n").encode("utf-8")
+    requested = Path(path).expanduser().absolute()
+    _require(not any(p.is_symlink() for p in (requested, *requested.parents)),
+             "Output path must not contain symlinks")
+    if requested.exists():
+        raise FileExistsError("Private JSON output already exists: " + str(requested))
+    output = private_output_path(requested)
+    directory = os.open(output.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+                        | getattr(os, "O_NOFOLLOW", 0))
+    failure = None
+    try:
+        parent_info = os.fstat(directory)
+        _require(stat.S_ISDIR(parent_info.st_mode), "Output parent must be a directory")
+        parent_identity = (parent_info.st_dev, parent_info.st_ino)
+
+        def bound_directory():
+            _require(not any(p.is_symlink() for p in (requested, *requested.parents))
+                     and requested.resolve() == output,
+                     "Requested output path changed or became a symlink")
+            _require(not any(p.is_symlink() for p in (output.parent, *output.parents)),
+                     "Output parent path became a symlink")
+            named = output.parent.stat()
+            _require((named.st_dev, named.st_ino) == parent_identity,
+                     "Output parent differs from opened directory")
+            _require(not any((p / ".git").exists() for p in output.parents),
+                     "Private UID and angle record must be outside Git")
+
+        def owned(name):
+            named = os.stat(name, dir_fd=directory, follow_symlinks=False)
+            _require(stat.S_ISREG(named.st_mode)
+                     and (named.st_dev, named.st_ino) == identity
+                     and named.st_size == len(data) and stat.S_IMODE(named.st_mode) == 0o600,
+                     "Saved JSON pathname differs from completed private file")
+
+        bound_directory()
+        pending = "." + output.name + ".pending-" + uuid.uuid4().hex
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
+        fd = os.open(pending, flags, 0o600, dir_fd=directory)
+        try:
+            os.fchmod(fd, 0o600)
+            info = os.fstat(fd)
+            identity = (info.st_dev, info.st_ino)
+            stream = os.fdopen(fd, "wb", buffering=0)
+        except BaseException:
+            os.close(fd)
+            raise
+        with stream:
+            offset = 0
+            while offset < len(data):
+                written = stream.write(data[offset:])
+                if type(written) is not int or not 0 < written <= len(data)-offset:
+                    raise OSError("Private JSON write made no progress")
+                offset += written
+            stream.flush()
+            os.fsync(stream.fileno())
+        bound_directory(); owned(pending)
+        # Same-directory hard-link publication is atomic and cannot overwrite
+        # an existing file or symlink. Unsupported filesystems fail closed.
+        os.link(pending, output.name, src_dir_fd=directory, dst_dir_fd=directory,
+                follow_symlinks=False)
+        owned(output.name)
+        os.fsync(directory)
+        bound_directory(); owned(pending); owned(output.name)
+    except BaseException as error:
+        failure = error
+        raise
+    finally:
+        try:
+            os.close(directory)
+        except BaseException as error:
+            if failure is None:
+                raise
+            if hasattr(failure, "add_note"):
+                failure.add_note("Output directory close also failed: " + repr(error))
 
 
 def _boot_id():

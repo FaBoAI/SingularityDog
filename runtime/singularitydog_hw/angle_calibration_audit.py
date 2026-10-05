@@ -103,6 +103,8 @@ class AxisCalibration:
             _need(type(flag) is bool, "Evidence review flag must be boolean")
             if flag:
                 _sha(getattr(self, name + "_evidence_sha256"), name + " evidence hash")
+        _need(not self.zero_reviewed or self.uncertainty_rad > 0,
+              "Reviewed zero needs explicit nonzero error bound")
 
     def evidence_blockers(self):
         blockers = []
@@ -352,6 +354,9 @@ def fit_reference_observations(observations):
     No full turns are inferred within the measurement sequence.  A known-angle
     span of at least five degrees distinguishes direction from readout noise.
     The supplied error bounds must make exactly one of sign +/-1 feasible.
+    The offset interval is a consistency fit under the fixed unit-scale model.
+    Its width is not the physical measurement accuracy: even intersecting
+    intervals at one point cannot establish zero physical uncertainty.
     """
     _need(type(observations) is list and len(observations) >= 2,
           "At least two physical reference observations required")
@@ -394,18 +399,42 @@ def fit_reference_observations(observations):
         lower = max(_finite(center - error, "offset lower bound") for center, error in centers)
         upper = min(_finite(center + error, "offset upper bound") for center, error in centers)
         if lower <= upper:
+            offset_error = _finite(upper / 2 - lower / 2, "offset uncertainty")
             candidates.append({"sign_candidate": sign,
                                "offset_candidate_rad": _finite(lower / 2 + upper / 2,
                                                                "offset candidate"),
                                "offset_interval_rad": [lower, upper],
-                               "uncertainty_rad": _finite(upper / 2 - lower / 2,
-                                                          "offset uncertainty")})
+                               "offset_fit_uncertainty_rad": offset_error,
+                               "uncertainty_rad": max(offset_error, max(row[2] for row in rows))})
     _need(len(candidates) == 1,
           f"Physical observations do not identify one consistent sign: {len(candidates)} candidates")
-    return {**candidates[0], "status": "PHYSICAL_REFERENCE_FIT_REVIEW_REQUIRED",
+    fit = candidates[0]
+    residuals = [_finite(q - (fit["sign_candidate"] * raw + fit["offset_candidate_rad"]),
+                         "reference residual") for raw, q, _ in rows]
+    low = min(range(len(rows)), key=lambda n: rows[n][1])
+    high = max(range(len(rows)), key=lambda n: rows[n][1])
+    physical_delta = rows[high][1] - rows[low][1]
+    raw_delta = _finite(fit["sign_candidate"] * (rows[high][0] - rows[low][0]),
+                        "signed reference displacement")
+    _need(raw_delta > 0, "Reference displacement does not establish direction")
+    displacement_error = rows[low][2] + rows[high][2]
+    return {**fit, "status": "PHYSICAL_REFERENCE_FIT_REVIEW_REQUIRED",
             "uid": uid, "boot_id": boot, "motor_power_epoch": epoch,
             "source_sha256": [row["source_sha256"] for row in observations],
-            "observations": len(rows), "approved_for_runtime": False,
+            "observations": len(rows), "physical_span_rad": span,
+            "raw_span_rad": _finite(max(row[0] for row in rows) - min(row[0] for row in rows),
+                                    "raw reference span"),
+            "residual_rad_by_observation": residuals,
+            "max_abs_residual_rad": max(map(abs, residuals)),
+            "physical_measurement_error_bound_rad": max(row[2] for row in rows),
+            "signed_displacement_scale_candidate": _finite(physical_delta / raw_delta,
+                                                           "reference displacement scale"),
+            "signed_displacement_scale_interval": [
+                _finite((physical_delta - displacement_error) / raw_delta, "scale lower bound"),
+                _finite((physical_delta + displacement_error) / raw_delta, "scale upper bound")],
+            "unit_scale_assumed_for_fit": True,
+            "dynamic_type2_scale_verified": False,
+            "physical_accuracy_review_required": True, "approved_for_runtime": False,
             "motor_output_available": False, "output_allowed": False}
 
 

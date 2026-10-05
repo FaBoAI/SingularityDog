@@ -160,8 +160,58 @@ class Channel:
         _need(returned == len(wire) and type(returned) is int, 'Partial write; no retry')
         return start, finish
 
+    def _reader_counters(self, errors):
+        """Detached host counters only; diagnostics must not hide a transport error."""
+        try:
+            return self.reader.stats()
+        except BaseException as error:
+            errors.append('reader counters: '+_error_text(error))
+            return None
+
+    def _record_exchange_failure(self, mid, step, event_start, before, diagnostic_errors, error):
+        """Keep the failed receive boundary before STOP replaces the reader/parser.
+
+        select/read counters describe host observations, not delivery to CAN or
+        a motor. Evidence collection neither reads serial bytes nor retries.
+        A broken clock, receive ioctl or event storage cannot replace the
+        original failure or prevent physical STOP cleanup.
+        """
+        try:
+            after = self._reader_counters(diagnostic_errors)
+            delta = ({name: value-before[name] for name, value in after.items()}
+                     if before is not None and after is not None else None)
+            boundary = {'partial_hex': bytes(self.parser.buffer).hex(),
+                        'discarded_bytes': self.parser.discarded_bytes,
+                        'backlogged_bytes': None}
+            try:
+                boundary['backlogged_bytes'] = self.port.in_waiting
+            except BaseException as evidence_error:
+                diagnostic_errors.append('receive boundary: '+_error_text(evidence_error))
+            failed_at = None
+            try:
+                failed_at = self.clock()
+            except BaseException as evidence_error:
+                diagnostic_errors.append('failure clock: '+_error_text(evidence_error))
+            tx = next((event for event in reversed(self.events[event_start:])
+                       if event.get('kind') == 'tx'), None)
+            self.event({'kind': 'exchange_failure', 'motor_id': mid, 'step': step,
+                        'error': _error_text(error), 'failed_at_ns': failed_at,
+                        'event_start_index': event_start, 'event_end_index': len(self.events),
+                        'request_start_ns': tx['start_ns'] if tx is not None else None,
+                        'hard_deadline_ns': tx['start_ns']+REQUEST_NS if tx is not None else None,
+                        'receive_boundary_evidence': boundary,
+                        'reader_counters_before': before, 'reader_counters_after': after,
+                        'reader_counters_delta': delta, 'diagnostic_errors': diagnostic_errors,
+                        'counter_scope': 'host_serial_reader_not_CAN_or_motor_delivery',
+                        'automatic_retry': False})
+        except BaseException:
+            self.unlogged_exchange_failure = True
+
     def exchange(self, mid, step, *, center=0.):
         _need(not self.failed, 'Failed channel cannot continue commissioning')
+        event_start = len(self.events)
+        diagnostic_errors = []
+        counters_before = self._reader_counters(diagnostic_errors)
         try:
             self._boundary()
             start, finish = self._send(mid, step, center)
@@ -196,8 +246,9 @@ class Channel:
                     return {**found, 'request_start_ns': start, 'write_finish_ns': finish,
                             'received_ns': received}
             raise TimeoutError('No reply within fixed commissioning deadline')
-        except BaseException:
+        except BaseException as error:
             self.failed = True
+            self._record_exchange_failure(mid, step, event_start, counters_before, diagnostic_errors, error)
             raise
 
     def stop_all(self):
@@ -537,6 +588,10 @@ def main(argv=None):
             report.update(boot_id=boot.boot_id, motor_power_epoch=a.power_epoch,
                           expected_uids_sha256=hashlib.sha256(source).hexdigest())
             report['events_by_bus'] = {scope: channel.events for scope, channel in channels.items()}
+            report['diagnostic_storage_by_bus'] = {
+                scope: {'unlogged_receive_failure': getattr(channel, 'unlogged_receive_failure', False),
+                        'unlogged_exchange_failure': getattr(channel, 'unlogged_exchange_failure', False)}
+                for scope, channel in channels.items()}
     except BaseException as error:
         report['errors'].append(_error_text(error))
     finally:

@@ -7,6 +7,7 @@ these tests exercise actual target blending, envelopes, quantization and STOP.
 import math
 import threading
 import unittest
+from unittest.mock import patch
 
 from singularitydog_hw import policy_live_profile as live_profile
 from singularitydog_hw import policy_output_runtime as runtime
@@ -44,7 +45,20 @@ def targets(data,delta=.2):
 
 
 class LocalCharacterizationRuntimeTests(unittest.TestCase):
-    run_case=runtime_fixtures.OutputRuntimeTests.run_case
+    def run_case(self,*,profile_data,policy):
+        # Blending/quantization tests use one causal clock for every fake source;
+        # host scheduling is not simulated voltage age or transport latency.
+        clock=runtime_fixtures.SimulatedClock()
+        original_wait=runtime.wait
+        def fixture_wait(futures,*,timeout,return_when):
+            self.assertTrue(math.isfinite(timeout) and timeout>0)
+            return original_wait(futures,timeout=2.,return_when=return_when)
+        # Keep actual Future results/errors and the unchanged runtime clock gates.
+        with patch.object(runtime,'wait',side_effect=fixture_wait):
+            return runtime_fixtures.OutputRuntimeTests.run_case(self,
+                profile_data=profile_data,policy=policy,
+                front=FakeSession(1,clock=clock),rear=FakeSession(7,clock=clock),
+                imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
 
     def assert_actual_wires_within_local_limits(self,data,report,sessions):
         for session in sessions.values():

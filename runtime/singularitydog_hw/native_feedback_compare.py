@@ -118,6 +118,37 @@ def _interpolate(before, feedback, after):
             "bracket_ms": (after["received_ns"]-before["request_ns"])/1e6}
 
 
+def _sample_statistics(values):
+    """Describe every saved sample; never select a passing subset or fit a scale."""
+    count = len(values)
+    mean = math.fsum(values)/count
+    return {"samples": count, "minimum": min(values), "maximum": max(values),
+            "range": max(values)-min(values), "mean": mean,
+            "rms": math.sqrt(math.fsum(v*v for v in values)/count),
+            "population_std": math.sqrt(math.fsum((v-mean)**2 for v in values)/count)}
+
+
+def _host_endpoint_diagnostics(position, velocity):
+    """Keep separately read host endpoints distinct from sensor-time velocity."""
+    position_dt = position["after"]["host_midpoint_ns"]-position["before"]["host_midpoint_ns"]
+    velocity_dt = velocity["after"]["host_midpoint_ns"]-velocity["before"]["host_midpoint_ns"]
+    return {
+        "position_midpoint_delta_ns": position_dt,
+        "velocity_midpoint_delta_ns": velocity_dt,
+        "position_finite_difference_rad_s":
+            (position["after"]["value"]-position["before"]["value"])*1e9/position_dt,
+        "velocity_minus_position_before_midpoint_ns":
+            velocity["before"]["host_midpoint_ns"]-position["before"]["host_midpoint_ns"],
+        "velocity_minus_position_after_midpoint_ns":
+            velocity["after"]["host_midpoint_ns"]-position["after"]["host_midpoint_ns"],
+        "position_and_velocity_read_together": False, "sensor_sample_time_verified": False,
+        "affects_comparison_result": False,
+        "scope": "Position difference divided by host midpoint separation; position and velocity "
+                 "are read separately. This is a descriptive estimate, not sensor-time velocity "
+                 "or velocity calibration.",
+    }
+
+
 def analyze_feedback_comparison(evidence, expected_uids):
     """Pure saved-evidence replay. No branch correction or physical approval."""
     expected = validate_uids(expected_uids)
@@ -166,6 +197,8 @@ def analyze_feedback_comparison(evidence, expected_uids):
                 "velocity_endpoint_change_rad_s": vd, "direct_position_error_deg": math.degrees(pos_error),
                 "mod_2pi_position_error_deg": math.degrees(wrapped), "velocity_error_rad_s": vel_error,
                 "diagnostic_gates": gates, "endpoint_stationarity_heuristic_passed": eligible,
+                "failed_diagnostic_gates": sorted(name for name, passed in gates.items() if not passed),
+                "host_endpoint_diagnostics": _host_endpoint_diagnostics(position, velocity),
                 "comparison_result": ("STATIC_CANDIDATE_AGREES" if direct_agrees else
                                       "STATIC_MODULO_ONLY_BRANCH_UNRESOLVED" if modulo_agrees else "STATIC_CANDIDATE_DIFFERS")
                                      if eligible else "INCONCLUSIVE_MOTION_OR_TIMING",
@@ -175,12 +208,30 @@ def analyze_feedback_comparison(evidence, expected_uids):
     per_id = {}
     for mid in range(1, 13):
         selected = [r for r in rows if r["motor_id"] == mid]
+        # Include inconclusive/different cycles. Type17 endpoints and Type2
+        # feedback remain separate measured quantities; no pooled estimator.
+        statistics = {
+            "all_cycles_included": True, "sample_filtering_applied": False,
+            "affects_comparison_result": False,
+            "type17_position_endpoints_rad": _sample_statistics(
+                [r["position"][p]["value"] for r in selected for p in ("before", "after")]),
+            "type17_velocity_endpoints_rad_s": _sample_statistics(
+                [r["velocity"][p]["value"] for r in selected for p in ("before", "after")]),
+            "type2_feedback_velocity_rad_s_candidate": _sample_statistics(
+                [r["feedback"]["value"]["velocity_rad_s_candidate"] for r in selected]),
+            "failed_gate_counts": {name: sum(not r["diagnostic_gates"][name] for r in selected)
+                                   for name in selected[0]["diagnostic_gates"]},
+            "scope": "Statistics of all existing decoded samples, including failed gates. "
+                     "Population standard deviation describes this finite record; no scale, "
+                     "stationarity or runtime approval is inferred.",
+        }
         per_id[str(mid)] = {"samples": len(selected),
             "static_bracket_samples": sum(r["endpoint_stationarity_heuristic_passed"] for r in selected),
             "max_abs_direct_position_error_deg": max(abs(r["direct_position_error_deg"]) for r in selected),
             "max_abs_mod_2pi_position_error_deg": max(abs(r["mod_2pi_position_error_deg"]) for r in selected),
             "max_abs_velocity_error_rad_s": max(abs(r["velocity_error_rad_s"]) for r in selected),
             "max_bracket_ms": max(max(r[p]["bracket_ms"] for p in ("position", "velocity")) for r in selected),
+            "all_sample_statistics": statistics,
             "all_direct_static_comparisons_agree": all(r["direct_comparison_agrees"] for r in selected),
             "all_modulo_static_comparisons_agree": all(r["modulo_comparison_agrees"] for r in selected)}
     return {"status": "COMPLETE_DIAGNOSTIC", "kind": "native_feedback_comparison_report",

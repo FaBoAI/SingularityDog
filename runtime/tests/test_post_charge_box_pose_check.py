@@ -156,6 +156,18 @@ class PostChargeTests(unittest.TestCase):
             self.assertFalse(output.exists())
             self.assertEqual(FakeCAN.opened, [])
 
+    def test_publish_durability_failure_has_no_cli_success_even_with_complete_final_json(self):
+        fsync = os.fsync
+        def fail(fd):
+            if stat.S_ISDIR(os.fstat(fd).st_mode): raise OSError("directory fsync")
+            fsync(fd)
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.object(check.os, "fsync", side_effect=fail), contextlib.redirect_stderr(io.StringIO()) as errors:
+            code, output = self._run(directory)
+            self.assertEqual(code, 1)
+            self.assertEqual(json.loads(output.read_text())["status"], "RECORDED_REVIEW_REQUIRED")
+            self.assertIn("Private output could not be saved", errors.getvalue())
+
     def test_baseline_and_tx_guard_reject_invalid_data(self):
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / "baseline.json"
@@ -173,6 +185,244 @@ class PostChargeTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "Noncanonical CAN transmission"):
             check.guard_event("front", {"kind": "can_tx", "motor_id": 1,
                                         "parameter": "position", "hex": "bad"})
+
+
+class PrivateJSONTests(unittest.TestCase):
+    """Only temporary files; no serial, CAN, SSH or recovered artifacts."""
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.root = Path(directory.name).resolve()
+        self.output = self.root / "capture.json"
+        self.payload = {"status": "RECORDED_REVIEW_REQUIRED", "note": "静止", "output_allowed": False}
+
+    def pending(self):
+        return list(self.root.glob(".capture.json.pending-*"))
+
+    def stream(self, events=None, *, write=None, close=None):
+        original = os.fdopen
+        def factory(fd, *args, **kwargs):
+            underlying = original(fd, *args, **kwargs)
+            class Wrapped:
+                def __enter__(self): return self
+                def __exit__(self, *_): self.close()
+                def fileno(self): return underlying.fileno()
+                def write(self, data):
+                    if events is not None: events.append("write")
+                    return write(underlying, data) if write else underlying.write(data)
+                def flush(self):
+                    if events is not None: events.append("flush")
+                    underlying.flush()
+                def close(self):
+                    underlying.close()
+                    if events is not None: events.append("close")
+                    if close: close()
+            return Wrapped()
+        return factory
+
+    def test_complete_bytes_close_before_publish_directory_barrier_and_retained_reservation(self):
+        events = []
+        fsync, link = os.fsync, os.link
+        def sync(fd):
+            events.append("dirsync" if stat.S_ISDIR(os.fstat(fd).st_mode) else "filesync")
+            fsync(fd)
+        def publish(*args, **kwargs):
+            self.assertFalse(self.output.exists())
+            self.assertEqual(len(self.pending()), 1)
+            self.assertEqual(json.loads(self.pending()[0].read_text()), self.payload)
+            self.assertEqual(stat.S_IMODE(self.pending()[0].stat().st_mode), 0o600)
+            events.append("publish"); link(*args, **kwargs)
+        with patch.object(check.os, "fdopen", side_effect=self.stream(events)), \
+             patch.object(check.os, "fsync", side_effect=sync), \
+             patch.object(check.os, "link", side_effect=publish), \
+             patch.object(check.os, "unlink", side_effect=AssertionError("No inode-conditional unlink")) as unlink:
+            self.assertIsNone(check._write_private(self.output, self.payload))
+        unlink.assert_not_called()
+        self.assertEqual(events, ["write", "flush", "filesync", "close", "publish", "dirsync"])
+        self.assertEqual(self.output.read_bytes(), (json.dumps(self.payload, ensure_ascii=False, indent=2, allow_nan=False)+"\n").encode())
+        self.assertEqual(stat.S_IMODE(self.output.stat().st_mode), 0o600)
+        self.assertEqual(len(self.pending()), 1)
+        self.assertEqual(self.pending()[0].stat().st_ino, self.output.stat().st_ino)
+        self.assertEqual(self.pending()[0].read_bytes(), self.output.read_bytes())
+        self.assertNotEqual(self.pending()[0].suffix, ".json")
+
+    def test_serialization_failure_creates_no_file(self):
+        for payload in ({"value": math.nan}, {"value": math.inf}, {"value": object()}):
+            with self.assertRaises((ValueError, TypeError)):
+                check._write_private(self.output, payload)
+            self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_existing_or_competing_target_remains_unchanged(self):
+        self.output.write_bytes(b"foreign-original")
+        with self.assertRaises(FileExistsError): check._write_private(self.output, self.payload)
+        self.assertEqual(self.output.read_bytes(), b"foreign-original")
+        self.assertEqual(self.pending(), [])
+        self.output.unlink()
+        original_link = os.link
+        def compete(*args, **kwargs):
+            self.output.write_bytes(b"foreign-racer")
+            return original_link(*args, **kwargs)
+        with patch.object(check.os, "link", side_effect=compete), self.assertRaises(FileExistsError):
+            check._write_private(self.output, self.payload)
+        self.assertEqual(self.output.read_bytes(), b"foreign-racer")
+        self.assertEqual(len(self.pending()), 1)
+
+    def test_two_actual_publishers_have_one_winner_and_keep_both_reservations(self):
+        from concurrent.futures import ThreadPoolExecutor
+        import threading
+        barrier = threading.Barrier(2); link = os.link
+        def compete(*args, **kwargs):
+            barrier.wait(timeout=5)
+            return link(*args, **kwargs)
+        def save(value):
+            try:
+                check._write_private(self.output, value)
+                return "saved", value
+            except FileExistsError:
+                return "competed", value
+        a, b = {"writer": "a"}, {"writer": "b"}
+        with patch.object(check.os, "link", side_effect=compete), ThreadPoolExecutor(max_workers=2) as pool:
+            results = list(pool.map(save, (a, b)))
+        saved = [v for status, v in results if status == "saved"]
+        competed = [v for status, v in results if status == "competed"]
+        self.assertEqual(len(saved), 1); self.assertEqual(len(competed), 1)
+        self.assertEqual(json.loads(self.output.read_text()), saved[0])
+        self.assertEqual(len(self.pending()), 2)
+        self.assertEqual(sorted(json.loads(p.read_text())["writer"] for p in self.pending()), ["a", "b"])
+
+    def test_competing_symlink_target_and_its_destination_are_never_deleted(self):
+        foreign = self.root / "foreign"; foreign.write_bytes(b"keep")
+        original_link = os.link
+        def compete(*args, **kwargs):
+            self.output.symlink_to(foreign)
+            return original_link(*args, **kwargs)
+        with patch.object(check.os, "link", side_effect=compete), self.assertRaises(FileExistsError):
+            check._write_private(self.output, self.payload)
+        self.assertTrue(self.output.is_symlink()); self.assertEqual(foreign.read_bytes(), b"keep")
+
+    def test_partial_writes_complete_but_zero_progress_or_error_never_publish(self):
+        with patch.object(check.os, "fdopen", side_effect=self.stream(write=lambda f, data: f.write(data[:7]))):
+            check._write_private(self.output, self.payload)
+        self.assertEqual(json.loads(self.output.read_text()), self.payload)
+        self.output.unlink()
+        for kind in ("zero", "partial"):
+            def fail(stream, data):
+                if kind == "zero": return 0
+                stream.write(data[:7]); raise OSError("synthetic partial write")
+            with patch.object(check.os, "fdopen", side_effect=self.stream(write=fail)), self.assertRaises(OSError):
+                check._write_private(self.output, self.payload)
+            self.assertFalse(self.output.exists())
+        full_size = len((json.dumps(self.payload, ensure_ascii=False, indent=2)+"\n").encode())
+        self.assertEqual(sorted(p.stat().st_size for p in self.pending()), [0, 7, full_size])
+
+    def test_file_fsync_close_and_unsupported_publish_fail_before_final_name(self):
+        failures = (("fsync", patch.object(check.os, "fsync", side_effect=OSError("file fsync"))),
+                    ("close", patch.object(check.os, "fdopen", side_effect=self.stream(close=lambda: (_ for _ in ()).throw(OSError("close"))))),
+                    ("link", patch.object(check.os, "link", side_effect=OSError("hardlink unavailable"))))
+        for kind, failure in failures:
+            with self.subTest(kind=kind), failure, self.assertRaises(OSError):
+                check._write_private(self.output, self.payload)
+            self.assertFalse(self.output.exists())
+        self.assertEqual(len(self.pending()), 3)
+
+    def test_directory_fsync_failure_reports_error_even_if_complete_final_exists(self):
+        fsync = os.fsync
+        def sync(fd):
+            if stat.S_ISDIR(os.fstat(fd).st_mode): raise OSError("directory barrier")
+            fsync(fd)
+        with patch.object(check.os, "fsync", side_effect=sync), self.assertRaises(OSError):
+            check._write_private(self.output, self.payload)
+        self.assertEqual(json.loads(self.output.read_text()), self.payload)
+        self.assertEqual(len(self.pending()), 1)
+
+    def test_directory_close_failure_is_not_success_and_never_deletes_paths(self):
+        close = os.close
+        def fail(fd):
+            directory = stat.S_ISDIR(os.fstat(fd).st_mode)
+            close(fd)
+            if directory: raise OSError("directory close")
+        with patch.object(check.os, "close", side_effect=fail), \
+             patch.object(check.os, "unlink", side_effect=AssertionError("No unlink")) as unlink, self.assertRaises(OSError):
+            check._write_private(self.output, self.payload)
+        unlink.assert_not_called()
+        self.assertEqual(json.loads(self.output.read_text()), self.payload)
+        self.assertEqual(len(self.pending()), 1)
+
+    def test_git_symlink_parent_and_symlink_leaf_rejected_without_overwrite(self):
+        git = self.root / "repo"; git.mkdir(); (git / ".git").mkdir()
+        alias = self.root / "alias"; alias.symlink_to(self.root, target_is_directory=True)
+        leaf = self.root / "leaf"; leaf.symlink_to(self.root / "absent")
+        for target in (git / "capture.json", alias / "capture.json", leaf):
+            with self.subTest(path=str(target)), self.assertRaises(ValueError):
+                check._write_private(target, self.payload)
+        self.assertTrue(leaf.is_symlink()); self.assertFalse(self.output.exists())
+        self.assertEqual(list(git.glob("*.pending-*")), [])
+
+    def test_replaced_parent_before_publish_does_not_write_foreign_directory(self):
+        parent = self.root / "parent"; parent.mkdir(); output = parent / "capture.json"
+        moved = self.root / "original-parent"
+        def replace():
+            parent.rename(moved); parent.mkdir(); (parent / "capture.json").write_bytes(b"foreign")
+        with patch.object(check.os, "fdopen", side_effect=self.stream(close=replace)), self.assertRaisesRegex(ValueError, "Output parent differs"):
+            check._write_private(output, self.payload)
+        self.assertEqual(output.read_bytes(), b"foreign")
+        self.assertFalse((moved / "capture.json").exists())
+        self.assertEqual(len(list(moved.glob(".capture.json.pending-*"))), 1)
+
+    def test_raw_requested_parent_redirected_before_resolve_is_rejected(self):
+        parent = self.root / "parent"; parent.mkdir()
+        moved = self.root / "original-parent"
+        redirected = self.root / "redirected"; redirected.mkdir()
+        original = check.private_output_path
+        def redirect(path):
+            parent.rename(moved); parent.symlink_to(redirected, target_is_directory=True)
+            return original(path)
+        with patch.object(check, "private_output_path", side_effect=redirect), self.assertRaisesRegex(ValueError, "Requested output path changed"):
+            check._write_private(parent / "capture.json", self.payload)
+        self.assertEqual(list(redirected.iterdir()), [])
+        self.assertEqual(list(moved.iterdir()), [])
+        self.assertTrue(parent.is_symlink())
+
+    def test_foreign_staging_replacement_is_never_published_or_cleaned_up(self):
+        saved = self.root / "original-pending"
+        def replace():
+            pending = self.pending()[0]; pending.rename(saved); pending.write_bytes(b"foreign")
+        with patch.object(check.os, "fdopen", side_effect=self.stream(close=replace)), self.assertRaisesRegex(ValueError, "pathname differs"):
+            check._write_private(self.output, self.payload)
+        self.assertFalse(self.output.exists())
+        self.assertEqual(self.pending()[0].read_bytes(), b"foreign")
+        self.assertEqual(json.loads(saved.read_text()), self.payload)
+
+    def test_foreign_staging_replaced_after_publish_is_not_unlinked(self):
+        fsync = os.fsync; replaced = False
+        def sync(fd):
+            nonlocal replaced
+            fsync(fd)
+            if stat.S_ISDIR(os.fstat(fd).st_mode) and not replaced:
+                replaced = True
+                pending = self.pending()[0]; pending.rename(self.root / "original-pending")
+                pending.write_bytes(b"foreign")
+        with patch.object(check.os, "fsync", side_effect=sync), self.assertRaisesRegex(ValueError, "pathname differs"):
+            check._write_private(self.output, self.payload)
+        self.assertEqual(self.pending()[0].read_bytes(), b"foreign")
+        self.assertEqual(json.loads(self.output.read_text()), self.payload)
+
+    def test_foreign_final_replacement_after_publish_is_preserved_on_failure(self):
+        fsync = os.fsync; replaced = False
+        def sync(fd):
+            nonlocal replaced
+            fsync(fd)
+            if stat.S_ISDIR(os.fstat(fd).st_mode) and not replaced:
+                replaced = True
+                self.output.rename(self.root / "original-final")
+                self.output.write_bytes(b"foreign-final")
+        with patch.object(check.os, "fsync", side_effect=sync), \
+             patch.object(check.os, "unlink", side_effect=AssertionError("Never delete foreign entries")) as unlink, \
+             self.assertRaisesRegex(ValueError, "pathname differs"):
+            check._write_private(self.output, self.payload)
+        unlink.assert_not_called()
+        self.assertEqual(self.output.read_bytes(), b"foreign-final")
+        self.assertEqual(json.loads(self.pending()[0].read_text()), self.payload)
 
 
 if __name__ == "__main__":

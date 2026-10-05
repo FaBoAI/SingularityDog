@@ -27,7 +27,7 @@ class OverlapSession(Session):
         self.phases=[]
         self.active=threading.Lock()
 
-    def exchange(self,wires):
+    def exchange(self,wires,*,before_native=None):
         if not self.active.acquire(blocking=False):
             raise AssertionError('Concurrent exchanges on one bus')
         try:
@@ -35,6 +35,7 @@ class OverlapSession(Session):
             phase='voltage' if len(wires)==1 and kind==17 else (
                 'feedback' if len(wires)==6 and self.calls==0 else 'output')
             self.phases.append(phase)
+            if before_native is not None:before_native()
             if phase=='voltage':
                 self.voltage_started.set()
                 if not self.voltage_release.wait(.5):
@@ -288,11 +289,11 @@ class NativeVoltageOverlapTests(unittest.TestCase):
                 return super().submit(fn,*args,**kwargs)
 
         class GuardSession(OverlapSession):
-            def exchange(self,wires):
+            def exchange(self,wires,*,before_native=None):
                 if len(wires)==6 and self.calls>0:
                     if not (validation_joined.is_set() and freshness_checked.is_set()):
                         raise AssertionError('STOP submitted before validation and freshness')
-                return super().exchange(wires)
+                return super().exchange(wires,before_native=before_native)
 
         class TrackingObserver(OverlapObserver):
             def consume(self,snapshot):
