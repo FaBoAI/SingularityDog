@@ -20,6 +20,7 @@ from . import policy_shadow as shadow
 from .angle_branch_comparison import (IDS as BRANCH_IDS, MAX_STATIC_POSE_DELTA_RAD,
                                       StaticBranchComparison, TWO_PI)
 from .event_snapshot import snapshot_event
+from . import imu_accel_input_hypothesis as accel_hypotheses
 from .imu_calibration_review import reviewed_acceleration
 
 DT_NS = 20_000_000
@@ -31,6 +32,9 @@ _FLOAT32_MAX = float.fromhex("0x1.fffffep+127")
 _EXPECTED_MOTOR_KEYS = frozenset((i, p) for i in range(1, 13)
                                for p in ("position", "velocity"))
 _OWNERS = weakref.WeakKeyDictionary()
+_ACCEL_HYPOTHESIS_CLASS = accel_hypotheses.AccelInputHypothesis
+_ACCEL_PROVENANCE_METHOD = _ACCEL_HYPOTHESIS_CLASS.provenance
+_ACCEL_PROVENANCE_PARSER = accel_hypotheses.strict_json
 # Compare float32 policy output with the same representable endpoint, without
 # adding a physical margin or clipping the diagnostic target itself.
 _TARGET_LOWER = [struct.unpack("<f", struct.pack("<f", x))[0] for x in shadow.LOWER]
@@ -96,6 +100,27 @@ def _provenance_copier(value):
     except (TypeError, ValueError):
         return copy.deepcopy
     return snapshot_event
+
+
+def _frozen_accel_provenance(correction):
+    """Cache only the original frozen hypothesis's bounded, owned JSON tree.
+
+    Custom/subclass provenance remains dynamic. Unusual JSON or a parse failure
+    keeps the existing per-tick path, including its original error timing.
+    The cache never substitutes for correct() or its loader/norm checks.
+    """
+    if (type(correction) is not _ACCEL_HYPOTHESIS_CLASS
+            or accel_hypotheses.AccelInputHypothesis is not _ACCEL_HYPOTHESIS_CLASS
+            or getattr(correction.provenance, "__func__", None) is not _ACCEL_PROVENANCE_METHOD
+            or accel_hypotheses.strict_json is not _ACCEL_PROVENANCE_PARSER
+            or type(correction._provenance_json) is not str):
+        return None
+    raw, proof = correction._provenance_json, correction._proof
+    try:
+        blob = marshal.dumps(snapshot_event(correction.provenance()))
+    except (TypeError, ValueError, RecursionError):
+        return None
+    return correction, raw, proof, blob
 
 
 def _mount(candidate):
@@ -297,7 +322,8 @@ class StatefulPolicyObserver:
                  torch_module=None, gyro_bias_candidate=None,
                  profile_consume=False, monotonic_ns=None,
                  power_epoch_branch_comparison=None, measured_diagnostic_ticks=False,
-                 reuse_input_buffers=False, apply_reviewed_accel_calibration=False):
+                 reuse_input_buffers=False, apply_reviewed_accel_calibration=False,
+                 accel_input_hypothesis=None):
         _require(type(reuse_input_buffers) is bool, "reuse_input_buffers must be boolean")
         _require(type(measured_diagnostic_ticks) is bool, "measured_diagnostic_ticks must be boolean")
         self._measured_diagnostic_ticks = measured_diagnostic_ticks
@@ -318,6 +344,15 @@ class StatefulPolicyObserver:
         self._bias = _bias(gyro_bias_candidate)
         self._accel_calibration = reviewed_acceleration(gyro_bias_candidate,
             self._mount["R_body_from_sensor"], enabled=apply_reviewed_accel_calibration)
+        _require(accel_input_hypothesis is None or not apply_reviewed_accel_calibration,
+                 "Acceleration hypothesis and reviewed calibration are mutually exclusive")
+        self._accel_input_hypothesis = None
+        if accel_input_hypothesis is not None:
+            from .imu_accel_input_hypothesis import load_accel_input_hypothesis
+            self._accel_input_hypothesis = load_accel_input_hypothesis(
+                accel_input_hypothesis, self._mount["R_body_from_sensor"])
+            self._accel_calibration = self._accel_input_hypothesis
+        self._accel_provenance_cache = _frozen_accel_provenance(self._accel_calibration)
         # Private validated configuration is fixed for the observer's lifetime.
         # Only its digest/lookup plan is reused; live snapshot values and their
         # complete canonical digest are still recomputed for every tick.
@@ -391,6 +426,20 @@ class StatefulPolicyObserver:
         blob = self._static_provenance_blobs[index]
         return marshal.loads(blob) if blob is not None and copier is snapshot_event else copier(value)
 
+    def _copy_accel_provenance(self):
+        correction = self._accel_calibration
+        cache = self._accel_provenance_cache
+        if cache is not None:
+            source, raw, proof, blob = cache
+            if (correction is source
+                    and type(correction) is _ACCEL_HYPOTHESIS_CLASS
+                    and accel_hypotheses.AccelInputHypothesis is _ACCEL_HYPOTHESIS_CLASS
+                    and getattr(correction.provenance, "__func__", None) is _ACCEL_PROVENANCE_METHOD
+                    and accel_hypotheses.strict_json is _ACCEL_PROVENANCE_PARSER
+                    and correction._provenance_json is raw and correction._proof is proof):
+                return marshal.loads(blob)
+        return correction.provenance()
+
     def summary(self):
         result = {**self._flags(), "status": self.status, "run_number": self.run_number,
                 "ticks_completed": self.ticks_completed, "ticks_requested": self.max_ticks,
@@ -398,6 +447,8 @@ class StatefulPolicyObserver:
                 "incomplete": self.status != "COMPLETE_NO_OUTPUT_DIAGNOSTIC"}
         if self._profile_consume:
             result["last_consume_profile"] = copy.deepcopy(self._last_consume_profile)
+        if self._accel_input_hypothesis is not None:
+            result["accel_input_hypothesis"] = self._accel_input_hypothesis.provenance()
         return result
 
     def prepare_run(self, *, warmup_completed):
@@ -659,7 +710,9 @@ class StatefulPolicyObserver:
         if self._accel_calibration is not None:
             provenance["corrected_accel_sensor_m_s2"] = list(corrected_accel)
             provenance["corrected_accel_norm_m_s2"] = corrected_norm
-            provenance["reviewed_accel_calibration"] = self._accel_calibration.provenance()
+            key = ("accel_input_hypothesis" if self._accel_input_hypothesis is not None
+                   else "reviewed_accel_calibration")
+            provenance[key] = self._copy_accel_provenance()
         if branch_provenance is not None:
             provenance["power_epoch_branch_overlay"] = branch_provenance
         return ((gyro_body, gravity, list(self._command), q, dq, [self._h]*12),

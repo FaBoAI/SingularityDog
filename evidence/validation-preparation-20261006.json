@@ -1,0 +1,90 @@
+{
+  "schema": "singularitydog.validation-source-preparation.v1",
+  "date": "2026-10-06",
+  "timezone": "Asia/Tokyo",
+  "status": "SOURCE_PREPARED_NO_HARDWARE",
+  "base_commit": "75f50c3a8e1ccc545d02dbca7136badf69952f79",
+  "source_sha256_scope": "Changed tool sources and regression tests only; not a deployment kit manifest.",
+  "source_sha256": {
+    "tools/prepare_angle_final_session.py": "3c50d559f6ff12af627ee465cf565f6dadf9956f4d771e0d943d41716850b2b8",
+    "tools/test_prepare_angle_final_session.py": "a0f8807c3e1b3f2ca946f6d9f52868268690c7300b3c4b2b8af5ad1f01b8dff9",
+    "tools/analyze_optical_joint_motion.py": "a6a9f957717cea82586a1d9eba3cd51d12caed41868f451aa3b820f3918dab70",
+    "tools/test_analyze_optical_joint_motion.py": "34d6086160c15d1e1b72a1e759c2c6cb8ada4adfea414052aa0620c0ca7d7b2c"
+  },
+  "changes": [
+    {
+      "id": "angle-observation-note-boundary",
+      "source": "tools/prepare_angle_final_session.py",
+      "before": "Standalone confirmation or cancellation notes could create direction/L candidates through saved JSON review.",
+      "after": "Reuse manual prompt token sets; reject token-only observations in both reviews and create no review output on CLI rejection."
+    },
+    {
+      "id": "optical-timestamp-interval",
+      "source": "tools/analyze_optical_joint_motion.py",
+      "before": "Timestamp centers could report spacing adequate despite unknown or threshold-crossing time errors.",
+      "after": "Store elapsed intervals and tri-state spacing conclusion; captured-only scope and missing coverage remain explicit."
+    },
+    {
+      "id": "optical-input-options",
+      "source": "tools/analyze_optical_joint_motion.py",
+      "before": "Explicit default-valued template flags with input were silently ignored.",
+      "after": "Reject any template-only options combined with an input file."
+    }
+  ],
+  "validation": {
+    "tools_full": {
+      "command": "PYTHONPATH=runtime:tools python3 -B -m unittest discover -s tools -p 'test_*.py'",
+      "run": 716,
+      "passed": 704,
+      "skipped": 12,
+      "failed": 0,
+      "duration_s": 33.268,
+      "exit_code": 0,
+      "log_sha256": "48b9a7dab3ca0f9c85da91be26dbc659e4e043ea4449f904c5d91840c8a5fe0c"
+    },
+    "focused_angle_and_prompts": {
+      "run": 58,
+      "passed": 58,
+      "reported_by": "calibration_preparation_audit"
+    },
+    "focused_optical": {
+      "run": 24,
+      "passed": 24,
+      "independent_review": "PASS"
+    },
+    "focused_measurement_tools": {
+      "run": 89,
+      "passed": 89,
+      "reported_by": "measurement_source_audit"
+    },
+    "focused_suite_counts_overlap": true,
+    "runtime_full_rerun": false,
+    "runtime_rerun_scope_note": "No runtime source changed; tools regression covers the modified sources and file-only integration.",
+    "independent_review": "PASS_NO_ACTIONABLE_FINDINGS",
+    "git_diff_check": "PASS"
+  },
+  "previous_evidence_preserved": [
+    "evidence/commit-validation-20261005.json",
+    "evidence/angle-final-session-20261005.json",
+    "evidence/validation-live-timing-20261005.json"
+  ],
+  "today_plan": "docs/today-validation-20261006.md",
+  "next_measurements": [
+    "Current boot, power and pose readiness",
+    "Visual spirit-level A/B/A record",
+    "Independent relative-joint image and timestamp observations",
+    "External origin uncertainty and IMU known-direction validation",
+    "Final-setting no-output timing followed by supported output"
+  ],
+  "hardware_accessed": false,
+  "jetson_deployed": false,
+  "new_20ms_measurement": false,
+  "motor_enable_sent": false,
+  "learned_targets_sent": false,
+  "thresholds_changed": false,
+  "angle_offsets_or_signs_changed": false,
+  "calibration_approved_for_runtime": false,
+  "output_allowed": false,
+  "standing_verified": false,
+  "walking_verified": false
+}

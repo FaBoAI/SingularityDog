@@ -5,6 +5,7 @@ operation, or safe gains. The supervisor must establish those before enable.
 It owns the serial descriptors, process-level locks, physical cutoff and arming.
 """
 import ctypes as C
+from dataclasses import dataclass
 import hashlib
 import json
 import math
@@ -89,6 +90,85 @@ def wait_until(library, cancel_fd, deadline_ns, *, spin_us=500):
     return actual.value
 
 
+_WAIT_ARGUMENT_TYPES = (C.c_int, C.c_uint64, C.c_uint32,
+    C.POINTER(C.c_uint64), C.POINTER(C.c_char), C.c_uint32)
+_EMPTY_WAIT_ERROR = bytes(256)
+
+
+class _OwnedActiveWaiter:
+    """One coordinator's scratch buffers; caller owns the verified lib and FD.
+
+    Call the same GIL-releasing active wait without serial or motor I/O. Keep
+    the original absolute deadlines, cancellation scope and boot checks.
+    Reuse never certifies latency and does not replace the legacy wait API.
+    """
+    def __init__(self, library, cancel_fd, spin_us):
+        if (type(cancel_fd) is not int or not 0 <= cancel_fd < 2**31 or
+                type(spin_us) is not int or spin_us not in (200, 500)):
+            raise ValueError('Invalid owned active wait arguments')
+        waiter = getattr(library, 'sda_wait_until', None)
+        if waiter is None:
+            raise ActiveWaitError('Optional active release wait is unavailable in this library')
+        self._library, self._waiter = library, waiter
+        self._verify_function()
+        abi = getattr(library, 'sda_abi', None)
+        value = abi() if callable(abi) else None
+        if type(value) is not int or value != 1:
+            raise ValueError('Active wait ABI mismatch')
+        self._cancel_fd, self._spin_us = cancel_fd, spin_us
+        self._owner = threading.current_thread()
+        self._busy = threading.Lock()
+        self._actual, self._error = C.c_uint64(), C.create_string_buffer(256)
+        self._actual_ptr = C.byref(self._actual)
+
+    def _verify_function(self):
+        waiter = self._waiter
+        if (getattr(self._library, 'sda_wait_until', None) is not waiter or
+                not isinstance(waiter, C._CFuncPtr) or
+                waiter._flags_ != C._FUNCFLAG_CDECL or
+                tuple(waiter.argtypes or ()) != _WAIT_ARGUMENT_TYPES or
+                waiter.restype is not C.c_int or
+                getattr(waiter, 'errcheck', None) is not None):
+            raise ValueError('Exact GIL-releasing active wait ABI required')
+
+    def __call__(self, deadline_ns):
+        if threading.current_thread() is not self._owner:
+            raise ActiveWaitError('Owned active wait called from another thread')
+        if type(deadline_ns) is not int or not 0 < deadline_ns < 2**64:
+            raise ValueError('Invalid bounded active release wait arguments')
+        if not self._busy.acquire(blocking=False):
+            raise ActiveWaitError('Reentrant owned active wait')
+        try:
+            self._verify_function()
+            self._actual.value = 0
+            self._error.raw = _EMPTY_WAIT_ERROR
+            status = self._waiter(self._cancel_fd, deadline_ns, self._spin_us,
+                self._actual_ptr, self._error, 256)
+            if status:
+                raise ActiveWaitError(self._error.value.decode('utf-8', errors='replace') or
+                                      'Native active wait failed without an error message')
+            if self._error.value:
+                raise ActiveWaitError('Active wait returned success with an error')
+            if self._actual.value < deadline_ns:
+                raise ActiveWaitError('Active release wait returned a backdated time')
+            return self._actual.value
+        finally:
+            # No GIL-releasing memset or stale wake/error between calls.
+            self._actual.value = 0
+            self._error.raw = _EMPTY_WAIT_ERROR
+            self._busy.release()
+
+
+def make_owned_waiter(library, cancel_fd, *, spin_us=500):
+    """Explicit reusable wait; owns no FD and grants no motor output.
+
+    Construct after load_library has pinned the source/binary/clock ABI. The
+    coordinator must keep that library and its cancellation FD alive, and
+    retain all existing boot, freshness, signal and native deadline guards.
+    """
+    return _OwnedActiveWaiter(library, cancel_fd, spin_us)
+
+
 def _finite(value, name):
     if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
         raise ValueError(f'{name} must be finite numeric')
@@ -118,6 +198,16 @@ class ExchangeError(RuntimeError):
         self.records, self.stats = records, stats
 
 
+@dataclass(frozen=True)
+class PreparedExchangeCapability:
+    """Explicit transport contract; a callable attribute alone is insufficient."""
+    schema: str = 'singularitydog.active-prepared-exchange.v1'
+    deadline_return: str = 'absolute_tighten_only'
+
+
+PREPARED_EXCHANGE_CAPABILITY = PreparedExchangeCapability()
+
+
 class ActiveSession:
     """One owner, one bus, explicit immutable limits. Caller owns all FDs.
 
@@ -125,6 +215,8 @@ class ActiveSession:
     unpoison/re-arm the session. close releases ownership, never closes the FD.
     No destructor sends motor commands.
     """
+    prepared_exchange_capability = PREPARED_EXCHANGE_CAPABILITY
+
     def __init__(self, library, fd, *, first_id, cancel_fd, boot_fd, boot_id,
                  raw_lower_by_id, raw_upper_by_id, kp_max_by_id, kd_max_by_id,
                  gap_ns=600_000, window=3):
@@ -159,7 +251,7 @@ class ActiveSession:
         if not self._handle:
             raise ValueError(error.value.decode())
 
-    def _call(self, wires, timeout_ns, send_only, deadline_ns=None):
+    def _call(self, wires, timeout_ns, send_only, deadline_ns=None, before_native=None):
         if not self.busy.acquire(blocking=False):
             raise RuntimeError('Concurrent active session use')
         try:
@@ -167,6 +259,8 @@ class ActiveSession:
                 raise RuntimeError('Active session closed')
             if self.poisoned:
                 raise RuntimeError('Session poisoned; active retry prohibited')
+            if before_native is not None and (send_only or not callable(before_native)):
+                raise ValueError('Prepared exchange requires a callable acknowledged-exchange hook')
             wires = tuple(wires)
             if (not 1 <= len(wires) <= 12 or any(type(w) is not bytes or len(w) != 17 for w in wires)
                     or (deadline_ns is None and
@@ -185,8 +279,28 @@ class ActiveSession:
                         not now_ns < deadline_ns <= now_ns + 250_000_000):
                     raise ValueError('Expired or invalid absolute active deadline')
                 native_deadline_ns = deadline_ns
-            status = self.lib.sda_exchange(self._handle, raw, len(wires), int(send_only),
-                native_deadline_ns, records, C.byref(stats), error, len(error))
+            if before_native is None:
+                # Preserve the existing default and send-only call path.
+                status = self.lib.sda_exchange(self._handle, raw, len(wires), int(send_only),
+                    native_deadline_ns, records, C.byref(stats), error, len(error))
+            else:
+                native_call = self.lib.sda_exchange
+                arguments = [self._handle, raw, len(wires), int(send_only),
+                    native_deadline_ns, records, C.byref(stats), error, len(error)]
+                if time.monotonic_ns() >= native_deadline_ns:
+                    raise TimeoutError('Active deadline expired before prepared publication')
+                # The owner hook checks cancellation before/after publication.
+                # It may narrow the shared input-age deadline, never extend it.
+                # C++ retains its independent cancel/boot checks before writing.
+                narrowed = before_native()
+                if narrowed is not None:
+                    if type(narrowed) is not int or not 0 < narrowed <= native_deadline_ns:
+                        raise ValueError('Prepared hook must only tighten the absolute deadline')
+                    native_deadline_ns = narrowed
+                if time.monotonic_ns() >= native_deadline_ns:
+                    raise TimeoutError('Active deadline expired after prepared publication')
+                arguments[4] = native_deadline_ns
+                status = native_call(*arguments)
             if status:
                 raise ExchangeError(error.value.decode(), records, stats)
             # STOP faults are returned, never turned into an apparently healthy reply.
@@ -200,8 +314,14 @@ class ActiveSession:
         finally:
             self.busy.release()
 
-    def exchange(self, wires, *, timeout_ns=100_000_000, deadline_ns=None):
-        return self._call(wires, timeout_ns, False, deadline_ns)
+    def exchange(self, wires, *, timeout_ns=100_000_000, deadline_ns=None, before_native=None):
+        """Publish only after preparation when explicitly given an owner hook.
+
+        The hook runs once with session/buffer ownership held and may return a
+        tighter absolute deadline (or None). Failure poisons without this batch
+        being written. The default call path and native limits are unchanged.
+        """
+        return self._call(wires, timeout_ns, False, deadline_ns, before_native)
 
     def send_only(self, wires, *, timeout_ns=100_000_000):
         """Unsupported: native active commands require acknowledgement.

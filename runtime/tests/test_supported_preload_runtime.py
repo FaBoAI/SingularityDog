@@ -1,9 +1,10 @@
 """Geometric preload integration with real coordination and byte-level buses.
 
 These are deterministic software fault tests, not hardware timing, contact,
-support-load or physical emergency-stop evidence. Only the profile admission
-accessor is substituted; path validation, shaping, parsing and STOP ownership
-run through the production implementation.
+support-load or physical emergency-stop evidence. The profile admission accessor
+is substituted in run_case, and real worker readiness gets a bounded host-time
+handshake without advancing shared simulated time. Path validation, simulated
+deadline checks, shaping, parsing and STOP ownership use production code.
 """
 import copy
 import hashlib
@@ -72,6 +73,22 @@ class ValidatingPolicy:
 
 
 class SupportedPreloadRuntimeTests(unittest.TestCase):
+    def setUp(self):
+        original_wait = runtime.wait
+
+        def fixture_wait(futures, *, timeout, return_when):
+            # Worker scheduling on the test host is not simulated bus latency.
+            # Keep real Future results/errors and a finite host-time handshake;
+            # production still checks the unchanged simulated cycle deadline
+            # before waiting and after taking results. Explicit clock advances
+            # in fault tests must still abort even when every Future is ready.
+            self.assertTrue(math.isfinite(timeout) and timeout > 0)
+            return original_wait(futures, timeout=2., return_when=return_when)
+
+        waiter = patch.object(runtime, 'wait', side_effect=fixture_wait)
+        waiter.start()
+        self.addCleanup(waiter.stop)
+
     def run_case(self, *, clock=None, front=None, rear=None, imu=None,
                  policy=None, profile_data=None, path_data=None,
                  stop_requested=None, sleep=None, **kwargs):
@@ -312,6 +329,24 @@ class SupportedPreloadRuntimeTests(unittest.TestCase):
                 self.assert_stopped_fault(report, 'deadline')
                 self.assertFalse(report['startup_20ms_allowance_enabled'])
                 self.assertFalse(report['preload_return_commanded'])
+
+    def test_completed_voltage_future_past_simulated_deadline_is_rejected(self):
+        clock = SimulatedClock()
+
+        class LateVoltage(FakeSession):
+            def _exchange(self, wires, timeout_ns, send_only):
+                result = super()._exchange(wires, timeout_ns, send_only)
+                if self.positive_gain_writes and any(
+                        tx.kind == 17 and int.from_bytes(tx.data[:2], 'little')
+                        == codec.PARAMETERS['voltage'][0]
+                        for tx in (codec.ATParser().feed(wire)[0] for wire in wires)):
+                    clock.advance(21_000_000)
+                return result
+
+        report, _, _ = self.run_case(clock=clock,
+                                     front=LateVoltage(1, clock=clock))
+        self.assert_stopped_fault(report, 'deadline')
+        self.assertFalse(report['preload_return_commanded'])
 
     def test_skipped_absolute_slot_is_not_replayed_or_compressed(self):
         clock = SimulatedClock()

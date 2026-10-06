@@ -201,7 +201,156 @@ class OpticalTests(unittest.TestCase):
         # At exactly half the sample rate a sine may vanish at every exposure.
         v = fixture(output=(0, 0, 0), times=(0, 1, 2))
         v['highest_motion_frequency_of_interest_hz'] = .5
+        self.assertIsNone(optical.analyze(v)['timing']['spacing_fails_nyquist_for_declared_interest'])
+
+    def test_sampling_conclusion_uses_timestamp_intervals_instead_of_centers(self):
+        v = fixture(); v['highest_motion_frequency_of_interest_hz'] = 20
+        r = optical.analyze(v)
+        self.assertFalse(r['timing']['spacing_fails_nyquist_for_declared_interest'])
+        intervals = r['timing']['captured_frame_intervals']
+        self.assertEqual([(g['from_index'], g['to_index']) for g in intervals], [(0, 1), (1, 2)])
+        self.assertAlmostEqual(intervals[0]['elapsed_timestamp_interval_s'][0], .0198)
+        self.assertAlmostEqual(intervals[0]['elapsed_timestamp_interval_s'][1], .0202)
+        # Centers satisfy the spacing, but their evidenced uncertainties do not
+        # establish which side of the required .025 s gap the acquisition used.
+        for row in v['frames']: row['timestamp_max_error_s'] = reference(.003)
+        r = optical.analyze(v)
+        self.assertIsNone(r['timing']['spacing_fails_nyquist_for_declared_interest'])
+        self.assertAlmostEqual(r['timing']['captured_frame_intervals'][0]['elapsed_timestamp_interval_s'][1], .026)
+        v['highest_motion_frequency_of_interest_hz'] = 40
         self.assertTrue(optical.analyze(v)['timing']['spacing_fails_nyquist_for_declared_interest'])
+
+    def test_unknown_time_error_cannot_establish_sampling_spacing(self):
+        v = fixture(); v['highest_motion_frequency_of_interest_hz'] = 20
+        v['frames'][1]['timestamp_max_error_s'] = None
+        r = optical.analyze(v)
+        self.assertIsNone(r['timing']['spacing_fails_nyquist_for_declared_interest'])
+        self.assertTrue(all(g['elapsed_timestamp_interval_s'] is None for g in r['timing']['captured_frame_intervals']))
+        self.assertTrue(all(c['conditional_no_extra_turn_projected_rate_interval_rad_per_s'] is None for c in r['changes']))
+        self.assertAlmostEqual(r['timing']['max_captured_frame_gap_s'], .02)
+
+    def test_bounded_host_receipt_and_unknown_times_cannot_judge_acquisition_spacing(self):
+        for definition in ('host_receipt', 'unknown'):
+            for interest in (20, 40):
+                with self.subTest(definition=definition, interest=interest):
+                    v = fixture(); v['camera']['timestamp_definition'] = definition
+                    v['highest_motion_frequency_of_interest_hz'] = interest
+                    r = optical.analyze(v)
+                    self.assertIsNone(r['timing']['spacing_fails_nyquist_for_declared_interest'])
+                    self.assertFalse(r['timing']['acquisition_timestamp_definition_supplied'])
+                    self.assertEqual(r['timing']['spacing_timestamp_definition'], definition)
+                    # Receipt timestamp arithmetic remains available even with
+                    # bounded host errors; it is not an acquisition-time bound.
+                    self.assertAlmostEqual(r['timing']['max_captured_frame_gap_s'], .02)
+                    self.assertAlmostEqual(r['timing']['captured_frame_intervals'][0]['elapsed_timestamp_interval_s'][0], .0198)
+                    self.assertAlmostEqual(r['timing']['captured_frame_intervals'][0]['elapsed_timestamp_interval_s'][1], .0202)
+                    self.assertTrue(all(r[k] is False for k in optical.FLAGS))
+
+    def test_each_supplied_acquisition_definition_keeps_conditional_spacing_behavior(self):
+        for definition in ('exposure_midpoint', 'frame_start', 'frame_end'):
+            for interest, fails in ((20, False), (40, True)):
+                with self.subTest(definition=definition, interest=interest):
+                    v = fixture(); v['camera']['timestamp_definition'] = definition
+                    v['highest_motion_frequency_of_interest_hz'] = interest
+                    r = optical.analyze(v)
+                    self.assertIs(r['timing']['spacing_fails_nyquist_for_declared_interest'], fails)
+                    self.assertTrue(r['timing']['acquisition_timestamp_definition_supplied'])
+                    self.assertFalse(r['timing']['sensor_acquisition_time_verified'])
+                    self.assertTrue(all(r[k] is False for k in optical.FLAGS))
+
+    def test_irregular_host_receipt_gap_remains_descriptor_with_unknown_metrology(self):
+        # Synthetic replay of the observed gap shape, not image/exposure evidence.
+        v = fixture(times=(1, 1.0325072635, 1.1153127805))
+        v['camera'].update(timestamp_clock='synthetic host monotonic receipt',
+                           timestamp_definition='host_receipt', nominal_frame_interval_s=1/30)
+        v['highest_motion_frequency_of_interest_hz'] = 15
+        for row in v['frames']:
+            row['exposure_s'] = None
+            row['timestamp_max_error_s'] = None
+            for pair in ('stator_points', 'output_points'):
+                for point in row[pair]:
+                    point['max_error_px'] = None
+        r = optical.analyze(v)
+        self.assertAlmostEqual(r['timing']['max_captured_frame_gap_s'], .082805517)
+        self.assertAlmostEqual(r['timing']['nominal_spacing_nyquist_hz_only'], 15)
+        self.assertIsNone(r['timing']['spacing_fails_nyquist_for_declared_interest'])
+        self.assertEqual(r['timing']['exposure_unknown_frames'], 3)
+        self.assertTrue(r['timing']['measurement_bandwidth_unknown'])
+        self.assertEqual(r['coverage']['bounded_projected_angles'], 0)
+        self.assertTrue(all(g['elapsed_timestamp_interval_s'] is None for g in r['timing']['captured_frame_intervals']))
+        self.assertIsNone(r['physical_velocity_rad_per_s'])
+        self.assertTrue(all(r[k] is False for k in optical.FLAGS))
+
+    def test_output_preserves_ordered_coordinates_and_bound_evidence_without_certification(self):
+        v = fixture()
+        v['markers']['stator']['point_ids'] = ['silver-left-candidate', 'silver-right-candidate']
+        v['markers']['output']['point_ids'] = ['black-top-candidate', 'black-bottom-candidate']
+        v['frames'][0]['stator_points'][0]['max_error_px']['evidence'] = 'synthetic supplied maximum, not certified'
+        v['frames'][0]['output_points'][1]['max_error_px'] = None
+        r = optical.analyze(v)
+        for body in ('stator', 'output'):
+            saved = r['frames'][0]['supplied_' + body + '_points']
+            self.assertEqual([p['point_id'] for p in saved], v['markers'][body]['point_ids'])
+            self.assertEqual([{k: p[k] for k in ('xy_px', 'max_error_px')} for p in saved],
+                             v['frames'][0][body + '_points'])
+        self.assertFalse(r['marker_identity_verified'])
+        self.assertFalse(r['uncertainty_bounds_verified'])
+        original_coordinate = r['frames'][0]['supplied_stator_points'][0]['xy_px'][0]
+        v['frames'][0]['stator_points'][0]['xy_px'][0] += 10
+        v['frames'][0]['stator_points'][0]['max_error_px']['evidence'] = 'changed after analysis'
+        v['markers']['stator']['point_ids'][0] = 'changed-id-after-analysis'
+        saved = r['frames'][0]['supplied_stator_points'][0]
+        self.assertEqual(saved['xy_px'][0], original_coordinate)
+        self.assertEqual(saved['max_error_px']['evidence'], 'synthetic supplied maximum, not certified')
+        self.assertEqual(saved['point_id'], 'silver-left-candidate')
+
+    def test_point_provenance_survives_occlusion_and_degenerate_geometry(self):
+        v = fixture(); v['frames'][1]['output_points'] = None
+        v['frames'][1]['missing_reason'] = 'candidate output pair occluded'
+        v['frames'][2]['stator_points'] = vector(0, length=0, radius=None)
+        r = optical.analyze(v)
+        self.assertIsNone(r['frames'][1]['supplied_output_points'])
+        self.assertIsNotNone(r['frames'][1]['supplied_stator_points'])
+        self.assertEqual(r['frames'][2]['supplied_stator_points'][0]['xy_px'],
+                         r['frames'][2]['supplied_stator_points'][1]['xy_px'])
+        self.assertIsNone(r['frames'][2]['projected_relative_angle_rad'])
+        plan = optical.analyze(optical.template(frame_count=1))
+        self.assertIsNone(plan['frames'][0]['supplied_stator_points'])
+        self.assertIsNone(plan['frames'][0]['supplied_output_points'])
+
+    def test_one_bounded_failing_gap_remains_evidence_despite_an_unknown_gap(self):
+        v = fixture(); v['highest_motion_frequency_of_interest_hz'] = 40
+        v['frames'][0]['timestamp_s'] = None
+        v['frames'][0]['timestamp_max_error_s'] = None
+        r = optical.analyze(v)
+        self.assertTrue(r['timing']['spacing_fails_nyquist_for_declared_interest'])
+        self.assertIsNone(r['timing']['captured_frame_intervals'][0]['elapsed_timestamp_s'])
+        self.assertIsNone(r['timing']['captured_frame_intervals'][0]['elapsed_timestamp_interval_s'])
+        self.assertFalse(r['alias_excluded'])
+
+    def test_spacing_for_captured_pairs_does_not_restore_missing_endpoint_coverage(self):
+        v = fixture(); v['highest_motion_frequency_of_interest_hz'] = 20
+        row = v['frames'][0]
+        for key in row:
+            if key != 'index': row[key] = None
+        row.update(state='MISSING', missing_reason='first requested exposure unavailable')
+        r = optical.analyze(v)
+        self.assertEqual(r['timing']['spacing_scope'], 'ADJACENT_CAPTURED_FRAME_TIMESTAMP_INTERVALS_ONLY')
+        self.assertFalse(r['timing']['spacing_fails_nyquist_for_declared_interest'])
+        self.assertEqual([(g['from_index'], g['to_index']) for g in r['timing']['captured_frame_intervals']], [(1, 2)])
+        self.assertFalse(r['coverage']['data_coverage_complete'])
+        self.assertFalse(r['physical_stationarity_proven'])
+
+    def test_tiny_interest_is_serializable_and_uncertain_time_order_is_inconclusive(self):
+        v = fixture(); v['highest_motion_frequency_of_interest_hz'] = 1e-320
+        r = optical.analyze(v)
+        self.assertFalse(r['timing']['spacing_fails_nyquist_for_declared_interest'])
+        json.dumps(r, allow_nan=False)
+        for row in v['frames']: row['timestamp_max_error_s'] = reference(.02)
+        r = optical.analyze(v)
+        self.assertIsNone(r['timing']['spacing_fails_nyquist_for_declared_interest'])
+        self.assertTrue(all(c['conditional_no_extra_turn_projected_rate_interval_rad_per_s'] is None for c in r['changes']))
+        json.dumps(r, allow_nan=False)
 
     def test_conditional_pixel_bound_contains_perturbed_endpoint_directions(self):
         v = fixture(stator=(.7, .7, .7), output=(-.8, -.8, -.8))
@@ -307,6 +456,25 @@ class OpticalTests(unittest.TestCase):
             buf = io.StringIO()
             with contextlib.redirect_stdout(buf): self.assertEqual(optical.main(['--input', str(nested)]), 2)
             self.assertEqual(json.loads(buf.getvalue())['status'], 'INVALID_OPTICAL_ARTIFACT')
+
+    def test_input_rejects_explicit_template_options_including_default_values(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d).resolve() / 'joint-7-observations.json'
+            v = fixture(); v['joint_id'] = 7
+            raw = json.dumps(v).encode(); path.write_bytes(raw)
+            for options in (['--joint-id', '5'], ['--frame-count', '3'],
+                            ['--joint-id', '7'], ['--frame-count', '4']):
+                with self.subTest(options=options):
+                    buf = io.StringIO()
+                    with contextlib.redirect_stdout(buf):
+                        self.assertEqual(optical.main(['--input', str(path), *options]), 2)
+                    self.assertEqual(json.loads(buf.getvalue())['status'], 'INVALID_OPTICAL_ARTIFACT')
+            self.assertEqual(path.read_bytes(), raw)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                self.assertEqual(optical.main(['--template']), 0)
+            self.assertEqual(json.loads(buf.getvalue())['joint_id'], 5)
+            self.assertEqual(json.loads(buf.getvalue())['requested_frame_count'], 3)
 
 
 if __name__ == '__main__':

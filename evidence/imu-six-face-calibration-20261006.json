@@ -1,0 +1,142 @@
+{
+  "schema": "singularitydog.imu-six-face-offline-results.v1",
+  "date": "2026-10-06",
+  "status": "OFFLINE_NORM_CANDIDATE_VERIFIED_NOT_APPLIED",
+  "source_sha256": {
+    "tools/analyze_imu_pose_tilt.py": "efe6da19beebc2b136ca528a9a5b4a7305104f49682226b6d1d9e3edf249474f",
+    "tools/test_analyze_imu_pose_tilt.py": "5c6ab045f04b65dccf378a283875aa6f7fff31d6128be4613490c7e8f707325c",
+    "runtime/singularitydog_hw/imu_calibration.py": "0294de56c926e692cc9444dcc17c06934337e0327160ae1898270725ada561ce",
+    "runtime/singularitydog_hw/imu_fixed_mount_baseline.py": "67d8f0c19e3a30634d8d4338117f97011263b7fcffe5e0e7c8994af52a13800b",
+    "tools/analyze_stationary_velocity_probe.py": "2d3fd9d1619aa8b79fd4fb3d9cfbd91b95247cf9e94e577933f6e6d057980cbd"
+  },
+  "recovery": {
+    "files": 99,
+    "total_bytes": 13455671,
+    "completed_attempts": 1,
+    "aborted_or_incomplete_attempts": 3,
+    "archive_sha256": "e9a5ada069ff0fdcba76928faa972a348f9a844f69f5db692a9bef87b94508df",
+    "manifest_sha256": "c0a45124f0010d4339a91f0f857fed7d709e87e616c4dbddf23a7eb9968984d7",
+    "session_sha256": "7876c5bf6f36349351b3cf71d6a043d9b922803a1c2db456916a0c246cd88687",
+    "original_axis_aligned_candidate_sha256": "414fe0b539d21d37f8949c71b0e5227dfdf2041b124e8d42a6e096fbab64a87d",
+    "operator_tilt_followup_sha256": "6e4bd03b566af49baa8bd9f24f2632689fe567db4b39962511244b5cfa955bc2"
+  },
+  "method": {
+    "model": "positive diagonal static-gravity ellipsoid",
+    "unknowns": 6,
+    "mean_vectors": 6,
+    "fit_residual_degrees_of_freedom": 0,
+    "fit": "first75% of each fit capture",
+    "heldout_used_for_fit": false,
+    "independent_captures_used_for_fit": false,
+    "left_right_exactly_antipodal_assumed": false,
+    "operator_claimed_equal_tilt_measured": false,
+    "gravity_reference_m_s2": 9.80665
+  },
+  "accel_diagnostic_candidate": {
+    "bias_m_s2": [
+      -0.11846404534804852,
+      -0.15199470309459112,
+      -0.6068313796575179
+    ],
+    "column_normalized_condition_inf": 2.4406431601070313,
+    "dimensionless_design_condition_inf": 2.508667728186351,
+    "ellipse_normalizer": 1.0040462565836836,
+    "equations": 6,
+    "fit_residual_degrees_of_freedom": 0,
+    "formula": "corrected[i] = (measured[i] - bias_m_s2[i]) * scale[i]",
+    "maximum_mean_equation_residual": 3.3306690738754696e-16,
+    "normalized_center": [
+      -0.01207997076963576,
+      -0.015499146303232106,
+      -0.06187957963805355
+    ],
+    "normalized_column_scales": [
+      1.022245630984459,
+      1.0336002768628898,
+      1.1800942392942384,
+      1.0110616356011433,
+      1.0166613383339065,
+      1.0863214254051323
+    ],
+    "normalized_linear_coefficients": [
+      0.02428700554006839,
+      0.03100341895724312,
+      0.11827165547746687
+    ],
+    "normalized_quadratic_coefficients": [
+      1.005259284282221,
+      1.0001653752625665,
+      0.9556598167704292
+    ],
+    "numerical_condition_is_physical_uncertainty_bound": false,
+    "numerical_condition_rejection_limit": 100000000.0,
+    "parameters": 6,
+    "rank": 6,
+    "scale": [
+      1.0006038872886285,
+      0.9980655080895245,
+      0.9756067625523085
+    ]
+  },
+  "evaluation": {
+    "chronological_last25_percent": {
+      "samples": 1454,
+      "max_face_norm_RMS_error_percent": 0.18490931266984262,
+      "all_samples_max_absolute_norm_error_percent": 0.5538480867824747
+    },
+    "fit_training": {
+      "samples": 4370,
+      "max_face_norm_RMS_error_percent": 0.3815613507225577,
+      "all_samples_max_absolute_norm_error_percent": 7.1315503566070495
+    },
+    "independent_captures": {
+      "samples": 5826,
+      "max_face_norm_RMS_error_percent": 0.4321596239259945,
+      "all_samples_max_absolute_norm_error_percent": 2.413593330497358
+    }
+  },
+  "historical_reference_only": {
+    "historical_samples": 2909,
+    "raw_norm_mean_m_s2": 10.656328914844197,
+    "corrected_norm_mean_m_s2": 9.80443603397506,
+    "raw_norm_mean_deviation_percent": 8.66431365292122,
+    "corrected_norm_mean_deviation_percent": -0.022576170506127813,
+    "corrected_norm_rms_error_percent": 0.1181158715185446,
+    "corrected_norm_max_abs_error_percent": 0.4417428411652361,
+    "historical_data_used_for_fit": false,
+    "direction_ground_truth_known": false
+  },
+  "private_analysis_sha256": {
+    "imu-pose-tilt-analysis-input-r1.json": "00ba88e0255faa785eaab67b0c95f2317bbbc3a9b253ec9e1289f534ccf3bc41",
+    "imu-pose-tilt-diagnostic-root-r1.json": "ee5378a041d77e1d1be1844b581db675bc310f518f40028d7dab7a9adda48a7c",
+    "imu-norm-fit-independent-historical-reference-r1.json": "36d73b1b2ff4b23c66707b2f9ddceb3d6879f771ba4f662ca8cdf13eda8566e0",
+    "imu-norm-ellipse-code-review-r1.json": "f8fc45fbad94f5c1e95e2485f309ea3a2e36c0789d755a03d1db3214ae6376f4",
+    "imu-six-face-independent-audit-r1.json": "b96cc88c4e1d45efa11ddae205ef934788aa1e781f663059cc0b1f54faf5d681"
+  },
+  "verification": {
+    "targeted_tests": 14,
+    "targeted_passed": 14,
+    "independent_randomized_solver_cases": 100,
+    "all_tools_tests": 838,
+    "all_tools_passed": 826,
+    "all_tools_skipped": 12,
+    "all_tools_failures": 0,
+    "all_tools_log_sha256": "d74e5b123e79abb9f44d8ef84490ee606a4e3e5dbfa571681d5b1f66a1a33740"
+  },
+  "approved_for_runtime": false,
+  "runtime_modified": false,
+  "profile_changed": false,
+  "thresholds_changed": false,
+  "motor_output_allowed": false,
+  "hardware_commands_sent_this_analysis": false,
+  "absolute_mount_orientation_identified": false,
+  "absolute_joint_origin_identified": false,
+  "stationary_joint_velocity_cause_identified": false,
+  "limitations": [
+    "Six means and six parameters give zero fit residual degrees of freedom; exact fit does not prove accuracy.",
+    "The norm model assumes static gravity with fixed bias and positive diagonal scale; non-gravity acceleration, cross-axis error and temperature variation remain unmodeled.",
+    "Unknown local gravity is confounded with common scale. Pose/reference/mount uncertainty and absolute orientation remain unquantified.",
+    "A full cross-axis ellipsoid needs more independently varied orientations; six means cannot identify its nine parameters.",
+    "Separate holdout captures share sensor and operator errors. Norm residuals and descriptive axis angles are not physical calibration approval."
+  ]
+}

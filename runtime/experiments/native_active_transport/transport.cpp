@@ -295,7 +295,11 @@ extern "C" int sda_exchange(void *handle,const unsigned char *wires,uint32_t cou
         fd_set readable;FD_ZERO(&readable);FD_SET(s->fd,&readable);FD_SET(s->cancel_fd,&readable);
         const bool writable=sent<count&&sent-done<effective_window;
         const uint64_t wake=writable?std::min(deadline,next):deadline;
-        const uint64_t wait=wake>t?wake-t:0;
+        // Boot checking may consume time after loop-entry t.
+        // Keep the original absolute wake/deadline; never extend either one.
+        const uint64_t before_wait=now();
+        if(!before_wait||before_wait>=deadline)return fail("Active exchange deadline exceeded; no retry");
+        const uint64_t wait=wake>before_wait?wake-before_wait:0;
         timespec timeout{time_t(wait/1000000000),long(wait%1000000000)};
         ++stats->waits;
         const int ready=pselect(std::max(s->fd,s->cancel_fd)+1,&readable,nullptr,nullptr,&timeout,nullptr);

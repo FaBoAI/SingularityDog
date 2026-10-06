@@ -1,0 +1,127 @@
+{
+  "schema": "singularitydog.validation-followup.v1",
+  "date": "2026-10-06",
+  "timezone": "Asia/Tokyo",
+  "status": "SOURCE_REGRESSION_PASS_MEASUREMENT_LIMITS_RECORDED",
+  "base_commit": "75f50c3a8e1ccc545d02dbca7136badf69952f79",
+  "scope": "Latest tool-source regression and links to separately scoped read-only measurements; not runtime calibration approval or output readiness.",
+  "source_sha256": {
+    "tools/prepare_angle_final_session.py": "3c50d559f6ff12af627ee465cf565f6dadf9956f4d771e0d943d41716850b2b8",
+    "tools/test_prepare_angle_final_session.py": "a0f8807c3e1b3f2ca946f6d9f52868268690c7300b3c4b2b8af5ad1f01b8dff9",
+    "tools/analyze_optical_joint_motion.py": "62a62048c9074f503949d5db543c8a416f3d0e3df9db1e90ada8e43cf541b040",
+    "tools/test_analyze_optical_joint_motion.py": "e711edc023ce89130563d5b81171d851ffee1e1da4aa39922cc77e904aeb290b",
+    "tools/record_usb_camera_motion.py": "711ebcbc86ef4c827194f9cbf761243b7370c3088132eaf8971579d8d1c15df0",
+    "tools/test_record_usb_camera_motion.py": "23281631e926105a9c0b3c5fc2d01fc1ae0d7dad5d533853e3f854bd7a97c017",
+    "tools/dog_tomorrow.py": "ba40e7a635963121cd81c6c7afc54eb506595763a6136ab8604e8187a8c66126",
+    "tools/test_dog_tomorrow.py": "39e6b023dc0523e06894ecb8897241a1b874ded41c652e6565b479d30aca37b5"
+  },
+  "changes": [
+    {
+      "source": "tools/prepare_angle_final_session.py",
+      "result": "Reject confirmation/cancellation-only observation notes through saved review as well as spoken prompts."
+    },
+    {
+      "source": "tools/analyze_optical_joint_motion.py",
+      "result": "Preserve elapsed-time uncertainty and original point provenance; host receipt spacing cannot establish camera acquisition spacing or exclude unobserved microvibration."
+    },
+    {
+      "source": "tools/record_usb_camera_motion.py",
+      "result": "Explicit bounded camera recording with original bytes, receipt/GStreamer metadata, hashes and pipeline cleanup; default PLAN does not open hardware."
+    },
+    {
+      "source": "tools/dog_tomorrow.py",
+      "result": "Pin explicitly selected gyro-only input by SHA, including stored state, before/after full execution, child report, and before success state publication. Generated candidate path and SHA update together."
+    },
+    {
+      "source": "tools/dog_tomorrow.py",
+      "result": "For an unselected gyro, accept absent or null child SHA; reject unexpected non-null SHA. A selected gyro still requires an exact non-null hash."
+    }
+  ],
+  "validation": {
+    "tools_full": {
+      "command": "PYTHONPATH=runtime:tools python3 -B -m unittest discover -s tools -p 'test_*.py'",
+      "run": 755,
+      "passed": 743,
+      "skipped": 12,
+      "failed": 0,
+      "duration_s": 31.558,
+      "exit_code": 0,
+      "log_sha256": "50f524ae12ab463266aa5616d5b3b0ff74f1534ac1a01b6754a1a807f2e98766"
+    },
+    "focused_gyro_input_integrity": {
+      "run": 71,
+      "passed": 71,
+      "independently_repeated": true
+    },
+    "focused_optical": {
+      "run": 29,
+      "passed": 29,
+      "independently_repeated": true
+    },
+    "focused_camera_recorder": {
+      "run": 21,
+      "passed": 21,
+      "independently_repeated": true
+    },
+    "focused_suite_counts_overlap": true,
+    "runtime_source_changed": false,
+    "runtime_full_rerun": false,
+    "runtime_rerun_scope_note": "No runtime source changed; tools regression exercises modified tools and file-only integration."
+  },
+  "measurements": {
+    "level": "evidence/level-visual-record-20261006.json",
+    "current_boot_readonly_and_build": "evidence/validation-start-20261006.json",
+    "camera": "evidence/stationary-optical-capture-20261006.json",
+    "fixed_gyro_holdout": "evidence/imu-holdout-20261006.json",
+    "camera_summary": {
+      "frames": 425,
+      "pvp_triplets": 50,
+      "response_drops": 0,
+      "physical_stationarity_proven": false,
+      "velocity_cause_identified": false
+    },
+    "imu_summary": {
+      "samples": 2909,
+      "fixed_candidate_reestimated": false,
+      "corrected_gyro_sample_norm_max_rad_s": 0.004824375153664751,
+      "corrected_gyro_norm_rms_rad_s": 0.002062293396163268,
+      "existing_review_threshold_rad_s": 0.02,
+      "accel_norm_excess_percent": 8.66431365292122,
+      "operator_reported_stationary_and_unchanged": true,
+      "independent_physical_stationarity_proven": false
+    }
+  },
+  "deployment": {
+    "frozen_kit_manifest_sha256": "9689d855703616f85fb9680f706a9899c8910cdf54ac3dd34a36f2bc2f4df27c",
+    "frozen_kit_overwritten": false,
+    "camera_recorder_separate_addon_deployed": true,
+    "latest_optical_and_gyro_integrity_fixes_deployed": false,
+    "today_frozen_kit_selects_yesterday_gyro_candidate": false
+  },
+  "preserved": {
+    "initial_preparation_evidence": "evidence/validation-preparation-20261006.json",
+    "source_measurement_artifacts_overwritten": false,
+    "thresholds_changed": false,
+    "angle_offsets_or_signs_changed": false,
+    "gains_changed": false,
+    "deadline20ms_changed": false,
+    "stop_conditions_changed": false
+  },
+  "pending": [
+    "Review current ID3/6/9 physical pose and unique encoder branch against the trained model range",
+    "Independent image acquisition timing, point correspondence and angle uncertainty",
+    "Absolute joint zero uncertainty with an external angle reference",
+    "IMU acceleration bias/scale and known body directions",
+    "Explicit fixed gyro selection and input SHA in a newly versioned diagnostic kit",
+    "Final-setting no-output 20ms benchmark, supported output and gradual load transfer"
+  ],
+  "new_20ms_measurement": false,
+  "motor_enable_sent": false,
+  "learned_targets_sent": false,
+  "runtime_gyro_applied": false,
+  "calibration_approved_for_runtime": false,
+  "output_allowed": false,
+  "standing_verified": false,
+  "walking_verified": false,
+  "daily_report": "docs/today-validation-20261006.md"
+}

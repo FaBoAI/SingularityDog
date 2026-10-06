@@ -47,7 +47,10 @@ class VoltageJoinWaitTests(unittest.TestCase):
         def wait(target):targets.append(target);clock.now=target
         with self.assertRaisesRegex(TimeoutError,'20 ms hard deadline'):
             bench._await_voltage_ready(futures,validation,deadline_ns=301000,deadline_wait=wait,clock=clock)
-        self.assertEqual(targets,[201000,301000]);self.assertFalse(futures['front'].done())
+        self.assertLess(len(targets),32)
+        self.assertEqual(targets[-1],301000)
+        self.assertTrue(all(0<b-a<=50_000 for a,b in zip([1000]+targets,targets)))
+        self.assertFalse(futures['front'].done())
 
     def test_published_error_does_not_wait_for_unfinished_other_bus(self):
         futures,validation=self.futures();error=ValueError('owner validation failed');futures['rear'].set_exception(error);wait=Mock()

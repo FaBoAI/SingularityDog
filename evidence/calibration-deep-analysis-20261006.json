@@ -1,0 +1,119 @@
+{
+  "schema": "singularitydog.calibration-deep-analysis-summary.v1",
+  "created_utc": "2026-10-06T01:24:29.116771+00:00",
+  "scope": "saved input reanalysis, software corrections, and IMU-only session deployment",
+  "source_sha256": {
+    "tools/analyze_imu_acceleration_consistency.py": "c3c8990e08fe105e466b1a61f91849b5087a8b0d6474fb59bdd138365b7d63d0",
+    "tools/test_analyze_imu_acceleration_consistency.py": "48c56839a977d1cb0bd3d98abbb945533f99b48f93e6d30b26302fe1dca8e3dd",
+    "tools/analyze_joint_reference_repeatability.py": "a2883c46ed372f3237dc77d56ae0cac4557714e0ab3fab40d2977402a4e7c7b8",
+    "tools/test_analyze_joint_reference_repeatability.py": "83491b06c884e28f8733a990c7caaee556ffb412539a8db55bb4869d73ae0958",
+    "tools/analyze_velocity_position_consistency.py": "d8332dcf3678b4036cb1014cf3d95b4fa23bc03d633c803ffba14c0a13d1ac73",
+    "tools/test_analyze_velocity_position_consistency.py": "aca0652208641f21979c3b4bbf4a59748dc47eb467aeb3b54f4783d4cc5d8bd1",
+    "tools/imu_six_face_session.py": "641dafa8de4fb557798a762b4ab681519d9efe6c51e4dd38041df95073d5da1e",
+    "tools/test_imu_six_face_session.py": "960ec18c970c39e8acf8dca1b1c90a101fd8690fcfc864f7cf7efb43afcc204d"
+  },
+  "private_record_sha256": {
+    "acceleration_analysis": "3071f36c2f91e23e3cee9bc9f4918647ee2386c243a7ef0f679e503bed5012d0",
+    "acceleration_review": "63af781d27f83b9508c80c5a7fc34d14b4d9dd61f9b96198b8c4b09ac7adb162",
+    "joint_analysis": "5b7d0c9b6539377171d3d77e42c2f55737c1ad17404842227c8aacd38152a7b8",
+    "joint_review": "ab4dd1f1f9d5c7fe37d574c707722f91bb5b10c4465c6ee91c7799fef8d32b92",
+    "joint_independent_review": "4d77fa0be601f09ad4f030c56d1dd470d3196e3b085e630ee7a6dfb2b64f9f3d",
+    "velocity_analysis": "21bae57061a78f095dd397999c6df0ed034933b6ca45ed94b8c5eb11f9a8da7b",
+    "velocity_hypotheses": "19d4aed0a49502cf77b1ad869f3f58706a865a71245c0ef54956dc3ba68db550",
+    "velocity_independent_review": "776e87457d1398d72e6c7273ea2ec38a4fe1b3809dd508586a4bd7623973eb79",
+    "session_cancel_review": "1b86229eebdf941af7edd1815592b1a605821ed0d25360326046d377f3fa7daa",
+    "deployment": "82eb83dbe3d935716f34cba9df567d4863e98a2e9dfdb930b90298dd91e1e741"
+  },
+  "acceleration": {
+    "samples": 17595,
+    "raw_si_components_matching": 52785,
+    "current_norm_mean_m_s2": 10.656328914844197,
+    "excess_m_s2": 0.849678914844197,
+    "observed_norm_averaging_gap_m_s2": 1.1245e-05,
+    "observed_mean_direction_span_deg": 1.744851,
+    "range_comparison_difference_percent": 0.0292816,
+    "bias_and_scale_separately_identified": false,
+    "factory_trim_modified": false
+  },
+  "velocity": {
+    "pvp_triplets": 585,
+    "all_position_values": 1170,
+    "host_time_references_compared": 4,
+    "time_series_compared": 12,
+    "independently_checked_frequency_fits": 9234,
+    "raw_reply_time_single_sine_heldout_r2": [
+      -0.106684,
+      -0.507607,
+      -0.240872
+    ],
+    "decoder_error_found": false,
+    "cause_identified": false,
+    "independent_physical_bandwidth_verified": false,
+    "internal_estimator_noise_proven": false
+  },
+  "joint_origin": {
+    "l_reference_capture_count": 9,
+    "return_trials": 6,
+    "fl_l_reference_span_deg": {
+      "4": 8.085933,
+      "5": 7.110609,
+      "6": 1.324019
+    },
+    "rl_l_reference_span_deg": {
+      "10": 0.150264,
+      "11": 3.237783,
+      "12": 1.647278
+    },
+    "span_is_absolute_error_bound": false,
+    "current_numeric_branch_absent_ids": [
+      3,
+      6,
+      9
+    ],
+    "absolute_origin_error_rad": null,
+    "new_offset_created": false,
+    "same_boot_return_differences_wrapped": false
+  },
+  "imu_session": {
+    "default_plan_without_hardware": true,
+    "deployed_files": 18,
+    "audio_clips": 14,
+    "capture_s_per_face": 10,
+    "settle_s_per_face": 3,
+    "fit_faces": 6,
+    "independently_repositioned_validation_faces": 6,
+    "operator_reports_helper_and_all_six_orientations_possible": true,
+    "operator_reports_motor_power_off_and_body_supported": true,
+    "command_given_for_operator_run": true,
+    "new_measurement_completed": false,
+    "candidate_automatically_applied": false
+  },
+  "tests": {
+    "all_tools": {
+      "run": 824,
+      "passed": 812,
+      "skipped": 12,
+      "failed": 0,
+      "seconds": 32.403,
+      "log_sha256": "9f0c28a77272db544dd5328eda15803484e503b87b2a36569878d8e55a147dcf"
+    },
+    "targeted_imu_calibration_runtime": {
+      "run": 56,
+      "passed": 56,
+      "failed": 0,
+      "seconds": 70.059
+    },
+    "overlapping_targeted_counts": {
+      "imu_acceleration": 15,
+      "joint_repeatability": 25,
+      "velocity_analysis": 18,
+      "six_face_session": 23
+    }
+  },
+  "official_reference": "https://product.tdk.com/system/files/dam/doc/product/sensor/mortion-inertial/imu/data_sheet/ds-000189-icm-20948-v1.5.pdf",
+  "runtime_source_changed": false,
+  "motor_commands_sent": false,
+  "motor_gain_or_safety_thresholds_changed": false,
+  "new_20ms_measurement_performed": false,
+  "runtime_calibration_approved": false
+}

@@ -32,8 +32,13 @@ constant unknown mounting offset, excluding the separately bounded pixel errors.
 It is not a per-marker bound. A two-frame change adds twice this supplied bound.
 Rates assume no extra turns and remain descriptions, not velocity corrections.
 Frame spacing/nominal Nyquist values cannot establish motion bandwidth or
-exclude aliasing. Input image hashes and physical attestations are recorded,
-never verified by this tool. Stdout JSON only; no original files are changed.
+exclude aliasing. The declared-interest acquisition spacing check requires a
+supplied acquisition timestamp definition and supplied timestamp error intervals;
+host receipt times, unknown or boundary-crossing intervals remain inconclusive.
+Input image hashes and physical attestations are recorded,
+never verified by this tool. Output retains supplied ordered point coordinates
+and bound evidence with their declared point IDs, without verifying correspondence.
+Stdout JSON only; no original files are changed.
 """
 import argparse
 import hashlib
@@ -132,6 +137,13 @@ def circular_interval(center, halfwidth):
             'arcs_rad': arcs}
 
 
+def elapsed_interval(elapsed, start_error, end_error):
+    if elapsed is None or start_error is None or end_error is None:
+        return None
+    error = start_error + end_error
+    return [elapsed - error, elapsed + error]
+
+
 def points(value, dimensions):
     if value is None:
         return {'angle_rad': None, 'length_px': None, 'error_bound_rad': None,
@@ -157,6 +169,15 @@ def points(value, dimensions):
     return {'angle_rad': math.atan2(-dy, dx), 'length_px': length,
             'error_bound_rad': error,
             'state': 'BOUNDED_PROJECTED_DIRECTION' if error is not None else 'PROJECTED_DIRECTION_BOUND_UNKNOWN'}
+
+
+def supplied_points(value, point_ids):
+    """Copy validated observations; declared IDs do not verify physical identity."""
+    if value is None:
+        return None
+    return [{'point_id': point_id, 'xy_px': list(point['xy_px']),
+             'max_error_px': None if point['max_error_px'] is None else dict(point['max_error_px'])}
+            for point_id, point in zip(point_ids, value)]
 
 
 def metadata(value, planned):
@@ -240,7 +261,8 @@ def analyze(value):
                'image_sha256': row['image_sha256'], 'timestamp_s': row['timestamp_s'],
                'timestamp_max_error_s': row['timestamp_max_error_s'], 'exposure_s': row['exposure_s'],
                'missing_reason': row['missing_reason'], 'projected_relative_angle_rad': None,
-               'projected_relative_angle_interval_rad': None}
+               'projected_relative_angle_interval_rad': None,
+               'supplied_stator_points': None, 'supplied_output_points': None}
         if row['state'] != 'CAPTURED':
             need(all(row[k] is None for k in ('frame_id', 'image_sha256', 'timestamp_s',
                 'timestamp_max_error_s', 'exposure_s', 'stator_points', 'output_points')),
@@ -271,6 +293,8 @@ def analyze(value):
         time_error = bound(row['timestamp_max_error_s'])
         if row['exposure_s'] is not None: number(row['exposure_s'], positive=True)
         s, o = points(row['stator_points'], dimensions), points(row['output_points'], dimensions)
+        out['supplied_stator_points'] = supplied_points(row['stator_points'], value['markers']['stator']['point_ids'])
+        out['supplied_output_points'] = supplied_points(row['output_points'], value['markers']['output']['point_ids'])
         captured += 1; out['stator'] = s; out['output'] = o
         if s['angle_rad'] is not None and o['angle_rad'] is not None:
             angle = wrap(o['angle_rad'] - s['angle_rad'])
@@ -279,20 +303,24 @@ def analyze(value):
             out['projected_relative_angle_interval_rad'] = circular_interval(angle, error)
             projected.append({'index': index, 'time': t, 'time_error': time_error, 'angle': angle, 'error': error})
         outputs.append(out)
-    changes, gaps, captured_gaps = [], [], []
+    changes, gaps, captured_gaps, captured_intervals = [], [], [], []
     acquired = [r for r in outputs if r['state'] == 'CAPTURED']
     for a, b in zip(acquired, acquired[1:]):
+        dt = None
         if a['timestamp_s'] is not None and b['timestamp_s'] is not None:
-            captured_gaps.append(number(b['timestamp_s'] - a['timestamp_s'], positive=True))
+            dt = number(b['timestamp_s'] - a['timestamp_s'], positive=True)
+            captured_gaps.append(dt)
+        captured_intervals.append({'from_index': a['index'], 'to_index': b['index'],
+            'elapsed_timestamp_s': dt,
+            'elapsed_timestamp_interval_s': elapsed_interval(dt,
+                bound(a['timestamp_max_error_s']), bound(b['timestamp_max_error_s']))})
     for a, b in zip(projected, projected[1:]):
         dt = None
         if a['time'] is not None and b['time'] is not None:
             dt = number(b['time'] - a['time'], positive=True); gaps.append(dt)
         delta = wrap(b['angle'] - a['angle'])
         e = None if a['error'] is None or b['error'] is None else a['error'] + b['error']
-        dt_interval = None
-        if dt is not None and a['time_error'] is not None and b['time_error'] is not None:
-            te = a['time_error'] + b['time_error']; dt_interval = [dt - te, dt + te]
+        dt_interval = elapsed_interval(dt, a['time_error'], b['time_error'])
         rate_interval = None
         # A cut-crossing displacement is ambiguous as a signed principal rate.
         if e is not None and abs(delta) + e < math.pi and dt_interval is not None and dt_interval[0] > 0:
@@ -314,6 +342,18 @@ def analyze(value):
     span = None if len(acquired) < 2 or not all_times_known else acquired[-1]['timestamp_s'] - acquired[0]['timestamp_s']
     nominal = value['camera']['nominal_frame_interval_s']
     interest = value['highest_motion_frequency_of_interest_hz']
+    timestamp_definition = value['camera']['timestamp_definition']
+    acquisition_definition = timestamp_definition in ('exposure_midpoint', 'frame_start', 'frame_end')
+    spacing_fails = None
+    # A bounded host clock reading does not bound camera exposure/queue delay.
+    # Preserve its interval arithmetic, but never use it as acquisition spacing.
+    if acquisition_definition and interest is not None and captured_intervals:
+        required_gap = 1 / (2 * interest)
+        interval_bounds = [g['elapsed_timestamp_interval_s'] for g in captured_intervals]
+        if any(g is not None and g[0] >= required_gap for g in interval_bounds):
+            spacing_fails = True
+        elif all(g is not None and g[0] > 0 and g[1] < required_gap for g in interval_bounds):
+            spacing_fails = False
     return {'schema': RESULT_SCHEMA, 'status': 'DESCRIPTIVE_OPTICAL_REVIEW_REQUIRED', **FLAGS,
         'record_kind': value['record_kind'], 'joint_id': value['joint_id'],
         'synthetic_fixture_result': value['record_kind'] == 'SYNTHETIC_FIXTURE',
@@ -330,12 +370,15 @@ def analyze(value):
             'all_projected_error_bounds_supplied': bounded == count,
             'conditional_joint_changes': sum(c['conditional_joint_displacement_circular_interval_rad'] is not None for c in changes)},
         'timing': {'captured_span_s': span, 'captured_frame_gaps_s': captured_gaps,
+            'captured_frame_intervals': captured_intervals,
             'usable_angle_gaps_s': gaps, 'max_captured_frame_gap_s': max(captured_gaps, default=None),
             'observed_average_frame_rate_hz': None if span is None else number((len(acquired) - 1) / span),
             'nominal_spacing_nyquist_hz_only': None if nominal is None else number(1 / (2 * nominal)),
             'worst_gap_half_rate_hz_only': None if not captured_gaps else number(1 / (2 * max(captured_gaps))),
-            'spacing_fails_nyquist_for_declared_interest': None if interest is None or not captured_gaps else (
-                True if max(captured_gaps) >= 1 / (2 * interest) else False if all_times_known else None),
+            'spacing_scope': 'ADJACENT_CAPTURED_FRAME_TIMESTAMP_INTERVALS_ONLY',
+            'spacing_timestamp_definition': timestamp_definition,
+            'acquisition_timestamp_definition_supplied': acquisition_definition,
+            'spacing_fails_nyquist_for_declared_interest': spacing_fails,
             'timestamp_error_unknown_frames': sum(r['timestamp_max_error_s'] is None for r in acquired),
             'timestamp_unknown_frames': sum(r['timestamp_s'] is None for r in acquired),
             'all_captured_timestamps_known': all_times_known,
@@ -348,11 +391,13 @@ def analyze(value):
         'absolute_origin_uncertainty_rad': None, 'physical_velocity_rad_per_s': None,
         'limitations': [
             'Supplied point/projection/time bounds and physical conditions are unverified input evidence, not certified accuracy.',
+            'Ordered point IDs, raw coordinates and bound evidence are copied from supplied observations; correspondence, feature centers and localization accuracy are not verified.',
             'Relative image angle cancels a common in-plane rotation; perspective, out-of-plane camera motion, distortion, rolling shutter and marker flex remain conditional.',
             'Projection geometry, rigid attachments, an evidenced image-to-joint sign and a separate projection bound are required for conditional joint-angle change intervals; mounting offset and absolute mechanical zero remain unknown.',
             'All changes are circular principal differences. Unknown extra turns and within-frame motion prevent unambiguous angular velocity or continuous unwrap.',
             'Missing frames and degenerate marker vectors remain in requested coverage; no missing image, point, timestamp or angle is interpolated.',
             'Frame spacing half-rate is only a sampling descriptor. Exposure averaging, unknown measurement bandwidth and sensor timestamps leave aliasing and high-frequency/subpixel motion unresolved.',
+            'The declared-interest acquisition spacing result is conditional on a supplied exposure/frame timestamp definition and supplied timestamp error bounds; host receipt times, missing bounds or intervals crossing the spacing limit cannot establish pass or failure. Host receipt gaps and half-rates remain timestamp descriptors only. It covers adjacent captured frames only; missing requested endpoints and unobserved marker angles leave motion coverage incomplete.',
             'External clock alignment is supplied metadata only. This tool does not retrospectively synchronize CAN observations or establish an internal velocity-estimator fault.']}
 
 
@@ -400,14 +445,15 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument('--input'); source.add_argument('--template', action='store_true')
-    parser.add_argument('--joint-id', type=int, default=5)
-    parser.add_argument('--frame-count', type=int, default=3)
+    parser.add_argument('--joint-id', type=int)
+    parser.add_argument('--frame-count', type=int)
     args = parser.parse_args(argv)
     try:
         if args.template:
-            result = template(args.joint_id, args.frame_count)
+            result = template(5 if args.joint_id is None else args.joint_id,
+                              3 if args.frame_count is None else args.frame_count)
         else:
-            need(args.joint_id == 5 and args.frame_count == 3,
+            need(args.joint_id is None and args.frame_count is None,
                  'Set joint/frame metadata in input; CLI template options do not override observations')
             value, binding = read_file(args.input); result = analyze(value); result['input_artifact'] = binding
         print(json.dumps(result, allow_nan=False, sort_keys=True, indent=2))

@@ -215,7 +215,11 @@ extern "C" int sd_exchange(int fd, int cancel_fd, int boot_fd, const char *boot,
         // pselect keeps sub-millisecond deadlines; poll(int milliseconds) would round them.
         const bool writable=sent<count && sent-done<effective_window;
         uint64_t wake=writable?std::min(deadline,next_send):deadline;
-        uint64_t wait=wake>t?wake-t:0;
+        // Boot checking may consume time after loop-entry t.
+        // Keep the original absolute wake/deadline; never extend either one.
+        const uint64_t before_wait=now();
+        if(!before_wait||before_wait>=deadline) return deadline_fail();
+        const uint64_t wait=wake>before_wait?wake-before_wait:0;
         timespec timeout{time_t(wait/1000000000),long(wait%1000000000)};
         ++stats->waits;
         const int ready=pselect(std::max(fd,cancel_fd)+1,&readable,nullptr,nullptr,&timeout,nullptr);

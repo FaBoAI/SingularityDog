@@ -162,6 +162,8 @@ def _base(plan, base):
           base.get('approved_for_supported_policy_output') is True and
           base.get('scope') == 'supported_characterization_only' and
           base.get('blockers') == [], 'Reviewed supported base profile is required')
+    _need(base.get('accel_input_hypothesis') in (None, False),
+          'Boxed acceleration input hypothesis cannot authorize ground or load-transfer trials')
     _need(_hash(plan['base_profile_sha256'], 'base profile') == base.get('profile_sha256'),
           'Base profile SHA256 mismatch')
     for key in ('assembly_id', 'boot_id', 'motor_power_epoch'):

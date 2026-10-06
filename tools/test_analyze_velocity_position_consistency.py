@@ -23,6 +23,72 @@ def series(times, velocities, positions, slots=None):
 
 
 class IntegrationTests(unittest.TestCase):
+    def test_reported_level_grid_and_exact_repeats_do_not_certify_sensor_resolution(self):
+        data=series([0,.02,.04,.06],[.01,.01,.02,.01],[3,3.001,3.002,3.001])
+        result=c.analyze_series(data)['signal_structure']
+        self.assertEqual(result['reported_velocity_levels']['unique_value_count'],2)
+        self.assertAlmostEqual(result['reported_velocity_levels']['adjacent_sorted_unique_spacing']['minimum'],.01)
+        self.assertEqual(result['adjacent_identical_reported_velocity_pairs'],1)
+        self.assertEqual(result['longest_identical_reported_velocity_run_samples'],2)
+        self.assertFalse(result['reported_position_levels']['spacing_is_sensor_resolution_or_accuracy'])
+        self.assertFalse(result['physical_cause_identified'] or result['internal_update_period_identified'])
+
+    def test_irregular_host_sine_recovers_candidate_and_predicts_unused_half(self):
+        times=[i*.05+.002*math.sin(i) for i in range(201)]
+        velocities=[.03+.07*math.sin(2*math.pi*2.5*t+.2) for t in times]
+        data=series(times,velocities,[3]*len(times))
+        result=c.analyze_series(data)['signal_structure']['host_sinusoid_candidates']
+        best=result['top_candidates'][0]
+        self.assertLess(abs(best['frequency_hz']-2.5),result['frequency_grid_step_hz'])
+        self.assertGreater(best['fraction_centered_sample_variance_explained'],.99)
+        self.assertGreater(result['chronological_half_holdout']['held_out_fraction_variance_explained'],.98)
+        self.assertFalse(result['chronological_half_holdout']['held_out_values_used_to_fit'])
+        self.assertFalse(result['physical_period_identified'] or result['significance_test_performed'])
+        self.assertFalse(result['acquisition_bandwidth_verified'] or result['unobserved_alias_excluded'])
+
+    def test_signal_association_preserves_offsets_and_is_not_position_groundtruth(self):
+        data=series([i*.02 for i in range(20)],[.01*i for i in range(20)],[3+.001*i for i in range(20)])
+        before=c.analyze_series(data)['signal_structure']
+        shifted=copy.deepcopy(data)
+        for row in shifted:
+            for key in ('position_proxy_rad','position_before_rad','position_after_rad'):row[key]+=10
+        after=c.analyze_series(shifted)['signal_structure']
+        self.assertAlmostEqual(before['velocity_Pearson_r_by_supplied_quantity']['host_position_proxy_rad'],1)
+        self.assertAlmostEqual(after['velocity_Pearson_r_by_supplied_quantity']['host_position_proxy_rad'],1)
+        self.assertFalse(after['position_derivative_is_ground_truth'])
+        self.assertFalse(after['localization_or_timing_error_bound_created'])
+
+    def test_velocity_distribution_at_same_reported_position_keeps_every_value(self):
+        data=series([0,.02,.04,.06],[.03,-.04,.05,-.02],[3,3,4,3])
+        groups=c.analyze_series(data)['signal_structure']['reported_velocity_by_exact_reported_position_before_level']
+        self.assertEqual([r['sample_count'] for r in groups],[3,1])
+        self.assertAlmostEqual(groups[0]['reported_velocity_rad_s']['minimum'],-.04)
+        self.assertAlmostEqual(groups[0]['reported_velocity_rad_s']['maximum'],.03)
+        self.assertAlmostEqual(groups[0]['reported_velocity_rad_s']['mean'],-.01)
+        self.assertEqual(sum(r['sample_count'] for r in groups),len(data))
+
+    def test_index_lags_keep_irregular_host_gaps_and_missing_slots_without_resampling(self):
+        data=series([0,.02,.05,.09,.1,.16,.19,.25],[1,-1,1,-1,1,-1,1,-1],
+                    [3]*8,[0,1,3,4,5,8,9,12])
+        before=copy.deepcopy(data);result=c.analyze_series(data)
+        structure=result['signal_structure'];lag=structure['chronological_velocity_autocorrelations'][1]
+        self.assertEqual(lag['chronological_index_lag'],2);self.assertEqual(lag['pairs'],6)
+        self.assertAlmostEqual(lag['velocity_Pearson_r'],1)
+        self.assertAlmostEqual(lag['actual_host_elapsed_s']['minimum'],.05)
+        self.assertAlmostEqual(lag['actual_host_elapsed_s']['maximum'],.09)
+        self.assertEqual(result['intervals_crossing_missing_slots'],3)
+        self.assertFalse(structure['host_sinusoid_candidates']['missing_values_interpolated'])
+        self.assertEqual(data,before)
+
+    def test_constant_empty_and_short_series_leave_period_and_correlations_unknown(self):
+        for data in ([],series([0],[.02],[3]),
+                     series([i*.02 for i in range(20)],[.02]*20,[3]*20)):
+            result=c.analyze_series(data)['signal_structure']
+            self.assertEqual(result['host_sinusoid_candidates']['top_candidates'],[])
+            self.assertIsNone(result['host_sinusoid_candidates']['chronological_half_holdout'])
+            self.assertIsNone(result['velocity_Pearson_r_by_supplied_quantity']['host_position_proxy_rad'])
+            self.assertFalse(result['physical_cause_identified'])
+
     def test_constant_velocity_exact_nonuniform_intervals_and_offset_cancels(self):
         times = [0., .021, .043, .1, .15]
         data = series(times, [.25]*5, [3.+.25*t for t in times])

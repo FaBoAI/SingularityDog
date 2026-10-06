@@ -360,6 +360,7 @@ class NativeAcquisitionRuntimeIntegrationTests(unittest.TestCase):
     def test_selected_runtime_passes_same_native_waiter_and_records_cpu_time(self):
         from test_policy_output_runtime import OutputRuntimeTests, SimulatedClock, FakeSession, FakeIMU
         original = runtime.BusWorkers.collect_acquisition
+        original_output = runtime.BusWorkers.collect_output
         selected = []; waiting=[]; clock=SimulatedClock()
         # Give real executor workers CPU while advancing shared causal fixture
         # time, without making macOS wake jitter decide an argument-wire test.
@@ -374,7 +375,14 @@ class NativeAcquisitionRuntimeIntegrationTests(unittest.TestCase):
             waiting[:]=[*args[0].values(),args[1]]
             try: return original(workers,*args,**kwargs)
             finally: waiting.clear()
-        with patch.object(runtime.BusWorkers,'collect_acquisition',side_effect=collect,autospec=True):
+        def collect_output(workers, *args, **kwargs):
+            # The same native waiter now also joins output Futures. Let their
+            # real fixture workers finish before advancing synthetic time.
+            waiting[:]=args[0].values()
+            try: return original_output(workers,*args,**kwargs)
+            finally: waiting.clear()
+        with patch.object(runtime.BusWorkers,'collect_acquisition',side_effect=collect,autospec=True), \
+             patch.object(runtime.BusWorkers,'collect_output',side_effect=collect_output,autospec=True):
             report,sessions=OutputRuntimeTests.run_case(self,absolute_epoch_cadence=True,
                 deadline_wait=native_wait,clock=clock,sleep=clock.sleep,
                 front=FakeSession(1,clock=clock),rear=FakeSession(7,clock=clock),imu=FakeIMU(clock=clock))

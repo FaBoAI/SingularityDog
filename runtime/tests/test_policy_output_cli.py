@@ -183,6 +183,59 @@ class PolicyOutputCLITests(unittest.TestCase):
         self.assertTrue(runner.call_args.kwargs['absolute_epoch_cadence'])
         self.assertEqual(runner.call_args.kwargs['active_timer_slack_ns'],1000)
 
+    def test_prepared_publication_requires_matching_profile_before_any_setup(self):
+        for selected,reviewed in ((True,False),(False,True)):
+            with self.subTest(selected=selected,reviewed=reviewed), \
+                 patch.object(cli,'load_profile',return_value=self.fake), \
+                 patch.object(cli,'prepared_voltage_publication_settings',return_value=reviewed), \
+                 patch.object(cli.os,'pipe') as pipes,patch.object(cli.Path,'mkdir') as mkdir, \
+                 patch('singularitydog_hw.policy_output_model.LivePolicyModel') as model, \
+                 patch('singularitydog_hw.native_active_transport.load_library') as native, \
+                 redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    cli.main(self.args()+(['--prepare-voltage-before-feedback-publication'] if selected else []))
+                self.assertEqual(raised.exception.code,2)
+                pipes.assert_not_called();mkdir.assert_not_called();model.assert_not_called();native.assert_not_called()
+
+    def test_prepared_publication_loader_failure_stays_before_hardware(self):
+        with patch.object(cli,'load_profile',return_value=self.fake), \
+             patch.object(cli,'prepared_voltage_publication_settings',side_effect=ProfileError('Unbound preparation review')), \
+             patch.object(cli.os,'pipe') as pipes,patch.object(cli.Path,'mkdir') as mkdir, \
+             redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):cli.main(self.args()+['--prepare-voltage-before-feedback-publication'])
+            pipes.assert_not_called();mkdir.assert_not_called()
+
+    def test_prepared_publication_plan_and_actual_argument_are_explicit(self):
+        flag='--prepare-voltage-before-feedback-publication'
+        with patch.object(cli,'load_profile',return_value=self.fake), \
+             patch.object(cli,'prepared_voltage_publication_settings',return_value=True), \
+             patch.object(cli.os,'pipe') as pipes, \
+             patch('singularitydog_hw.policy_output_model.LivePolicyModel') as model, \
+             patch('singularitydog_hw.native_active_transport.load_library') as native, \
+             redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(cli.main(['--profile',str(self.path),flag]),0)
+            payload=json.loads(out.getvalue());self.assertTrue(payload['prepare_voltage_before_feedback_publication'])
+            self.assertFalse(payload['hardware_opened']);pipes.assert_not_called();model.assert_not_called();native.assert_not_called()
+        with patch.object(cli,'prepared_voltage_publication_settings',return_value=True):
+            code,report,_,runner,_=self.execute_mocked_profile(self.approved_profile(SCHEMA_V2),
+                status='COMPLETE_SUPPORTED_OUTPUT',extra_args=[flag])
+        self.assertEqual(code,0);self.assertTrue(report['prepare_voltage_before_feedback_publication'])
+        self.assertIs(runner.call_args.kwargs['prepare_voltage_before_feedback_publication'],True)
+
+    def test_prepared_publication_cannot_be_selected_for_an_external_supervisor(self):
+        execution=Mock()
+        with patch.object(cli,'load_profile',return_value=self.fake), \
+             patch.object(cli,'prepared_voltage_publication_settings',return_value=True), \
+             patch.object(cli.os,'pipe') as pipes,redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):cli.main(self.args()+['--prepare-voltage-before-feedback-publication'],execution=execution)
+            execution.bind_profile.assert_not_called();pipes.assert_not_called()
+
+    def test_default_execution_does_not_forward_optional_prepared_keyword(self):
+        code,report,_,runner,_=self.execute_mocked_profile(self.approved_profile(SCHEMA_V2),
+            status='COMPLETE_SUPPORTED_OUTPUT')
+        self.assertEqual(code,0);self.assertFalse(report['prepare_voltage_before_feedback_publication'])
+        self.assertNotIn('prepare_voltage_before_feedback_publication',runner.call_args.kwargs)
+
     def test_r22_plan_and_invalid_flag_pairs_stay_file_only(self):
         flags=['--pre-cycle-policy-warmup-calls','10','--main-thread-cpu','4',
                '--post-pin-policy-prime-calls','10','--defer-gc-during-cycles']

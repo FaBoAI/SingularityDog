@@ -2,6 +2,7 @@
 
 import ctypes
 from concurrent.futures import wait
+from contextlib import contextmanager
 import threading
 import unittest
 from unittest.mock import patch
@@ -61,21 +62,29 @@ class NativeActiveReleaseWaitTests(unittest.TestCase):
 
 
 class ActiveRuntimeEpochIntegrationTests(unittest.TestCase):
+    @contextmanager
     def ready_acquisition_fixture(self):
         """Keep this schedule test independent of synthetic executor wakeup.
 
         The injected epoch waiter only advances virtual time; unlike a native
         CDLL waiter it cannot release the GIL while waiting for live workers.
-        Let all three real fixture Futures complete before the unchanged join,
+        Let acquisition and output fixture Futures complete before their joins,
         so early callback return is tested at the next epoch deliberately.
-        Native pending-input polling has its own deadline/cancellation tests.
+        Native input/output polling have their own deadline/cancellation tests.
         """
         original=active.BusWorkers.collect_acquisition
         def collect(workers,futures,imu_future,**options):
             _,pending=wait((*futures.values(),imu_future),timeout=1.)
             self.assertFalse(pending,'Synthetic acquisition worker did not finish')
             return original(workers,futures,imu_future,**options)
-        return patch.object(active.BusWorkers,'collect_acquisition',autospec=True,side_effect=collect)
+        original_output=active.BusWorkers.collect_output
+        def collect_output(workers,futures,**options):
+            _,pending=wait(tuple(futures.values()),timeout=1.)
+            self.assertFalse(pending,'Synthetic output worker did not finish')
+            return original_output(workers,futures,**options)
+        with patch.object(active.BusWorkers,'collect_acquisition',autospec=True,side_effect=collect), \
+             patch.object(active.BusWorkers,'collect_output',autospec=True,side_effect=collect_output):
+            yield
 
     def test_opt_in_uses_contiguous_fixed_slots_and_restores_stop(self):
         clock=fixtures.SimulatedClock()

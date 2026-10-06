@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from artifact_manifest import member, parse_json
 from audit_angle_calibration import load_profile, read, write_private
 from dog_tomorrow import verify_kit
+from manual_angle_prompt import PHYSICAL_NOTE_CANCEL, PHYSICAL_NOTE_CONFIRMATION_TOKENS
 from singularitydog_hw.angle_calibration_audit import IDS, UNKNOWN_EPOCHS, AxisCalibration, audit_twelve_axes
 
 PLAN_SCHEMA = 'singularitydog.angle-final-session-plan.v1'
@@ -316,7 +317,9 @@ def attest_power(plan, observation, capture_pins):
     need(type(observation) is dict and observation.get('schema') == OBSERVATION_SCHEMA, 'Observation schema required')
     text(observation.get('operator_id'), 'operator ID')
     stamp(observation.get('observed_at'))
-    text(observation.get('physical_observation_note'), 'physical relative observation note')
+    note = text(observation.get('physical_observation_note'), 'physical relative observation note')
+    need(note.lower() not in PHYSICAL_NOTE_CONFIRMATION_TOKENS | PHYSICAL_NOTE_CANCEL,
+         'Physical relative observation note cannot be a standalone confirmation or cancellation token')
     event = observation.get('power_event')
     need(type(event) is dict, 'Explicit operator power event required')
     label = text(event.get('label'), 'operator power event label')

@@ -211,6 +211,7 @@ def diagnostics_plan(prefix,ports,input_path,work,state,stamp,cycles,*,request_w
                      timing_mode='legacy',scalar_manifest=None,scalar_sha=None,policy_cpu=4,
                      apply_reviewed_accel_calibration=False,python_switch_interval_us=None):
     """Fixed diagnostic sequence; config cannot introduce commands or actions."""
+    gyro_selection=_gyro_bias_selection(state)
     output=work/('diagnostics-'+stamp)
     capture=output/'capture.json';candidate=output/'calibration.json';audit=output/'angle-audit.json'
     stages=[{'name':'capture','output':str(output),'report':str(capture),'commands':[
@@ -230,7 +231,7 @@ def diagnostics_plan(prefix,ports,input_path,work,state,stamp,cycles,*,request_w
                 '--mount',state.get('mount',input_path('mount')),'--bundle',input_path('bundle'),
                 '--native-policy-manifest',state.get('native_policy_manifest','<build-success-manifest>'),
                 '--native-policy-manifest-sha256',state.get('native_policy_manifest_sha256','<build-success-sha256>')]
-            if state.get('gyro_bias'):command+=['--gyro-bias',state['gyro_bias']]
+            if gyro_selection['gyro_bias'] is not None:command+=['--gyro-bias',gyro_selection['gyro_bias']]
             if apply_reviewed_accel_calibration:command+=['--apply-reviewed-accel-calibration']
             command+=full_timing_arguments(timing_mode,scalar_manifest,scalar_sha,policy_cpu)
             command,switch_settings=full_python_switch_command(command,python_switch_interval_us)
@@ -240,10 +241,12 @@ def diagnostics_plan(prefix,ports,input_path,work,state,stamp,cycles,*,request_w
         stages[-1].update(switch_settings)
         if name=='full' and timing_mode!='legacy':
             stages[-1].update(timing_mode=timing_mode,scalar_step_manifest_sha256=scalar_sha)
-        if name=='full' and apply_reviewed_accel_calibration:
-            _,bias_sha=_diagnostic_json(state['gyro_bias'])
-            stages[-1].update(apply_reviewed_accel_calibration=True,gyro_bias_sha256=bias_sha)
-    return output,stages,{'calibration':str(candidate),'angle_capture':str(capture),'angle_audit':str(audit)}
+        if name=='full':
+            stages[-1].update(gyro_selection)
+            if apply_reviewed_accel_calibration:stages[-1]['apply_reviewed_accel_calibration']=True
+    updates={'calibration':str(candidate),'angle_capture':str(capture),'angle_audit':str(audit)}
+    if gyro_selection['gyro_bias'] is not None:updates['gyro_bias_sha256']=gyro_selection['gyro_bias_sha256']
+    return output,stages,updates
 
 
 def _diagnostic_json(path):
@@ -252,6 +255,37 @@ def _diagnostic_json(path):
     raw=path.read_bytes();data=json.loads(raw)
     if type(data) is not dict:raise ValueError('Diagnostic artifact must be an object: '+str(path))
     return data,hashlib.sha256(raw).hexdigest()
+
+
+def _gyro_bias_selection(state):
+    """Pin an explicitly selected gyro file, independently of acceleration use."""
+    path=state.get('gyro_bias')
+    stored='gyro_bias_sha256' in state
+    if path is None:
+        if stored:raise ValueError('Stored gyro bias SHA256 requires a selected path')
+        return {'gyro_bias':None,'gyro_bias_sha256':None}
+    if type(path) is not str or not path:raise ValueError('Gyro bias requires a selected path')
+    _,digest=_diagnostic_json(path)
+    if stored and (type(state['gyro_bias_sha256']) is not str or
+            re.fullmatch('[0-9a-f]{64}',state['gyro_bias_sha256']) is None or
+            digest!=state['gyro_bias_sha256']):
+        raise ValueError('Stored gyro bias SHA256 differs from selected file')
+    return {'gyro_bias':path,'gyro_bias_sha256':digest}
+
+
+def _verify_gyro_bias(selection):
+    if selection['gyro_bias'] is not None:
+        _,digest=_diagnostic_json(selection['gyro_bias'])
+        if digest!=selection['gyro_bias_sha256']:raise ValueError('Gyro bias SHA256 differs from plan')
+
+
+def _verify_gyro_bias_report(report,selection):
+    hashes=report.get('input_sha256',{})
+    if type(hashes) is not dict:
+        raise ValueError('Full diagnostic gyro bias SHA256 differs from plan')
+    # An absent key and explicit JSON null both describe no selected bias.
+    if hashes.get('gyro_bias')!=selection['gyro_bias_sha256']:
+        raise ValueError('Full diagnostic gyro bias SHA256 differs from plan')
 
 
 def _diagnostic_build(state):
@@ -316,9 +350,7 @@ def _diagnostic_report(stage,boot,manifest_sha,candidate_sha):
         if (report.get('plan',{}).get('apply_reviewed_accel_calibration',False)
                 is not stage.get('apply_reviewed_accel_calibration',False)):
             raise ValueError('Full diagnostic acceleration calibration selection differs from plan')
-        if (stage.get('apply_reviewed_accel_calibration') and
-                report.get('input_sha256',{}).get('gyro_bias')!=stage['gyro_bias_sha256']):
-            raise ValueError('Full diagnostic reviewed bias SHA256 differs from plan')
+        _verify_gyro_bias_report(report,stage)
         source=report.get('model_source',{})
         if stage.get('timing_mode')=='v3-overlap':
             if (source.get('manifest_sha256')!=stage['scalar_step_manifest_sha256'] or
@@ -356,7 +388,9 @@ def execute_diagnostics(output,stages,updates,state,statefile,env):
     prior=dict(state)
     def publish_state():
         value=dict(prior)
-        if summary['status']=='COMPLETE_DIAGNOSTICS':value.update(updates)
+        if summary['status']=='COMPLETE_DIAGNOSTICS':
+            _verify_gyro_bias(stages[-1])
+            value.update(updates)
         value['last_diagnostics']={'status':summary['status'],'summary':str(summary_path),
             'failed_stage':summary['failed_stage'],'blocked_stage':summary['blocked_stage'],
             'fresh_capture_promoted':summary['fresh_capture_promoted']}
@@ -377,12 +411,14 @@ def execute_diagnostics(output,stages,updates,state,statefile,env):
                     if (capture_sha,candidate_sha)!=(expected_capture,expected_candidate):
                         raise ValueError('Fresh capture/calibration changed during diagnostics')
                 for number,command in enumerate(stage['commands']):
+                    if stage['name']=='full':_verify_gyro_bias(stage)
                     if stage.get('python_switch_interval_us') is not None:
                         verify_python_switch_command(command,stage)
                     result=subprocess.run(command,env=env,cwd=ROOT,check=False)
                     current.setdefault('returncodes',[]).append(result.returncode)
                     if stage.get('python_switch_interval_us') is not None:
                         verify_python_switch_command(command,stage)
+                    if stage['name']=='full':_verify_gyro_bias(stage)
                     if result.returncode:raise RuntimeError('Command failed with exit code '+str(result.returncode))
                     if stage['name']=='capture' and number==0:_diagnostic_capture(updates,with_candidate=False)
                 if stage['name']=='capture':
@@ -395,10 +431,6 @@ def execute_diagnostics(output,stages,updates,state,statefile,env):
                         timing_ms=report.get('distributions_ms'),phase_timings=report.get('phase_timings'),
                         steady_timing=report.get('steady_timing'),
                         cycles_completed=report['cycles_completed'],comparison_by_id=report.get('per_motor'))
-                    if stage.get('apply_reviewed_accel_calibration'):
-                        _,bias_sha=_diagnostic_json(state['gyro_bias'])
-                        if bias_sha!=stage['gyro_bias_sha256']:
-                            raise ValueError('Reviewed bias changed during diagnostic child')
                     _,capture_sha,candidate_sha=_diagnostic_capture(updates,with_candidate=True)
                     if (capture_sha,candidate_sha)!=(expected_capture,expected_candidate):
                         raise ValueError('Fresh capture/calibration changed during diagnostic child')
@@ -493,6 +525,7 @@ def main(argv=None):
     state=json.loads(statefile.read_text()) if statefile.exists() else {}
     if args.apply_reviewed_accel_calibration and not state.get('gyro_bias'):
         p.error('Reviewed acceleration selection requires an explicit gyro_bias in work state')
+    gyro_selection=_gyro_bias_selection(state) if args.action=='full' else None
     stamp=datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f')
     py=sys.executable
     prefix=[py,'-B','-m']
@@ -556,7 +589,7 @@ def main(argv=None):
                 '--mount',state.get('mount',input_path('mount')),'--bundle',input_path('bundle'),
                 '--native-policy-manifest',state.get('native_policy_manifest','<build-success-manifest>'),
                 '--native-policy-manifest-sha256',state.get('native_policy_manifest_sha256','<build-success-sha256>')]
-            if state.get('gyro_bias'):command+=['--gyro-bias',state['gyro_bias']]
+            if gyro_selection['gyro_bias'] is not None:command+=['--gyro-bias',gyro_selection['gyro_bias']]
             if args.apply_reviewed_accel_calibration:command+=['--apply-reviewed-accel-calibration']
             command+=full_timing_arguments(args.timing_mode,args.scalar_step_manifest,args.scalar_step_manifest_sha256,
                                            args.policy_cpu)
@@ -569,6 +602,7 @@ def main(argv=None):
     if args.action in ('can','compare','full','diagnostics'):
         printed.update(request_window=args.request_window,request_gap_us=args.request_gap_us,
                        apply_reviewed_accel_calibration=args.apply_reviewed_accel_calibration)
+    if args.action=='full':printed.update(gyro_selection)
     if args.timing_mode!='legacy':printed.update(timing_mode=args.timing_mode,
         scalar_step_manifest_sha256=args.scalar_step_manifest_sha256,positive_gains_available=False,
         first_cycle_judged_separately=True,stop_proxy_is_not_learned_output=True)
@@ -595,11 +629,13 @@ def main(argv=None):
     transaction=build_artifact_transaction(ROOT,include_active=bool(active),state_path=statefile) if args.action=='build' else nullcontext()
     with transaction:
         for command in commands:
+            if args.action=='full':_verify_gyro_bias(gyro_selection)
             if args.python_switch_interval_us is not None:
                 verify_python_switch_command(command,switch_settings)
             subprocess.run(command,env=env,cwd=ROOT,check=True)
             if args.python_switch_interval_us is not None:
                 verify_python_switch_command(command,switch_settings)
+            if args.action=='full':_verify_gyro_bias(gyro_selection)
         if args.action=='build':
             artifact=Path(updates['native_policy_manifest']).parent
             built=json.loads((artifact/'build-report.json').read_text())
@@ -613,10 +649,17 @@ def main(argv=None):
             if json.loads(candidate).get('source_capture_sha256')!=capture_sha:
                 raise ValueError('Generated calibration does not bind source capture')
             updates['calibration_sha256']=hashlib.sha256(candidate).hexdigest()
+        elif args.action=='imu':
+            _,updates['gyro_bias_sha256']=_diagnostic_json(updates['gyro_bias'])
+        elif args.action=='full':
+            report,_=_diagnostic_json(output/'report.json')
+            _verify_gyro_bias_report(report,gyro_selection)
+            if gyro_selection['gyro_bias'] is not None:updates['gyro_bias_sha256']=gyro_selection['gyro_bias_sha256']
         # State is published only after the full sequence and all checks pass.
         for key,path in updates.items():
             if not key.endswith('_sha256') and not Path(path).is_file():
                 raise ValueError('Expected artifact missing: '+path)
+        if args.action=='full':_verify_gyro_bias(gyro_selection)
         state.update(updates);write_state(statefile,state)
     return 0
 

@@ -135,6 +135,26 @@ class ProfileTests(unittest.TestCase):
         self.assertIsNone(parsed['watchdog_by_id']['7']['firmware_version'])
         self.assertNotIn('lower_rad', self.data['axes']['1'])
 
+    def test_experimental_guard_diagnostic_cannot_qualify_default_active_guard(self):
+        for location in ('report', 'plan'):
+            with self.subTest(location=location):
+                target = self.docs['pipeline_diagnostic']
+                if location == 'plan': target = target['plan']
+                target['sourced_boot_guard'] = {'scope': 'disabled_stop_proxy_diagnostic_only'}
+                with self.assertRaisesRegex(profile.ProfileError, 'Experimental boot-guard'):
+                    profile.load_profile(self.save(bind_review=True))
+                del target['sourced_boot_guard']
+
+    def test_experimental_trace_copy_cannot_qualify_default_active_controller(self):
+        for location in ('report', 'plan'):
+            with self.subTest(location=location):
+                target = self.docs['pipeline_diagnostic']
+                if location == 'plan': target = target['plan']
+                target['trace_copy_provenance'] = {'scope': 'disabled_stop_proxy_diagnostic_only'}
+                with self.assertRaisesRegex(profile.ProfileError, 'Experimental trace-copy'):
+                    profile.load_profile(self.save(bind_review=True))
+                del target['trace_copy_provenance']
+
     def test_full_charge_voltage_requires_matching_diagnostic_and_review(self):
         self.select_scalar()
         self.assertEqual(profile.template()['voltage_max_v'], 42.)
@@ -832,6 +852,235 @@ class ProfileTests(unittest.TestCase):
         self.docs['hardware_review']['mode0_readback_required_before_enable'] = False
         with self.assertRaisesRegex(profile.ProfileError, 'Mode0'):
             profile.load_profile(self.save())
+
+
+class AccelerationHypothesisProfileTests(unittest.TestCase):
+    """Mocked input audit exercises admission; it is never physical evidence."""
+    select_scalar = ProfileTests.select_scalar
+
+    def setUp(self):
+        from test_policy_local_profile import local_fixture
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.base = Path(self.temp.name)
+        self.data, self.docs, pins = local_fixture(self.base)
+        self.enterContext(patch.object(profile.shadow, 'SOURCE_HASHES', pins))
+        ProfileTests.select_measured_r17(self)
+        self.data.update(diagnostic_timing_acceptance=profile.SUPPORTED_POLICY_PROBE,
+                         accel_input_hypothesis=True)
+        self.data['cadence_source_sha256'] = profile.cadence_source_hashes(self.data)
+        self.docs['accel_input_hypothesis'] = {'SYNTHETIC_UNIT_TEST_ONLY': True}
+        self.data['artifacts']['accel_input_hypothesis'] = _write(
+            self.base/'accel_input_hypothesis.json', self.docs['accel_input_hypothesis'])
+        self.reference = {'path': str(self.base/'accel_input_hypothesis.json'),
+                          'sha256': self.data['artifacts']['accel_input_hypothesis']['sha256']}
+        self.provenance = {
+            'kind': 'singularitydog.supported-accel-input-hypothesis.v1',
+            'scope': 'boxed_small_mix_only', 'hypothesis_sha256': self.reference['sha256'],
+            'candidate_sha256': '3'*64, 'manifest_sha256': '4'*64,
+            'raw_norm_bounds_m_s2': [self.data['imu_accel_norm_min_m_s2'],
+                                     self.data['imu_accel_norm_max_m_s2']],
+            'formal_calibration_approved': False, 'absolute_orientation_error_bound_rad': None,
+            'fit_and_independent_captures_reaudited': True, 'grants_motor_output': False}
+        class FakeAuditedInput:
+            def provenance(inner): return copy.deepcopy(self.provenance)
+        self.loader = self.enterContext(patch.object(profile, '_load_accel_input_hypothesis',
+                                                      return_value=FakeAuditedInput()))
+        report = self.docs['pipeline_diagnostic']
+        report.update(motor_power_epoch=self.data['motor_power_epoch'],
+                      cadence_source_sha256=self.data['cadence_source_sha256'])
+        report['plan']['accel_input_hypothesis'] = copy.deepcopy(self.reference)
+        report['input_sha256']['accel_input_hypothesis'] = self.reference['sha256']
+        report['observer']['accel_input_hypothesis'] = copy.deepcopy(self.provenance)
+
+    def seal(self):
+        from test_policy_local_profile import seal_local
+        seal_local(self.base, self.data, self.docs)
+        return self.base/'profile.json'
+
+    def load(self):
+        return profile.load_profile(self.seal())
+
+    def test_complete_load_binds_input_without_formal_calibration_or_ground_permission(self):
+        loaded = self.load()
+        self.assertEqual(profile.accel_input_hypothesis_settings(loaded), self.reference)
+        self.loader.assert_called_once_with(self.reference, self.docs['mount']['R_body_from_sensor'])
+        self.assertTrue(loaded['support_must_remain'])
+        self.assertFalse(loaded['actual_policy_output_20ms_verified'])
+        self.assertFalse(loaded['_accel_input_hypothesis_provenance']['formal_calibration_approved'])
+        self.assertIsNone(loaded['_accel_input_hypothesis_provenance']['absolute_orientation_error_bound_rad'])
+        result = profile.accel_input_hypothesis_settings(loaded)
+        result['sha256'] = 'f'*64
+        self.assertEqual(profile.accel_input_hypothesis_settings(loaded), self.reference)
+
+    def test_selected_source_graph_pins_input_dependencies_without_changing_default_graph(self):
+        original = profile.cadence_source_paths()
+        self.assertEqual(original, profile.CADENCE_SOURCE_PATHS)
+        for selection in (None, False):
+            self.assertEqual(profile.cadence_source_paths({'accel_input_hypothesis': selection}), original)
+        selected = profile.cadence_source_paths({'accel_input_hypothesis': True})
+        self.assertEqual(len(selected), len(set(selected)))
+        self.assertTrue(set(profile._ACCEL_INPUT_HYPOTHESIS_SOURCES) <= set(selected))
+        self.assertEqual(profile.cadence_source_hashes({'accel_input_hypothesis': True}),
+                         self.data['cadence_source_sha256'])
+
+    def test_raw_unapproved_and_forged_token_never_return_selected_ref(self):
+        for token in (None, True, 'forged'):
+            data = copy.deepcopy(self.data)
+            if token is not None: data['_accel_input_hypothesis_token'] = token
+            with self.subTest(token=token), self.assertRaisesRegex(profile.ProfileError, 'loader proof'):
+                profile.accel_input_hypothesis_settings(data)
+        self.data.update(approved_for_supported_policy_output=False, review=None, blockers=['UNREVIEWED'])
+        path = self.seal()
+        with self.assertRaisesRegex(profile.ProfileError, 'unapproved'):
+            profile.load_profile(path)
+        plan = profile.load_profile(path, require_approved=False)
+        self.assertFalse(plan['output_allowed'])
+        self.assertEqual(self.loader.call_count, 0)
+        with self.assertRaisesRegex(profile.ProfileError, 'loader proof'):
+            profile.accel_input_hypothesis_settings(plan)
+
+    def test_formal_selection_legacy_schema_and_nonboolean_rejected(self):
+        for key, value in (('apply_reviewed_accel_calibration', True),
+                           ('schema', profile.SCHEMA_V2), ('accel_input_hypothesis', 1),
+                           ('accel_input_hypothesis', None)):
+            data = copy.deepcopy(self.data); data[key] = value
+            with self.subTest(key=key, value=value), self.assertRaises(profile.ProfileError):
+                profile._settings(data)
+
+    def test_selected_scope_cannot_be_hold_ground_preload_gain_or_time_extension(self):
+        for mode in (None, profile.CURRENT_HOLD_PROBE, profile.CURRENT_HOLD_AFTER_SUPPORTED_10S,
+                     profile.FIXED_CATCH_CURRENT_HOLD_30S, profile.HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S,
+                     profile.SUPPORTED_POLICY_PROBE_5S, profile.SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
+                     profile.SUPPORTED_POLICY_PROBE_20S_AFTER_10S, profile.SUPPORTED_POLICY_GAIN_STEP_3S,
+                     profile.SUPPORTED_PRELOAD_5S, profile.SUPPORTED_POLICY_MIX_STEP_10PCT):
+            data = copy.deepcopy(self.data); data['diagnostic_timing_acceptance'] = mode
+            with self.subTest(mode=mode), self.assertRaisesRegex(profile.ProfileError, 'boxed two-second'):
+                profile._accel_input_hypothesis_scope(data)
+        for key, value in (('scope', 'ground'), ('local_characterization', None),
+                           ('duration_s', 2.001), ('policy_weight', 0.), ('policy_weight', .005001),
+                           ('fixed_catch', {}), ('human_supported_hold', {})):
+            data = copy.deepcopy(self.data); data[key] = value
+            with self.subTest(key=key), self.assertRaises(profile.ProfileError): profile._settings(data)
+
+    def test_existing_small_probe_axis_caps_and_deadlines_remain(self):
+        limits = (('kp', 3.001), ('kd', .15001), ('max_displacement_from_start_rad', math.radians(1.001)),
+                  ('max_estimated_pd_torque_nm', .10001), ('max_measured_torque_nm', 1.001),
+                  ('max_tracking_error_rad', math.radians(2.001)), ('max_temperature_c', 45.001),
+                  ('max_command_velocity_rad_s', math.radians(1.001)),
+                  ('max_command_acceleration_rad_s2', math.radians(5.001)))
+        for key, value in limits:
+            data = copy.deepcopy(self.data); data['axes']['7'][key] = value
+            with self.subTest(key=key), self.assertRaises(profile.ProfileError): profile._settings(data)
+        for key, value in (('hard_cycle_ms', 20.001), ('max_sample_age_ms', 20.001),
+                           ('max_sample_gap_ms', 21.001), ('max_consecutive_20ms_misses', 1)):
+            data = copy.deepcopy(self.data); data[key] = value
+            with self.subTest(key=key), self.assertRaises(profile.ProfileError): profile._settings(data)
+
+    def test_raw_diagnostic_wrong_pin_and_missing_observer_provenance_rejected(self):
+        baseline = copy.deepcopy(self.docs['pipeline_diagnostic'])
+        changes = (
+            lambda r: r['plan'].pop('accel_input_hypothesis'),
+            lambda r: r['plan'].update(accel_input_hypothesis=None),
+            lambda r: r['plan'].update(accel_input_hypothesis={**self.reference, 'sha256': 'f'*64}),
+            lambda r: r['input_sha256'].pop('accel_input_hypothesis'),
+            lambda r: r['input_sha256'].update(accel_input_hypothesis='f'*64),
+            lambda r: r['observer'].pop('accel_input_hypothesis'),
+            lambda r: r['observer'].update(accel_input_hypothesis=None),
+            lambda r: r['observer']['accel_input_hypothesis'].update(formal_calibration_approved=0),
+            lambda r: r['observer']['accel_input_hypothesis'].update(candidate_sha256='f'*64),
+            lambda r: r.update(motor_power_epoch='previous-epoch'),
+            lambda r: r.update(cadence_source_sha256={}),
+        )
+        for index, change in enumerate(changes):
+            self.docs['pipeline_diagnostic'] = copy.deepcopy(baseline)
+            change(self.docs['pipeline_diagnostic'])
+            with self.subTest(index=index), self.assertRaisesRegex(profile.ProfileError, 'hypothesis'):
+                self.load()
+
+    def test_loader_reaudit_failure_and_artifact_sha_failure_do_not_grant_output(self):
+        self.loader.side_effect = ValueError('Synthetic capture audit failure')
+        with self.assertRaisesRegex(ValueError, 'capture audit failure'): self.load()
+        self.loader.side_effect = None
+        path = self.seal()
+        (self.base/'accel_input_hypothesis.json').write_bytes(b'changed')
+        with self.assertRaisesRegex(profile.ProfileError, 'Artifact SHA256 mismatch'):
+            profile.load_profile(path)
+
+    def test_selected_missing_artifact_reference_and_file_rejected(self):
+        reference = self.data['artifacts'].pop('accel_input_hypothesis')
+        with self.assertRaisesRegex(profile.ProfileError, 'artifact references'):
+            profile._structure(self.data)
+        self.data['artifacts']['accel_input_hypothesis'] = reference
+        path = self.seal()
+        (self.base/'accel_input_hypothesis.json').unlink()
+        with self.assertRaises(profile.ProfileError): profile.load_profile(path)
+
+    def test_rare_jitter_two_second_mode_keeps_separate_diagnostic_acceptance(self):
+        self.data['diagnostic_timing_acceptance'] = profile.SUPPORTED_POLICY_PROBE_2S_RARE_JITTER
+        for axis in self.data['axes'].values(): axis['max_measured_velocity_rad_s'] = .35
+        for row in self.docs['pipeline_diagnostic']['measurements']:
+            row['oldest_input_start_ns'] = row['release_ns']+2_000_000
+        with self.assertRaisesRegex(profile.ProfileError, 'rare-jitter diagnostic acceptance'):
+            self.load()
+        self.docs['hardware_review']['rare_jitter_diagnostic_acceptance'] = {
+            'mode': profile.SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
+            'scope': self.data['scope'], 'strict_50hz_not_established': True,
+            'live_deadline_policy_unchanged': True,
+            'diagnostic_sha256': self.data['artifacts']['pipeline_diagnostic']['sha256'],
+            'review': {**self.data['review'],
+                       'decision': 'ACCEPT_RARE_JITTER_DIAGNOSTIC_FOR_2S_SUPPORTED_PROBE'}}
+        loaded = self.load()
+        self.assertEqual(profile.accel_input_hypothesis_settings(loaded), self.reference)
+        self.assertEqual(loaded['hard_cycle_ms'], 20.)
+        self.assertFalse(loaded['actual_policy_output_20ms_verified'])
+
+    def test_raw_norm_bounds_and_unapproved_scope_cannot_be_widened_or_promoted(self):
+        for key, value in (('raw_norm_bounds_m_s2', [8.8, 10.2]),
+                           ('formal_calibration_approved', True), ('absolute_orientation_error_bound_rad', .01),
+                           ('grants_motor_output', True), ('fit_and_independent_captures_reaudited', False),
+                           ('scope', 'ground')):
+            old = self.provenance[key]; self.provenance[key] = value
+            with self.subTest(key=key), self.assertRaisesRegex(profile.ProfileError, 'hypothesis'):
+                self.load()
+            self.provenance[key] = old
+
+    def test_loaded_selection_refs_settings_and_provenance_cannot_mutate(self):
+        loaded = self.load()
+        changes = (
+            lambda p: p['artifacts']['accel_input_hypothesis'].update(sha256='f'*64),
+            lambda p: p.update(policy_weight=.004),
+            lambda p: p['axes']['7'].update(kp=2.9),
+            lambda p: p['_accel_input_hypothesis_provenance'].update(formal_calibration_approved=True),
+            lambda p: p.update(motor_power_epoch='different'),
+            lambda p: p.update(accel_input_hypothesis=False),
+        )
+        for index, change in enumerate(changes):
+            # deepcopy would duplicate the private object token; preserve it as
+            # an already validated in-memory mapping, then mutate one field.
+            altered = copy.deepcopy(loaded)
+            altered['_accel_input_hypothesis_token'] = loaded['_accel_input_hypothesis_token']
+            change(altered)
+            with self.subTest(index=index), self.assertRaises(profile.ProfileError):
+                profile.accel_input_hypothesis_settings(altered)
+
+    def test_unselected_absent_or_null_diagnostic_fields_compatible_unexpected_input_rejected(self):
+        self.data['accel_input_hypothesis'] = False
+        self.data['cadence_source_sha256'] = profile.cadence_source_hashes(self.data)
+        self.docs['pipeline_diagnostic']['cadence_source_sha256'] = self.data['cadence_source_sha256']
+        self.data['artifacts'].pop('accel_input_hypothesis')
+        self.docs.pop('accel_input_hypothesis')
+        report = self.docs['pipeline_diagnostic']
+        holders = (report['plan'], report['input_sha256'], report['observer'])
+        for holder in holders: holder.pop('accel_input_hypothesis')
+        loaded = self.load()
+        self.assertIsNone(profile.accel_input_hypothesis_settings(loaded))
+        for holder in holders: holder['accel_input_hypothesis'] = None
+        self.assertIsNone(profile.accel_input_hypothesis_settings(self.load()))
+        for holder in holders:
+            holder['accel_input_hypothesis'] = self.reference['sha256']
+            with self.assertRaisesRegex(profile.ProfileError, 'hypothesis'): self.load()
+            holder['accel_input_hypothesis'] = None
+        self.assertEqual(self.loader.call_count, 0)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,121 @@
+{
+  "schema": "singularitydog.validation-start-summary.v1",
+  "date": "2026-10-06",
+  "scope": "source_deployment_readonly_capture_and_file_only_build",
+  "raw_data_private": true,
+  "source_kit": {
+    "member_count": 599,
+    "manifest_sha256": "9689d855703616f85fb9680f706a9899c8910cdf54ac3dd34a36f2bc2f4df27c",
+    "current_source_count": 559,
+    "frozen_older_kits_changed": false
+  },
+  "readonly_capture": {
+    "status": "RECORDED_REVIEW_REQUIRED",
+    "errors": [],
+    "requests": 84,
+    "replies": 84,
+    "identity_reads": 12,
+    "parameter_reads": 72,
+    "trace_events": 420,
+    "all_uids_match": true,
+    "voltage_min_v": 38.49285125732422,
+    "voltage_max_v": 39.861328125,
+    "max_three_sample_position_span_deg": 0.02557222825252774,
+    "all_observed_run_modes_zero": true,
+    "all_observed_currents_zero": true,
+    "telemetry_capture_span_ms": 167.33271,
+    "parser_discard_bytes": 0,
+    "parser_partial_bytes": 0,
+    "allowed_request_types": [
+      0,
+      17
+    ],
+    "automatic_retry": false,
+    "motor_enable_sent": false,
+    "stop_sent": false,
+    "motor_parameter_write_sent": false,
+    "stop_state": "UNVERIFIED_BY_READ_ONLY_PROTOCOL",
+    "power_epoch_inferred_from_boot": false,
+    "physical_stationarity_proven": false
+  },
+  "angle_numeric_screen": {
+    "status": "INCOMPLETE_PHYSICAL_EVIDENCE",
+    "uid_changed_ids": [],
+    "unique_candidate_ids": [
+      1,
+      2,
+      4,
+      5,
+      7,
+      8,
+      10,
+      11,
+      12
+    ],
+    "no_unique_candidate_ids": [
+      3,
+      6,
+      9
+    ],
+    "numeric_branch_turns_by_id": {
+      "1": 1,
+      "2": 0,
+      "4": 0,
+      "5": 0,
+      "7": 0,
+      "8": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0
+    },
+    "physical_approval_created": false,
+    "raw_angles_modified": false,
+    "profile_modified": false
+  },
+  "file_only_build": {
+    "status": "FILE_ONLY_BUILD_PASS",
+    "immutable_source_kit_unchanged": true,
+    "compiled_transports": [
+      "diagnostic",
+      "active"
+    ],
+    "native_policy_manifest_sha256": "09dc6ed667db05996c2ff084f8042c053435e64b25d9ce754cdbb10b5a7e3671",
+    "model_equivalence_passed": true,
+    "hardware_opened": false,
+    "live_20ms_measured": false,
+    "approved_for_runtime": false,
+    "equivalence_frames": 240,
+    "max_target_error": 0.0,
+    "saved_reload_target_max_error": 0.0,
+    "invalid_input_cases_same_rejection": 26,
+    "recovered_archive_sha256": "1a2ebf13dade7ca278204b16b33d02a45139eba76677baa8cc09272ee469266a",
+    "recovered_artifact_hashes_verified": true
+  },
+  "level_audio_guidance": {
+    "deployment_status": "DEPLOYED_READONLY_GUIDANCE",
+    "plan_status": "PLAN_ONLY",
+    "wrapper_name": "dog-level-reversal-20261006-r2.sh",
+    "wrapper_sha256": "504ab6992fa5114c5b7839a2ec4ced45bd4673a5abf3d6929f33c0da02f2afc1",
+    "recording_mode": "VISUAL_OBSERVATIONS_ONLY",
+    "clip_count": 7,
+    "audio_played": false,
+    "operator_audio_heard": null,
+    "new_observations": 0,
+    "absolute_origin_error_rad": null
+  },
+  "private_artifact_sha256": {
+    "readonly-seed-r1.json": "d79f7886964e342896ff5c90f5fd62616d8ce680f3a01c5e1efdf585c277e7b4",
+    "readonly-seed-r1.events.jsonl": "705868acc20f8d93f2eb778af8fcec00a68caf9e0e01dea40d52935524d267fd",
+    "angle-audit-r1.json": "2d2e209f5ace0baa478297c0ba6c4bb61370cbf9bcaa9b16ab13e645a3497205",
+    "source-deployment-receipt.json": "1a97e3dd2dfdcff8fe73d190f99c50a6b6412a8d0a2a6037d33226f26fd66986",
+    "native-build-receipt-r1.json": "ce63d7d8ac5c605f543d34f0a889a72eabb13f75a6bdb8b9525a210a6b9fc26e",
+    "readonly-addons-deployment-receipt-r1.json": "2cd003115d5f97b936f343e3080b9f9d1f28a1de328e2fdc50153324647a9a62"
+  },
+  "independent_capture_audit_sha256": "ad90262955c53c3f9148332f148904e0800c10c3661e9c2d0c78add87572bc39",
+  "today_motor_enable_sent": false,
+  "today_learned_targets_sent": false,
+  "today_control_20ms_measured": false,
+  "calibration_approved_for_runtime": false,
+  "output_allowed": false,
+  "walking_verified": false
+}

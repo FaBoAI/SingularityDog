@@ -1,0 +1,16 @@
+{
+  "schema": "private.notification-wait-source-package.v1",
+  "revision": "r4-test-entrypoints",
+  "files": {
+    "candidate.py": "c7611af3f039f87b2381c2969798cadb199ea86d1d0670cd1b35f10071217989",
+    "notify_wait.cpp": "f572cb4e4a4ee5ac592d272a48769dc291b0899e2327e93b5c9c3742b9e673f4",
+    "baseline_waiter.py": "5a620a979f12d4ceb2ccd15f03ea19c4e2b015efdd2dda715138cf2580fba40b",
+    "test_notification_wait.py": "f311d41431622d1ed749073860e62eb4bdb0b9ca0e23de685cd4ed7aaf19d398",
+    "README.md": "079a658bf1a5ca4f38e108f3a74f3b71fd17d86a1d17425f172387d7a5bee41d"
+  },
+  "flags": {
+    "hardware_opened": false,
+    "active_output_eligible": false,
+    "timing_admission_eligible": false
+  }
+}

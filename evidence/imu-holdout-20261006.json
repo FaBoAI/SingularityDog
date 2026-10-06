@@ -1,0 +1,97 @@
+{
+  "schema": "singularitydog.imu-fixed-bias-holdout-summary.v1",
+  "date": "2026-10-06",
+  "status": "RECOVERED_RAW_AND_FIXED_BIAS_INDEPENDENT_AUDIT_PASS",
+  "scope": "New IMU-only capture, offline fixed Oct5 gyro subtraction; not final physical calibration or output authorization",
+  "capture": {
+    "started_at": "2026-10-06T09:51:24.236790+09:00",
+    "completed_at": "2026-10-06T09:52:04.440601+09:00",
+    "samples": 2909,
+    "duration_s": 29.990092252,
+    "rate_hz": 96.96535694404439,
+    "source_sha256": {
+      "imu_capture.py": "76b75f69cd8b918cb7ece98da21335cb058f9e85bbee85afec4a513c5cee4200",
+      "imu.py": "fd48676b45e9badad98e0e0fa1fdc1aad628e03dc66b4bdc3e8b0f35ba7be0ff"
+    },
+    "summary_sha256": "f1332029d56f14082aa0de37d4ff49a284d87d832df665f3129798e2e3590bc6",
+    "events_sha256": "725361b5ac4c27de093a1443275a9c529018420d73219e567c8ae7a8efcd0330",
+    "archive_sha256": "2f63e88ac03f71abd0ce0f53eeaf00e942cf00eb2f6bbddb667c001c8e3b5624",
+    "coordinator_source_sha256": "6f82c4d194627464a9d97680a1786de634788a5fe9424b971ca95344458b9c98",
+    "same_boot_before_and_after": true,
+    "restore_status": "restored",
+    "configuration_audit_unchanged": true,
+    "original_registers_replaced": false,
+    "face_label": "unverified",
+    "operator_reported_static_untouched_no_changes_or_abnormality": true,
+    "operator_followup_sha256": "d9f7fb26485f1673a57d7ed57f534fd736e9cdd544a8e4e894a151bc47cb35ca",
+    "motor_40V_on_during_capture": "operator reported On; no changes reported",
+    "physical_stationarity_independently_proven": false,
+    "errors": []
+  },
+  "fixed_gyro_candidate": {
+    "sha256": "2ade7e77705f51f077386154bbc70180f3cec614cc5ecaea2c439dac964cb8f8",
+    "source_date": "2026-10-05",
+    "eligible": true,
+    "approved_for_runtime": false,
+    "bias_sensor_rad_s": [
+      0.012228330797665984,
+      0.019664931114073515,
+      -0.002345191427390222
+    ],
+    "formula": "raw_sensor_gyro - unchanged Oct5 bias; no refit",
+    "refitted_with_today_samples": false,
+    "corrected_mean_sensor_rad_s": [
+      -0.0010147853456982906,
+      0.0004953967126795734,
+      0.0003794695824290296
+    ],
+    "corrected_individual_norm_max_rad_s": 0.004824375153664751,
+    "corrected_norm_rms_rad_s": 0.002062293396163268,
+    "existing_review_max_norm_rad_s": 0.02,
+    "all_individual_samples_within_existing_review_limit": true,
+    "applied_during_capture": false
+  },
+  "acceleration": {
+    "raw_mean_norm_m_s2": 10.656328914844197,
+    "gravity_norm_deviation_percent": 8.66431365292122,
+    "bias_or_scale_identified": false,
+    "bias_or_scale_applied": false,
+    "absolute_level_verified": false
+  },
+  "temperature_c": {
+    "min": 27.90088956779585,
+    "max": 28.955192140653548,
+    "mean": 28.450379588072558,
+    "first": 28.57180938688711,
+    "last": 28.23634947734148
+  },
+  "can_opened": false,
+  "motor_enable_sent": false,
+  "learned_targets_sent": false,
+  "runtime_profile_changed": false,
+  "gyro_formally_approved": false,
+  "accelerometer_calibration_approved": false,
+  "new_20ms_measurement": false,
+  "output_allowed": false,
+  "independent_file_audit": {
+    "status": "PASS",
+    "audit_sha256": "bc6c6ca1c99b5c294e2cd1aa9f37b63db68038b44a4bea456221c4bd6ac67beb",
+    "historical_input_provenance_audit_sha256": "203b15cf39efe3300f5da8c8ea139d37014f7e379925a29b76001928d19e5132",
+    "recovered_archive_files_verified": 5,
+    "raw_rows_audited": 2909,
+    "raw_to_si_components_audited": 17454,
+    "raw_to_si_max_error": 0,
+    "temperature_raw_conversion_exact": true,
+    "original_inner_and_outer_stdout_verified": true,
+    "same_boot_and_sources_verified": true,
+    "configuration_trim_and_original_registers_match_historical_captures": true,
+    "historical_40V_off_and_current_40V_on_kept_distinct": true,
+    "historical_temperature_mean_c": {"a": 28.72705, "b": 28.77229, "c": 27.57254},
+    "data_ready_during_read_events": 152,
+    "exact_sensor_acquisition_time_verified": false,
+    "missed_sensor_conversion_count": null,
+    "fixed_candidate_changed_or_refitted": false,
+    "physical_stationarity_proven": false,
+    "runtime_approval_created": false
+  }
+}

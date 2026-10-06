@@ -1,0 +1,133 @@
+{
+  "schema": "singularitydog.commit-validation.v1",
+  "results_date": "2026-10-06",
+  "created_utc": "2026-10-06T22:21:04.830217+00:00",
+  "status": "PASS_WITH_DOCUMENTED_SKIPS",
+  "scope": "Software regression and publication review; no new hardware actuation in this commit task",
+  "suites": {
+    "runtime": {
+      "command": "PYTHONPATH=runtime:tools python3 -B -m unittest discover -s runtime/tests -p test_*.py",
+      "counts": {
+        "run": 3233,
+        "passed": 3229,
+        "skipped": 4,
+        "failures": 0,
+        "errors": 0,
+        "elapsed_s": 272.556
+      },
+      "source_unchanged_during_run": true,
+      "source_files_checked": 723,
+      "receipt_sha256": "09c71b9c33d28decdc1b51b9f69e4129e5bcb4cb449f854803db4dbb479c23fa",
+      "stdout_sha256": "6c701d861680102b1cdf8a53d76f807de5695f1cfbe1695e405a7d6df3f18ec7",
+      "stderr_sha256": "b055136dd2fcf776edddb346467a617a4bdc341504422b0999ab39f181976f61"
+    },
+    "tools": {
+      "command": "PYTHONPATH=runtime:tools python3 -B -m unittest discover -s tools -p test_*.py",
+      "counts": {
+        "run": 937,
+        "passed": 924,
+        "skipped": 13,
+        "failures": 0,
+        "errors": 0,
+        "elapsed_s": 68.32
+      },
+      "stdout_sha256": "8112e6c568fcebb2ae486319611cb508abaabcc18c3ff66aecdbd252376bc091",
+      "stderr_sha256": "01f19cabceca6afc3b231217dfb712976011d0d6ab9b4104a112ad8a544a9012"
+    },
+    "new_experimental_modules": {
+      "status": "PASS_ACROSS_INITIAL_UNCHANGED_MODULES_AND_REPAIRED_MODULE_RECHECK",
+      "coverage": {
+        "initial_run": 293,
+        "initial_passed": 292,
+        "initial_import_errors": 1,
+        "notification_module_rechecked_passed": 43,
+        "covered_passed_test_cases": 335,
+        "skipped": 0
+      },
+      "not_a_single_335_case_invocation": true,
+      "initial_log_sha256": "86d2e69d81ffb565e31f44b654b140207c3443f4e06efb58125799dd21510a7c",
+      "fixed_notification_module_current_source_covered_in_72_case_recheck": true
+    },
+    "fixture_and_whitespace_recheck": {
+      "counts": {
+        "run": 72,
+        "passed": 72,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0,
+        "elapsed_s": 5.399
+      },
+      "modules": [
+        "test_supported_preload_runtime",
+        "test_native_readiness_causal_generation",
+        "experiments.native_future_notification_wait_r48.test_notification_wait"
+      ],
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "aac610dc0ab0d44321678e3b2326d4a8137f3bd6cec2059c8d69e32e31ed9d3f"
+    }
+  },
+  "preserved_failure_history": [
+    {
+      "scope": "First runtime regression",
+      "run": 3232,
+      "passed": 3211,
+      "skipped": 4,
+      "failures": 2,
+      "errors": 15,
+      "stderr_sha256": "cf5ad2ea6b2ca4d90f231b04a9a9ae5b248b424ab9dddc9bae283cef52c5119b",
+      "resolution": "Frozen decoder inputs added; shared simulated-clock test scheduling corrected without production deadline changes"
+    },
+    {
+      "scope": "Second serial runtime regression",
+      "run": 3232,
+      "passed": 3227,
+      "skipped": 4,
+      "failures": 1,
+      "errors": 0,
+      "stderr_sha256": "273fdb56f67130a6817051b2237a9b7696ef92506bd179e7eb3e4acb3fe152ba",
+      "resolution": "Preload tests use a finite real Future readiness handshake with unchanged simulated-time deadline checks"
+    },
+    {
+      "scope": "Initial experimental discovery",
+      "run": 293,
+      "passed": 292,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 1,
+      "stderr_sha256": "86d2e69d81ffb565e31f44b654b140207c3443f4e06efb58125799dd21510a7c",
+      "resolution": "Package-relative imports support both package invocation and standalone discovery; 43 tests passed after repair"
+    }
+  ],
+  "test_repairs": {
+    "frozen_decoder": {
+      "pins_and_rejection_logic_unchanged": true,
+      "review_sha256": "7ae5ebce01b0df2648dc46cbfb2670b4d5c59e8720606a7c5440af9c8f70f25f"
+    },
+    "shared_simulated_clock": {
+      "test_only_real_future_wait_bound_s": 2,
+      "production_20ms_deadlines_changed": false,
+      "real_future_error_cancellation_and_pending_states_retained": true,
+      "completed_voltage_future_with_21ms_simulated_delay_rejected": true,
+      "independent_review_sha256": "044d2622173fee5a8bc50e024315f0263daacadcc8eb3505ba19c0e8166c4ddb"
+    },
+    "notification_package": {
+      "source_manifest_sha256": "6817da93ade4407d54bb97bbbfe58438ad35005e0b3f0ebffbfc823a74183514",
+      "production_hardware_candidate_selected": false
+    }
+  },
+  "publication_review": {
+    "source_tests_docs_anonymized_aggregates_only": true,
+    "raw_logs_audio_images_models_and_machine_private_settings_added": false,
+    "staged197_file_privacy_review_sha256": "b272061f8b5338ece1a8253381304b34e2d36e28a05dfc40a38b264c8d17240e",
+    "original_observation_sanitization_check_sha256": "903d357ac206bd89cc1de394226f8459c4a173261045ddb112c653811d8eeaf5",
+    "new_validation_summary_has_counts_and_SHA_only": true
+  },
+  "hardware_qualification": {
+    "new_Type1_active_output_tested": false,
+    "new_Type1_output_scheduled": "Next session requested as tomorrow by operator",
+    "load_support_passed": false,
+    "self_standing_passed": false,
+    "learned_walking_passed": false,
+    "software_PASS_not_hardware_approval": true
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "schema": "singularitydog.camera-readiness-summary.v1",
+  "date": "2026-10-06",
+  "scope": "camera_inventory_and_single_preview_only",
+  "operator_selected_camera": "Jetson-connected USB camera",
+  "camera_model": "EMEET SmartCam C960",
+  "unique_device_identity_private": true,
+  "negotiated_preview": {
+    "media_type": "image/jpeg",
+    "width": 1920,
+    "height": 1080,
+    "fps_numerator": 30,
+    "fps_denominator": 1,
+    "saved_images": 1,
+    "image_bytes": 276832,
+    "image_sha256": "7ba87829e2595d03912458dc44cd944739189404586875180a2ee4334c22867d",
+    "original_uvc_bytes_preserved": true,
+    "pixel_decode_viewed_on_mac": true,
+    "camera_view": "Whole robot at an oblique angle; not yet the intended ID5 close view",
+    "exposure_time_verified": false,
+    "camera_can_clock_alignment_verified": false,
+    "angular_resolution_rad": null
+  },
+  "attempts": [
+    {
+      "name": "camera-preview-r1",
+      "status": "PREVIEW_FAILED",
+      "error": "AssertionError with no detail",
+      "receipt_sha256": "867bc281c333475a4d9b3071020dac67cddce567433842ba06a9a092aa9b862b",
+      "original_receipt_preserved": true
+    },
+    {
+      "name": "camera-probe-r2",
+      "status": "SAMPLE_OBSERVED_NO_IMAGE_SAVED",
+      "negotiated_jpeg_caps": true,
+      "uvc_payload_had_one_byte_after_eoi": true,
+      "gst_error_or_warning_observed": false,
+      "pipeline_null_confirmed": true,
+      "receipt_sha256": "34b0284b9cc17e8789fdf8d2a7cd467d36bbce2039b32695287b219b4a75fb31"
+    },
+    {
+      "name": "camera-preview-r3",
+      "status": "SINGLE_PREVIEW_RECORDED",
+      "pipeline_null_confirmed": true,
+      "image_pixels_viewed": true
+    }
+  ],
+  "prototype_scope": "Root camera-only probes; not a deployed recorder source validation",
+  "camera_shares_usb_hub_with_can_adapters": true,
+  "control_20ms_with_camera_tested": false,
+  "motor_hardware_opened": false,
+  "motor_enable_sent": false,
+  "motor_parameter_write_sent": false,
+  "physical_stationarity_proven": false,
+  "stationary_velocity_cause_confirmed": false,
+  "absolute_origin_error_rad": null,
+  "calibration_approved_for_runtime": false,
+  "output_allowed": false,
+  "raw_data_private": true,
+  "recorder_source_validation": {
+    "source": "tools/record_usb_camera_motion.py",
+    "source_sha256": "711ebcbc86ef4c827194f9cbf761243b7370c3088132eaf8971579d8d1c15df0",
+    "tests": "tools/test_record_usb_camera_motion.py",
+    "tests_sha256": "23281631e926105a9c0b3c5fc2d01fc1ae0d7dad5d533853e3f854bd7a97c017",
+    "offline_tests_passed": 21,
+    "offline_tests_failed": 0,
+    "independent_source_review": "NO_BLOCKER",
+    "separate_target_addon_deployment": true,
+    "target_plan_pass": true,
+    "target_single_image_smoke": {
+      "status": "PASS",
+      "report_sha256": "b550240ee84c2b4f0804a924daf8814bf8ad2c5c021ede654b41360da02947a3",
+      "image_sha256": "a676a7fd0bca1b681c2f5e05b3e689b458cceb5c524603e16de7ded5e171a9a2",
+      "width": 1920,
+      "height": 1080,
+      "image_bytes": 273888,
+      "camera_ready_and_final_stdout_binding_verified": true,
+      "pipeline_null_confirmed": true,
+      "independent_review_sha256": "600c4e130fe15b15dba49b2ce6e7295122405395d56ed0051c3ee5e8c02a3d23"
+    },
+    "operator_camera_subject_confirmed": 5,
+    "operator_marker_choice": "existing bolt heads",
+    "exact_four_point_correspondence_reviewed": false,
+    "camera_only": true,
+    "exposure_time_verified": false,
+    "physical_stationarity_proven": false
+  }
+}

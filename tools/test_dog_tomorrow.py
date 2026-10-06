@@ -493,8 +493,9 @@ class TomorrowTests(unittest.TestCase):
                     observer={'status':'COMPLETE_NO_OUTPUT_DIAGNOSTIC','ticks_completed':cycles,
                               'ticks_requested':cycles,'failure':None,'incomplete':False,'output_allowed':False})
                 if '--apply-reviewed-accel-calibration' in command:
-                    bias=Path(command[command.index('--gyro-bias')+1])
                     report.update(plan={'apply_reviewed_accel_calibration':True})
+                if '--gyro-bias' in command:
+                    bias=Path(command[command.index('--gyro-bias')+1])
                     report['input_sha256']['gyro_bias']=hashlib.sha256(bias.read_bytes()).hexdigest()
                 if '--scalar-step-manifest' in command:
                     scalar=dict(manifest_sha256=command[command.index('--scalar-step-manifest-sha256')+1],
@@ -695,6 +696,236 @@ class TomorrowTests(unittest.TestCase):
         bias.write_text(json.dumps({'synthetic_wrapper_fixture':True}))
         state['gyro_bias']=str(bias);(self.work/'state.json').write_text(json.dumps(state))
         return bias
+
+    def single_full_state(self,bias=None):
+        state=self.diagnostic_state()
+        capture=self.work/'single-capture.json';capture.write_text('{}')
+        candidate=self.work/'single-calibration.json'
+        candidate.write_text(json.dumps({'source_capture_sha256':hashlib.sha256(capture.read_bytes()).hexdigest()}))
+        state.update(calibration=str(candidate),angle_capture=str(capture),
+                     calibration_sha256=hashlib.sha256(candidate.read_bytes()).hexdigest())
+        if bias is not None:state['gyro_bias']=str(bias)
+        (self.work/'state.json').write_text(json.dumps(state))
+        return state
+
+    def test_gyro_only_selection_pins_stored_or_current_bytes_without_accel_selection(self):
+        for stored in (False,True):
+            with self.subTest(stored=stored):
+                bias=self.reviewed_bias_state();expected=hashlib.sha256(bias.read_bytes()).hexdigest()
+                if stored:
+                    state=json.loads((self.work/'state.json').read_text());state['gyro_bias_sha256']=expected
+                    (self.work/'state.json').write_text(json.dumps(state))
+                status,state,summary,run=self.run_diagnostics()
+                self.assertEqual(status,0)
+                self.assertEqual(summary['stages'][-1]['gyro_bias_sha256'],expected)
+                self.assertEqual(summary['stages'][-1]['gyro_bias'],str(bias))
+                self.assertEqual(state['gyro_bias_sha256'],expected)
+                full=run.call_args_list[-1].args[0]
+                self.assertIn('--gyro-bias',full)
+                self.assertNotIn('--apply-reviewed-accel-calibration',full)
+                self.assertFalse(summary['approved_for_runtime'])
+
+    def test_invalid_stored_gyro_pin_or_path_rejects_plan_without_child_or_state_write(self):
+        cases=({'gyro_bias_sha256':'b'*64},{'gyro_bias_sha256':None},
+               {'gyro_bias_sha256':'invalid'},{'gyro_bias':None,'gyro_bias_sha256':'b'*64},
+               {'gyro_bias':'','gyro_bias_sha256':'b'*64})
+        for action in ('diagnostics','full'):
+            for change in cases:
+                with self.subTest(action=action,change=change):
+                    bias=self.reviewed_bias_state()
+                    state=json.loads((self.work/'state.json').read_text());state.update(change)
+                    statefile=self.work/'state.json';statefile.write_text(json.dumps(state));before=statefile.read_bytes()
+                    with patch.object(dog.subprocess,'run',side_effect=AssertionError('Child started')) as run,\
+                         patch.object(dog,'write_state',side_effect=AssertionError('State published')):
+                        with self.assertRaises(ValueError):dog.main(self.args(action))
+                    run.assert_not_called();self.assertEqual(statefile.read_bytes(),before)
+
+    def test_gyro_only_wrong_or_missing_report_pin_cannot_promote_capture(self):
+        for case in ('wrong','missing','null'):
+            with self.subTest(case=case):
+                self.reviewed_bias_state()
+                def wrong(command,**kwargs):
+                    result=self.diagnostic_child(command,**kwargs)
+                    if '--native-policy-manifest' in command:
+                        path=Path(command[command.index('--output')+1])/'report.json';report=json.loads(path.read_text())
+                        if case=='missing':del report['input_sha256']['gyro_bias']
+                        else:report['input_sha256']['gyro_bias']=None if case=='null' else 'b'*64
+                        path.write_text(json.dumps(report))
+                    return result
+                status,state,summary,run=self.run_diagnostics(wrong)
+                self.assertEqual(status,2);self.assertEqual(run.call_count,5)
+                self.assertEqual(summary['failed_stage'],'full');self.assertFalse(summary['fresh_capture_promoted'])
+                self.assertIn('gyro bias SHA256 differs',str(summary['errors']))
+                self.assertEqual(state['calibration'],'OLD_CAPTURE_MUST_NOT_BE_USED')
+
+    def test_gyro_only_mutation_during_capture_or_compare_blocks_full_before_launch(self):
+        for phase in ('capture','compare'):
+            with self.subTest(phase=phase):
+                bias=self.reviewed_bias_state()
+                def mutate(command,**kwargs):
+                    result=self.diagnostic_child(command,**kwargs)
+                    if ((phase=='capture' and '--policy-candidate-output' in command) or
+                            (phase=='compare' and '--compare-feedback' in command)):
+                        bias.write_text('{"changed":"during earlier stage"}')
+                    return result
+                status,state,summary,run=self.run_diagnostics(mutate)
+                self.assertEqual(status,2);self.assertEqual(run.call_count,4)
+                self.assertTrue(all('--native-policy-manifest' not in call.args[0] for call in run.call_args_list))
+                self.assertEqual(summary['failed_stage'],'full');self.assertFalse(summary['fresh_capture_promoted'])
+                self.assertEqual(state['calibration'],'OLD_CAPTURE_MUST_NOT_BE_USED')
+
+    def test_gyro_only_mutation_during_full_child_blocks_success_publication(self):
+        bias=self.reviewed_bias_state()
+        def mutate(command,**kwargs):
+            result=self.diagnostic_child(command,**kwargs)
+            if '--native-policy-manifest' in command:bias.write_text('{"changed":"during full"}')
+            return result
+        status,state,summary,run=self.run_diagnostics(mutate)
+        self.assertEqual(status,2);self.assertEqual(run.call_count,5)
+        self.assertFalse(summary['fresh_capture_promoted']);self.assertEqual(summary['failed_stage'],'full')
+        self.assertEqual(state['calibration'],'OLD_CAPTURE_MUST_NOT_BE_USED')
+        self.assertTrue(Path(summary['stages'][-1]['report']).is_file())
+
+    def test_gyro_mutation_after_full_stage_save_blocks_success_state_publication(self):
+        bias=self.reviewed_bias_state();original_write=dog.write_state
+        def late_mutation(path,value):
+            original_write(path,value)
+            if path.name=='summary.json' and value['stages'][-1]['status']=='COMPLETE':
+                bias.write_text('{"changed":"before publication"}')
+        with patch.object(dog,'write_state',side_effect=late_mutation):
+            status,state,summary,_=self.run_diagnostics()
+        self.assertEqual(status,2);self.assertFalse(summary['fresh_capture_promoted'])
+        self.assertEqual(summary['failed_stage'],'state_publication')
+        self.assertEqual(state['calibration'],'OLD_CAPTURE_MUST_NOT_BE_USED')
+
+    def test_unselected_gyro_accepts_null_and_rejects_every_nonnull_child_bias(self):
+        for reported_hash in (None,'b'*64,False,0,'',{},[]):
+            with self.subTest(reported_hash=reported_hash):
+                self.diagnostic_state()
+                def unexpected(command,**kwargs):
+                    result=self.diagnostic_child(command,**kwargs)
+                    if '--native-policy-manifest' in command:
+                        path=Path(command[command.index('--output')+1])/'report.json';report=json.loads(path.read_text())
+                        report['input_sha256']['gyro_bias']=reported_hash;path.write_text(json.dumps(report))
+                    return result
+                status,_,summary,_=self.run_diagnostics(unexpected)
+                self.assertEqual(status,0 if reported_hash is None else 2)
+                self.assertIs(summary['fresh_capture_promoted'],reported_hash is None)
+                self.assertIsNone(summary['stages'][-1]['gyro_bias']);self.assertIsNone(summary['stages'][-1]['gyro_bias_sha256'])
+
+    def test_single_full_gyro_checks_before_and_after_child_without_state_publication(self):
+        for when in ('before','after'):
+            with self.subTest(when=when):
+                bias=self.reviewed_bias_state();self.single_full_state(bias)
+                statefile=self.work/'state.json';before=statefile.read_bytes()
+                def verify(root):
+                    if when=='before':bias.write_text('{"changed":"before full"}')
+                def child(command,**kwargs):
+                    result=self.diagnostic_child(command,**kwargs)
+                    if when=='after':bias.write_text('{"changed":"during full"}')
+                    return result
+                with patch.object(dog,'ROOT',self.root),patch.object(dog,'verify_kit',side_effect=verify),\
+                     patch.object(dog.subprocess,'run',side_effect=child) as run,\
+                     patch.object(dog,'write_state',side_effect=AssertionError('State published')),\
+                     contextlib.redirect_stdout(io.StringIO()):
+                    with self.assertRaisesRegex(ValueError,'Gyro bias SHA256 differs from plan'):
+                        dog.main(self.args('full')+['--execute','--supported-disabled'])
+                self.assertEqual(run.call_count,0 if when=='before' else 1)
+                self.assertEqual(statefile.read_bytes(),before)
+
+    def test_single_full_requires_exact_selected_or_unselected_report_bias(self):
+        for case in ('wrong','missing','null','unexpected'):
+            with self.subTest(case=case):
+                bias=self.reviewed_bias_state();self.single_full_state(None if case.startswith('unexpected') else bias)
+                statefile=self.work/'state.json';before=statefile.read_bytes()
+                def child(command,**kwargs):
+                    result=self.diagnostic_child(command,**kwargs)
+                    path=Path(command[command.index('--output')+1])/'report.json';report=json.loads(path.read_text())
+                    if case=='missing':del report['input_sha256']['gyro_bias']
+                    else:report['input_sha256']['gyro_bias']=None if case=='null' else 'b'*64
+                    path.write_text(json.dumps(report));return result
+                with patch.object(dog,'ROOT',self.root),patch.object(dog,'verify_kit'),\
+                     patch.object(dog.subprocess,'run',side_effect=child) as run,contextlib.redirect_stdout(io.StringIO()):
+                    with self.assertRaisesRegex(ValueError,'gyro bias SHA256 differs from plan'):
+                        dog.main(self.args('full')+['--execute','--supported-disabled'])
+                self.assertEqual(run.call_count,1);self.assertEqual(statefile.read_bytes(),before)
+
+    def test_single_full_unselected_gyro_accepts_absent_or_null_report_input(self):
+        for explicit_null in (False,True):
+            with self.subTest(explicit_null=explicit_null):
+                expected_state=self.single_full_state()
+                def child(command,**kwargs):
+                    result=self.diagnostic_child(command,**kwargs)
+                    if explicit_null:
+                        path=Path(command[command.index('--output')+1])/'report.json';report=json.loads(path.read_text())
+                        report['input_sha256']['gyro_bias']=None;path.write_text(json.dumps(report))
+                    return result
+                stream=io.StringIO()
+                with patch.object(dog,'ROOT',self.root),patch.object(dog,'verify_kit'),\
+                     patch.object(dog.subprocess,'run',side_effect=child) as run,contextlib.redirect_stdout(stream):
+                    self.assertEqual(dog.main(self.args('full')+['--execute','--supported-disabled']),0)
+                plan=json.loads(stream.getvalue())
+                self.assertIsNone(plan['gyro_bias']);self.assertIsNone(plan['gyro_bias_sha256'])
+                self.assertEqual(json.loads((self.work/'state.json').read_text()),expected_state)
+                self.assertNotIn('--gyro-bias',run.call_args.args[0])
+                self.assertFalse(plan['motor_enable_available']);self.assertFalse(plan['learned_targets_sent'])
+
+    def test_single_full_missing_or_nonregular_gyro_blocks_before_and_after_child(self):
+        for change in ('missing','symlink','directory'):
+            for when in ('before','after'):
+                with self.subTest(change=change,when=when):
+                    bias=self.reviewed_bias_state();self.single_full_state(bias)
+                    statefile=self.work/'state.json';before=statefile.read_bytes()
+                    target=bias.with_name('bias-target.json');target.write_bytes(bias.read_bytes())
+                    def mutate():
+                        bias.unlink()
+                        if change=='symlink':bias.symlink_to(target)
+                        elif change=='directory':bias.mkdir()
+                    def verify(root):
+                        if when=='before':mutate()
+                    def child(command,**kwargs):
+                        result=self.diagnostic_child(command,**kwargs)
+                        if when=='after':mutate()
+                        return result
+                    with patch.object(dog,'ROOT',self.root),patch.object(dog,'verify_kit',side_effect=verify),\
+                         patch.object(dog.subprocess,'run',side_effect=child) as run,\
+                         patch.object(dog,'write_state',side_effect=AssertionError('State published')),\
+                         contextlib.redirect_stdout(io.StringIO()):
+                        with self.assertRaisesRegex(ValueError,'Missing regular diagnostic artifact'):
+                            dog.main(self.args('full')+['--execute','--supported-disabled'])
+                    self.assertEqual(run.call_count,0 if when=='before' else 1)
+                    self.assertEqual(statefile.read_bytes(),before)
+                    if bias.is_dir() and not bias.is_symlink():bias.rmdir()
+                    elif bias.is_symlink():bias.unlink()
+
+    def test_single_full_success_publishes_only_verified_gyro_pin_without_accel_selection(self):
+        bias=self.reviewed_bias_state();self.single_full_state(bias)
+        expected=hashlib.sha256(bias.read_bytes()).hexdigest();stream=io.StringIO()
+        with patch.object(dog,'ROOT',self.root),patch.object(dog,'verify_kit'),\
+             patch.object(dog.subprocess,'run',side_effect=self.diagnostic_child) as run,contextlib.redirect_stdout(stream):
+            self.assertEqual(dog.main(self.args('full')+['--execute','--supported-disabled']),0)
+        plan=json.loads(stream.getvalue());state=json.loads((self.work/'state.json').read_text())
+        self.assertEqual(plan['gyro_bias_sha256'],expected);self.assertEqual(state['gyro_bias_sha256'],expected)
+        self.assertNotIn('--apply-reviewed-accel-calibration',run.call_args.args[0])
+        self.assertFalse(plan['motor_enable_available']);self.assertFalse(plan['learned_targets_sent'])
+
+    def test_imu_replaces_old_gyro_path_and_pin_together_without_approval(self):
+        bias=self.reviewed_bias_state();statefile=self.work/'state.json'
+        state=json.loads(statefile.read_text());old_sha=hashlib.sha256(bias.read_bytes()).hexdigest()
+        state.update(gyro_bias_sha256=old_sha,approved_for_runtime=False)
+        statefile.write_text(json.dumps(state))
+        def child(command,**kwargs):
+            output=Path(command[command.index('--output')+1]);output.mkdir()
+            (output/'imu-mount-candidate.json').write_text('{"synthetic_mount":true}')
+            (output/'gyro-bias-candidate.json').write_text('{"synthetic_new_bias":true}')
+            return dog.subprocess.CompletedProcess(command,0)
+        with patch.object(dog,'ROOT',self.root),patch.object(dog,'verify_kit'),\
+             patch.object(dog.subprocess,'run',side_effect=child),contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(dog.main(self.args('imu')+['--execute','--motor-power-off']),0)
+        saved=json.loads(statefile.read_text());new_bias=Path(saved['gyro_bias'])
+        self.assertNotEqual(saved['gyro_bias'],str(bias));self.assertNotEqual(saved['gyro_bias_sha256'],old_sha)
+        self.assertEqual(saved['gyro_bias_sha256'],hashlib.sha256(new_bias.read_bytes()).hexdigest())
+        self.assertFalse(saved['approved_for_runtime'])
 
     def test_reviewed_accel_option_only_reaches_full_stage_and_binds_bias_sha(self):
         bias=self.reviewed_bias_state()

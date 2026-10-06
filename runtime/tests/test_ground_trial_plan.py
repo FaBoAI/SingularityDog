@@ -92,6 +92,13 @@ def fixture(stage='supported_stance'):
 
 
 class GroundTrialPlanTests(unittest.TestCase):
+    def test_boxed_acceleration_hypothesis_cannot_enter_any_ground_stage(self):
+        for stage in STAGES:
+            plan, base, records = fixture(stage)
+            base['accel_input_hypothesis'] = True
+            with self.subTest(stage=stage), self.assertRaisesRegex(GroundPlanError, 'Boxed acceleration'):
+                validate_ground_plan(plan, base, records)
+
     def test_supported_only_usb_waiver_cannot_enter_ground_execution(self):
         plan,base,records=fixture()
         base['watchdog_review_policy']='command_loss_only_supported_trial'

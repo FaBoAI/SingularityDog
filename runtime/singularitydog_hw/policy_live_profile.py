@@ -54,12 +54,16 @@ V3_EXECUTION_KEYS = {'model_backend', 'voltage_overlap', 'diagnostic_timing_acce
                      'watchdog_review_policy', 'local_characterization', 'post_reply_deadline_policy',
                      'voltage_pipeline', 'native_batch_encoder', 'startup_damping_duration_s',
                      'startup_cycle_allowance', 'fixed_catch', 'human_supported_hold',
-                     'apply_reviewed_accel_calibration'}
+                     'apply_reviewed_accel_calibration', 'accel_input_hypothesis',
+                     'prepare_voltage_before_feedback_publication'}
 COMMAND_LOSS_ONLY_SUPPORTED = 'command_loss_only_supported_trial'
 LOCAL_RELATIVE_SUPPORTED = 'bounded_relative_supported_v1'
 LOCAL_NUMERICAL_MARGIN_RAD = 2*25.14/65535
 _LOCAL_VALIDATION_TOKEN = object()
+_ACCEL_INPUT_HYPOTHESIS_TOKEN = object()
 _POST_REPLY_VALIDATION_TOKEN = object()
+_PREPARED_VOLTAGE_PUBLICATION_TOKEN = object()
+PREPARED_VOLTAGE_PUBLICATION_MODE = 'prepare_voltage_before_feedback_publication.v1'
 SCALAR_BACKEND = 'scalar_step_cpp'
 OBSERVED_R17_TIMING = 'observed-r17-cadence-20260928'
 MEASURED_R17_STARTUP_TIMING = 'measured-r17-startup-20260929'
@@ -130,6 +134,15 @@ CADENCE_SOURCE_PATHS = (
     'experiments/native_active_transport/transport.cpp',
     'experiments/native_policy_batch_encode/batch_encode.cpp',
     'experiments/native_policy_batch_encode/batch_encode_py.cpp',
+)
+_ACCEL_INPUT_HYPOTHESIS_SOURCES = (
+    'singularitydog_hw/imu_accel_input_hypothesis.py',
+    'singularitydog_hw/imu_calibration.py',
+    'singularitydog_hw/imu_fixed_mount_baseline.py',
+    'singularitydog_hw/imu.py',
+    'singularitydog_hw/imu_capture.py',
+    'singularitydog_hw/policy_observer.py',
+    'singularitydog_hw/policy_output_model.py',
 )
 
 
@@ -213,6 +226,7 @@ def execution_settings(profile):
     """Explicit reviewed V3 choices; old profiles retain their original route."""
     _profile_keys(profile)
     acceleration_calibration_selected(profile)
+    accel_input_hypothesis_selected(profile)
     if profile['schema'] != SCHEMA_V3:
         _need(not V3_EXECUTION_KEYS.intersection(profile), 'Fast execution requires a V3 profile')
     backend = profile.get('model_backend', 'native_baseline')
@@ -223,6 +237,7 @@ def execution_settings(profile):
     _need(type(pipeline) is bool, 'voltage_pipeline must be an explicit boolean')
     _need(not pipeline or profile['schema'] == SCHEMA_V3 and overlap,
           'Voltage pipeline requires V3 voltage overlap')
+    _prepared_voltage_publication_scope(profile)
     timing = profile.get('diagnostic_timing_acceptance')
     _need(timing in (None, OBSERVED_R17_TIMING, MEASURED_R17_STARTUP_TIMING,
                     CURRENT_HOLD_PROBE, CURRENT_HOLD_AFTER_SUPPORTED_10S, FIXED_CATCH_CURRENT_HOLD_30S,
@@ -241,11 +256,252 @@ def execution_settings(profile):
             'diagnostic_timing_acceptance': timing}
 
 
+def _prepared_voltage_publication_selected(profile):
+    selected = profile.get('prepare_voltage_before_feedback_publication', False)
+    _need(type(selected) is bool and (not selected or profile.get('schema') == SCHEMA_V3),
+          'Prepared voltage publication requires an explicit V3 boolean selection')
+    return selected
+
+
+def _prepared_voltage_publication_scope(profile):
+    if not _prepared_voltage_publication_selected(profile):
+        return
+    mode = profile.get('diagnostic_timing_acceptance')
+    duration = profile.get('duration_s')
+    extension = mode == SUPPORTED_POLICY_PROBE_10S_AFTER_2S
+    post_reply = _post_reply_policy(profile) if mode == SUPPORTED_POLICY_PROBE_20S_AFTER_10S else None
+    extension_20s = (post_reply is not None and
+                     post_reply['mode'] == 'bounded_post_reply_input_age_v2')
+    _need(profile.get('scope') == 'supported_characterization_only' and
+          profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+          profile.get('model_backend') == SCALAR_BACKEND and
+          profile.get('voltage_overlap') is True and profile.get('voltage_pipeline') is True and
+          mode in (SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
+                   SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
+                   *((SUPPORTED_POLICY_PROBE_20S_AFTER_10S,) if extension_20s else ())) and
+          type(duration) in (int, float) and
+          (2. < duration <= 10. if extension else duration == 20. if extension_20s else duration == 2.) and
+          type(profile.get('policy_weight')) in (int, float) and
+          0 < profile['policy_weight'] <= .005 and
+          profile.get('hard_cycle_ms') == 20 and
+          type(profile.get('max_sample_age_ms')) in (int, float) and
+          profile['max_sample_age_ms'] <= 20 and
+          type(profile.get('max_sample_gap_ms')) in (int, float) and
+          profile['max_sample_gap_ms'] <= 21 and
+          profile.get('max_consecutive_20ms_misses') == 0 and
+          not {'fixed_catch', 'human_supported_hold'}.intersection(profile),
+          'Prepared voltage publication requires a boxed two-second probe or its evidenced ten/twenty-second extension')
+    caps = {'kp': 3., 'kd': .15, 'max_displacement_from_start_rad': math.radians(1),
+            'max_estimated_pd_torque_nm': .1, 'max_measured_torque_nm': 1.,
+            'max_command_velocity_rad_s': math.radians(1),
+            'max_command_acceleration_rad_s2': math.radians(5),
+            'max_tracking_error_rad': math.radians(2), 'max_temperature_c': 45.,
+            'max_measured_velocity_rad_s': .35 if mode in
+                (SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
+                 SUPPORTED_POLICY_PROBE_20S_AFTER_10S) else .25}
+    for mid in IDS:
+        for key, cap in caps.items():
+            _number(profile['axes'][mid][key], 'prepared voltage '+key+' ID'+mid,
+                    0, cap, positive=True)
+
+
+def _prepared_voltage_publication_binding(profile):
+    value = {'settings': reviewed_settings_sha256(profile), 'axes': profile['axes'],
+             'artifacts': profile['artifacts'], 'sources': profile['cadence_source_sha256'],
+             'boot_id': profile['boot_id'], 'motor_power_epoch': profile['motor_power_epoch'],
+             'review': profile['review'], 'blockers': profile['blockers'],
+             'approved_for_supported_policy_output': profile['approved_for_supported_policy_output']}
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'),
+                                    allow_nan=False).encode()).hexdigest()
+
+
+def prepared_voltage_publication_settings(profile):
+    """Expose only a complete, immutable reviewed selection; defaults stay inactive."""
+    if not _prepared_voltage_publication_selected(profile):
+        _need('_prepared_voltage_publication_token' not in profile,
+              'Prepared voltage publication selection changed after loading')
+        return False
+    _prepared_voltage_publication_scope(profile)
+    _need(profile.get('_prepared_voltage_publication_token') is _PREPARED_VOLTAGE_PUBLICATION_TOKEN and
+          profile.get('output_allowed') is True and
+          profile.get('_prepared_voltage_publication_binding') ==
+          _prepared_voltage_publication_binding(profile),
+          'Prepared voltage publication requires immutable complete loader proof')
+    return True
+
+
+def _prepared_voltage_publication_predecessor(report, prior):
+    """Verify the selected production edge against original voltage journal times."""
+    from . import can_readonly as codec
+    proof = report.get('prepared_voltage_publication')
+    _need(type(proof) is dict and
+          proof.get('schema') == 'singularitydog.active-prepared-voltage-publication.v1' and
+          proof.get('mode') == 'validate_feedback_prepare_voltage_publish_then_native' and
+          proof.get('transport_capability') == 'singularitydog.active-prepared-exchange.v1' and
+          proof.get('selection_bound_to_reviewed_profile') is True and
+          proof.get('cadence_source_sha256') == prior['cadence_source_sha256'] and
+          proof.get('changes_deadline_or_cancellation_guards') is False,
+          'Prepared voltage extension lacks the selected production-edge proof')
+    cycles, rows, journal = report.get('cycles'), proof.get('records'), report.get('journal')
+    _need(type(cycles) is list and type(rows) is list and len(rows) == 2*len(cycles) and
+          type(journal) is list, 'Prepared voltage predecessor must prove both owners on every cycle')
+    buses = {'front': 1, 'rear': 7}
+    voltages = {bus: [] for bus in buses}
+    for item in journal:
+        _need(type(item) is dict, 'Invalid prepared voltage predecessor journal')
+        if item.get('phase') == 'overlapped_voltage':
+            _need(item.get('bus') in buses, 'Prepared voltage journal bus mismatch')
+            voltages[item['bus']].append(item)
+    _need(all(len(items) == len(cycles) for items in voltages.values()),
+          'Prepared voltage predecessor journal coverage differs')
+    seen = set()
+    for row in rows:
+        _need(type(row) is dict and row.get('bus') in buses and
+              type(row.get('bus_cycle_index')) is int and
+              0 <= row['bus_cycle_index'] < len(cycles) and
+              row.get('status') == 'VALIDATED' and row.get('error') is None,
+              'Prepared voltage predecessor has a failed or invalid owner record')
+        bus, index = row['bus'], row['bus_cycle_index']
+        _need((bus, index) not in seen, 'Duplicate prepared voltage predecessor owner')
+        seen.add((bus, index))
+        cycle, item = cycles[index], voltages[bus][index]
+        _need(type(cycle) is dict and type(cycle.get('begin_ns')) is int and
+              type(cycle.get('end_ns')) is int and 0 < cycle['begin_ns'] <= cycle['end_ns'],
+              'Prepared voltage predecessor cycle timestamps invalid')
+        mid = buses[bus]+index%6
+        names = ('feedback_validated_ns', 'prepared_before_publish_ns',
+                 'publication_checked_after_ns', 'voltage_native_begin_ns',
+                 'voltage_first_request_ns', 'voltage_validated_ns')
+        stamps = [row.get(name) for name in names]
+        effective, submitted = row.get('effective_deadline_ns'), row.get('submitted_deadline_ns')
+        _need(row.get('voltage_motor_id') == mid and
+              all(type(v) is int and 0 < v < 2**63 for v in stamps+[effective, submitted]) and
+              stamps == sorted(stamps) and cycle['begin_ns'] <= stamps[0] and
+              stamps[-1] < effective <= submitted <= cycle['begin_ns']+20_000_000 and
+              stamps[-1] <= cycle['end_ns'],
+              'Prepared voltage predecessor publication/deadline order differs')
+        records, stats = item.get('records'), item.get('stats')
+        _need(item.get('error') is None and type(records) is list and len(records) == 1 and
+              type(stats) is dict and stats.get('begin_ns') == row['voltage_native_begin_ns'],
+              'Prepared voltage predecessor lacks matching native voltage evidence')
+        raw = records[0]
+        _need(type(raw) is dict and raw.get('written') == raw.get('received') == 17 and
+              raw.get('start_ns') == row['voltage_first_request_ns'] and
+              raw.get('deadline_ns') == effective and
+              all(type(raw.get(name)) is int for name in ('start_ns', 'finish_ns', 'received_ns')) and
+              0 < raw['start_ns'] <= raw['finish_ns'] <= raw['received_ns'] < effective and
+              raw['received_ns'] <= stamps[-1],
+              'Prepared voltage predecessor raw request/deadline differs')
+        try:
+            tx, rx = bytes.fromhex(raw['tx_hex']), bytes.fromhex(raw['rx_hex'])
+            frames = codec.ATParser().feed(rx)
+            _need(len(tx) == len(rx) == 17 and tx == codec.read_request(mid, 'voltage') and
+                  len(frames) == 1 and frames[0].wire == rx,
+                  'Prepared voltage predecessor wire differs')
+            reply = codec.decode_reply(frames[0], mid, 'voltage')
+        except (ValueError, TypeError, KeyError) as error:
+            raise ProfileError('Invalid prepared voltage predecessor wire') from error
+        _need(reply.get('ok') is True and type(reply.get('value')) in (int, float) and
+              math.isfinite(reply['value']) and prior['voltage_min_v'] <= reply['value'] <= prior['voltage_max_v'],
+              'Prepared voltage predecessor voltage proof is out of scope')
+
+
 def acceleration_calibration_selected(profile):
     selected = profile.get('apply_reviewed_accel_calibration', False)
     _need(type(selected) is bool and (not selected or profile.get('schema') == SCHEMA_V3),
           'Reviewed acceleration calibration requires an explicit V3 boolean selection')
     return selected
+
+
+def accel_input_hypothesis_selected(profile):
+    """Explicit experiment input; never a formal acceleration calibration."""
+    selected = profile.get('accel_input_hypothesis', False)
+    _need(type(selected) is bool and (not selected or profile.get('schema') == SCHEMA_V3),
+          'Acceleration input hypothesis requires an explicit V3 boolean selection')
+    _need(not selected or not acceleration_calibration_selected(profile),
+          'Acceleration input hypothesis and reviewed calibration are mutually exclusive')
+    return selected
+
+
+def _accel_input_hypothesis_scope(profile):
+    if not accel_input_hypothesis_selected(profile):
+        return
+    mode = profile.get('diagnostic_timing_acceptance')
+    duration = profile.get('duration_s')
+    extension = mode == SUPPORTED_POLICY_PROBE_10S_AFTER_2S
+    post_reply = _post_reply_policy(profile) if mode == SUPPORTED_POLICY_PROBE_20S_AFTER_10S else None
+    extension_20s = (post_reply is not None and
+                     post_reply['mode'] == 'bounded_post_reply_input_age_v2')
+    current_hold = mode == CURRENT_HOLD_AFTER_SUPPORTED_10S
+    bounded_duration = (type(duration) in (int, float) and
+                        (2. < duration <= 10. if extension else
+                         duration == 20. if extension_20s else
+                         duration == 3. if current_hold else duration == 2.))
+    _need(profile.get('scope') == 'supported_characterization_only' and
+          profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+          mode in (SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
+                   SUPPORTED_POLICY_PROBE_10S_AFTER_2S, CURRENT_HOLD_AFTER_SUPPORTED_10S,
+                   *((SUPPORTED_POLICY_PROBE_20S_AFTER_10S,) if extension_20s else ())) and
+          profile.get('model_backend') == SCALAR_BACKEND and
+          profile.get('voltage_overlap') is True and
+          bounded_duration and
+          type(profile.get('policy_weight')) in (int, float) and
+          (profile['policy_weight'] == 0 if current_hold else 0 < profile['policy_weight'] <= .005) and
+          not {'fixed_catch', 'human_supported_hold'}.intersection(profile),
+          'Acceleration input hypothesis requires a boxed two-second probe, its proven ten/twenty-second extension, or the proven three-second current hold')
+    # Keep learned output within its small-policy limits. The separately
+    # evidenced zero-mixture hold permits only its exact Kp6/Kd0.15 comparison;
+    # neither route inherits a wider envelope from another timing mode.
+    caps = {'kp': 6. if current_hold else 3., 'kd': .15,
+            'max_displacement_from_start_rad': math.radians(1),
+            'max_estimated_pd_torque_nm': .2 if current_hold else .1, 'max_measured_torque_nm': 1.,
+            'max_command_velocity_rad_s': math.radians(1),
+            'max_command_acceleration_rad_s2': math.radians(5),
+            'max_tracking_error_rad': math.radians(2), 'max_temperature_c': 45.,
+            'max_measured_velocity_rad_s': .35 if mode in
+                (SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
+                 SUPPORTED_POLICY_PROBE_20S_AFTER_10S) else .25}
+    for mid in IDS:
+        if current_hold:
+            _need(profile['axes'][mid]['kp'] == 6. and profile['axes'][mid]['kd'] == .15,
+                  'Acceleration hypothesis current hold requires exact Kp6/Kd0.15')
+        for key, cap in caps.items():
+            _number(profile['axes'][mid][key], 'acceleration hypothesis '+key+' ID'+mid,
+                    0, cap, positive=True)
+
+
+def _load_accel_input_hypothesis(reference, rotation):
+    from .imu_accel_input_hypothesis import load_accel_input_hypothesis
+    return load_accel_input_hypothesis(reference, rotation)
+
+
+def _accel_input_hypothesis_binding(profile):
+    value = {'settings': reviewed_settings_sha256(profile), 'axes': profile['axes'],
+             'artifacts': profile['artifacts'], 'sources': profile['cadence_source_sha256'],
+             'boot_id': profile['boot_id'], 'motor_power_epoch': profile['motor_power_epoch'],
+             'review': profile['review'], 'blockers': profile['blockers'],
+             'approved_for_supported_policy_output': profile['approved_for_supported_policy_output'],
+             'provenance': profile['_accel_input_hypothesis_provenance']}
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'),
+                                    allow_nan=False).encode()).hexdigest()
+
+
+def accel_input_hypothesis_settings(profile):
+    """Return its exact input ref only after complete supported-profile review.
+
+    A raw JSON selection, unapproved PLAN or altered loaded mapping cannot
+    authorize this scope. The caller re-loads the immutable input before use.
+    """
+    if not accel_input_hypothesis_selected(profile):
+        _need('_accel_input_hypothesis_token' not in profile,
+              'Acceleration input hypothesis selection changed after loading')
+        return None
+    _accel_input_hypothesis_scope(profile)
+    _need(profile.get('_accel_input_hypothesis_token') is _ACCEL_INPUT_HYPOTHESIS_TOKEN and
+          profile.get('output_allowed') is True and
+          profile.get('_accel_input_hypothesis_binding') == _accel_input_hypothesis_binding(profile),
+          'Acceleration input hypothesis requires immutable complete loader proof')
+    return copy.deepcopy(profile['artifacts']['accel_input_hypothesis'])
 
 
 def current_position_hold_only(profile):
@@ -433,11 +689,13 @@ def artifact_names(profile):
         _MIX_STEP_ARTIFACTS if _mix_step_selected(profile) else ()) + (
         _FIXED_CATCH_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == FIXED_CATCH_CURRENT_HOLD_30S else ()) + (
         _HUMAN_SUPPORTED_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S else ()) + (
-        _PRELOAD_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == SUPPORTED_PRELOAD_5S else ())
+        _PRELOAD_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == SUPPORTED_PRELOAD_5S else ()) + (
+        ('accel_input_hypothesis',) if accel_input_hypothesis_selected(profile) else ())
 
 
 def _post_reply_policy(profile):
-    from .policy_post_reply_timing import POST_REPLY_POLICY
+    from .policy_post_reply_timing import (POST_REPLY_POLICY, POST_REPLY_POLICY_V2,
+                                          POST_REPLY_INPUT_AGE_BUDGET_KEY)
     value = profile.get('post_reply_deadline_policy')
     if value is None:
         _need('post_reply_deadline_policy' not in profile, 'Omit inactive post-reply deadline policy')
@@ -445,9 +703,14 @@ def _post_reply_policy(profile):
     _need(profile['schema'] == SCHEMA_V3 and
           profile.get('scope') == 'supported_characterization_only',
           'Post-reply deadline policy requires supported-only V3')
-    _need(type(value) is dict and set(value) == {'mode', 'max_lateness_ms',
-          'max_consecutive_misses', 'rolling_window_cycles', 'max_misses_per_window'} and
-          value.get('mode') == POST_REPLY_POLICY, 'Invalid post-reply deadline policy')
+    input_age_v2 = type(value) is dict and value.get('mode') == POST_REPLY_POLICY_V2
+    keys = {'mode', 'max_lateness_ms', 'max_consecutive_misses',
+            'rolling_window_cycles', 'max_misses_per_window'}
+    if input_age_v2:
+        keys.add(POST_REPLY_INPUT_AGE_BUDGET_KEY)
+    _need(type(value) is dict and set(value) == keys and
+          value.get('mode') in (POST_REPLY_POLICY, POST_REPLY_POLICY_V2),
+          'Invalid post-reply deadline policy')
     _number(value['max_lateness_ms'], 'post-reply lateness', 0, 1, positive=True)
     for key, expected in (('max_consecutive_misses', 1), ('rolling_window_cycles', 100),
                           ('max_misses_per_window', 1)):
@@ -456,7 +719,51 @@ def _post_reply_policy(profile):
           profile['max_sample_gap_ms'] <= 21 and profile['max_consecutive_20ms_misses'] == 0 and
           profile['duration_s'] <= _supported_duration_cap(profile),
           'Post-reply policy preserves hard20ms, freshness and finite supported scope')
+    if input_age_v2:
+        _number(value[POST_REPLY_INPUT_AGE_BUDGET_KEY], 'post-reply input-age budget',
+                0, value['max_lateness_ms'], positive=True)
+        mode = profile.get('diagnostic_timing_acceptance')
+        duration = profile.get('duration_s')
+        bounded_duration = (type(duration) in (int, float) and
+                            (duration == 2. if mode == SUPPORTED_POLICY_PROBE_2S_RARE_JITTER else
+                             duration == 10. if mode == SUPPORTED_POLICY_PROBE_10S_AFTER_2S else
+                             duration == 20. if mode == SUPPORTED_POLICY_PROBE_20S_AFTER_10S else False))
+        _need(bounded_duration and
+              profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+              profile.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED and
+              0 < profile['policy_weight'] <= .005 and
+              profile.get('model_backend') == SCALAR_BACKEND and
+              profile.get('voltage_overlap') is True and profile.get('voltage_pipeline') is True and
+              profile['max_sample_age_ms'] == 20 and profile['command'] == [0., 0., 0.] and
+              not {'fixed_catch', 'human_supported_hold'}.intersection(profile),
+              'Post-reply input-age v2 requires a boxed local two-second probe or its proven ten/twenty-second chain')
+        caps = {'kp': 3., 'kd': .15, 'max_displacement_from_start_rad': math.radians(1),
+                'max_estimated_pd_torque_nm': .1, 'max_measured_torque_nm': 1.,
+                'max_measured_velocity_rad_s': .35}
+        for mid in IDS:
+            for key, cap in caps.items():
+                _number(profile['axes'][mid][key], 'post-reply input-age v2 '+key+' ID'+mid,
+                        0, cap, positive=True)
     return dict(value)
+
+
+def _post_reply_review_limits(acceptance, settings):
+    """V2 must describe its changed post-reply age rather than claim unchanged freshness."""
+    from .policy_post_reply_timing import POST_REPLY_POLICY_V2, POST_REPLY_INPUT_AGE_BUDGET_KEY
+    if settings is None or settings['mode'] != POST_REPLY_POLICY_V2:
+        return acceptance.get('hard_output_and_freshness_limits_unchanged') is True
+    budget = acceptance.get(POST_REPLY_INPUT_AGE_BUDGET_KEY)
+    return ('hard_output_and_freshness_limits_unchanged' not in acceptance and
+            acceptance.get('pre_send_input_and_native_output_limits_unchanged') is True and
+            acceptance.get('output_feedback_sample_age_limit_unchanged') is True and
+            type(budget) in (int, float) and math.isfinite(budget) and
+            budget == settings[POST_REPLY_INPUT_AGE_BUDGET_KEY])
+
+
+def _post_reply_input_age_binding(profile):
+    # Same immutable contract as the prepared-voltage token, including exact
+    # reviewed settings, sources, input artifacts, power and review decisions.
+    return _prepared_voltage_publication_binding(profile)
 
 
 def post_reply_deadline_settings(profile):
@@ -465,6 +772,12 @@ def post_reply_deadline_settings(profile):
     if value is not None:
         _need(profile.get('_post_reply_validation_token') is _POST_REPLY_VALIDATION_TOKEN,
               'Post-reply deadline policy requires validated loader proof')
+    from .policy_post_reply_timing import POST_REPLY_POLICY_V2
+    if (value is not None and value['mode'] == POST_REPLY_POLICY_V2 or
+            '_post_reply_input_age_binding' in profile):
+        _need(value is not None and profile.get('output_allowed') is True and
+              profile.get('_post_reply_input_age_binding') == _post_reply_input_age_binding(profile),
+              'Post-reply input-age v2 selection changed or lacks bound loader proof')
     return value
 
 
@@ -592,7 +905,9 @@ def cadence_source_paths(profile=None):
         'diagnostic_timing_acceptance') == SUPPORTED_PRELOAD_5S else ()
     if profile is not None and profile.get('diagnostic_timing_acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S:
         extra = (_HUMAN_SUPPORTED_NEW_SOURCE,)
-    return CADENCE_SOURCE_PATHS+extra
+    if profile is not None and profile.get('accel_input_hypothesis') is True:
+        extra += _ACCEL_INPUT_HYPOTHESIS_SOURCES
+    return tuple(dict.fromkeys(CADENCE_SOURCE_PATHS+extra))
 
 
 def cadence_source_hashes(profile=None):
@@ -723,6 +1038,7 @@ def _settings(data):
     transport_settings(data)
     validate_cadence_sources(data)
     execution_settings(data)
+    _accel_input_hypothesis_scope(data)
     native_batch_encoder_settings(data)
     _startup_cycle_policy(data)
     _need(type(data['period_ms']) is int and data['period_ms'] == 20, 'Target period is exactly20ms')
@@ -938,11 +1254,34 @@ def _axes(data, calibration):
 
 def _timing(report, data):
     """Recompute evidence metrics from timestamps; STOP proxy is never active I/O."""
+    if type(report) is dict:
+        diagnostic_plan = report.get('plan')
+        _need('sourced_boot_guard' not in report and
+              (type(diagnostic_plan) is not dict or 'sourced_boot_guard' not in diagnostic_plan),
+              'Experimental boot-guard diagnostic cannot qualify the unchanged active controller')
+        _need('trace_copy_provenance' not in report and
+              (type(diagnostic_plan) is not dict or 'trace_copy_provenance' not in diagnostic_plan),
+              'Experimental trace-copy diagnostic cannot qualify the unchanged active controller')
     _need(type(report) is dict and report.get('status') == 'COMPLETE_DIAGNOSTIC' and
           report.get('mode') == 'stop-proxy' and report.get('errors') == [] and
           report.get('motor_enable_sent') is False and report.get('learned_targets_sent') is False and
           report.get('full_controller_50Hz_verified') is False and
           type(report.get('observer')) is dict, 'Full real-input/inference/STOP diagnostic required')
+    prepared_publication = _prepared_voltage_publication_selected(data)
+    for source in (report, report.get('plan', {})):
+        _need(type(source) is dict, 'Diagnostic pacing differs from reviewed profile: invalid prepared voltage plan')
+        value = source.get('prepare_voltage_before_feedback_publication', False)
+        _need(type(value) is bool and value is prepared_publication,
+              'Diagnostic prepared voltage publication selection differs from reviewed profile')
+    if prepared_publication:
+        provenance = report.get('source_provenance')
+        _need(report.get('boot_id') == data['boot_id'] and
+              report.get('motor_power_epoch') == data['motor_power_epoch'] and
+              report.get('cadence_source_sha256') == data['cadence_source_sha256'] and
+              type(provenance) is dict and provenance.get('source_files_unchanged') is True and
+              provenance.get('cadence_source_sha256') == data['cadence_source_sha256'] and
+              provenance.get('motor_power_epoch') == data['motor_power_epoch'],
+              'Prepared voltage diagnostic requires exact current sources, boot and power epoch')
     if data['schema'] in (SCHEMA_V2, SCHEMA_V3):
         settings = transport_settings(data)
         plan = report.get('plan')
@@ -962,6 +1301,21 @@ def _timing(report, data):
     _need(report.get('plan', {}).get('apply_reviewed_accel_calibration', False)
           is acceleration_calibration_selected(data),
           'Diagnostic acceleration calibration selection differs from reviewed profile')
+    hypothesis = accel_input_hypothesis_selected(data)
+    reference = data['artifacts']['accel_input_hypothesis'] if hypothesis else None
+    _need(report.get('plan', {}).get('accel_input_hypothesis') == reference and
+          bindings.get('accel_input_hypothesis') == (reference['sha256'] if hypothesis else None),
+          'Diagnostic acceleration hypothesis input differs from reviewed profile')
+    provenance = data.get('_accel_input_hypothesis_provenance') if hypothesis else None
+    observed = report.get('observer', {}).get('accel_input_hypothesis')
+    _need((not hypothesis or type(provenance) is dict) and
+          json.dumps(observed, sort_keys=True, separators=(',', ':'), allow_nan=False) ==
+          json.dumps(provenance, sort_keys=True, separators=(',', ':'), allow_nan=False),
+          'Diagnostic observer acceleration hypothesis provenance differs')
+    if hypothesis:
+        _need(report.get('motor_power_epoch') == data['motor_power_epoch'] and
+              report.get('cadence_source_sha256') == data['cadence_source_sha256'],
+              'Acceleration hypothesis diagnostic must bind current power epoch and exact sources')
     for source, key in (('calibration', 'calibration'), ('mount', 'mount'), ('bias', 'gyro_bias')):
         value = bindings.get(key, bindings.get('bias') if source == 'bias' else None)
         _need(value == data['artifacts'][source]['sha256'], 'Timing input mismatch: '+source)
@@ -1486,6 +1840,144 @@ def _hardware(review, data, base, *, command_loss_report=None, local_reference_c
     return result
 
 
+def _v2_supported_extension_context(documents, data, prior, report):
+    from .policy_post_reply_timing import POST_REPLY_POLICY_V2
+    settings = _post_reply_policy(data)
+    if settings is None or settings['mode'] != POST_REPLY_POLICY_V2:
+        return False
+    _need(type(report) is dict and type(documents.get('pipeline_diagnostic')) is dict,
+          'V2 extension needs original report and diagnostic mappings')
+    _need(_post_reply_policy(prior) == settings and data['axes'] == prior['axes'] and
+          data['start_pose_bounds'] == prior['start_pose_bounds'] and
+          data['artifacts']['local_reference_capture']['sha256'] ==
+              prior['artifacts']['local_reference_capture']['sha256'],
+          'V2 extension must preserve the exact pose, physical limits and local capture')
+    diagnostic = documents['pipeline_diagnostic']
+    _need(diagnostic.get('motor_power_epoch') == data['motor_power_epoch'] and
+          diagnostic.get('cadence_source_sha256') == data['cadence_source_sha256'],
+          'V2 extension needs the exact current diagnostic sources and power')
+    if prior['artifacts']['pipeline_diagnostic']['sha256'] != data['artifacts']['pipeline_diagnostic']['sha256']:
+        rows = report.get('cycles')
+        measurements = diagnostic.get('measurements')
+        _need(type(measurements) is list and bool(measurements) and type(measurements[0]) is dict,
+              'V2 extension diagnostic measurements missing')
+        first = measurements[0].get('release_ns')
+        last = rows[-1].get('end_ns') if type(rows) is list and rows else None
+        _need(type(first) is int and type(last) is int and first > last,
+              'Fresh V2 extension diagnostic must follow the completed predecessor')
+    return True
+
+
+def _post_reply_input_age_predecessor(report, prior):
+    """Replay V2 admissions from original CAN/IMU times, never summary ages.
+
+    This additional proof is opt-in. Legacy V1 predecessor contracts keep their
+    original checks. Native writes/replies and returned feedback retain 20ms.
+    """
+    from . import can_readonly as codec
+    from . import rs05_trial_protocol as protocol
+    from .policy_post_reply_timing import POST_REPLY_POLICY_V2, PostReplyDeadlineBudget
+    settings = _post_reply_policy(prior)
+    if settings is None or settings['mode'] != POST_REPLY_POLICY_V2:
+        return
+    _need(report.get('post_reply_deadline_policy') == settings,
+          'V2 predecessor policy differs from its reviewed profile')
+    cycles, journal = report.get('cycles'), report.get('journal')
+    _need(type(cycles) is list and bool(cycles) and type(journal) is list,
+          'V2 predecessor needs original cycle and wire records')
+    groups = {phase: {bus: [] for bus in ('front', 'rear')}
+              for phase in ('input', 'output')}
+    for item in journal:
+        _need(type(item) is dict, 'V2 predecessor journal entry invalid')
+        phase = item.get('phase')
+        group = ('input' if phase == 'feedback_hold' else
+                 'output' if phase in ('startup_hold', 'policy_output', 'graceful_stop') else None)
+        if group is not None:
+            _need(item.get('bus') in groups[group], 'V2 predecessor wire bus invalid')
+            groups[group][item['bus']].append(item)
+    _need(all(len(items) == len(cycles) for buses in groups.values() for items in buses.values()),
+          'V2 predecessor original wire coverage incomplete')
+
+    def records(item, bus, begin, end):
+        rows = item.get('records')
+        ids = list(range(1, 7)) if bus == 'front' else list(range(7, 13))
+        _need(item.get('error') is None and type(rows) is list and len(rows) == 6 and
+              type(item.get('rejected_total')) is int and item['rejected_total'] == 0 and
+              item.get('rejected_hex') == '' and
+              item.get('rejected_truncated') is False,
+              'V2 predecessor has incomplete or rejected native wire')
+        for mid, row in zip(ids, rows):
+            _need(type(row) is dict and row.get('written') == row.get('received') == 17,
+                  'V2 predecessor native wire is incomplete')
+            stamps = [row.get(k) for k in ('start_ns', 'finish_ns', 'read_start_ns', 'received_ns')]
+            deadline = row.get('deadline_ns')
+            _need(all(type(v) is int and 0 < v < 2**63 for v in stamps+[deadline]) and
+                  begin <= stamps[0] <= stamps[1] <= stamps[3] <= end and
+                  stamps[0] <= stamps[2] <= stamps[3] < deadline <= begin+20_000_000,
+                  'V2 predecessor native write/reply deadline differs')
+            try:
+                tx, rx = bytes.fromhex(row['tx_hex']), bytes.fromhex(row['rx_hex'])
+                tx_frames, rx_frames = codec.ATParser().feed(tx), codec.ATParser().feed(rx)
+                _need(len(tx) == len(rx) == 17 and len(tx_frames) == len(rx_frames) == 1 and
+                      tx_frames[0].wire == tx and rx_frames[0].wire == rx and
+                      tx_frames[0].flags == 4 and tx_frames[0].kind == 1 and
+                      tx_frames[0].destination == mid,
+                      'V2 predecessor native wire type/ID differs')
+                decoded = protocol.decode_type2(rx_frames[0], motor_id=mid)
+            except (ValueError, TypeError, KeyError) as error:
+                raise ProfileError('Invalid V2 predecessor original wire') from error
+            _need(decoded.fault_bits == 0 and decoded.mode_state == 2,
+                  'V2 predecessor original output feedback faulted or disabled')
+        return rows
+
+    budget = PostReplyDeadlineBudget(settings)
+    startup = _startup_cycle_policy(prior) is not None
+    startup_count, misses, previous_end = 0, 0, None
+    for index, cycle in enumerate(cycles):
+        _need(type(cycle) is dict and type(cycle.get('index')) is int and cycle['index'] == index,
+              'V2 predecessor cycle sequence invalid')
+        begin, end = cycle.get('begin_ns'), cycle.get('end_ns')
+        _need(type(begin) is int and type(end) is int and 0 < begin <= end and
+              (previous_end is None or begin >= previous_end), 'V2 predecessor cycle times invalid')
+        inputs, outputs = [], []
+        for bus in ('front', 'rear'):
+            inputs += records(groups['input'][bus][index], bus, begin, end)
+            outputs += records(groups['output'][bus][index], bus, begin, end)
+        imu = cycle.get('imu', {})
+        imu_start, imu_end = (imu.get(k) for k in
+                              ('read_started_monotonic_ns', 'read_finished_monotonic_ns'))
+        _need(type(imu_start) is int and type(imu_end) is int and begin <= imu_start <= imu_end <= end,
+              'V2 predecessor original IMU interval invalid')
+        oldest = min(imu_start, min(row['start_ns'] for row in inputs))
+        final_write = max(row['finish_ns'] for row in outputs)
+        replied = max(row['received_ns'] for row in outputs)
+        _need(cycle.get('output_reply_end_ns') == replied and
+              cycle.get('oldest_input_to_final_host_write_ms') == (final_write-oldest)/1e6,
+              'V2 predecessor output reply/input age differs from original wire')
+        try:
+            decision = budget.admit(index=index, begin_ns=begin, oldest_input_ns=oldest,
+                final_write_ns=final_write, last_reply_ns=replied,
+                output_sample_start_ns=min(row['start_ns'] for row in outputs), checked_ns=end,
+                sample_age_ns=int(prior['max_sample_age_ms']*1e6),
+                startup_allowed=startup and index == 0)
+        except RuntimeError as error:
+            raise ProfileError('V2 predecessor '+str(error)) from error
+        _need(cycle.get('post_reply_deadline') == decision and
+              cycle.get('deadline20ms_missed') is (end-begin > 20_000_000) and
+              cycle.get('steady_deadline20ms_missed') is decision['allowance_used'] and
+              cycle.get('startup_20ms_allowance_used') is decision['startup_allowance_used'],
+              'V2 predecessor admission proof differs from original timestamps')
+        startup_count += int(decision['startup_allowance_used'])
+        misses += int(end-begin > 20_000_000)
+        previous_end = end
+    for name, count in (('deadline20ms_misses', misses),
+                        ('steady_deadline20ms_misses', budget.accepted_misses),
+                        ('post_reply_deadline_allowance_uses', budget.accepted_misses),
+                        ('startup_20ms_allowance_uses', startup_count)):
+        _need(type(report.get(name)) is int and report[name] == count,
+              'V2 predecessor admission counts differ')
+
+
 def _supported_extension_evidence(documents, data):
     """Admit only a duration extension of a pinned, completed two-second run.
 
@@ -1501,6 +1993,16 @@ def _supported_extension_evidence(documents, data):
           prior['duration_s'] == 2. and 2. < data['duration_s'] <= 10.,
           'Extension requires an approved two-second predecessor and at most ten seconds')
     _review(prior['review'], 'APPROVED_SUPPORTED_CHARACTERIZATION')
+    hypothesis_extension = (accel_input_hypothesis_selected(data) and
+                            accel_input_hypothesis_selected(prior))
+    v2_extension = _v2_supported_extension_context(documents, data, prior, report)
+    # A hypothesis extension is measured again with the current source graph.
+    # Only this diagnostic reference may change; the prior runtime, input
+    # hypothesis, model, power and every live limit remain exact below.
+    replaceable_artifacts = (*_EXTENSION_ARTIFACTS, 'hardware_review',
+                             'operator_acceptance', 'local_reference_capture')
+    if hypothesis_extension or v2_extension:
+        replaceable_artifacts += ('pipeline_diagnostic',)
     def contract(profile):
         omitted = {'artifacts', 'review', 'blockers', 'approved_for_supported_policy_output',
                    'assembly_id', 'bundle_path', 'duration_s', 'diagnostic_timing_acceptance',
@@ -1511,10 +2013,14 @@ def _supported_extension_evidence(documents, data):
         result['sources'] = {k:v for k,v in profile['cadence_source_sha256'].items()
                             if k != 'singularitydog_hw/policy_live_profile.py'}
         result['artifacts'] = {k:v['sha256'] for k,v in profile['artifacts'].items()
-            if k not in (*_EXTENSION_ARTIFACTS, 'hardware_review', 'operator_acceptance', 'local_reference_capture')}
+            if k not in replaceable_artifacts}
         return result
     _need(contract(prior) == contract(data),
           'Extension changes prior execution, model, calibration, UID, boot, power or safety contract')
+    if _prepared_voltage_publication_selected(data):
+        _need(type(report) is dict and report.get('prepare_voltage_before_feedback_publication') is True,
+              'Prepared voltage extension requires the selected actual predecessor')
+        _prepared_voltage_publication_predecessor(report, prior)
     profile_sha = data['artifacts']['prior_supported_profile']['sha256']
     report_sha = data['artifacts']['prior_supported_report']['sha256']
     _need(type(report) is dict and report.get('profile_sha256') == profile_sha and
@@ -1552,6 +2058,35 @@ def _supported_extension_evidence(documents, data):
     rows = report.get('cycles')
     _need(type(rows) is list and 80 <= len(rows) <= 102,
           'Extension requires at least eighty completed predecessor cycles')
+    _post_reply_input_age_predecessor(report, prior)
+    if hypothesis_extension:
+        # The full loader has already checked the fresh diagnostic's selected
+        # input and exact current sources in _timing. Bind the actual prior
+        # run to that same audited hypothesis as well, including gain-down.
+        provenance = documents['pipeline_diagnostic'].get('observer', {}).get('accel_input_hypothesis')
+        _need(type(provenance) is dict and
+              provenance.get('hypothesis_sha256') == data['artifacts']['accel_input_hypothesis']['sha256'] and
+              provenance.get('formal_calibration_approved') is False and
+              provenance.get('grants_motor_output') is False and
+              report.get('current_position_hold_only') is False and
+              report.get('cyclic_inference_skipped') is False and
+              type(report.get('actual_model_calls')) is int and
+              0 < report['actual_model_calls'] <= len(rows),
+              'Hypothesis extension requires actual prior inference with the same unapproved input')
+        for row in rows:
+            imu = row.get('imu_body', {})
+            _need(type(imu) is dict and imu.get('accel_bias_subtracted') is True and
+                  imu.get('accel_scale_corrected') is True and
+                  'reviewed_accel_calibration' not in imu and
+                  json.dumps(imu.get('accel_input_hypothesis'), sort_keys=True, separators=(',', ':'), allow_nan=False) ==
+                  json.dumps(provenance, sort_keys=True, separators=(',', ':'), allow_nan=False),
+                  'Hypothesis extension predecessor actual input provenance differs')
+        if (prior['artifacts']['pipeline_diagnostic']['sha256'] !=
+                data['artifacts']['pipeline_diagnostic']['sha256']):
+            first = documents['pipeline_diagnostic'].get('measurements', [{}])[0].get('release_ns')
+            last = rows[-1].get('end_ns')
+            _need(type(first) is int and type(last) is int and first > last,
+                  'Fresh hypothesis extension diagnostic must follow the completed two-second run')
     previous_end = None
     for index, row in enumerate(rows):
         _need(type(row) is dict and row.get('index') == index, 'Extension predecessor cycle sequence invalid')
@@ -1610,6 +2145,13 @@ def _supported_20s_extension_evidence(documents, data, base):
           'Twenty-second extension requires an approved ten-second box-supported learned predecessor')
     _review(prior['review'], 'APPROVED_SUPPORTED_CHARACTERIZATION')
 
+    hypothesis_extension = (accel_input_hypothesis_selected(data) and
+                            accel_input_hypothesis_selected(prior))
+    v2_extension = _v2_supported_extension_context(documents, data, prior, report)
+    replaceable_artifacts = (*_EXTENSION_ARTIFACTS, 'hardware_review', 'operator_acceptance')
+    if hypothesis_extension or v2_extension:
+        replaceable_artifacts += ('pipeline_diagnostic',)
+
     def contract(value):
         omitted = {'artifacts', 'review', 'blockers', 'approved_for_supported_policy_output',
                    'assembly_id', 'bundle_path', 'duration_s', 'diagnostic_timing_acceptance',
@@ -1619,7 +2161,7 @@ def _supported_20s_extension_evidence(documents, data, base):
         result['sources'] = {k:v for k,v in value['cadence_source_sha256'].items()
                             if k != 'singularitydog_hw/policy_live_profile.py'}
         result['artifacts'] = {k:v['sha256'] for k,v in value['artifacts'].items()
-            if k not in (*_EXTENSION_ARTIFACTS, 'hardware_review', 'operator_acceptance')}
+            if k not in replaceable_artifacts}
         return result
 
     _need(contract(prior) == contract(data),
@@ -1647,7 +2189,21 @@ def _supported_20s_extension_evidence(documents, data, base):
               Path(_artifact(prior['artifacts']['hardware_review'], prior_base)[1]['path']).parent,
               command_loss_report=nested['command_loss_report'],
               local_reference_capture=nested['local_reference_capture'])
-    _timing(nested['pipeline_diagnostic'], prior)
+    prior_timing = copy.deepcopy(prior)
+    if hypothesis_extension:
+        # The outer loader audited this same pinned hypothesis, mount and bias.
+        # Supply that audited provenance solely as comparison context for the
+        # original ten-second diagnostic; its original graph remains intact.
+        current_hypothesis_provenance = documents['pipeline_diagnostic'].get('observer', {}).get('accel_input_hypothesis')
+        _need(type(current_hypothesis_provenance) is dict,
+              'Twenty-second extension requires the already audited hypothesis provenance')
+        prior_timing['_accel_input_hypothesis_provenance'] = current_hypothesis_provenance
+    _timing(nested['pipeline_diagnostic'], prior_timing)
+
+    if _prepared_voltage_publication_selected(data):
+        _need(report.get('prepare_voltage_before_feedback_publication') is True,
+              'Prepared voltage twenty-second extension requires the selected actual predecessor')
+        _prepared_voltage_publication_predecessor(report, prior)
 
     profile_sha = data['artifacts']['prior_supported_profile']['sha256']
     report_sha = data['artifacts']['prior_supported_report']['sha256']
@@ -1687,6 +2243,23 @@ def _supported_20s_extension_evidence(documents, data, base):
     _need(type(rows) is list and 475 <= len(rows) <= 502 and
           type(report.get('actual_model_calls')) is int and 400 <= report['actual_model_calls'] <= len(rows),
           'Twenty-second extension requires completed ten-second learned cycles')
+    _post_reply_input_age_predecessor(report, prior)
+    if hypothesis_extension:
+        provenance = current_hypothesis_provenance
+        for row in rows:
+            imu = row.get('imu_body', {})
+            _need(type(imu) is dict and imu.get('accel_bias_subtracted') is True and
+                  imu.get('accel_scale_corrected') is True and
+                  'reviewed_accel_calibration' not in imu and
+                  json.dumps(imu.get('accel_input_hypothesis'), sort_keys=True, separators=(',', ':'), allow_nan=False) ==
+                  json.dumps(provenance, sort_keys=True, separators=(',', ':'), allow_nan=False),
+                  'Hypothesis twenty-second predecessor actual input provenance differs')
+        if (prior['artifacts']['pipeline_diagnostic']['sha256'] !=
+                data['artifacts']['pipeline_diagnostic']['sha256']):
+            first = documents['pipeline_diagnostic'].get('measurements', [{}])[0].get('release_ns')
+            last = rows[-1].get('end_ns')
+            _need(type(first) is int and type(last) is int and first > last,
+                  'Fresh hypothesis twenty-second diagnostic must follow the completed ten-second run')
     post_reply = _post_reply_policy(prior)
     _need(post_reply is not None and report.get('post_reply_deadline_policy') == post_reply,
           'Twenty-second predecessor post-reply policy differs')
@@ -2215,6 +2788,12 @@ def _current_hold_after_supported_evidence(documents, data):
           prior['duration_s'] == 10.,
           'Current hold requires an approved ten-second supported predecessor')
     _review(prior['review'], 'APPROVED_SUPPORTED_CHARACTERIZATION')
+    hypothesis_hold = (accel_input_hypothesis_selected(data) and
+                       accel_input_hypothesis_selected(prior))
+    replaceable_artifacts = (*_EXTENSION_ARTIFACTS, 'hardware_review',
+                             'operator_acceptance', 'local_reference_capture')
+    if hypothesis_hold:
+        replaceable_artifacts += ('pipeline_diagnostic',)
 
     def contract(value):
         omitted = {'artifacts', 'review', 'blockers', 'approved_for_supported_policy_output',
@@ -2229,7 +2808,7 @@ def _current_hold_after_supported_evidence(documents, data):
         result['sources'] = {k:v for k,v in value['cadence_source_sha256'].items()
                             if k != 'singularitydog_hw/policy_live_profile.py'}
         result['artifacts'] = {k:v['sha256'] for k,v in value['artifacts'].items()
-            if k not in (*_EXTENSION_ARTIFACTS, 'hardware_review', 'operator_acceptance', 'local_reference_capture')}
+            if k not in replaceable_artifacts}
         return result
 
     _need(contract(prior) == contract(data),
@@ -2278,6 +2857,22 @@ def _current_hold_after_supported_evidence(documents, data):
     _need(type(rows) is list and 475 <= len(rows) <= 502 and
           type(report.get('actual_model_calls')) is int and 400 <= report['actual_model_calls'] <= len(rows),
           'Current hold requires completed ten-second learned cycles')
+    if hypothesis_hold:
+        # The new no-output measurement has passed _timing with the current
+        # exact source/input pins. Every prior active and stopping cycle must
+        # retain that same non-certifying correction, not merely its profile flag.
+        accel_provenance = documents['pipeline_diagnostic'].get('observer', {}).get('accel_input_hypothesis')
+        _need(type(accel_provenance) is dict and
+              accel_provenance.get('hypothesis_sha256') == data['artifacts']['accel_input_hypothesis']['sha256'] and
+              accel_provenance.get('formal_calibration_approved') is False and
+              accel_provenance.get('grants_motor_output') is False,
+              'Hypothesis current hold requires the same unapproved prior input')
+        if (prior['artifacts']['pipeline_diagnostic']['sha256'] !=
+                data['artifacts']['pipeline_diagnostic']['sha256']):
+            first = documents['pipeline_diagnostic'].get('measurements', [{}])[0].get('release_ns')
+            last = rows[-1].get('end_ns')
+            _need(type(first) is int and type(last) is int and first > last,
+                  'Fresh hypothesis current-hold diagnostic must follow the completed ten-second run')
     prior_post_reply = _post_reply_policy(prior)
     _need(prior_post_reply is not None and report.get('post_reply_deadline_policy') == prior_post_reply,
           'Current hold predecessor post-reply policy differs')
@@ -2287,6 +2882,14 @@ def _current_hold_after_supported_evidence(documents, data):
     misses, startup_misses, previous_end = [], 0, None
     for index, row in enumerate(rows):
         _need(type(row) is dict and row.get('index') == index, 'Current hold predecessor cycle sequence invalid')
+        if hypothesis_hold:
+            imu = row.get('imu_body', {})
+            _need(type(imu) is dict and imu.get('accel_bias_subtracted') is True and
+                  imu.get('accel_scale_corrected') is True and
+                  'reviewed_accel_calibration' not in imu and
+                  json.dumps(imu.get('accel_input_hypothesis'), sort_keys=True, separators=(',', ':'), allow_nan=False) ==
+                  json.dumps(accel_provenance, sort_keys=True, separators=(',', ':'), allow_nan=False),
+                  'Hypothesis current hold predecessor actual input provenance differs')
         stamps = [row.get(k) for k in ('begin_ns', 'output_reply_end_ns', 'end_ns')]
         _need(all(type(v) is int and v > 0 for v in stamps) and stamps == sorted(stamps),
               'Current hold predecessor timestamps invalid')
@@ -2921,6 +3524,23 @@ def load_profile(path, *, require_approved=True):
     _bias(documents['bias'])
     reviewed_acceleration(documents['bias'], documents['mount']['R_body_from_sensor'],
                          enabled=acceleration_calibration_selected(data))
+    if accel_input_hypothesis_selected(data):
+        value = _load_accel_input_hypothesis(data['artifacts']['accel_input_hypothesis'],
+                                            documents['mount']['R_body_from_sensor'])
+        data['_accel_input_hypothesis_provenance'] = value.provenance()
+        provenance = data['_accel_input_hypothesis_provenance']
+        _need(type(provenance) is dict and
+              provenance.get('kind') == 'singularitydog.supported-accel-input-hypothesis.v1' and
+              provenance.get('scope') == 'boxed_small_mix_only' and
+              provenance.get('hypothesis_sha256') == data['artifacts']['accel_input_hypothesis']['sha256'] and
+              provenance.get('formal_calibration_approved') is False and
+              provenance.get('absolute_orientation_error_bound_rad') is None and
+              provenance.get('grants_motor_output') is False and
+              provenance.get('fit_and_independent_captures_reaudited') is True,
+              'Acceleration input hypothesis must retain its audited unapproved scope')
+        _need(json.dumps(provenance.get('raw_norm_bounds_m_s2'), allow_nan=False) ==
+              json.dumps([data['imu_accel_norm_min_m_s2'], data['imu_accel_norm_max_m_s2']], allow_nan=False),
+              'Acceleration input hypothesis raw norm bounds differ from existing profile monitors')
     manifest = documents['model_manifest']
     _need(type(manifest) is dict and manifest.get('schema') == 'native-policy-overnight-v1' and
           manifest.get('status') == 'VALIDATED_FILE_ONLY' and manifest.get('bundle_hashes') == shadow.SOURCE_HASHES and
@@ -2958,6 +3578,9 @@ def load_profile(path, *, require_approved=True):
             documents['human_supported_audio_manifest'], original,
             Path(data['artifacts']['human_supported_audio_manifest']['path']).parent)
         _human_supported_evidence(documents, original, path.parent)
+    post_reply = _post_reply_policy(data)
+    from .policy_post_reply_timing import POST_REPLY_POLICY_V2
+    input_age_v2 = post_reply is not None and post_reply['mode'] == POST_REPLY_POLICY_V2
     if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_2S_RARE_JITTER:
         acceptance = documents['hardware_review'].get('rare_jitter_diagnostic_acceptance', {})
         _need(type(acceptance) is dict and
@@ -2965,7 +3588,9 @@ def load_profile(path, *, require_approved=True):
               acceptance.get('diagnostic_sha256') == data['artifacts']['pipeline_diagnostic']['sha256'] and
               acceptance.get('scope') == data['scope'] and
               acceptance.get('strict_50hz_not_established') is True and
-              acceptance.get('live_deadline_policy_unchanged') is True,
+              ((acceptance.get('live_deadline_policy_unchanged') is True) if not input_age_v2 else
+               ('live_deadline_policy_unchanged' not in acceptance and
+                _post_reply_review_limits(acceptance, post_reply))),
               'Explicit matching rare-jitter diagnostic acceptance required')
         _review(acceptance.get('review'), 'ACCEPT_RARE_JITTER_DIAGNOSTIC_FOR_2S_SUPPORTED_PROBE')
     if execution_settings(data)['voltage_pipeline']:
@@ -2974,32 +3599,47 @@ def load_profile(path, *, require_approved=True):
               acceptance.get('pipeline') == 'feedback_then_voltage.fast_v1' and
               acceptance.get('diagnostic_sha256') == data['artifacts']['pipeline_diagnostic']['sha256'] and
               acceptance.get('scope') == data['scope'] and
-              acceptance.get('hard_output_and_freshness_limits_unchanged') is True,
+              _post_reply_review_limits(acceptance, post_reply),
               'Explicit matching voltage-pipeline acceptance required')
         _review(acceptance.get('review'), 'ACCEPT_FEEDBACK_THEN_VOLTAGE')
+    if _prepared_voltage_publication_selected(data):
+        acceptance = documents['hardware_review'].get('prepared_voltage_publication_acceptance', {})
+        _need(type(acceptance) is dict and
+              acceptance.get('schema') == 'singularitydog.prepared-voltage-publication-review.v1' and
+              acceptance.get('mode') == PREPARED_VOLTAGE_PUBLICATION_MODE and
+              acceptance.get('diagnostic_sha256') == data['artifacts']['pipeline_diagnostic']['sha256'] and
+              acceptance.get('scope') == data['scope'] and
+              _post_reply_review_limits(acceptance, post_reply) and
+              acceptance.get('stop_proxy_does_not_certify_active_api_latency') is True,
+              'Explicit matching prepared voltage publication acceptance required')
+        _review(acceptance.get('review'), 'ACCEPT_PREPARED_VOLTAGE_PUBLICATION')
     if encoder_selection is not None:
         acceptance = documents['hardware_review'].get('native_batch_encoder_acceptance', {})
         _need(type(acceptance) is dict and
               acceptance.get('binary_sha256') == encoder_selection['sha256'] and
               acceptance.get('scope') == data['scope'] and
-              acceptance.get('hard_output_and_freshness_limits_unchanged') is True,
+              _post_reply_review_limits(acceptance, post_reply),
               'Explicit matching native batch encoder acceptance required')
         _review(acceptance.get('review'), 'ACCEPT_NATIVE_BATCH_ENCODER')
-    post_reply = _post_reply_policy(data)
     if post_reply is not None:
         acceptance = documents['hardware_review'].get('post_reply_deadline_acceptance', {})
         _need(type(acceptance) is dict and acceptance.get('settings') == post_reply and
               acceptance.get('scope') == data['scope'] and
               acceptance.get('strict_50hz_not_established') is True and
-              acceptance.get('hard_output_and_freshness_limits_unchanged') is True,
+              _post_reply_review_limits(acceptance, post_reply),
               'Explicit matching post-reply deadline acceptance required')
-        _review(acceptance.get('review'), 'ACCEPT_BOUNDED_POST_REPLY_DEADLINE')
+        if input_age_v2:
+            _need(acceptance.get('schema') == 'singularitydog.post-reply-input-age-review.v2' and
+                  acceptance.get('diagnostic_sha256') == data['artifacts']['pipeline_diagnostic']['sha256'],
+                  'Explicit source-bound post-reply input-age v2 review required')
+        _review(acceptance.get('review'), 'ACCEPT_BOUNDED_POST_REPLY_INPUT_AGE_V2' if input_age_v2
+                else 'ACCEPT_BOUNDED_POST_REPLY_DEADLINE')
         data['_post_reply_validation_token'] = _POST_REPLY_VALIDATION_TOKEN
     if _startup_cycle_policy(data) is not None:
         acceptance = documents['hardware_review'].get('startup_cycle_acceptance', {})
         _need(type(acceptance) is dict and acceptance.get('mode') == FIRST_CYCLE_POST_REPLY and
               acceptance.get('scope') == data['scope'] and acceptance.get('first_cycle_only') is True and
-              acceptance.get('hard_output_and_freshness_limits_unchanged') is True and
+              _post_reply_review_limits(acceptance, post_reply) and
               acceptance.get('steady_miss_budget_unchanged') is True,
               'Explicit first-cycle post-reply acceptance required')
         _review(acceptance.get('review'), 'ACCEPT_FIRST_CYCLE_POST_REPLY')
@@ -3019,6 +3659,14 @@ def load_profile(path, *, require_approved=True):
     if data.get('diagnostic_timing_acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S:
         data['_human_supported_token'] = _HUMAN_SUPPORTED_TOKEN
         data['_human_supported_binding'] = _human_supported_binding(data)
+    if accel_input_hypothesis_selected(data):
+        data['_accel_input_hypothesis_token'] = _ACCEL_INPUT_HYPOTHESIS_TOKEN
+        data['_accel_input_hypothesis_binding'] = _accel_input_hypothesis_binding(data)
+    if _prepared_voltage_publication_selected(data):
+        data['_prepared_voltage_publication_token'] = _PREPARED_VOLTAGE_PUBLICATION_TOKEN
+        data['_prepared_voltage_publication_binding'] = _prepared_voltage_publication_binding(data)
+    if input_age_v2:
+        data['_post_reply_input_age_binding'] = _post_reply_input_age_binding(data)
     return {**data, 'output_allowed': True, 'profile_path': str(path), 'profile_sha256': digest,
             'actual_policy_output_20ms_verified': False,
             'support_must_remain': data['scope'] in ('supported_characterization_only', HUMAN_SUPPORTED_PARTIAL_SCOPE),

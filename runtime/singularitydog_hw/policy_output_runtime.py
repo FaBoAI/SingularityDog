@@ -24,7 +24,8 @@ from .policy_live_profile import (SCHEMA_V3, SCALAR_BACKEND, MEASURED_R17_STARTU
                                   post_reply_deadline_settings, current_position_hold_only,
                                   reviewed_startup_cycle_allowance,
                                   fixed_catch_current_hold_settings, supported_preload_settings,
-                                  human_supported_partial_current_hold_settings)
+                                  human_supported_partial_current_hold_settings,
+                                  prepared_voltage_publication_settings)
 from .policy_post_reply_timing import PostReplyDeadlineBudget
 from .policy_observer import _TARGET_LOWER, _TARGET_UPPER
 from .native_diagnostic_transport import exchange_evidence
@@ -117,7 +118,9 @@ class _PendingCycleTiming:
              'acquisition_complete_ns','sample_start_ns','policy_call_begin_ns',
              'policy_call_return_ns','target_ready_ns','voltage_owner_validated_ns',
              'voltage_join_complete_ns','voltage_join_cpu_begin_ns','voltage_join_cpu_end_ns','candidate_ns',
-             'output_submit_ns','output_return_ns','cycle_end_ns')
+             'output_submit_ns','output_join_begin_ns','output_join_ready_ns',
+             'output_join_cpu_begin_ns','output_join_cpu_end_ns','output_takeout_end_ns',
+             'output_return_ns','cycle_end_ns')
     __slots__=(*_fields,'active','stage')
 
     def __init__(self):
@@ -144,7 +147,9 @@ class _PendingCycleTiming:
                 ('acquisition_join_cpu_ms',self.combined_acquisition_wait_cpu_end_ns,self.combined_acquisition_wait_cpu_begin_ns),
                 ('voltage_join_ms',self.voltage_join_complete_ns,self.target_ready_ns),
                 ('voltage_join_cpu_ms',self.voltage_join_cpu_end_ns,self.voltage_join_cpu_begin_ns),
-                ('voltage_owner_to_join_ms',self.voltage_join_complete_ns,self.voltage_owner_validated_ns)):
+                ('voltage_owner_to_join_ms',self.voltage_join_complete_ns,self.voltage_owner_validated_ns),
+                ('output_join_ms',self.output_takeout_end_ns,self.output_join_begin_ns),
+                ('output_join_cpu_ms',self.output_join_cpu_end_ns,self.output_join_cpu_begin_ns)):
             result[name]=None if new is None or old is None else (new-old)/1e6
         return result
 
@@ -185,8 +190,19 @@ def decode_records(result):
 
 class BusWorkers:
     """One owner per bus; emergency scheduling prevents subsequent active work."""
-    def __init__(self,sessions,cancel_io,clock=time.monotonic_ns,*,before_emergency_stop=None):
+    def __init__(self,sessions,cancel_io,clock=time.monotonic_ns,*,before_emergency_stop=None,
+                 prepare_voltage_before_feedback_publication=False):
         need(set(sessions)==set(BUSES) and sessions['front'] is not sessions['rear'],'Two independent buses required')
+        need(type(prepare_voltage_before_feedback_publication) is bool,
+             'Prepared voltage publication selection must be a bool')
+        if prepare_voltage_before_feedback_publication:
+            from .native_active_transport import PREPARED_EXCHANGE_CAPABILITY
+            need(all(getattr(session,'prepared_exchange_capability',None) is
+                     PREPARED_EXCHANGE_CAPABILITY for session in sessions.values()),
+                 'Both active transports must support the exact prepared exchange capability')
+        self.prepare_voltage_before_feedback_publication=prepare_voltage_before_feedback_publication
+        self.prepared_voltage_publications=[] if prepare_voltage_before_feedback_publication else None
+        self.prepared_voltage_counts={scope:0 for scope in BUSES} if prepare_voltage_before_feedback_publication else None
         self.sessions=sessions;self.cancel_io=cancel_io;self.clock=clock
         self.pools={s:ThreadPoolExecutor(max_workers=1,thread_name_prefix='policy-'+s) for s in BUSES}
         self.lock=threading.RLock();self.aborted=threading.Event();self.reason=None
@@ -194,10 +210,16 @@ class BusWorkers:
         self.before_emergency_stop=before_emergency_stop
 
     def _exchange(self,scope,wires,timeout_ns=100_000_000,send_only=False,label='preflight',
-                  deadline_ns=None):
+                  deadline_ns=None,before_native=None):
         need(not self.aborted.is_set(),'Output cancelled')
         try:
-            if deadline_ns is None:
+            if before_native is not None:
+                need(self.prepare_voltage_before_feedback_publication and not send_only and
+                     callable(before_native) and type(deadline_ns) is int and self.clock()<deadline_ns,
+                     'Prepared exchange requires selected active absolute-deadline voltage I/O')
+                result=self.sessions[scope].exchange(wires,deadline_ns=deadline_ns,
+                                                     before_native=before_native)
+            elif deadline_ns is None:
                 result=(self.sessions[scope].send_only if send_only else self.sessions[scope].exchange)(
                     wires,timeout_ns=timeout_ns)
             else:
@@ -251,6 +273,62 @@ class BusWorkers:
                 self.emergency(type(e).__name__+': '+str(e))
         if failure:raise failure
         return results
+
+    def collect_output(self,futures,*,deadline_ns,deadline_wait=None,timing=None):
+        """Join both current decoded replies before taking either result.
+
+        The native path releases the GIL between readiness checks requested at
+        most 200 us apart. This avoids a blocking Future condition wake for a
+        successful pair, not OS scheduling jitter. The fallback has one finite
+        FIRST_EXCEPTION wait. The caller supplies the existing coordinator age
+        deadline; native writes/replies still use their earlier hard deadline.
+        No previous reply, unfinished Future, or late host proof is accepted.
+        """
+        if timing is not None:
+            timing.output_join_cpu_begin_ns=time.thread_time_ns()
+            timing.output_join_begin_ns=self.clock()
+        try:
+            need(set(futures)==set(BUSES),'Two-bus output proofs required')
+            need(type(deadline_ns) is int and deadline_ns>0,'Integer output join deadline required')
+            need(deadline_wait is None or callable(deadline_wait),'Callable native output wait required')
+            inputs=tuple(futures.values())
+            need(all(isinstance(future,Future) for future in inputs) and
+                 len({id(future) for future in inputs})==len(BUSES),
+                 'Distinct current output Future owners required')
+            def ready_failure():
+                for future in inputs:
+                    if future.cancelled():future.result()
+                    if future.done() and future.exception() is not None:future.result()
+            while True:
+                ready_failure()
+                need(not self.aborted.is_set(),self.reason or 'Output aborted during output join')
+                now=self.clock()
+                if now>=deadline_ns:raise TimeoutError('Output join coordinator deadline')
+                if all(future.done() for future in inputs):break
+                if deadline_wait is None:
+                    _,unfinished=wait(inputs,timeout=(deadline_ns-now)/1e9,return_when=FIRST_EXCEPTION)
+                    ready_failure()
+                    if unfinished:raise TimeoutError('Output join coordinator deadline')
+                    need(all(future.done() for future in inputs),'Incomplete output readiness wait')
+                else:
+                    wake=min(deadline_ns,now+200_000)
+                    try:deadline_wait(wake)
+                    except BaseException:
+                        ready_failure()
+                        raise
+                    need(self.clock()>=wake,'Native output wait returned before its deadline')
+            if timing is not None:timing.output_join_ready_ns=self.clock()
+            results=self.collect(futures)
+            if timing is not None:timing.output_takeout_end_ns=self.clock()
+            need(not self.aborted.is_set(),self.reason or 'Output aborted during output result takeout')
+            if self.clock()>=deadline_ns:raise TimeoutError('Output result takeout coordinator deadline')
+            return results
+        except BaseException as error:
+            self.emergency(type(error).__name__+': '+str(error))
+            raise
+        finally:
+            if timing is not None:
+                timing.output_join_cpu_end_ns=time.thread_time_ns()
 
     def collect_acquisition(self,futures,imu_future,*,deadline_ns,deadline_wait=None,timing=None):
         """Join the current CAN owners and current IMU before result takeout.
@@ -376,15 +454,19 @@ class BusWorkers:
         finally:
             if timing is not None:timing.voltage_join_cpu_end_ns=time.thread_time_ns()
 
-    def _voltage(self,scope,wires,ids,profile,timeout_ns=None,deadline_ns=None):
+    def _voltage(self,scope,wires,ids,profile,timeout_ns=None,deadline_ns=None,before_native=None):
         """The existing bus owner receives and validates before returning.
 
         A bad voltage aborts the other owner while inference is still running;
         the main thread must join both proofs before sending another Type1.
         """
         try:
-            result=self._exchange(scope,wires,100_000_000 if timeout_ns is None else timeout_ns,
-                                  label='overlapped_voltage',deadline_ns=deadline_ns)
+            if before_native is None:
+                result=self._exchange(scope,wires,100_000_000 if timeout_ns is None else timeout_ns,
+                                      label='overlapped_voltage',deadline_ns=deadline_ns)
+            else:
+                result=self._exchange(scope,wires,100_000_000 if timeout_ns is None else timeout_ns,
+                    label='overlapped_voltage',deadline_ns=deadline_ns,before_native=before_native)
             checked=checked_voltage_rows(decode_records(result),ids,profile,self.clock())
             return result,checked,self.clock()
         except BaseException as error:
@@ -400,6 +482,7 @@ class BusWorkers:
 
     def _feedback_then_voltage(self,scope,wires,mid,profile,deadline_ns,feedback_ready,previous):
         """Precheck this bus's six replies, then start its read-only voltage I/O."""
+        publication=None
         try:
             remaining=deadline_ns[0]-self.clock()
             need(remaining>0,'Feedback exceeded hard cycle deadline')
@@ -422,6 +505,56 @@ class BusWorkers:
                     need(abs(feedback.protocol_position_rad-old.protocol_position_rad)<=
                          profile['axes'][str(axis)]['max_measured_velocity_rad_s']*dt+.01,
                          f'ID{axis} raw position discontinuity before voltage')
+            if self.prepare_voltage_before_feedback_publication:
+                submitted_deadline=deadline_ns[0]
+                published=False;last_checked_ns=None
+                self.prepared_voltage_counts[scope]+=1
+                # Allocate audit storage before transport preparation/publication.
+                # Reuse the existing cancellation/deadline check clocks below.
+                publication={'bus':scope,'bus_cycle_index':self.prepared_voltage_counts[scope]-1,
+                    'voltage_motor_id':mid,'feedback_validated_ns':checked_at,
+                    'submitted_deadline_ns':submitted_deadline,'effective_deadline_ns':None,
+                    'prepared_before_publish_ns':None,'publication_checked_after_ns':None,
+                    'voltage_native_begin_ns':None,'voltage_first_request_ns':None,
+                    'voltage_validated_ns':None,'status':'PREPARING','error':None}
+                self.prepared_voltage_publications.append(publication)
+                def checked_deadline():
+                    nonlocal last_checked_ns
+                    need(not self.aborted.is_set(),'Output cancelled around prepared feedback publication')
+                    current_deadline=deadline_ns[0]
+                    need(type(current_deadline) is int and 0<current_deadline<=submitted_deadline,
+                         'Shared voltage deadline must not extend during preparation')
+                    last_checked_ns=self.clock()
+                    need(last_checked_ns<current_deadline,
+                         'Voltage deadline expired around prepared feedback publication')
+                    return current_deadline
+                def publish_prepared():
+                    nonlocal published
+                    checked_deadline()
+                    need(not feedback_ready.done(),'Prepared feedback must be published exactly once')
+                    publication['prepared_before_publish_ns']=last_checked_ns
+                    feedback_ready.set_result((result,current))
+                    published=True
+                    narrowed=checked_deadline()
+                    publication['publication_checked_after_ns']=last_checked_ns
+                    publication['effective_deadline_ns']=narrowed
+                    return narrowed
+                checked_deadline()
+                voltage=self._voltage(scope,[codec.read_request(mid,'voltage')],(mid,),profile,
+                    deadline_ns=submitted_deadline,before_native=publish_prepared)
+                need(published and feedback_ready.done() and not feedback_ready.cancelled() and
+                     feedback_ready.exception() is None,
+                     'Prepared transport returned without publishing valid feedback')
+                raw,_,validated=voltage
+                publication.update(voltage_native_begin_ns=raw[1].begin_ns,
+                    voltage_first_request_ns=raw[0][0].start_ns,voltage_validated_ns=validated)
+                need(publication['feedback_validated_ns']<=publication['prepared_before_publish_ns']<=
+                     publication['publication_checked_after_ns']<=publication['voltage_native_begin_ns']<=
+                     publication['voltage_first_request_ns']<=validated and
+                     all(row.deadline_ns==publication['effective_deadline_ns'] for row in raw[0]),
+                     'Prepared publication/native voltage proof is noncausal or has changed deadline')
+                publication['status']='VALIDATED'
+                return voltage
             feedback_ready.set_result((result,current))
             need(not self.aborted.is_set(),'Output cancelled before voltage read')
             remaining=deadline_ns[0]-self.clock()
@@ -431,6 +564,8 @@ class BusWorkers:
             return self._voltage(scope,[codec.read_request(mid,'voltage')],(mid,),profile,
                                  deadline_ns=deadline_ns[0])
         except BaseException as error:
+            if publication is not None:
+                publication.update(status='FAILED',error=type(error).__name__+': '+str(error))
             if not feedback_ready.done():feedback_ready.set_exception(error)
             self.emergency(type(error).__name__+': '+str(error))
             raise
@@ -652,35 +787,44 @@ def preflight(workers,profile,*,firmware_evidence=None,local_characterization=No
 
 
 def feedback_sample(rows,profile,offsets,*,now_ns,previous=None,required_mode=2):
-    q=[];v=[];tau=[];temp=[];times=[];raw={}
+    q=[];v=[];tau=[];temp=[]
+    axes=profile['axes'];max_age_ns=profile['max_sample_age_ms']*1e6
+    oldest=None
     for i in IDS:
-        need((i,'feedback') in rows,f'ID{i} missing feedback')
-        f,start,end=rows[i,'feedback'];a=profile['axes'][str(i)]
-        need(0<start<=end<=now_ns and now_ns-start<=profile['max_sample_age_ms']*1e6,f'ID{i} stale feedback')
-        need(f.mode_state==required_mode and f.fault_bits==0,f'ID{i} fault/mode')
+        if (i,'feedback') not in rows:raise RuntimeError(f'ID{i} missing feedback')
+        f,start,end=rows[i,'feedback'];a=axes[str(i)]
+        if not (0<start<=end<=now_ns and now_ns-start<=max_age_ns):
+            raise RuntimeError(f'ID{i} stale feedback')
+        if not (f.mode_state==required_mode and f.fault_bits==0):
+            raise RuntimeError(f'ID{i} fault/mode')
         if previous is not None:
             old,_,oldend=previous[i,'feedback']
-            need(end>oldend,f'ID{i} repeated feedback')
+            if not end>oldend:raise RuntimeError(f'ID{i} repeated feedback')
             dt=(end-oldend)/1e9
-            need(abs(f.protocol_position_rad-old.protocol_position_rad)<=a['max_measured_velocity_rad_s']*dt+.01,
-                 f'ID{i} raw position discontinuity')
-        raw[i]=f.protocol_position_rad
-        q.append(a['sign']*raw[i]+offsets[i]);v.append(a['sign']*f.velocity_rad_s)
-        tau.append(f.torque_nm);temp.append(f.temperature_c);times.append(start)
-    return MotionSample(tuple(q),tuple(v),tuple(tau),tuple(temp),min(times)/1e9)
+            if not abs(f.protocol_position_rad-old.protocol_position_rad)<=a['max_measured_velocity_rad_s']*dt+.01:
+                raise RuntimeError(f'ID{i} raw position discontinuity')
+        q.append(a['sign']*f.protocol_position_rad+offsets[i]);v.append(a['sign']*f.velocity_rad_s)
+        tau.append(f.torque_nm);temp.append(f.temperature_c)
+        if oldest is None or start<oldest:oldest=start
+    return MotionSample(tuple(q),tuple(v),tuple(tau),tuple(temp),oldest/1e9)
 
 
 def validate_measured(sample,profile,*,initial=None):
     """Hard feedback limits before enable, inference, and command reuse."""
+    axes=profile['axes']
     for i in IDS:
-        a=profile['axes'][str(i)];k=i-1
-        need(a['lower_rad']<=sample.q_model_rad[k]<=a['upper_rad'],f'ID{i} measured joint limit')
-        need(abs(sample.torque_nm[k])<=a['max_measured_torque_nm'],f'ID{i} measured torque')
-        need(abs(sample.velocity_rad_s[k])<=a['max_measured_velocity_rad_s'],f'ID{i} measured velocity')
-        need(sample.temperature_c[k]<=a['max_temperature_c'],f'ID{i} measured temperature')
+        a=axes[str(i)];k=i-1
+        if not a['lower_rad']<=sample.q_model_rad[k]<=a['upper_rad']:
+            raise RuntimeError(f'ID{i} measured joint limit')
+        if not abs(sample.torque_nm[k])<=a['max_measured_torque_nm']:
+            raise RuntimeError(f'ID{i} measured torque')
+        if not abs(sample.velocity_rad_s[k])<=a['max_measured_velocity_rad_s']:
+            raise RuntimeError(f'ID{i} measured velocity')
+        if not sample.temperature_c[k]<=a['max_temperature_c']:
+            raise RuntimeError(f'ID{i} measured temperature')
         if initial is not None:
-            need(abs(sample.q_model_rad[k]-initial.q_model_rad[k])<=a['max_displacement_from_start_rad'],
-                 f'ID{i} measured trial displacement')
+            if not abs(sample.q_model_rad[k]-initial.q_model_rad[k])<=a['max_displacement_from_start_rad']:
+                raise RuntimeError(f'ID{i} measured trial displacement')
 
 
 def validate_imu_metadata(value,now,profile,*,previous=0):
@@ -702,16 +846,24 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                          post_pin_policy_prime_calls=None,defer_gc_during_cycles=False,
                          exclude_policy_cpu_from_workers=False,
                          absolute_epoch_cadence=False,deadline_wait=None,
-                         active_timer_slack_ns=None):
+                         active_timer_slack_ns=None,
+                         prepare_voltage_before_feedback_publication=False):
     """Requires a validated profile; caller opens/closes owned resources.
 
     Normal completion ramps down only while supported. Faults bypass ramps and
     try STOP on both buses. The report never treats a lost USB reply as STOP.
     Raw logs are buffered, then returned after owners have stopped.
     """
+    need(type(prepare_voltage_before_feedback_publication) is bool,
+         'Prepared voltage publication selection must be a bool')
     if encode_motion is None:
         from .native_active_transport import encode_motion
     need(profile.get('output_allowed') is True,'Reviewed supported output profile required')
+    prepared_selection=prepared_voltage_publication_settings(profile)
+    need(prepared_selection is prepare_voltage_before_feedback_publication,
+         'Prepared voltage publication selection differs from reviewed profile')
+    need(not prepared_selection or supervision is None,
+         'Prepared voltage publication requires the ordinary box-supported runner')
     local_characterization=local_characterization_settings(profile)
     fixed_position_hold=current_position_hold_only(profile)
     preload_settings=supported_preload_settings(profile)
@@ -794,6 +946,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
     need(not voltage_pipeline or
          profile['schema']==SCHEMA_V3 and execution['voltage_overlap'],
          'Voltage pipeline requires V3 voltage overlap')
+    need(not prepare_voltage_before_feedback_publication or voltage_pipeline,
+         'Prepared feedback publication requires selected V3 voltage pipeline')
     need(human_supported is None or
          not reviewed_startup_cycle_allowance(profile) and post_reply_settings is None,
          'Human-supported current hold must not permit startup or post-reply deadline allowances')
@@ -811,7 +965,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             expected_binary_sha256=native_batch_config['sha256'])
         native_batch_sources=dict(PINNED_SOURCE_SHA256)
     workers=BusWorkers(sessions,cancel_io,clock,
-        before_emergency_stop=None if human_supported is None else supervision.on_abort)
+        before_emergency_stop=None if human_supported is None else supervision.on_abort,
+        prepare_voltage_before_feedback_publication=prepare_voltage_before_feedback_publication)
     watcher=OutputWatchdog(workers,PERIOD_NS+int(profile['hard_cycle_ms']*1e6),clock)
     imu_pool=ThreadPoolExecutor(max_workers=1,thread_name_prefix='policy-imu')
     from .active_output_timer_slack import ActiveOutputTimerSlack
@@ -833,10 +988,13 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             'firmware_versions_match_watchdog_review':False,
             'telemetry_cadence':cadence,
             'execution_settings':execution,
+            'prepare_voltage_before_feedback_publication':prepare_voltage_before_feedback_publication,
             'input_acquisition_wait':('native_ready_poll_200us.v1' if deadline_wait is not None
                                        else 'all_inputs_first_exception.v1'),
             'voltage_join_wait':('native_ready_poll_200us.v1' if deadline_wait is not None
                                  else 'all_ready_first_exception.v1'),
+            'output_join_wait':('native_ready_poll_200us.v1' if deadline_wait is not None
+                                else 'all_ready_first_exception.v1'),
             'absolute_epoch_cadence':absolute_epoch_cadence,
             'native_release_wait':deadline_wait is not None,
             'timer_slack':timer_slack.report,
@@ -1364,7 +1522,17 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 'envelope_and_encode_ms':(encoded-computed)/1e6,
                 'policy_and_envelope_ms':(encoded-acquired)/1e6,
                 'effective_policy_weight':weight,'command':command,'imu':imu_value}
-            decoded=workers.collect(output_futures)
+            # Native exchanges retain hard_end for every write/reply. Waiting
+            # for their already decoded proofs uses only the existing host
+            # bookkeeping allowance and checked-input age, never a new budget.
+            output_join_deadline=hard_end
+            if post_reply_settings is not None or startup_20ms_allowance and cycle==0:
+                bookkeeping_ns=(int(post_reply_settings['max_lateness_ms']*1e6)
+                                if post_reply_settings is not None else 1_000_000)
+                output_join_deadline=min(first+int(profile['max_sample_age_ms']*1e6),
+                                         begun+PERIOD_NS+bookkeeping_ns)
+            decoded=workers.collect_output(output_futures,deadline_ns=output_join_deadline,
+                deadline_wait=deadline_wait,timing=pending_timing)
             reply_return=clock()
             pending_timing.output_return_ns=reply_return;pending_timing.stage='output_validation'
             feedback={scope:entry[0] for scope,entry in decoded.items()}
@@ -1398,6 +1566,13 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             last_reply=max(entry[3] for entry in decoded.values())
             cycle_row={'index':cycle,'phase':command.phase,'begin_ns':begun,
                 'output_reply_end_ns':last_reply,'output_exchange_return_ns':reply_return,
+                'output_join_begin_ns':pending_timing.output_join_begin_ns,
+                'output_join_ready_ns':pending_timing.output_join_ready_ns,
+                'output_takeout_end_ns':pending_timing.output_takeout_end_ns,
+                'output_join_deadline_ns':output_join_deadline,
+                'output_native_deadline_ns':hard_end,
+                'output_join_cpu_ms':None if pending_timing.output_join_cpu_begin_ns is None else
+                    (pending_timing.output_join_cpu_end_ns-pending_timing.output_join_cpu_begin_ns)/1e6,
                 'oldest_input_to_final_host_write_ms':(final_write-first)/1e6,
                 'feedback':checked,'imu_body':getattr(policy,'last_validation',None),
                 **cycle_metrics}
@@ -1559,6 +1734,16 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 report['status']='ABORTED_TIMER_SLACK_RESTORE'
         workers.close();imu_pool.shutdown(wait=True,cancel_futures=True)
         # Convert copies and JSON-ready dictionaries only after all bus owners stop.
+        if prepare_voltage_before_feedback_publication:
+            report['prepared_voltage_publication']={
+                'schema':'singularitydog.active-prepared-voltage-publication.v1',
+                'mode':'validate_feedback_prepare_voltage_publish_then_native',
+                'transport_capability':'singularitydog.active-prepared-exchange.v1',
+                'selection_bound_to_reviewed_profile':True,
+                'cadence_source_sha256':dict(profile['cadence_source_sha256']),
+                'records':[dict(row) for row in workers.prepared_voltage_publications],
+                'changes_deadline_or_cancellation_guards':False,
+                'hardware_timing_improvement_proven':False}
         if pending_timing.active:
             report['failed_cycle_timing']=pending_timing.snapshot(profile)
         for cycle in report['cycles']:

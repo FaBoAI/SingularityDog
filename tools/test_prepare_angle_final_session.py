@@ -283,6 +283,35 @@ class FinalSessionTests(unittest.TestCase):
             with self.subTest(power=key,value=value),self.assertRaises(ValueError):
                 tool.review_direction(plan,4,base,moved,returned,observation)
 
+    def test_review_json_requires_a_physical_note_beyond_confirmation_or_cancellation(self):
+        plan, base, moved, returned, original = self.direction_inputs()
+        captured = paired(self.capture(4))
+        l_original = self.observation(plan, {'l':captured[1]})
+        tokens = tool.PHYSICAL_NOTE_CONFIRMATION_TOKENS | tool.PHYSICAL_NOTE_CANCEL
+        for token in sorted(tokens):
+            for note in (token, token.upper()):
+                direction = copy.deepcopy(original); direction['physical_observation_note'] = note
+                l_observation = copy.deepcopy(l_original); l_observation['physical_observation_note'] = note
+                with self.subTest(note=note, kind='direction'),self.assertRaisesRegex(ValueError,'standalone'):
+                    tool.review_direction(plan,4,base,moved,returned,direction)
+                with self.subTest(note=note, kind='l'),self.assertRaisesRegex(ValueError,'standalone'):
+                    tool.review_l(plan,'FL',captured,l_observation)
+
+    def test_cli_review_confirmation_only_note_does_not_create_review(self):
+        plan, base, moved, returned, observation = self.direction_inputs()
+        observation['physical_observation_note'] = 'y'
+        inputs = {'plan':plan,'observation':observation,'baseline':base[0],
+                  'moved':moved[0],'return-capture':returned[0]}
+        argv = ['review-direction','--id','4']
+        for key,value in inputs.items():
+            path = self.root/(key+'.json'); path.write_bytes(encoded(value))
+            argv += ['--'+key,str(path),'--'+key+'-sha256',digest(path)]
+        output = self.root/'unwritten-review.json'
+        with contextlib.redirect_stderr(io.StringIO()),self.assertRaises(SystemExit) as raised:
+            tool.main(argv+['--output',str(output)])
+        self.assertEqual(raised.exception.code,2)
+        self.assertFalse(output.exists())
+
     def test_motion_return_discontinuity_and_incomplete_capture_fail_closed(self):
         for changes in ({4:-2},{4:-21},{4:-370},{5:4},{12:4}):
             plan, base, moved, returned, observation = self.direction_inputs(4,changes)

@@ -13,8 +13,23 @@ import sys
 from . import policy_shadow as shadow
 from .policy_observer import _mount, _bias, _tensor_row, _TARGET_LOWER, _TARGET_UPPER, RAW_IMU_CORRECTION_FLAGS
 from .policy_observer_replay import warmup_policy
-from .policy_live_profile import execution_settings, SCALAR_BACKEND, acceleration_calibration_selected
+from .policy_live_profile import (execution_settings, SCALAR_BACKEND,
+    acceleration_calibration_selected, accel_input_hypothesis_settings)
 from .imu_calibration_review import reviewed_acceleration
+
+
+def _copy_json_tree(value):
+    """Copy containers of an already strictly parsed, private JSON snapshot.
+
+    JSON scalar leaves are immutable. Rebuilding every dict/list keeps emitted
+    telemetry independent without repeating the frozen hypothesis JSON parse.
+    This is not a general-purpose copy or a validation path for new input.
+    """
+    if type(value) is dict:
+        return {key:_copy_json_tree(item) for key,item in value.items()}
+    if type(value) is list:
+        return [_copy_json_tree(item) for item in value]
+    return value
 
 
 def _cpu_float32_row(value,count,label,torch_module):
@@ -59,6 +74,20 @@ class LivePolicyModel:
         self.bias=_bias(documents['bias'])['bias_sensor_rad_s']
         self.accel_calibration=reviewed_acceleration(documents['bias'],self.rotation,
             enabled=acceleration_calibration_selected(profile))
+        self.accel_input_hypothesis = None
+        self._accel_provenance_source = None
+        self._accel_provenance_snapshot = None
+        hypothesis = accel_input_hypothesis_settings(profile)
+        if hypothesis is not None:
+            from .imu_accel_input_hypothesis import (AccelInputHypothesis,
+                                                    load_accel_input_hypothesis)
+            self.accel_input_hypothesis = load_accel_input_hypothesis(hypothesis, self.rotation)
+            self.accel_calibration = self.accel_input_hypothesis
+            if type(self.accel_input_hypothesis) is AccelInputHypothesis:
+                # Only this exact loader-owned frozen type has immutable source
+                # JSON. Custom/subclass corrections retain per-call provenance.
+                self._accel_provenance_snapshot = self.accel_input_hypothesis.provenance()
+                self._accel_provenance_source = self.accel_input_hypothesis
         if policy is None:
             sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'experiments'))
             from native_policy_overnight import load_verified
@@ -135,6 +164,14 @@ class LivePolicyModel:
         gyro=[sum(row[j]*(imu['gyro_rad_s'][j]-self.bias[j]) for j in range(3)) for row in self.rotation]
         gravity=[-v/corrected_norm for v in body]
         tilt=math.acos(max(-1.,min(1.,-gravity[2])))
+        # A candidate may alter the policy's gravity input, but must never hide
+        # a tilt that the original raw-input monitor would have rejected.
+        raw_tilt = None
+        if self.accel_input_hypothesis is not None:
+            raw_body_z = sum(self.rotation[2][j]*imu['accel_m_s2'][j] for j in range(3))
+            raw_tilt = math.acos(max(-1., min(1., raw_body_z/norm)))
+            if raw_tilt > self.profile['imu_tilt_limit_rad']:
+                raise ValueError('Raw body tilt exceeded with acceleration hypothesis')
         if tilt>self.profile['imu_tilt_limit_rad'] or math.hypot(*gyro)>self.profile['imu_gyro_limit_rad_s']:
             raise ValueError('Body tilt/angular velocity exceeded')
         q=[sample.q_model_rad[i-1] for i in shadow.CAN_ORDER]
@@ -148,7 +185,14 @@ class LivePolicyModel:
             self.last_validation.update(raw_accel_sensor_m_s2=list(imu['accel_m_s2']),
                 raw_accel_norm_m_s2=norm,corrected_accel_norm_m_s2=corrected_norm,
                 accel_bias_subtracted=True,accel_scale_corrected=True)
-            self.last_validation['reviewed_accel_calibration']=self.accel_calibration.provenance()
+            key = ('accel_input_hypothesis' if self.accel_input_hypothesis is not None
+                   else 'reviewed_accel_calibration')
+            self.last_validation[key]=(
+                _copy_json_tree(self._accel_provenance_snapshot)
+                if self.accel_calibration is self._accel_provenance_source
+                else self.accel_calibration.provenance())
+            if raw_tilt is not None:
+                self.last_validation['raw_tilt_rad'] = raw_tilt
         return gyro,gravity,list(self.profile['command']),q,dq,[float(self.profile['h_hypothesis'])]*12
 
     def __call__(self,sample,imu,now_ns,*,command_override=None):
@@ -157,6 +201,8 @@ class LivePolicyModel:
             raise ValueError('Model tick or IMU reused')
         values=self.validate_inputs(sample,imu,now_ns)
         if command_override is not None:
+            if self.accel_input_hypothesis is not None:
+                raise ValueError('Acceleration input hypothesis is boxed-only; no locomotion override')
             # Only the separate reviewed ground runner supplies an override.
             # Supported output keeps its profile's zero locomotion command.
             command=tuple(command_override)

@@ -58,7 +58,9 @@ class NativeAcquisitionJoinWaitTests(unittest.TestCase):
         with self.assertRaisesRegex(TimeoutError,'20 ms hard deadline'):
             bench._await_acquisition_ready(owners,imu,deadline_ns=301000,
                 clock=clock,deadline_wait=native_wait)
-        self.assertEqual(targets,[201000,301000])
+        self.assertLess(len(targets),32)
+        self.assertEqual(targets[-1],301000)
+        self.assertTrue(all(0<b-a<=50_000 for a,b in zip([1000]+targets,targets)))
 
     def test_each_ready_owner_error_preempts_pending_others(self):
         for failed in ('front','rear','imu'):

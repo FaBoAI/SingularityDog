@@ -21,7 +21,8 @@ import wave
 from . import math_thread_startup as math_threads
 from .policy_live_profile import (ProfileError, add_transport_arguments, load_profile,
                                   transport_settings, telemetry_settings, SUPPORTED_PRELOAD_5S,
-                                  human_supported_partial_current_hold_settings)
+                                  human_supported_partial_current_hold_settings,
+                                  prepared_voltage_publication_settings)
 
 
 HUMAN_AUDIO_STAGES=('prepare_ease','go','resupport','abort')
@@ -253,7 +254,9 @@ def main(argv=None,*,execution=None):
     p.add_argument('--release-spin-us',type=int,choices=(200,500),
                    help='Use the pinned active C++ cancellation-aware release wait')
     p.add_argument('--active-timer-slack-ns',type=int,choices=(1000,),
-                   help='Set exactly 1us timer slack on the three active I/O workers, then restore')
+                   help='Set exactly 1us timer slack on the control thread and three active I/O workers, then restore')
+    p.add_argument('--prepare-voltage-before-feedback-publication',action='store_true',
+                   help='Use only the matching reviewed V3 profile: prepare each voltage transaction before publishing validated feedback')
     p.add_argument('--single-thread-math',action='store_true',
                    help='Opt in to OMP/OPENBLAS/MKL thread counts of 1 before NumPy/Torch import')
     add_transport_arguments(p)
@@ -293,6 +296,13 @@ def main(argv=None,*,execution=None):
         p.error('Geometric preload requires its dedicated supported-only execution')
     active=a.execute_supported or a.execute_fixed_catch or a.execute_supported_preload or a.execute_human_supported_partial
     profile=load_profile(a.profile,require_approved=active)
+    try:
+        prepared_voltage=prepared_voltage_publication_settings(profile)
+    except ProfileError as error:p.error(str(error))
+    if prepared_voltage is not a.prepare_voltage_before_feedback_publication:
+        p.error('--prepare-voltage-before-feedback-publication must exactly match the reviewed profile selection')
+    if prepared_voltage and (execution is not None or a.execute_fixed_catch or a.execute_supported_preload or a.execute_human_supported_partial):
+        p.error('Prepared voltage publication requires the ordinary box-supported execution path')
     human_mode=human_supported_partial_current_hold_settings(profile)
     if bool(human_mode is not None)!=a.execute_human_supported_partial:
         p.error('Human-supported profile requires its dedicated terminal execution path')
@@ -332,6 +342,7 @@ def main(argv=None,*,execution=None):
             'absolute_epoch_cadence':a.absolute_epoch_cadence,
             'release_spin_us':a.release_spin_us,
             'active_timer_slack_ns':a.active_timer_slack_ns,
+            'prepare_voltage_before_feedback_publication':prepared_voltage,
             'math_thread_startup':math_startup,
             'actual_policy_output_20ms_verified':False},ensure_ascii=False,indent=2));return 0
     if (not a.support_in_place and not (a.execute_fixed_catch or a.execute_human_supported_partial)) or not a.cutoff_ready:
@@ -365,6 +376,7 @@ def main(argv=None,*,execution=None):
             'absolute_epoch_cadence':a.absolute_epoch_cadence,
             'release_spin_us':a.release_spin_us,
             'active_timer_slack_ns':a.active_timer_slack_ns,
+            'prepare_voltage_before_feedback_publication':prepared_voltage,
             'math_thread_startup':math_startup}
     cr,cw=os.pipe();signals=SignalState(cw);handlers={}
     device=None;stage_audio=None
@@ -455,10 +467,12 @@ def main(argv=None,*,execution=None):
             if a.release_spin_us is not None:
                 if getattr(lib,'sda_wait_until',None) is None:
                     raise RuntimeError('Pinned active library lacks bounded release wait')
-                startup_options['deadline_wait']=lambda target: native.wait_until(
-                    lib,cr,target,spin_us=a.release_spin_us)
+                startup_options['deadline_wait']=native.make_owned_waiter(
+                    lib,cr,spin_us=a.release_spin_us)
             if a.active_timer_slack_ns is not None:
                 startup_options['active_timer_slack_ns']=a.active_timer_slack_ns
+            if prepared_voltage:
+                startup_options['prepare_voltage_before_feedback_publication']=True
             report=run_supported_policy(profile,sessions,device.read_sample,model,cancel_io=signals.cancel,
                 check=check,announce=announce,stop_requested=signals,supervision=execution,
                 **startup_options)
@@ -471,6 +485,7 @@ def main(argv=None,*,execution=None):
                 absolute_epoch_cadence=a.absolute_epoch_cadence,
                 release_spin_us=a.release_spin_us,
                 active_timer_slack_ns=a.active_timer_slack_ns,
+                prepare_voltage_before_feedback_publication=prepared_voltage,
                 math_thread_startup=math_startup)
     except BaseException as error:
         report['errors'].append(type(error).__name__+': '+str(error))

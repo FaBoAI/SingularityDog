@@ -4,6 +4,7 @@ import contextlib
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack
 import io
+import importlib
 import json
 import os
 from pathlib import Path
@@ -18,6 +19,8 @@ from singularitydog_hw import native_pipeline_benchmark as bench
 from singularitydog_hw import native_feedback_compare as compare
 from test_native_feedback_compare import BOOT, UIDS, FakeSession
 from test_thread_timer_slack import FakePrctl
+
+REAL_COLLECT = bench.collect
 
 
 class MockPort:
@@ -182,6 +185,51 @@ class NativeBenchmarkCLITests(unittest.TestCase):
                 "--expected-uids", str(self.uid_file), "--library", str(self.root / "unused"),
                 "--output", str(self.output), "--calibration", str(calibration),
                 "--mount", str(mount), "--bundle", str(self.root / "unused-bundle")]
+
+    def test_sourced_guard_is_owned_closed_and_separately_recorded(self):
+        sourced_boot_guard = importlib.import_module('singularitydog_hw.sourced_boot_guard')
+        self.ready_imu()
+        self.normal_collect.return_value = ({'status': 'COMPLETE_DIAGNOSTIC', 'errors': []}, [])
+        proof = {'scope': 'disabled_stop_proxy_diagnostic_only', 'native_library_loaded': True}
+        factory = Mock(return_value=self.guard)
+        factory.provenance.return_value = dict(proof)
+        factory.verify.return_value = dict(proof, source_files_unchanged=True)
+        flags = ['--v3-voltage-proxy', '--provenance-mode', 'supported-policy-probe-2s-rare-jitter-v1',
+                 '--power-epoch', 'operator-confirmed-test-only',
+                 '--native-boot-guard-artifact', '/private/test-guard.json',
+                 '--native-boot-guard-artifact-sha256', 'a'*64]
+        with (patch.object(sourced_boot_guard, 'plan_sourced_boot_guard', return_value=proof),
+              patch.object(sourced_boot_guard, 'load_sourced_boot_guard_factory', return_value=factory),
+              patch.object(bench, '_start_source_provenance', return_value=None),
+              patch.object(bench.dual, 'BootIdentityGuard', side_effect=AssertionError('Default guard selected'))):
+            self.assertEqual(self.call_main(self.policy_args()+flags), 0)
+        report, _ = self.saved()
+        factory.assert_called_once_with()
+        factory.verify.assert_called_once_with()
+        self.guard.close.assert_called_once_with()
+        self.assertTrue(report['sourced_boot_guard']['source_files_unchanged'])
+        self.assertTrue(report['sourced_boot_guard']['files_unchanged_after_run'])
+
+    def test_sourced_guard_final_pin_failure_is_retained_as_abort(self):
+        sourced_boot_guard = importlib.import_module('singularitydog_hw.sourced_boot_guard')
+        self.ready_imu()
+        self.normal_collect.return_value = ({'status': 'COMPLETE_DIAGNOSTIC', 'errors': []}, [])
+        factory = Mock(return_value=self.guard)
+        factory.provenance.return_value = {'scope': 'disabled_stop_proxy_diagnostic_only'}
+        factory.verify.side_effect = ValueError('Native guard changed after run')
+        flags = ['--v3-voltage-proxy', '--provenance-mode', 'supported-policy-probe-2s-rare-jitter-v1',
+                 '--power-epoch', 'operator-confirmed-test-only',
+                 '--native-boot-guard-artifact', '/private/test-guard.json',
+                 '--native-boot-guard-artifact-sha256', 'a'*64]
+        with (patch.object(sourced_boot_guard, 'plan_sourced_boot_guard', return_value={}),
+              patch.object(sourced_boot_guard, 'load_sourced_boot_guard_factory', return_value=factory),
+              patch.object(bench, '_start_source_provenance', return_value=None)):
+            self.assertEqual(self.call_main(self.policy_args()+flags), 2)
+        report, _ = self.saved()
+        self.assertEqual(report['status'], 'ABORTED')
+        self.assertIn('ValueError: Native guard changed after run', report['errors'])
+        self.assertFalse(report['sourced_boot_guard']['files_unchanged_after_run'])
+        self.guard.close.assert_called_once_with()
 
     def native_baseline_flags(self):
         return ['--native-policy-manifest', str(self.root / 'native-baseline.json'),
@@ -971,6 +1019,44 @@ class NativeBenchmarkCLITests(unittest.TestCase):
         self.assertTrue(self.normal_collect.call_args.kwargs['v3_voltage_proxy'])
         self.assertEqual(self.normal_collect.call_args.kwargs['voltage_max_v'],42)
         self.assert_closed()
+
+    def test_prepared_publication_selection_is_bound_in_disabled_plan_and_report(self):
+        self.ready_imu()
+        self.normal_collect.return_value=({'status':'COMPLETE_DIAGNOSTIC','errors':[],
+            'prepare_voltage_before_feedback_publication':True},[])
+        args=self.policy_args()+['--v3-voltage-proxy','--v3-voltage-overlap',
+            '--v3-voltage-validation-overlap','--v3-voltage-fast-pipeline',
+            '--record-storage','trace','--prepare-voltage-before-feedback-publication',
+            '--provenance-mode','supported-policy-probe-2s-rare-jitter-v1',
+            '--power-epoch','operator-declared-test-epoch']
+        with patch.object(bench,'_start_source_provenance',return_value=None):
+            self.assertEqual(self.call_main(args),0)
+        report,_=self.saved()
+        self.assertIs(report['plan']['prepare_voltage_before_feedback_publication'],True)
+        self.assertIs(report['prepare_voltage_before_feedback_publication'],True)
+        self.assertIs(self.normal_collect.call_args.kwargs[
+            'prepare_voltage_before_feedback_publication'],True)
+        self.assertEqual(report['plan']['type1_requests_per_cycle'],0)
+        self.assertFalse(report['plan']['enable_available'])
+        self.assertFalse(report['plan']['learned_targets_sent'])
+        self.assert_closed()
+
+    def test_prepared_publication_rejects_missing_fast_path_or_provenance_before_devices(self):
+        flags=['--prepare-voltage-before-feedback-publication']
+        for extra in ([],['--v3-voltage-proxy','--v3-voltage-overlap',
+            '--v3-voltage-validation-overlap','--v3-voltage-fast-pipeline',
+            '--record-storage','trace']):
+            with self.subTest(extra=extra), self.assertRaises(SystemExit):
+                self.call_main(self.policy_args()+flags+extra)
+            self.assertEqual(self.ports,[])
+            self.normal_collect.assert_not_called()
+
+    def test_prepared_publication_direct_collector_rejects_false_equivalence(self):
+        for selected in (True,1,'true'):
+            with self.subTest(selected=selected), self.assertRaisesRegex(
+                    ValueError,'Prepared publication evidence'):
+                REAL_COLLECT({},None,object(),mode='stop-proxy',cycles=1,
+                    prepare_voltage_before_feedback_publication=selected)
 
     def test_explicit_voltage_upper_bound_reaches_collector_and_saved_plan(self):
         self.ready_imu()

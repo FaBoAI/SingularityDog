@@ -1,0 +1,157 @@
+{
+  "schema": "singularitydog.stationary-optical-capture-summary.v1",
+  "date": "2026-10-06",
+  "scope": "ID5 static readonly PVP capture and bounded USB camera frames; not50Hzcontrolleroutput",
+  "status": "RECOVERED_CAPTURE_AND_INDEPENDENT_RAW_AUDIT_PASS",
+  "started_at_jst": "2026-10-06T09:38:01.879135+09:00",
+  "completed_at_jst": "2026-10-06T09:38:11.839072+09:00",
+  "operator_confirmed": {
+    "subject_id": 5,
+    "markers": "existing bolt heads",
+    "motor_40V_on": true,
+    "motor_relaxed": true,
+    "body_supported": true,
+    "hands_off": true,
+    "cutoff_ready": true,
+    "during_recording_static_untouched_no_abnormal": true
+  },
+  "camera": {
+    "recorder_source_sha256": "711ebcbc86ef4c827194f9cbf761243b7370c3088132eaf8971579d8d1c15df0",
+    "offline_test_count": 21,
+    "independent_source_review": "NO_BLOCKER",
+    "target_single_frame_smoke": "PASS",
+    "status": "CAPTURED_CAMERA_FRAMES_REVIEW_REQUIRED",
+    "frame_count": 425,
+    "jpeg_bytes": 96483376,
+    "caps": {
+      "media_type": "image/jpeg",
+      "width": 1920,
+      "height": 1080,
+      "fps_numerator": 30,
+      "fps_denominator": 1
+    },
+    "termination_reason": "DURATION_LIMIT",
+    "pipeline_null_confirmed": true,
+    "saved_frame_hashes_reverified_on_target_and_mac": 425,
+    "host_receipt_gap_ms": {
+      "min": 12.681634,
+      "median": 32.5072635,
+      "max": 82.805517
+    },
+    "offset_metadata": {
+      "first": 0,
+      "last": 426,
+      "hardware_frame_loss_verified": false,
+      "discontinuities": [
+        {
+          "frame_index": 1,
+          "preceding_offset": 0,
+          "current_offset": 3,
+          "physical_frame_loss_count_verified": false
+        }
+      ]
+    },
+    "report_sha256": "7a47178d8a8374ef8b2ba61be047be6c9f698e29e44a1a17df1e1b2c46aa5494",
+    "exposure_time_verified": false,
+    "angular_resolution_rad": null,
+    "point_correspondence_review_complete": false
+  },
+  "can": {
+    "source_sha256": {
+      "can_readonly.py": "a8a9a2241d9e32cb9ffad6fc855bb3a7d05b32e4e1fd4b2605cca7be0b74f9cc",
+      "can_timing_probe.py": "be285ae75fc4e5271fceb696bfc6f4590e8b23f54b25380747eb92fe58930a0a",
+      "dual_can_pipeline_benchmark.py": "b31307264ec7e4986520f2d6e0701238d38c627d26222401aa1507c716a0ca3d",
+      "sensor_pipeline_benchmark.py": "e7fde259aada55a69b65ae87381785166ee5ecad71e05919af3089a117c81e00",
+      "stationary_velocity_probe.py": "6fcec201a4df7699644a94742c6776612dabfaeb7390897a5fedba6ca5908741"
+    },
+    "status": "RECORDED_REVIEW_REQUIRED",
+    "queries_sent": 162,
+    "all12_identities_verified": true,
+    "selected_motor_id": 5,
+    "request_order": [
+      "position",
+      "velocity",
+      "position"
+    ],
+    "period_ms": 200,
+    "complete_triplets": 50,
+    "full_requested_slot_coverage": true,
+    "dropped_slot_count": 0,
+    "incomplete_triplets": 0,
+    "reported_velocity_rad_s": {
+      "rms": 0.040832270978850796,
+      "min": -0.07622312754392624,
+      "max": 0.10429032146930695,
+      "mean": 0.007655525794252754
+    },
+    "reported_position_span_deg": 0.019848529728057056,
+    "report_sha256": "0ccba1ea3fbf3f612f9e9eb530f89de96088f50bade31c1c61f436be8c3024f1",
+    "trace_sha256": "02463c8ec0d013530617da89bec62e82fa0262664c995ab4ffc9f0faa01932fc",
+    "sensor_sample_time_verified": false
+  },
+  "overlap": {
+    "same_boot_host_monotonic_clock": true,
+    "pvp_host_request_reply_brackets_within_camera_receipt_window": 150,
+    "pvp_brackets_total": 150,
+    "scope": "Host communication receipt windows only; not motor acquisition and camera exposure synchronization",
+    "camera_can_exposure_synchronization_verified": false,
+    "camera_after_receipts_within_can_segment": 291,
+    "can_segment_duration_s": 9.837683811
+  },
+  "original_stdout_report_sha_bindings_match": true,
+  "archive_sha256": "a79f7ab93feb99885a1bc26919ad215a565f4f205a96bc148a811190de9bf5c5",
+  "archive_bytes": 97699840,
+  "raw_data_private": true,
+  "motor_enable_sent": false,
+  "stop_sent": false,
+  "motor_parameter_write_sent": false,
+  "learned_targets_sent": false,
+  "existing_thresholds_changed": false,
+  "angle_profile_changed": false,
+  "camera_used_on_control20ms_path": false,
+  "physical_stationarity_proven": false,
+  "stationary_velocity_cause_confirmed": false,
+  "absolute_origin_error_rad": null,
+  "calibration_approved_for_runtime": false,
+  "output_allowed": false,
+  "errors": [],
+  "independent_file_audit": {
+    "status": "PASS",
+    "checks": 39,
+    "audit_sha256": "84012a026573422c3bd440054cfda4874d5288d723b947888cd82857d9c3d7ed",
+    "archive_recovered_files_verified": 435,
+    "jpeg_hashes_verified": 425,
+    "raw_can_pairs_replayed": 162,
+    "raw_trace_events": 971,
+    "all50_ordered_pvp_triplets_verified": true,
+    "unmatched_frames": 0,
+    "residual_or_discarded_bytes": 0,
+    "motor_enable_stop_or_parameter_write_commands_observed": 0,
+    "original_stdout_hash_bindings_verified": true,
+    "velocity_statistics_recomputed": true
+  },
+  "exploratory_image_analysis": {
+    "status": "METHOD_SENSITIVITY_PHYSICAL_MICROMOTION_UNRESOLVED",
+    "scope": "Apparent two-line angles in images; not calibrated physical joint angles",
+    "original_files_rechecked_unchanged": 435,
+    "original_frames_preserved": 425,
+    "interpolated_frames": 0,
+    "variants": [
+      {"template_radius_px": 9, "usable_frames": 407, "apparent_image_angle_span_deg": 1.059453},
+      {"template_radius_px": 13, "usable_frames": 425, "apparent_image_angle_span_deg": 0.112855},
+      {"template_radius_px": 17, "usable_frames": 425, "apparent_image_angle_span_deg": 0.089849}
+    ],
+    "common_usable_variant_frames": 407,
+    "variant_spread_deg": {"median": 0.212646, "max": 0.816126},
+    "variant_spread_is_error_bound": false,
+    "translation_controls_usable_throughout": 3,
+    "physical_marker_correspondence_verified": false,
+    "point_error_bound_px": null,
+    "physical_velocity_rad_s": null,
+    "exposure_time_verified": false,
+    "alias_excluded": false,
+    "velocity_cause_confirmed": false,
+    "private_derivative_receipt_sha256": "6d72f8b4e51f9569c3cf27d4e20af52a9920e5135119d759be6c855bd234b07d",
+    "frozen_analyzer_source_sha256": "a6a9f957717cea82586a1d9eba3cd51d12caed41868f451aa3b820f3918dab70"
+  }
+}

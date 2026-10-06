@@ -60,29 +60,39 @@ _OUTPUT_DISPATCH_FIELDS = (
     'main_infer_thread_cpu_ns', 'main_submits_end_thread_cpu_ns')
 
 
-def _start_source_provenance(mode, power_epoch):
+def _start_source_provenance(mode, power_epoch, *, accel_input_hypothesis=False):
     """Optional file provenance; no power detection or output authorization.
 
     Legacy diagnostic invocations remain unbound. A scoped timing record must
     explicitly name its epoch and pin its own source set before opening any
     devices. The caller's epoch string is an assertion, not a sensor reading.
     """
-    if mode is None and power_epoch is None:
+    if type(accel_input_hypothesis) is not bool:
+        raise ValueError('Acceleration hypothesis selection must be boolean')
+    if mode is None and power_epoch is None and not accel_input_hypothesis:
         return None
     from . import policy_live_profile as profiles
-    if mode not in (profiles.SUPPORTED_PRELOAD_5S,
-                    profiles.HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S):
+    allowed = ((profiles.SUPPORTED_POLICY_PROBE, profiles.SUPPORTED_POLICY_PROBE_2S_RARE_JITTER)
+               if accel_input_hypothesis else (profiles.SUPPORTED_PRELOAD_5S,
+                    profiles.HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S))
+    if mode not in allowed:
         raise ValueError('Explicit supported --provenance-mode is required with --power-epoch')
     if (type(power_epoch) is not str or not 0 < len(power_epoch) <= 256 or
             power_epoch.strip() != power_epoch or not power_epoch.isprintable()):
         raise ValueError('Scoped source provenance requires an explicit nonempty --power-epoch')
-    return {'schema':'singularitydog.diagnostic-source-provenance.v1',
+    selection = {'diagnostic_timing_acceptance':mode}
+    if accel_input_hypothesis:
+        selection['accel_input_hypothesis'] = True
+    result = {'schema':'singularitydog.diagnostic-source-provenance.v1',
             'mode':mode,'motor_power_epoch':power_epoch,
             'power_epoch_source':'explicit_operator_argument_not_hardware_detected',
             'cadence_source_sha256':profiles.cadence_source_hashes(
-                {'diagnostic_timing_acceptance':mode}),
+                selection),
             'source_files_unchanged':None,
             'output_allowed':False,'approved_for_runtime':False}
+    if accel_input_hypothesis:
+        result['accel_input_hypothesis'] = True
+    return result
 
 
 def _finish_source_provenance(report, provenance):
@@ -91,8 +101,10 @@ def _finish_source_provenance(report, provenance):
         return
     from . import policy_live_profile as profiles
     try:
-        current = profiles.cadence_source_hashes(
-            {'diagnostic_timing_acceptance':provenance['mode']})
+        selection = {'diagnostic_timing_acceptance':provenance['mode']}
+        if provenance.get('accel_input_hypothesis') is True:
+            selection['accel_input_hypothesis'] = True
+        current = profiles.cadence_source_hashes(selection)
         if current != provenance['cadence_source_sha256']:
             raise ValueError('Diagnostic cadence source changed during execution')
         provenance['source_files_unchanged'] = True
@@ -134,9 +146,97 @@ class _TraceRow:
                for phase,scopes in self.phase_scopes.items()}}
 
 
+_TRACE_COPY_TOKEN = object()
+
+
+class _RetainedGILTraceCopy:
+    """Private bounded copy experiment; same routine, with no GIL handoff.
+
+    No library is loaded: PYFUNCTYPE wraps the already resolved ctypes.memmove
+    address. Only the trace's owned Record/Stats buffers reach this callable.
+    This is diagnostic storage and cannot qualify the active controller.
+    """
+    def __init__(self, original, prototype, function, address, token):
+        self._original=original;self._prototype=prototype;self._function=function
+        self._address=address;self._token=token
+        self._source_path=Path(__file__).resolve()
+        self._source_sha256=hashlib.sha256(self._source_path.read_bytes()).hexdigest()
+        self._calls=self._bytes=0
+
+    def _verify_abi(self):
+        if (self._token is not _TRACE_COPY_TOKEN or C.memmove is not self._original or
+                getattr(self._original,'_flags_',None)!=1 or
+                getattr(self._original,'restype',None) is not C.c_void_p or
+                tuple(getattr(self._original,'argtypes',()) or ())!=(C.c_void_p,C.c_void_p,C.c_size_t) or
+                type(self._function) is not self._prototype or
+                self._function._flags_!=5 or self._function.restype is not C.c_void_p or
+                tuple(self._function.argtypes)!=(C.c_void_p,C.c_void_p,C.c_size_t)):
+            raise ValueError('Retained-GIL trace-copy ABI/binding changed')
+
+    def provenance(self):
+        return {'schema':'singularitydog.retained-gil-trace-copy.v1',
+            'scope':'disabled_stop_proxy_diagnostic_only',
+            'source_path':str(self._source_path),'source_sha256':self._source_sha256,
+            'prototype':'PYFUNCTYPE(c_void_p,c_void_p,c_void_p,c_size_t)',
+            'default_function_flags':1,'selected_function_flags':5,
+            'default_address':self._address,'selected_address':self._address,
+            'same_memmove_routine':True,'retains_gil':True,
+            'new_native_library_loaded':False,'guard_check_frequency_changed':False,
+            'copy_scope':'owned native Record and Stats buffers only',
+            'max_copy_bytes':max(C.sizeof(native.Record)*12,C.sizeof(native.Stats)),
+            'completed_copy_calls':self._calls,'completed_copy_bytes':self._bytes,
+            'copy_and_checks_inside_whole_iteration':True,
+            'all_original_trace_proof_preserved':True,'source_files_unchanged':None,
+            'active_controller_qualification':False,'approved_for_runtime':False,
+            'output_allowed':False,'timing_gain_proven':False}
+
+    def verify(self):
+        self._verify_abi()
+        if (type(self._address) is not int or self._address<=0 or
+                C.cast(self._original,C.c_void_p).value!=self._address or
+                C.cast(self._function,C.c_void_p).value!=self._address or
+                hashlib.sha256(self._source_path.read_bytes()).hexdigest()!=self._source_sha256):
+            raise ValueError('Retained-GIL trace-copy routine/source changed')
+        result=self.provenance();result['source_files_unchanged']=True
+        return result
+
+    def __call__(self,destination,source,length):
+        self._verify_abi()
+        if (type(destination) is not int or destination<=0 or type(source) is not int or source<=0 or
+                type(length) is not int or not 0<=length<=max(C.sizeof(native.Record)*12,C.sizeof(native.Stats))):
+            raise ValueError('Invalid bounded owned trace-copy arguments')
+        returned=self._function(destination,source,length)
+        if type(returned) is not int or returned!=destination:
+            raise ValueError('Retained-GIL trace-copy returned a different destination')
+        self._calls+=1;self._bytes+=length
+        return returned
+
+
+def _retained_gil_trace_copy():
+    """Check the exact existing routine/three-argument ABI, without copying."""
+    original=C.memmove
+    if (getattr(original,'_flags_',None)!=1 or
+            getattr(original,'restype',None) is not C.c_void_p or
+            tuple(getattr(original,'argtypes',()) or ())!=(C.c_void_p,C.c_void_p,C.c_size_t)):
+        raise ValueError('Default trace-copy routine must remain CFUNCTYPE flags1')
+    address=C.cast(original,C.c_void_p).value
+    if type(address) is not int or address<=0:
+        raise ValueError('Default trace-copy address unavailable')
+    prototype=C.PYFUNCTYPE(C.c_void_p,C.c_void_p,C.c_void_p,C.c_size_t)
+    function=prototype(address)
+    backend=_RetainedGILTraceCopy(original,prototype,function,address,_TRACE_COPY_TOKEN)
+    backend.verify()
+    return backend
+
+
 class _RecordTrace:
     """Bounded native buffers, with no JSON or evidence dicts in the timed cycle."""
-    def __init__(self,cycles,mode,*,voltage_overlap=False):
+    def __init__(self,cycles,mode,*,voltage_overlap=False,trace_copy_backend=None):
+        if trace_copy_backend is not None:
+            if type(trace_copy_backend) is not _RetainedGILTraceCopy:
+                raise ValueError('Validated retained-GIL trace-copy backend required')
+            trace_copy_backend.verify()
+        self.trace_copy_backend=trace_copy_backend
         self.capacity_cycles=cycles
         self.phases=('acquired','voltage','output') if voltage_overlap else (
             ('acquired','output') if mode=='stop-proxy' else ('acquired',))
@@ -157,6 +257,7 @@ class _RecordTrace:
                           2*self.phases.index(phase)+_TRACE_SCOPE_INDEX[scope]]
 
     def capture(self,cycle_index,row):
+        copy_memory=C.memmove if self.trace_copy_backend is None else self.trace_copy_backend
         scopes={phase:tuple(row[phase]) for phase in self.phases}
         for phase in self.phases:
             for scope,(records,stats) in row[phase].items():
@@ -165,8 +266,8 @@ class _RecordTrace:
                         not 1<=count<=12 or type(stats) is not native.Stats):
                     raise ValueError('Invalid native trace exchange')
                 slot=self._slot(cycle_index,phase,scope)
-                C.memmove(C.addressof(slot.records),C.addressof(records),C.sizeof(records))
-                C.memmove(C.addressof(slot.stats),C.addressof(stats),C.sizeof(native.Stats))
+                copy_memory(C.addressof(slot.records),C.addressof(records),C.sizeof(records))
+                copy_memory(C.addressof(slot.stats),C.addressof(stats),C.sizeof(native.Stats))
                 slot.count=count
         metadata={k:v for k,v in row.items() if k not in self.phases}
         return _TraceRow(self,cycle_index,metadata,scopes)
@@ -437,13 +538,27 @@ def _feedback_then_gated_voltage(exchange,scope,feedback_wires,voltage_wire,
         raise
 
 
+def _readiness_poll_target(now,deadline_ns):
+    """Keep a final readiness opportunity without extending the deadline."""
+    remaining=deadline_ns-now
+    if remaining<=400_000:
+        # With >=2 ns remaining, never deliberately sleep to the deadline.
+        # Halving also bounds successive tail waits as the budget runs out.
+        step=min(50_000,max(1,remaining//2))
+    else:
+        step=200_000
+    return min(deadline_ns,now+step)
+
+
 def _await_owned_ready(futures,validation_future,*,phase,deadline_ns,deadline_wait=None,
                          clock=time.monotonic_ns,check=lambda:None,
                          thread_clock=time.thread_time_ns):
     """Wait only for readiness; taking/validating results stays with the owner.
 
     The existing native release wait releases the GIL and spins for targets at
-    most 200 us apart. It does not read an FD or publish/replace a source time.
+    most 200 us apart, reducing to <=50 us in the last 400 us and then
+    halving the remaining budget. It never accepts a result at the deadline.
+    It does not read an FD or publish/replace a source time.
     Without that callback, use one bounded all-future condition wait. Result
     and frame/proof validation stay with the existing owners and dispatch gate.
     """
@@ -456,60 +571,163 @@ def _await_owned_ready(futures,validation_future,*,phase,deadline_ns,deadline_wa
     owners=tuple(futures.values())+(() if validation_future is None else (validation_future,))
     if len({id(future) for future in owners})!=len(owners):
         raise ValueError('Distinct '+phase.lower()+' owner/validation futures required')
+    owner_count=len(owners)
+    ready_flags=bytearray(owner_count)
     begin=clock();cpu_begin=thread_clock();calls=0
     if type(begin) is not int or begin<=0:
         raise ValueError('Causal '+phase.lower()+' join clock required')
-    while True:
-        ready=tuple(f for f in owners if f.done())
-        # A ready error wins over an unfinished second owner; never wait on it.
-        for future in ready:
-            if future.cancelled():raise RuntimeError(phase+' owner future cancelled')
-            error=future.exception()
-            if error is not None:raise error
-        check()
-        now=clock()
-        if type(now) is not int or now<begin:
-            raise ValueError('Noncausal '+phase.lower()+' join clock')
-        if now>=deadline_ns:
-            raise TimeoutError(phase+' pipeline exceeded 20 ms hard deadline at '+phase.lower()+' join')
-        if len(ready)==len(owners):
-            cpu_end=thread_clock();end=clock()
-            if type(end) is not int or end<now or cpu_end<cpu_begin:
-                raise ValueError('Noncausal '+phase.lower()+' join completion clock')
-            if end>=deadline_ns:
+    last_clock=begin;ready_count=0;decision_ns=None;stage='initial'
+    last_poll_before_ns=None;last_poll_wake_ns=None;last_poll_returned_ns=None
+    try:
+        while True:
+            stage='owner_readiness'
+            decision_ns=None
+            ready_count=0
+            index=0
+            while index<owner_count:
+                ready_flags[index]=bool(owners[index].done())
+                ready_count+=ready_flags[index]
+                index+=1
+            # A ready error wins over an unfinished second owner; never wait on it.
+            index=0
+            while index<owner_count:
+                future=owners[index];ready=ready_flags[index];index+=1
+                if not ready:continue
+                if future.cancelled():raise RuntimeError(phase+' owner future cancelled')
+                error=future.exception()
+                if error is not None:raise error
+            stage='guard_check'
+            check()
+            stage='decision_clock'
+            now=clock()
+            if type(now) is not int or now<last_clock:
+                raise ValueError('Noncausal '+phase.lower()+' join clock')
+            last_clock=now
+            decision_ns=now
+            if now>=deadline_ns:
                 raise TimeoutError(phase+' pipeline exceeded 20 ms hard deadline at '+phase.lower()+' join')
-            return {'mode':'native_readiness_poll_v1' if deadline_wait is not None else 'bounded_future_wait_v1',
-                    'native_tick_max_us':200 if deadline_wait is not None else None,
-                    'wait_calls':calls,'begin_ns':begin,'end_ns':end,
-                    'thread_cpu_begin_ns':cpu_begin,'thread_cpu_end_ns':cpu_end,
-                    'future_results_taken_only_after_ready':True}
-        if deadline_wait is None:
-            wait(owners,timeout=(deadline_ns-now)/1e9,return_when=FIRST_EXCEPTION)
-        else:
-            wake=min(deadline_ns,now+200_000)
-            try:deadline_wait(wake)
-            except BaseException:
-                # Cancellation can wake the native wait after an owner failed.
-                # Retain that original owner error rather than hiding it with
-                # the cancellation notification raised by the wait callback.
-                for future in owners:
-                    if future.done() and not future.cancelled():
-                        error=future.exception()
-                        if error is not None:raise error
-                raise
-            returned=clock()
-            if type(returned) is not int or returned<wake:
-                raise ValueError('Native '+phase.lower()+' readiness wait returned before requested wake')
-        calls+=1
+            if ready_count==owner_count:
+                stage='completion_clock'
+                cpu_end=thread_clock();end=clock()
+                if type(end) is not int or end<now or cpu_end<cpu_begin:
+                    raise ValueError('Noncausal '+phase.lower()+' join completion clock')
+                last_clock=end
+                decision_ns=end
+                if end>=deadline_ns:
+                    raise TimeoutError(phase+' pipeline exceeded 20 ms hard deadline at '+phase.lower()+' join')
+                return {'mode':'native_readiness_poll_v1' if deadline_wait is not None else 'bounded_future_wait_v1',
+                        'native_tick_max_us':200 if deadline_wait is not None else None,
+                        'native_tail_window_us':400 if deadline_wait is not None else None,
+                        'native_tail_tick_max_us':50 if deadline_wait is not None else None,
+                        'wait_calls':calls,'begin_ns':begin,'end_ns':end,
+                        'thread_cpu_begin_ns':cpu_begin,'thread_cpu_end_ns':cpu_end,
+                        'future_results_taken_only_after_ready':True}
+            if deadline_wait is None:
+                stage='condition_wait'
+                wait(owners,timeout=(deadline_ns-now)/1e9,return_when=FIRST_EXCEPTION)
+            else:
+                wake=_readiness_poll_target(now,deadline_ns)
+                last_poll_before_ns=now;last_poll_wake_ns=wake;last_poll_returned_ns=None
+                stage='native_wait';calls+=1
+                try:deadline_wait(wake)
+                except BaseException:
+                    # Cancellation can wake the native wait after an owner failed.
+                    # Retain that original owner error rather than hiding it with
+                    # the cancellation notification raised by the wait callback.
+                    for future in owners:
+                        if future.done() and not future.cancelled():
+                            error=future.exception()
+                            if error is not None:raise error
+                    raise
+                stage='native_return_clock'
+                returned=clock()
+                last_poll_returned_ns=returned if type(returned) is int and returned>0 else None
+                if type(returned) is not int or returned<wake:
+                    raise ValueError('Native '+phase.lower()+' readiness wait returned before requested wake')
+                last_clock=returned
+            if deadline_wait is None:calls+=1
+    except BaseException as error:
+        try:
+            error.readiness_poll_failure={
+                'schema':'singularitydog.readiness-poll-failure.v1',
+                'phase':phase,'stage':stage,'deadline_ns':deadline_ns,
+                'begin_ns':begin,'last_checked_clock_ns':last_clock,
+                'last_poll_before_ns':last_poll_before_ns,
+                'last_poll_wake_ns':last_poll_wake_ns,
+                'last_poll_returned_ns':last_poll_returned_ns,
+                'decision_ns':decision_ns if stage in ('decision_clock','completion_clock') else None,
+                'wait_calls_attempted':calls,'last_ready_count':ready_count,
+                'owner_count':owner_count,'native_wait_selected':deadline_wait is not None,
+                'native_tick_max_us':200 if deadline_wait is not None else None,
+                'native_tail_window_us':400 if deadline_wait is not None else None,
+                'native_tail_tick_max_us':50 if deadline_wait is not None else None,
+                'decision_is_owner_completion_time':False,
+                'source_timestamps_changed':False}
+        except BaseException:
+            pass
+        raise
+
 
 def _await_voltage_ready(futures,validation_future,**options):
     return _await_owned_ready(futures,validation_future,phase='Voltage',**options)
+
+
+def _await_output_ready(futures,**options):
+    return _await_owned_ready(futures,None,phase='Proxy output',**options)
+
+
+def _output_join_failure_proof(error,stage,futures,clock):
+    """Failure-only observation; no result takeout or native reply inference."""
+    proof={'stage':stage,'reason':type(error).__name__+': '+str(error),
+           'captured_ns':None,'owner_future_states':{},
+           'capture_is_deadline_decision_time':False,
+           'states_read_sequentially':True,'native_reply_time_inferred':False}
+    try:
+        poll_failure=getattr(error,'readiness_poll_failure',None)
+        if type(poll_failure) is dict:
+            proof['readiness_poll_failure']=dict(poll_failure)
+    except BaseException:
+        proof['readiness_poll_trace_unavailable']=True
+    try:
+        for scope,future in futures.items():
+            proof['owner_future_states'][scope]={
+                'done':future.done(),'cancelled':future.cancelled()}
+        captured=clock()
+        if type(captured) is not int or captured<=0:
+            raise ValueError('Invalid failure observation clock')
+        proof['captured_ns']=captured
+    except BaseException as capture_error:
+        # Observability must never replace the original failure or skip cleanup.
+        proof['capture_error']=type(capture_error).__name__+': '+str(capture_error)
+    return proof
+
+
+def _proxy_output_join_deadline(release_ns,oldest_ns,*,startup=False):
+    """Bound completed-result collection, independently of the dispatch gate.
+
+    The existing explicit first-cycle diagnostic allowance permits at most
+    21 ms elapsed, while checked input age remains at most 20 ms. This does
+    not change native exchange deadlines or the pre-dispatch 20 ms gate.
+    """
+    return min(release_ns+PERIOD_NS+(1_000_000 if startup else 0),
+               oldest_ns+PERIOD_NS)
 
 
 def _await_acquisition_ready(futures,imu_future,**options):
     if not isinstance(imu_future,Future):
         raise ValueError('Current acquisition IMU Future required')
     return _await_owned_ready(futures,imu_future,phase='Acquisition',**options)
+
+
+def _collection_deadline_wait(library,cancel_fd,spin_us):
+    """Set up one coordinator-owned callback inside its FD/library lifetime.
+
+    Default/fake collectors keep their existing condition or injected wait.
+    The explicit native release option uses the same native routine, deadline,
+    cancellation FD and spin setting with reusable scratch buffers.
+    """
+    if spin_us is None:return None
+    return native.make_owned_waiter(library,cancel_fd,spin_us=spin_us)
 
 
 def _settle_voltage(futures,record):
@@ -920,7 +1138,8 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
             v3_voltage_pipeline=False,v3_voltage_fast_pipeline=False,
             inference_thread_cpu_trace=False,absolute_epoch_cadence=False,
             exclude_policy_cpu_from_workers=False,startup_cycle_allowance=0,deadline_wait=None,
-            voltage_max_v=42):
+            voltage_max_v=42,trace_copy_backend=None,
+            prepare_voltage_before_feedback_publication=False):
     """Finite no-catchup benchmark, injectable transports for failure testing."""
     if (mode not in ('type17','stop-proxy') or not 1<=cycles<=3000 or
             record_storage not in ('objects','encoded','trace')):
@@ -932,6 +1151,12 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                                          not 2<=cycles<=501)):
         raise ValueError('Startup allowance requires one recorded startup and 1..500 STOP-proxy inference cycles')
     bounded_cycles=500+startup_cycle_allowance
+    if trace_copy_backend is not None:
+        if (type(trace_copy_backend) is not _RetainedGILTraceCopy or mode!='stop-proxy' or
+                policy_observer is None or not v3_voltage_proxy or record_storage!='trace' or
+                cycles>bounded_cycles):
+            raise ValueError('Retained-GIL trace copy requires bounded V3 STOP-proxy inference/trace')
+        trace_copy_backend.verify()
     if deadline_wait is not None and (not callable(deadline_wait) or not absolute_epoch_cadence):
         raise ValueError('Native release wait requires absolute-epoch cadence')
     if type(v3_voltage_proxy) is not bool or (v3_voltage_proxy and
@@ -955,6 +1180,10 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
             record_storage=='trace' and cycles<=bounded_cycles) or
             v3_voltage_fast_pipeline and v3_voltage_pipeline):
         raise ValueError('Fast voltage pipeline requires bounded V3 STOP-proxy trace and excludes gated pipeline')
+    if (type(prepare_voltage_before_feedback_publication) is not bool or
+            prepare_voltage_before_feedback_publication and
+            (not v3_voltage_fast_pipeline or trace_copy_backend is not None)):
+        raise ValueError('Prepared publication evidence requires the unchanged fast voltage STOP-proxy path')
     pipeline_key=('voltage_pipeline' if v3_voltage_pipeline else
                   'voltage_fast_pipeline' if v3_voltage_fast_pipeline else None)
     native_overlap_wait=v3_voltage_overlap and deadline_wait is not None
@@ -1062,7 +1291,7 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                     for scope,ids in dual.SCOPES.items()} if v3_voltage_proxy else None)
     try:
         if record_storage=='trace':trace=_RecordTrace(cycles,mode,
-                                                     voltage_overlap=v3_voltage_overlap)
+                    voltage_overlap=v3_voltage_overlap,trace_copy_backend=trace_copy_backend)
         pool_options={'max_workers':3,'thread_name_prefix':'native-bench'}
         if worker_initializer is not None:pool_options['initializer']=worker_initializer
         pool=ThreadPoolExecutor(**pool_options)
@@ -1455,11 +1684,54 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
                         gate_proof.update(status='REJECTED_BEFORE_PROXY_STOP',
                             proxy_submit_error=type(submit_error).__name__+': '+str(submit_error))
                     record.pop('observed',None)
+                if native_overlap_wait:
+                    gate_proof['output_join_begin_ns']=clock()
+                    output_join_deadline=_proxy_output_join_deadline(
+                        actual_release,oldest,startup=cycle<startup_cycle_allowance)
+                    gate_proof['output_join_deadline_ns']=output_join_deadline
+                    gate_proof['output_join_startup_allowance']=cycle<startup_cycle_allowance
+                    if failure is None:
+                        try:
+                            # Both original FD owners must finish before any
+                            # result takeout. Match the acquisition/voltage
+                            # readiness wait; do not alter native exchanges,
+                            # the absolute input deadline, or source times.
+                            gate_proof['output_join_wait']=_await_output_ready(
+                                futures,deadline_ns=output_join_deadline,
+                                deadline_wait=deadline_wait,clock=clock,check=check)
+                        except BaseException as join_error:
+                            failure=join_error
+                            gate_proof['output_join_failure_proof']=_output_join_failure_proof(
+                                join_error,'readiness_join',futures,clock)
                 # Retain any already submitted batch if a later submit fails.
-                # Settlement is diagnostic cleanup, never a fresh admission.
+                # A failed readiness wait also settles every submitted owner:
+                # this is diagnostic cleanup, never a fresh admission. These
+                # results and settlement time stay in the failed raw record.
                 for s,f in futures.items():
                     try:record['output'][s]=f.result()
                     except BaseException as e:failure=failure or e
+                if native_overlap_wait:
+                    gate_proof['output_join_settled_ns']=clock()
+                    if failure is None:
+                        try:
+                            check()
+                            joined=clock()
+                            if type(joined) is not int or joined<gate_proof['output_join_wait']['end_ns']:
+                                raise ValueError('Noncausal proxy output takeout clock')
+                            gate_proof['output_join_checked_ns']=joined
+                            if joined>=output_join_deadline:
+                                raise TimeoutError('Proxy output result takeout exceeded its elapsed/input-age deadline')
+                        except BaseException as takeout_error:
+                            failure=takeout_error
+                            gate_proof['output_join_failure_proof']=_output_join_failure_proof(
+                                takeout_error,'result_takeout',futures,clock)
+                    if failure is not None:
+                        # Retain an earlier submit rejection and its reason.
+                        if 'proxy_submit_error' not in gate_proof:
+                            gate_proof['status']='FINAL_PROXY_OUTPUT_JOIN_REJECTED'
+                        gate_proof['output_join_error']=type(failure).__name__+': '+str(failure)
+                        gate_proof['output_join_cleanup_only']=True
+                        record.pop('observed',None)
                 if failure:raise failure
                 if gated_proxy:
                     actual_starts={scope:min(r.start_ns for r in result[0])
@@ -1605,6 +1877,14 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
         if startup['end_ns'] is None:startup['end_ns']=clock()
         startup['duration_ms']=(startup['end_ns']-startup['begin_ns'])/1e6
         if pool is not None:pool.shutdown(wait=workers_ready,cancel_futures=not workers_ready)
+    trace_copy_proof=None
+    if trace_copy_backend is not None:
+        try:trace_copy_proof=trace_copy_backend.verify()
+        except BaseException as error:
+            errors.append(type(error).__name__+': '+str(error))
+            trace_copy_proof=trace_copy_backend.provenance()
+            trace_copy_proof['source_files_unchanged']=False
+            if policy_observer is not None:policy_observer.invalidate(errors[-1])
     summary=policy_observer.finish() if policy_observer is not None else None
     report={'status':'COMPLETE_DIAGNOSTIC' if not errors else 'ABORTED',
         'mode':mode,'errors':errors,'cycles_requested':cycles,'cycles_completed':len(measurements),
@@ -1616,6 +1896,8 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
             if native_overlap_wait else 'legacy_result_collection.v1'),
         'voltage_join_wait':('native_ready_poll_200us.v1'
             if native_overlap_wait else 'legacy_result_collection.v1'),
+        'output_join_wait':('native_ready_poll_200us.v1'
+            if native_overlap_wait else 'legacy_result_collection.v1'),
         'main_thread_affinity':affinity,'worker_affinity':worker_affinity,
         'measurements':measurements,'observer':summary,
         'distributions_ms':{k:distribution([r[k] for r in measurements if r[k] is not None]) for k in
@@ -1626,6 +1908,9 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
         'iteration_deadline_misses':sum(not r['iteration_deadline_met'] for r in measurements),
         'release_lateness_over_1ms':sum(r['release_lateness_ms']>1. for r in measurements),
         'release_intervals_over_21ms':sum((r['actual_release_interval_ms'] or 0)>21. for r in measurements)}
+    if trace_copy_proof is not None:report['trace_copy_provenance']=trace_copy_proof
+    if prepare_voltage_before_feedback_publication:
+        report['prepare_voltage_before_feedback_publication']=True
     if v3_voltage_overlap:
         report['v3_voltage_overlap']={'enabled':True,'voltage_range_v':[35.,voltage_max_v],
             'validation_overlap_enabled':v3_voltage_validation_overlap,
@@ -1727,6 +2012,38 @@ def collect(sessions, imu_device, policy_observer, *, mode, cycles, check=lambda
             'fields':['cycle','thread_cpu_begin_ns','thread_cpu_end_ns',
                       'thread_cpu_ns','inference_wall_ns','wall_minus_thread_cpu_ns'],
             'rows':cpu_rows}
+    if dispatch_values is not None or inference_cpu_values is not None:
+        # Only populated slots beyond completed measurements are partial evidence.
+        # Build this after every worker has settled; no hot-loop work or invented
+        # measurement, elapsed time, or successful qualification is added.
+        incomplete=[]
+        for index in range(len(measurements),cycles):
+            dispatch=(list(dispatch_values[index*dispatch_stride:(index+1)*dispatch_stride])
+                      if dispatch_values is not None else [])
+            cpu=(list(inference_cpu_values[index*2:(index+1)*2])
+                 if inference_cpu_values is not None else [])
+            if not any(dispatch) and not any(cpu):continue
+            row={'cycle':index+1,'complete_measurement':False,
+                 'output_allowed':False,'reported_errors':list(errors)}
+            if any(dispatch):
+                row['output_dispatch_trace']={'fields':list(_OUTPUT_DISPATCH_FIELDS),
+                    'row':[value if value else None for value in dispatch]}
+            if any(cpu):
+                row['inference_thread_cpu_trace']={
+                    'clock':'time.thread_time_ns',
+                    'fields':['thread_cpu_begin_ns','thread_cpu_end_ns'],
+                    'row':[value if value else None for value in cpu]}
+            for raw in records:
+                if type(raw) is dict and raw.get('cycle')==index+1:
+                    gate=raw.get(pipeline_key or 'voltage_overlap',{})
+                    if 'output_join_failure_proof' in gate:
+                        proof=gate['output_join_failure_proof']
+                        row['output_join_failure_proof']={**proof,
+                            'owner_future_states':{scope:dict(state) for scope,state
+                                                   in proof['owner_future_states'].items()}}
+                    break
+            incomplete.append(row)
+        report['incomplete_cycle_traces']=incomplete
     if defer_gc_during_cycles:report['cycle_gc_defer']=gc_state
     if record_storage=='encoded':
         report['record_storage']={'mode':'encoded','encoding_inside_whole_iteration':True,
@@ -1869,10 +2186,16 @@ def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--execute',action='store_true');p.add_argument('--supported-disabled',action='store_true')
     p.add_argument('--provenance-mode',choices=('supported-geometric-preload-5s-v1',
+                   'supported-policy-probe-v1', 'supported-policy-probe-2s-rare-jitter-v1',
                    'human-supported-partial-current-hold-audio-8s-v1'),
                    help='Pin current sources for the named supported scope in this disabled diagnostic; requires --power-epoch and grants no output approval')
     p.add_argument('--power-epoch',
                    help='Explicit current motor-power epoch assertion for --provenance-mode; never inferred from an earlier report')
+    p.add_argument('--native-boot-guard-artifact',
+                   help='Opt-in disabled STOP-proxy experiment: SHA-pinned fresh-pread C++ boot guard artifact')
+    p.add_argument('--native-boot-guard-artifact-sha256')
+    p.add_argument('--retain-gil-trace-copy',action='store_true',
+                   help='Diagnostic-only: preserve the GIL during copies of owned traced STOP-proxy records; no active-controller qualification')
     p.add_argument('--mode',choices=('type17','stop-proxy'),default='type17')
     p.add_argument('--v3-voltage-proxy',action='store_true',
                    help='Disabled-only 26-request proxy: six STOP feedback plus one rotating voltage read per bus, then six STOP; never Type1 or motor enable')
@@ -1886,6 +2209,8 @@ def main(argv=None):
                    help='Diagnostic-only: keep each bus owner gated after six feedback replies; release separate voltage reads after the feedback/IMU snapshot, then validate before proxy STOP')
     p.add_argument('--v3-voltage-fast-pipeline',action='store_true',
                    help='Diagnostic-only: each bus owner reads voltage immediately after its six feedback replies; retain per-cycle timing proof and validate before proxy STOP')
+    p.add_argument('--prepare-voltage-before-feedback-publication',action='store_true',
+                   help='Record explicit use of the existing fast-path native-preparation publication order; does not certify the active transport API')
     p.add_argument('--cycles',type=int,choices=range(1,3001),metavar='1..3000')
     p.add_argument('--startup-cycle-allowance',type=int,choices=(0,1),default=0,
                    help='Record but separately judge first startup cycle; --cycles 501 gives one startup plus 500 steady cycles')
@@ -1924,6 +2249,9 @@ def main(argv=None):
     p.add_argument('--acquisition-only',action='store_true')
     p.add_argument('--apply-reviewed-accel-calibration',action='store_true',
                    help='Explicitly use the named acceleration review in the pinned gyro-bias document; default raw')
+    p.add_argument('--accel-input-hypothesis',
+                   help='SHA-pinned boxed input hypothesis for disabled STOP-proxy inference only')
+    p.add_argument('--accel-input-hypothesis-sha256')
     p.add_argument('--compare-feedback',action='store_true',
                    help='Separate Type17/STOP-Type2 comparison; no IMU or inference')
     for name in ('front-port','rear-port','expected-uids','library','output','calibration','mount','gyro-bias',
@@ -1933,6 +2261,49 @@ def main(argv=None):
         p.add_argument('--'+name)
     p.add_argument('--h-hypothesis',type=int,choices=(0,1),default=0)
     args=p.parse_args(argv)
+    trace_copy_backend=None
+    if args.retain_gil_trace_copy:
+        if (args.native_boot_guard_artifact is not None or args.native_boot_guard_artifact_sha256 is not None):
+            p.error('Trace-copy and native boot-guard experiments are mutually exclusive')
+        if (args.mode!='stop-proxy' or not args.supported_disabled or not args.v3_voltage_proxy or
+                args.record_storage!='trace' or args.acquisition_only or args.compare_feedback or
+                not args.provenance_mode or not args.power_epoch):
+            p.error('Retained-GIL trace copy requires source-pinned disabled V3 STOP-proxy inference/trace')
+        try:trace_copy_backend=_retained_gil_trace_copy()
+        except (ValueError,OSError,RuntimeError) as error:p.error(str(error))
+    guard_reference = None
+    guard_factory = None
+    guard_plan = None
+    if args.native_boot_guard_artifact is not None or args.native_boot_guard_artifact_sha256 is not None:
+        digest = args.native_boot_guard_artifact_sha256
+        if (not args.native_boot_guard_artifact or type(digest) is not str or len(digest) != 64
+                or any(c not in '0123456789abcdef' for c in digest)):
+            p.error('Native boot guard requires an artifact path and lowercase SHA256')
+        if (args.mode != 'stop-proxy' or not args.supported_disabled or
+                not args.v3_voltage_proxy or args.acquisition_only or args.compare_feedback or
+                not args.provenance_mode or not args.power_epoch):
+            p.error('Native boot guard is limited to source-pinned disabled V3 STOP-proxy inference')
+        guard_reference = {'path':str(Path(args.native_boot_guard_artifact).expanduser().absolute()),
+                           'sha256':digest}
+        try:
+            from .sourced_boot_guard import plan_sourced_boot_guard
+            guard_plan = plan_sourced_boot_guard(guard_reference)
+        except (ValueError, OSError, RuntimeError) as error:
+            p.error(str(error))
+    hypothesis_selected = (args.accel_input_hypothesis is not None or
+                           args.accel_input_hypothesis_sha256 is not None)
+    hypothesis_reference = None
+    if hypothesis_selected:
+        digest = args.accel_input_hypothesis_sha256
+        if (not args.accel_input_hypothesis or type(digest) is not str or len(digest) != 64
+                or any(c not in '0123456789abcdef' for c in digest)):
+            p.error('Acceleration hypothesis requires a path and lowercase SHA256')
+        if (args.apply_reviewed_accel_calibration or args.acquisition_only or
+                args.compare_feedback or args.mode != 'stop-proxy' or
+                not args.supported_disabled or not args.v3_voltage_proxy):
+            p.error('Acceleration hypothesis requires disabled V3 STOP-proxy inference without other correction')
+        hypothesis_reference = {'path':str(Path(args.accel_input_hypothesis).expanduser().absolute()),
+                                'sha256':digest}
     if args.apply_reviewed_accel_calibration and (args.acquisition_only or args.compare_feedback or not args.gyro_bias):
         p.error('--apply-reviewed-accel-calibration requires full inference and --gyro-bias')
     try:math_startup=math_threads.configure_single_thread_math(args.single_thread_math)
@@ -2015,6 +2386,11 @@ def main(argv=None):
                                               not args.compare_feedback and args.cycles<=bounded_cycles and
                                               args.record_storage=='trace' and not args.v3_voltage_pipeline):
         p.error('--v3-voltage-fast-pipeline requires bounded V3 STOP-proxy trace with overlap, and excludes gated pipeline')
+    if args.prepare_voltage_before_feedback_publication and not (
+            args.v3_voltage_fast_pipeline and args.supported_disabled and
+            args.provenance_mode and args.power_epoch and
+            not args.native_boot_guard_artifact and not args.retain_gil_trace_copy):
+        p.error('--prepare-voltage-before-feedback-publication requires the disabled fast voltage path and explicit source/power provenance, without experimental runtimes')
     if args.inference_thread_cpu_trace and not args.v3_voltage_proxy:
         p.error('--inference-thread-cpu-trace requires bounded 26-request STOP-proxy inference with --v3-voltage-proxy')
     if args.absolute_epoch_cadence and (args.mode!='stop-proxy' or args.acquisition_only or
@@ -2033,7 +2409,8 @@ def main(argv=None):
             p.error('--exclude-policy-cpu-from-workers requires at most 500 V3 STOP-proxy inference cycles and --main-thread-cpu')
         if len(set(os.sched_getaffinity(0))-{args.main_thread_cpu})<3:
             p.error('--exclude-policy-cpu-from-workers requires at least three other available CPUs')
-    try:source_provenance=_start_source_provenance(args.provenance_mode,args.power_epoch)
+    try:source_provenance=_start_source_provenance(args.provenance_mode,args.power_epoch,
+                accel_input_hypothesis=hypothesis_selected)
     except (ValueError,OSError) as error:p.error(str(error))
     plan={'mode':args.mode,'cycles':args.cycles,'gap_ms':args.request_gap_us/1000,
           'startup_cycle_allowance':args.startup_cycle_allowance,
@@ -2076,6 +2453,14 @@ def main(argv=None):
                            else ['front7','rear7','IMU'] if args.v3_voltage_proxy
                            else ['front6','rear6','IMU']),
           'disk_io_during_cycles':False,'full_controller_50Hz_verified':False}
+    if hypothesis_reference is not None:
+        plan['accel_input_hypothesis'] = hypothesis_reference
+    if args.prepare_voltage_before_feedback_publication:
+        plan['prepare_voltage_before_feedback_publication']=True
+    if guard_plan is not None:
+        plan['sourced_boot_guard'] = guard_plan
+    if trace_copy_backend is not None:
+        plan['trace_copy_provenance']=trace_copy_backend.provenance()
     if source_provenance is not None:
         plan['source_provenance']=source_provenance
     if args.v3_voltage_overlap:plan['v3_voltage_overlap']=True
@@ -2110,6 +2495,10 @@ def main(argv=None):
     report={'status':'ABORTED','plan':plan,'math_thread_startup':math_startup,
             'timer_slack':timer_slack.report,
             'setup_gc':setup_gc,'errors':[]};saved=[];device=None
+    if args.prepare_voltage_before_feedback_publication:
+        report['prepare_voltage_before_feedback_publication']=True
+    if trace_copy_backend is not None:
+        report['trace_copy_provenance']=trace_copy_backend.provenance()
     if source_provenance is not None:
         report.update(motor_power_epoch=source_provenance['motor_power_epoch'],
                       cadence_source_sha256=source_provenance['cadence_source_sha256'],
@@ -2120,8 +2509,17 @@ def main(argv=None):
         cancelled.append(signum)
         if len(cancelled)==1:os.write(cw,b'x')
     try:
+        if guard_reference is not None:
+            from .sourced_boot_guard import load_sourced_boot_guard_factory
+            guard_factory = load_sourced_boot_guard_factory(guard_reference)
+            report['sourced_boot_guard'] = guard_factory.provenance()
         report['input_sha256']={k:hashlib.sha256(Path(getattr(args,k)).read_bytes()).hexdigest()
             for k in ('expected_uids','calibration','mount','gyro_bias') if getattr(args,k)}
+        if hypothesis_reference is not None:
+            actual = hashlib.sha256(Path(hypothesis_reference['path']).read_bytes()).hexdigest()
+            if actual != hypothesis_reference['sha256']:
+                raise ValueError('Acceleration input hypothesis SHA256 mismatch')
+            report['input_sha256']['accel_input_hypothesis'] = actual
         lib=native.load_library(args.library)
         uids=dual.pipeline.validate_uids(shadow._json(Path(args.expected_uids).read_bytes()))
         run=None
@@ -2170,12 +2568,14 @@ def main(argv=None):
                 h_hypothesis=args.h_hypothesis,command=[0.,0.,0.],max_ticks=args.cycles,
                 max_age_ns=LIMIT_NS,max_spread_ns=LIMIT_NS,torch_module=torch,
                 gyro_bias_candidate=bias,profile_consume=True,measured_diagnostic_ticks=True,
-                reuse_input_buffers=True,apply_reviewed_accel_calibration=args.apply_reviewed_accel_calibration)
+                reuse_input_buffers=True,apply_reviewed_accel_calibration=args.apply_reviewed_accel_calibration,
+                accel_input_hypothesis=hypothesis_reference)
         bindings=dual.validate_ports(args.front_port,args.rear_port)
         with ExitStack() as stack:
             stack.enter_context(dual.pipeline.ownership_locks())
             if not args.compare_feedback:stack.enter_context(live.imu_ownership_lock())
-            guard=dual.BootIdentityGuard();stack.callback(guard.close)
+            guard=guard_factory() if guard_factory is not None else dual.BootIdentityGuard()
+            stack.callback(guard.close)
             report['boot_id']=guard.boot_id
             if calibration is not None and calibration.get('source_current_boot_id')!=guard.boot_id:
                 raise ValueError('Capture-bound calibration must match the current Jetson boot; run capture again')
@@ -2268,14 +2668,16 @@ def main(argv=None):
                     if args.startup_cycle_allowance:
                         options['startup_cycle_allowance']=args.startup_cycle_allowance
                     if args.release_spin_us is not None:
-                        options['deadline_wait']=lambda target: native.wait_until(
-                            lib,cr,target,spin_us=args.release_spin_us)
+                        options['deadline_wait']=_collection_deadline_wait(
+                            lib,cr,args.release_spin_us)
                     if args.v3_voltage_proxy:options['v3_voltage_proxy']=True
                     if args.v3_voltage_overlap:options['v3_voltage_overlap']=True
                     if args.v3_voltage_validation_overlap:
                         options['v3_voltage_validation_overlap']=True
                     if args.v3_voltage_pipeline:options['v3_voltage_pipeline']=True
                     if args.v3_voltage_fast_pipeline:options['v3_voltage_fast_pipeline']=True
+                    if args.prepare_voltage_before_feedback_publication:
+                        options['prepare_voltage_before_feedback_publication']=True
                     if args.absolute_epoch_cadence:options['absolute_epoch_cadence']=True
                     if args.timer_slack_ns is not None:options['worker_initializer']=timer_slack.worker_initializer
                     if args.main_thread_cpu is not None:options['main_thread_cpu']=args.main_thread_cpu
@@ -2288,6 +2690,7 @@ def main(argv=None):
                         options['pre_cycle_policy_prepare']=prepare_policy
                     if prime is not None:options['post_pin_policy_prepare']=prime_policy
                     if args.record_storage!='objects':options['record_storage']=args.record_storage
+                    if trace_copy_backend is not None:options['trace_copy_backend']=trace_copy_backend
                     result,saved=collect(sessions,device,run,**options)
                     report.update(result)
                     if result['status']=='COMPLETE_DIAGNOSTIC':timer_slack.verify_workers()
@@ -2301,6 +2704,23 @@ def main(argv=None):
         if device is not None and device.restore_status not in ('restored','not_needed'):
             report['status']='ABORTED';report['errors'].append('IMU restoration unconfirmed')
         _finish_source_provenance(report,source_provenance)
+        if trace_copy_backend is not None:
+            try:
+                report['trace_copy_provenance'].update(trace_copy_backend.verify())
+            except BaseException as error:
+                report['status']='ABORTED'
+                report['errors'].append(type(error).__name__+': '+str(error))
+                report['trace_copy_provenance'].update(trace_copy_backend.provenance(),
+                                                     source_files_unchanged=False)
+        if guard_factory is not None:
+            try:
+                verified_guard = guard_factory.verify()
+                report['sourced_boot_guard'].update(verified_guard,
+                                                    files_unchanged_after_run=True)
+            except BaseException as error:
+                report['status']='ABORTED'
+                report['errors'].append(type(error).__name__+': '+str(error))
+                report['sourced_boot_guard']['files_unchanged_after_run']=False
         extra=[]
         if args.record_storage in ('encoded','trace'):
             values,failures=_encoded_records_for_output(saved,report.get('record_storage_failure'))
