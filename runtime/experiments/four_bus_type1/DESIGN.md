@@ -54,7 +54,25 @@ int sda_subset_exchange(void *handle, uint32_t group_mask,
         const unsigned char *wires, uint32_t count, int send_only, uint64_t deadline,
         SDRecord *records, SDStats *stats, char *error, uint32_t size);
         // exact same trailing parameters/semantics as sda_exchange
+uint32_t sda_subset_exchange_at_abi(void);  // same rule as sda_subset_active_abi
+int sda_subset_exchange_at(void *handle, uint32_t group_mask,
+        const unsigned char *wires, uint32_t count, int send_only, uint64_t not_before,
+        uint64_t deadline, SDRecord *records, SDStats *stats, char *error, uint32_t size);
+        // F3 pre-armed hold; optional, resolved by type1_transport.py only when the receipt records it
 ```
+
+`sda_subset_exchange_at`: the same validation as `sda_subset_exchange` runs
+first. It then requires `now < not_before < deadline`, `not_before <= now+5 ms`,
+`deadline <= now+250 ms` and `send_only == 0`. While holding the session
+mutex it waits natively until `not_before` (session cancel fd watched with
+`pselect`, 200 µs final spin, at most 32 EINTRs, FD/boot rechecked before and
+after). Then it releases the lock and calls the unchanged `exchange_owned`
+with the original deadline, so the first `start_ns` is at or after
+`not_before`. Any failure after validation writes nothing and poisons the
+session. A concurrent, pair-borrowed or already-poisoned call is refused
+without poisoning, as in `sda_subset_exchange`. The receipt records
+`exchange_at_abi: 1`. `receipt_problem` rejects any other value, but it
+accepts receipts that predate the key.
 
 Validation (both functions; exchange validates first, writes nothing on
 failure, sets `s->poisoned=true` under the session mutex on violation):
@@ -111,10 +129,12 @@ class Type1Transport:
     def enable(self, mid, *, deadline_ns) -> Feedback              # Type3, mode∈{0,2}, fault 0
     def zero_gain(self, mid, q_raw, *, deadline_ns) -> Feedback    # single Type1 kp=kd=0, mode 2
     # Cycle:
-    def hold_then_voltage(self, wires, voltage_id, prefix_future, *, deadline_ns, check)
+    def hold_then_voltage(self, wires, voltage_id, prefix_future, *, deadline_ns, check,
+                          not_before_ns=None)
         # wires must be byte-identical to this port's last validated output batch.
         # Publishes the 3-row hold Batch into prefix_future from before_native, then
         # one Type17 voltage for voltage_id; returns (hold_batch, voltage_batch).
+        # not_before_ns: prearmed_hold only (see below).
     def output(self, wires, *, deadline_ns, check) -> Batch        # exactly 3 Type1, ids ascending
     # Termination:
     def stop_repeated(self, *, total_budget_ns=1_000_000_000, rounds=3) -> dict
@@ -144,6 +164,35 @@ class Type1Transport:
 - Tests: MockSession-based unit tests for whitelist/mode/ownership/
   cancel_all; plus native integration over socketpair when
   `FOUR_BUS_TYPE1_TEST_LIBRARY` (or a temp build) is available.
+
+Opt-in selections (`create(..., decode_once=False, prearmed_hold=False)`;
+exact bools, rejected before any session exists, sealed in the owner binding
+and re-checked by every `_verify`). With neither selected, wire bytes,
+journal, attempt flags, rows and errors are as before.
+- `decode_once` (F2b, same semantics as `four_bus_diagnostic`
+  `--decode-once`): the owner publishes rows as a read-only
+  `MappingProxyType` over a private copy. `verify_batch` reuses them with a
+  raw record/Stats image compare only when they are the exact mapping this
+  owner published and every value is a frozen `Type2Feedback` row;
+  otherwise (voltage, identity, substitution) it re-decodes in full.
+- `prearmed_hold` (F3): the loader resolves and seals
+  `sda_subset_exchange_at(_abi)` only when the receipt records
+  `exchange_at_abi: 1` (missing symbol or ABI != 1 then fails the load); a
+  receipt without the key still loads for the default path, and selecting
+  `prearmed_hold` with it is rejected. `hold_then_voltage(...,
+  not_before_ns=R)` requires the selection and `0 < R < deadline_ns`; all
+  Python work (`_owner_check`, whitelist, ctypes buffers, `_mark`) is done,
+  then `now < R <= now+5 ms` is checked and the hold goes through
+  `sda_subset_exchange_at` (GIL released by ctypes; native cancel/boot/FD
+  checks; first write at or after R). A late or invalid R raises before any
+  write and poisons/cancels like any failure. The voltage exchange is
+  unchanged. Attempt flags are set before the wait.
+- F2a owner cleanup (no selection): `hold_then_voltage` checks only thread
+  ownership on entry; the full binding `_verify` runs in each exchange right
+  before its I/O. `output` checks its wires once and passes the parsed
+  fields to `_mark`; the hold reuses the fields of the last output. The
+  voltage wire comes from the sealed `_wires` cache, and its ctypes buffers
+  are allocated before the hold exchange.
 
 ## 3. Run profile and admission — `type1_profile.py`, `test_type1_profile.py`
 
@@ -291,3 +340,152 @@ true: `motor_40v_on`, `box_supports_body`, `four_feet_touch_floor`,
 `other_drive_tools_stopped`, `box_will_remain`; and all false:
 `load_transfer_allowed`, `standing_allowed`, `walking_allowed`. A helper
 writes it only from explicit arguments; nothing infers it.
+
+## 7. Opt-in timing options (F0–F4) — `type1_profile.py`, `type1_runner.py`, `type1_foreground.py`, `timing_evidence.py`, `test_type1_options.py`
+
+Two zero-gain runs aborted on the reviewed envelope gap monitor (command or
+sample interval > 21 ms). The options below address that. None of them
+changes the monitor, any 20 ms deadline, 900 µs / window 3, the 28 requests
+per cycle, the caps, the CPU masks, nice or the switch interval. Every option
+is explicit opt-in. With nothing selected, the following are byte-identical
+to before: the contract pacing (`PACING`, canonical SHA256 pinned in the
+tests), the contract and profile hashes, the PLAN (canonical SHA256 pinned
+for both modes), the runner report keys and cycle row keys, the
+`hold_then_voltage` kwargs, the Batch re-decodes and the wire bytes. An
+out-of-repo differential against the pre-option modules compared journal
+labels and tx bytes on the mock harness and found them identical.
+
+**Contract.** F1–F4 are `type1_profile.PACING_OPTIONS`. A key is written into
+`contract['pacing']` only when selected, using the prepare flags
+`--command-phase-offset-us`, `--decode-once`, `--prearmed-hold-lead-us` and
+`--gc-freeze`. `pacing_options()` accepts exactly the R8 `PACING` plus
+selected keys with these exact types and ranges:
+- `command_phase_offset_us`: an int, 9000..11540.
+- `prearmed_hold_lead_us`: an int, 300..2000.
+- both together: also `K <= command_phase_max_with_lead_us(L)` (see F1).
+- `decode_once` and `gc_freeze`: exactly `true`.
+
+`validate_contract`, the runner's `validate_admitted` and admission all use
+`pacing_options()`. The options are part of the contract SHA256, the
+condition record names that SHA256, and the predecessor must be the same
+contract. A chained step therefore has the same options as its predecessor.
+`validate_type1_report` also checks this explicitly: "Predecessor opt-in
+pacing options differ".
+
+**F0 timing evidence** (`--timing-evidence` on the foreground). This is
+diagnostic only. It is not a contract input and appears in the report only
+when selected.
+- Per cycle:
+  - `submit_done_ns`;
+  - `owner_entry_ns[port]`, stamped by `_owned_stamped` before `_owned`;
+  - `evidence_cost_ns`;
+  - `thread_counter_delta`, the cycle-to-cycle delta of a sample taken at the
+    cycle end, after the post-reply admission and outside the
+    release→output window.
+- Per-thread counters, for main, the four owners, the IMU worker and the host
+  watchdog:
+  - schedstat run delay and timeslices;
+  - minflt and majflt from `/proc/self/task/<tid>/stat`;
+  - voluntary and involuntary context switches from `status`;
+  - for the sampling main thread itself, `getrusage(RUSAGE_THREAD)`.
+- Per run: the `/proc/vmstat` `thp_*`/`compact_*` deltas and the nonzero
+  `/proc/interrupts` deltas, measured before the first release and after
+  STOP. Both files are read whole, to EOF (a single read of a seq_file
+  returns only about one page, which on a Jetson would drop the late IRQ
+  lines and the IPI block); a file over 1 MiB is recorded as None.
+- Per-thread descriptors are opened once and read with `pread`. On macOS
+  every field is None. The reader never raises.
+
+**F1 command phase** (`command_phase_offset_us = K`). After the final gate
+and the Boundary-3 full check:
+1. `row.natural_gate_ns = row.final_gate_ns = clock()`.
+2. If that is earlier than `release + K`, the runner calls the injected
+   `command_wait(release + K)`. The foreground's `make_command_wait` is
+   `wait_until(library, cancel_fd, target, spin_us=500)`: native, GIL
+   released, cancel FD watched, and the observer is not armed.
+3. The waiter must return an actual time ≥ target and ≤ now.
+4. `hot()` runs, then `computed = row.command_ns = clock()`.
+
+The `hard_end` check, `envelope.step(now_s=computed)` and everything after
+it are unchanged. A cancel or a waiter failure during the wait sends no
+output. The static check is
+`K + 470 (encode/submit) + 5140 (output exchange) + 2850 (worst output tail) ≤ 20000 µs`.
+
+That check assumes cycle k may run until release+20 ms, which holds on the
+default path: a late iteration only starts the next cycle late. Under F3 the
+next cycle must wake at `release − L`, run Boundary 1 and the hold gates and
+let all four owners reach the native call before its release, or it aborts
+("Pre-armed wake missed its lead", "Pre-armed hold gates reached the
+release", or a late owner's TimeoutError that poisons its session). So when
+both options are selected, cycle k's worst end must also leave the whole
+pre-arm window:
+`K + 8460 + 730 (post-reply admission, R9 max) + 100 (F0 sampling) + max(L, 1250 µs pre-arm work) ≤ 20000 µs`,
+i.e. `K ≤ 10710 − max(L, 1250)`: 9460 at L ≤ 1250, 9210 at L = 1500, and no
+admissible K above L = 1710. `PREARM_WORK_US = 1250` covers Boundary 1
+(about 0.16 ms), the gates and the measured 0.65–0.95 ms owner preparation.
+F3 therefore spends the output-tail reserve that F1 alone keeps; the F1-only
+suggestion K = 11250 is rejected with any lead. The PLAN's `command_phase`
+carries `prearmed_tail_budget_us` only when both are selected. The harness
+analysis reports cycle end → next release and, with F3, requires its minimum
+to be at least `max(L, 1.25 ms)`.
+
+**F2b decode-once.** This needs transports created with `decode_once=True`;
+the runner rejects a mismatch either way.
+- The gather takeout, the voltage join and the final gate call
+  `adapter.verify_batch(batch, label)`.
+- Hold rows are the owner's read-only publication. They are reused after a
+  raw record/Stats image compare.
+- Voltage rows hold dict values, so they are still re-decoded.
+- PLAN wording:
+  - `decode_once_selected`;
+  - `takeout_check = raw_byte_images_compared_publication_rows_reused`
+    (the R9 wording);
+  - `final_gate = hold_raw_byte_images_compared_publication_rows_reused_voltage_redecoded_and_imu_equal_pre_inference_snapshot_not_retained`.
+
+**F3 pre-armed hold** (`prearmed_hold_lead_us = L`). This needs transports
+with `prearmed_hold=True`, so a library whose receipt and ABI provide
+`sda_subset_exchange_at`. The foreground also rejects it file-only when the
+receipt lacks `exchange_at_abi: 1`.
+- **Epoch.** The epoch is shifted one lead ahead, and the slot is computed
+  from `clock() + L`.
+- **Wake and Boundary 1.** Main wakes at `release − L` through
+  `release_wait`. It must be strictly before the release, and the slot must
+  still match. Then the Boundary-1 full check runs; the PLAN label becomes
+  `before_release_before_prearmed_submit`.
+- **Hold gates.** The command/sample gap, the stale-feedback check and the
+  voltage-cache check are evaluated at the release itself, which is
+  stricter. If `clock()` has already reached the release, the cycle fails
+  closed with no hold.
+- **Submit.** The four `hold_then_voltage(..., not_before_ns=release)` are
+  submitted with `hard_end = release + 20 ms`. Each owner prepares in Python
+  and then waits natively until the release.
+- **Main after submit.** Main waits for the actual release with
+  `release_wait(release)`. That gives `begun`, with today's slot check. Only
+  then is the IMU read submitted.
+- **Cycle begin for the rules.** The owners write natively at or after the
+  release, independently of main, so a hold write can start before main's own
+  wake returns `begun`. The output join deadline and the post-reply budget
+  (`begin_ns <= oldest_input_ns`, hard 20 ms, lateness) therefore use the
+  scheduled release as the cycle begin. Release <= `begun`, so every bound is
+  equal or stricter. `row.begin_ns` stays main's actual wake, for analysis.
+- **Unchanged.** `first_ns` is still the earliest actual request start, and
+  every gap check is as before.
+- **Failure.** A cancel or failure between pre-arm and release writes
+  nothing (the native wait watches the cancel FD), then STOP follows on
+  every port.
+- **Lead size.** L must cover Boundary 1, the gates and all four owners'
+  GIL-serialized preparation. The static report measured about 0.65–0.95 ms
+  from submit to the last native begin, so 1000 µs is marginal; measure it
+  with the harness.
+
+**F4 gc freeze.**
+- `gc.freeze()` runs after the model warm-up and setup, before the first
+  release.
+- `gc.unfreeze()` runs at restoration, before the main scope exits. This
+  happens on abort as well.
+- The report records `gc_freeze.frozen_before_first_release` and
+  `unfrozen_at_restoration`.
+
+**Harness.** `harness/run_harness.py` forwards the same five flags, and the
+selected pacing goes into its admitted fixture. On macOS it uses a portable
+command wait; on Linux it uses the native one.

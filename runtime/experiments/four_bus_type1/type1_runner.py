@@ -89,6 +89,9 @@ class Type1TransportContract(Protocol):
     (Record*n), ``rows`` and ``verify()`` (four_bus_diagnostic Batch shape).
     ``stop_repeated`` returns {'complete', 'confirmed_ids', 'unconfirmed_ids',
     'ambiguous_ids', 'faults', 'rounds', 'physical_cutoff_required'}.
+    Opt-in only: ``decode_once``/``prearmed_hold`` attributes must equal the
+    contract selection; decode_once adds ``verify_batch(batch, label)`` and
+    prearmed_hold adds ``hold_then_voltage(..., not_before_ns=release)``.
     """
     group: Group
     journal: list
@@ -155,7 +158,7 @@ def validate_admitted(admitted):
         need(type(value[key]) is str and value[key].strip() and
              value[key] not in ('UNKNOWN', 'NOT_INFERRED_FROM_JETSON_BOOT'), 'Explicit current '+key+' required')
     _hex(value['contract_sha256'], 64, 'contract sha256')
-    need(value['pacing'] == PACING, 'Exact R8-qualified four-bus pacing required')
+    options = _profile.pacing_options(value['pacing'], 'Exact R8-qualified four-bus pacing required')
     need(value['post_reply_policy'] == POST_REPLY_V1, 'Exact bounded_post_reply_v1 policy required')
     need(type(value['first_cycle_post_reply']) is bool, 'First-cycle post-reply selection must be a bool')
     profile = value['profile']
@@ -222,7 +225,7 @@ def validate_admitted(admitted):
             'max_stop_s': max_stop_s, 'stop_at_s': duration-max_stop_s-.04,
             'first_cycle_post_reply': value['first_cycle_post_reply'], 'model_plan': value['model_plan'],
             'boot_id': value['boot_id'], 'motor_power_epoch': value['motor_power_epoch'],
-            'contract_sha256': value['contract_sha256'], 'imu': imu}
+            'contract_sha256': value['contract_sha256'], 'imu': imu, 'options': options}
 
 
 def imu_frame(model_plan):
@@ -277,7 +280,8 @@ def check_imu_limits(imu, limits, rotation, gyro_bias, correction=None):
 def plan(admitted):
     spec = validate_admitted(admitted)
     order = enable_order(spec['groups'])
-    return {'schema': SCHEMA, 'status': 'PLAN', 'opens_devices': False, **_FLAGS, **_GRANTS,
+    options = spec['options']
+    result = {'schema': SCHEMA, 'status': 'PLAN', 'opens_devices': False, **_FLAGS, **_GRANTS,
             'physical_observations': dict(_PHYSICAL),
             'flag_semantics': 'set_before_first_corresponding_write_attempt_never_reset',
             'mode': spec['mode'], 'duration_s': spec['duration_s'],
@@ -285,7 +289,7 @@ def plan(admitted):
             'contract_sha256': spec['contract_sha256'],
             'ids_by_port': {group.port: list(group.ids) for group in spec['groups']},
             'enable_order': [{'port': port, 'motor_id': mid} for port, mid in order],
-            'pacing': copy.deepcopy(PACING), 'request_gap_ns': 900_000, 'request_window': 3,
+            'pacing': {**copy.deepcopy(PACING), **options}, 'request_gap_ns': 900_000, 'request_window': 3,
             'absolute_deadline_ns': PERIOD_NS, 'per_cycle_requests': PER_CYCLE_REQUESTS,
             'request_schedule': 'each_physical_3Type1hold_then_1voltage_then_3Type1_output',
             'post_reply_policy': dict(POST_REPLY_V1),
@@ -300,6 +304,31 @@ def plan(admitted):
             'imu_accel_input_hypothesis_selected': spec['imu']['accel_input_hypothesis'],
             'stop_policy': 'repeated_subset_stop_each_own_owner_concurrent_shared_1250ms',
             'zero_gain_timing_outputs': 'kp_kd_zero_at_q0_model_targets_recorded_only'}
+    # Opt-in options only add their own truthful fields; the default PLAN is unchanged.
+    if 'command_phase_offset_us' in options:
+        result['command_phase'] = {'offset_us': options['command_phase_offset_us'],
+            'command_time': 'max(release_plus_offset, natural_final_gate_end)',
+            'wait': 'after_boundary3_native_wait_until_cancel_fd_then_hot_check',
+            'natural_gate_recorded_as': 'final_gate_ns', 'static_budget_us': dict(_profile.COMMAND_PHASE_BUDGET_US)}
+        if 'prearmed_hold_lead_us' in options:
+            result['command_phase']['prearmed_tail_budget_us'] = {**_profile.PREARMED_TAIL_BUDGET_US,
+                'next_prearm_window': max(options['prearmed_hold_lead_us'], _profile.PREARM_WORK_US)}
+    if options.get('decode_once') is True:
+        result.update(decode_once_selected=True, takeout_check='raw_byte_images_compared_publication_rows_reused',
+            decode_once_scope='frozen_type2_hold_rows_only_voltage_rows_redecoded',
+            final_gate='hold_raw_byte_images_compared_publication_rows_reused_voltage_redecoded_'
+                       'and_imu_equal_pre_inference_snapshot_not_retained')
+    if 'prearmed_hold_lead_us' in options:
+        result['prearmed_hold'] = {'lead_us': options['prearmed_hold_lead_us'],
+            'main_wake': 'release_minus_lead', 'hold_write': 'native_not_before_release_cancel_fd_watched',
+            'gates_before_release': ['boundary1_full_current_check', 'command_sample_gap', 'stale_feedback',
+                                     'voltage_cache_at_release'],
+            'hard_end': 'release_plus_20ms', 'imu_submit': 'after_actual_release_wait',
+            'first_input_stamp': 'earliest_actual_request_start'}
+        result['full_current_check_points'][0] = 'before_release_before_prearmed_submit'
+    if options.get('gc_freeze') is True:
+        result['gc_freeze_selected'] = True
+    return result
 
 
 def split_wires_by_port(encoded, groups, *, zero_gain):
@@ -558,13 +587,22 @@ def _owned(supervisor, port, function, args, kwargs):
         raise
 
 
+def _owned_stamped(stamps, clock, supervisor, port, function, args, kwargs):
+    """Timing evidence only: the owner entry time, then exactly _owned."""
+    stamps[port] = clock()
+    return _owned(supervisor, port, function, args, kwargs)
+
+
 class _Cycle:
     """Raw per-cycle references and clocks; dictionaries are built after STOP."""
     __slots__ = ('index', 'slot', 'release_ns', 'begin_ns', 'hard_end_ns', 'first_ns', 'acquired_ns',
                  'gather_ns', 'infer_end_ns', 'voltage_join_ns', 'final_gate_ns', 'encode_end_ns',
                  'output_submit_ns', 'reply_return_ns', 'cycle_end_ns', 'join_deadline_ns', 'hold',
                  'voltage', 'output', 'imu', 'observed', 'model_target', 'blended_target', 'weight',
-                 'label', 'command', 'sample', 'checked', 'decision', 'request_count', 'completed', 'imu_check')
+                 'label', 'command', 'sample', 'checked', 'decision', 'request_count', 'completed', 'imu_check',
+                 # Opt-in only; materialized only when their option is selected.
+                 'natural_gate_ns', 'command_ns', 'prearm_wake_ns', 'submit_done_ns', 'owner_entry_ns',
+                 'thread_counters', 'evidence_cost_ns')
 
     def __init__(self, index, slot, release, begun):
         for name in self.__slots__:
@@ -572,7 +610,7 @@ class _Cycle:
         self.index, self.slot, self.release_ns, self.begin_ns = index, slot, release, begun
         self.completed = False
 
-    def materialize(self):
+    def materialize(self, extra=()):
         def edge(batches, field, pick):
             if not batches:
                 return None
@@ -606,13 +644,21 @@ class _Cycle:
                    output_exchange_ms=ms(self.reply_return_ns, self.output_submit_ns),
                    iteration_ms=ms(self.cycle_end_ns, self.begin_ns),
                    input_to_last_output_reply_ms=ms(row['output_last_reply_ns'], self.first_ns))
+        for name in extra:
+            row[name] = getattr(self, name)
+        if 'command_ns' in extra:
+            row.update(command_wait_ms=ms(self.command_ns, self.natural_gate_ns),
+                       envelope_and_encode_ms=ms(self.encode_end_ns, self.command_ns))
+        if 'prearm_wake_ns' in extra:
+            row['prearm_lead_actual_ms'] = ms(self.release_ns, self.prearm_wake_ns)
         return row
 
 
 def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=None,
         check_cancelled=None, cancel_io=None, model_setup=None, worker_scope=None,
         main_scope=None, release_wait=None, announce=None, encoder=None, stop_requested=None,
-        backend_usage=None, accel_correction=None, clock=time.monotonic_ns, execute=False):
+        backend_usage=None, accel_correction=None, clock=time.monotonic_ns, execute=False,
+        command_wait=None, timing_evidence=None):
     """PLAN unless ``execute is True``; PLAN calls none of the capabilities.
 
     ``factory(group)`` returns a Type1TransportContract owner for that port.
@@ -621,6 +667,10 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
     ``stop_requested`` (SIGUSR1) requests the graceful envelope ramp.
     ``accel_correction`` is the loaded acceleration input hypothesis (``correct``)
     exactly when the model plan selects one, else None.
+    ``command_wait(target_ns)`` (GIL-released, cancel-watched; returns the actual
+    wake time) is injected exactly when the contract selects
+    command_phase_offset_us. ``timing_evidence`` (diagnostic, not contract) is
+    None or a timing_evidence.TimingEvidence-shaped reader.
     """
     planned = plan(admitted)
     if execute is not True:
@@ -640,6 +690,14 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
     need((accel_correction is not None) == spec['imu']['accel_input_hypothesis'] and
          (accel_correction is None or callable(getattr(accel_correction, 'correct', None))),
          'Acceleration correction must be injected exactly when the model plan selects it')
+    options = spec['options']
+    command_offset_ns = options['command_phase_offset_us']*1000 if 'command_phase_offset_us' in options else None
+    prearm_ns = options['prearmed_hold_lead_us']*1000 if 'prearmed_hold_lead_us' in options else None
+    decode_once, gc_freeze = options.get('decode_once') is True, options.get('gc_freeze') is True
+    need((command_wait is None) == (command_offset_ns is None) and (command_wait is None or callable(command_wait)),
+         'Command phase waiter must be injected exactly when the contract selects command_phase_offset_us')
+    need(timing_evidence is None or all(callable(getattr(timing_evidence, name, None)) for name in
+         ('bind', 'sample', 'run_counters', 'delta', 'run_delta', 'close')), 'Timing evidence reader incomplete')
     imu_limits, imu_rotation, imu_bias = spec['imu']['limits'], spec['imu']['rotation'], spec['imu']['gyro_bias']
     snapshot_builder = type1_hold_snapshot_builder(spec['model_plan'])
     groups, profile, offsets = spec['groups'], spec['profile'], spec['offsets']
@@ -667,6 +725,8 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
     main_entered = False
     primary = None
     budget = PostReplyDeadlineBudget(POST_REPLY_V1)
+    frozen = False
+    evidence_before = evidence_baseline = None
 
     def owners():
         for owner in in_flight:
@@ -717,8 +777,9 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
         future = submit(port, function, *args, deadline_ns=deadline_ns)
         return setup_join({port: future}, max(0., (deadline_ns-clock())/1e9)+SETUP_JOIN_GRACE_S)[port]
 
-    def require_voltage_before_type1():
-        maximum_age, minimum = checked_voltage_cache(voltage_cache, profile, clock())
+    def require_voltage_before_type1(at_ns=None):
+        # at_ns: the pre-armed release, when the hold is written (stricter than now).
+        maximum_age, minimum = checked_voltage_cache(voltage_cache, profile, clock() if at_ns is None else at_ns)
         guard['checks_before_type1'] += 1
         if maximum_age > guard['maximum_checked_age_ns']:
             guard['maximum_checked_age_ns'] = maximum_age
@@ -779,6 +840,10 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             pools[group.port] = ThreadPoolExecutor(max_workers=1, thread_name_prefix='type1-can-'+group.port)
             if adapter.group != group or any(not callable(getattr(adapter, name, None)) for name in TRANSPORT_METHODS):
                 raise ValueError('Exact-group Type1 transport with the full DESIGN section 2 contract required')
+            if (getattr(adapter, 'decode_once', False) is not decode_once or
+                    getattr(adapter, 'prearmed_hold', False) is not (prearm_ns is not None) or
+                    (decode_once and not callable(getattr(adapter, 'verify_batch', None)))):
+                raise ValueError('Transport decode-once/pre-armed selections must equal the admitted contract')
             if genuine:
                 if type(adapter) is not Type1Transport:
                     raise ValueError('Real backend requires the genuine Type1Transport')
@@ -789,8 +854,7 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
         readbacks = [pools[port].submit(initialize, port, (index,)) for index, port in enumerate(PORTS)]
         readbacks.append(pools['imu'].submit(initialize, 'imu', (0, 1, 2, 3)))
         in_flight[:] = readbacks
-        for future in readbacks:
-            future.result(timeout=1)
+        worker_tids = [future.result(timeout=1) for future in readbacks]
         in_flight.clear()
         if len({report['worker_settings'][port]['native_tid'] for port in (*PORTS, 'imu')}) != 5:
             raise ValueError('Five distinct persistent CAN/IMU workers required')
@@ -1023,6 +1087,11 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             need(not gc.isenabled(), 'Main scope must defer automatic GC during cycles')
         report['gc_enabled_during_cycles'] = gc.isenabled()
         check()
+        if gc_freeze:  # F4: after model warm-up and setup, before the first release.
+            gc.freeze()
+            frozen = True
+            report['gc_freeze'] = {'selected': True, 'frozen_before_first_release': gc.get_freeze_count(),
+                                   'unfrozen_at_restoration': False}
 
         # F-H. Cycles at absolute 20 ms epoch slots; ramp-down; (OR:1825-2146).
         expected_keys = {group.port: frozenset((mid, 'feedback') for mid in group.ids) for group in groups}
@@ -1039,7 +1108,17 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             axis['max_measured_velocity_rad_s'], axis['max_temperature_c'], axis['max_tracking_error_rad'],
             axis['max_displacement_from_start_rad'], axis['max_estimated_pd_torque_nm']) for axis in axis_rows)
         origin_q = trial_origin.q_model_rad
+        if timing_evidence is not None:  # F0 diagnostic only; read outside every cycle window.
+            threads = {'main': threading.get_native_id(), **dict(zip((*PORTS, 'imu'), worker_tids)),
+                       'host_watchdog': report['watchdog_settings']['native_tid']}
+            report['timing_evidence'] = {'selected': True, 'contract_input': False,
+                'sampled': 'each_cycle_end_after_post_reply_admission_outside_release_to_output_window',
+                'binding': timing_evidence.bind(threads)}
+            evidence_before = timing_evidence.run_counters()
+            evidence_baseline = timing_evidence.sample()
         start = clock()
+        if prearm_ns is not None:
+            start += prearm_ns  # Epoch one lead ahead, so cycle 0 is pre-armed as well.
         report['epoch_ns'] = start
         previous_slot = previous_begin = None
         stop_started = False
@@ -1047,27 +1126,55 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
         while clock()-start < max_run_ns:
             index = len(cycles)
             hot()
-            slot, release = _absolute_epoch_slot(start, previous_slot, previous_begin, clock())
-            if slot != index:
-                raise RuntimeError('Absolute-epoch cycle slot skipped; STOP before another hold')
-            begun = release_wait(release)
-            if type(begun) is not int or begun < release or begun > clock():
-                raise RuntimeError('Release waiter must return actual current monotonic time')
-            if _absolute_epoch_slot(start, previous_slot, previous_begin, begun) != (slot, release):
-                raise RuntimeError('Absolute-epoch release missed its slot; STOP before another hold')
-            hard_end = begun+PERIOD_NS
-            row = _Cycle(index, slot, release, begun)
-            cycles.append(row)
-            check()  # Boundary 1: cycle_start_before_submit.
-            hold_now = clock()
+            if prearm_ns is None:
+                slot, release = _absolute_epoch_slot(start, previous_slot, previous_begin, clock())
+                if slot != index:
+                    raise RuntimeError('Absolute-epoch cycle slot skipped; STOP before another hold')
+                begun = release_wait(release)
+                if type(begun) is not int or begun < release or begun > clock():
+                    raise RuntimeError('Release waiter must return actual current monotonic time')
+                if _absolute_epoch_slot(start, previous_slot, previous_begin, begun) != (slot, release):
+                    raise RuntimeError('Absolute-epoch release missed its slot; STOP before another hold')
+                hard_end = begun+PERIOD_NS
+                row = _Cycle(index, slot, release, begun)
+                cycles.append(row)
+                check()  # Boundary 1: cycle_start_before_submit.
+                hold_now = clock()
+                prearmed = {}
+            else:
+                # F3: the slot is the next release this cycle can still pre-arm for.
+                slot, release = _absolute_epoch_slot(start, previous_slot, previous_begin, clock()+prearm_ns)
+                if slot != index:
+                    raise RuntimeError('Absolute-epoch cycle slot skipped; STOP before another hold')
+                woke = release_wait(release-prearm_ns)
+                if type(woke) is not int or woke < release-prearm_ns or woke > clock():
+                    raise RuntimeError('Release waiter must return actual current monotonic time')
+                if (woke >= release or
+                        _absolute_epoch_slot(start, previous_slot, previous_begin, woke+prearm_ns) != (slot, release)):
+                    raise RuntimeError('Pre-armed wake missed its lead before the release; STOP before another hold')
+                hard_end = release+PERIOD_NS
+                row = _Cycle(index, slot, release, None)
+                row.prearm_wake_ns = woke
+                cycles.append(row)
+                check()  # Boundary 1, pre-armed: before_release_before_prearmed_submit.
+                hold_now = release  # Every hold gate is evaluated at the release, when the hold is written.
+                prearmed = {'not_before_ns': release}
             if hold_now-last_command_ns > gap_ns or hold_now-last_sample_ns > gap_ns:
                 raise RuntimeError('Command/sample gap exceeded before feedback hold')
             for mid in IDS:
                 _, old_start, old_end = previous[mid, 'feedback']
                 if not (0 < old_start <= old_end <= hold_now and hold_now-old_start <= age_ns):
                     raise RuntimeError('ID%d stale feedback before hold' % mid)
-            require_voltage_before_type1()
+            if prearm_ns is None:
+                require_voltage_before_type1()
+            else:
+                require_voltage_before_type1(release)
+                if clock() >= release:
+                    raise TimeoutError('Pre-armed hold gates reached the release; STOP before another hold')
             prefix, full, voltage_id = {}, {}, {}
+            entries = None
+            if timing_evidence is not None:
+                entries = row.owner_entry_ns = {}
             in_flight.clear()
             for group in groups:
                 port = group.port
@@ -1075,11 +1182,30 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                 future.set_running_or_notify_cancel()
                 prefix[port] = future
                 voltage_id[port] = group.ids[index % 3]
-                full[port] = pools[port].submit(_owned, supervisor, port, adapters[port].hold_then_voltage,
-                    (last_wires[port], voltage_id[port], future), {'deadline_ns': hard_end, 'check': owner_check})
+                if entries is None:
+                    full[port] = pools[port].submit(_owned, supervisor, port, adapters[port].hold_then_voltage,
+                        (last_wires[port], voltage_id[port], future),
+                        {'deadline_ns': hard_end, 'check': owner_check, **prearmed})
+                else:
+                    full[port] = pools[port].submit(_owned_stamped, entries, clock, supervisor, port,
+                        adapters[port].hold_then_voltage, (last_wires[port], voltage_id[port], future),
+                        {'deadline_ns': hard_end, 'check': owner_check, **prearmed})
                 in_flight.append(full[port])
+            if prearm_ns is not None:
+                # Main waits natively for the actual release; the armed owners write on their own.
+                begun = release_wait(release)
+                if type(begun) is not int or begun < release or begun > clock():
+                    raise RuntimeError('Release waiter must return actual current monotonic time')
+                if _absolute_epoch_slot(start, previous_slot, previous_begin, begun) != (slot, release):
+                    raise RuntimeError('Absolute-epoch release missed its slot; STOP before another hold')
+                row.begin_ns = begun
+            # Post-reply rules assume every input after the cycle begin; pre-armed holds are
+            # written natively at or after the release, possibly before main's own wake.
+            rule_begin = begun if prearm_ns is None else release
             imu_future = pools['imu'].submit(imu_read)
             in_flight.append(imu_future)
+            if timing_evidence is not None:
+                row.submit_done_ns = clock()
             hold = {port: _take(prefix[port], hard_end, clock, hot) for port in PORTS}
             imu = _take(imu_future, hard_end, clock, hot)
             acquired = row.acquired_ns = clock()
@@ -1090,7 +1216,10 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             first = last_imu
             rows = {}
             for port in PORTS:
-                current = hold[port].verify()
+                if decode_once:  # F2b: the owner's own read-only publication, raw images compared.
+                    current = adapters[port].verify_batch(hold[port], 'feedback_hold')
+                else:
+                    current = hold[port].verify()
                 if current.keys() != expected_keys[port]:
                     raise RuntimeError('Exact-three Type1 hold feedback rows required')
                 rows.update(current)
@@ -1146,7 +1275,7 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                     raise RuntimeError('Current exact hold/full Future binding failed')
                 mid = voltage_id[port]
                 records = batch.records
-                current = batch.verify()
+                current = adapters[port].verify_batch(batch, 'voltage') if decode_once else batch.verify()
                 if len(records) != 1 or bytes(records[0].tx) != voltage_wires[mid] or current.keys() != {(mid, 'voltage')}:
                     raise RuntimeError('Current rotating same-group voltage required')
                 voltage_cache.update(checked_voltage_rows(current, (mid,), profile, clock()))
@@ -1154,15 +1283,33 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             row.voltage = voltage
             checked_voltage_cache(voltage_cache, profile, clock())
             row.voltage_join_ns = clock()
-            # Final gate: every raw hold/voltage image re-decoded, IMU unchanged.
-            for port in PORTS:
-                hold[port].verify()
-                voltage[port].verify()
+            # Final gate: every raw hold/voltage image re-decoded (decode-once: hold
+            # images compared to the owner's publication), IMU unchanged.
+            if decode_once:
+                for port in PORTS:
+                    adapters[port].verify_batch(hold[port], 'feedback_hold')
+                    adapters[port].verify_batch(voltage[port], 'voltage')
+            else:
+                for port in PORTS:
+                    hold[port].verify()
+                    voltage[port].verify()
             if (imu['read_started_monotonic_ns'], imu['read_finished_monotonic_ns'],
                     tuple(imu['accel_m_s2']), tuple(imu['gyro_rad_s'])) != imu_image:
                 raise RuntimeError('IMU image changed after inference')
             check()  # Boundary 3: after_final_gate_before_output.
             computed = row.final_gate_ns = clock()
+            if command_offset_ns is not None:
+                # F1: command time is release+K unless the natural gate is later. The
+                # join, final gate and Boundary 3 stay before it; a cancel sends nothing.
+                row.natural_gate_ns = computed
+                target_ns = release+command_offset_ns
+                if computed < target_ns:
+                    woke = command_wait(target_ns)
+                    if type(woke) is not int or woke < target_ns or woke > clock():
+                        raise RuntimeError('Command phase waiter must return actual current monotonic time')
+                    hot()
+                    computed = clock()
+                row.command_ns = computed
             if computed >= hard_end:
                 raise TimeoutError('Inference exceeded hard cycle deadline')
             command = row.command = envelope.step(target, sample, now_s=computed/1e9)
@@ -1185,7 +1332,7 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                 output[port] = pools[port].submit(_owned, supervisor, port, adapters[port].output,
                     (outgoing[port],), {'deadline_ns': hard_end, 'check': owner_check})
                 in_flight.append(output[port])
-            join_deadline = row.join_deadline_ns = min(first+age_ns, begun+PERIOD_NS+lateness_ns)
+            join_deadline = row.join_deadline_ns = min(first+age_ns, rule_begin+PERIOD_NS+lateness_ns)
             batches = {port: _take(output[port], join_deadline, clock, hot) for port in PORTS}
             reply_return = row.reply_return_ns = clock()
             row.output = batches
@@ -1231,7 +1378,7 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                     raise RuntimeError('ID%d estimated PD torque' % (k+1))
             output_sample_start = min(value[1] for value in returned.values())
             try:
-                decision = budget.admit(index=index, begin_ns=begun, oldest_input_ns=first,
+                decision = budget.admit(index=index, begin_ns=rule_begin, oldest_input_ns=first,
                     final_write_ns=final_write, last_reply_ns=last_reply,
                     output_sample_start_ns=output_sample_start, checked_ns=clock(), sample_age_ns=age_ns,
                     startup_allowed=first_cycle_allowed and index == 0)
@@ -1248,6 +1395,10 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             last_sample_ns = min(value[1] for value in rows.values())
             in_flight.clear()
             report['completed_cycles'] = index+1
+            if timing_evidence is not None:  # After admission; outside the next release window.
+                sampled = clock()
+                row.thread_counters = timing_evidence.sample()
+                row.evidence_cost_ns = clock()-sampled
             if command.phase == 'stopped':
                 report['normal_ramp_completed'] = True
                 break
@@ -1270,6 +1421,17 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
         report['stop_latched_ns'] = supervisor.latched_ns
         report['stop_reason'] = supervisor.reason
         report['stop_dispatch_errors'] = list(supervisor.errors)
+        if evidence_before is not None:  # After STOP; diagnostic only.
+            try:
+                report['timing_evidence']['run'] = timing_evidence.run_delta(evidence_before,
+                                                                             timing_evidence.run_counters())
+            except BaseException as cleanup:
+                report['timing_evidence']['run_error'] = type(cleanup).__name__+': '+str(cleanup)
+        if timing_evidence is not None:
+            try:
+                timing_evidence.close()
+            except BaseException as cleanup:
+                cleanup_error(cleanup)
         if watcher is None and created is not None:
             try:  # Created but not yet returned to this thread: still close its poller.
                 watcher = created.result(timeout=1)[0]
@@ -1308,6 +1470,9 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             else:
                 report['restoration'][port+'_session'] = True
         report['raw_journal'] = {port: list(getattr(adapter, 'journal', ())) for port, adapter in adapters.items()}
+        if frozen:
+            gc.unfreeze()
+            report['gc_freeze']['unfrozen_at_restoration'] = gc.get_freeze_count() == 0
         if main_entered:
             try:
                 main_context.__exit__(type(primary) if primary else None, primary, None)
@@ -1333,7 +1498,16 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
         report['post_reply_deadline_allowance_uses'] = budget.accepted_misses
         # Dictionaries and unit conversions only after every owner has stopped.
         try:
-            report['cycles'] = [row.materialize() for row in cycles]
+            extra = ((('natural_gate_ns', 'command_ns') if command_offset_ns is not None else ()) +
+                     (('prearm_wake_ns',) if prearm_ns is not None else ()) +
+                     (('submit_done_ns', 'owner_entry_ns', 'evidence_cost_ns') if timing_evidence is not None else ()))
+            report['cycles'] = [row.materialize(extra) for row in cycles]
+            if timing_evidence is not None:
+                counters = evidence_baseline
+                for row, value in zip(cycles, report['cycles']):
+                    value['thread_counter_delta'] = (None if row.thread_counters is None or counters is None
+                                                     else timing_evidence.delta(counters, row.thread_counters))
+                    counters = row.thread_counters if row.thread_counters is not None else counters
             report['post_reply_late_cycles'] = sum(1 for row in report['cycles'] if row['decision'] and
                                                    row['decision'].get('lateness_ms', 0) > 0)
             report['max_iteration_ms'] = max((row['iteration_ms'] for row in report['cycles']

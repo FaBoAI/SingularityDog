@@ -16,12 +16,13 @@ PLAN、テスト合格、タイミング結果、`COMPLETE_*` の報告は、い
 
 | ファイル | 役割 |
 | --- | --- |
-| `subset_active.cpp`, `build.py` | マスク（7/56）に束縛した `sda_subset_validate` / `sda_subset_exchange` を追加します。通常の `transport.cpp` と `subset_stop.cpp` を変更せずに include します。受領記録のスコープは `four_bus_subset_active.v1` で、`output_allowed: false` です。 |
-| `type1_transport.py` | 1ポートを担当する3軸の所有者です。<br>・Pythonの許可リストを通し、`sda_subset_exchange` だけを使います。<br>・失敗すると自身を汚染状態にし、`cancel_all` を呼びます。<br>・終了時は `sda_emergency_stop_subset` を最大3回／1秒繰り返します。曖昧な状態は解消せず保持します。 |
+| `subset_active.cpp`, `build.py` | マスク（7/56）に束縛した `sda_subset_validate` / `sda_subset_exchange` を追加します。通常の `transport.cpp` と `subset_stop.cpp` を変更せずに include します。受領記録のスコープは `four_bus_subset_active.v1` で、`output_allowed: false` です。<br>・F3用の `sda_subset_exchange_at`（`not_before` までネイティブで待ってから同じ交換を行う）も追加し、受領記録に `exchange_at_abi: 1` を記録します。`type1_transport.py` は受領記録にこの値があるときだけ解決・封印し、`prearmed_hold=True` を選んだときだけ使います（既定の動作・送信バイトは不変）。 |
+| `type1_transport.py` | 1ポートを担当する3軸の所有者です。<br>・Pythonの許可リストを通し、`sda_subset_exchange` だけを使います。<br>・失敗すると自身を汚染状態にし、`cancel_all` を呼びます。<br>・終了時は `sda_emergency_stop_subset` を最大3回／1秒繰り返します。曖昧な状態は解消せず保持します。<br>・明示選択のみ（既定は `False`、`create` で厳密な bool として封印）: `decode_once` は所有者が一度だけ復号した読み取り専用の行を公開し、`verify_batch` はその公開物そのものに限り生バイト比較だけで再利用します（それ以外は従来どおり再復号）。`prearmed_hold` は `hold_then_voltage(..., not_before_ns=...)` の保持送信を `sda_subset_exchange_at` で行います（Python準備を済ませてからGILを離してネイティブ待機）。この関数を持たないライブラリでは選択自体を拒否します。<br>・所有者側の整理（F2a）: 保持時の重複検証の削除、出力ワイヤの解析を1回に、電圧ワイヤのキャッシュ利用、電圧用バッファを保持前に確保。送信バイト・journal・試行フラグ・エラーは従来と同一です。 |
 | `type1_profile.py` | ファイルだけで動く `prepare`（契約とプロファイルの作成）、人の条件記録 `conditions`、前段報告の検証、`admit()` を提供します。 |
 | `type1_runner.py` | OR の A〜J 相を4ポート向けに移したものです。デバイス、モデル、時計はすべて外から注入します。`execute=True` を渡さない限りPLANを返すだけです。 |
 | `type1_foreground.py` | CLIの入口です。ピン留め、起動時の読み戻し、ポートロック、キャンセル、シグナル処理、電流ガード、設定の復元、O_EXCL による報告の書き出しを、`four_bus_diagnostic/foreground.py` と同じ型で行います。 |
-| `test_*.py` | ファイルだけで完結するテストです（Torch・実機・ネットワークは不要）。 |
+| `timing_evidence.py` | `--timing-evidence`（F0）を指定したときだけ使う、診断用の読み取り専用カウンタです（`/proc` と `getrusage`）。契約の入力にはなりません。macOS では値がすべて None になります。 |
+| `test_*.py` | ファイルだけで完結するテストです（Torch・実機・ネットワークは不要）。明示選択の対策（F0〜F4）は `test_type1_options.py` で確認します。 |
 
 ## 統合で揃えた接続点
 
@@ -70,6 +71,36 @@ PLAN、テスト合格、タイミング結果、`COMPLETE_*` の報告は、い
   - `terminal_stop` は12軸すべてが確認でき、曖昧がなく、故障ビットがすべて0の場合に限り確認済みとします。
   - `cancel_requests` に、キャンセルを最初に要求したもの（どのポートか、シグナルか、runnerか）を残します。
 
+## 明示選択のタイミング対策（F0〜F4）
+
+ゼロゲインの実機実行が2回、審査済みのエンベロープ間隔監視（指令・標本間隔が21 msを超えないこと）で止まりました。
+その対策を、すべて明示選択として追加しました。
+
+次の値は変更していません。
+
+- 21 msの間隔監視
+- 20 msの各期限
+- 900µs / window 3、1周期28要求
+- 上限値、CPU配置、nice、スイッチ間隔
+
+何も選ばなければ、契約の `pacing`（＝`PACING`）、契約とプロファイルのSHA、PLAN、報告と周期行のキー、
+送信バイトは、すべて従来と同一です（テストで固定済み）。詳細は `DESIGN.md` 7章にあります。
+
+| 対策 | 選び方 | 内容 |
+| --- | --- | --- |
+| F0 | 前面の `--timing-evidence`（契約外） | 周期ごとに次を記録します。<br>・`submit_done_ns`<br>・各所有者の開始時刻 `owner_entry_ns`<br>・周期末（出力の応答確定後）の各スレッドの schedstat 待ち時間、minflt/majflt、文脈切替の差分<br>実行の前後では、`/proc/vmstat` の thp/compact と `/proc/interrupts` の差分を取ります（どちらもEOFまで全体を読みます。1 MiBを超えると None）。 |
+| F1 | `prepare --command-phase-offset-us K`（9000〜11540） | 境界3の電流検査の後に、ネイティブ待機（GILを解放し、キャンセルFDを監視）で `release+K` まで待ってから `hot()` を実行し、その時刻を指令時刻にします。自然な時刻のほうが遅ければ、その時刻を使います。<br>・`final_gate_ns`（＝`natural_gate_ns`）と `command_ns` を記録します。<br>・待機中にキャンセルされたら出力しません。<br>・静的検査：`K + 0.47 + 5.14 + 2.85 ms ≤ 20 ms`<br>・F3と併用するときは、次周期の事前準備（`release−L` の起床、境界1、ゲート、所有者の準備）の時間も残す必要があるため、`K + 8.46 + 0.73（応答確定）+ 0.10（F0）+ max(L, 1.25) ms ≤ 20 ms` も満たす必要があります（L=1000なら K≤9460、L=1500なら K≤9210、L≥1711では併用不可）。F1単独の K=11250 はF3と併用できません。 |
+| F2b | `prepare --decode-once` | 所有者が公開した読み取り専用の保持行を、生バイトの比較だけで再利用します。対象は、集約時、電圧の合流時、最終ゲートです。電圧は従来どおり再復号します。最終ゲートの表記はR9と同じ形に変わります。 |
+| F3 | `prepare --prearmed-hold-lead-us L`（300〜2000） | `release−L` に起き、境界1の電流検査と保持前のゲート（release時点で評価）を済ませてから、`hold_then_voltage(..., not_before_ns=release)` を投入します。<br>・各所有者はネイティブで release まで待ってから書きます。<br>・主スレッドは release まで待って `begun` を得てから、IMUを投入します。<br>・`hard_end = release+20 ms` です。<br>・保持はネイティブで release 以降に書かれ、主スレッドの `begun` より先になりうるため、出力 join 期限と post-reply 判定（`begin_ns`）は予定 release を周期開始として使います（release ≤ `begun` なので同等以上に厳しい）。行の `begin_ns` は主スレッドの実際の起床時刻のままです。<br>・境界1の表記は `before_release_before_prearmed_submit` になります。<br>・`exchange_at_abi: 1` のない受領記録は拒否します。 |
+| F4 | `prepare --gc-freeze` | ウォームアップ後、最初の release の前に `gc.freeze()` を実行し、復元時に `gc.unfreeze()` を実行します。 |
+
+選んだ対策は契約の `pacing` に記録されるので、契約のSHAが変わり、プロファイルの作成と認可をやり直す必要があります。
+はしごの次段は前段と同じ契約でなければならないので、同じ対策を選んだことになります。`validate_type1_report` でも、
+「前段の対策が違う」ことを明示的に拒否します。
+
+模擬ハーネスにも同じ5つのフラグがあります（`--command-phase-offset-us`, `--decode-once`,
+`--prearmed-hold-lead-us`, `--gc-freeze`, `--timing-evidence`）。
+
 ## 使い方（`runtime/` で実行）
 
 ```sh
@@ -117,7 +148,8 @@ PLANと報告に明記します。
 cd runtime
 PYTHONPATH=. python3 -B -m unittest experiments.four_bus_type1.test_subset_active \
   experiments.four_bus_type1.test_type1_transport experiments.four_bus_type1.test_type1_profile \
-  experiments.four_bus_type1.test_type1_runner experiments.four_bus_type1.test_type1_foreground
+  experiments.four_bus_type1.test_type1_runner experiments.four_bus_type1.test_type1_foreground \
+  experiments.four_bus_type1.test_type1_options
 ```
 
 `FOUR_BUS_TYPE1_TEST_LIBRARY` を設定すると、ビルド済みのライブラリでsocketpair試験を行います。

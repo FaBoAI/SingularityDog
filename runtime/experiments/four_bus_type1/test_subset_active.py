@@ -29,6 +29,8 @@ VALIDATE_ARGS = (C.c_void_p, C.c_uint32, C.POINTER(C.c_ubyte), C.c_uint32,
                  C.POINTER(C.c_char), C.c_uint32)
 EXCHANGE_ARGS = (C.c_void_p, C.c_uint32, C.POINTER(C.c_ubyte), C.c_uint32, C.c_int, C.c_uint64,
                  C.POINTER(Record), C.POINTER(active.Stats), C.POINTER(C.c_char), C.c_uint32)
+EXCHANGE_AT_ARGS = (C.c_void_p, C.c_uint32, C.POINTER(C.c_ubyte), C.c_uint32, C.c_int, C.c_uint64,
+                    C.c_uint64, C.POINTER(Record), C.POINTER(active.Stats), C.POINTER(C.c_char), C.c_uint32)
 
 
 def sha(path):
@@ -83,6 +85,8 @@ class SubsetActiveTests(unittest.TestCase):
                 ('sda_emergency_stop_subset_abi', (), C.c_uint32),
                 ('sda_subset_validate', VALIDATE_ARGS, C.c_int),
                 ('sda_subset_exchange', EXCHANGE_ARGS, C.c_int),
+                ('sda_subset_exchange_at_abi', (), C.c_uint32),
+                ('sda_subset_exchange_at', EXCHANGE_AT_ARGS, C.c_int),
                 ('sda_emergency_stop_subset', SUBSET_ARGS, C.c_int)):
             function = lib[name]; function.argtypes = list(arguments); function.restype = result
             setattr(lib, name, function)
@@ -154,6 +158,15 @@ class SubsetActiveTests(unittest.TestCase):
         deadline = time.monotonic_ns()+50_000_000 if deadline_ns is None else deadline_ns
         status = self.lib.sda_subset_exchange(session._handle, mask, self.raw(wires),
             len(wires) if count is None else count, 0, deadline, records, C.byref(stats), error, len(error))
+        return status, records, stats, error.value.decode()
+
+    def exchange_at(self, session, mask, wires, not_before_ns, deadline_ns, *, count=None, records=None,
+                    send_only=0):
+        records = (Record*6)() if records is None else records
+        stats, error = active.Stats(), C.create_string_buffer(256)
+        status = self.lib.sda_subset_exchange_at(session._handle, mask, self.raw(wires),
+            len(wires) if count is None else count, send_only, not_before_ns, deadline_ns, records,
+            C.byref(stats), error, len(error))
         return status, records, stats, error.value.decode()
 
     def validate(self, session, mask, wires):
@@ -363,6 +376,164 @@ class SubsetActiveTests(unittest.TestCase):
         status, _, stats, error = self.exchange(session, 0x07, [stop_wire(1), stop_wire(2), stop_wire(3)])
         self.assertEqual((status, stats.writes), (-1, 0)); self.assertRegex(error, 'poisoned')
         self.assert_silent()
+
+    def after(self, delay_s, action):
+        timer = threading.Timer(delay_s, action); timer.start(); self.addCleanup(timer.join)
+
+    def rejected_at(self, session, mask, wires, pattern, not_before, deadline, *, count=None, send_only=0):
+        records = (Record*6)(); records[0].written = 123
+        status, records, stats, error = self.exchange_at(session, mask, wires, not_before, deadline,
+                                                         count=count, records=records, send_only=send_only)
+        self.assertEqual(status, -1); self.assertRegex(error, pattern)
+        self.assertEqual((stats.writes, records[0].written, records[0].start_ns), (0, 123, 0))
+        self.assertTrue(stats.begin_ns and stats.end_ns >= stats.begin_ns)
+        self.assert_silent(); self.assert_poisoned(session, mask)
+        return stats
+
+    def test_exchange_at_abi_and_receipt_records_symbol(self):
+        self.assertEqual(self.lib.sda_subset_exchange_at_abi(), 1)
+        self.assertEqual(self.lib.sda_subset_active_abi(), 1)
+        directory = self.library_path.parent
+        record = json.loads((directory/'build-record.json').read_bytes())
+        scope = record['four_bus_subset_active']
+        self.assertEqual((scope['scope'], scope['exchange_at_abi']), ('four_bus_subset_active.v1', 1))
+        forged = Path(self.directory.name)/f'at-forged-{time.monotonic_ns()}'
+        shutil.copytree(directory, forged)
+        for value in (0, 2, '1', None):
+            changed = dict(record, four_bus_subset_active=dict(scope, exchange_at_abi=value))
+            (forged/'build-record.json').write_text(json.dumps(changed))
+            self.assertRegex(build.receipt_problem(forged), 'receipt pins differ')
+        legacy = dict(scope); del legacy['exchange_at_abi']
+        (forged/'build-record.json').write_text(json.dumps(dict(record, four_bus_subset_active=legacy)))
+        self.assertIsNone(build.receipt_problem(forged))
+
+    def test_exchange_at_first_write_not_before_release(self):
+        for first_id, mask, ids in ((1, 0x07, (1, 2, 3)), (7, 0x38, (10, 11, 12))):
+            with self.subTest(ids=ids):
+                self.seen = []
+                session = self.session(first_id, mask); self.peer_loop(3)
+                called = time.monotonic_ns(); not_before = called+3_000_000
+                status, records, stats, error = self.exchange_at(session, mask, [type1(mid) for mid in ids],
+                                                                 not_before, called+50_000_000)
+                self.assertEqual(status, 0, error); self.assertEqual(stats.writes, 3)
+                self.assertGreaterEqual(stats.begin_ns, not_before)
+                self.assertGreaterEqual(records[0].start_ns, not_before)
+                self.assertLess(records[0].start_ns-not_before, 5_000_000)
+                self.assertTrue(all(records[i].start_ns >= records[i-1].finish_ns for i in (1, 2)))
+                self.assertEqual([(records[i].written, records[i].received) for i in range(3)], [(17, 17)]*3)
+                self.assertEqual((records[3].written, records[0].deadline_ns), (0, called+50_000_000))
+                self.assertEqual([value.destination for value in self.seen], list(ids))
+                self.thread.join(timeout=1)
+                # The session stays usable for the ordinary and pre-armed exports.
+                self.peer_loop(3)
+                status, _, stats, error = self.exchange(session, mask, [type1(mid) for mid in ids])
+                self.assertEqual((status, stats.writes), (0, 3), error)
+                self.thread.join(timeout=1); self.peer_loop(1)
+                status, records, stats, error = self.exchange_at(session, mask, [wire(3, ids[1])],
+                    time.monotonic_ns()+1_000_000, time.monotonic_ns()+50_000_000)
+                self.assertEqual((status, stats.writes, records[0].received), (0, 1, 17), error)
+                self.thread.join(timeout=1)
+
+    def test_exchange_at_cancel_during_wait_writes_nothing(self):
+        session = self.session(1, 0x07)
+        self.after(.001, lambda: os.write(self.cancel_write, b'x'))
+        called = time.monotonic_ns(); not_before = called+4_500_000
+        stats = self.rejected_at(session, 0x07, [type1(1), type1(2), type1(3)], 'Cancelled',
+                                 not_before, called+50_000_000)
+        self.assertLess(stats.end_ns, not_before)
+
+    def test_exchange_at_cancel_before_wait_writes_nothing(self):
+        session = self.session(1, 0x07); os.write(self.cancel_write, b'x')
+        now = time.monotonic_ns()
+        self.rejected_at(session, 0x07, [type1(1), type1(2), type1(3)], 'Cancelled before pre-armed',
+                         now+2_000_000, now+50_000_000)
+
+    def test_exchange_at_boot_change_during_wait_writes_nothing(self):
+        session = self.session(1, 0x07)
+        self.after(.001, lambda: os.pwrite(self.boot.fileno(), b'9', 0))
+        now = time.monotonic_ns()
+        self.rejected_at(session, 0x07, [type1(1), type1(2), type1(3)], 'Boot identity changed during',
+                         now+4_000_000, now+50_000_000)
+
+    def test_exchange_at_concurrent_caller_refused_during_wait(self):
+        session = self.session(1, 0x07); self.peer_loop(3); seen = []
+        self.after(.001, lambda: seen.append(self.exchange(session, 0x07, [stop_wire(1)])))
+        now = time.monotonic_ns()
+        status, _, stats, error = self.exchange_at(session, 0x07, [type1(1), type1(2), type1(3)],
+                                                   now+4_000_000, now+50_000_000)
+        self.assertEqual((status, stats.writes), (0, 3), error)
+        self.assertEqual((seen[0][0], seen[0][2].writes, seen[0][3]), (-1, 0, 'Concurrent native active session use'))
+        self.assertEqual([value.kind for value in self.seen], [1, 1, 1])
+
+    def test_exchange_at_time_window_rejected_without_wait_or_write(self):
+        wires = [type1(1), type1(2), type1(3)]
+        for name, offsets in (('equal', (3_000_000, 3_000_000)), ('after', (4_000_000, 3_000_000)),
+                              ('past', (-1_000_000, 50_000_000)), ('zero', (None, 50_000_000)),
+                              ('too_far', (5_500_000, 50_000_000)), ('long_deadline', (2_000_000, 300_000_000)),
+                              ('past_deadline', (-2_000_000, -1_000_000))):
+            with self.subTest(name):
+                session = self.session(1, 0x07); now = time.monotonic_ns()
+                not_before = 0 if offsets[0] is None else now+offsets[0]
+                stats = self.rejected_at(session, 0x07, wires, 'requires now<not_before<deadline',
+                                         not_before, now+offsets[1])
+                self.assertLess(stats.end_ns-stats.begin_ns, 1_000_000)
+        session = self.session(1, 0x07); now = time.monotonic_ns()
+        self.rejected_at(session, 0x07, wires, 'requires now<not_before', now+2_000_000, now+50_000_000,
+                         send_only=1)
+
+    def test_exchange_at_invalid_batch_rejected_before_waiting(self):
+        cases = ((1, 0x07, [type1(4)], "outside this port's three-axis mask", None),
+                 (7, 0x38, [stop_wire(1)], 'outside', None),
+                 (1, 0x07, [stop_wire(1), stop_wire(2), stop_wire(4)], 'outside', None),
+                 (1, 0x07, [type1(1), stop_wire(2)], 'only Type1', None),
+                 (1, 0x07, [type1(2), type1(1), type1(3)], 'ascending ID order', None),
+                 (1, 0x07, [type1(2, kp=3.2)], 'out-of-bounds', None),
+                 (1, 0x07, [wire(5, 2)], 'Disallowed subset active kind', None),
+                 (1, 0x07, [stop_wire(1)], '1..6 wires', 0))
+        for first_id, mask, wires, pattern, count in cases:
+            with self.subTest(pattern=pattern, wires=[value.hex() for value in wires]):
+                session = self.session(first_id, mask); now = time.monotonic_ns(); not_before = now+4_500_000
+                stats = self.rejected_at(session, mask, wires, pattern, not_before, now+50_000_000, count=count)
+                self.assertLess(stats.end_ns, not_before)
+        for bad in (0, 0x39, 63):
+            with self.subTest(mask=bad):
+                session = self.session(1, 0x07); now = time.monotonic_ns()
+                records = (Record*6)(); records[0].written = 123
+                status, records, stats, error = self.exchange_at(session, bad, [stop_wire(1)], now+4_500_000,
+                                                                 now+50_000_000, records=records)
+                self.assertEqual((status, stats.writes, records[0].written), (-1, 0, 123))
+                self.assertRegex(error, 'mask required'); self.assertLess(stats.end_ns, now+4_500_000)
+                self.assert_silent(); self.assert_poisoned(session, 0x07)
+
+    def test_exchange_at_refuses_poisoned_session_and_backlog(self):
+        session = self.session(1, 0x07)
+        self.assertEqual(self.exchange(session, 0x07, [type1(4)])[0], -1)
+        now = time.monotonic_ns()
+        status, _, stats, error = self.exchange_at(session, 0x07, [stop_wire(1)], now+2_000_000, now+50_000_000)
+        self.assertEqual((status, stats.writes), (-1, 0)); self.assertRegex(error, 'poisoned')
+        # Unsolicited input is still refused by the unchanged exchange path after the wait.
+        session = self.session(1, 0x07); self.peer.sendall(b'stale')
+        now = time.monotonic_ns()
+        status, records, stats, error = self.exchange_at(session, 0x07, [stop_wire(1)], now+1_000_000,
+                                                         now+50_000_000)
+        self.assertEqual((status, stats.writes, records[0].written), (-1, 0, 0)); self.assertRegex(error, 'backlog')
+        self.assertGreaterEqual(stats.begin_ns, now+1_000_000); self.assert_silent()
+        self.assert_poisoned(session, 0x07)
+
+    def test_exchange_at_sends_the_same_bytes_as_default_exchange(self):
+        from . import type1_transport
+        # Required symbols are unchanged; the export is optional and used only when pre-arming.
+        self.assertNotIn('sda_subset_exchange_at', type1_transport._SYMBOLS)
+        self.assertEqual(type1_transport._AT_SYMBOLS, ('sda_subset_exchange_at_abi', 'sda_subset_exchange_at'))
+        wires = [type1(mid, q=.1*i, kp=2., kd=.1) for i, mid in enumerate((4, 5, 6))]
+        session = self.session(1, 0x38); self.peer_loop(6)
+        status, ordinary, _, error = self.exchange(session, 0x38, wires)
+        self.assertEqual(status, 0, error)
+        now = time.monotonic_ns()
+        status, armed, _, error = self.exchange_at(session, 0x38, wires, now+1_000_000, now+50_000_000)
+        self.assertEqual(status, 0, error)
+        self.assertEqual([value.wire for value in self.seen], wires*2)
+        self.assertEqual([bytes(ordinary[i].tx) for i in range(6)], [bytes(armed[i].tx) for i in range(6)])
 
     def test_existing_stop_only_exports_still_work(self):
         session = self.session(1, 0x07); self.peer_loop(3)

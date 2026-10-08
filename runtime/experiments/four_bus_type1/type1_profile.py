@@ -76,6 +76,23 @@ PACING = {'request_gap_us': 900, 'request_window': 3, 'release_spin_us': 500, 'm
           'per_cycle_requests': 28, 'voltage_overlapped_with_inference': True,
           'boundary_current_checks': True, 'final_gate_input_identity': True,
           'two_bus_890us_or_200us_spin_equivalence_claimed': False}
+# Opt-in timing options (jitter fixes F1-F4). A key enters the contract pacing
+# only when selected, so the default contract, its SHA256 and every report
+# pacing stay the R8 PACING byte for byte. Chained steps share one contract
+# SHA256 and therefore exactly the same options.
+PACING_OPTIONS = ('command_phase_offset_us', 'decode_once', 'prearmed_hold_lead_us', 'gc_freeze')
+# F1 static check: release+K, then encode/submit, the output exchange and its
+# worst recorded tail (R9 +2.85 ms) must end inside the unchanged 20 ms deadline.
+COMMAND_PHASE_BUDGET_US = {'encode_and_submit': 470, 'output_exchange': 5140, 'output_tail': 2850}
+COMMAND_PHASE_MIN_US = 9000  # Below the recorded natural gate (min 9.97 ms) pacing would never engage.
+COMMAND_PHASE_MAX_US = 20_000-sum(COMMAND_PHASE_BUDGET_US.values())
+PREARMED_LEAD_US = (300, 2000)  # Owner Python preparation fits; transport cap PREARM_MAX_LEAD_NS is 5 ms.
+# F1+F3 static check: with a pre-armed next cycle, cycle k's worst end (the F1 budget
+# above, then post-reply admission and F0 sampling) must also leave the next cycle's
+# whole pre-arm window before release+20 ms: max(L, Boundary 1 + gates + owner prep).
+PREARMED_TAIL_BUDGET_US = {'post_reply_admission': 730,  # R9 max cycle end K+6.34 ms less 5.61 ms.
+                           'timing_evidence': 100}  # F0 sampling at the cycle end (tested < 100 us).
+PREARM_WORK_US = 1250  # Boundary 1 (~0.16 ms), hold gates and owner prep (0.65-0.95 ms submit->last native).
 WATCHDOG = {'motor_can_timeout_ticks': 4000, 'motor_can_timeout_ms': 200,
             'host_output_watchdog_ms': 40, 'host_output_watchdog_poll_ms': 2}
 ENABLE = {'serial_single_axis': True, 'per_reply_budget_ms': 30, 'total_budget_ms': 120, 'retry': False}
@@ -159,6 +176,44 @@ def contract_sha256(contract):
 
 def profile_canonical_sha256(profile):
     return canonical_sha256(profile)
+
+
+def command_phase_max_with_lead_us(lead):
+    """Largest F1 offset whose worst cycle end still leaves the next cycle's F3 pre-arm window."""
+    return (20_000-sum(COMMAND_PHASE_BUDGET_US.values())-sum(PREARMED_TAIL_BUDGET_US.values())-
+            max(lead, PREARM_WORK_US))
+
+
+def pacing_options(pacing, message='Fixed four-bus boxed pacing differs'):
+    """Exact R8 PACING plus only explicitly selected opt-in keys; returns the selection."""
+    need(type(pacing) is dict and set(pacing) <= set(PACING) | set(PACING_OPTIONS) and
+         all(key in pacing and pacing[key] == value for key, value in PACING.items()), message)
+    options = {key: pacing[key] for key in PACING_OPTIONS if key in pacing}
+    offset, lead = options.get('command_phase_offset_us'), options.get('prearmed_hold_lead_us')
+    need(offset is None or (type(offset) is int and COMMAND_PHASE_MIN_US <= offset <= COMMAND_PHASE_MAX_US),
+         'Command phase offset must be an integer %d..%d us (K + %d us output budget <= 20 ms)' % (
+             COMMAND_PHASE_MIN_US, COMMAND_PHASE_MAX_US, sum(COMMAND_PHASE_BUDGET_US.values())))
+    need(lead is None or (type(lead) is int and PREARMED_LEAD_US[0] <= lead <= PREARMED_LEAD_US[1]),
+         'Pre-armed hold lead must be an integer %d..%d us' % PREARMED_LEAD_US)
+    need(offset is None or lead is None or offset <= command_phase_max_with_lead_us(lead),
+         'Command phase offset with a pre-armed hold lead must keep K + %d us + max(L, %d us) <= 20 ms '
+         '(K <= %d us at L = %d us)' % (sum(COMMAND_PHASE_BUDGET_US.values())+sum(PREARMED_TAIL_BUDGET_US.values()),
+                                        PREARM_WORK_US, command_phase_max_with_lead_us(lead or 0), lead or 0))
+    need(all(options[key] is True for key in ('decode_once', 'gc_freeze') if key in options),
+         'A selected decode_once/gc_freeze option must be exactly true')
+    return options
+
+
+def selected_pacing(options=None):
+    """Contract pacing: PACING plus only the selected options (None/False omitted)."""
+    pacing = copy.deepcopy(PACING)
+    need(options is None or type(options) is dict, 'Pacing options must be a dict')
+    for key, value in (options or {}).items():
+        need(key in PACING_OPTIONS, 'Unknown pacing option: '+str(key))
+        if value is not None and value is not False:
+            pacing[key] = value
+    pacing_options(pacing)
+    return pacing
 
 
 def mapping(value):
@@ -286,9 +341,13 @@ def rebind_window_to_current_capture(geometry, plan):
         'axes': record, 'max_abs_centre_shift_deg': max(abs(r['centre_shift_deg']) for r in record.values())}
 
 
-def build_contract(plan, lineage, geometry, geometry_ref, *, rebind_window=False):
-    """Pure: current four-bus plan + reviewed boxed geometry -> fixed contract."""
+def build_contract(plan, lineage, geometry, geometry_ref, *, rebind_window=False, options=None):
+    """Pure: current four-bus plan + reviewed boxed geometry -> fixed contract.
+
+    ``options`` selects opt-in PACING_OPTIONS; None keeps the R8 contract.
+    """
     need(type(rebind_window) is bool, 'Explicit window rebinding boolean required')
+    pacing = selected_pacing(options)
     rebinding = None
     if rebind_window:
         geometry, rebinding = rebind_window_to_current_capture(geometry, plan)
@@ -304,7 +363,7 @@ def build_contract(plan, lineage, geometry, geometry_ref, *, rebind_window=False
         'assembly_id': geometry['assembly_id'], 'topology_by_port': by_port,
         'uids_by_id': dict(provenance['uids_by_id']), 'enable_order_ids': enable_order(by_port),
         'axes': axes, 'start_pose_bounds': start, 'timing': copy.deepcopy(TIMING),
-        'pacing': copy.deepcopy(PACING), 'watchdog': dict(WATCHDOG), 'enable': dict(ENABLE),
+        'pacing': pacing, 'watchdog': dict(WATCHDOG), 'enable': dict(ENABLE),
         'terminal_stop': dict(TERMINAL_STOP),
         'imu_limits': {key: geometry[key] for key in IMU_KEYS},
         'ramps': {key: geometry[key] for key in RAMP_KEYS},
@@ -326,9 +385,10 @@ def build_contract(plan, lineage, geometry, geometry_ref, *, rebind_window=False
 def validate_contract(contract):
     need(type(contract) is dict and set(contract) == CONTRACT_KEYS and
          contract['schema'] == PROFILE_SCHEMA and contract['scope'] == SCOPE, 'Exact four-bus Type1 contract required')
-    for key, expected in (('timing', TIMING), ('pacing', PACING), ('watchdog', WATCHDOG),
+    for key, expected in (('timing', TIMING), ('watchdog', WATCHDOG),
                           ('enable', ENABLE), ('terminal_stop', TERMINAL_STOP)):
         need(contract[key] == expected, 'Fixed four-bus boxed '+key+' differs')
+    pacing_options(contract['pacing'])
     need(contract['timing']['voltage_max_age_ms']*1_000_000 == V3_VOLTAGE_MAX_AGE_NS,
          'Voltage cache age differs from the original runtime')
     need(contract['authorized_modes'] == list(MODES) and contract['authorized_durations_s'] == list(DURATIONS),
@@ -567,6 +627,10 @@ def validate_type1_report(report, *, contract, contract_digest, mode, duration_s
     need(report['mode'] == mode and report['status'] == COMPLETE_STATUS[mode] and
          report['duration_s'] in DURATIONS and (duration_s is None or report['duration_s'] == duration_s),
          'Predecessor mode/duration/status differs')
+    # A chained step uses exactly its predecessor's opt-in options (also bound by the contract SHA256).
+    need(type(report['pacing']) is dict and pacing_options(contract['pacing']) ==
+         {key: report['pacing'][key] for key in PACING_OPTIONS if key in report['pacing']},
+         'Predecessor opt-in pacing options differ from this contract')
     need(report['contract_sha256'] == contract_digest and report['boot_id'] == contract['boot_id'] and
          report['motor_power_epoch'] == contract['motor_power_epoch'] and
          report['source_manifest_sha256'] == contract['source_manifest']['sha256'] and
@@ -773,6 +837,17 @@ def _plan_inputs(args, pins, capture, events):
     return inputs
 
 
+def cli_options(args):
+    """Explicit prepare flags -> opt-in pacing options; absent flags select nothing."""
+    values = {'command_phase_offset_us': getattr(args, 'command_phase_offset_us', None),
+              'decode_once': getattr(args, 'decode_once', False),
+              'prearmed_hold_lead_us': getattr(args, 'prearmed_hold_lead_us', None),
+              'gc_freeze': getattr(args, 'gc_freeze', False)}
+    need(type(values['decode_once']) is bool and type(values['gc_freeze']) is bool,
+         'Decode-once/gc-freeze selections must be booleans')
+    return values
+
+
 def build_from_files(args):
     """Read pinned files only; returns (profile, pins). Opens no device/library/model."""
     need(args.mode in MODES and args.duration in DURATIONS, 'Explicit mode/duration required')
@@ -787,7 +862,8 @@ def build_from_files(args):
                'accel_hypothesis' in inputs else ()))}
     geometry_ref = {'path': str(args.axis_geometry_profile), 'sha256': args.axis_geometry_profile_sha256}
     contract = build_contract(plan, lineage, pins.json(args.axis_geometry_profile, args.axis_geometry_profile_sha256),
-                              geometry_ref, rebind_window=getattr(args, 'rebind_window_to_current_capture', False))
+                              geometry_ref, rebind_window=getattr(args, 'rebind_window_to_current_capture', False),
+                              options=cli_options(args))
     digest = contract_sha256(contract)
     current_ref = {'path': str(args.current_topology), 'sha256': args.current_topology_sha256}
     current_inputs = _plan_inputs(args, pins, (args.current_topology, args.current_topology_sha256),
@@ -854,6 +930,9 @@ def prepare(args):
               'contract_sha256': profile['contract_sha256'], 'output': str(output), 'input_sha256': dict(pins.values),
               'axis_geometry': profile['contract']['axis_geometry'], 'evidence': profile['evidence'],
               'hardware_opened': False, 'library_or_model_loaded': False, **NO_GRANTS}
+    options = pacing_options(profile['contract']['pacing'])
+    if options:
+        result['pacing_options'] = options
     if not args.prepare:
         return result
     written = write_json(_fresh_output(args.output), profile)
@@ -896,6 +975,19 @@ def parser():
         prep.add_argument('--'+name+'-sha256')
     prep.add_argument('--rebind-window-to-current-capture', action='store_true',
         help='Explicit: re-centre only the reviewed +-3deg window and +-0.5deg start on the current pose')
+    # Opt-in timing options, recorded in the contract pacing only when given (default contract unchanged).
+    prep.add_argument('--command-phase-offset-us', type=int,
+        help='F1: command time release+K after the final gate (%d..%d; suggestion 11250; with '
+             '--prearmed-hold-lead-us L at most %d - max(L, %d))' % (COMMAND_PHASE_MIN_US, COMMAND_PHASE_MAX_US,
+             command_phase_max_with_lead_us(0)+PREARM_WORK_US, PREARM_WORK_US))
+    prep.add_argument('--decode-once', action='store_true',
+        help='F2b: owner-published read-only rows; takeouts and the final gate compare raw images')
+    prep.add_argument('--prearmed-hold-lead-us', type=int,
+        help='F3: wake at release-lead and pre-arm the hold natively at the release (%d..%d, e.g. 1000-1500; '
+             'it must cover Boundary 1, the hold gates and all four owners\' preparation); '
+             'needs a library whose receipt records exchange_at_abi 1' % PREARMED_LEAD_US)
+    prep.add_argument('--gc-freeze', action='store_true',
+        help='F4: gc.freeze() after warm-up before the first release, gc.unfreeze() at restoration')
     prep.add_argument('--output', required=True)
     prep.add_argument('--prepare', action='store_true')
     cond = commands.add_parser('conditions', allow_abbrev=False, help='Direct-human record; PLAN unless --record')

@@ -48,6 +48,10 @@ TYPE1_SOURCES = (
     ('transport.cpp', 'type1_extension_source_sha256', 'extension_source_sha256',
      'runtime/experiments/four_bus_type1/subset_active.cpp'))
 MAX_ANNOUNCEMENT_S = 8.
+TIMING_EVIDENCE_PLAN = {'selected': True, 'contract_input': False, 'diagnostic_only': True,
+    'per_cycle': ['submit_done_ns', 'owner_entry_ns', 'thread_counter_delta'],
+    'per_run': ['vmstat_thp_compact_delta', 'interrupts_delta'],
+    'sampled': 'each_cycle_end_after_post_reply_admission_outside_release_to_output_window'}
 STOP_UNCONFIRMED = P.STOP_UNCONFIRMED_STATUS
 need = FG.need
 
@@ -205,8 +209,12 @@ def create_type1_observer(plan, observer_factory, *, policy, duration_s, torch_m
     return model_bridge._GuardedObserver(delegate, owned)
 
 
-def prepare_type1_library(args, manifest, pins):
-    """File-only subset-active receipt/source/binary binding; never loads the CDLL."""
+def prepare_type1_library(args, manifest, pins, *, prearmed_hold=False):
+    """File-only subset-active receipt/source/binary binding; never loads the CDLL.
+
+    A contract that selects the pre-armed hold also needs the receipt to
+    record the optional sda_subset_exchange_at ABI (rejected here, file-only).
+    """
     library = Path(args.type1_library)
     need(library.is_absolute() and library.name == build.LIBRARY_NAME, 'Absolute four-bus Type1 library required')
     pins.read(library, args.type1_library_sha256)
@@ -223,11 +231,16 @@ def prepare_type1_library(args, manifest, pins):
          record.get('source_sha256') == args.type1_extension_source_sha256 and
          scope.get('output_allowed') is False and scope.get('timing_admission_eligible') is False,
          'Exact subset-active build/binary binding required')
-    return {'schema': 'singularitydog.four-bus-type1-library-file-plan.v1', 'scope': build.SCOPE,
-            'library': {'path': str(library), 'sha256': args.type1_library_sha256},
-            'build': {'path': str(library.parent/'build-record.json'), 'sha256': args.type1_build_sha256},
-            'sources': {name: getattr(args, pin) for name, pin, _, _ in TYPE1_SOURCES},
-            'loads_library_in_plan': False, 'output_allowed': False}
+    result = {'schema': 'singularitydog.four-bus-type1-library-file-plan.v1', 'scope': build.SCOPE,
+              'library': {'path': str(library), 'sha256': args.type1_library_sha256},
+              'build': {'path': str(library.parent/'build-record.json'), 'sha256': args.type1_build_sha256},
+              'sources': {name: getattr(args, pin) for name, pin, _, _ in TYPE1_SOURCES},
+              'loads_library_in_plan': False, 'output_allowed': False}
+    if prearmed_hold:
+        need(scope.get('exchange_at_abi') == 1,
+             'Pre-armed hold requires a Type1 build whose receipt records exchange_at_abi 1')
+        result['exchange_at_abi'] = 1
+    return result
 
 
 def prepare_announcement(args, pins):
@@ -278,7 +291,8 @@ def prepare(args):
     firmware = reviewed_firmware(contract, pins)
     spec = runner_admitted(admitted, firmware)
     planned = R.plan(spec)
-    library_plan = prepare_type1_library(args, manifest, pins)
+    options = P.pacing_options(contract['pacing'])
+    library_plan = prepare_type1_library(args, manifest, pins, prearmed_hold='prearmed_hold_lead_us' in options)
     guard_plan = FG.prepare_native_guard(args, manifest, pins)
     need((args.encoder_binary is None) == (args.encoder_binary_sha256 is None), 'Encoder binary needs path and SHA')
     encoder = None
@@ -305,9 +319,23 @@ def prepare(args):
         'fk_plan': dependencies['fk_plan'], 'checked_plan': dependencies['checked_plan'],
         'input_sha256': dict(pins.values), 'canonical_outer_power_scope_required': True,
         'direct_human_condition_record_sha256': admitted.conditions_sha256}
+    # Opt-in fields appear only when selected; the default PLAN is unchanged.
+    if options:
+        result['pacing_options'] = options
+    if getattr(args, 'timing_evidence', False):
+        result['timing_evidence'] = TIMING_EVIDENCE_PLAN
     return {'plan': result, 'pins': pins, 'manifest': manifest, 'admitted': admitted, 'contract': contract,
             'runner_admitted': spec, 'capture': capture, 'dependencies': dependencies, 'audio': audio,
-            'output': output, 'holder_receipt': holder_receipt}
+            'output': output, 'holder_receipt': holder_receipt, 'pacing_options': options}
+
+
+def make_command_wait(library, cancel_fd):
+    """F1 command-phase wait: the release_wait primitive (native, GIL released,
+    cancel FD watched, spin 500 us) without arming the observer."""
+    from singularitydog_hw.native_active_transport import wait_until
+    def wait(target_ns):
+        return wait_until(library, cancel_fd, target_ns, spin_us=500)
+    return wait
 
 
 class LinuxEnvironment:
@@ -420,6 +448,13 @@ class LinuxEnvironment:
     def release_wait(self, library, cancel_fd, observer):
         return FG.make_release_wait(library, cancel_fd, observer)
 
+    def command_wait(self, library, cancel_fd):
+        return make_command_wait(library, cancel_fd)
+
+    def timing_evidence(self):
+        from .timing_evidence import TimingEvidence
+        return TimingEvidence()
+
     def announcer(self, audio, check):
         def announce():
             check()
@@ -487,6 +522,8 @@ def execute(args, prepared, environment=None):
     output.mkdir(mode=0o700)
     admitted, contract, capture = prepared['admitted'], prepared['contract'], prepared['capture']
     groups = tuple(Group(port, tuple(contract['topology_by_port'][port])) for port in PORTS)
+    options = prepared['pacing_options']
+    evidence = getattr(args, 'timing_evidence', False)
     report = {'schema': P.REPORT_SCHEMA, 'status': 'STARTING', **FALSE_FLAGS, **admitted.report_binding(),
               **dict.fromkeys(ATTEMPTS, False), 'errors': [], 'failure_retained': False, 'completed_cycles': 0,
               'all_cycles_passed': False, 'first_release_monotonic_ns': None, 'terminal_stop': None,
@@ -497,6 +534,10 @@ def execute(args, prepared, environment=None):
                                'observer_max_ticks': prepared['plan']['observer_max_ticks'],
                                'model_load': prepared['plan']['model_load'],
                                'transport_native_gain_caps': prepared['plan']['transport_native_gain_caps']}}
+    if options:
+        report['pacing_options'] = dict(options)
+    if evidence:
+        report['timing_evidence_selected'] = True
     primary = measured = observer = device = scope = current_guard = None
     transports, worker_scopes, handlers = {}, {}, {}
     cancellation = FG.CancelBinding()
@@ -568,7 +609,9 @@ def execute(args, prepared, environment=None):
                     bounds, kp, kd = transport_limits(contract, group, admitted.mode)
                     value = T.Type1Transport.create(library, descriptors[group.port], group=group, cancel_fd=cr,
                         boot_fd=boot_fds[group.port], boot_id=capture['boot_before'], axis_raw_bounds=bounds,
-                        kp_cap_by_id=kp, kd_cap_by_id=kd, cancel_all=cancel_from(group.port+'_transport_failure'))
+                        kp_cap_by_id=kp, kd_cap_by_id=kd, cancel_all=cancel_from(group.port+'_transport_failure'),
+                        decode_once=options.get('decode_once') is True,
+                        prearmed_hold='prearmed_hold_lead_us' in options)
                     transports[group.port] = value
                     return value
                 def worker(port, mask):
@@ -584,7 +627,9 @@ def execute(args, prepared, environment=None):
                     backend_usage={'kind': env.kind,
                         'library_sha256': args.type1_library_sha256, 'build_record_sha256': args.type1_build_sha256,
                         'source_manifest_sha256': args.source_manifest_sha256},
-                    clock=env.clock, execute=True)
+                    clock=env.clock, execute=True,
+                    command_wait=env.command_wait(library, cr) if 'command_phase_offset_us' in options else None,
+                    timing_evidence=env.timing_evidence() if evidence else None)
                 if callable(getattr(observer, 'finish', None)):
                     # The tick budget is an upper bound; inference stops at gain-down.
                     report['observer'] = observer.finish()
@@ -688,6 +733,9 @@ def parser():
     result.add_argument('--encoder-binary-sha256')
     result.add_argument('--holder-receipt')
     result.add_argument('--holder-receipt-sha256')
+    result.add_argument('--timing-evidence', action='store_true',
+        help='Diagnostic only (not contract): per-cycle submit/owner-entry stamps and per-thread schedstat/'
+             'rusage deltas at cycle end, run-level vmstat thp/compact and interrupts deltas')
     result.add_argument('--output', required=True)
     result.add_argument('--execute', action='store_true',
         help='Explicit boxed Type1 run of the admitted mode/duration; needs the current condition record')

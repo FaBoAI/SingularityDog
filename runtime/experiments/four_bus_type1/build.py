@@ -53,6 +53,7 @@ def build(output, *, ordinary_source=ORDINARY, subset_stop_source=SUBSET_STOP):
               'binary_sha256': digest(library),
               'four_bus_subset_active': {'schema': SCHEMA, 'scope': SCOPE,
                   'type1_exchange_abi': 1, 'subset_stop_abi': 1, 'original_active_abi': 1,
+                  'exchange_at_abi': 1,
                   'ordinary_source_sha256': digest(output / 'ordinary_transport.cpp'),
                   'subset_stop_source_sha256': digest(output / 'subset_stop.cpp'),
                   'extension_source_sha256': digest(output / 'transport.cpp'),
@@ -72,6 +73,8 @@ def receipt_problem(directory):
 
     A STOP-only receipt (`four_bus_subset_stop`) is never accepted here, and
     this receipt carries no `four_bus_subset_stop` scope for the STOP loader.
+    `exchange_at_abi` (sda_subset_exchange_at) is recorded by current builds;
+    a receipt without it predates that export and must not be used to pre-arm.
     """
     directory = Path(directory)
     try:
@@ -96,6 +99,7 @@ def receipt_problem(directory):
             record.get('binary_sha256') != binary or scope.get('schema') != SCHEMA or
             scope.get('scope') != SCOPE or scope.get('type1_exchange_abi') != 1 or
             scope.get('subset_stop_abi') != 1 or scope.get('original_active_abi') != 1 or
+            ('exchange_at_abi' in scope and scope['exchange_at_abi'] != 1) or
             scope.get('allowed_masks') != ALLOWED_MASKS or scope.get('allowed_kinds') != ALLOWED_KINDS or
             scope.get('type1_batch_sizes') != [1, 3] or scope.get('library') != LIBRARY_NAME or
             scope.get('output_allowed') is not False or scope.get('timing_admission_eligible') is not False):

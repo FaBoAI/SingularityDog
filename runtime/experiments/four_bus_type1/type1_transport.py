@@ -5,6 +5,8 @@ descriptors, boot/cancel bindings, the admitted profile and the direct-human
 condition record remain required. Every exchange goes through the native
 mask-bound sda_subset_exchange and an exact per-method Python whitelist; the
 ordinary sda_exchange and fixed-six emergency STOP are never called here.
+Opt-in only: decode_once publishes read-only rows reused at takeouts, and
+prearmed_hold sends the hold through the optional sda_subset_exchange_at.
 """
 from concurrent.futures import Future
 from contextlib import contextmanager
@@ -18,6 +20,7 @@ from pathlib import Path
 import struct
 import threading
 import time
+from types import MappingProxyType
 import weakref
 
 from singularitydog_hw import native_active_transport as active
@@ -26,6 +29,7 @@ from singularitydog_hw.can_readonly import read_request
 from singularitydog_hw.motor_version_probe import version_request
 from singularitydog_hw.native_diagnostic_transport import Record, exchange_evidence
 from singularitydog_hw.policy_output_runtime import decode_records
+from singularitydog_hw.rs05_trial_protocol import Type2Feedback
 from experiments.four_bus_diagnostic.transport_adapter import Batch, Group
 from . import build
 
@@ -50,6 +54,12 @@ _ARGS = ((), (),
          (C.c_void_p, C.c_uint32, C.c_uint64, C.POINTER(Record), C.POINTER(active.Stats),
           C.POINTER(active.StopResult), C.POINTER(C.c_char), C.c_uint32))
 _RESULTS = (C.c_uint32, C.c_uint32, C.c_int, C.c_int, C.c_int)
+# Optional F3 export: resolved only when the receipt records exchange_at_abi 1.
+_AT_SYMBOLS = ('sda_subset_exchange_at_abi', 'sda_subset_exchange_at')
+_AT_ARGS = ((), (C.c_void_p, C.c_uint32, C.POINTER(C.c_ubyte), C.c_uint32, C.c_int, C.c_uint64, C.c_uint64,
+                 C.POINTER(Record), C.POINTER(active.Stats), C.POINTER(C.c_char), C.c_uint32))
+_AT_RESULTS = (C.c_uint32, C.c_int)
+PREARM_MAX_LEAD_NS = 5_000_000
 _LIBRARIES = weakref.WeakKeyDictionary()
 _TRANSPORTS = weakref.WeakKeyDictionary()
 _TOKEN = object()
@@ -97,6 +107,7 @@ class _LibrarySeal:
     functions: tuple
     build_record_sha256: str
     pins: tuple
+    exchange_at: tuple = ()
 
 
 def _function_seal(function):
@@ -123,7 +134,8 @@ def load_library(path, *, expected_sha256, ordinary_source_sha256, subset_stop_s
               scope['extension_source_sha256']) == pins and
              tuple(sha(directory/name) for name in copies) == pins,
              'Explicit ordinary, subset STOP and subset-active source pins required')
-    check_files()
+        return scope
+    scope = check_files()
     lib = active.load_library(path, expected_sha256=expected_sha256)
     try:
         # Resolve from the authenticated dlopen handle, not cached attributes.
@@ -135,6 +147,18 @@ def load_library(path, *, expected_sha256, ordinary_source_sha256, subset_stop_s
         setattr(lib, name, function)
     if lib.sda_subset_active_abi() != 1 or lib.sda_emergency_stop_subset_abi() != 1:
         raise ValueError('Subset-active/subset-STOP ABI mismatch')
+    exchange_at = ()
+    if scope.get('exchange_at_abi') == 1:
+        try:
+            optional = tuple(lib[name] for name in _AT_SYMBOLS)
+        except AttributeError:
+            raise ValueError('Receipt records sda_subset_exchange_at but the library lacks it')
+        for name, function, arguments, result in zip(_AT_SYMBOLS, optional, _AT_ARGS, _AT_RESULTS):
+            function.argtypes = list(arguments); function.restype = result
+            setattr(lib, name, function)
+        if lib.sda_subset_exchange_at_abi() != 1:
+            raise ValueError('Pre-armed subset exchange ABI mismatch')
+        exchange_at = tuple(_function_seal(function) for function in optional)
     binding = active.verified_active_source_binding(lib)
     check_files()
     if (binding.build_record_sha256 != build_record_sha256 or
@@ -145,7 +169,7 @@ def load_library(path, *, expected_sha256, ordinary_source_sha256, subset_stop_s
         raise ValueError('Subset-active source/receipt changed across authenticated load')
     seal = _LibrarySeal(_TOKEN, weakref.ref(lib), binding,
                         tuple(_function_seal(function) for function in functions),
-                        build_record_sha256, pins)
+                        build_record_sha256, pins, exchange_at)
     lib._four_bus_type1_seal = seal
     _LIBRARIES[lib] = weakref.ref(seal)
     verify_library(lib)
@@ -159,11 +183,22 @@ def verify_library(lib):
             seal.token is not _TOKEN or seal.library() is not lib or
             active.verified_active_source_binding(lib) is not seal.active_binding):
         raise ValueError('Genuine authenticated four-bus Type1 library required')
-    for name, original in zip(_SYMBOLS, seal.functions):
+    for name, original in zip(_SYMBOLS+_AT_SYMBOLS, seal.functions+seal.exchange_at):
         current = getattr(lib, name, None)
         if current is not original[0] or _function_seal(current) != original:
             raise ValueError('Four-bus Type1 function binding changed')
     return seal
+
+
+def _check_selections(decode_once, prearmed_hold):
+    need(type(decode_once) is bool, 'Decode-once selection must be an exact bool')
+    need(type(prearmed_hold) is bool, 'Pre-armed hold selection must be an exact bool')
+
+
+def _check_prearmed_library(seal, prearmed_hold):
+    if prearmed_hold:
+        need(len(getattr(seal, 'exchange_at', ())) == len(_AT_SYMBOLS),
+             'Pre-armed hold requires a library whose receipt and ABI provide sda_subset_exchange_at')
 
 
 def session_limits(group, axis_raw_bounds, kp_cap_by_id, kd_cap_by_id):
@@ -196,15 +231,19 @@ def session_limits(group, axis_raw_bounds, kp_cap_by_id, kd_cap_by_id):
 
 class Type1Transport:
     """One persistent owner thread per physical port; no FD ownership transfer."""
-    def __init__(self, session, group, *, cancel_all, token=None):
+    def __init__(self, session, group, *, cancel_all, decode_once=False, prearmed_hold=False, token=None):
         if token is not _TOKEN or type(session) is not active.ActiveSession or type(group) is not Group:
             raise ValueError('Use the four-bus Type1 creation factory with a genuine session')
         if not callable(cancel_all):
             raise ValueError('Explicit shared cancel_all capability required')
+        _check_selections(decode_once, prearmed_hold)
+        self.decode_once = decode_once
+        self.prearmed_hold = prearmed_hold
         self._session = session
         self.group = group
         self._library = session.lib
         self._seal = verify_library(session.lib)
+        _check_prearmed_library(self._seal, prearmed_hold)
         self._creation = active.verified_active_session_creation(session)
         self._binding = (session._handle, session.fd, session.first_id, bytes(session._limits))
         limits = session._limits
@@ -218,6 +257,7 @@ class Type1Transport:
         self._poisoned = False
         self._aborted = None
         self._last_output = None
+        self._last_fields = None
         self._enabled, self._zero_gain = set(), set()
         self._stop_ambiguous = set()
         self.journal = []
@@ -239,21 +279,24 @@ class Type1Transport:
             for names in itertools.permutations(PARAMETERS, size):
                 self._params[tuple(read_request(mid, name) for name in names for mid in ids)] = names
         _TRANSPORTS[self] = (weakref.ref(session), group, self._binding, dict(self._wires),
-                             dict(self._params), cancel_all)
+                             dict(self._params), cancel_all, decode_once, prearmed_hold)
 
     @classmethod
     def create(cls, library, fd, *, group, cancel_fd, boot_fd, boot_id, axis_raw_bounds,
-               kp_cap_by_id, kd_cap_by_id, cancel_all):
-        verify_library(library)
+               kp_cap_by_id, kd_cap_by_id, cancel_all, decode_once=False, prearmed_hold=False):
+        seal = verify_library(library)
         if not callable(cancel_all):
             raise ValueError('Explicit shared cancel_all capability required')
+        _check_selections(decode_once, prearmed_hold)
+        _check_prearmed_library(seal, prearmed_hold)
         lower, upper, kp, kd = session_limits(group, axis_raw_bounds, kp_cap_by_id, kd_cap_by_id)
         session = active.ActiveSession(library, fd, first_id=group.first_id,
             cancel_fd=cancel_fd, boot_fd=boot_fd, boot_id=boot_id,
             raw_lower_by_id=lower, raw_upper_by_id=upper, kp_max_by_id=kp, kd_max_by_id=kd,
             gap_ns=GAP_NS, window=WINDOW)
         try:
-            return cls(session, group, cancel_all=cancel_all, token=_TOKEN)
+            return cls(session, group, cancel_all=cancel_all, decode_once=decode_once,
+                       prearmed_hold=prearmed_hold, token=_TOKEN)
         except BaseException:
             session.close()
             raise
@@ -272,6 +315,7 @@ class Type1Transport:
         if (original is None or original[0]() is not session or self.group is not original[1] or
                 self._binding != original[2] or self._wires != original[3] or
                 self._params != original[4] or self._cancel_all is not original[5] or
+                self.decode_once is not original[6] or self.prearmed_hold is not original[7] or
                 self._closed or not session._handle or session.lib is not self._library or
                 verify_library(self._library) is not self._seal or
                 active.verified_active_session_creation(session) != self._creation or
@@ -279,12 +323,15 @@ class Type1Transport:
                 session._phase_pair is not None):
             raise ValueError('Original four-bus Type1 owner/session/source binding changed')
 
-    def _owner_check(self):
+    def _owner_thread(self):
         current = threading.get_native_id()
         if self._owner is None:
             self._owner = current
         if current != self._owner:
             raise RuntimeError('Original physical port worker must retain ownership')
+
+    def _owner_check(self):
+        self._owner_thread()
         self._verify()
 
     def _abort(self, error):
@@ -309,7 +356,9 @@ class Type1Transport:
             raise
 
     def _type1_problem(self, wire, mid=None, *, zero=False):
-        fields = type1_fields(wire)
+        return self._fields_problem(type1_fields(wire), mid, zero)
+
+    def _fields_problem(self, fields, mid, zero):
         if fields is None:
             return 'Noncanonical Type1 frame'
         target, q, kp, kd = fields
@@ -325,18 +374,27 @@ class Type1Transport:
             return f'ID{target} Type1 gain above its cap'
         return None
 
-    def check_output_wires(self, wires):
-        """Pure check (no I/O, no owner): exactly three Type1 in ascending group order."""
+    def _checked_output(self, wires):
         wires = tuple(wires)
         need(len(wires) == 3, 'Output requires exactly three Type1 wires')
-        for mid, wire in zip(self.group.ids, wires):
-            problem = self._type1_problem(wire, mid)
+        fields = tuple(type1_fields(wire) for wire in wires)
+        for mid, value in zip(self.group.ids, fields):
+            problem = self._fields_problem(value, mid, False)
             need(problem is None, problem or '')
-        return wires
+        return wires, fields
+
+    def check_output_wires(self, wires):
+        """Pure check (no I/O, no owner): exactly three Type1 in ascending group order."""
+        return self._checked_output(wires)[0]
 
     def validate_wires(self, label, wires):
         """Exact per-method whitelist. Returns (wires, exact decoded row keys)."""
+        return self._validate(label, wires)[:2]
+
+    def _validate(self, label, wires):
+        # Also returns the parsed Type1 fields (or None) reused by _mark.
         wires = tuple(wires)
+        fields = None
         need(1 <= len(wires) <= 6 and all(type(w) is bytes and len(w) == 17 for w in wires),
              'Four-bus Type1 batch must hold 1..6 canonical 17-byte wires')
         ids = self.group.ids
@@ -355,36 +413,43 @@ class Type1Transport:
             keys = feedback((destination,))
         elif label == 'zero_gain':
             need(len(wires) == 1, 'Zero-gain handshake is exactly one Type1')
-            problem = self._type1_problem(wires[0], zero=True)
+            fields = (type1_fields(wires[0]),)
+            problem = self._fields_problem(fields[0], None, True)
             need(problem is None, problem or '')
             keys = feedback((destination,))
         elif label == 'output':
-            self.check_output_wires(wires)
+            fields = self._checked_output(wires)[1]
             keys = feedback(ids)
         elif label == 'feedback_hold':
             need(self._last_output is not None and wires == self._last_output,
                  'Hold must re-send this port\'s last validated output batch byte for byte')
+            fields = self._last_fields  # Parsed from these exact bytes when they were output.
             keys = feedback(ids)
         elif label == 'voltage':
             need(len(wires) == 1 and wires[0] in self._wires['voltage'], 'Only one same-group Type17 voltage')
             keys = {(destination, 'voltage')}
         else:
             raise ValueError('Unknown four-bus Type1 exchange label')
-        return wires, frozenset(keys)
+        return wires, frozenset(keys), fields
 
-    def _mark(self, wires):
+    def _mark(self, wires, fields=None):
         # Truthful attempt flags: set before the native call, never reset.
-        for wire in wires:
+        # fields, when given, is type1_fields of these exact wires.
+        for index, wire in enumerate(wires):
             kind = int.from_bytes(wire[2:6], 'big') >> 27
             if kind == 3:
                 self.attempts['motor_enable_sent'] = True
             elif kind == 1:
                 self.attempts['type1_sent'] = True
-                fields = type1_fields(wire)
-                if fields is None or fields[2] or fields[3]:
+                value = type1_fields(wire) if fields is None else fields[index]
+                if value is None or value[2] or value[3]:
                     self.attempts['positive_gain_sent'] = True
 
-    def _native(self, wires, deadline_ns, before_native):
+    @staticmethod
+    def _buffers(count):
+        return (Record*count)(), active.Stats(), C.create_string_buffer(256)
+
+    def _native(self, wires, deadline_ns, before_native, fields=None, prepared=None, not_before_ns=None):
         session = self._session
         if not session.busy.acquire(blocking=False):
             raise RuntimeError('Concurrent active session use')
@@ -397,7 +462,9 @@ class Type1Transport:
             if type(deadline_ns) is not int or not now < deadline_ns <= now+MAX_DEADLINE_NS:
                 raise ValueError('Expired or invalid absolute active deadline')
             raw = (C.c_ubyte*(17*len(wires))).from_buffer_copy(b''.join(wires))
-            records, stats, error = (Record*len(wires))(), active.Stats(), C.create_string_buffer(256)
+            records, stats, error = self._buffers(len(wires)) if prepared is None else prepared
+            if len(records) != len(wires):
+                raise ValueError('Prepared native buffers differ from the validated batch')
             if before_native is not None:
                 if time.monotonic_ns() >= deadline_ns:
                     raise TimeoutError('Active deadline expired before prepared publication')
@@ -408,9 +475,20 @@ class Type1Transport:
                     deadline_ns = narrowed
             if time.monotonic_ns() >= deadline_ns:
                 raise TimeoutError('Active deadline expired before subset exchange')
-            self._mark(wires)
-            status = self._library.sda_subset_exchange(session._handle, self.group.mask, raw, len(wires),
-                0, deadline_ns, records, C.byref(stats), error, len(error))
+            if not_before_ns is None:
+                self._mark(wires, fields)
+                status = self._library.sda_subset_exchange(session._handle, self.group.mask, raw, len(wires),
+                    0, deadline_ns, records, C.byref(stats), error, len(error))
+            else:
+                if self.prearmed_hold is not True or before_native is not None or type(not_before_ns) is not int:
+                    raise ValueError('Pre-armed exchange requires the explicit prearmed_hold selection')
+                now = time.monotonic_ns()
+                if not now < not_before_ns < deadline_ns or not_before_ns-now > PREARM_MAX_LEAD_NS:
+                    raise TimeoutError('Pre-armed release must be ahead (at most 5 ms) and before the deadline')
+                self._mark(wires, fields)
+                # GIL released by ctypes; native waits (cancel fd watched) until not_before_ns.
+                status = self._library.sda_subset_exchange_at(session._handle, self.group.mask, raw, len(wires),
+                    0, not_before_ns, deadline_ns, records, C.byref(stats), error, len(error))
             if status:
                 raise active.ExchangeError(error.value.decode('utf-8', errors='replace'), records, stats)
             return records, stats
@@ -420,20 +498,33 @@ class Type1Transport:
         finally:
             session.busy.release()
 
-    def _exchange(self, label, wires, deadline_ns, *, before_native=None):
+    def _exchange(self, label, wires, deadline_ns, *, before_native=None, validated=None, prepared=None,
+                  not_before_ns=None):
         with self._abort_on_failure():
-            return self._checked_exchange(label, wires, deadline_ns, before_native)
+            return self._checked_exchange(label, wires, deadline_ns, before_native, validated, prepared,
+                                          not_before_ns)
 
-    def _checked_exchange(self, label, wires, deadline_ns, before_native):
+    def _checked_exchange(self, label, wires, deadline_ns, before_native, validated=None, prepared=None,
+                          not_before_ns=None):
         self._owner_check()
-        wires, keys = self.validate_wires(label, wires)
+        if validated is None:
+            wires, keys, fields = self._validate(label, wires)
+        else:
+            # Only output() passes the result of its own pure check of this exact tuple.
+            need(label == 'output' and type(wires) is tuple, 'Prevalidated batches are output-only')
+            keys, fields = validated
+        if not_before_ns is not None:
+            need(label == 'feedback_hold', 'Only the feedback hold may be pre-armed')
         try:
-            raw = self._native(wires, deadline_ns, before_native)
+            raw = self._native(wires, deadline_ns, before_native, fields, prepared, not_before_ns)
         except active.ExchangeError as error:
             self.journal.append((label, (error.records, error.stats)))
             raise
         self.journal.append((label, raw))  # Keep raw even if decoding rejects.
         rows = decode_records(raw)
+        if self.decode_once:
+            # Sole reference to a private copy: the published rows are read-only.
+            rows = MappingProxyType(dict(rows))
         need(set(rows) == keys, f'{label} replies do not cover the exact requested keys')
         modes = REPLY_MODES.get(label)
         for key, (value, _, _) in rows.items():
@@ -443,13 +534,22 @@ class Type1Transport:
         batch = Batch(self.group, label, raw[0], raw[1], rows, bytes(raw[0]), bytes(raw[1]),
                       time.monotonic_ns())
         self._batches.append(batch)
-        self._batch_index[id(batch)] = batch
+        self._batch_index[id(batch)] = (batch, rows)
         return batch
 
     def verify_batch(self, batch, label):
+        entry = self._batch_index.get(id(batch))
         if (type(batch) is not Batch or batch.group is not self.group or batch.label != label or
-                self._batch_index.get(id(batch)) is not batch):
+                entry is None or entry[0] is not batch):
             raise ValueError('Genuine current owner batch required')
+        rows = batch.rows
+        # Decode-once reuse: only the exact read-only mapping this owner
+        # published, holding frozen Type2 rows; anything else is re-decoded.
+        if (self.decode_once and rows is entry[1] and type(rows) is MappingProxyType and all(
+                type(value) is tuple and len(value) == 3 and type(value[0]) is Type2Feedback and
+                type(value[1]) is int and type(value[2]) is int for value in rows.values())):
+            batch.verify_images()
+            return rows
         return batch.verify()
 
     # Preflight / handshake.
@@ -501,21 +601,28 @@ class Type1Transport:
             return value
 
     # Cycle.
-    def hold_then_voltage(self, wires, voltage_id, prefix_future, *, deadline_ns, check):
+    def hold_then_voltage(self, wires, voltage_id, prefix_future, *, deadline_ns, check, not_before_ns=None):
         """Re-send the last validated output; publish the hold Batch only with the owner held.
 
         The prefix Future is completed from before_native of the voltage
         exchange. The caller's outer Future, not the prefix, joins the owner.
+        not_before_ns (prearmed_hold only): the hold goes through
+        sda_subset_exchange_at, whose first write is at or after it.
         """
         with self._abort_on_failure():
             try:
-                self._owner_check()
+                self._owner_thread()  # Binding is verified by each exchange, nearest its I/O.
                 need(type(prefix_future) is Future and not prefix_future.done(),
                      'Genuine current unpublished hold Future required')
                 need(type(voltage_id) is int and voltage_id in self.group.ids,
                      'Rotating voltage axis must belong to the physical group')
+                if not_before_ns is not None:
+                    need(self.prearmed_hold is True, 'Pre-armed hold requires the explicit prearmed_hold selection')
+                    need(type(not_before_ns) is int and type(deadline_ns) is int and 0 < not_before_ns < deadline_ns,
+                         'Pre-armed hold requires an integer not_before_ns before the hold deadline')
                 check()
-                hold = self._exchange('feedback_hold', wires, deadline_ns)
+                prepared = self._buffers(1)  # Fresh voltage buffers, allocated before the hold.
+                hold = self._exchange('feedback_hold', wires, deadline_ns, not_before_ns=not_before_ns)
                 def publish():
                     check()
                     if prefix_future.done():
@@ -523,8 +630,9 @@ class Type1Transport:
                     prefix_future.set_result(hold)
                     check()
                     return deadline_ns
-                voltage = self._exchange('voltage', (read_request(voltage_id, 'voltage'),), deadline_ns,
-                                         before_native=publish)
+                # Cached wire, verified by the hold exchange (== read_request(voltage_id, 'voltage')).
+                voltage = self._exchange('voltage', (self._wires['voltage'][self.group.ids.index(voltage_id)],),
+                                         deadline_ns, before_native=publish, prepared=prepared)
                 return hold, voltage
             except BaseException as error:
                 if type(prefix_future) is Future and not prefix_future.done():
@@ -556,9 +664,10 @@ class Type1Transport:
             need(self._zero_gain == set(self.group.ids),
                  'Output requires every member enabled with a confirmed zero-gain handshake')
             check()
-            wires = self.check_output_wires(wires)
-            batch = self._exchange('output', wires, deadline_ns)
-            self._last_output = wires
+            wires, fields = self._checked_output(wires)
+            batch = self._exchange('output', wires, deadline_ns,
+                                   validated=(frozenset((mid, 'feedback') for mid in self.group.ids), fields))
+            self._last_output, self._last_fields = wires, fields
             return batch
 
     # Termination.
