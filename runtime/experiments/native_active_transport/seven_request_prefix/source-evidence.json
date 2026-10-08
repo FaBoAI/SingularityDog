@@ -1,0 +1,66 @@
+{
+  "schema": "singularitydog.experimental-seven-request-source.v1",
+  "default_selected": false,
+  "production_source_changed": false,
+  "approved_for_runtime": false,
+  "physical_can_qualified": false,
+  "whole_cycle_performance_qualified": false,
+  "source_files": {
+    "transport.cpp": {
+      "sha256": "c934a6aeb23113f7c64ca24e7a9a1228d4fbd924138ef87d21282ff55739c2ed",
+      "bytes": 70921
+    },
+    "build.py": {
+      "sha256": "064b6d540976f93d6877b4306133943522f82a5fa4800e5121d66f2c6be6a889",
+      "bytes": 954
+    },
+    "live_seven_request_candidate.py": {
+      "sha256": "291258c868094d7897186529ddfdf40a2415d1c4a8bee787fd2b0facf4228327",
+      "bytes": 22313
+    },
+    "seven_request_candidate.py": {
+      "sha256": "dd0b42914519a6caad8607f3dea5390fe27aaef7d59ed89e7bd76a1e1e1785c2",
+      "bytes": 20428
+    },
+    "test_live_seven_request_candidate.py": {
+      "sha256": "dba2aa1b7614cb2c7529ad78182c2d0db2d9182ba0da34c338b14835b676b818",
+      "bytes": 18401
+    },
+    "test_seven_request_candidate.py": {
+      "sha256": "2861d68b5d41265eae8f8aff08ebee8b0f802f713d6b76276ea8dccb4b608dca",
+      "bytes": 27586,
+      "target_qualified_sha256": "e5c4c0184a7b7bd034ee3f3e147d92860ba968200890ee3639e22093550f7199"
+    },
+    "stop-abi2-baseline/transport.cpp": {
+      "sha256": "dfab5de91e6274d84ef6c1789cd339aeb2d6d08dc45655a61b8b005f43316887",
+      "bytes": 66525
+    },
+    "stop-abi2-baseline/build.py": {
+      "sha256": "064b6d540976f93d6877b4306133943522f82a5fa4800e5121d66f2c6be6a889",
+      "bytes": 954
+    }
+  },
+  "abis": {
+    "ordinary_active": 1,
+    "retained_stop_prefix": 2,
+    "live_held_type1_prefix": 1
+  },
+  "target_validation": {
+    "platform": "aarch64 Linux",
+    "socket_tests": {
+      "live_held_type1": 20,
+      "retained_stop": 32,
+      "total": 52,
+      "result": "PASS"
+    },
+    "mode": "socketpair and PTY only",
+    "new_source_sha256": "c934a6aeb23113f7c64ca24e7a9a1228d4fbd924138ef87d21282ff55739c2ed",
+    "new_binary_sha256": "2831580d831a9b7a34a170e89bf73c32c6cba7a1614d4af83b2ee67a83500efe",
+    "original_stop_binary_sha256": "8f914f9d3db3aacf37680f07f717b3fea5a9cd2567773514d69f378b5b3e2b0f",
+    "settings_restored": true,
+    "test_receipt_sha256": "c0ecc969ec3bcecc271e1cb291cf11921b69de8a4851ee33c53aa8d7be8ffe22",
+    "retrieved_archive_sha256": "a60fbcf9d7be7c774b7cd818357bd640962304a17366dd738b19ecb70e88f032"
+  },
+  "scope": "Transport-only; raw held commands and bounds do not constitute model/source/profile/power/physical authorization. Runtime integration requires separate evidence.",
+  "public_test_adjustment": "Blocked final publication can fail before or during the same original deadline fence. Both specific TimeoutError messages are accepted; unset publication and retained busy owner assertions remain required. Core/helper unchanged."
+}

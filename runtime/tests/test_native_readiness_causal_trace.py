@@ -11,12 +11,17 @@ import threading
 import unittest
 from unittest.mock import Mock, patch
 
-from singularitydog_hw import native_pipeline_benchmark as baseline
-
 FILE = Path(__file__).resolve().parents[1] / 'experiments/native_readiness_causal_trace/candidate.py'
 SPEC = importlib.util.spec_from_file_location('readiness_causal_candidate', FILE)
 candidate = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(candidate)
+BASELINE_SOURCE = Path(__file__).resolve().parent / 'fixtures/native_readiness_causal_trace/runtime/singularitydog_hw/native_pipeline_benchmark.py'
+BASELINE_BYTES = BASELINE_SOURCE.read_bytes()
+if hashlib.sha256(BASELINE_BYTES).hexdigest() != candidate.BASELINE_SHA256:
+    raise ValueError('Exact historical K37 test fixture required')
+BASELINE_SPEC = importlib.util.spec_from_file_location('singularitydog_hw._test_readiness_k37_baseline', BASELINE_SOURCE)
+baseline = importlib.util.module_from_spec(BASELINE_SPEC)
+exec(compile(BASELINE_BYTES, str(BASELINE_SOURCE), 'exec'), baseline.__dict__)
 
 
 class Clock:
@@ -32,7 +37,13 @@ class Clock:
 class CausalTraceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.helper = staticmethod(candidate.build_traced_helper(baseline))
+        cls.helper = staticmethod(candidate.build_traced_helper(baseline, BASELINE_SOURCE))
+
+    def test_imported_helpers_use_authenticated_historical_file(self):
+        self.assertEqual(Path(baseline.__file__),BASELINE_SOURCE)
+        self.assertEqual(Path(baseline._await_owned_ready.__code__.co_filename),BASELINE_SOURCE)
+        self.assertEqual(hashlib.sha256(BASELINE_BYTES).hexdigest(),candidate.BASELINE_SHA256)
+        self.assertIsNot(baseline,sys.modules.get('singularitydog_hw.native_pipeline_benchmark'))
 
     def owners(self, ready=False):
         result = {name: Future() for name in ('front', 'rear')}
@@ -317,21 +328,21 @@ class CausalTraceTests(unittest.TestCase):
     def test_incompatible_source_or_imported_function_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             p = Path(tmp) / 'changed.py'
-            p.write_bytes(candidate.DEFAULT_SOURCE.read_bytes() + b'\n# changed\n')
+            p.write_bytes(BASELINE_BYTES + b'\n# changed\n')
             with self.assertRaises(ValueError): candidate.build_traced_helper(baseline, p)
         with patch.object(baseline, '_readiness_poll_target', lambda a, b: b):
-            with self.assertRaises(ValueError): candidate.build_traced_helper(baseline)
+            with self.assertRaises(ValueError): candidate.build_traced_helper(baseline, BASELINE_SOURCE)
 
     def test_plan_opens_no_native_library_and_cli_has_no_execute(self):
-        source_before = hashlib.sha256(candidate.DEFAULT_SOURCE.read_bytes()).hexdigest()
+        source_before = hashlib.sha256(BASELINE_SOURCE.read_bytes()).hexdigest()
         with patch.object(candidate, 'build_traced_helper', side_effect=AssertionError('must not build')):
-            plan = candidate.plan()
+            plan = candidate.plan(BASELINE_SOURCE)
         self.assertEqual(plan['status'], 'PLAN_ONLY')
         self.assertFalse(plan['hardware_opened'])
         result = subprocess.run([sys.executable, '-B', str(FILE), '--execute'],
             capture_output=True, text=True, timeout=3)
         self.assertEqual(result.returncode, 2)
-        self.assertEqual(hashlib.sha256(candidate.DEFAULT_SOURCE.read_bytes()).hexdigest(), source_before)
+        self.assertEqual(hashlib.sha256(BASELINE_SOURCE.read_bytes()).hexdigest(), source_before)
 
     def test_invalid_capacity_rejected(self):
         for value in (0, 2049, True, 1.0):

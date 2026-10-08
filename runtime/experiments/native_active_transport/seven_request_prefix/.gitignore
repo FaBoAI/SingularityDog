@@ -1,0 +1,7 @@
+*.so
+*.dylib
+*.dll
+build-record.json
+raw-tests/
+live-raw-tests/
+__pycache__/

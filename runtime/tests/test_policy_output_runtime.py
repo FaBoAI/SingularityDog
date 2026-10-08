@@ -7,6 +7,7 @@ These do not prove hardware deadlines, physical torque cutoff, or 50 Hz operatio
 """
 
 from dataclasses import asdict
+from concurrent.futures import wait as wait_for_test_workers
 import math
 import struct
 import threading
@@ -84,6 +85,17 @@ class SimulatedClock:
         with self.lock:self.value=max(self.value,nanoseconds)
     def sleep(self,seconds):
         self.advance(math.ceil(seconds*1e9))
+
+
+def causal_semantic_wait(futures, *, timeout, return_when):
+    """Wait for fake bus handshakes without spending simulated device time.
+
+    The original coordinator still checks every injected-clock deadline. Five
+    wall-clock seconds only bound a broken test worker, rather than allowing
+    unrelated host load to expire a synthetic 20ms/100ms device deadline.
+    Real-monotonic watchdog and timing tests keep the production wait function.
+    """
+    return wait_for_test_workers(futures, timeout=5.0, return_when=return_when)
 
 
 class FakeSession:
@@ -460,9 +472,10 @@ class OutputRuntimeTests(unittest.TestCase):
         def varying_policy(sample,imu,now):
             calls.append(now)
             return ((.8 if len(calls)%2 else -.8),)*12
-        report,sessions=self.run_case(profile_data=data,policy=varying_policy,
-            front=FakeSession(1,clock=clock),rear=FakeSession(7,clock=clock),
-            imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
+        with patch.object(runtime,'wait',side_effect=causal_semantic_wait):
+            report,sessions=self.run_case(profile_data=data,policy=varying_policy,
+                front=FakeSession(1,clock=clock),rear=FakeSession(7,clock=clock),
+                imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
         self.assertEqual(report['status'],'COMPLETE_SUPPORTED_OUTPUT',report['errors'])
         self.assertGreater(len(calls),10)
         self.assertTrue(report['motion_gain_sent'])
@@ -490,7 +503,8 @@ class OutputRuntimeTests(unittest.TestCase):
         class ValidationOnly:
             def validate_inputs(self,sample,imu,now):checked.append(now)
             def __call__(self,*args):raise AssertionError('Hold must not run inference')
-        with patch.object(runtime,'current_position_hold_only',return_value=True):
+        with patch.object(runtime,'current_position_hold_only',return_value=True), \
+                patch.object(runtime,'wait',side_effect=causal_semantic_wait):
             report,sessions=self.run_case(profile_data=data,policy=ValidationOnly(),
                 front=FakeSession(1,clock=clock),rear=FakeSession(7,clock=clock),
                 imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
@@ -922,9 +936,13 @@ class OutputRuntimeTests(unittest.TestCase):
                             self.assertLess(abs(cycle['feedback']['q_model_rad'][mid - 1] - .03), .02)
 
     def test_every_live_axis_turn_jump_aborts_and_stops_both_buses(self):
+        # Byte corruption and branch ownership are semantic assertions. Keep
+        # real host scheduling from stopping a fake phase before its injected
+        # positive-gain reply; dedicated watchdog tests retain real time.
         for motor_id in runtime.IDS:
             for jump in (-2 * math.pi, 2 * math.pi):
                 with self.subTest(mid=motor_id, jump=jump):
+                    clock=SimulatedClock()
                     class JumpSession(FakeSession):
                         injected = False
 
@@ -942,10 +960,12 @@ class OutputRuntimeTests(unittest.TestCase):
                                     self.injected = True
                             return result
 
-                    subject = JumpSession(1 if motor_id <= 6 else 7)
-                    report, sessions = self.run_case(
-                        front=subject if motor_id <= 6 else None,
-                        rear=subject if motor_id > 6 else None)
+                    subject = JumpSession(1 if motor_id <= 6 else 7,clock=clock)
+                    with patch.object(runtime,'wait',side_effect=causal_semantic_wait):
+                        report, sessions = self.run_case(
+                            front=subject if motor_id <= 6 else FakeSession(1,clock=clock),
+                            rear=subject if motor_id > 6 else FakeSession(7,clock=clock),
+                            imu=FakeIMU(clock=clock),clock=clock,sleep=clock.sleep)
                     self.assertTrue(subject.injected)
                     self.assertEqual(report['status'], 'ABORTED')
                     self.assertTrue(any(f'ID{motor_id} raw position discontinuity' in error

@@ -91,14 +91,42 @@ def translate_records(records, calibration):
                    "source_timestamps_changed": False}
 
 
-def warmup_policy(policy, torch, h, count, *, input_tensors=None):
+class _CheckedWarmupPolicy:
+    """Setup-only facade: warm the selected forward and retain original checks.
+
+    The checked forward returns owned CAN-order doubles. Converting those exact
+    original float32 values back to model order lets the existing synthetic
+    warmup target/actor/observation Tensor checks run unchanged, without a second
+    model call. The genuine inner alone still owns reset and mutable state.
+    """
+    def __init__(self,policy,wrapper,torch):
+        _require(policy._c is wrapper.inner._c,'Warmup wrapper must retain the exact original inner')
+        self.policy,self.wrapper,self.torch=policy,wrapper,torch
+
+    @property
+    def last_actor_output(self):return self.policy.last_actor_output
+
+    @property
+    def last_observation(self):return self.policy.last_observation
+
+    def __call__(self,*tensors):
+        from .policy_checked_dispatch import checked_call
+        target_can=checked_call(self.wrapper,tensors)
+        return self.torch.tensor([[target_can[can-1] for can in shadow.CAN_ORDER]],dtype=self.torch.float32)
+
+
+def warmup_policy(policy, torch, h, count, *, input_tensors=None,
+                  checked_dispatch_wrapper=None):
     """Synthetic shape/state warmup only; never substitute these for telemetry.
 
     Optional tensors let a caller prime the exact persistent input storage used
     later by inference. Their contents are synthetic and the policy must still
-    be reset before any measured run.
+    be reset before any measured run. An explicitly selected checked wrapper
+    warms its actual forward with the same calls/tensors and original inner.
     """
     _require(type(count) is int and 1 <= count <= 100, "warmup_ticks must be 1..100")
+    if checked_dispatch_wrapper is not None:
+        policy=_CheckedWarmupPolicy(policy,checked_dispatch_wrapper,torch)
     inputs = ([0., 0., 0.], [0., 0., -1.], [0., 0., 0.],
               [0., .4, -.8]*4, [0.]*12, [float(h)]*12)
     with torch.inference_mode():

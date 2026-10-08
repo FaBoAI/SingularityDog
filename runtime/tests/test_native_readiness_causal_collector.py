@@ -2,6 +2,7 @@
 import ast
 import contextlib
 from concurrent.futures import Future
+import hashlib
 import importlib.util
 import io
 import json
@@ -12,6 +13,7 @@ import tempfile
 import time
 import unittest
 from unittest.mock import Mock, patch
+import singularitydog_hw
 
 DIRECTORY = Path(__file__).resolve().parents[1] / 'experiments/native_readiness_causal_trace'
 
@@ -23,7 +25,13 @@ def load_source(name, file):
 
 generator = load_source('causal_generator_test', DIRECTORY/'generate.py')
 support = load_source('readiness_cause_collector_support_r38', DIRECTORY/'collector_support.py')
-from singularitydog_hw import native_pipeline_benchmark as original
+BASELINE_SOURCE = Path(__file__).resolve().parent / 'fixtures/native_readiness_causal_trace/runtime/singularitydog_hw/native_pipeline_benchmark.py'
+BASELINE_BYTES = BASELINE_SOURCE.read_bytes()
+if hashlib.sha256(BASELINE_BYTES).hexdigest() != generator.BASELINE_SHA:
+    raise ValueError('Exact historical K37 test fixture required')
+BASELINE_SPEC = importlib.util.spec_from_file_location('singularitydog_hw._test_collector_k37_baseline',BASELINE_SOURCE)
+original = importlib.util.module_from_spec(BASELINE_SPEC)
+exec(compile(BASELINE_BYTES,str(BASELINE_SOURCE),'exec'),original.__dict__)
 from test_native_pipeline_benchmark import Device, Observer, Session
 CANDIDATE = DIRECTORY/'candidate.py'
 
@@ -38,6 +46,11 @@ class SyntheticSession(Session):
 
 
 class Tests(unittest.TestCase):
+    def setUp(self):
+        # The historical support lazily imports this exact module. Keep the
+        # replacement local to each test and restore the production attribute.
+        self.enterContext(patch.object(singularitydog_hw,'native_pipeline_benchmark',original,create=True))
+
     @classmethod
     def setUpClass(cls):
         cls.directory = tempfile.TemporaryDirectory()

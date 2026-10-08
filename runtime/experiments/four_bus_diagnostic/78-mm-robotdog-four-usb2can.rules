@@ -1,0 +1,10 @@
+# Four CH341 RobStride adapters on the verified Jetson physical USB ports.
+# Port aliases identify sockets only; confirm leg IDs/UIDs before CAN diagnostics.
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", KERNEL=="1-2.1", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", ENV{ID_MM_DEVICE_IGNORE}="1"
+SUBSYSTEM=="tty", KERNEL=="ttyUSB[0-9]*", KERNELS=="1-2.1", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_PORT_IGNORE}="1", OWNER="jetson", GROUP="dialout", MODE="0660", SYMLINK+="robstride-usb2can-port1"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", KERNEL=="1-2.2", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", ENV{ID_MM_DEVICE_IGNORE}="1"
+SUBSYSTEM=="tty", KERNEL=="ttyUSB[0-9]*", KERNELS=="1-2.2", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_PORT_IGNORE}="1", OWNER="jetson", GROUP="dialout", MODE="0660", SYMLINK+="robstride-usb2can-port2"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", KERNEL=="1-2.3", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", ENV{ID_MM_DEVICE_IGNORE}="1"
+SUBSYSTEM=="tty", KERNEL=="ttyUSB[0-9]*", KERNELS=="1-2.3", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_PORT_IGNORE}="1", OWNER="jetson", GROUP="dialout", MODE="0660", SYMLINK+="robstride-usb2can-port3"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", KERNEL=="1-2.4", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", ENV{ID_MM_DEVICE_IGNORE}="1"
+SUBSYSTEM=="tty", KERNEL=="ttyUSB[0-9]*", KERNELS=="1-2.4", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_PORT_IGNORE}="1", OWNER="jetson", GROUP="dialout", MODE="0660", SYMLINK+="robstride-usb2can-port4"

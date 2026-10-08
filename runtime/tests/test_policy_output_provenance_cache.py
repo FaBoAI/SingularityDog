@@ -76,14 +76,20 @@ class FrozenProvenanceCacheTests(unittest.TestCase):
             return live.LivePolicyModel(self.f.profile,policy=policy,torch_module=torch)
 
     def test_exact_frozen_type_strict_parse_occurs_once_at_setup_not_per_tick(self):
-        candidate=frozen_hypothesis();original=hypotheses.strict_json
-        with patch.object(hypotheses,'strict_json',wraps=original) as parse:
+        candidate=frozen_hypothesis();original=hypotheses.json.loads
+        # Observe the parser's JSON operation without replacing strict_json's
+        # identity: a replacement parser is intentionally dynamic and must not
+        # be cached. Setup also reads mount/bias JSON through the same module.
+        with patch.object(hypotheses.json,'loads',wraps=original) as parse:
             model=self.model(candidate)
-            self.assertEqual(parse.call_count,1)
+            setup_count=parse.call_count
+            hypothesis_calls=[call for call in parse.call_args_list
+                              if call.args and call.args[0] is candidate._provenance_json]
+            self.assertEqual(len(hypothesis_calls),1)
             for tick in range(3):
                 now=self.f.now+tick*20_000_000
                 model(self.f.sample,self.f.imu(now),now)
-            self.assertEqual(parse.call_count,1)
+            self.assertEqual(parse.call_count,setup_count)
         self.assertIs(model._accel_provenance_source,candidate)
         self.assertEqual(model.calls,3)
 

@@ -1,0 +1,21 @@
+{
+  "abi": 1,
+  "command": [
+    "c++",
+    "-std=c++17",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-pthread",
+    "-fPIC",
+    "-shared",
+    "/Users/akira/Documents/ChatGPT/MeishiKiban/SingularityDog/runtime/experiments/private_seven_request/transport.cpp",
+    "-o",
+    "/Users/akira/Documents/ChatGPT/MeishiKiban/SingularityDog/runtime/experiments/private_seven_request/libdog_active_transport.so"
+  ],
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "source_sha256": "dfab5de91e6274d84ef6c1789cd339aeb2d6d08dc45655a61b8b005f43316887",
+  "binary_sha256": "2a2d992a174a455644097ae1db99d829bd3a6e5bce8971c430d0e86bb1a67031"
+}

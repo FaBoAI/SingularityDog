@@ -1083,5 +1083,158 @@ class AccelerationHypothesisProfileTests(unittest.TestCase):
         self.assertEqual(self.loader.call_count, 0)
 
 
+class EvidenceJSONBoundTests(unittest.TestCase):
+    """Only complete, SHA-bound wire traces get the larger file-size budget."""
+
+    DEFAULT_BOUND = 16*1024*1024
+    TRACE_BOUND = 32*1024*1024
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.base = Path(self.temp.name)
+        self.path = self.base/'records.json'
+
+    def write_sized(self, data, size):
+        raw = json.dumps(data, sort_keys=True, allow_nan=False).encode()
+        self.assertLessEqual(len(raw), size)
+        self.path.write_bytes(raw+b' '*(size-len(raw)))
+        return hashlib.sha256(self.path.read_bytes()).hexdigest()
+
+    def trace_fixture(self, *, fast):
+        # One causal synthetic row exercises both the byte cap and the existing
+        # two-bus frame checks. This fixture is never profile or hardware proof.
+        release = 1_000_000_000
+        timing = dict(release_ns=release, oldest_input_start_ns=release,
+                      gather_end_ns=release+9_000_000,
+                      infer_end_ns=release+12_000_000,
+                      final_host_write_ns=release+15_000_000,
+                      cycle_end_ns=release+17_000_000)
+        trace = dict(status='VALIDATED_BEFORE_PROXY_STOP', output_allowed=False,
+                     range_v=[35., 42.], feedback_join_ns=timing['gather_end_ns'],
+                     inference_end_ns=timing['infer_end_ns'],
+                     voltage_join_ns=release+11_100_000,
+                     voltage_verified_ns=release+12_200_000,
+                     hard_deadline_ns=release+20_000_000)
+        for key, offset in (('feedback_dispatch_ns_by_bus', 100),
+                            ('feedback_reply_end_ns_by_bus', 8_000_000),
+                            ('feedback_ready_ns_by_bus', 8_100_000),
+                            ('voltage_dispatch_ns_by_bus', 8_200_000 if fast else 9_200_000),
+                            ('voltage_reply_end_ns_by_bus', 11_000_000)):
+            trace[key] = {'front': release+offset, 'rear': release+offset}
+        proof = dict(enabled=True, period_ns=20_000_000,
+                     voltage_verified_before_proxy_stop=True, diagnostic_only=True,
+                     motor_output_allowed=False, learned_targets_sent=False,
+                     active_feedback_safety_equivalent=False)
+        if fast:
+            trace.update(feedback_snapshot_validated_ns=release+9_100_000,
+                         post_inference_verified_ns=release+12_100_000,
+                         stop_reply_end_ns_by_bus={'front': release+16_000_000,
+                                                   'rear': release+16_000_000},
+                         stop_reply_count=12, stop_reply_verified_ns=release+16_100_000)
+            proof.update(schema='immediate-feedback-voltage-proxy-v1',
+                         voltage_dispatch_schedule='after_each_bus_feedback',
+                         voltage_may_precede_global_feedback_validation=True)
+            trace_key, proof_key = 'voltage_fast_pipeline', 'v3_voltage_fast_pipeline'
+            schedule = 'after_each_bus_feedback'
+            reader = profile._voltage_fast_pipeline_trace
+        else:
+            trace['voltage_gate_set_ns'] = release+9_100_000
+            proof.update(schema='feedback-then-voltage-proxy-v1',
+                         feedback_gate_before_voltage=True)
+            trace_key, proof_key = 'voltage_pipeline', 'v3_voltage_pipeline'
+            schedule = 'after_complete_feedback_imu_snapshot'
+            reader = profile._voltage_pipeline_trace
+        record = {'cycle': 1, trace_key: trace,
+                  'voltage_overlap': {'status': 'VALIDATED_BEFORE_PROXY_STOP'},
+                  'acquired': {}, 'voltage': {}, 'output': {}}
+        for bus, ids in (('front', range(1, 7)), ('rear', range(7, 13))):
+            stops = [protocol.stop_request(phase=protocol.TrialPhase.STOP,
+                                           motor_id=mid).hex() for mid in ids]
+            record['acquired'][bus] = {'records': [
+                {'start_ns': release+100, 'tx_hex': stop} for stop in stops]}
+            record['voltage'][bus] = {'records': [
+                {'start_ns': trace['voltage_dispatch_ns_by_bus'][bus],
+                 'tx_hex': codec.read_request(tuple(ids)[0], 'voltage').hex()}]}
+            record['output'][bus] = {'records': [
+                {'start_ns': release+13_000_000, 'received_ns': release+16_000_000,
+                 'tx_hex': stop,
+                 'rx_hex': (b'AT'+((((2<<24)|(mid<<8)|0xfd)<<3)|4).to_bytes(4,'big')+
+                            b'\x08'+bytes(8)+b'\r\n').hex()}
+                for mid, stop in zip(ids, stops)]}
+        report = {proof_key: proof, 'v3_voltage_overlap': {
+            'enabled': True, 'validation_overlap_enabled': True,
+            'voltage_dispatch_schedule': schedule}}
+        data = {'artifacts': {'pipeline_diagnostic': {
+            'path': str(self.base/'report.json')}}, 'voltage_max_v': 42.}
+        return reader, report, data, [timing], [record], proof
+
+    def test_default16mib_boundary_and_general_artifact_remain_restricted(self):
+        digest = self.write_sized({'test': 'synthetic'}, self.DEFAULT_BOUND)
+        self.assertEqual(profile._read_json(self.path, digest=digest)[0], {'test': 'synthetic'})
+        digest = self.write_sized({'test': 'synthetic'}, self.DEFAULT_BOUND+1)
+        with self.assertRaisesRegex(profile.ProfileError, 'JSON is too large'):
+            profile._read_json(self.path, digest=digest)
+        with self.assertRaisesRegex(profile.ProfileError, 'JSON is too large'):
+            profile._artifact({'path': self.path.name, 'sha256': digest}, self.base)
+
+    def test_large_supported_report_budget_is_not_available_to_other_modes_or_unapproved_plans(self):
+        digest = self.write_sized({'synthetic': 'size bound only, not admission evidence'}, self.DEFAULT_BOUND+1)
+        ref = {'path': self.path.name, 'sha256': digest}
+        data = dict(schema=profile.SCHEMA_V3, scope='supported_characterization_only',
+            approved_for_supported_policy_output=True, duration_s=60.,
+            diagnostic_timing_acceptance=profile.SUPPORTED_POLICY_PROBE_60S_AFTER_20S,
+            artifacts={'prior_supported_report': ref})
+        changes = (('schema', profile.SCHEMA_V2), ('scope', 'walking'),
+            ('approved_for_supported_policy_output', False), ('duration_s', True),
+            ('duration_s', 20.), ('diagnostic_timing_acceptance', profile.SUPPORTED_POLICY_PROBE_20S_AFTER_10S),
+            ('diagnostic_timing_acceptance', profile.SUPPORTED_POLICY_PROBE_10S_AFTER_2S))
+        for key, value in changes:
+            candidate = copy.deepcopy(data); candidate[key] = value
+            with self.subTest(key=key, value=value):
+                with self.assertRaisesRegex(profile.ProfileError, 'JSON is too large'):
+                    profile._supported_report_artifact(ref, candidate, self.base)
+
+    def test_both_named_wire_traces_accept_above16mib_and_exact32mib(self):
+        for fast in (False, True):
+            for size in (self.DEFAULT_BOUND+1, self.TRACE_BOUND):
+                with self.subTest(fast=fast, size=size):
+                    reader, report, data, rows, records, proof = self.trace_fixture(fast=fast)
+                    proof['records_sha256'] = self.write_sized(records, size)
+                    reader(report, data, rows)
+
+    def test_both_named_wire_traces_refuse32mib_plus_one(self):
+        for fast in (False, True):
+            with self.subTest(fast=fast):
+                reader, report, data, rows, records, proof = self.trace_fixture(fast=fast)
+                proof['records_sha256'] = self.write_sized(records, self.TRACE_BOUND+1)
+                with self.assertRaisesRegex(profile.ProfileError, 'JSON is too large'):
+                    reader(report, data, rows)
+
+    def test_large_wire_trace_still_requires_exact_sha256(self):
+        for fast in (False, True):
+            with self.subTest(fast=fast):
+                reader, report, data, rows, records, proof = self.trace_fixture(fast=fast)
+                self.write_sized(records, self.DEFAULT_BOUND+1)
+                proof['records_sha256'] = '0'*64
+                with self.assertRaisesRegex(profile.ProfileError, 'Artifact SHA256 mismatch'):
+                    reader(report, data, rows)
+
+    def test_json_growth_after_stat_is_rejected_by_bounded_read(self):
+        self.write_sized({}, self.DEFAULT_BOUND+1)
+        actual_stat = self.path.stat()
+        stale_fields = list(actual_stat); stale_fields[6] = self.DEFAULT_BOUND
+        stale_stat = type(actual_stat)(stale_fields)
+        with patch.object(Path, 'stat', return_value=stale_stat):
+            with self.assertRaisesRegex(profile.ProfileError, 'JSON is too large'):
+                profile._read_json(self.path)
+
+    def test_override_cannot_select_unbounded_or_noninteger_size(self):
+        self.path.write_text('{}')
+        for bound in (0, -1, True, None, float(self.TRACE_BOUND), self.TRACE_BOUND+1):
+            with self.subTest(bound=bound):
+                with self.assertRaisesRegex(profile.ProfileError, 'JSON size bound'):
+                    profile._read_json(self.path, max_bytes=bound)
+
+
 if __name__ == '__main__':
     unittest.main()

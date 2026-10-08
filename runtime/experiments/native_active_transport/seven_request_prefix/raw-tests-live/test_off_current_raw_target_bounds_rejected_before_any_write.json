@@ -1,0 +1,10 @@
+{
+  "schema": "PRIVATE.seven-request-causal-fixture.v1",
+  "hardware": false,
+  "qualified_for_output": false,
+  "phases": [],
+  "peer_events": [],
+  "python_switch_interval_s": 9.999999999999999e-05,
+  "source_sha256": "c934a6aeb23113f7c64ca24e7a9a1228d4fbd924138ef87d21282ff55739c2ed",
+  "binary_sha256": "8620e15149ebbbf943538d579c4b94e74f7b339f6efbf86894ba1d35651cfd87"
+}

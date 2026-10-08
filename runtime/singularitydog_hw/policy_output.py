@@ -22,7 +22,10 @@ from . import math_thread_startup as math_threads
 from .policy_live_profile import (ProfileError, add_transport_arguments, load_profile,
                                   transport_settings, telemetry_settings, SUPPORTED_PRELOAD_5S,
                                   human_supported_partial_current_hold_settings,
-                                  prepared_voltage_publication_settings)
+                                  prepared_voltage_publication_settings,
+                                  native_phase_pair_settings,
+                                  unpaired_output_future_notifications_settings,
+                                  native_feedback_batch_decode_settings)
 
 
 HUMAN_AUDIO_STAGES=('prepare_ease','go','resupport','abort')
@@ -222,6 +225,7 @@ class SignalState:
 def main(argv=None,*,execution=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--profile',required=True)
+    p.add_argument('--profile-sha256',help='Optional expected profile bytes from a pinned launcher')
     p.add_argument('--execute-supported',action='store_true')
     p.add_argument('--execute-supported-preload',action='store_true',
                    help='Execute only the separately reviewed five-second geometric extend/return path')
@@ -238,6 +242,7 @@ def main(argv=None,*,execution=None):
     p.add_argument('--support-in-place',action='store_true');p.add_argument('--cutoff-ready',action='store_true')
     for key in ('front-port','rear-port','library','output','audio','audio-sha256','audio-device'):
         p.add_argument('--'+key)
+    p.add_argument('--library-sha256',help='Optional expected native library bytes from a pinned launcher')
     p.add_argument('--power-epoch',help='Explicit current motor-power epoch, matching the reviewed profile')
     p.add_argument('--pre-cycle-policy-warmup-calls',type=int,choices=(10,),metavar='10',
                    help='Opt-in R22 synthetic model warmup after worker startup, before CPU4 pin')
@@ -257,6 +262,14 @@ def main(argv=None,*,execution=None):
                    help='Set exactly 1us timer slack on the control thread and three active I/O workers, then restore')
     p.add_argument('--prepare-voltage-before-feedback-publication',action='store_true',
                    help='Use only the matching reviewed V3 profile: prepare each voltage transaction before publishing validated feedback')
+    p.add_argument('--native-phase-pair',action='store_true',
+                   help='Use only the matching source-reviewed boxed profile: persistent C++ front/rear phase owners')
+    p.add_argument('--unpaired-output-future-notifications',action='store_true',
+                   help='Exactly match the independently reviewed original-Future output notification selection')
+    p.add_argument('--checked-model-manifest')
+    p.add_argument('--checked-model-manifest-sha256')
+    p.add_argument('--native-feedback-batch-decode',action='store_true',
+                   help='Select only the own-source qualified ordinary unpaired pure six-feedback codec')
     p.add_argument('--single-thread-math',action='store_true',
                    help='Opt in to OMP/OPENBLAS/MKL thread counts of 1 before NumPy/Torch import')
     add_transport_arguments(p)
@@ -296,13 +309,59 @@ def main(argv=None,*,execution=None):
         p.error('Geometric preload requires its dedicated supported-only execution')
     active=a.execute_supported or a.execute_fixed_catch or a.execute_supported_preload or a.execute_human_supported_partial
     profile=load_profile(a.profile,require_approved=active)
+    if a.profile_sha256 is not None and profile['profile_sha256']!=a.profile_sha256:
+        p.error('Profile SHA256 differs from the pinned launcher')
     try:
         prepared_voltage=prepared_voltage_publication_settings(profile)
+        paired_native=native_phase_pair_settings(profile)
+        unpaired_codec=native_feedback_batch_decode_settings(profile,require_approved=active)
+        unpaired_notifications=unpaired_output_future_notifications_settings(profile,require_approved=active)
     except ProfileError as error:p.error(str(error))
     if prepared_voltage is not a.prepare_voltage_before_feedback_publication:
         p.error('--prepare-voltage-before-feedback-publication must exactly match the reviewed profile selection')
     if prepared_voltage and (execution is not None or a.execute_fixed_catch or a.execute_supported_preload or a.execute_human_supported_partial):
         p.error('Prepared voltage publication requires the ordinary box-supported execution path')
+    if paired_native is not a.native_phase_pair:
+        p.error('--native-phase-pair must exactly match the reviewed profile selection')
+    if paired_native and (execution is not None or not a.execute_supported or
+            not a.exclude_policy_cpu_from_workers or a.active_timer_slack_ns!=1000 or
+            not a.absolute_epoch_cadence or a.release_spin_us!=500 or
+            a.post_pin_policy_prime_calls!=10):
+        p.error('Native phase pair requires the pinned ordinary boxed CPU/timer/prime/epoch settings')
+    if unpaired_codec is not a.native_feedback_batch_decode:
+        p.error('--native-feedback-batch-decode must exactly match its own reviewed profile')
+    if unpaired_codec and (paired_native or execution is not None or
+            a.execute_fixed_catch or a.execute_supported_preload or a.execute_human_supported_partial):
+        p.error('Unpaired feedback codec requires ordinary independent box-supported owners')
+    if active and unpaired_codec:
+        selected=profile['_unpaired_native_feedback_codec_selection']['references']['library']
+        if a.library is None or a.library_sha256!=selected['sha256'] or str(Path(a.library).expanduser().absolute())!=selected['path']:
+            p.error('Unpaired feedback codec must load its actually reviewed library path and SHA')
+    if unpaired_notifications is not a.unpaired_output_future_notifications:
+        p.error('--unpaired-output-future-notifications must exactly match its own reviewed profile')
+    if unpaired_notifications and (paired_native or execution is not None or
+            a.execute_fixed_catch or a.execute_supported_preload or a.execute_human_supported_partial or
+            active and (not a.exclude_policy_cpu_from_workers or a.active_timer_slack_ns!=1000 or
+                        not a.absolute_epoch_cadence or a.release_spin_us!=500 or
+                        a.main_thread_cpu!=4 or a.pre_cycle_policy_warmup_calls!=10 or a.post_pin_policy_prime_calls!=10)):
+        p.error('Unpaired output notifications require pinned ordinary independent boxed owners')
+    if active and unpaired_notifications:
+        selected=profile['_unpaired_output_notification_selection']['references']['library']
+        if a.library is None or a.library_sha256!=selected['sha256'] or str(Path(a.library).expanduser().absolute())!=selected['path']:
+            p.error('Unpaired output notifications must load the actually reviewed library path and SHA')
+    from . import policy_checked_dispatch as checked_dispatch
+    selected_checked=checked_dispatch.selected(profile)
+    actual_checked=(dict(path=str(Path(a.checked_model_manifest).expanduser().absolute()),
+                        sha256=a.checked_model_manifest_sha256) if a.checked_model_manifest else None)
+    if bool(a.checked_model_manifest)!=bool(a.checked_model_manifest_sha256) or actual_checked != (
+            profile['artifacts']['checked_model_manifest'] if selected_checked else None):
+        p.error('Checked model path and SHA must exactly match its current profile')
+    if active and selected_checked:
+        try:checked_dispatch.active_settings(profile)
+        except ProfileError as error:p.error(str(error))
+    if selected_checked and (paired_native or execution is not None or a.execute_fixed_catch or
+            a.execute_supported_preload or a.execute_human_supported_partial):
+        p.error('Checked model is the ordinary unpaired boxed2/10 route only')
     human_mode=human_supported_partial_current_hold_settings(profile)
     if bool(human_mode is not None)!=a.execute_human_supported_partial:
         p.error('Human-supported profile requires its dedicated terminal execution path')
@@ -342,7 +401,10 @@ def main(argv=None,*,execution=None):
             'absolute_epoch_cadence':a.absolute_epoch_cadence,
             'release_spin_us':a.release_spin_us,
             'active_timer_slack_ns':a.active_timer_slack_ns,
+            'unpaired_output_future_notifications':unpaired_notifications,
             'prepare_voltage_before_feedback_publication':prepared_voltage,
+            'native_checked_policy_dispatch':selected_checked,
+            'checked_model_plan':profile.get('_checked_model_plan'),
             'math_thread_startup':math_startup,
             'actual_policy_output_20ms_verified':False},ensure_ascii=False,indent=2));return 0
     if (not a.support_in_place and not (a.execute_fixed_catch or a.execute_human_supported_partial)) or not a.cutoff_ready:
@@ -369,6 +431,8 @@ def main(argv=None,*,execution=None):
     if any((x/'.git').exists() for x in (out,*out.parents)):p.error('Raw records must be outside Git')
     out.mkdir(parents=True,mode=0o700,exist_ok=False)
     report={'status':'ABORTED_BEFORE_OUTPUT','errors':[],'motor_enable_sent':False,'learned_targets_sent':False,
+            'native_checked_policy_dispatch':selected_checked,
+            'checked_model_plan':profile.get('_checked_model_plan'),
             'transport_settings':pacing,'telemetry_cadence':telemetry_settings(profile),
             'r22_startup_selected':r22,'post_pin_policy_prime_calls':a.post_pin_policy_prime_calls,
             'defer_gc_during_cycles':a.defer_gc_during_cycles,
@@ -376,6 +440,7 @@ def main(argv=None,*,execution=None):
             'absolute_epoch_cadence':a.absolute_epoch_cadence,
             'release_spin_us':a.release_spin_us,
             'active_timer_slack_ns':a.active_timer_slack_ns,
+            'unpaired_output_future_notifications':unpaired_notifications,
             'prepare_voltage_before_feedback_publication':prepared_voltage,
             'math_thread_startup':math_startup}
     cr,cw=os.pipe();signals=SignalState(cw);handlers={}
@@ -410,7 +475,12 @@ def main(argv=None,*,execution=None):
         # Load before opening serial. Default warmup runs here; R22 defers it
         # until the active runner's I/O workers are ready, still before enable.
         raw_model=(LivePolicyModel(profile,defer_warmup=True) if r22 else LivePolicyModel(profile))
-        model=raw_model;lib=native.load_library(a.library)
+        model=raw_model
+        lib=(native.load_library(a.library,expected_sha256=a.library_sha256)
+             if a.library_sha256 is not None else native.load_library(a.library))
+        if unpaired_notifications:
+            from .unpaired_output_future_notifications import verify_loaded_library
+            verify_loaded_library(lib,profile['_unpaired_output_notification_selection'])
         if execution is not None:
             execution.connect_cancel(signals.cancel)
             model=execution.wrap_model(model)
@@ -473,6 +543,9 @@ def main(argv=None,*,execution=None):
                 startup_options['active_timer_slack_ns']=a.active_timer_slack_ns
             if prepared_voltage:
                 startup_options['prepare_voltage_before_feedback_publication']=True
+            if paired_native:startup_options['native_phase_pair']=True
+            if unpaired_codec:startup_options['native_feedback_batch_decode']=True
+            if unpaired_notifications:startup_options['unpaired_output_future_notifications']=True
             report=run_supported_policy(profile,sessions,device.read_sample,model,cancel_io=signals.cancel,
                 check=check,announce=announce,stop_requested=signals,supervision=execution,
                 **startup_options)
@@ -486,6 +559,8 @@ def main(argv=None,*,execution=None):
                 release_spin_us=a.release_spin_us,
                 active_timer_slack_ns=a.active_timer_slack_ns,
                 prepare_voltage_before_feedback_publication=prepared_voltage,
+                native_phase_pair_selected=paired_native,
+                unpaired_output_future_notifications_selected=unpaired_notifications,
                 math_thread_startup=math_startup)
     except BaseException as error:
         report['errors'].append(type(error).__name__+': '+str(error))

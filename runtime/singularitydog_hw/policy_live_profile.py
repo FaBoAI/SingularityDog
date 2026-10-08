@@ -55,7 +55,11 @@ V3_EXECUTION_KEYS = {'model_backend', 'voltage_overlap', 'diagnostic_timing_acce
                      'voltage_pipeline', 'native_batch_encoder', 'startup_damping_duration_s',
                      'startup_cycle_allowance', 'fixed_catch', 'human_supported_hold',
                      'apply_reviewed_accel_calibration', 'accel_input_hypothesis',
-                     'prepare_voltage_before_feedback_publication'}
+                     'prepare_voltage_before_feedback_publication', 'native_target_fk_cache',
+                     'preauthorized_boxed_sequence', 'native_phase_pair',
+                     'preauthorized_native_boxed_sequence', 'preauthorized_ordinary_boxed_sequence',
+                     'native_feedback_batch_decode', 'unpaired_output_future_notifications',
+                     'native_checked_policy_dispatch'}
 COMMAND_LOSS_ONLY_SUPPORTED = 'command_loss_only_supported_trial'
 LOCAL_RELATIVE_SUPPORTED = 'bounded_relative_supported_v1'
 LOCAL_NUMERICAL_MARGIN_RAD = 2*25.14/65535
@@ -63,6 +67,10 @@ _LOCAL_VALIDATION_TOKEN = object()
 _ACCEL_INPUT_HYPOTHESIS_TOKEN = object()
 _POST_REPLY_VALIDATION_TOKEN = object()
 _PREPARED_VOLTAGE_PUBLICATION_TOKEN = object()
+_NATIVE_TARGET_FK_CACHE_TOKEN = object()
+_NATIVE_PHASE_PAIR_TOKEN = object()
+_UNPAIRED_NATIVE_FEEDBACK_CODEC_TOKEN = object()
+_UNPAIRED_OUTPUT_NOTIFICATION_TOKEN = object()
 PREPARED_VOLTAGE_PUBLICATION_MODE = 'prepare_voltage_before_feedback_publication.v1'
 SCALAR_BACKEND = 'scalar_step_cpp'
 OBSERVED_R17_TIMING = 'observed-r17-cadence-20260928'
@@ -95,6 +103,17 @@ SUPPORTED_POLICY_PROBE_5S = 'supported-policy-probe-5s-v1'
 SUPPORTED_POLICY_PROBE_2S_RARE_JITTER = 'supported-policy-probe-2s-rare-jitter-v1'
 SUPPORTED_POLICY_PROBE_10S_AFTER_2S = 'supported-policy-probe-10s-after-2s-v1'
 SUPPORTED_POLICY_PROBE_20S_AFTER_10S = 'supported-policy-probe-20s-after-10s-v1'
+SUPPORTED_POLICY_PROBE_60S_AFTER_20S = 'supported-policy-probe-60s-after-20s-v1'
+SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED = 'supported-policy-probe-30s-after-10s-preauthorized-v1'
+BOXED_SEQUENCE_AUTHORIZATION_SCHEMA = 'singularitydog.boxed-sequence-preauthorization.v1'
+BOXED_SEQUENCE_NUMERIC_RESULT_SCHEMA = 'singularitydog.boxed-sequence-numeric-result.v1'
+NATIVE_BOXED_SEQUENCE_AUTHORIZATION_SCHEMA = 'singularitydog.native-boxed-sequence-preauthorization.v1'
+NATIVE_BOXED_SEQUENCE_NUMERIC_RESULT_SCHEMA = 'singularitydog.native-boxed-sequence-numeric-result.v1'
+NATIVE_BOXED_SEQUENCE_CONTEXT_SCHEMA = 'singularitydog.native-boxed-preauthorization-source-context.v1'
+ORDINARY_BOXED_SEQUENCE_AUTHORIZATION_SCHEMA = 'singularitydog.ordinary-boxed-two-ten-preauthorization.v1'
+ORDINARY_BOXED_SEQUENCE_NUMERIC_RESULT_SCHEMA = 'singularitydog.ordinary-boxed-two-ten-numeric-result.v1'
+ORDINARY_BOXED_SEQUENCE_CONTEXT_SCHEMA = 'singularitydog.ordinary-boxed-two-ten-source-context.v1'
+_BOXED_SEQUENCE_ARTIFACTS = ('boxed_sequence_authorization', 'boxed_sequence_current_capture')
 SUPPORTED_POLICY_GAIN_STEP_3S = 'supported-policy-gain-step-3s-v1'
 SUPPORTED_POLICY_MIX_STEP_10PCT = 'supported-policy-mix-step-10pct-5s-v1'
 _MIX_STEP_TOKEN = object()
@@ -190,11 +209,15 @@ def _review(value, expected_decision):
     _need(value['decision'] == expected_decision, 'Review has not approved this scope')
 
 
-def _read_json(path, *, digest=None):
+def _read_json(path, *, digest=None, max_bytes=16*1024*1024):
+    _need(type(max_bytes) is int and 0 < max_bytes <= 32*1024*1024,
+          'Invalid profile/evidence JSON size bound')
     path = Path(path)
     _need(path.is_file() and not path.is_symlink(), 'Regular nonsymlink file required: '+str(path))
-    _need(path.stat().st_size <= 16*1024*1024, 'Profile/evidence JSON is too large')
-    raw = path.read_bytes()
+    _need(path.stat().st_size <= max_bytes, 'Profile/evidence JSON is too large')
+    with path.open('rb') as stream:
+        raw = stream.read(max_bytes+1)
+    _need(len(raw) <= max_bytes, 'Profile/evidence JSON is too large')
     actual = hashlib.sha256(raw).hexdigest()
     _need(digest is None or actual == digest, 'Artifact SHA256 mismatch: '+path.name)
     try:
@@ -203,15 +226,43 @@ def _read_json(path, *, digest=None):
         raise ProfileError('Invalid JSON: '+path.name) from error
 
 
-def _artifact(reference, base):
+def _artifact_location(reference, base):
     _need(type(reference) is dict and set(reference) == {'path', 'sha256'}, 'Invalid artifact reference')
     name = _text(reference['path'], 'artifact path')
     digest = _hash(reference['sha256'], name)
     path = Path(name).expanduser()
     if not path.is_absolute():
         path = base/path
-    data, _ = _read_json(path, digest=digest)
+    return path, digest
+
+
+def _artifact(reference, base, *, max_bytes=16*1024*1024):
+    path, digest = _artifact_location(reference, base)
+    data, _ = _read_json(path, digest=digest, max_bytes=max_bytes)
     return data, {'path': str(path.absolute()), 'sha256': digest}
+
+
+def _supported_report_artifact(reference, data, base):
+    """Budget only the pinned 20s predecessor of the named boxed 60s mode.
+
+    The original Type1 journal can exceed 16MiB. This read still requires its
+    exact SHA and grants no admission: the complete 20/10/2 graph and bounded
+    cycle/duration/wire checks below remain mandatory. Other artifacts, including
+    historical 10s/2s reports, retain the ordinary 16MiB bound.
+    """
+    bound = 16*1024*1024
+    if (data.get('schema') == SCHEMA_V3 and
+            data.get('scope') == 'supported_characterization_only' and
+            data.get('approved_for_supported_policy_output') is True and
+            type(data.get('duration_s')) in (int, float) and data['duration_s'] == 60 and
+            data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_60S_AFTER_20S):
+        pinned = data.get('artifacts', {}).get('prior_supported_report')
+        if pinned is not None:
+            path, digest = _artifact_location(reference, base)
+            expected_path, expected_digest = _artifact_location(pinned, base)
+            if digest == expected_digest and path.resolve() == expected_path.resolve():
+                bound = 32*1024*1024
+    return _artifact(reference, base, max_bytes=bound)
 
 
 def _profile_keys(data):
@@ -222,11 +273,355 @@ def _profile_keys(data):
     return keys | (V3_EXECUTION_KEYS.intersection(data) if data['schema'] == SCHEMA_V3 else set())
 
 
+def preauthorized_boxed_sequence_selected(profile):
+    """An explicit new admission; absent/false preserves every legacy gate."""
+    value = profile.get('preauthorized_boxed_sequence', False)
+    _need(type(value) is bool, 'Boxed sequence selection must be an explicit boolean')
+    ordinary = profile.get('preauthorized_ordinary_boxed_sequence', False)
+    native = profile.get('preauthorized_native_boxed_sequence', False)
+    _need(type(ordinary) is bool and type(native) is bool, 'Boxed scope flags must be explicit booleans')
+    _need(sum((value, ordinary, native)) <= 1, 'All three boxed preauthorization scopes are mutually exclusive')
+    _need(not value or profile.get('schema') == SCHEMA_V3,
+          'Boxed sequence preauthorization requires V3')
+    return value
+
+
+def preauthorized_native_boxed_sequence_selected(profile):
+    """A separate native890 2/10/20 admission; never the legacy900 2/10/30 flag."""
+    value = profile.get('preauthorized_native_boxed_sequence', False)
+    _need(type(value) is bool, 'Native boxed preauthorization must be an explicit boolean')
+    legacy = preauthorized_boxed_sequence_selected(profile)
+    ordinary = profile.get('preauthorized_ordinary_boxed_sequence', False)
+    _need(type(ordinary) is bool, 'Ordinary boxed preauthorization must be an explicit boolean')
+    _need(not (value and (legacy or ordinary)), 'All three boxed preauthorization scopes are mutually exclusive')
+    _need(not value or profile.get('schema') == SCHEMA_V3,
+          'Native boxed preauthorization requires V3')
+    return value
+
+
+def preauthorized_ordinary_boxed_sequence_selected(profile):
+    """Explicit ordinary900 2/10 only; absent/false preserves all existing gates."""
+    value = profile.get('preauthorized_ordinary_boxed_sequence', False)
+    _need(type(value) is bool, 'Ordinary boxed preauthorization must be an explicit boolean')
+    native = preauthorized_native_boxed_sequence_selected(profile)
+    legacy = preauthorized_boxed_sequence_selected(profile)
+    _need(not (value and (native or legacy)), 'All three boxed preauthorization scopes are mutually exclusive')
+    _need(not value or profile.get('schema') == SCHEMA_V3,
+          'Ordinary boxed preauthorization requires V3')
+    return value
+
+
+def preauthorized_any_boxed_sequence_selected(profile):
+    ordinary = preauthorized_ordinary_boxed_sequence_selected(profile)
+    native = preauthorized_native_boxed_sequence_selected(profile)
+    return ordinary or native or preauthorized_boxed_sequence_selected(profile)
+
+
+def _preauthorized_native_boxed_sequence_scope(profile):
+    if not preauthorized_native_boxed_sequence_selected(profile):
+        return
+    modes = {2: SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
+             10: SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
+             20: SUPPORTED_POLICY_PROBE_20S_AFTER_10S}
+    # Both are already supported native contracts. A sequence hashes its exact
+    # original choice; admission never converts V1 to V2 or changes a budget.
+    post_v1 = {'mode': 'bounded_post_reply_v1', 'max_lateness_ms': 1.,
+               'max_consecutive_misses': 1, 'rolling_window_cycles': 100,
+               'max_misses_per_window': 1}
+    post_v2 = {**post_v1, 'mode': 'bounded_post_reply_input_age_v2',
+               'post_reply_input_age_budget_ms': 1.}
+    duration = profile.get('duration_s')
+    _need(type(duration) in (int, float) and duration in modes and
+          profile.get('diagnostic_timing_acceptance') == modes[duration] and
+          profile.get('scope') == 'supported_characterization_only' and
+          profile.get('native_phase_pair') is True and profile.get('native_target_fk_cache') is True and
+          profile.get('model_backend') == SCALAR_BACKEND and
+          profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+          profile.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED and
+          profile.get('voltage_overlap') is True and profile.get('voltage_pipeline') is True and
+          profile.get('prepare_voltage_before_feedback_publication') is True and
+          profile.get('policy_weight') == .005 and profile.get('h_hypothesis') == 0 and
+          profile.get('command') == [0., 0., 0.] and profile.get('period_ms') == 20 and
+          profile.get('hard_cycle_ms') == 20 and profile.get('max_sample_age_ms') == 20 and
+          profile.get('max_sample_gap_ms') == 21 and profile.get('max_consecutive_20ms_misses') == 0 and
+          type(profile.get('request_gap_us')) is int and profile['request_gap_us'] == 890 and
+          profile.get('request_window') == 3 and
+          profile.get('voltage_min_v') == 35 and profile.get('voltage_max_v') == 42 and
+          profile.get('startup_damping_duration_s') == .08 and
+          profile.get('post_reply_deadline_policy') in (post_v1, post_v2) and
+          not {'fixed_catch', 'human_supported_hold'}.intersection(profile),
+          'Native preauthorization is limited to the exact small boxed890 FK 2/10/20 contract')
+    _preauthorized_boxed_axis_caps(profile)
+
+
+def _preauthorized_boxed_sequence_scope(profile):
+    selected = preauthorized_boxed_sequence_selected(profile)
+    mode, duration = profile.get('diagnostic_timing_acceptance'), profile.get('duration_s')
+    _need(mode != SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED or selected,
+          'Thirty-second learned mode requires explicit boxed sequence preauthorization')
+    if not selected:
+        return
+    modes = {2: SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
+             10: SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
+             30: SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED}
+    _need(type(duration) in (int, float) and duration in modes and mode == modes[duration] and
+          profile.get('scope') == 'supported_characterization_only' and
+          profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+          profile.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED and
+          profile.get('native_target_fk_cache') is True and
+          profile.get('model_backend') == SCALAR_BACKEND and
+          profile.get('voltage_overlap') is True and profile.get('voltage_pipeline') is True and
+          profile.get('prepare_voltage_before_feedback_publication') is True and
+          profile.get('policy_weight') == .005 and profile.get('h_hypothesis') == 0 and
+          profile.get('command') == [0., 0., 0.] and profile.get('period_ms') == 20 and
+          profile.get('hard_cycle_ms') == 20 and profile.get('max_sample_age_ms') == 20 and
+          profile.get('max_sample_gap_ms') == 21 and profile.get('max_consecutive_20ms_misses') == 0 and
+          profile.get('request_gap_us') == 900 and profile.get('request_window') == 3 and
+          profile.get('voltage_min_v') == 35 and profile.get('voltage_max_v') == 42 and
+          profile.get('startup_damping_duration_s') == .08 and
+          profile.get('post_reply_deadline_policy') == {
+              'mode': 'bounded_post_reply_v1', 'max_lateness_ms': 1., 'max_consecutive_misses': 1,
+              'rolling_window_cycles': 100, 'max_misses_per_window': 1} and
+          not {'fixed_catch', 'human_supported_hold'}.intersection(profile),
+          'Preauthorization is limited to the same small boxed FK 2/10/30-second contract')
+    _preauthorized_boxed_axis_caps(profile)
+
+
+
+def _preauthorized_ordinary_boxed_sequence_scope(profile):
+    selected = preauthorized_ordinary_boxed_sequence_selected(profile)
+    mode, duration = profile.get('diagnostic_timing_acceptance'), profile.get('duration_s')
+    if not selected:
+        return
+    modes = {2: SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
+             10: SUPPORTED_POLICY_PROBE_10S_AFTER_2S}
+    _need(type(duration) in (int, float) and duration in modes and mode == modes[duration] and
+          profile.get('scope') == 'supported_characterization_only' and
+          profile.get('native_phase_pair') is False and
+          profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+          profile.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED and
+          profile.get('native_target_fk_cache') is True and
+          profile.get('model_backend') == SCALAR_BACKEND and
+          profile.get('voltage_overlap') is True and profile.get('voltage_pipeline') is True and
+          profile.get('prepare_voltage_before_feedback_publication') is True and
+          profile.get('policy_weight') == .005 and profile.get('h_hypothesis') == 0 and
+          profile.get('command') == [0., 0., 0.] and profile.get('period_ms') == 20 and
+          profile.get('hard_cycle_ms') == 20 and profile.get('max_sample_age_ms') == 20 and
+          profile.get('max_sample_gap_ms') == 21 and profile.get('max_consecutive_20ms_misses') == 0 and
+          type(profile.get('request_gap_us')) is int and profile['request_gap_us'] == 900 and profile.get('request_window') == 3 and
+          profile.get('voltage_min_v') == 35 and profile.get('voltage_max_v') == 42 and
+          profile.get('startup_damping_duration_s') == .08 and
+          profile.get('post_reply_deadline_policy') == {
+              'mode': 'bounded_post_reply_v1', 'max_lateness_ms': 1., 'max_consecutive_misses': 1,
+              'rolling_window_cycles': 100, 'max_misses_per_window': 1} and
+          not {'fixed_catch', 'human_supported_hold'}.intersection(profile),
+          'Preauthorization is limited to the exact ordinary900/window3 boxed FK 2/10-second contract')
+    _preauthorized_boxed_axis_caps(profile)
+
+
+def _preauthorized_boxed_axis_caps(profile):
+    """Identical per-axis caps for both explicitly separate finite boxed scopes."""
+    caps = {'kp': 3., 'kd': .15, 'max_displacement_from_start_rad': math.radians(1),
+            'max_estimated_pd_torque_nm': .1, 'max_measured_torque_nm': 1.,
+            'max_command_velocity_rad_s': math.radians(1),
+            'max_command_acceleration_rad_s2': math.radians(5),
+            'max_tracking_error_rad': math.radians(2), 'max_temperature_c': 45.,
+            'max_measured_velocity_rad_s': .35}
+    _need(type(profile.get('axes')) is dict and set(profile['axes']) == set(IDS),
+          'Preauthorized boxed sequence needs twelve axes')
+    for mid in IDS:
+        for key, cap in caps.items():
+            _number(profile['axes'][mid].get(key), 'preauthorized '+key+' ID'+mid, 0, cap,
+                    positive=key != 'kd')
+        axis = profile['axes'][mid]
+        _need(0 < axis['physical_upper_rad']-axis['physical_lower_rad'] <= 2*math.radians(3)+1e-12,
+              'Preauthorized physical envelope exceeds the existing three-degree clearance')
+        lo, hi = profile['start_pose_bounds'][mid]
+        _need(0 < hi-lo <= math.radians(1)+1e-12,
+              'Preauthorized starting envelope exceeds existing half-degree bounds')
+
+
+def preauthorized_boxed_sequence_contract_sha256(profile):
+    """Common 2/10/30 contract; only duration, reviews and new evidence differ."""
+    omitted = {'artifacts', 'review', 'blockers', 'approved_for_supported_policy_output',
+               'duration_s', 'diagnostic_timing_acceptance', 'bundle_path'}
+    value = {key: item for key, item in profile.items()
+             if key in TOP_KEYS_V3 | V3_EXECUTION_KEYS and key not in omitted}
+    value['axes'] = {mid: {key: row[key] for key in AXIS_KEYS}
+                     for mid, row in profile['axes'].items()}
+    replaceable = {*_EXTENSION_ARTIFACTS, *_BOXED_SEQUENCE_ARTIFACTS,
+                   'hardware_review', 'operator_acceptance', 'pipeline_diagnostic'}
+    value['artifacts'] = {key: ref['sha256'] for key, ref in profile['artifacts'].items()
+                          if key not in replaceable}
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'),
+                                    allow_nan=False).encode()).hexdigest()
+
+
+def _preauthorized_boxed_sequence_authorization(documents, data, base):
+    return _boxed_sequence_authorization(documents, data, base, native=False)
+
+
+def _preauthorized_native_boxed_sequence_authorization(documents, data, base):
+    _need(preauthorized_native_boxed_sequence_selected(data),
+          'Explicit native boxed sequence selection required')
+    return _boxed_sequence_authorization(documents, data, base, native=True)
+
+
+def _preauthorized_ordinary_boxed_sequence_authorization(documents, data, base):
+    _need(preauthorized_ordinary_boxed_sequence_selected(data),
+          'Explicit ordinary boxed sequence selection required')
+    return _boxed_sequence_authorization(documents, data, base, native=False, ordinary=True)
+
+
+def _boxed_sequence_authorization(documents, data, base, *, native, ordinary=False):
+    """Authenticate present permission without claiming any future physical result."""
+    _need(not (native and ordinary), 'Distinct boxed authorization scope required')
+    if ordinary:
+        _preauthorized_ordinary_boxed_sequence_scope(data)
+    elif native:
+        _preauthorized_native_boxed_sequence_scope(data)
+    else:
+        _preauthorized_boxed_sequence_scope(data)
+    durations = [2, 10] if ordinary else [2, 10, 20] if native else [2, 10, 30]
+    schema = (ORDINARY_BOXED_SEQUENCE_AUTHORIZATION_SCHEMA if ordinary else
+              NATIVE_BOXED_SEQUENCE_AUTHORIZATION_SCHEMA if native else BOXED_SEQUENCE_AUTHORIZATION_SCHEMA)
+    scope = ('ordinary_boxed_two_ten_only' if ordinary else
+             'native_boxed_small_sequence_only' if native else 'boxed_small_sequence_only')
+    decision = ('AUTHORIZE_ORDINARY_BOXED_2_10_WITH_UNKNOWN_POST_OBSERVATIONS' if ordinary else
+                'AUTHORIZE_NATIVE_BOXED_2_10_20_WITH_UNKNOWN_POST_OBSERVATIONS' if native else
+                'AUTHORIZE_BOXED_2_10_30_WITH_UNKNOWN_POST_OBSERVATIONS')
+    auth = documents['boxed_sequence_authorization']
+    _need(type(auth) is dict and auth.get('schema') == schema and
+          auth.get('scope') == scope and
+          auth.get('authorized_durations_s') == durations and
+          auth.get('boot_id') == data['boot_id'] and auth.get('motor_power_epoch') == data['motor_power_epoch'] and
+          auth.get('assembly_id') == data['assembly_id'] and
+          auth.get('reference_capture_sha256') == data['artifacts']['local_reference_capture']['sha256'] and
+          auth.get('sequence_contract_sha256') == preauthorized_boxed_sequence_contract_sha256(data) and
+          auth.get('automatic_continuation_explicitly_authorized') is True and
+          auth.get('post_trial_confirmation_questions_waived') is True and
+          auth.get('future_physical_observations_must_remain_unknown') is True and
+          all(auth.get(key) is False for key in ('box_removal_allowed', 'load_transfer_allowed',
+                                                'standing_allowed', 'walking_allowed')),
+          'Exact current boxed sequence preauthorization required')
+    _review(auth.get('review'), decision)
+    if ordinary:
+        _need(auth.get('native_phase_pair') is False and auth.get('request_gap_us') == 900 and
+              auth.get('request_window') == 3,
+              'Ordinary boxed permission must explicitly pin unpaired900/window3')
+    if native:
+        _need(auth.get('native_phase_pair') is True and auth.get('request_gap_us') == 890 and
+              auth.get('request_window') == 3,
+              'Native boxed permission must explicitly pin native890/window3')
+    manifest, manifest_ref = _artifact(auth.get('source_manifest'), base)
+    _need(manifest_ref['sha256'] == auth.get('source_manifest_sha256') and
+          type(manifest.get('files')) is dict and all(
+              manifest['files'].get('runtime/'+name, {}).get('sha256') == sha
+              for name, sha in data['cadence_source_sha256'].items()),
+          'Preauthorization must bind the complete current cadence source inventory')
+    original, _ = _artifact(auth.get('human_authorization_source'), base)
+    conditions, _ = _artifact(auth.get('current_conditions_source'), base)
+    for record in (original, conditions):
+        _need(type(record) is dict and record.get('source') == 'direct_current_user_reply_in_codex' and
+              record.get('direct_human') is True and record.get('synthetic_interaction') is False,
+              'Boxed sequence needs original direct human records')
+        _text(record.get('user_statement'), 'original human statement')
+        _text(record.get('user_reply_id'), 'original human message reference')
+        _need(record.get('boot_id') == data['boot_id'] and
+              record.get('motor_power_epoch') == data['motor_power_epoch'],
+              'Preauthorization/current conditions belong to a different boot or power epoch')
+    if 'source_context' in original:
+        context, _ = _artifact(original['source_context'], base)
+        _need(type(context) is dict and context.get('sequence_authorization_source', {}).get('kind') ==
+              'latest_direct_user_message_in_codex' and
+              context['sequence_authorization_source'].get('exact_text') == original['user_statement'] and
+              context.get('observation_reference') == auth.get('current_conditions_source') and
+              context.get('post_trial_physical_observation_inferred') is False and
+              context.get('physical_anomaly_after_new_trials', 'missing') is None and
+              context.get('physical_audio_heard_after_new_trials', 'missing') is None and
+              all(context.get(k) is False for k in ('box_removal_allowed', 'standing_allowed', 'walking_allowed')),
+              'Preauthorization context differs from its preserved direct instruction/conditions')
+        if ordinary:
+            _need(context.get('schema') == ORDINARY_BOXED_SEQUENCE_CONTEXT_SCHEMA and
+                  context.get('authorized_durations_s') == durations and
+                  context.get('native_phase_pair') is False and context.get('request_gap_us') == 900 and
+                  context.get('request_window') == 3 and context.get('load_transfer_allowed') is False and
+                  context.get('automatic_continuation_explicitly_authorized') is True and
+                  context.get('post_trial_confirmation_questions_waived') is True,
+                  'Ordinary authorization context is not the explicit bounded900 two/ten sequence')
+        if native:
+            _need(context.get('schema') == NATIVE_BOXED_SEQUENCE_CONTEXT_SCHEMA and
+                  context.get('authorized_durations_s') == durations and
+                  context.get('native_phase_pair') is True and context.get('request_gap_us') == 890 and
+                  context.get('request_window') == 3 and context.get('load_transfer_allowed') is False and
+                  context.get('automatic_continuation_explicitly_authorized') is True and
+                  context.get('post_trial_confirmation_questions_waived') is True,
+                  'Native authorization context is not the explicit bounded native890 sequence')
+    _need(not ordinary or 'source_context' in original,
+          'Ordinary two/ten needs the preserved original instruction context')
+    _need(original.get('authorized_durations_s') == durations and
+          original.get('automatic_continuation_explicitly_authorized') is True and
+          original.get('post_trial_confirmation_questions_waived') is True,
+          'Original human instruction does not authorize this exact automatic boxed sequence')
+    current = conditions.get('current_conditions', {})
+    _need(type(current) is dict and all(current.get(key) is True for key in
+          ('motor_40v_on', 'box_supports_body', 'four_feet_touch_floor',
+           'all12_local_plus_minus3deg_clear', 'hands_off', 'immediate_40v_cutoff',
+           'other_drive_tools_stopped', 'box_will_remain', 'power_pose_unchanged_since_direct_confirmation')) and
+          all(current.get(key) is False for key in ('load_transfer_allowed', 'standing_allowed', 'walking_allowed')),
+          'Direct current boxed conditions incomplete')
+    capture = documents['boxed_sequence_current_capture']
+    _preauthorized_boxed_sequence_capture(capture, data, documents['hardware_review'])
+    data['_post_trial_physical_observation'] = {'audio_heard': None, 'anomalies': None,
+                                              'support_maintained': None, 'observed': False}
+
+
+def _preauthorized_boxed_sequence_capture(capture, data, hardware_review, *, after_ns=None):
+    """A new read confirms numbers only; it does not replace the direct support statement."""
+    _need(type(capture) is dict and capture.get('schema') == 'singularitydog.readonly-12-angle-capture.v1' and
+          capture.get('status') == 'RECORDED_REVIEW_REQUIRED' and capture.get('errors') == [] and
+          capture.get('boot_id') == data['boot_id'] and capture.get('motor_power_epoch') in
+              (data['motor_power_epoch'], 'NOT_INFERRED_FROM_JETSON_BOOT') and
+          capture.get('motor_output_allowed') is False and capture.get('approved_for_runtime') is False and
+          capture.get('angle_wrap_applied') is False,
+          'Preauthorized sequence needs a fresh current-epoch read-only capture')
+    identities, rows = capture.get('identities', {}), capture.get('telemetry', {}).get('rows', {})
+    turns = hardware_review.get('local_characterization', {}).get('reference_turns_by_id', {})
+    _need(set(identities) == set(rows) == set(turns) == set(IDS), 'Current sequence capture needs all twelve axes')
+    for mid in IDS:
+        axis, row = data['axes'][mid], rows[mid]
+        _need(identities[mid].get('mcu_uid_hex') == axis['uid'] and type(row.get('run_mode')) is int and
+              row['run_mode'] == 0 and type(row.get('current')) in (int, float) and row['current'] == 0 and
+              type(row.get('voltage')) in (int, float) and 35 <= row['voltage'] <= 42,
+              'Current capture identity/mode/current/voltage differs: ID'+mid)
+        samples = row.get('position_samples')
+        _need(type(samples) is list and len(samples) == 3 and type(turns[mid]) is int,
+              'Current capture needs three samples and fixed integer branch')
+        values, previous_reply = [], 0
+        for sample in samples:
+            values.append(_number(sample.get('rad'), 'current raw ID'+mid, -1000, 1000))
+            tx, rx = sample.get('request_monotonic_ns'), sample.get('reply_monotonic_ns')
+            _need(type(tx) is int and type(rx) is int and previous_reply < tx <= rx <= tx+30_000_000 and
+                  (after_ns is None or tx > after_ns), 'Current capture must follow the completed predecessor')
+            previous_reply = rx
+        _need(max(values)-min(values) <= math.radians(.1) and row.get('median_position_rad') == statistics.median(values),
+              'Current capture median/span differs')
+        q = axis['sign']*(statistics.median(values)-turns[mid]*2*math.pi)+axis['offset_rad']
+        lo, hi = data['start_pose_bounds'][mid]
+        _need(axis['physical_lower_rad'] <= q <= axis['physical_upper_rad'] and lo <= q <= hi,
+              'Current read-only pose is outside the unchanged starting/local bounds: ID'+mid)
+
+
 def execution_settings(profile):
     """Explicit reviewed V3 choices; old profiles retain their original route."""
     _profile_keys(profile)
     acceleration_calibration_selected(profile)
     accel_input_hypothesis_selected(profile)
+    _preauthorized_boxed_sequence_scope(profile)
+    _preauthorized_native_boxed_sequence_scope(profile)
+    _preauthorized_ordinary_boxed_sequence_scope(profile)
+    from .policy_checked_dispatch import scope as checked_scope
+    checked_scope(profile)
     if profile['schema'] != SCHEMA_V3:
         _need(not V3_EXECUTION_KEYS.intersection(profile), 'Fast execution requires a V3 profile')
     backend = profile.get('model_backend', 'native_baseline')
@@ -238,22 +633,509 @@ def execution_settings(profile):
     _need(not pipeline or profile['schema'] == SCHEMA_V3 and overlap,
           'Voltage pipeline requires V3 voltage overlap')
     _prepared_voltage_publication_scope(profile)
+    _native_phase_pair_scope(profile)
+    _unpaired_output_future_notifications_scope(profile)
     timing = profile.get('diagnostic_timing_acceptance')
     _need(timing in (None, OBSERVED_R17_TIMING, MEASURED_R17_STARTUP_TIMING,
                     CURRENT_HOLD_PROBE, CURRENT_HOLD_AFTER_SUPPORTED_10S, FIXED_CATCH_CURRENT_HOLD_30S,
                     HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S,
                     SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S,
                     SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-                    SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+                    SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED,
                     SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_PRELOAD_5S, SUPPORTED_POLICY_MIX_STEP_10PCT),
           'Unsupported diagnostic timing acceptance')
     _need(profile.get('watchdog_review_policy') in (None, COMMAND_LOSS_ONLY_SUPPORTED),
           'Unsupported watchdog review policy')
     _need(profile.get('local_characterization') in (None, LOCAL_RELATIVE_SUPPORTED),
           'Unsupported local characterization')
-    return {'model_backend': backend, 'voltage_overlap': overlap,
+    result = {'model_backend': backend, 'voltage_overlap': overlap,
             'voltage_pipeline': pipeline,
             'diagnostic_timing_acceptance': timing}
+    if _native_target_fk_cache_selected(profile):
+        _native_target_fk_cache_scope(profile)
+        result['native_target_fk_cache'] = True
+    if _native_phase_pair_selected(profile):
+        result['native_phase_pair'] = 'persistent_dual_owner.v1'
+    if unpaired_output_future_notifications_selected(profile):
+        result['unpaired_output_future_notifications'] = True
+    return result
+
+
+def _native_phase_pair_selected(profile):
+    selected = profile.get('native_phase_pair', False)
+    _need(type(selected) is bool and (not selected or profile.get('schema') == SCHEMA_V3),
+          'Native phase pair requires an explicit V3 boolean selection')
+    return selected
+
+
+def _native_phase_pair_scope(profile):
+    _preauthorized_native_boxed_sequence_scope(profile)
+    _preauthorized_ordinary_boxed_sequence_scope(profile)
+    if not _native_phase_pair_selected(profile):
+        return
+    # Only dispatch/owner placement changes. The existing acquire/infer/output,
+    # 26 requests, transport pacing, numeric limits and finite boxed scope stay.
+    _need(profile.get('scope') == 'supported_characterization_only' and
+          profile.get('model_backend') == SCALAR_BACKEND and
+          profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+          profile.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED and
+          profile.get('voltage_overlap') is True and profile.get('voltage_pipeline') is True and
+          type(profile.get('request_gap_us')) is int and
+          profile['request_gap_us'] in (880, 890, 900) and profile.get('request_window') == 3 and
+          profile.get('hard_cycle_ms') == 20 and profile.get('max_sample_age_ms') == 20 and
+          profile.get('max_consecutive_20ms_misses') == 0 and
+          0 < profile.get('policy_weight', 0) <= .005 and
+          profile.get('diagnostic_timing_acceptance') in (
+              SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
+              SUPPORTED_POLICY_PROBE_10S_AFTER_2S, SUPPORTED_POLICY_PROBE_20S_AFTER_10S) and
+          (profile.get('diagnostic_timing_acceptance') != SUPPORTED_POLICY_PROBE_20S_AFTER_10S or
+           (type(profile.get('duration_s')) in (int, float) and profile['duration_s'] == 20.)) and
+          not {'fixed_catch', 'human_supported_hold'}.intersection(profile) and
+          not profile.get('preauthorized_boxed_sequence', False),
+          'Native phase pair is limited to the existing small boxed 2/10-second probe or evidenced twenty-second extension')
+    for mid in IDS:
+        axis = profile['axes'][mid]
+        for key, cap in {'kp': 3., 'kd': .15,
+                         'max_displacement_from_start_rad': math.radians(1),
+                         'max_estimated_pd_torque_nm': .1}.items():
+            _number(axis[key], 'native phase pair '+key+' ID'+mid, 0, cap,
+                    positive=key != 'kd')
+
+
+def unpaired_output_future_notifications_selected(profile):
+    selected = profile.get('unpaired_output_future_notifications', False)
+    _need(type(selected) is bool and (not selected or profile.get('schema') == SCHEMA_V3),
+          'Unpaired output notifications require an explicit V3 boolean selection')
+    return selected
+
+
+def _unpaired_output_future_notifications_scope(profile):
+    if not unpaired_output_future_notifications_selected(profile):
+        return
+    _need(profile.get('scope') == 'supported_characterization_only' and
+          profile.get('model_backend') == SCALAR_BACKEND and
+          profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+          profile.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED and
+          profile.get('voltage_overlap') is True and profile.get('voltage_pipeline') is True and
+          profile.get('native_phase_pair', False) is False and
+          profile.get('request_gap_us') == 900 and profile.get('request_window') == 3 and
+          profile.get('period_ms') == 20 and profile.get('hard_cycle_ms') == 20 and
+          profile.get('max_sample_age_ms') == 20 and profile.get('max_sample_gap_ms') == 21 and
+          profile.get('max_consecutive_20ms_misses') == 0 and
+          profile.get('voltage_min_v') == 35 and profile.get('voltage_max_v') == 42 and
+          profile.get('command') == [0., 0., 0.] and 0 < profile.get('policy_weight', 0) <= .005 and
+          profile.get('diagnostic_timing_acceptance') in (
+              SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S) and
+          profile.get('duration_s') == (10. if profile.get('diagnostic_timing_acceptance') ==
+              SUPPORTED_POLICY_PROBE_10S_AFTER_2S else 2.) and
+          not {'fixed_catch', 'human_supported_hold'}.intersection(profile),
+          'Unpaired output notifications are limited to the own-source boxed 2/10-second probe')
+    for mid in IDS:
+        for key, cap in {'kp': 3., 'kd': .15,
+                         'max_displacement_from_start_rad': math.radians(1),
+                         'max_estimated_pd_torque_nm': .1}.items():
+            _number(profile['axes'][mid][key], 'output notification '+key+' ID'+mid,
+                    0, cap, positive=key != 'kd')
+
+
+def _unpaired_output_future_notifications_binding(profile):
+    value = {'settings': reviewed_settings_sha256(profile), 'axes': profile['axes'],
+             'artifacts': profile['artifacts'], 'sources': profile['cadence_source_sha256'],
+             'boot_id': profile['boot_id'], 'motor_power_epoch': profile['motor_power_epoch'],
+             'selection': profile.get('_unpaired_output_notification_selection'),
+             'review': profile['review'], 'blockers': profile['blockers'],
+             'approved_for_supported_policy_output': profile['approved_for_supported_policy_output']}
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'),
+                                    allow_nan=False).encode()).hexdigest()
+
+
+def unpaired_output_future_notifications_settings(profile, *, require_approved=True):
+    _need(type(require_approved) is bool, 'Invalid notification approval requirement')
+    private = ('_unpaired_output_notification_token', '_unpaired_output_notification_binding',
+               '_unpaired_output_notification_selection')
+    if not unpaired_output_future_notifications_selected(profile):
+        _need(not any(key in profile for key in private),
+              'Unpaired output notification selection changed after loading')
+        return False
+    _unpaired_output_future_notifications_scope(profile)
+    if require_approved:
+        _need(profile.get('output_allowed') is True and
+              profile.get('_unpaired_output_notification_token') is _UNPAIRED_OUTPUT_NOTIFICATION_TOKEN and
+              profile.get('_unpaired_output_notification_binding') ==
+                  _unpaired_output_future_notifications_binding(profile),
+              'Unpaired output notification needs complete current-source loader proof')
+    return True
+
+
+def _unpaired_output_notification_diagnostic_selection(report, data):
+    selected = unpaired_output_future_notifications_selected(data)
+    marker = report.get('diagnostic_runtime_output')
+    if not selected and marker is None:
+        return  # Existing default/legacy producers preserve their old contract.
+    _need(type(marker) is dict and
+          type(marker.get('output_future_notifications_selected')) is bool and
+          marker['output_future_notifications_selected'] is selected,
+          'Diagnostic output notification selection differs from the reviewed profile')
+
+
+def _unpaired_output_future_notifications_evidence(documents, data):
+    if not unpaired_output_future_notifications_selected(data):
+        return
+    _unpaired_output_future_notifications_scope(data)
+    from .unpaired_output_future_notifications import verify_source_selection, PROOF_SCHEMA
+    validation = documents.get('unpaired_output_notification_source_validation')
+    _need(type(validation) is dict and validation.get('schema') ==
+          'singularitydog.unpaired-output-future-notification-source-validation.v1' and
+          validation.get('status') == 'PASS_ORIGINAL_FUTURE_NOTIFICATION_BOUNDARIES' and
+          validation.get('source_sha256') == data['cadence_source_sha256'] and
+          validation.get('errors') == [] and validation.get('skips') == 0 and
+          type(validation.get('tests_passed')) is int and validation['tests_passed'] >= 24 and
+          all(validation.get(key) is False for key in ('hardware_opened', 'output_allowed',
+              'approved_for_runtime', 'whole_loop_timing_qualified')),
+          'Own-source original-Future notification software validation is missing')
+    _review(validation.get('review'), 'ACCEPT_SOURCE_BOUND_UNPAIRED_OUTPUT_NOTIFICATIONS')
+    checks = ('genuine_current_original_futures', 'original_deadline_error_and_cancel_priority',
+        'notification_hint_is_not_readiness', 'callback_failure_and_raw_retention',
+        'descriptor_lifetime_and_owner_join', 'partial_changed_or_foreign_abi_rejected',
+        'no_extra_worker_reader_or_motor_request', 'profile_cli_and_prepared_tokens_bound')
+    _need(type(validation.get('checks')) is dict and
+          all(validation['checks'].get(key) is True for key in checks),
+          'Original-Future notification software boundary proof is incomplete')
+    try:
+        references = verify_source_selection(validation.get('selection'))
+        from .unpaired_native_feedback_codec import _read_reference
+        _read_reference(validation.get('test_output'))
+    except (ValueError, OSError, KeyError, TypeError) as error:
+        raise ProfileError(str(error)) from error
+    report = documents['pipeline_diagnostic']
+    _unpaired_output_notification_diagnostic_selection(report, data)
+    marker = report['diagnostic_runtime_output']
+    binding = marker.get('notification_source_binding')
+    _need(report.get('cadence_source_sha256') == data['cadence_source_sha256'] and
+          report.get('boot_id') == data['boot_id'] and
+          report.get('motor_power_epoch') == data['motor_power_epoch'] and
+          type(report.get('native_phase_pair')) is dict and
+          report['native_phase_pair'].get('enabled') is False and
+          marker.get('schema') == 'singularitydog.diagnostic-runtime-output-owner.v1' and
+          marker.get('scope') == 'disabled_stop_proxy_only' and
+          all(marker.get(key) is True for key in ('actual_busworkers_submit_decoded',
+              'actual_busworkers_collect_output', 'genuine_original_output_futures',
+              'original_absolute_deadlines_unchanged')) and
+          marker.get('native_feedback_batch_decode_selected') is unpaired_native_feedback_codec_selected(data) and
+          marker.get('collector_worker_count') == 3 and marker.get('extra_worker_or_reader_count') == 0 and
+          marker.get('borrowed_executor_owner') == 'original_collector' and
+          type(marker.get('output_notification_groups')) is int and marker['output_notification_groups'] >= 1 and
+          type(marker.get('output_notification_waits')) is int and marker['output_notification_waits'] >= 1 and
+          type(binding) is dict and binding.get('schema') == PROOF_SCHEMA and
+          binding.get('references') == references and binding.get('active_abi') == 1 and
+          binding.get('future_readiness_abi') == 1 and
+          binding.get('scope') == 'ordinary_unpaired_output_original_futures.v1' and
+          binding.get('notifications_are_hints_only') is True and
+          binding.get('adds_owner_or_future_or_request') is False and
+          binding.get('timestamps_and_deadlines_unchanged') is True and
+          all(marker.get(key) is False for key in ('owns_or_closes_borrowed_executor', 'type1_sent',
+              'active_controller_qualification', 'output_allowed', 'approved_for_runtime')),
+          'Own actual notification STOP-proxy original-owner timing proof is required')
+    data['_unpaired_output_notification_selection'] = copy.deepcopy(validation['selection'])
+
+
+def unpaired_native_feedback_codec_selected(profile):
+    value = profile.get('native_feedback_batch_decode', False)
+    _need(type(value) is bool, 'Unpaired feedback codec selection must be an explicit boolean')
+    _need(not value or profile.get('schema') == SCHEMA_V3,
+          'Unpaired feedback codec requires its own V3 source qualification')
+    return value
+
+
+def _unpaired_native_feedback_codec_scope(profile):
+    if not unpaired_native_feedback_codec_selected(profile):
+        return
+    _need(profile.get('scope') == 'supported_characterization_only' and
+          profile.get('model_backend') == SCALAR_BACKEND and
+          profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+          profile.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED and
+          profile.get('voltage_overlap') is True and profile.get('voltage_pipeline') is True and
+          profile.get('native_phase_pair', False) is False and
+          profile.get('request_gap_us') == 900 and profile.get('request_window') == 3 and
+          profile.get('hard_cycle_ms') == 20 and profile.get('max_sample_age_ms') == 20 and
+          profile.get('max_consecutive_20ms_misses') == 0 and
+          0 < profile.get('policy_weight', 0) <= .005 and
+          profile.get('diagnostic_timing_acceptance') in (
+              SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S) and
+          profile.get('duration_s') == (10. if profile.get('diagnostic_timing_acceptance') ==
+              SUPPORTED_POLICY_PROBE_10S_AFTER_2S else 2.) and
+          not {'fixed_catch', 'human_supported_hold'}.intersection(profile),
+          'Unpaired feedback codec is limited to the own-source small boxed 2/10-second probe')
+    for mid in IDS:
+        for key, cap in {'kp': 3., 'kd': .15,
+                         'max_displacement_from_start_rad': math.radians(1),
+                         'max_estimated_pd_torque_nm': .1}.items():
+            _number(profile['axes'][mid][key], 'unpaired feedback codec '+key+' ID'+mid,
+                    0, cap, positive=key != 'kd')
+
+
+def _unpaired_native_feedback_codec_binding(profile):
+    return hashlib.sha256(json.dumps({'settings': reviewed_settings_sha256(profile),
+        'selection': profile.get('_unpaired_native_feedback_codec_selection'),
+        'sources': profile['cadence_source_sha256'], 'axes': profile['axes'],
+        'artifacts': profile['artifacts'], 'boot_id': profile['boot_id'],
+        'motor_power_epoch': profile['motor_power_epoch'], 'scope': profile['scope'],
+        'duration_s': profile['duration_s'], 'policy_weight': profile['policy_weight'],
+        'selected': profile.get('native_feedback_batch_decode')}, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()).hexdigest()
+
+
+def native_feedback_batch_decode_settings(profile, *, require_approved=True):
+    """PLAN can describe selection; only full own-source loader proof can execute."""
+    _need(type(require_approved) is bool, 'Invalid codec approval requirement')
+    if not unpaired_native_feedback_codec_selected(profile):
+        _need(not any(key in profile for key in ('_unpaired_native_feedback_codec_token',
+            '_unpaired_native_feedback_codec_selection', '_unpaired_native_feedback_codec_binding')),
+            'Unpaired feedback codec selection changed after loading')
+        return False
+    _unpaired_native_feedback_codec_scope(profile)
+    if require_approved:
+        _need(profile.get('output_allowed') is True and
+              profile.get('_unpaired_native_feedback_codec_token') is _UNPAIRED_NATIVE_FEEDBACK_CODEC_TOKEN and
+              profile.get('_unpaired_native_feedback_codec_binding') ==
+                  _unpaired_native_feedback_codec_binding(profile),
+              'Unpaired feedback codec needs its own complete current-source loader proof')
+    return True
+
+
+def _unpaired_native_feedback_codec_evidence(documents, data):
+    if not unpaired_native_feedback_codec_selected(data):
+        return
+    _unpaired_native_feedback_codec_scope(data)
+    from .unpaired_native_feedback_codec import verify_source_selection, PROOF_SCHEMA
+    validation = documents.get('native_feedback_codec_source_validation')
+    _need(type(validation) is dict and validation.get('schema') ==
+          'singularitydog.unpaired-native-feedback-codec-source-validation.v1' and
+          validation.get('status') == 'PASS_CODEC_SOCKET_AND_SAVED_PARITY' and
+          validation.get('source_sha256') == data['cadence_source_sha256'] and
+          validation.get('errors') == [] and validation.get('skips') == 0 and
+          type(validation.get('tests_passed')) is int and validation['tests_passed'] >= 20 and
+          type(validation.get('saved_transactions_compared')) is int and
+          validation['saved_transactions_compared'] >= 1000 and
+          all(validation.get(key) is False for key in ('hardware_opened', 'output_allowed',
+              'approved_for_runtime', 'whole_loop_timing_qualified')),
+          'Own-source codec socket/saved raw validation is missing')
+    _review(validation.get('review'), 'ACCEPT_SOURCE_BOUND_UNPAIRED_FEEDBACK_CODEC')
+    checks = ('numeric_double_bits_exact', 'raw_bytes_order_timestamps_exact',
+        'mode_fault_and_voltage_guards_unchanged', 'invalid_and_mixed_legacy_fallback',
+        'partial_or_changed_abi_rejected', 'genuine_two_bus_original_futures',
+        'prepared_voltage_deadline_cancellation', 'full_output_then_all12_raw_stop',
+        'source_owner_and_busy_rejections')
+    _need(type(validation.get('checks')) is dict and
+          all(validation['checks'].get(key) is True for key in checks),
+          'Unpaired codec original-owner/fault/deadline proof incomplete')
+    try:
+        references = verify_source_selection(validation.get('selection'))
+        from .unpaired_native_feedback_codec import _read_reference
+        _read_reference(validation.get('test_output'))
+    except (ValueError, OSError, KeyError, TypeError) as error:
+        raise ProfileError(str(error)) from error
+    report = documents['pipeline_diagnostic']
+    proof = report.get('native_feedback_batch_decode', {})
+    binding = proof.get('source_binding', {}) if type(proof) is dict else {}
+    _need(type(proof) is dict and proof.get('enabled') is True and
+          proof.get('selected_buses') == ['front', 'rear'] and
+          proof.get('scope') == 'ordinary_unpaired_owners.v1' and
+          type(binding) is dict and binding.get('schema') == PROOF_SCHEMA and
+          binding.get('references') == references and binding.get('feedback_abi') == 1 and
+          binding.get('active_abi') == 1 and
+          binding.get('adds_owner_or_future_or_request') is False and
+          binding.get('timestamps_and_deadlines_unchanged') is True and
+          binding.get('unsupported_or_invalid_uses_legacy_codec') is True and
+          report.get('cadence_source_sha256') == data['cadence_source_sha256'] and
+          type(report.get('native_phase_pair')) is dict and
+          report['native_phase_pair'].get('enabled') is False,
+          'Own current-source disabled codec producer evidence is required; old ordinary/pair proof cannot qualify it')
+    output = report.get('diagnostic_runtime_output')
+    _need(type(output) is dict and output.get('schema') ==
+          'singularitydog.diagnostic-runtime-output-owner.v1' and
+          output.get('scope') == 'disabled_stop_proxy_only' and
+          all(output.get(key) is True for key in ('actual_busworkers_submit_decoded',
+              'actual_busworkers_collect_output', 'genuine_original_output_futures',
+              'native_feedback_batch_decode_selected', 'original_absolute_deadlines_unchanged')) and
+          output.get('collector_worker_count') == 3 and output.get('extra_worker_or_reader_count') == 0 and
+          output.get('borrowed_executor_owner') == 'original_collector' and
+          output.get('output_future_notifications_selected') is
+              unpaired_output_future_notifications_selected(data) and
+          all(output.get(key) is False for key in ('owns_or_closes_borrowed_executor', 'type1_sent',
+              'active_controller_qualification', 'output_allowed', 'approved_for_runtime')),
+          'Own actual runtime STOP-proxy original-owner producer proof is required')
+    data['_unpaired_native_feedback_codec_selection'] = copy.deepcopy(validation['selection'])
+
+
+def native_phase_pair_settings(profile):
+    """No execution flag can promote an unreviewed transport candidate."""
+    if not _native_phase_pair_selected(profile):
+        _need('_native_phase_pair_token' not in profile,
+              'Native phase pair selection changed after loading')
+        return False
+    _native_phase_pair_scope(profile)
+    _need(profile.get('_native_phase_pair_token') is _NATIVE_PHASE_PAIR_TOKEN and
+          profile.get('output_allowed') is True and
+          profile.get('_native_phase_pair_binding') == _prepared_voltage_publication_binding(profile),
+          'Native phase pair requires immutable complete loader proof')
+    return True
+
+
+def _native_phase_pair_acceptance(review, data):
+    """The same source-bound opt-in is required at every authenticated depth."""
+    acceptance = review.get('native_phase_pair_acceptance', {})
+    _need(type(acceptance) is dict and
+          acceptance.get('schema') == 'singularitydog.native-phase-pair-review.v1' and
+          acceptance.get('mode') == 'persistent_dual_owner.v1' and
+          acceptance.get('diagnostic_sha256') == data['artifacts']['pipeline_diagnostic']['sha256'] and
+          acceptance.get('cadence_source_sha256') == data['cadence_source_sha256'] and
+          acceptance.get('scope') == data['scope'] and
+          acceptance.get('request_count_per_cycle') == 26 and
+          acceptance.get('active_deadlines_unchanged') is True and
+          acceptance.get('stop_proxy_does_not_certify_active_api_latency') is True and
+          _post_reply_review_limits(acceptance, _post_reply_policy(data)),
+          'Explicit source-bound native phase pair diagnostic acceptance required')
+    _review(acceptance.get('review'), 'ACCEPT_NATIVE_PHASE_PAIR')
+
+
+def _native_target_fk_cache_selected(profile):
+    value = profile.get('native_target_fk_cache', False)
+    _need(type(value) is bool, 'native_target_fk_cache must be an explicit boolean')
+    if not value:
+        return False
+    from .policy_active_fk import selected
+    try:
+        return selected(profile)
+    except ValueError as error:
+        raise ProfileError(str(error)) from error
+
+
+def _native_target_fk_cache_scope(profile):
+    if not _native_target_fk_cache_selected(profile):
+        return
+    mode = profile['diagnostic_timing_acceptance']
+    _need(profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+          profile.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED and
+          profile.get('voltage_pipeline') is True and
+          not {'fixed_catch', 'human_supported_hold'}.intersection(profile),
+          'Active FK requires the boxed local supported voltage pipeline')
+    if mode in (SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED):
+        post_reply = _post_reply_policy(profile)
+        _need(post_reply is not None and post_reply['mode'] in ('bounded_post_reply_v1', 'bounded_post_reply_input_age_v2'),
+              'Active FK duration extension requires the unchanged reviewed post-reply chain')
+    caps = {'kp': 3., 'kd': .15, 'max_displacement_from_start_rad': math.radians(1),
+            'max_estimated_pd_torque_nm': .1, 'max_measured_torque_nm': 1.,
+            'max_command_velocity_rad_s': math.radians(1),
+            'max_command_acceleration_rad_s2': math.radians(5),
+            'max_tracking_error_rad': math.radians(2), 'max_temperature_c': 45.,
+            'max_measured_velocity_rad_s': .25 if mode == SUPPORTED_POLICY_PROBE else .35}
+    for mid in IDS:
+        for key, cap in caps.items():
+            _number(profile['axes'][mid][key], 'active FK '+key+' ID'+mid, 0, cap, positive=True)
+
+
+def _native_target_fk_cache_plan(profile, documents=None):
+    from .policy_active_fk import plan
+    try:
+        proof = plan(profile, documents)
+    except ValueError as error:
+        raise ProfileError('Active FK file-only verification: '+str(error)) from error
+    _need(type(proof) is dict and proof.get('schema') == 'singularitydog.active-fk-file-plan.v1' and
+          proof.get('torch_or_native_loaded') is False and
+          all(proof.get(key) is False for key in ('output_allowed', 'approved_for_runtime',
+              'active_controller_qualification', 'timing_admission_eligible', 'live_50hz_verified')) and
+          type(proof.get('active_binding')) is dict and
+          proof['active_binding'].get('adapter_source_sha256') ==
+              profile['cadence_source_sha256'].get('singularitydog_hw/policy_active_fk.py'),
+          'Active FK file-only proof or current adapter source differs')
+    for key in ('model_sha256', 'library_sha256'):
+        _hash(proof.get(key), 'active FK '+key)
+    return proof
+
+
+def _native_target_fk_cache_binding(profile):
+    value = {'settings': reviewed_settings_sha256(profile), 'axes': profile['axes'],
+             'artifacts': profile['artifacts'], 'sources': profile['cadence_source_sha256'],
+             'boot_id': profile['boot_id'], 'motor_power_epoch': profile['motor_power_epoch'],
+             'review': profile['review'], 'blockers': profile['blockers'],
+             'approved_for_supported_policy_output': profile['approved_for_supported_policy_output'],
+             'provenance': profile['_native_target_fk_cache_provenance']}
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'),
+                                    allow_nan=False).encode()).hexdigest()
+
+
+def native_target_fk_cache_settings(profile):
+    """Return the exact FK ref only after immutable complete active-profile review."""
+    if not _native_target_fk_cache_selected(profile):
+        _need('_native_target_fk_cache_token' not in profile,
+              'Active FK selection changed after loading')
+        return None
+    _native_target_fk_cache_scope(profile)
+    _need(profile.get('_native_target_fk_cache_token') is _NATIVE_TARGET_FK_CACHE_TOKEN and
+          profile.get('output_allowed') is True and
+          profile.get('_native_target_fk_cache_binding') == _native_target_fk_cache_binding(profile),
+          'Active FK requires immutable complete loader proof')
+    return copy.deepcopy(profile['artifacts']['target_fk_manifest'])
+
+
+def _model_fk_provenance_matches(provenance, profile, *, expected=None):
+    """FK provenance keeps its own top-level identity and explicit scalar dependency."""
+    if not _native_target_fk_cache_selected(profile):
+        key = ('scalar_step_manifest' if execution_settings(profile)['model_backend'] == SCALAR_BACKEND
+               else 'model_manifest')
+        return (type(provenance) is dict and provenance.get('manifest_sha256') ==
+                profile['artifacts'][key]['sha256'] and
+                (key != 'scalar_step_manifest' or
+                 provenance.get('baseline_provenance', {}).get('manifest_sha256') ==
+                 profile['artifacts']['model_manifest']['sha256']))
+    expected = profile.get('_native_target_fk_cache_provenance') if expected is None else expected
+    if type(provenance) is not dict or type(expected) is not dict:
+        return False
+    binding = provenance.get('active_binding')
+    if type(binding) is not dict or binding != expected.get('active_binding'):
+        return False
+    names = (('target_fk_manifest', 'target_fk_manifest'),
+             ('scalar_manifest', 'scalar_step_manifest'), ('baseline_manifest', 'model_manifest'))
+    return (all(type(binding.get(key)) is dict and binding[key].get('sha256') ==
+                profile['artifacts'][artifact]['sha256'] for key, artifact in names) and
+            binding.get('schema') == 'singularitydog.active-fk-binding.v1' and
+            binding.get('native_target_fk_cache') is True and binding.get('model_backend') == SCALAR_BACKEND and
+            binding.get('adapter_source_sha256') ==
+                profile['cadence_source_sha256'].get('singularitydog_hw/policy_active_fk.py') and
+            binding.get('model_artifact_grants_output') is False and
+            provenance.get('schema') == 'singularitydog.fk-cache-stop-diagnostic-loader.v1' and
+            provenance.get('manifest_sha256') == profile['artifacts']['target_fk_manifest']['sha256'] and
+            provenance.get('model_sha256') == expected.get('model_sha256') and
+            provenance.get('library_sha256') == expected.get('library_sha256') and
+            type(provenance.get('original_scalar_dependency')) is dict and
+            provenance['original_scalar_dependency'].get('manifest_sha256') ==
+                profile['artifacts']['scalar_step_manifest']['sha256'] and
+            type(provenance.get('baseline_provenance')) is dict and
+            provenance['baseline_provenance'].get('manifest_sha256') ==
+                profile['artifacts']['model_manifest']['sha256'] and
+            provenance.get('diagnostic_only') is True and provenance.get('hardware_opened') is False and
+            all(provenance.get(key) is False for key in ('output_allowed', 'approved_for_runtime',
+                'active_controller_qualification', 'timing_admission_eligible', 'live_50hz_verified')))
+
+
+def _model_provenance_matches(provenance, profile, *, expected=None):
+    from . import policy_checked_dispatch as checked
+    if not checked.selected(profile):
+        return _model_fk_provenance_matches(provenance, profile, expected=expected)
+    if type(provenance) is not dict or provenance.get('schema') != checked.SOURCE_SCHEMA:
+        return False
+    proof = profile.get('_checked_model_plan')
+    if (type(proof) is not dict or provenance.get('checked_model_file_plan') != proof or
+            provenance.get('manifest_sha256') != profile['artifacts']['checked_model_manifest']['sha256'] or
+            provenance.get('variant') != 'checked_r11' or
+            provenance.get('model_artifact_grants_output') is not False or
+            any(provenance.get(key) is not False for key in checked.FALSE_FLAGS) or
+            provenance.get('physical_future_observations','missing') is not None):
+        return False
+    inner_expected = (expected.get('original_fk_provenance') if type(expected) is dict and
+                      expected.get('schema') == checked.SOURCE_SCHEMA else expected)
+    return _model_fk_provenance_matches(provenance.get('original_fk_provenance'), profile,
+                                        expected=inner_expected)
 
 
 def _prepared_voltage_publication_selected(profile):
@@ -269,18 +1151,18 @@ def _prepared_voltage_publication_scope(profile):
     mode = profile.get('diagnostic_timing_acceptance')
     duration = profile.get('duration_s')
     extension = mode == SUPPORTED_POLICY_PROBE_10S_AFTER_2S
-    post_reply = _post_reply_policy(profile) if mode == SUPPORTED_POLICY_PROBE_20S_AFTER_10S else None
+    post_reply = _post_reply_policy(profile) if mode in (SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED) else None
     extension_20s = (post_reply is not None and
-                     post_reply['mode'] == 'bounded_post_reply_input_age_v2')
+                     post_reply['mode'] in ('bounded_post_reply_v1', 'bounded_post_reply_input_age_v2'))
     _need(profile.get('scope') == 'supported_characterization_only' and
           profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
           profile.get('model_backend') == SCALAR_BACKEND and
           profile.get('voltage_overlap') is True and profile.get('voltage_pipeline') is True and
           mode in (SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
                    SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-                   *((SUPPORTED_POLICY_PROBE_20S_AFTER_10S,) if extension_20s else ())) and
+                   *((SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED,) if extension_20s else ())) and
           type(duration) in (int, float) and
-          (2. < duration <= 10. if extension else duration == 20. if extension_20s else duration == 2.) and
+          (2. < duration <= 10. if extension else (duration == 60. if mode == SUPPORTED_POLICY_PROBE_60S_AFTER_20S else duration == 30. if mode == SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED else duration == 20.) if extension_20s else duration == 2.) and
           type(profile.get('policy_weight')) in (int, float) and
           0 < profile['policy_weight'] <= .005 and
           profile.get('hard_cycle_ms') == 20 and
@@ -298,7 +1180,7 @@ def _prepared_voltage_publication_scope(profile):
             'max_tracking_error_rad': math.radians(2), 'max_temperature_c': 45.,
             'max_measured_velocity_rad_s': .35 if mode in
                 (SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-                 SUPPORTED_POLICY_PROBE_20S_AFTER_10S) else .25}
+                 SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED) else .25}
     for mid in IDS:
         for key, cap in caps.items():
             _number(profile['axes'][mid][key], 'prepared voltage '+key+' ID'+mid,
@@ -429,19 +1311,19 @@ def _accel_input_hypothesis_scope(profile):
     mode = profile.get('diagnostic_timing_acceptance')
     duration = profile.get('duration_s')
     extension = mode == SUPPORTED_POLICY_PROBE_10S_AFTER_2S
-    post_reply = _post_reply_policy(profile) if mode == SUPPORTED_POLICY_PROBE_20S_AFTER_10S else None
+    post_reply = _post_reply_policy(profile) if mode in (SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED) else None
     extension_20s = (post_reply is not None and
-                     post_reply['mode'] == 'bounded_post_reply_input_age_v2')
+                     post_reply['mode'] in ('bounded_post_reply_v1', 'bounded_post_reply_input_age_v2'))
     current_hold = mode == CURRENT_HOLD_AFTER_SUPPORTED_10S
     bounded_duration = (type(duration) in (int, float) and
                         (2. < duration <= 10. if extension else
-                         duration == 20. if extension_20s else
+                         (duration == 60. if mode == SUPPORTED_POLICY_PROBE_60S_AFTER_20S else duration == 30. if mode == SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED else duration == 20.) if extension_20s else
                          duration == 3. if current_hold else duration == 2.))
     _need(profile.get('scope') == 'supported_characterization_only' and
           profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
           mode in (SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
                    SUPPORTED_POLICY_PROBE_10S_AFTER_2S, CURRENT_HOLD_AFTER_SUPPORTED_10S,
-                   *((SUPPORTED_POLICY_PROBE_20S_AFTER_10S,) if extension_20s else ())) and
+                   *((SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED,) if extension_20s else ())) and
           profile.get('model_backend') == SCALAR_BACKEND and
           profile.get('voltage_overlap') is True and
           bounded_duration and
@@ -460,7 +1342,7 @@ def _accel_input_hypothesis_scope(profile):
             'max_tracking_error_rad': math.radians(2), 'max_temperature_c': 45.,
             'max_measured_velocity_rad_s': .35 if mode in
                 (SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-                 SUPPORTED_POLICY_PROBE_20S_AFTER_10S) else .25}
+                 SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED) else .25}
     for mid in IDS:
         if current_hold:
             _need(profile['axes'][mid]['kp'] == 6. and profile['axes'][mid]['kd'] == .15,
@@ -531,6 +1413,11 @@ def _mix_step_binding(profile):
 def _supported_duration_cap(profile):
     if _mix_step_selected(profile):
         return 5
+    if profile.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED:
+        _need(preauthorized_boxed_sequence_selected(profile), 'Thirty seconds needs explicit boxed sequence authorization')
+        return 30
+    if profile.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_60S_AFTER_20S:
+        return 60
     if profile.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_20S_AFTER_10S:
         return 20
     if profile.get('diagnostic_timing_acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S:
@@ -642,7 +1529,7 @@ def _startup_cycle_policy(profile):
           profile['scope'] == 'supported_characterization_only' and
           profile.get('diagnostic_timing_acceptance') in (
               SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-              SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+              SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED,
               SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_POLICY_MIX_STEP_10PCT) and
           profile.get('model_backend') == SCALAR_BACKEND and profile.get('voltage_overlap') is True and
           profile['hard_cycle_ms'] == 20 and profile['max_sample_age_ms'] <= 20 and
@@ -684,13 +1571,18 @@ def artifact_names(profile):
         ('local_reference_capture',) if profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED else ()) + (
         _EXTENSION_ARTIFACTS if profile.get('diagnostic_timing_acceptance') in (
             SUPPORTED_POLICY_PROBE_10S_AFTER_2S, CURRENT_HOLD_AFTER_SUPPORTED_10S,
-            SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+            SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED,
             SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_POLICY_MIX_STEP_10PCT) else ()) + (
         _MIX_STEP_ARTIFACTS if _mix_step_selected(profile) else ()) + (
         _FIXED_CATCH_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == FIXED_CATCH_CURRENT_HOLD_30S else ()) + (
         _HUMAN_SUPPORTED_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S else ()) + (
         _PRELOAD_ARTIFACTS if profile.get('diagnostic_timing_acceptance') == SUPPORTED_PRELOAD_5S else ()) + (
-        ('accel_input_hypothesis',) if accel_input_hypothesis_selected(profile) else ())
+        ('accel_input_hypothesis',) if accel_input_hypothesis_selected(profile) else ()) + (
+        ('target_fk_manifest',) if _native_target_fk_cache_selected(profile) else ()) + (
+        _BOXED_SEQUENCE_ARTIFACTS if preauthorized_any_boxed_sequence_selected(profile) else ()) + (
+        ('native_feedback_codec_source_validation',) if unpaired_native_feedback_codec_selected(profile) else ()) + (
+        ('unpaired_output_notification_source_validation',) if unpaired_output_future_notifications_selected(profile) else ()) + (
+        ('checked_model_manifest',) if profile.get('native_checked_policy_dispatch',False) is True else ())
 
 
 def _post_reply_policy(profile):
@@ -727,7 +1619,9 @@ def _post_reply_policy(profile):
         bounded_duration = (type(duration) in (int, float) and
                             (duration == 2. if mode == SUPPORTED_POLICY_PROBE_2S_RARE_JITTER else
                              duration == 10. if mode == SUPPORTED_POLICY_PROBE_10S_AFTER_2S else
-                             duration == 20. if mode == SUPPORTED_POLICY_PROBE_20S_AFTER_10S else False))
+                             duration == 20. if mode == SUPPORTED_POLICY_PROBE_20S_AFTER_10S else
+                             duration == 60. if mode == SUPPORTED_POLICY_PROBE_60S_AFTER_20S else
+                             duration == 30. if mode == SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED and preauthorized_boxed_sequence_selected(profile) else False))
         _need(bounded_duration and
               profile.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
               profile.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED and
@@ -907,6 +1801,19 @@ def cadence_source_paths(profile=None):
         extra = (_HUMAN_SUPPORTED_NEW_SOURCE,)
     if profile is not None and profile.get('accel_input_hypothesis') is True:
         extra += _ACCEL_INPUT_HYPOTHESIS_SOURCES
+    if profile is not None and profile.get('native_target_fk_cache') is True:
+        from .policy_active_fk import source_paths
+        extra += source_paths()
+    if profile is not None and unpaired_native_feedback_codec_selected(profile):
+        extra += ('singularitydog_hw/unpaired_native_feedback_codec.py',
+                  'singularitydog_hw/diagnostic_runtime_output.py')
+    if profile is not None and unpaired_output_future_notifications_selected(profile):
+        extra += ('singularitydog_hw/unpaired_output_future_notifications.py',
+                  'singularitydog_hw/unpaired_native_feedback_codec.py',
+                  'singularitydog_hw/diagnostic_runtime_output.py')
+    from .policy_checked_dispatch import selected as checked_selected, source_paths as checked_paths
+    if profile is not None and checked_selected(profile):
+        extra += checked_paths()
     return tuple(dict.fromkeys(CADENCE_SOURCE_PATHS+extra))
 
 
@@ -1036,6 +1943,7 @@ def _structure(data):
 
 def _settings(data):
     transport_settings(data)
+    _unpaired_native_feedback_codec_scope(data)
     validate_cadence_sources(data)
     execution_settings(data)
     _accel_input_hypothesis_scope(data)
@@ -1073,7 +1981,20 @@ def _settings(data):
               not {'startup_damping_duration_s', 'fixed_catch', 'human_supported_hold'}.intersection(data),
               'Ten-percent mix step requires its exact five-second boxed contract and hard20ms')
     extension_20s = data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_20S_AFTER_10S
-    duration = _number(data['duration_s'], 'duration_s', .5, 30 if fixed_catch else 20 if extension_20s else 10)
+    extension_60s = data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_60S_AFTER_20S
+    extension_30s = data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED
+    duration = _number(data['duration_s'], 'duration_s', .5, 30 if fixed_catch or extension_30s else 60 if extension_60s else 20 if extension_20s else 10)
+    if extension_30s:
+        _need(preauthorized_boxed_sequence_selected(data) and duration == 30.,
+              'Thirty-second learned extension requires its explicit preauthorized boxed sequence')
+    if extension_60s:
+        _need(data['schema'] == SCHEMA_V3 and data['scope'] == 'supported_characterization_only' and
+              data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
+              data.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED and
+              data.get('model_backend') == SCALAR_BACKEND and data.get('voltage_overlap') is True and
+              data['policy_weight'] == .005 and data['h_hypothesis'] == 0 and
+              data['command'] == [0., 0., 0.] and _post_reply_policy(data) is not None and duration == 60.,
+              'Sixty-second extension requires the exact boxed .005 h0 scalar contract after a completed twenty-second run')
     if extension_20s:
         _need(data['schema'] == SCHEMA_V3 and data['scope'] == 'supported_characterization_only' and
               data.get('model_backend') == SCALAR_BACKEND and data.get('voltage_overlap') is True and
@@ -1113,14 +2034,14 @@ def _settings(data):
     policy_probe_5s = data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_5S
     rare_jitter_probe = data.get('diagnostic_timing_acceptance') in (
         SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-        SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+        SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED,
         SUPPORTED_POLICY_GAIN_STEP_3S)
     if data.get('diagnostic_timing_acceptance') in (
             SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S, SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
-            SUPPORTED_POLICY_PROBE_10S_AFTER_2S, SUPPORTED_POLICY_PROBE_20S_AFTER_10S):
+            SUPPORTED_POLICY_PROBE_10S_AFTER_2S, SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED):
         _need(data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED and
               0 < data['policy_weight'] <= .005 and duration <= (
-                  20 if extension_20s else
+                  60 if extension_60s else 30 if extension_30s else 20 if extension_20s else
                   10 if data.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_10S_AFTER_2S
                   else 5 if policy_probe_5s else 2) and
               data['startup_duration_s'] >= .4 and hard == 20 and
@@ -1227,7 +2148,7 @@ def _axes(data, calibration):
                     'max_measured_velocity_rad_s':(.35 if data.get('diagnostic_timing_acceptance') in
                         (SUPPORTED_POLICY_PROBE_5S, SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
                          SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-                         SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+                         SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED,
                          SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_POLICY_MIX_STEP_10PCT) else .25),
                     'max_measured_torque_nm':1.,
                     'max_estimated_pd_torque_nm':.2 if preload else .25 if mix_step else .5 if current_position_hold or gain_step else .1,
@@ -1267,7 +2188,39 @@ def _timing(report, data):
           report.get('motor_enable_sent') is False and report.get('learned_targets_sent') is False and
           report.get('full_controller_50Hz_verified') is False and
           type(report.get('observer')) is dict, 'Full real-input/inference/STOP diagnostic required')
+    _unpaired_output_notification_diagnostic_selection(report, data)
+    from . import policy_checked_dispatch as checked
+    checked_selected = checked.selected(data)
+    for evidence in (report,report.get('plan',{})):
+        if not checked_selected and type(evidence) is not dict:
+            continue  # Preserve the original legacy pacing guard and error order.
+        _need(type(evidence) is dict and evidence.get('native_checked_policy_dispatch',False) is checked_selected,
+              'Diagnostic checked model selection differs from reviewed profile')
+    if checked_selected:
+        _need(report.get('checked_model_plan') == data.get('_checked_model_plan') and
+              report.get('plan',{}).get('checked_model_manifest') == data['artifacts']['checked_model_manifest'],
+              'Fresh exact selected checked model diagnostic required')
     prepared_publication = _prepared_voltage_publication_selected(data)
+    paired_native = _native_phase_pair_selected(data)
+    for source in (report, report.get('plan', {})):
+        if not paired_native and type(source) is not dict:
+            continue  # Preserve historical invalid-plan validation and errors.
+        _need(type(source) is dict and source.get('native_phase_pair', False) is paired_native,
+              'Diagnostic native phase pair selection differs from reviewed profile')
+    if paired_native:
+        proof = report.get('native_phase_pair_proof', {})
+        _need(type(proof) is dict and proof.get('mode') == 'persistent_dual_owner.v1' and
+              proof.get('request_count_per_cycle') == 26 and
+              proof.get('all_phases_joined') is True and
+              proof.get('owner_placement_verified') is True and
+              proof.get('owner_settings_restored') is True and
+              proof.get('coordinator_placement_verified') is True and
+              proof.get('coordinator_settings_restored') is True and
+              proof.get('active_deadlines_unchanged') is True and
+              report.get('cadence_source_sha256') == data['cadence_source_sha256'] and
+              report.get('boot_id') == data['boot_id'] and
+              report.get('motor_power_epoch') == data['motor_power_epoch'],
+              'Native phase pair requires its own current diagnostic and restored owner settings')
     for source in (report, report.get('plan', {})):
         _need(type(source) is dict, 'Diagnostic pacing differs from reviewed profile: invalid prepared voltage plan')
         value = source.get('prepare_voltage_before_feedback_publication', False)
@@ -1298,6 +2251,15 @@ def _timing(report, data):
         _need(source.get('voltage_range_v', [35., 42.]) == [35., data['voltage_max_v']],
               'Diagnostic voltage range differs from reviewed profile')
     bindings = report.get('input_sha256', {})
+    fk_selected = _native_target_fk_cache_selected(data)
+    for source in (report, report.get('plan', {})):
+        value = source.get('native_target_fk_cache', False)
+        _need(type(value) is bool and value is fk_selected,
+              'Diagnostic active FK selection differs from reviewed profile')
+    if fk_selected:
+        _need(report.get('plan', {}).get('target_fk_manifest') == data['artifacts']['target_fk_manifest'] and
+              bindings.get('target_fk_manifest') == data['artifacts']['target_fk_manifest']['sha256'],
+              'Diagnostic active FK input differs from reviewed profile')
     _need(report.get('plan', {}).get('apply_reviewed_accel_calibration', False)
           is acceleration_calibration_selected(data),
           'Diagnostic acceleration calibration selection differs from reviewed profile')
@@ -1332,12 +2294,16 @@ def _timing(report, data):
         _need(report.get('plan', {}).get('v3_voltage_fast_pipeline') is True and
               report.get('plan', {}).get('v3_voltage_pipeline') is not True,
               'Immediate feedback-then-voltage pipeline requires its own disabled diagnostic')
-    model_key = 'scalar_step_manifest' if execution['model_backend'] == SCALAR_BACKEND else 'model_manifest'
-    _need(report.get('model_source', {}).get('manifest_sha256') == data['artifacts'][model_key]['sha256'],
-          'Timing model-manifest mismatch')
-    if model_key == 'scalar_step_manifest':
-        _need(report.get('model_source', {}).get('baseline_provenance', {}).get('manifest_sha256') ==
-              data['artifacts']['model_manifest']['sha256'], 'Scalar timing baseline differs')
+    if fk_selected:
+        _need(_model_provenance_matches(report.get('model_source'), data),
+              'Timing active FK model/dependency provenance differs')
+    else:
+        model_key = 'scalar_step_manifest' if execution['model_backend'] == SCALAR_BACKEND else 'model_manifest'
+        _need(report.get('model_source', {}).get('manifest_sha256') == data['artifacts'][model_key]['sha256'],
+              'Timing model-manifest mismatch')
+        if model_key == 'scalar_step_manifest':
+            _need(report.get('model_source', {}).get('baseline_provenance', {}).get('manifest_sha256') ==
+                  data['artifacts']['model_manifest']['sha256'], 'Scalar timing baseline differs')
     mix_step = _mix_step_selected(data)
     observed_r17 = execution['diagnostic_timing_acceptance'] == OBSERVED_R17_TIMING
     hold_after_supported = execution['diagnostic_timing_acceptance'] == CURRENT_HOLD_AFTER_SUPPORTED_10S
@@ -1348,12 +2314,12 @@ def _timing(report, data):
         HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S)
     rare_jitter_probe = execution['diagnostic_timing_acceptance'] in (
         SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-        SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+        SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED,
         SUPPORTED_POLICY_GAIN_STEP_3S, CURRENT_HOLD_AFTER_SUPPORTED_10S,
         FIXED_CATCH_CURRENT_HOLD_30S, SUPPORTED_POLICY_MIX_STEP_10PCT)
     policy_probe = execution['diagnostic_timing_acceptance'] in (
         SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S, SUPPORTED_POLICY_PROBE_2S_RARE_JITTER,
-        SUPPORTED_POLICY_PROBE_10S_AFTER_2S, SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+        SUPPORTED_POLICY_PROBE_10S_AFTER_2S, SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED,
         SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_POLICY_MIX_STEP_10PCT)
     bounded_probe = hold_probe or policy_probe
     measured_r17 = execution['diagnostic_timing_acceptance'] in (
@@ -1361,7 +2327,7 @@ def _timing(report, data):
         FIXED_CATCH_CURRENT_HOLD_30S, HUMAN_SUPPORTED_PARTIAL_CURRENT_HOLD_8S,
         SUPPORTED_POLICY_PROBE, SUPPORTED_POLICY_PROBE_5S,
         SUPPORTED_POLICY_PROBE_2S_RARE_JITTER, SUPPORTED_POLICY_PROBE_10S_AFTER_2S,
-        SUPPORTED_POLICY_PROBE_20S_AFTER_10S,
+        SUPPORTED_POLICY_PROBE_20S_AFTER_10S, SUPPORTED_POLICY_PROBE_60S_AFTER_20S, SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED,
         SUPPORTED_POLICY_GAIN_STEP_3S, SUPPORTED_PRELOAD_5S, SUPPORTED_POLICY_MIX_STEP_10PCT)
     accepted_r17 = observed_r17 or measured_r17
     if observed_r17:
@@ -1493,6 +2459,10 @@ def _timing(report, data):
                      'current_hold_after_supported_10s_admission_only' if hold_after_supported else
                      'supported_policy_10s_after_2s_admission_only'
                      if execution['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_10S_AFTER_2S else
+                     'supported_policy_30s_preauthorized_after_10s_admission_only'
+                     if execution['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED else
+                     'supported_policy_60s_after_20s_admission_only'
+                     if execution['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_60S_AFTER_20S else
                      'supported_policy_20s_after_10s_admission_only'
                      if execution['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_20S_AFTER_10S else
                      'supported_policy_gain_step_3s_admission_only'
@@ -1533,7 +2503,7 @@ def _voltage_pipeline_trace(report, data, measurements):
           'Voltage pipeline timing differs from feedback-gated schedule')
     digest = _hash(proof.get('records_sha256'), 'voltage pipeline records')
     records_path = Path(data['artifacts']['pipeline_diagnostic']['path']).with_name('records.json')
-    records, _ = _read_json(records_path, digest=digest)
+    records, _ = _read_json(records_path, digest=digest, max_bytes=32*1024*1024)
     _need(type(records) is list and len(records) == len(measurements),
           'Voltage pipeline trace count differs from timing rows')
     buses = {'front': set(range(1, 7)), 'rear': set(range(7, 13))}
@@ -1595,6 +2565,151 @@ def _voltage_pipeline_trace(report, data, measurements):
                   'Voltage pipeline requires exact feedback, voltage and STOP requests')
 
 
+_UNPAIRED_CODEC_VOLTAGE_CONTRACT_SCHEMA = 'singularitydog.unpaired-runtime-voltage-dispatch.v2'
+
+_UNPAIRED_CODEC_VOLTAGE_SCHEDULE = 'separate_native6_then1_on_same_unpaired_executor'
+
+def _make_unpaired_codec_voltage_contract(report):
+    """Called after the exact on-disk records hash and source seal are known."""
+    output = report.get('diagnostic_runtime_output', {})
+    experiment = report.get('private_seven_request_experiment', {})
+    if (type(output) is not dict or
+            type(output.get('native_feedback_batch_decode_selected')) is not bool or
+            type(output.get('output_future_notifications_selected')) is not bool or
+            not (output['native_feedback_batch_decode_selected'] or
+                 output['output_future_notifications_selected']) or
+            type(experiment) is not dict or experiment.get('branch') != 'baseline6plus1'):
+        return None
+    proof = report.get('v3_voltage_fast_pipeline', {})
+    return {'schema': _UNPAIRED_CODEC_VOLTAGE_CONTRACT_SCHEMA, 'schedule': _UNPAIRED_CODEC_VOLTAGE_SCHEDULE,
+        'source_sha256': report.get('cadence_source_sha256'),
+        'records_sha256': proof.get('records_sha256'),
+        'native_feedback_batch_decode_selected': output['native_feedback_batch_decode_selected'],
+        'unpaired_output_future_notifications_selected': output['output_future_notifications_selected'],
+        'mode': 'native6_then_separate_native1_on_same_bus_owner',
+        'native_phase_pair': False, 'combined_seven_request_exchange': False,
+        'voltage_requires_all_six_bus_replies': True,
+        'feedback_published_after_voltage_preparation': True,
+        'original_bus_worker_count': 2, 'original_collector_worker_count': 3,
+        'extra_owner_or_reader_count': 0,
+        'original_absolute_deadlines_unchanged': True,
+        'full_26_request_trace_required': True,
+        'active_feedback_safety_equivalent': False,
+        'type1_qualified': False, 'output_allowed': False,
+        'approved_for_runtime': False}
+
+def _unpaired_codec_voltage_schedule(report, data, proof, *, need, selected, scope):
+    """Return False for unchanged legacy provenance; no schedule aliasing."""
+    if proof.get('voltage_dispatch_schedule') == 'after_each_bus_feedback':
+        need(not selected(data),
+             'Selected unpaired runtime needs its own truthful separate native6/1 contract')
+        return False
+    need(proof.get('voltage_dispatch_schedule') == _UNPAIRED_CODEC_VOLTAGE_SCHEDULE,
+         'Unknown fast voltage dispatch schedule')
+    need(selected(data), 'Separate native6/1 contract requires explicit unpaired runtime selection')
+    scope(data)
+    marker = report.get('unpaired_codec_voltage_dispatch_contract')
+    expected = _make_unpaired_codec_voltage_contract(report)
+    need(type(marker) is dict and marker == expected,
+         'New exact source/records-bound unpaired codec voltage contract required')
+    need(type(data.get('cadence_source_sha256')) is dict and
+         report.get('cadence_source_sha256') == data['cadence_source_sha256'] ==
+             marker.get('source_sha256') and
+         marker.get('records_sha256') == proof.get('records_sha256'),
+         'Unpaired codec voltage source or records binding differs')
+    source = report.get('source_provenance', {})
+    need(type(source) is dict and source.get('source_files_unchanged') is True and
+         source.get('cadence_source_sha256') == data['cadence_source_sha256'],
+         'Unpaired codec voltage source seal incomplete')
+    output = report.get('diagnostic_runtime_output', {})
+    experiment = report.get('private_seven_request_experiment', {})
+    pair = report.get('native_phase_pair', {})
+    need(type(pair) is dict and pair.get('enabled') is False and
+         experiment.get('genuine_unpaired_sessions') is True and
+         experiment.get('active_phase_pair_used') is False and
+         experiment.get('original_collector_worker_count') == 3 and
+         experiment.get('extra_native_owner_worker_count') == 0 and
+         experiment.get('all_phase_owners_closed') is True and
+         experiment.get('fd_release_safe') is True,
+         'Original unpaired separate native6/1 owner proof required')
+    need(output.get('schema') == 'singularitydog.diagnostic-runtime-output-owner.v1' and
+         output.get('scope') == 'disabled_stop_proxy_only' and
+         all(output.get(k) is True for k in ('actual_busworkers_submit_decoded',
+             'actual_busworkers_collect_output', 'genuine_original_output_futures',
+             'original_absolute_deadlines_unchanged')) and
+         output.get('native_feedback_batch_decode_selected') is unpaired_native_feedback_codec_selected(data) and
+         output.get('output_future_notifications_selected') is unpaired_output_future_notifications_selected(data) and
+         output.get('collector_worker_count') == 3 and
+         output.get('extra_worker_or_reader_count') == 0 and
+         output.get('borrowed_executor_owner') == 'original_collector' and
+         all(output.get(k) is False for k in ('owns_or_closes_borrowed_executor',
+             'type1_sent', 'active_controller_qualification', 'output_allowed',
+             'approved_for_runtime')),
+         'Actual selection-matched original BusWorkers owner proof required')
+    need(marker.get('native_feedback_batch_decode_selected') is unpaired_native_feedback_codec_selected(data) and
+         marker.get('unpaired_output_future_notifications_selected') is unpaired_output_future_notifications_selected(data),
+         'Unpaired source contract selections differ from current profile')
+    overlap = report.get('v3_voltage_overlap', {})
+    need(overlap.get('voltage_dispatch_schedule') == 'after_each_bus_feedback' and
+         proof.get('feedback_publication') == 'after_voltage_native_preparation',
+         'Separate voltage feedback publication differs from original ordering')
+    return True
+
+def _validate_unpaired_native6_then1(record, timing, row, bus, ids, *, need, codec):
+    """Extra raw checks for the new scope only; old trace checks also run."""
+    feedback = record['acquired'][bus]
+    voltage = record['voltage'][bus]
+    outputs = record['output'][bus]
+    parts = (feedback, voltage, outputs)
+    need(all(type(p) is dict and type(p.get('records')) is list and
+             type(p.get('stats')) is dict and p.get('rejected_hex') == '' for p in parts) and
+         [len(p['records']) for p in parts] == [6, 1, 6],
+         'Complete separate native6/1/6 raw evidence required')
+    admitted_ends = (row['feedback_ready_ns_by_bus'][bus], row['voltage_join_ns'],
+                     row['stop_reply_verified_ns'])
+    for part, count, admitted_end in zip(parts, (6, 1, 6), admitted_ends):
+        stats = part['stats']
+        need(all(type(stats.get(k)) is int and stats[k] > 0 for k in ('begin_ns', 'end_ns')) and
+             type(stats.get('writes')) is int and stats['writes'] == count and
+             timing['release_ns'] <= stats['begin_ns'] < stats['end_ns'] <= admitted_end,
+             'Separate native phase Stats are invalid')
+        for raw in part['records']:
+            times = [raw.get(k) for k in ('start_ns', 'finish_ns', 'read_start_ns',
+                                        'received_ns', 'deadline_ns')]
+            need(all(type(v) is int and 0 < v < 2**63 for v in times) and
+                 stats['begin_ns'] <= times[0] <= times[1] <= times[3] <= stats['end_ns'] and
+                 times[1] <= times[2] <= times[3] < times[4] <= row['hard_deadline_ns'] and
+                 raw.get('written') == raw.get('received') == 17,
+                 'Separate native phase raw timestamps/counts are invalid')
+            try:
+                tx, rx = bytes.fromhex(raw['tx_hex']), bytes.fromhex(raw['rx_hex'])
+                frames = codec.ATParser().feed(rx)
+            except (ValueError, TypeError, KeyError) as error:
+                raise ValueError('Invalid separate native phase raw bytes') from error
+            need(len(tx) == len(rx) == 17 and len(frames) == 1 and frames[0].flags == 4,
+                 'Complete canonical separate native frames required')
+    maximum = max(r['received_ns'] for r in feedback['records'])
+    voltage_first = voltage['records'][0]['start_ns']
+    need(maximum == row['feedback_reply_end_ns_by_bus'][bus] and
+         maximum <= feedback['stats']['end_ns'] <=
+             voltage['stats']['begin_ns'] <= voltage_first and
+         row['feedback_ready_ns_by_bus'][bus] <= row['voltage_dispatch_ns_by_bus'][bus] <=
+             voltage['stats']['begin_ns'] and
+         voltage['records'][0]['received_ns'] == row['voltage_reply_end_ns_by_bus'][bus],
+         'Native voltage started before all six feedback replies joined')
+    for mid, raw in zip(ids, feedback['records']):
+        frames = codec.ATParser().feed(bytes.fromhex(raw['rx_hex']))
+        need(frames[0].can_id == ((2 << 24) | (mid << 8) | 0xfd),
+             'Separate feedback requires exact healthy disabled Type2 replies')
+
+
+def _unpaired_runtime_voltage_scope(data):
+    if unpaired_native_feedback_codec_selected(data):
+        _unpaired_native_feedback_codec_scope(data)
+    if unpaired_output_future_notifications_selected(data):
+        _unpaired_output_future_notifications_scope(data)
+
+
 def _voltage_fast_pipeline_trace(report, data, measurements):
     """Bind the immediate, read-only voltage overlap to complete STOP evidence.
 
@@ -1606,10 +2721,15 @@ def _voltage_fast_pipeline_trace(report, data, measurements):
     from . import can_readonly as codec
     from . import rs05_trial_protocol as protocol
     proof = report.get('v3_voltage_fast_pipeline')
+    _need(type(proof) is dict, 'Fast voltage pipeline requires exact disabled trace provenance')
+    unpaired_codec = _unpaired_codec_voltage_schedule(report, data, proof, need=_need,
+        selected=lambda p: (unpaired_native_feedback_codec_selected(p) or
+                            unpaired_output_future_notifications_selected(p)),
+        scope=_unpaired_runtime_voltage_scope)
     _need(type(proof) is dict and proof.get('enabled') is True and
           proof.get('schema') == 'immediate-feedback-voltage-proxy-v1' and
           proof.get('period_ns') == 20_000_000 and
-          proof.get('voltage_dispatch_schedule') == 'after_each_bus_feedback' and
+          (unpaired_codec or proof.get('voltage_dispatch_schedule') == 'after_each_bus_feedback') and
           proof.get('voltage_may_precede_global_feedback_validation') is True and
           proof.get('voltage_verified_before_proxy_stop') is True and
           proof.get('diagnostic_only') is True and
@@ -1624,7 +2744,7 @@ def _voltage_fast_pipeline_trace(report, data, measurements):
           'Fast voltage pipeline timing differs from immediate schedule')
     digest = _hash(proof.get('records_sha256'), 'fast voltage pipeline records')
     records_path = Path(data['artifacts']['pipeline_diagnostic']['path']).with_name('records.json')
-    records, _ = _read_json(records_path, digest=digest)
+    records, _ = _read_json(records_path, digest=digest, max_bytes=32*1024*1024)
     _need(type(records) is list and len(records) == len(measurements),
           'Fast voltage pipeline trace count differs from timing rows')
     buses = {'front': tuple(range(1, 7)), 'rear': tuple(range(7, 13))}
@@ -1681,6 +2801,8 @@ def _voltage_fast_pipeline_trace(report, data, measurements):
                   min(part['start_ns'] for part in output) >= verified and
                   max(part['received_ns'] for part in output) == stop_replied,
                   'Fast voltage pipeline frame counts or STOP ordering differ')
+            if unpaired_codec:
+                _validate_unpaired_native6_then1(record, timing, row, bus, ids, need=_need, codec=codec)
             expected_stops = [protocol.stop_request(phase=protocol.TrialPhase.STOP,
                                                     motor_id=mid) for mid in ids]
             try:
@@ -1753,7 +2875,7 @@ def _hardware(review, data, base, *, command_loss_report=None, local_reference_c
     sources = review.get('source_captures')
     _need(type(sources) is list and bool(sources), 'Underlying hardware capture files required')
     for source in sources:
-        _artifact(source, base)
+        _supported_report_artifact(source, data, base)
     angles = review.get('angles')
     _need(type(angles) is dict and set(angles) == set(IDS), 'Every axis needs physical angle review')
     local_mode = data.get('local_characterization') == LOCAL_RELATIVE_SUPPORTED
@@ -1868,7 +2990,7 @@ def _v2_supported_extension_context(documents, data, prior, report):
     return True
 
 
-def _post_reply_input_age_predecessor(report, prior):
+def _post_reply_input_age_predecessor(report, prior, *, require_original_wire=False):
     """Replay V2 admissions from original CAN/IMU times, never summary ages.
 
     This additional proof is opt-in. Legacy V1 predecessor contracts keep their
@@ -1878,8 +3000,9 @@ def _post_reply_input_age_predecessor(report, prior):
     from . import rs05_trial_protocol as protocol
     from .policy_post_reply_timing import POST_REPLY_POLICY_V2, PostReplyDeadlineBudget
     settings = _post_reply_policy(prior)
-    if settings is None or settings['mode'] != POST_REPLY_POLICY_V2:
+    if not require_original_wire and (settings is None or settings['mode'] != POST_REPLY_POLICY_V2):
         return
+    _need(settings is not None, 'Original wire replay requires reviewed post-reply settings')
     _need(report.get('post_reply_deadline_policy') == settings,
           'V2 predecessor policy differs from its reviewed profile')
     cycles, journal = report.get('cycles'), report.get('journal')
@@ -1978,7 +3101,169 @@ def _post_reply_input_age_predecessor(report, prior):
               'V2 predecessor admission counts differ')
 
 
-def _supported_extension_evidence(documents, data):
+def _preauthorized_boxed_sequence_result(observed, documents, data, base):
+    return _boxed_sequence_result(observed, documents, data, base, native=False)
+
+
+def _preauthorized_native_boxed_sequence_result(observed, documents, data, base):
+    return _boxed_sequence_result(observed, documents, data, base, native=True)
+
+
+def _preauthorized_ordinary_boxed_sequence_result(observed, documents, data, base):
+    return _boxed_sequence_result(observed, documents, data, base, native=False, ordinary=True)
+
+
+def _boxed_sequence_result(observed, documents, data, base, *, native, ordinary=False):
+    """Software-only predecessor evidence; future physical facts stay unknown."""
+    prior, report = documents['prior_supported_profile'], documents['prior_supported_report']
+    _need(not (native and ordinary), 'Distinct boxed result scope required')
+    selected = (preauthorized_ordinary_boxed_sequence_selected if ordinary else
+                preauthorized_native_boxed_sequence_selected if native else preauthorized_boxed_sequence_selected)
+    _need(selected(data) and selected(prior) and
+          preauthorized_boxed_sequence_contract_sha256(prior) ==
+              preauthorized_boxed_sequence_contract_sha256(data) and
+          prior['artifacts']['boxed_sequence_authorization']['sha256'] ==
+              data['artifacts']['boxed_sequence_authorization']['sha256'],
+          'Preauthorized extension changed its exact current sequence contract')
+    _boxed_sequence_authorization(documents, data, base, native=native, ordinary=ordinary)
+    schema = (ORDINARY_BOXED_SEQUENCE_NUMERIC_RESULT_SCHEMA if ordinary else
+              NATIVE_BOXED_SEQUENCE_NUMERIC_RESULT_SCHEMA if native else BOXED_SEQUENCE_NUMERIC_RESULT_SCHEMA)
+    _need(type(observed) is dict and observed.get('schema') == schema and
+          observed.get('source') == 'authenticated_original_supported_report' and
+          observed.get('synthetic_interaction') is False and
+          observed.get('profile_sha256') == data['artifacts']['prior_supported_profile']['sha256'] and
+          observed.get('report_sha256') == data['artifacts']['prior_supported_report']['sha256'] and
+          observed.get('preauthorization_sha256') == data['artifacts']['boxed_sequence_authorization']['sha256'] and
+          observed.get('boot_id') == data['boot_id'] and observed.get('motor_power_epoch') == data['motor_power_epoch'] and
+          observed.get('numeric_result_only') is True and observed.get('physical_result_inferred') is False and
+          observed.get('post_trial_audio_heard', 'missing') is None and
+          observed.get('post_trial_anomalies', 'missing') is None and
+          observed.get('post_trial_support_maintained', 'missing') is None,
+          'Preauthorized result must bind original numbers and preserve unknown physical observations')
+    _need(report.get('motor_enable_sent') is True and report.get('learned_targets_sent') is True and
+          report.get('normal_ramp_completed') is True and report.get('stop_confirmed') is True and
+          report.get('status') == 'COMPLETE_SUPPORTED_OUTPUT' and report.get('errors') == [] and
+          report.get('current_position_hold_only') is False and report.get('cyclic_inference_skipped') is False and
+          type(report.get('actual_model_calls')) is int and
+          sum(row.get('phase') == 'active' for row in report.get('cycles', [])) <=
+              report['actual_model_calls'] <= len(report.get('cycles', [])) and report['actual_model_calls'] > 0,
+          'Preauthorized predecessor did not complete learned output and normal STOP')
+    _post_reply_input_age_predecessor(report, prior, require_original_wire=True)
+    _preauthorized_boxed_sequence_vectors(report, prior)
+    last_stop_ns = _preauthorized_boxed_sequence_raw_stop(report)
+    receipt, _ = _artifact(observed.get('execution_receipt'), base)
+    auth = documents['boxed_sequence_authorization']
+    _need(type(receipt) is dict and receipt.get('report_sha256') == observed['report_sha256'] and
+          receipt.get('profile_sha256') == observed['profile_sha256'] and
+          receipt.get('source_manifest_sha256') == auth.get('source_manifest_sha256') and
+          receipt.get('boot_before') == receipt.get('boot_after') == data['boot_id'] and
+          receipt.get('operator_power_epoch') == data['motor_power_epoch'] and
+          receipt.get('exit_code') == 0 and receipt.get('source_files_unchanged') is True and
+          receipt.get('box_removal_allowed') is False,
+          'Original predecessor execution receipt or current epoch differs')
+    console = receipt.get('cpu_scope_restoration_console')
+    _need(type(console) is str and hashlib.sha256(console.encode()).hexdigest() ==
+          receipt.get('files', {}).get('console.stdout'), 'Execution restoration console is not hash-bound')
+    events = []
+    for line in console.splitlines():
+        try:
+            value = json.loads(line)
+        except (ValueError, TypeError):
+            continue
+        if type(value) is dict:
+            events.append(value)
+    scopes = [event for event in events if event.get('kind') == 'latency_power_scope_exit']
+    switches = [event for event in events if event.get('kind') == 'python_switch_interval_restore']
+    _need(len(scopes) == len(switches) == 1 and switches[0].get('restored') is True,
+          'Completed predecessor lacks exact performance/switch restoration')
+    scope = scopes[0]
+    _need(scope.get('status') == 'RESTORED' and scope.get('restored') is True and
+          scope.get('cpu_performance_restored') is True and scope.get('restore_errors') == [] and
+          scope.get('caught_signal') is None and scope.get('child_exit_code') == 0 and
+          report.get('imu_restore_status') == 'restored', 'Predecessor restore or cancellation failed')
+    restored_ns = scope.get('restored_ns')
+    _need(type(restored_ns) is int and restored_ns >= last_stop_ns,
+          'Predecessor restoration must follow final raw STOP')
+    _preauthorized_boxed_sequence_capture(documents['boxed_sequence_current_capture'], data,
+                                         documents['hardware_review'], after_ns=restored_ns)
+
+
+def _preauthorized_boxed_sequence_vectors(report, prior):
+    """Recheck actual ID1..12 command/feedback limits, independent of summary flags."""
+    origin = report.get('trial_origin_model_rad_by_id')
+    _need(type(origin) is dict and set(origin) == set(IDS), 'Preauthorized predecessor needs all12 origins')
+    rows = report.get('cycles')
+    _need(type(rows) is list and bool(rows), 'Preauthorized predecessor cycles missing')
+    active_seen = False
+    for row in rows:
+        command, feedback = row.get('command', {}), row.get('feedback', {})
+        command_fields = ('q_model_rad', 'kp', 'kd', 'velocity_reference_rad_s', 'feedforward_torque_nm',
+                          'command_velocity_rad_s', 'tracking_error_rad', 'estimated_pd_torque_nm')
+        feedback_fields = ('q_model_rad', 'velocity_rad_s', 'torque_nm', 'temperature_c')
+        for mapping, names in ((command, command_fields), (feedback, feedback_fields)):
+            _need(type(mapping) is dict and all(type(mapping.get(name)) is list and len(mapping[name]) == 12
+                                              for name in names), 'Preauthorized all12 vectors missing')
+        _need(command.get('phase') == row.get('phase') and
+              all(value == 0 for name in ('velocity_reference_rad_s', 'feedforward_torque_nm') for value in command[name]),
+              'Preauthorized command phase/nonzero feedforward differs')
+        for index, mid in enumerate(IDS):
+            axis = prior['axes'][mid]
+            q0 = _number(origin[mid], 'preauthorized origin', axis['physical_lower_rad'], axis['physical_upper_rad'])
+            for mapping in (command, feedback):
+                q = _number(mapping['q_model_rad'][index], 'preauthorized position',
+                            axis['physical_lower_rad'], axis['physical_upper_rad'])
+                _need(abs(q-q0) <= axis['max_displacement_from_start_rad'], 'Preauthorized displacement exceeded')
+            for name in ('kp', 'kd'):
+                _number(command[name][index], 'preauthorized '+name, 0, axis[name])
+            for mapping, name, cap in ((command, 'command_velocity_rad_s', axis['max_command_velocity_rad_s']),
+                                      (command, 'tracking_error_rad', axis['max_tracking_error_rad']),
+                                      (command, 'estimated_pd_torque_nm', axis['max_estimated_pd_torque_nm']),
+                                      (feedback, 'velocity_rad_s', axis['max_measured_velocity_rad_s']),
+                                      (feedback, 'torque_nm', axis['max_measured_torque_nm'])):
+                _number(mapping[name][index], 'preauthorized '+name, -cap, cap)
+            _number(feedback['temperature_c'][index], 'preauthorized temperature', 0, axis['max_temperature_c'])
+        active_seen |= (row.get('phase') == 'active' and row.get('effective_policy_weight') == prior['policy_weight'] and
+                        all(command[name] == [prior['axes'][mid][name] for mid in IDS] for name in ('kp', 'kd')))
+    _need(rows[0].get('phase') == 'starting' and rows[-1].get('phase') == 'stopped' and active_seen and
+          all(value == 0 for name in ('kp', 'kd') for value in rows[-1]['command'][name]),
+          'Preauthorized predecessor did not complete the exact gain ramp')
+
+
+def _preauthorized_boxed_sequence_raw_stop(report):
+    from . import can_readonly as codec
+    from . import rs05_trial_protocol as protocol
+    cycles = report.get('cycles')
+    _need(type(cycles) is list and bool(cycles),
+          'Preauthorized final STOP proof requires at least one recorded cycle')
+    last = cycles[-1]['end_ns']
+    cycle_end = last
+    seen = set()
+    for bus, ids in (('front', range(1, 7)), ('rear', range(7, 13))):
+        stop = report.get('stop_reports', {}).get(bus, {})
+        records = stop.get('evidence', {}).get('records')
+        _need(type(records) is list and len(records) == 6, 'Original final all12 STOP pairs required')
+        for mid, raw in zip(ids, records):
+            try:
+                tx, rx = bytes.fromhex(raw['tx_hex']), bytes.fromhex(raw['rx_hex'])
+                frames = codec.ATParser().feed(rx)
+                stamps = [raw[key] for key in ('start_ns', 'finish_ns', 'received_ns')]
+                _need(tx == protocol.stop_request(phase=protocol.TrialPhase.STOP, motor_id=mid) and
+                      raw['written'] == raw['received'] == len(tx) == len(rx) == 17 and
+                      len(frames) == 1 and frames[0].wire == rx and
+                      all(type(value) is int for value in stamps) and stamps == sorted(stamps) and stamps[0] >= cycle_end,
+                      'Final STOP wire/ID/timing differs')
+                reply = protocol.decode_type2(frames[0], motor_id=mid)
+                _need(reply.mode_state == 0 and reply.fault_bits == 0, 'Final STOP raw reply remains enabled/faulted')
+            except (KeyError, TypeError, ValueError) as error:
+                raise ProfileError('Invalid original final STOP pair') from error
+            seen.add(mid)
+            last = max(last, stamps[-1])
+    _need(seen == set(range(1, 13)), 'Final STOP identities incomplete')
+    return last
+
+
+
+def _supported_extension_evidence(documents, data, base=None):
     """Admit only a duration extension of a pinned, completed two-second run.
 
     Prior files retain their original bytes and loader hash. Never recursively
@@ -2001,13 +3286,15 @@ def _supported_extension_evidence(documents, data):
     # hypothesis, model, power and every live limit remain exact below.
     replaceable_artifacts = (*_EXTENSION_ARTIFACTS, 'hardware_review',
                              'operator_acceptance', 'local_reference_capture')
+    if preauthorized_any_boxed_sequence_selected(data):
+        replaceable_artifacts += ('boxed_sequence_current_capture',)
     if hypothesis_extension or v2_extension:
         replaceable_artifacts += ('pipeline_diagnostic',)
     def contract(profile):
         omitted = {'artifacts', 'review', 'blockers', 'approved_for_supported_policy_output',
                    'assembly_id', 'bundle_path', 'duration_s', 'diagnostic_timing_acceptance',
                    'start_pose_bounds', 'axes', 'cadence_source_sha256'}
-        result = {k:v for k,v in profile.items() if k not in omitted}
+        result = {k:v for k,v in profile.items() if k not in omitted and not k.startswith('_')}
         result['axes'] = {mid:{k:v for k,v in axis.items()
             if k not in ('physical_lower_rad', 'physical_upper_rad')} for mid,axis in profile['axes'].items()}
         result['sources'] = {k:v for k,v in profile['cadence_source_sha256'].items()
@@ -2017,6 +3304,10 @@ def _supported_extension_evidence(documents, data):
         return result
     _need(contract(prior) == contract(data),
           'Extension changes prior execution, model, calibration, UID, boot, power or safety contract')
+    if _native_target_fk_cache_selected(data):
+        _need(_model_provenance_matches(report.get('model_provenance'), prior,
+                  expected=documents['pipeline_diagnostic'].get('model_source')),
+              'Active FK extension requires the same actual FK predecessor provenance')
     if _prepared_voltage_publication_selected(data):
         _need(type(report) is dict and report.get('prepare_voltage_before_feedback_publication') is True,
               'Prepared voltage extension requires the selected actual predecessor')
@@ -2107,13 +3398,22 @@ def _supported_extension_evidence(documents, data):
           1_500_000_000 <= rows[-1]['end_ns']-rows[0]['begin_ns'] <= 2_040_000_000 and
           any(row.get('phase') == 'active' and row.get('effective_policy_weight') == prior['policy_weight']
               for row in rows), 'Extension predecessor did not complete its learned ramp and stop')
-    _need(type(observed) is dict and observed.get('report_sha256') == report_sha and
-          observed.get('observed_by') == 'operator' and observed.get('audio_heard') is True and
-          observed.get('abnormal_noise_vibration_slip_sinking_contact') is False and
-          observed.get('box_support_maintained') is True and
-          observed.get('autonomous_standing_or_walking_observed') is False,
-          'Extension requires a matching operator observation of the completed supported run')
-    _text(observed.get('user_statement'), 'predecessor physical observation')
+    if preauthorized_any_boxed_sequence_selected(data):
+        _need(base is not None, 'Preauthorized extension requires the original evidence directory')
+        if preauthorized_ordinary_boxed_sequence_selected(data):
+            _preauthorized_ordinary_boxed_sequence_result(observed, documents, data, base)
+        elif preauthorized_native_boxed_sequence_selected(data):
+            _preauthorized_native_boxed_sequence_result(observed, documents, data, base)
+        else:
+            _preauthorized_boxed_sequence_result(observed, documents, data, base)
+    else:
+        _need(type(observed) is dict and observed.get('report_sha256') == report_sha and
+              observed.get('observed_by') == 'operator' and observed.get('audio_heard') is True and
+              observed.get('abnormal_noise_vibration_slip_sinking_contact') is False and
+              observed.get('box_support_maintained') is True and
+              observed.get('autonomous_standing_or_walking_observed') is False,
+              'Extension requires a matching operator observation of the completed supported run')
+        _text(observed.get('user_statement'), 'predecessor physical observation')
     acceptance = documents['hardware_review'].get('supported_extension_acceptance', {})
     _need(type(acceptance) is dict and acceptance.get('mode') == SUPPORTED_POLICY_PROBE_10S_AFTER_2S and
           acceptance.get('scope') == data['scope'] and acceptance.get('only_duration_extended') is True and
@@ -2126,22 +3426,98 @@ def _supported_extension_evidence(documents, data):
 
 
 def _supported_20s_extension_evidence(documents, data, base):
-    """Extend only a completed same-pose 2s -> 10s learned-output sequence.
+    return _supported_duration_extension_evidence(documents, data, base, target_seconds=20)
+
+
+def _native_phase_pair_20s_predecessor(report, prior):
+    """A legacy output summary cannot stand in for this selected Type1 path."""
+    _need(_native_phase_pair_selected(prior),
+          'Native twenty-second extension requires native two/ten-second predecessors')
+    _native_phase_pair_scope(prior)
+    pair = report.get('native_phase_pair')
+    _need(type(pair) is dict and pair.get('enabled') is True and
+          pair.get('mode') == 'persistent_dual_owner.v1' and
+          pair.get('paired_phases') == 'ordinary_exchange_and_output' and
+          pair.get('prepared_feedback_voltage_owners') == 'existing_python_bus_owners' and
+          type(pair.get('request_count_per_cycle')) is int and pair['request_count_per_cycle'] == 26 and
+          pair.get('active_deadlines_unchanged') is True,
+          'Native twenty-second extension lacks the selected actual native predecessor')
+    # This is mandatory for V1 as well as V2. Summary ages and successful labels
+    # cannot replace original CAN writes/replies and IMU acquisition times.
+    _post_reply_input_age_predecessor(report, prior, require_original_wire=True)
+
+
+def _native_phase_pair_20s_extension_evidence(documents, data, prior, nested, prior_base,
+                                           loader_sha256):
+    """Extra native admission proof, without changing any legacy live limit."""
+    _native_phase_pair_20s_predecessor(documents['prior_supported_report'], prior)
+    _native_phase_pair_acceptance(nested['hardware_review'], prior)
+    earlier = nested['prior_supported_profile']
+    _native_phase_pair_20s_predecessor(nested['prior_supported_report'], earlier)
+    _, earlier_ref = _artifact(prior['artifacts']['prior_supported_profile'], prior_base)
+    earlier_base = Path(earlier_ref['path']).parent
+    earlier_docs = {key: _artifact(earlier['artifacts'][key], earlier_base)[0]
+                    for key in ('pipeline_diagnostic', 'hardware_review',
+                                'command_loss_report', 'local_reference_capture')}
+    checked = copy.deepcopy(earlier)
+    checked['cadence_source_sha256']['singularitydog_hw/policy_live_profile.py'] = loader_sha256
+    _settings(checked)
+    timing = copy.deepcopy(earlier)
+    if _native_target_fk_cache_selected(data):
+        timing['_native_target_fk_cache_provenance'] = documents['pipeline_diagnostic'].get('model_source')
+    if accel_input_hypothesis_selected(data):
+        timing['_accel_input_hypothesis_provenance'] = documents['pipeline_diagnostic'].get(
+            'observer', {}).get('accel_input_hypothesis')
+    _timing(earlier_docs['pipeline_diagnostic'], timing)
+    _hardware(earlier_docs['hardware_review'], earlier,
+              Path(_artifact(earlier['artifacts']['hardware_review'], earlier_base)[1]['path']).parent,
+              command_loss_report=earlier_docs['command_loss_report'],
+              local_reference_capture=earlier_docs['local_reference_capture'])
+    _native_phase_pair_acceptance(earlier_docs['hardware_review'], earlier)
+    measurements = documents['pipeline_diagnostic'].get('measurements')
+    first = (measurements[0].get('release_ns') if type(measurements) is list and measurements and
+             type(measurements[0]) is dict else None)
+    last = documents['prior_supported_report']['cycles'][-1]['end_ns']
+    _need(data['artifacts']['pipeline_diagnostic']['sha256'] !=
+              prior['artifacts']['pipeline_diagnostic']['sha256'] and
+          type(first) is int and first > last,
+          'Native twenty-second extension needs a new diagnostic after the completed ten-second run')
+
+
+def _supported_60s_extension_evidence(documents, data, base):
+    """Admission only: retain the whole 20/10/2 graph and replay original 20s wire."""
+    return _supported_duration_extension_evidence(documents, data, base, target_seconds=60)
+
+
+def _supported_duration_extension_evidence(documents, data, base, *, target_seconds,
+                                         current_loader_sha256=None):
+    """Extend only a completed same-pose 2s -> 10s -> 20s sequence.
 
     Historical profiles keep their original source pins. Only this admission
     loader may differ; neither numerical limits nor the physical reference may
     change. A supported run remains evidence of bounded output, not load bearing
     or a learned rise from the box.
     """
+    _need(target_seconds in (20, 30, 60), 'Unsupported duration-extension admission')
+    thirty = target_seconds == 30
+    _need(not thirty or preauthorized_boxed_sequence_selected(data), 'Thirty-second extension needs preauthorization')
+    sixty = target_seconds == 60
+    prior_seconds = 20 if sixty else 10
+    prior_mode = SUPPORTED_POLICY_PROBE_20S_AFTER_10S if sixty else SUPPORTED_POLICY_PROBE_10S_AFTER_2S
+    mode = SUPPORTED_POLICY_PROBE_60S_AFTER_20S if sixty else SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED if thirty else SUPPORTED_POLICY_PROBE_20S_AFTER_10S
+    # Historical evidence retains its authenticated loader pin. This internal
+    # comparison context supplies only the present loader bytes at each depth.
+    loader_sha256 = (data['cadence_source_sha256']['singularitydog_hw/policy_live_profile.py']
+                     if current_loader_sha256 is None else current_loader_sha256)
     prior = documents['prior_supported_profile']
     report = documents['prior_supported_report']
     observed = documents['prior_supported_observation']
     _structure(prior)
-    _need(data['duration_s'] == 20. and prior['schema'] == SCHEMA_V3 and
+    _need(data['duration_s'] == target_seconds and prior['schema'] == SCHEMA_V3 and
           prior['scope'] == data['scope'] == 'supported_characterization_only' and
           prior['approved_for_supported_policy_output'] is True and prior['blockers'] == [] and
-          prior.get('diagnostic_timing_acceptance') == SUPPORTED_POLICY_PROBE_10S_AFTER_2S and
-          prior['duration_s'] == 10. and prior['policy_weight'] > 0,
+          prior.get('diagnostic_timing_acceptance') == prior_mode and
+          prior['duration_s'] == prior_seconds and prior['policy_weight'] > 0,
           'Twenty-second extension requires an approved ten-second box-supported learned predecessor')
     _review(prior['review'], 'APPROVED_SUPPORTED_CHARACTERIZATION')
 
@@ -2149,14 +3525,16 @@ def _supported_20s_extension_evidence(documents, data, base):
                             accel_input_hypothesis_selected(prior))
     v2_extension = _v2_supported_extension_context(documents, data, prior, report)
     replaceable_artifacts = (*_EXTENSION_ARTIFACTS, 'hardware_review', 'operator_acceptance')
-    if hypothesis_extension or v2_extension:
+    if preauthorized_any_boxed_sequence_selected(data):
+        replaceable_artifacts += ('boxed_sequence_current_capture',)
+    if hypothesis_extension or v2_extension or sixty:
         replaceable_artifacts += ('pipeline_diagnostic',)
 
     def contract(value):
         omitted = {'artifacts', 'review', 'blockers', 'approved_for_supported_policy_output',
                    'assembly_id', 'bundle_path', 'duration_s', 'diagnostic_timing_acceptance',
                    'cadence_source_sha256'}
-        result = {k:v for k,v in value.items() if k not in omitted}
+        result = {k:v for k,v in value.items() if k not in omitted and not k.startswith('_')}
         _need(type(value['cadence_source_sha256']) is dict, 'Twenty-second source pins must be a mapping')
         result['sources'] = {k:v for k,v in value['cadence_source_sha256'].items()
                             if k != 'singularitydog_hw/policy_live_profile.py'}
@@ -2172,7 +3550,11 @@ def _supported_20s_extension_evidence(documents, data, base):
     prior_base = Path(prior_ref['path']).parent
     nested = {key:_artifact(prior['artifacts'][key], prior_base)[0]
               for key in artifact_names(prior)}
-    _supported_extension_evidence(nested, prior)
+    if sixty:
+        _supported_duration_extension_evidence(nested, prior, prior_base,
+            target_seconds=20, current_loader_sha256=loader_sha256)
+    else:
+        _supported_extension_evidence(nested, prior, prior_base)
     earlier = nested['prior_supported_profile']
     _need(earlier['axes'] == prior['axes'] and
           earlier['start_pose_bounds'] == prior['start_pose_bounds'] and
@@ -2180,8 +3562,7 @@ def _supported_20s_extension_evidence(documents, data, base):
               prior['artifacts']['local_reference_capture']['sha256'],
           'Twenty-second extension requires the same physical pose throughout two/ten/twenty-second trials')
     checked_prior = copy.deepcopy(prior)
-    checked_prior['cadence_source_sha256']['singularitydog_hw/policy_live_profile.py'] = (
-        data['cadence_source_sha256']['singularitydog_hw/policy_live_profile.py'])
+    checked_prior['cadence_source_sha256']['singularitydog_hw/policy_live_profile.py'] = loader_sha256
     _settings(checked_prior)
     _axes(checked_prior, nested['calibration'])
     _supported_command_loss_acceptance(nested['operator_acceptance'], nested['command_loss_report'], prior)
@@ -2190,6 +3571,10 @@ def _supported_20s_extension_evidence(documents, data, base):
               command_loss_report=nested['command_loss_report'],
               local_reference_capture=nested['local_reference_capture'])
     prior_timing = copy.deepcopy(prior)
+    if _native_target_fk_cache_selected(data):
+        # The outer loader authenticated the current FK artifact. Use its
+        # model identity solely to compare the unchanged predecessor evidence.
+        prior_timing['_native_target_fk_cache_provenance'] = documents['pipeline_diagnostic'].get('model_source')
     if hypothesis_extension:
         # The outer loader audited this same pinned hypothesis, mount and bias.
         # Supply that audited provenance solely as comparison context for the
@@ -2204,6 +3589,16 @@ def _supported_20s_extension_evidence(documents, data, base):
         _need(report.get('prepare_voltage_before_feedback_publication') is True,
               'Prepared voltage twenty-second extension requires the selected actual predecessor')
         _prepared_voltage_publication_predecessor(report, prior)
+
+    if sixty:
+        diagnostic = documents['pipeline_diagnostic']
+        _need(diagnostic.get('motor_power_epoch') == data['motor_power_epoch'] and
+              diagnostic.get('cadence_source_sha256') == data['cadence_source_sha256'],
+              'Sixty-second extension needs exact current diagnostic source and power')
+        first = diagnostic.get('measurements', [{}])[0].get('release_ns')
+        last = report.get('cycles', [{}])[-1].get('end_ns')
+        _need(type(first) is int and type(last) is int and first > last,
+              'Sixty-second extension needs a fresh diagnostic after the completed twenty-second run')
 
     profile_sha = data['artifacts']['prior_supported_profile']['sha256']
     report_sha = data['artifacts']['prior_supported_report']['sha256']
@@ -2227,9 +3622,12 @@ def _supported_20s_extension_evidence(documents, data, base):
     _need(type(prior.get('native_batch_encoder')) is dict and native.get('enabled') is True and
           native.get('binary_sha256') == prior['native_batch_encoder']['sha256'] and
           report.get('execution_settings') == execution_settings(prior) and
-          provenance.get('manifest_sha256') == data['artifacts']['scalar_step_manifest']['sha256'] and
-          provenance.get('baseline_provenance', {}).get('manifest_sha256') ==
-              data['artifacts']['model_manifest']['sha256'] and
+          (_model_provenance_matches(provenance, prior,
+              expected=documents['pipeline_diagnostic'].get('model_source'))
+           if _native_target_fk_cache_selected(data) else
+           (provenance.get('manifest_sha256') == data['artifacts']['scalar_step_manifest']['sha256'] and
+            provenance.get('baseline_provenance', {}).get('manifest_sha256') ==
+                data['artifacts']['model_manifest']['sha256'])) and
           pacing.get('request_gap_us') == data['request_gap_us'] and
           pacing.get('request_window') == data['request_window'],
           'Twenty-second predecessor encoder/model/backend/pacing differs')
@@ -2240,10 +3638,10 @@ def _supported_20s_extension_evidence(documents, data, base):
               stop.get('fault_by_id') == {str(mid):0 for mid in ids},
               'Twenty-second predecessor STOP evidence incomplete or faulted')
     rows = report.get('cycles')
-    _need(type(rows) is list and 475 <= len(rows) <= 502 and
-          type(report.get('actual_model_calls')) is int and 400 <= report['actual_model_calls'] <= len(rows),
+    _need(type(rows) is list and (975 if sixty else 475) <= len(rows) <= (1002 if sixty else 502) and
+          type(report.get('actual_model_calls')) is int and (900 if sixty else 400) <= report['actual_model_calls'] <= len(rows),
           'Twenty-second extension requires completed ten-second learned cycles')
-    _post_reply_input_age_predecessor(report, prior)
+    _post_reply_input_age_predecessor(report, prior, require_original_wire=sixty or thirty)
     if hypothesis_extension:
         provenance = current_hypothesis_provenance
         for row in rows:
@@ -2309,7 +3707,8 @@ def _supported_20s_extension_evidence(documents, data, base):
         for label, vectors, names in required:
             _need(all(type(vectors.get(name)) is list and len(vectors[name]) == 12 for name in names),
                   'Twenty-second predecessor twelve-axis '+label+' vectors incomplete')
-        for order, mid in enumerate(map(str, shadow.CAN_ORDER)):
+        # Actual-output records are ID1..12, unlike model tensors' CAN_ORDER.
+        for order, mid in enumerate(IDS):
             axis = prior['axes'][mid]
             lo, hi = axis['physical_lower_rad'], axis['physical_upper_rad']
             for vectors in (command, feedback):
@@ -2329,8 +3728,8 @@ def _supported_20s_extension_evidence(documents, data, base):
                 _number(feedback[key][order], 'predecessor '+key, -axis[limit], axis[limit])
             _number(feedback['temperature_c'][order], 'predecessor temperature', 0, axis['max_temperature_c'])
         if row['phase'] == 'active' and mix == prior['policy_weight']:
-            active_seen = active_seen or (command['kp'] == [prior['axes'][str(mid)]['kp'] for mid in shadow.CAN_ORDER] and
-                                         command['kd'] == [prior['axes'][str(mid)]['kd'] for mid in shadow.CAN_ORDER])
+            active_seen = active_seen or (command['kp'] == [prior['axes'][mid]['kp'] for mid in IDS] and
+                                         command['kd'] == [prior['axes'][mid]['kd'] for mid in IDS])
     for key, count in (('deadline20ms_misses', len(misses)+startup_misses),
                        ('steady_deadline20ms_misses', len(misses)),
                        ('post_reply_deadline_allowance_uses', len(misses)),
@@ -2338,25 +3737,36 @@ def _supported_20s_extension_evidence(documents, data, base):
         _need(type(report.get(key)) is int and report[key] == count,
               'Twenty-second predecessor deadline counts differ')
     _need(rows[0]['phase'] == 'starting' and rows[-1]['phase'] == 'stopped' and
-          9_500_000_000 <= rows[-1]['end_ns']-rows[0]['begin_ns'] <= 10_040_000_000 and active_seen and
+          (19_500_000_000 if sixty else 9_500_000_000) <= rows[-1]['end_ns']-rows[0]['begin_ns'] <= (20_040_000_000 if sixty else 10_040_000_000) and active_seen and
           all(value == 0 for key in ('kp', 'kd') for value in rows[-1]['command'][key]),
           'Twenty-second predecessor did not complete learned gain ramp and stop')
-    _need(type(observed) is dict and observed.get('report_sha256') == report_sha and
-          observed.get('observed_by') == 'operator' and observed.get('audio_heard') is True and
-          observed.get('abnormal_noise_vibration_slip_sinking_contact') is False and
-          observed.get('box_support_maintained') is True and
-          observed.get('autonomous_standing_or_walking_observed') is False,
-          'Twenty-second extension requires a matching real operator observation of the ten-second supported run')
-    _text(observed.get('user_statement'), 'ten-second physical observation')
+    if preauthorized_any_boxed_sequence_selected(data):
+        if preauthorized_ordinary_boxed_sequence_selected(data):
+            _preauthorized_ordinary_boxed_sequence_result(observed, documents, data, base)
+        elif preauthorized_native_boxed_sequence_selected(data):
+            _preauthorized_native_boxed_sequence_result(observed, documents, data, base)
+        else:
+            _preauthorized_boxed_sequence_result(observed, documents, data, base)
+    else:
+        _need(type(observed) is dict and observed.get('report_sha256') == report_sha and
+              observed.get('observed_by') == 'operator' and observed.get('audio_heard') is True and
+              observed.get('abnormal_noise_vibration_slip_sinking_contact') is False and
+              observed.get('box_support_maintained') is True and
+              observed.get('autonomous_standing_or_walking_observed') is False,
+              'Twenty-second extension requires a matching real operator observation of the ten-second supported run')
+        _text(observed.get('user_statement'), 'ten-second physical observation')
     acceptance = documents['hardware_review'].get('supported_extension_acceptance', {})
-    _need(type(acceptance) is dict and acceptance.get('mode') == SUPPORTED_POLICY_PROBE_20S_AFTER_10S and
+    _need(type(acceptance) is dict and acceptance.get('mode') == mode and
           acceptance.get('scope') == data['scope'] and acceptance.get('only_duration_extended') is True and
           acceptance.get('live_limits_unchanged') is True and acceptance.get('support_must_remain') is True and
           acceptance.get('load_bearing_not_established') is True and acceptance.get('walking_allowed') is False and
           acceptance.get('prior_profile_sha256') == profile_sha and acceptance.get('prior_report_sha256') == report_sha and
           acceptance.get('prior_observation_sha256') == data['artifacts']['prior_supported_observation']['sha256'],
           'Explicit hash-bound twenty-second supported-only extension review required')
-    _review(acceptance.get('review'), 'ACCEPT_20S_SUPPORTED_AFTER_10S')
+    _review(acceptance.get('review'), 'ACCEPT_60S_SUPPORTED_AFTER_20S' if sixty else 'ACCEPT_30S_PREAUTHORIZED_SUPPORTED_AFTER_10S' if thirty else 'ACCEPT_20S_SUPPORTED_AFTER_10S')
+    if target_seconds == 20 and _native_phase_pair_selected(data):
+        _native_phase_pair_20s_extension_evidence(documents, data, prior, nested, prior_base,
+                                               loader_sha256)
 
 
 def _supported_mix_step_operator_receipt(receipt, data):
@@ -3489,6 +4899,14 @@ def load_profile(path, *, require_approved=True):
     if data['approved_for_supported_policy_output'] is False:
         _need(not require_approved, 'Profile remains unapproved; review its blockers before real output')
         _need(data['review'] is None and bool(data['blockers']), 'Unapproved plan needs explicit blockers')
+        if _native_target_fk_cache_selected(data):
+            documents = {}
+            for key in ('target_fk_manifest', 'scalar_step_manifest', 'model_manifest'):
+                documents[key], data['artifacts'][key] = _artifact(data['artifacts'][key], path.parent)
+            data['_native_target_fk_cache_provenance'] = _native_target_fk_cache_plan(data, documents)
+        from . import policy_checked_dispatch as checked
+        if checked.selected(data):
+            data['_checked_model_plan'] = checked.plan(data)
         return {**data, 'output_allowed': False, 'profile_path': str(path), 'profile_sha256': digest}
     _need(data['blockers'] == [], 'Approved profile still contains unresolved blockers')
     _review(data['review'], _approval_decision(data))
@@ -3515,7 +4933,11 @@ def load_profile(path, *, require_approved=True):
         data['_native_batch_encoder_path'] = str(encoder_path.absolute())
     documents = {}
     for key in artifact_names(data):
-        documents[key], data['artifacts'][key] = _artifact(data['artifacts'][key], path.parent)
+        reader = _supported_report_artifact if key == 'prior_supported_report' else None
+        if reader is None:
+            documents[key], data['artifacts'][key] = _artifact(data['artifacts'][key], path.parent)
+        else:
+            documents[key], data['artifacts'][key] = reader(data['artifacts'][key], data, path.parent)
     command_loss_only = data.get('watchdog_review_policy') == COMMAND_LOSS_ONLY_SUPPORTED
     if command_loss_only:
         _supported_command_loss_acceptance(documents['operator_acceptance'], documents['command_loss_report'], data)
@@ -3554,15 +4976,32 @@ def load_profile(path, *, require_approved=True):
               all(scalar.get(k) is False for k in ('hardware_opened', 'output_allowed',
                   'approved_for_runtime', 'live_50hz_verified')),
               'Scalar equivalence manifest must retain file-only provenance and exact baseline')
+    if _native_target_fk_cache_selected(data):
+        data['_native_target_fk_cache_provenance'] = _native_target_fk_cache_plan(data, documents)
+    from . import policy_checked_dispatch as checked
+    if checked.selected(data):
+        data['_checked_model_plan'] = checked.plan(data,documents['checked_model_manifest'])
     data['timing_review'] = _timing(documents['pipeline_diagnostic'], data)
+    _unpaired_native_feedback_codec_evidence(documents, data)
+    _unpaired_output_future_notifications_evidence(documents, data)
+    if preauthorized_ordinary_boxed_sequence_selected(data):
+        _preauthorized_ordinary_boxed_sequence_authorization(documents, data, path.parent)
+    elif preauthorized_native_boxed_sequence_selected(data):
+        _preauthorized_native_boxed_sequence_authorization(documents, data, path.parent)
+    elif preauthorized_boxed_sequence_selected(data):
+        _preauthorized_boxed_sequence_authorization(documents, data, path.parent)
     data['watchdog_by_id'] = _hardware(documents['hardware_review'], data,
                                      Path(data['artifacts']['hardware_review']['path']).parent,
                                      command_loss_report=documents.get('command_loss_report'),
                                      local_reference_capture=documents.get('local_reference_capture'))
     if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_10S_AFTER_2S:
-        _supported_extension_evidence(documents, original)
+        _supported_extension_evidence(documents, original, path.parent)
     if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_20S_AFTER_10S:
         _supported_20s_extension_evidence(documents, original, path.parent)
+    if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_60S_AFTER_20S:
+        _supported_60s_extension_evidence(documents, original, path.parent)
+    if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_PROBE_30S_PREAUTHORIZED:
+        _supported_duration_extension_evidence(documents, original, path.parent, target_seconds=30)
     if execution_settings(data)['diagnostic_timing_acceptance'] == SUPPORTED_POLICY_GAIN_STEP_3S:
         _supported_gain_step_evidence(documents, original)
     if _mix_step_selected(data):
@@ -3613,6 +5052,8 @@ def load_profile(path, *, require_approved=True):
               acceptance.get('stop_proxy_does_not_certify_active_api_latency') is True,
               'Explicit matching prepared voltage publication acceptance required')
         _review(acceptance.get('review'), 'ACCEPT_PREPARED_VOLTAGE_PUBLICATION')
+    if _native_phase_pair_selected(data):
+        _native_phase_pair_acceptance(documents['hardware_review'], data)
     if encoder_selection is not None:
         acceptance = documents['hardware_review'].get('native_batch_encoder_acceptance', {})
         _need(type(acceptance) is dict and
@@ -3665,8 +5106,23 @@ def load_profile(path, *, require_approved=True):
     if _prepared_voltage_publication_selected(data):
         data['_prepared_voltage_publication_token'] = _PREPARED_VOLTAGE_PUBLICATION_TOKEN
         data['_prepared_voltage_publication_binding'] = _prepared_voltage_publication_binding(data)
+    if unpaired_native_feedback_codec_selected(data):
+        data['_unpaired_native_feedback_codec_token'] = _UNPAIRED_NATIVE_FEEDBACK_CODEC_TOKEN
+        data['_unpaired_native_feedback_codec_binding'] = _unpaired_native_feedback_codec_binding(data)
+    if unpaired_output_future_notifications_selected(data):
+        data['_unpaired_output_notification_token'] = _UNPAIRED_OUTPUT_NOTIFICATION_TOKEN
+        data['_unpaired_output_notification_binding'] = _unpaired_output_future_notifications_binding(data)
+    if _native_phase_pair_selected(data):
+        data['_native_phase_pair_token'] = _NATIVE_PHASE_PAIR_TOKEN
+        data['_native_phase_pair_binding'] = _prepared_voltage_publication_binding(data)
     if input_age_v2:
         data['_post_reply_input_age_binding'] = _post_reply_input_age_binding(data)
+    if _native_target_fk_cache_selected(data):
+        data['_native_target_fk_cache_token'] = _NATIVE_TARGET_FK_CACHE_TOKEN
+        data['_native_target_fk_cache_binding'] = _native_target_fk_cache_binding(data)
+    if checked.selected(data):
+        data['_checked_model_token'] = checked.TOKEN
+        data['_checked_model_binding'] = checked.binding(data)
     return {**data, 'output_allowed': True, 'profile_path': str(path), 'profile_sha256': digest,
             'actual_policy_output_20ms_verified': False,
             'support_must_remain': data['scope'] in ('supported_characterization_only', HUMAN_SUPPORTED_PARTIAL_SCOPE),

@@ -6,6 +6,7 @@ inputs, not measured temperature or height. Caller warmup is followed by one
 explicit reset per run. A blocked/missed tick permanently invalidates that run.
 """
 from array import array
+import ast
 import copy
 import hashlib
 import json
@@ -74,6 +75,111 @@ def _digest(value):
                                     allow_nan=False).encode()).hexdigest()
 
 
+_FEEDBACK_SNAPSHOT_KEYS = frozenset((
+    "status", "output_allowed", "blocked_reasons", "tick_ns", "max_age_ns",
+    "max_spread_ns", "motors", "imu", "oldest_observation_age_ns",
+    "acquisition_spread_ns", "receive_spread_ns", "voltage_by_bus", "source_flags"))
+_FEEDBACK_MOTOR_KEYS = frozenset((
+    "motor_id", "parameter", "value", "unit", "request_ns", "received_ns", "age_upper_bound_ns"))
+_FEEDBACK_IMU_KEYS = frozenset((
+    "frame", "accel_m_s2", "gyro_rad_s", "read_started_ns", "read_finished_ns", "age_upper_bound_ns"))
+_FEEDBACK_SCALAR_KEYS = _FEEDBACK_SNAPSHOT_KEYS - frozenset((
+    "motors", "imu", "source_flags", "blocked_reasons", "voltage_by_bus"))
+_FEEDBACK_REQUIRED_KEYS = _FEEDBACK_SNAPSHOT_KEYS - frozenset(("source_flags", "voltage_by_bus"))
+
+
+def _flat_snapshot_scalars(values):
+    for value in values:
+        kind = type(value)
+        if kind is int:
+            if value.bit_length() > 1024:
+                return False
+        elif kind is float:
+            if not math.isfinite(value):
+                return False
+        elif kind is str:
+            if len(value) > 64:
+                return False
+        elif value is not None and kind is not bool:
+            return False
+    return True
+
+
+def _flat_feedback_snapshot(snapshot):
+    """Own the usual pending-voltage snapshot without a general tree walk.
+
+    Only exact built-in containers enter this path. Its fixed schema, 24 flat
+    rows, six IMU scalars, and at most 64 boolean flags have depth3, at most533
+    event nodes, and a conservative byte bound below400000, within the normal
+    event copier's24/20000/1048576 limits. Every scalar remains finite and
+    bounded here; _inputs still performs every semantic check afterward.
+    Anything outside this narrow shape uses the original copier and bounds.
+    """
+    if type(snapshot) is not dict or not 11 <= len(snapshot) <= 13:
+        return None
+    result = snapshot.copy()
+    if (not all(type(key) is str for key in result) or
+            not _FEEDBACK_REQUIRED_KEYS <= result.keys() <= _FEEDBACK_SNAPSHOT_KEYS):
+        return None
+    if not _flat_snapshot_scalars(result[key] for key in _FEEDBACK_SCALAR_KEYS):
+        return None
+    motors, imu, flags = result["motors"], result["imu"], result.get("source_flags", {})
+    blocked, voltage = result["blocked_reasons"], result.get("voltage_by_bus", {})
+    if (type(motors) is not list or len(motors) != 24 or type(imu) is not dict or len(imu) != 6 or
+            type(flags) is not dict or len(flags) > 64 or
+            type(blocked) is not list or blocked or type(voltage) is not dict or voltage):
+        return None
+    # Copy before inspecting leaves: a caller changing a source container after
+    # validation cannot inject a new descendant into the returned snapshot.
+    motors = motors.copy(); imu = imu.copy(); flags = flags.copy()
+    blocked = blocked.copy(); voltage = voltage.copy()
+    if (len(motors) != 24 or not all(type(key) is str for key in imu) or
+            imu.keys() != _FEEDBACK_IMU_KEYS or len(flags) > 64 or
+            blocked or voltage or not all(type(key) is str and len(key) <= 128 and
+                                     type(value) is bool for key, value in flags.items())):
+        return None
+    if not _flat_snapshot_scalars(imu[key] for key in
+                                 ("frame", "read_started_ns", "read_finished_ns", "age_upper_bound_ns")):
+        return None
+    for key in ("accel_m_s2", "gyro_rad_s"):
+        vector = imu[key]
+        if type(vector) is not list or len(vector) != 3:
+            return None
+        vector = vector.copy()
+        if len(vector) != 3 or not _flat_snapshot_scalars(vector):
+            return None
+        imu[key] = vector
+    owned_motors = []
+    checked_keys = None
+    for row in motors:
+        if type(row) is not dict or len(row) != 7:
+            return None
+        row = row.copy()
+        keys = tuple(row)
+        if len(keys) != 7:
+            return None
+        # Normal telemetry rows reuse their immutable key objects. Identity
+        # comparisons need no user equality/hash hook; an unfamiliar sequence
+        # must still pass the original exact-key-type and schema checks.
+        if not (checked_keys is not None and
+                keys[0] is checked_keys[0] and keys[1] is checked_keys[1] and
+                keys[2] is checked_keys[2] and keys[3] is checked_keys[3] and
+                keys[4] is checked_keys[4] and keys[5] is checked_keys[5] and
+                keys[6] is checked_keys[6]):
+            if not all(type(key) is str for key in keys) or row.keys() != _FEEDBACK_MOTOR_KEYS:
+                return None
+            checked_keys = keys
+        if not _flat_snapshot_scalars(row.values()):
+            return None
+        owned_motors.append(row)
+    result.update(motors=owned_motors, imu=imu, blocked_reasons=blocked)
+    if "source_flags" in result:
+        result["source_flags"] = flags
+    if "voltage_by_bus" in result:
+        result["voltage_by_bus"] = voltage
+    return result
+
+
 def _snapshot_copy(snapshot):
     """Own the finite JSON input without arbitrary deepcopy dispatch/hooks.
 
@@ -82,7 +188,8 @@ def _snapshot_copy(snapshot):
     Oversized, cyclic or non-JSON inputs fail before model execution.
     """
     try:
-        return snapshot_event(snapshot)
+        flat = _flat_feedback_snapshot(snapshot)
+        return snapshot_event(snapshot) if flat is None else flat
     except (TypeError, ValueError) as error:
         raise ObserverError("Invalid bounded JSON snapshot: " + str(error)) from error
 
@@ -102,6 +209,57 @@ def _provenance_copier(value):
     return snapshot_event
 
 
+def _frozen_json_literal_factory(value):
+    """Prepare an owned literal copy of small, fixed built-in JSON metadata.
+
+    Only a bounded snapshot of exact built-in values becomes AST constants,
+    dictionary literals and list/tuple literals. No supplied text is parsed as
+    Python source; the generated return expression has no name, call, attribute
+    or operator node. Its immutable leaves may be shared, while each invocation
+    owns every mutable descendant, including repeated source containers.
+
+    Larger/unusual legacy metadata retains the existing marshal/deepcopy path.
+    Construction/compilation is outside consume(), and never replaces dynamic
+    snapshot hashing, sensor validation or a correction's identity fence.
+    """
+    try:
+        owned = snapshot_event(value, max_depth=16, max_nodes=4096, max_bytes=262144)
+
+        def literal(item):
+            kind = type(item)
+            if kind is dict:
+                return ast.Dict(keys=[literal(key) for key in item],
+                                values=[literal(child) for child in item.values()])
+            if kind is list:
+                return ast.List(elts=[literal(child) for child in item], ctx=ast.Load())
+            if kind is tuple:
+                return ast.Tuple(elts=[literal(child) for child in item], ctx=ast.Load())
+            if kind is int:
+                if item.bit_length() > 1024:
+                    raise ValueError("Literal integer bound exceeded")
+            elif kind is str:
+                if len(item) > 4096:
+                    raise ValueError("Literal string bound exceeded")
+            elif kind is float:
+                if not math.isfinite(item):
+                    raise ValueError("Nonfinite literal number")
+            elif item is not None and kind is not bool:
+                raise TypeError("Exact built-in literal required")
+            return ast.Constant(value=item)
+
+        definition = ast.FunctionDef(name="_owned_json", args=ast.arguments(
+            posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[]),
+            body=[ast.Return(value=literal(owned))], decorator_list=[])
+        module = ast.Module(body=[definition], type_ignores=[])
+        namespace = {"__builtins__": {}}
+        exec(compile(ast.fix_missing_locations(module), "<owned-static-json>", "exec"), namespace)
+        # The body needs no globals. Remove the module's self-reference so
+        # releasing the observer also releases this factory without a GC cycle.
+        return namespace.pop("_owned_json")
+    except (TypeError, ValueError, RecursionError, SyntaxError, OverflowError):
+        return None
+
+
 def _frozen_accel_provenance(correction):
     """Cache only the original frozen hypothesis's bounded, owned JSON tree.
 
@@ -117,10 +275,11 @@ def _frozen_accel_provenance(correction):
         return None
     raw, proof = correction._provenance_json, correction._proof
     try:
-        blob = marshal.dumps(snapshot_event(correction.provenance()))
+        owned = snapshot_event(correction.provenance())
+        blob = marshal.dumps(owned)
     except (TypeError, ValueError, RecursionError):
         return None
-    return correction, raw, proof, blob
+    return correction, raw, proof, blob, _frozen_json_literal_factory(owned)
 
 
 def _mount(candidate):
@@ -323,7 +482,7 @@ class StatefulPolicyObserver:
                  profile_consume=False, monotonic_ns=None,
                  power_epoch_branch_comparison=None, measured_diagnostic_ticks=False,
                  reuse_input_buffers=False, apply_reviewed_accel_calibration=False,
-                 accel_input_hypothesis=None):
+                 accel_input_hypothesis=None, checked_dispatch_wrapper=None):
         _require(type(reuse_input_buffers) is bool, "reuse_input_buffers must be boolean")
         _require(type(measured_diagnostic_ticks) is bool, "measured_diagnostic_ticks must be boolean")
         self._measured_diagnostic_ticks = measured_diagnostic_ticks
@@ -369,6 +528,9 @@ class StatefulPolicyObserver:
             marshal.dumps(snapshot_event(value)) if copier is snapshot_event else None
             for value, copier in zip((self._calibration_source_flags, self._mount, self._bias),
                                      self._static_provenance_copiers))
+        self._static_provenance_factories = tuple(
+            (blob, _frozen_json_literal_factory(marshal.loads(blob))) if blob is not None else None
+            for blob in self._static_provenance_blobs)
         self._can_order = tuple(shadow.CAN_ORDER)
         self._ordered_calibration = tuple(
             (i, self._rows[i]["sign_candidate"], self._rows[i]["offset_candidate_rad"])
@@ -386,6 +548,10 @@ class StatefulPolicyObserver:
             import torch as torch_module
         self._torch = torch_module
         self._policy = policy
+        self._checked_dispatch_wrapper = checked_dispatch_wrapper
+        if checked_dispatch_wrapper is not None:
+            _require(policy._c is checked_dispatch_wrapper.inner._c,
+                     "Checked observer requires the exact selected inner model")
         self._input_buffers = None
         self._input_tensors = None
         if reuse_input_buffers:
@@ -424,20 +590,25 @@ class StatefulPolicyObserver:
     def _copy_static_provenance(self, index, value):
         copier = self._static_provenance_copiers[index]
         blob = self._static_provenance_blobs[index]
-        return marshal.loads(blob) if blob is not None and copier is snapshot_event else copier(value)
+        if blob is not None and copier is snapshot_event:
+            frozen = self._static_provenance_factories[index]
+            if frozen is not None and frozen[0] is blob and frozen[1] is not None:
+                return frozen[1]()
+            return marshal.loads(blob)
+        return copier(value)
 
     def _copy_accel_provenance(self):
         correction = self._accel_calibration
         cache = self._accel_provenance_cache
         if cache is not None:
-            source, raw, proof, blob = cache
+            source, raw, proof, blob, factory = cache
             if (correction is source
                     and type(correction) is _ACCEL_HYPOTHESIS_CLASS
                     and accel_hypotheses.AccelInputHypothesis is _ACCEL_HYPOTHESIS_CLASS
                     and getattr(correction.provenance, "__func__", None) is _ACCEL_PROVENANCE_METHOD
                     and accel_hypotheses.strict_json is _ACCEL_PROVENANCE_PARSER
                     and correction._provenance_json is raw and correction._proof is proof):
-                return marshal.loads(blob)
+                return marshal.loads(blob) if factory is None else factory()
         return correction.provenance()
 
     def summary(self):
@@ -540,10 +711,17 @@ class StatefulPolicyObserver:
                     tensors = self._input_tensors
                 if profile is not None:
                     profile.next("model_call")
-                target = self._policy(*tensors)
+                if self._checked_dispatch_wrapper is None:
+                    target = self._policy(*tensors)
+                else:
+                    from .policy_checked_dispatch import checked_call
+                    checked_can_target = checked_call(self._checked_dispatch_wrapper,tensors)
                 if profile is not None:
                     profile.next("output_conversion_validation")
-                target = _tensor_row(target, 12, "target")
+                if self._checked_dispatch_wrapper is None:
+                    target = _tensor_row(target, 12, "target")
+                else:
+                    target = [checked_can_target[can-1] for can in self._can_order]
                 actor = _tensor_row(self._policy.last_actor_output, 12, "actor output")
                 observation = _tensor_row(self._policy.last_observation, 74, "observation")
             _require(all(lo <= q <= hi for q, lo, hi in zip(target, _TARGET_LOWER, _TARGET_UPPER)),
@@ -614,18 +792,21 @@ class StatefulPolicyObserver:
                      "Invalid motor key")
             key = (mid, parameter)
             _require(key not in values, "Duplicate motor key")
+            value = row.get("value")
             _require(row.get("unit") == ("rad" if parameter == "position" else "rad_s")
-                     and shadow.finite(row.get("value")), "Invalid motor SI value")
+                     and shadow.finite(value), "Invalid motor SI value")
             start = _stamp(row.get("request_ns"), "motor request")
             end = _stamp(row.get("received_ns"), "motor receive")
             _require(start <= end <= tick, "Noncausal motor observation")
             _require(type(row.get("age_upper_bound_ns")) is int
                      and row["age_upper_bound_ns"] == tick-start, "Invalid motor age")
-            values[key] = row["value"]
-            oldest = start if oldest is None else min(oldest, start)
-            latest = end if latest is None else max(latest, end)
-            earliest_receive = end if earliest_receive is None else min(earliest_receive, end)
-            selected_sources[key] = (start, end, row["value"])
+            values[key] = value
+            # Both stamps were independently validated above. These extrema
+            # and held-source comparisons need no per-row temporary slices.
+            oldest = start if oldest is None or start < oldest else oldest
+            latest = end if latest is None or end > latest else latest
+            earliest_receive = end if earliest_receive is None or end < earliest_receive else earliest_receive
+            selected_sources[key] = (start, end, value)
         _require(values.keys() == _EXPECTED_MOTOR_KEYS, "Missing motor input; no zero filling")
         imu = snapshot.get("imu")
         _require(isinstance(imu, dict) and imu.get("frame") == "raw_sensor", "Missing raw sensor IMU")
@@ -645,7 +826,7 @@ class StatefulPolicyObserver:
             previous = self._last_sources.get(key)
             if previous is None:
                 continue
-            if current[:2] == previous[:2]:
+            if current[0] == previous[0] and current[1] == previous[1]:
                 _require(current[2] == previous[2], "Held source timestamps changed values")
             else:
                 _require(current[0] > previous[0] and current[1] > previous[1],

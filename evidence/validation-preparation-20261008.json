@@ -1,0 +1,223 @@
+{
+  "schema": "singularitydog.validation-day-preparation.v2",
+  "date": "2026-10-08",
+  "timezone": "Asia/Tokyo",
+  "recorded_utc": "2026-10-07T22:40:59.250940+00:00",
+  "status": "SOURCE_PREPARED_JETSON_DEPLOYMENT_AND_CURRENT_MEASUREMENT_PENDING",
+  "scope": "Source-only preparation and Mac file/synthetic validation. Past measurements and current hardware qualification remain separate.",
+  "hardware_opened": false,
+  "jetson_deployed": false,
+  "jetson_measured": false,
+  "model_loaded_in_today_preparation": false,
+  "motor_enable_sent": false,
+  "learned_targets_sent": false,
+  "real_profile_approval_created": false,
+  "output_allowed": false,
+  "approved_for_runtime": false,
+  "runbooks": [
+    "docs/today-validation-20261008.md",
+    "docs/hardware-test-plan-20261008.md",
+    "docs/jetson-best20-settings.md",
+    "docs/walking-week-20261005.md"
+  ],
+  "runbook_sha256": {
+    "README.md": "ebef10afd829b6062021c8118ef283d2517f3f7a540b1e149fe41b0d88f1136d",
+    "docs/today-validation-20261008.md": "954a7d367af7dda81853dc3dcb8603000d6de6ecfe46b87ca5b9fea13ea0e03c",
+    "docs/hardware-test-plan-20261008.md": "ade32128f941e8560ba920c7ba89d59bf39fe062f137eebe51f00d4f92bbe55e",
+    "docs/jetson-best20-settings.md": "39fe0a97963ed84da13d3f0f48a9c9dafcba710798e14c36af9b7e990d45bd93",
+    "docs/walking-week-20261005.md": "7b4a4ba9b64cce70f7b14fff6e85b1d1a0605f2d3f465b91b255cc4e7d34b1d7"
+  },
+  "reference_recipe": {
+    "path": "evidence/jetson-best20-settings.json",
+    "sha256": "f0c6f4c9aa2ac2e08d29d381092e695e4824492afab589284dfeccc97de6c50b",
+    "baseline_request_gap_us": 900,
+    "selected_request_gap_us": 890,
+    "selection_kind": "explicit_comparison_candidate",
+    "request_window": 3,
+    "period_ns": 20000000,
+    "requests_per_cycle": 26,
+    "release_spin_us": 500,
+    "launcher_default_request_gap_us": 900,
+    "launcher_default_release_spin_us": 200,
+    "nondefault_timing_reason_recorded_in_plan": true,
+    "performance_settings_must_be_reapplied_and_restored": true
+  },
+  "today_changed_source_sha256": {
+    "runtime/singularitydog_hw/policy_live_profile.py": "1f3a0ba8fb58d2d68cb7ab80296f816acf998331da2e83c2f98beead5a670695",
+    "tools/dog_supported_fk_trial.py": "5c8ab15a16b7bd0a9712f1e4e7f085222182b4adfd52f571590abd289a74ff59",
+    "tools/test_dog_supported_fk_trial.py": "0ab27102d0eb176f0600ed15cb4c351c879f9318dd48a9a8f49a3111d06d91a9",
+    "runtime/tests/test_native_phase_pair_20s_extension.py": "f0c1ebfe25e758fb20a7fecd8b2dc283e25737b25acb0d24b4f73b7bb794e4be"
+  },
+  "today_source_changes": [
+    {
+      "kind": "foreground_launcher",
+      "behavior": "Explicit timing selection matches loaded profile; native flag comes only from immutable complete loader proof; native selection requires spin500."
+    },
+    {
+      "kind": "native20_admission",
+      "behavior": "Existing bounded twenty-second extension admits selected native route after full existing checks plus both actual native predecessor routes/raw CAN/IMU, dedicated reviews and new post-ten-second diagnostic."
+    }
+  ],
+  "limits": {
+    "numeric_motion_freshness_and_stop_limits_changed": false,
+    "new_native_duration_cap_s": 20,
+    "native_30_or_60s_admitted": false,
+    "load_support_or_walk_promoted": false,
+    "initial_input_freshness_limit_exemption_added": false,
+    "same_target_cpp_batch_encoder_required_from_first_two_second_trial": true,
+    "prior_hardware_success_reused_for_changed_source": false,
+    "voltage_max_must_match_selected_profile_and_cli": true
+  },
+  "offline_validation": {
+    "foreground_launcher": {
+      "tests": 55,
+      "status": "PASS",
+      "scope": "Synthetic files and mocked policy output only; no hardware/network execution or approval",
+      "receipt_sha256": "86dc20635c876ece83c64bc6b01136398e906d596cd80efe6d599adf40a94ca4",
+      "stderr_sha256": "006c67bad54c3bd7ff99db25c913b3142a11dd7d3fdc14f6eff4dd26301eb9ef",
+      "sources_unchanged": true
+    },
+    "native20_extension": {
+      "focused": {
+        "command": "PYTHONPATH=runtime:runtime/tests python3 -m unittest test_native_phase_pair_20s_extension -v",
+        "status": "PASS",
+        "tests": 10,
+        "seconds": 15.47
+      },
+      "related_regression": {
+        "command": "PYTHONPATH=runtime:runtime/tests python3 -m unittest test_native_phase_pair_profile test_policy_supported_extension_profile test_policy_supported_20s_extension test_prepared_voltage_publication_profile -v",
+        "status": "PASS",
+        "tests": 61,
+        "seconds": 5.517
+      },
+      "receipt_sha256": "ac1e9d4abcbe4418fc5008bb96c615a680b4eb09c87502da2b768562a844243d",
+      "focused_stderr_sha256": "86502e2ccc03f8991b28beb57e0c73696d0a378a87e0f46338a1ff9a9959d6f6",
+      "regression_stderr_sha256": "fab050fc216f719841daeaa03120c6278916a37b3a9d91ba40c8bf125b0822af",
+      "earlier_fixture_attempts": [
+        {
+          "stage": "fixture construction",
+          "observed_failures": [
+            "Relative profile.json return in test fixture",
+            "Synthetic prior transport settings were not updated to 890",
+            "Copied diagnostic hypothesis path did not follow each isolated graph"
+          ],
+          "fix_scope": "new synthetic fixture only"
+        },
+        {
+          "stage": "first whole focused-module run",
+          "observed_status": "FAILED (failures=2, errors=1)",
+          "observed_tests": 19,
+          "observed_seconds": 21.138,
+          "causes": [
+            "Expected review rejection regex omitted actual message Review has not approved this scope",
+            "V1 toy replay retained a V2-only policy key",
+            "Imported TestCase added 9 unintended legacy tests to discovery"
+          ],
+          "fix_scope": "new synthetic fixture only",
+          "original_full_raw_log_retained": false,
+          "retention_note": "First focused stderr was overwritten by the corrected focused run; failure excerpts remain in tool transcript. No reconstructed text is presented as original evidence."
+        }
+      ],
+      "real_hardware_admission_proven": false
+    },
+    "earlier_10_07_core_regression": {
+      "reference": "evidence/additional-speed-optimization-20261007.json",
+      "tests_run": 958,
+      "passed": 954,
+      "skipped": 4,
+      "reexecuted_in_today_preparation": false,
+      "scope": "Historical offline core speed candidate validation; not the full current source test result."
+    },
+    "independent_source_review": {
+      "status": "PASS_NO_BLOCKING_FINDINGS",
+      "scope": "Read-only launcher/native20 diff, existing conditions, final source and synthetic test receipts; no target hardware validation."
+    },
+    "test_counts_are_separate_scopes_not_a_total_qualification": true
+  },
+  "source_kit": {
+    "revision": "ready-20261008-r2",
+    "file_count": 790,
+    "source_inventory_sha256": "d613ee1b6be20487cfdf072619d78d4eea4cad61baf64c670c6d54666fa833f6",
+    "manifest_sha256": "ede52c013118c74f694ca6f44c31e065cb94491ac0e737ab2fa42d3ec6b4e741",
+    "archive_sha256": "de5eda5dccd491fb9f42fec06bc6ca4870431761d94384b3a9459e3dfcd3b049",
+    "installer_sha256": "a10c78b819e28e3e23ed65f94a3dc0a065ae9432a528fa093970f859124d4c22",
+    "preparation_receipt_sha256": "ffe4c00e33cddb2b1b2f2df83012abe1b1145b55ae50c5154e4acdc0b10b302b",
+    "builder_plan_pass": true,
+    "builder_build_pass": true,
+    "installer_plan_pass": true,
+    "fresh_local_install_pass": true,
+    "all_installed_and_repository_file_sha_match": true,
+    "complete_inventory_rechecked": true,
+    "durable_copies_sha_match": true,
+    "contains_model_or_compiled_library": false,
+    "contains_current_hardware_approval": false,
+    "delta_from_10_07_kit": {
+      "changed": [
+        "runtime/singularitydog_hw/policy_live_profile.py",
+        "tools/dog_supported_fk_trial.py",
+        "tools/test_dog_supported_fk_trial.py"
+      ],
+      "added": [
+        "runtime/tests/test_native_phase_pair_20s_extension.py"
+      ],
+      "removed": []
+    },
+    "old_789_file_kit_preserved": true,
+    "private_local_guide_sha256": "347651b621a25f8c9f7bf7e5bc970bd8c3a54ac99321056c37df98882dc1b51f"
+  },
+  "connection": {
+    "shared_ssh_present": false,
+    "readonly_tcp_ssh_port_probe": "TIMEOUT",
+    "probe_timeout_s": 5,
+    "network_probe_performed": true,
+    "remote_command_executed": false,
+    "current_physical_and_power_state_confirmed": false,
+    "current_state_question_pending": true,
+    "scope": "Actual authorized read-only TCP probe timed out; earlier sandbox EPERM is not treated as reachability evidence."
+  },
+  "historical_890_r20_reference": {
+    "reference": "evidence/report-led-optimization-20261007.json",
+    "source_branch": "r20_explicit890_existing_v3_43_stop_only",
+    "steady_cycles": 1000,
+    "steady_over20ms": 0,
+    "steady_whole_max_ms": [
+      19.948092,
+      19.884256
+    ],
+    "missing_replies": 0,
+    "scheduled_deadline_misses": 1,
+    "repeat_startup_input_age_pass": false,
+    "repeat_startup_input_to_end_ms": 20.042661,
+    "current_source_or_active_output_qualification": false
+  },
+  "queued_stages": [
+    {
+      "stage": "fresh_install_and_target_build",
+      "status": "NOT_EXECUTED"
+    },
+    {
+      "stage": "current_uid_angle_voltage_imu_and_watchdog",
+      "status": "NOT_EXECUTED"
+    },
+    {
+      "stage": "disabled_5_501_501",
+      "status": "NOT_EXECUTED"
+    },
+    {
+      "stage": "supported_type1_cpp_encoder_native_pair_2_10_20",
+      "status": "NOT_EXECUTED"
+    },
+    {
+      "stage": "load_support_standing_walking",
+      "status": "NOT_EXECUTED"
+    }
+  ],
+  "trace_contract": {
+    "acquisition_notification_json": "acquisition_future_notification.groups_created/wait_calls",
+    "voltage_notification_json": "voltage_future_notification.groups_created/wait_calls",
+    "disabled_proxy_does_not_prove_active_future_notification": true,
+    "already_completed_futures_need_not_create_notification_group": true,
+    "all_original_cycles_initial_and_incomplete_preserved": true
+  },
+  "walking_schedule_updated_to_current_readiness": true
+}

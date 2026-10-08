@@ -1,0 +1,88 @@
+{
+  "schema": "singularitydog.target-envelope-scalar-file-only-evidence.v1",
+  "status": "QUALIFIED_COMPONENT_ONLY_NOT_LIVE",
+  "date": "2026-10-08",
+  "environment": {
+    "system": "Linux",
+    "machine": "aarch64",
+    "torch_version": "2.14.0+cpu",
+    "cxx11_abi": true,
+    "main_thread_cpus": [
+      4
+    ],
+    "nice": -10,
+    "single_thread_math": true,
+    "python_switch_interval_us": 100,
+    "cpu_c7_emc_scope_restored": true
+  },
+  "source": {
+    "baseline_cpp_sha256": "61a7b873f049ab206a839ea94e62fabed979c4b9b2823511e466508b37b4c426",
+    "candidate_cpp_sha256": "467c483d71fa3cd3146b4007cc97cbacd5872d0363810f0a3b173e56d6837cec",
+    "helpers_sha256": "a9464e94e9dc8c7418ea0f4cca70a8e5e7722e441309aa8fc3e7ca690c08e269",
+    "original_target_library_sha256": "d0203429ce358a68fb9b445a3529b0d45fc92dc349d6bc0e8cdb991c9a6f4940",
+    "target_build_record_sha256": "b9885d9b1253078673f7564293a259bcd4b9490f947a3a7340a1e48842f54748",
+    "original_comparison_helper_sha256": "2b3a9d31a079b9215ec8f3a040d396505e2d234ea68c1708ca5f588348bf4cd3",
+    "payload_manifest_sha256": "c3d28ca8e3fdf3c69dcb6ee822dc1217c99d06c9fcdef7c9fd6155ad5b0980c3"
+  },
+  "original_receipts": {
+    "archive_sha256": "997ad0d0499387495c15ed8bab1ba7ce6ffc4a05620245358b5ce815fd371b0f",
+    "archive_bytes": 378399,
+    "original_files_verified": 33,
+    "comparison_report_sha256": "d744fd417702fce3efa4b9d5f99b50a213ef50f2b9444a586df3d13ef77cfba6",
+    "wrapper_receipt_sha256": "04e6ef726ff8f09e5a52563bcbd65a2c957b528a9148a0b474f95e22ce77e831",
+    "component_report_sha256": "b85bb4c0106c9d2074b71e84c22b222b65678cbb4597ea034f144b6ac33e1a46"
+  },
+  "validation": {
+    "component_tests_passed": 6,
+    "saved_recurrent_calls": 501,
+    "saved_target_actor_observation_bits_exact": true,
+    "all_named_buffers_and_parameters_each_call_bits_exact": true,
+    "inputs_unchanged": true,
+    "serialization_method_proof": true,
+    "rejection_reasons_and_partial_state_exact": 26,
+    "synthetic_frames": 240,
+    "synthetic_reset_before": [
+      0,
+      125
+    ],
+    "all_sources_and_inputs_unchanged": true,
+    "priority_and_restoration_verified": true
+  },
+  "timing": {
+    "scope": "selected full CPU model call only; transport, observer acquisition, voltage wait, raw copying and whole-cycle timing excluded",
+    "checks_outside_timing": true,
+    "balanced_abba_blocks": 4,
+    "samples_per_branch": 2004,
+    "statistics": {
+      "baseline": {
+        "count": 2004,
+        "median_us": 1553.8515,
+        "p99_us": 1638.766,
+        "max_us": 1670.383
+      },
+      "candidate": {
+        "count": 2004,
+        "median_us": 1436.9205,
+        "p99_us": 1518.346,
+        "max_us": 1552.491
+      }
+    },
+    "median_improvement_us": 116.93100000000004,
+    "median_improvement_percent": 7.52523648495368,
+    "raw_samples_independently_recomputed": true,
+    "whole_loop_gain_inferred": false
+  },
+  "limits": {
+    "hardware_opened": false,
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "output_allowed": false,
+    "approved_for_runtime": false,
+    "existing_defaults_changed": false,
+    "type1_output_tested": false,
+    "whole_loop_performance_measured": false,
+    "twenty_ms_guaranteed": false,
+    "post_trial_physical_observation": null,
+    "voltage_wait_may_absorb_model_gain": true
+  }
+}

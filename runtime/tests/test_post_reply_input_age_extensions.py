@@ -253,7 +253,7 @@ class V2TwentySecondTests(V2TenSecondTests):
             diagnostic_timing_acceptance=live.SUPPORTED_POLICY_PROBE_20S_AFTER_10S)
         self.docs['hardware_review']['assembly_id'] = self.data['assembly_id']
         origins = {mid:ten['axes'][mid]['sign']*self.docs['local_reference_capture']['telemetry']['rows'][mid]['median_position_rad']+ten['axes'][mid]['offset_rad'] for mid in live.IDS}
-        q = [origins[str(mid)] for mid in live.shadow.CAN_ORDER]
+        q = [origins[mid] for mid in live.IDS]
         report = copy.deepcopy(self.docs['prior_supported_report'])
         rows = []
         for index in range(493):

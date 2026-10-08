@@ -10,9 +10,10 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
-from singularitydog_hw import native_pipeline_benchmark as baseline
-
+import singularitydog_hw
 DIRECTORY=Path(__file__).resolve().parents[1]/'experiments/native_readiness_causal_trace'
+BASELINE_SOURCE=Path(__file__).resolve().parent/'fixtures/native_readiness_causal_trace/runtime/singularitydog_hw/native_pipeline_benchmark.py'
+BASELINE_SHA='0bafa9b92bea7ea641f57239a5ff1cd4784078b7b5bf09b5c917d0019acd5c93'
 
 def load(name,path):
     spec=importlib.util.spec_from_file_location(name,path)
@@ -22,6 +23,12 @@ generator=load('causal_generate',DIRECTORY/'generate.py')
 child=load('causal_child',DIRECTORY/'child_runner.py')
 support=load('causal_support',DIRECTORY/'collector_support.py')
 sha=lambda raw:hashlib.sha256(raw).hexdigest()
+BASELINE_BYTES=BASELINE_SOURCE.read_bytes()
+if sha(BASELINE_BYTES)!=BASELINE_SHA:
+    raise ValueError('Exact historical K37 test fixture required')
+BASELINE_SPEC=importlib.util.spec_from_file_location('singularitydog_hw._test_generation_k37_baseline',BASELINE_SOURCE)
+baseline=importlib.util.module_from_spec(BASELINE_SPEC)
+exec(compile(BASELINE_BYTES,str(BASELINE_SOURCE),'exec'),baseline.__dict__)
 
 class GenerationTests(unittest.TestCase):
     def setUp(self):
@@ -30,8 +37,17 @@ class GenerationTests(unittest.TestCase):
 
     def bundle(self):
         out=self.root/'bundle'
-        receipt=generator.build_bundle(Path(baseline.__file__),out,kit_path=self.root/'kit')
+        receipt=generator.build_bundle(BASELINE_SOURCE,out,kit_path=self.root/'kit')
         return out,receipt
+
+    def test_historical_fixture_is_authenticated_and_both_source_pins_unchanged(self):
+        provenance=json.loads((BASELINE_SOURCE.parents[2]/'source-provenance.json').read_bytes())
+        self.assertEqual(provenance['source_commit'],'6b1c090659b906b0614e13797a88491882c04c19')
+        self.assertEqual(provenance['source_path'],'runtime/singularitydog_hw/native_pipeline_benchmark.py')
+        self.assertEqual(provenance['bytes'],len(BASELINE_BYTES))
+        self.assertEqual(provenance['sha256'],sha(BASELINE_BYTES))
+        self.assertEqual(provenance['sha256'],generator.BASELINE_SHA)
+        self.assertIs(provenance['hardware_execution_allowed'],False)
 
     def test_bundle_complete_members_and_inverse_proof_no_execution(self):
         out,receipt=self.bundle();manifest=json.loads((out/'manifest.json').read_bytes())
@@ -46,10 +62,10 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(manifest['initial_plan_cycles'],5)
         self.assertEqual(manifest['required_phase_choices'],['voltage','output'])
         with self.assertRaisesRegex(ValueError,'Fresh'):
-            generator.build_bundle(Path(baseline.__file__),out,kit_path=self.root/'kit')
+            generator.build_bundle(BASELINE_SOURCE,out,kit_path=self.root/'kit')
 
     def test_generator_rejects_source_changes_symlink_fifo_and_oversize(self):
-        changed=self.root/'changed.py';changed.write_bytes(Path(baseline.__file__).read_bytes()+b'\n')
+        changed=self.root/'changed.py';changed.write_bytes(BASELINE_BYTES+b'\n')
         with self.assertRaisesRegex(ValueError,'baseline'):generator.derive(changed.read_bytes())
         link=self.root/'link';link.symlink_to(changed)
         with self.assertRaises(ValueError):generator.read_regular(link)
@@ -63,7 +79,7 @@ class GenerationTests(unittest.TestCase):
             with self.assertRaises(ValueError):generator.private_destination(path)
         repo=self.root/'repo';repo.mkdir();(repo/'.git').mkdir()
         with self.assertRaises(ValueError):generator.private_destination(repo/'out')
-        with self.assertRaises(ValueError):generator.build_bundle(Path(baseline.__file__),self.root/'out',kit_path=self.root/'kit',target_bundle=self.root/'target')
+        with self.assertRaises(ValueError):generator.build_bundle(BASELINE_SOURCE,self.root/'out',kit_path=self.root/'kit',target_bundle=self.root/'target')
 
     def test_wrong_outer_source_never_emits_launcher(self):
         with self.assertRaisesRegex(ValueError,'scoped R37'):
@@ -74,7 +90,7 @@ class GenerationTests(unittest.TestCase):
             'import importlib.util;from pathlib import Path;'
             's=importlib.util.spec_from_file_location("g",'+repr(str(DIRECTORY/'generate.py'))+');'
             'm=importlib.util.module_from_spec(s);s.loader.exec_module(m);'
-            'r=m.derive(Path('+repr(str(Path(baseline.__file__)))+').read_bytes());print(r[1])']
+            'r=m.derive(Path('+repr(str(BASELINE_SOURCE))+').read_bytes());print(r[1])']
         result=subprocess.run(command,capture_output=True,text=True,timeout=5)
         self.assertEqual(result.returncode,0,result.stderr)
         self.assertEqual(result.stdout.strip(),"['collect', 'main']")
@@ -88,7 +104,8 @@ class GenerationTests(unittest.TestCase):
         self.assertNotIn('Traceback',result.stderr)
 
     def test_no_rows_and_partial_observation_never_claims_requested_cycles(self):
-        bank=support.TraceBank(5,DIRECTORY/'candidate.py','voltage')
+        with patch.object(singularitydog_hw,'native_pipeline_benchmark',baseline,create=True):
+            bank=support.TraceBank(5,DIRECTORY/'candidate.py','voltage')
         proof=bank.export_after_cleanup()
         self.assertFalse(proof['trace_complete']);self.assertFalse(proof['requested_cycles_all_traced'])
         self.assertEqual(proof['selected_phase_invocations'],0)

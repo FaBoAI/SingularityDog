@@ -1,0 +1,1083 @@
+{
+  "schema": "singularitydog.report-led-optimization.v1",
+  "date": "2026-10-07",
+  "report_scope": "Current26-request50HzTTY USB2CAN route; source and component optimizations",
+  "current_comparison": {
+    "request_gap_us": 890,
+    "request_window": 3,
+    "period_ms": 20,
+    "baseline_request_gap_us": 900,
+    "deadline_or_safety_thresholds_relaxed": false,
+    "previous_comparison_request_gap_us": 880,
+    "selected_by_user": true,
+    "voltage_range_v": [
+      35,
+      43
+    ]
+  },
+  "r16_actual_supported_output": {
+    "status": "COMPLETE_SUPPORTED_OUTPUT",
+    "duration_s": 2,
+    "policy_weight": 0.005,
+    "cycles": 95,
+    "actual_model_calls": 68,
+    "startup_ms": 20.274382,
+    "startup_existing_allowance_used": true,
+    "steady_cycles": 94,
+    "steady_max_ms": 19.820743,
+    "steady_20ms_misses": 0,
+    "oldest_input_to_final_host_write_max_ms": 16.334253,
+    "oldest_input_to_last_reply_max_ms": 19.21126,
+    "all12_final_stop_confirmed": true,
+    "physical_post_run_reply_received": false,
+    "standing_or_walking_verified": false,
+    "raw_report_sha256": "5fa3230a0673ef91a72e9fee07c0052c7da41161061e1a10499abaed4272ff8c",
+    "configured_max_target_delta_deg": 1
+  },
+  "r17_snapshot_candidate": {
+    "source_sha256": "6a2c94ba53a8370db524dfa9f7fa07deec5a0d4074aa858ac6aed912377e51c0",
+    "test_source_sha256": "a4daacbe74c32b7ba5ea800f89aa0530c0653df8de1528b7f553ec1aefbb0028",
+    "tests_run": 129,
+    "optional_skips": 3,
+    "all501_exact_content_hash_timestamp_match": true,
+    "all501_mutable_descendants_owned": true,
+    "target_component_runs": [
+      {
+        "report_sha256": "75ee4a672e6f2fc982935cb62424a26bd7cf567c5bbabb9c896d0beed44df28f",
+        "summary": {
+          "copy": {
+            "original": 107.667,
+            "candidate": 55.058,
+            "saved_us": 52.609,
+            "reduction_percent": 48.86269701951387
+          },
+          "copy_and_digest": {
+            "original": 230.07150000000001,
+            "candidate": 178.582,
+            "saved_us": 51.48950000000002,
+            "reduction_percent": 22.37978193735426
+          }
+        },
+        "rounds_per_mode": 6,
+        "snapshots": 501,
+        "source_original_sha256": "21a18c24b19fc9eb38f2d9f172556f4928dec07a36eedc2d47a41b9cd990b0ad",
+        "source_candidate_sha256": "6a2c94ba53a8370db524dfa9f7fa07deec5a0d4074aa858ac6aed912377e51c0",
+        "fixture_sha256": "ef3a4ace38221e7ddd258324f08619c0248c5b230329533737aa0b05f582ab06",
+        "source_records_sha256": "10b98a0b1997d7f17c253e846292889ada4b69a6ad209398dd5fdc24fc0a21e4",
+        "gc_state_restored": true,
+        "affinity_restored": true,
+        "during_affinity": null,
+        "original_pin_verified_before_import": false,
+        "can_frames_sent": 0,
+        "policy_constructed": false
+      },
+      {
+        "report_sha256": "070d495d7b0c92b4eb43b212cb3f15f982006e40a8de72450ee0ddd86ce1127b",
+        "summary": {
+          "copy": {
+            "original": 107.65199999999999,
+            "candidate": 53.97,
+            "saved_us": 53.68199999999999,
+            "reduction_percent": 49.866235648199755
+          },
+          "copy_and_digest": {
+            "original": 230.1845,
+            "candidate": 176.9345,
+            "saved_us": 53.25,
+            "reduction_percent": 23.133616729188976
+          }
+        },
+        "rounds_per_mode": 6,
+        "snapshots": 501,
+        "source_original_sha256": "21a18c24b19fc9eb38f2d9f172556f4928dec07a36eedc2d47a41b9cd990b0ad",
+        "source_candidate_sha256": "6a2c94ba53a8370db524dfa9f7fa07deec5a0d4074aa858ac6aed912377e51c0",
+        "fixture_sha256": "ef3a4ace38221e7ddd258324f08619c0248c5b230329533737aa0b05f582ab06",
+        "source_records_sha256": "10b98a0b1997d7f17c253e846292889ada4b69a6ad209398dd5fdc24fc0a21e4",
+        "gc_state_restored": true,
+        "affinity_restored": true,
+        "during_affinity": [
+          4
+        ],
+        "original_pin_verified_before_import": true,
+        "can_frames_sent": 0,
+        "policy_constructed": false
+      }
+    ],
+    "whole_cycle_gain_measured": false,
+    "active_output_qualification_transferred": false,
+    "full_real_policy_replay": {
+      "target_executed": true,
+      "result_parity_verified": true,
+      "helper_source_sha256": "ad557506e80188042ca9b673dd3a4f5f900493d0d4ace984bb06cf47592d2ca9",
+      "helper_boundary_check_sha256": "3806bc1b15360fe3f214652d32f3f0c7223c5a20ce310b5a5d039cae01469f7f",
+      "saved_snapshot_contract_limits_ns": [
+        100000000,
+        100000000
+      ],
+      "saved_fixture_modified": false,
+      "live_20ms_limits_modified": false,
+      "previous_attempts_retained": [
+        {
+          "helper_source_sha256": "27ec3162f693b8cf14cfd2a7e651e1c2b7fa4ab54de23b6c317a279fe0bc0d90",
+          "target_executed": true,
+          "status": "FAILED_SECOND_MODEL_LOAD_FK_REGISTRATION_GUARD_PRESERVED",
+          "parity_verified": false
+        }
+      ],
+      "report_sha256": "ebf749c3b9896a6e3771098a3d93b8a3d38ccce4c8c00c15990aee04dd252da3",
+      "result_count": 501,
+      "complete_returned_results_and_summary_equal": true,
+      "entire_model_source_equal": true,
+      "original_timestamps_preserved": true,
+      "fresh_child_process_count": 2,
+      "model_loads_per_child": 1,
+      "registration_guard_unchanged": true,
+      "hardware_opened": false,
+      "can_frames_sent": 0,
+      "whole_cycle_gain_measured": false,
+      "independent_complete_raw_audit_sha256": "958f500fa700cc9e12b76b2d027ed7d59593a2e4b071a2ba8fbb458be72da04f"
+    }
+  },
+  "r17_first_disabled5": {
+    "status": "ABORTED",
+    "errors": [
+      "ValueError: Voltage outside 35..42 V before proxy STOP"
+    ],
+    "cycles_completed": 1,
+    "complete_steady_cycles": 0,
+    "failed_cycle_retained": 2,
+    "voltage_v_by_bus": {
+      "front": 34.9488410949707,
+      "rear": 35.65062713623047
+    },
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "source_unchanged": true,
+    "power_scope_restored": true,
+    "native_owner_settings_restored": true,
+    "native_coordinator_settings_restored": true,
+    "report_sha256": "4aff580612393e0b182e409f3aaba011b877a1a7de9093f8e491b2cca50c9e46",
+    "records_sha256": "534c82638dfc9cd8cb75bf9bd7aefca20030c086a0e00b3a44e3f80f11a016c1",
+    "resume_requires": "charged power then fresh5 before501"
+  },
+  "primary_references": [
+    "https://docs.kernel.org/driver-api/usb/power-management.html",
+    "https://docs.kernel.org/networking/can.html"
+  ],
+  "trace_destination_cache_candidate": {
+    "source_sha256": "67630bdc446c55467c05a48e9db4052522eb7c846da96c5ae35c74f0e7ba4aa7",
+    "test_source_sha256": "efcb1375149735f8ff529d3acec786341c07e3df8444d42dbeaa6e51382ffdd6",
+    "focused_tests_passed": 206,
+    "independent_tests_passed": 45,
+    "full_raw_bytes_and_serialized_parity": true,
+    "borrowed_sources_not_retained": true,
+    "copy_and_release_before_unchanged_end_timestamp": true,
+    "local_full26_component_us": {
+      "original": 13.798479,
+      "candidate": 12.066583,
+      "saved": 1.731896
+    },
+    "target_component_measured": true,
+    "target_transfer_status": "RESUMED_AFTER_CONFIRMED_BATTERY_REPLACEMENT_MEASURED_FILE_ONLY",
+    "whole_cycle_gain_measured": false,
+    "active_qualification": false,
+    "target_component_report_sha256": "161122e704c15637b09b502e8bb9503b7db82b02be4c1c4e4de62101aa4ae326",
+    "independent_target_audit_sha256": "587aa7de8ed0d93a8217a120b3ee46d650a56dadfd879c52939b02951b3b09a6",
+    "target_component_modes": [
+      {
+        "mode": "type17",
+        "voltage_overlap": false,
+        "raw_and_serialized_equal": true,
+        "sources_unchanged": true,
+        "original": 10.098704,
+        "candidate": 8.8672505,
+        "saved_us": 1.2314534999999989,
+        "reduction_percent": 12.1941736286161
+      },
+      {
+        "mode": "stop-proxy",
+        "voltage_overlap": false,
+        "raw_and_serialized_equal": true,
+        "sources_unchanged": true,
+        "original": 19.04716425,
+        "candidate": 15.9956755,
+        "saved_us": 3.0514887500000007,
+        "reduction_percent": 16.020698461714588
+      },
+      {
+        "mode": "stop-proxy",
+        "voltage_overlap": true,
+        "raw_and_serialized_equal": true,
+        "sources_unchanged": true,
+        "original": 27.940957499999996,
+        "candidate": 23.1196755,
+        "saved_us": 4.8212819999999965,
+        "reduction_percent": 17.25524975298358
+      }
+    ],
+    "target_settings_restored": true,
+    "target_hardware_opened": false
+  },
+  "battery_replacement_completion_received": true,
+  "full_charge_resumed_comparison": {
+    "source_branch": "r19_explicit_full_charge43_stop_only",
+    "prior42_adc_upper_failure_retained": true,
+    "fresh_readonly_voltage_max_v": [
+      42.14212799,
+      42.10703659
+    ],
+    "voltage_envelope_v": [
+      35,
+      43
+    ],
+    "default_voltage_upper_v": 42,
+    "existing_v3_explicit43_contract": true,
+    "new_current_watchdog_43_qualification": false,
+    "only_pair_guards_aligned": true,
+    "raw_adc_corrected": false,
+    "deadline_freshness_pose_gain_limits_changed": false,
+    "source_sha256": "28467763a6646d22f5bd2c23db651cf9cc34906677144c7d5ffa28d672ecb34a",
+    "test_source_sha256": "e234ab7d69803b8a505c2062d7a08b0c51eaf4b9fc8a04177f42c2abd50ae86c",
+    "local_tests_passed": 90,
+    "target_tests_passed": 110,
+    "source_manifest_sha256": "7f2ee19c60b56e267a7c3be788ec34db34a3dffb39af1c15596952d8ddc12793",
+    "measurement_started": true,
+    "active_output_allowed": false,
+    "request_gap_us": 880,
+    "request_window": 3,
+    "period_ns": 20000000,
+    "settings_restored": true,
+    "measurements": [
+      {
+        "id": "r19_disabled5",
+        "status": "COMPLETE_DIAGNOSTIC",
+        "cycles_completed": 5,
+        "startup_ms": 20.189838,
+        "steady": {
+          "startup_cycle_allowance": 1,
+          "startup_cycles_recorded": 1,
+          "startup_whole_iteration_ms": [
+            20.189838
+          ],
+          "startup_iteration_deadline_misses": 1,
+          "startup_to_steady_interval_ms": 20.232239,
+          "steady_cycles_requested": 4,
+          "steady_cycles_completed": 4,
+          "steady_whole_iteration_ms": {
+            "count": 4,
+            "median": 19.259911000000002,
+            "p95": 19.418908,
+            "p99": 19.418908,
+            "max": 19.418908
+          },
+          "steady_iteration_deadline_misses": 0,
+          "steady_processing_20ms_met": true,
+          "steady_scheduled_completion_slack_ms": {
+            "count": 4,
+            "median": 0.7266735,
+            "p95": 0.83911,
+            "p99": 0.83911,
+            "max": 0.83911
+          },
+          "steady_min_completion_slack_ms": 0.329237,
+          "steady_scheduled_deadline_misses": 0,
+          "steady_slots_skipped": 0,
+          "steady_scheduled_deadlines_met": true,
+          "steady_start_interval_ms": {
+            "count": 3,
+            "median": 19.999818,
+            "p95": 20.002153,
+            "p99": 20.002153,
+            "max": 20.002153
+          },
+          "steady_start_intervals_over_20ms": 1,
+          "strict_steady_start_interval_20ms_met": false,
+          "all_cycles_retained": true,
+          "diagnostic_only": true,
+          "full_controller_50Hz_verified": false
+        },
+        "oldest_input_to_write_max_ms": 16.423378,
+        "oldest_input_to_reply_max_ms": 19.253591,
+        "oldest_input_to_end_max_ms": 19.851525,
+        "measured_requests": 130,
+        "all_unique_requests_including_identity_prime": 154,
+        "missing_replies": 0,
+        "report_sha256": "972601dc6b661439e227492a2982b079f6d032a3420f3221ca6c9b0054df8548",
+        "records_sha256": "77bc25ff1c0c72bec416abef9a5918e0e98e1edcec632cdac7fa5dd1d217c85d",
+        "receipt_sha256": "293ea27ce53e63f506ce396909fbcc00129a5ddf0694540c6110bbc0722f2520",
+        "independent_audit_sha256": "981ed84aa33ca7427ecb1846f2596658ed04220460448a7d7394dd0b592e6b3c",
+        "independent_integrity_checks": 2574,
+        "source_unchanged": true,
+        "settings_restored": true,
+        "motor_enable_sent": false,
+        "learned_targets_sent": false,
+        "active_controller_qualification": false
+      },
+      {
+        "id": "r19_disabled501",
+        "status": "COMPLETE_DIAGNOSTIC",
+        "cycles_completed": 501,
+        "startup_ms": 20.216147,
+        "steady": {
+          "startup_cycle_allowance": 1,
+          "startup_cycles_recorded": 1,
+          "startup_whole_iteration_ms": [
+            20.216147
+          ],
+          "startup_iteration_deadline_misses": 1,
+          "startup_to_steady_interval_ms": 20.256948,
+          "steady_cycles_requested": 500,
+          "steady_cycles_completed": 500,
+          "steady_whole_iteration_ms": {
+            "count": 500,
+            "median": 19.385823000000002,
+            "p95": 19.663686,
+            "p99": 19.791209,
+            "max": 20.143761
+          },
+          "steady_iteration_deadline_misses": 1,
+          "steady_processing_20ms_met": false,
+          "steady_scheduled_completion_slack_ms": {
+            "count": 500,
+            "median": 0.602117,
+            "p95": 0.770932,
+            "p99": 0.858061,
+            "max": 0.902796
+          },
+          "steady_min_completion_slack_ms": -0.156702,
+          "steady_scheduled_deadline_misses": 1,
+          "steady_slots_skipped": 0,
+          "steady_scheduled_deadlines_met": false,
+          "steady_start_interval_ms": {
+            "count": 499,
+            "median": 19.999949,
+            "p95": 20.003374,
+            "p99": 20.005998,
+            "max": 20.180146
+          },
+          "steady_start_intervals_over_20ms": 245,
+          "strict_steady_start_interval_20ms_met": false,
+          "all_cycles_retained": true,
+          "diagnostic_only": true,
+          "full_controller_50Hz_verified": false
+        },
+        "oldest_input_to_write_max_ms": 16.515454,
+        "oldest_input_to_reply_max_ms": 19.302942,
+        "oldest_input_to_end_max_ms": 19.924236,
+        "measured_requests": 13026,
+        "all_unique_requests_including_identity_prime": 13050,
+        "missing_replies": 0,
+        "report_sha256": "55777e983184f5b1e1ddef62e31147415f7e3f3beb1625f35ffa41d301a702a5",
+        "records_sha256": "acc02aba940e25033bd372f379e1411cab706f0ec528c0d52698159622977252",
+        "receipt_sha256": "04b10c32e8b8c1c9a45b2d67ac3d16703dcc6db71b0300720a2b5552fb6d760b",
+        "independent_audit_sha256": "79c2e0bb39e967e466329a0f913d6815cac059ae7a3d70c0b47a839afd327957",
+        "independent_integrity_checks": 225786,
+        "source_unchanged": true,
+        "settings_restored": true,
+        "motor_enable_sent": false,
+        "learned_targets_sent": false,
+        "active_controller_qualification": false
+      }
+    ],
+    "strict_steady501_processing_20ms_met": false,
+    "steady_outlier": {
+      "one_based_cycle": 71,
+      "whole_ms": 20.143761,
+      "oldest_input_to_write_ms": 15.837326,
+      "oldest_input_to_reply_ms": 18.641327,
+      "native_owner_finish_to_python_pair_return_us": 1021.047,
+      "native_owner_finish_to_join_start_us": 1026.711,
+      "join_wait_us": 27.488,
+      "final_copy_release_tail_us": 139.395,
+      "specific_os_gil_or_coordinator_root_cause_proven": false,
+      "audit_sha256": "5c0428a7af0287685f1914d8d9983367f3ad845875c09eeca44a32dec9173c6b"
+    }
+  },
+  "r20_890_comparison": {
+    "source_branch": "r20_explicit890_existing_v3_43_stop_only",
+    "source_manifest_sha256": "77800d559b620ee3c199c451311999979ec40df820c923cad9eec71724469966",
+    "benchmark_source_sha256": "f1da02e1a292da8254c2263ad5f58c1621e59535ebe0c0180c4b035ef6d1ab21",
+    "profile_source_sha256": "2f13e9eb3b07af1e64b348da2c3cc23881a1a03d6357cb638806855fe87c6892",
+    "default_baseline_request_gap_us": 900,
+    "selected_request_gap_us": 890,
+    "request_window": 3,
+    "period_ns": 20000000,
+    "numeric_motion_freshness_and_deadline_limits_changed": false,
+    "target_tests_passed": 150,
+    "target_tests_skipped": 0,
+    "file_only_plan_pass": true,
+    "default_voltage_max_v": 42,
+    "explicit_v3_voltage_range_v": [
+      35,
+      43
+    ],
+    "source_and_profile_exact_gap_matching_retained": true,
+    "measurement_started": true,
+    "active_controller_qualification": false,
+    "output_allowed": false,
+    "independent_static_review_sha256": "d2dd7ddcdfbdc5b59baa0d4732700e8131698d26184f7f2d103df46ad4d54677",
+    "original_static_metadata_mismatch_audit_retained_sha256": "58107e02f1ac6608d61770e094ca294a27092c3fd4de1c0e83130211e8af0b85",
+    "measurements": [
+      {
+        "id": "r20_disabled5",
+        "status": "COMPLETE_DIAGNOSTIC",
+        "cycles_completed": 5,
+        "startup_ms": 20.28346,
+        "steady": {
+          "startup_cycle_allowance": 1,
+          "startup_cycles_recorded": 1,
+          "startup_whole_iteration_ms": [
+            20.28346
+          ],
+          "startup_iteration_deadline_misses": 1,
+          "startup_to_steady_interval_ms": 20.325574,
+          "steady_cycles_requested": 4,
+          "steady_cycles_completed": 4,
+          "steady_whole_iteration_ms": {
+            "count": 4,
+            "median": 19.567166999999998,
+            "p95": 19.895001,
+            "p99": 19.895001,
+            "max": 19.895001
+          },
+          "steady_iteration_deadline_misses": 0,
+          "steady_processing_20ms_met": true,
+          "steady_scheduled_completion_slack_ms": {
+            "count": 4,
+            "median": 0.2662455,
+            "p95": 0.539901,
+            "p99": 0.539901,
+            "max": 0.539901
+          },
+          "steady_min_completion_slack_ms": 0.093848,
+          "steady_scheduled_deadline_misses": 0,
+          "steady_slots_skipped": 0,
+          "steady_scheduled_deadlines_met": true,
+          "steady_start_interval_ms": {
+            "count": 3,
+            "median": 19.999356,
+            "p95": 19.9999,
+            "p99": 19.9999,
+            "max": 19.9999
+          },
+          "steady_start_intervals_over_20ms": 0,
+          "strict_steady_start_interval_20ms_met": true,
+          "all_cycles_retained": true,
+          "diagnostic_only": true,
+          "full_controller_50Hz_verified": false
+        },
+        "oldest_input_to_write_max_ms": 16.575956,
+        "oldest_input_to_reply_max_ms": 19.381993,
+        "oldest_input_to_end_max_ms": 19.958778,
+        "measured_requests": 130,
+        "missing_replies": 0,
+        "report_sha256": "ee41cb89ae12a15a740d0830f483d879cfec0cc34aa3e2854a0879007d3c6889",
+        "records_sha256": "94ab87bfc0752007c02cc948fad6d2084e5acf4435ee07624b02c64ff5a959c8",
+        "receipt_sha256": "f4574986f9d4d178f0a42b25d900e3ac835bd23bf40ad0e4bf5471e1657803d5",
+        "independent_audit_sha256": "61c491fc1961983b11a0631d1bd1bf2a153aee2dbe44d8bf3d84a4ca2fa1e768",
+        "independent_integrity_checks": 3044,
+        "steady_five_eligible": true,
+        "all_whole_cycles_at_most20ms": false,
+        "settings_restored": true,
+        "source_unchanged": true,
+        "motor_enable_sent": false,
+        "learned_targets_sent": false,
+        "active_controller_qualification": false
+      },
+      {
+        "id": "r20_disabled501_first",
+        "status": "COMPLETE_DIAGNOSTIC",
+        "cycles_completed": 501,
+        "startup_ms": 20.141155,
+        "steady": {
+          "startup_cycle_allowance": 1,
+          "startup_cycles_recorded": 1,
+          "startup_whole_iteration_ms": [
+            20.141155
+          ],
+          "startup_iteration_deadline_misses": 1,
+          "startup_to_steady_interval_ms": 20.18394,
+          "steady_cycles_requested": 500,
+          "steady_cycles_completed": 500,
+          "steady_whole_iteration_ms": {
+            "count": 500,
+            "median": 19.470157999999998,
+            "p95": 19.71087,
+            "p99": 19.821561,
+            "max": 19.948092
+          },
+          "steady_iteration_deadline_misses": 0,
+          "steady_processing_20ms_met": true,
+          "steady_scheduled_completion_slack_ms": {
+            "count": 500,
+            "median": 0.5179555,
+            "p95": 0.6696,
+            "p99": 0.714609,
+            "max": 0.794986
+          },
+          "steady_min_completion_slack_ms": 0.040434,
+          "steady_scheduled_deadline_misses": 0,
+          "steady_slots_skipped": 0,
+          "steady_scheduled_deadlines_met": true,
+          "steady_start_interval_ms": {
+            "count": 499,
+            "median": 19.999998,
+            "p95": 20.002846,
+            "p99": 20.003997,
+            "max": 20.014813
+          },
+          "steady_start_intervals_over_20ms": 247,
+          "strict_steady_start_interval_20ms_met": false,
+          "all_cycles_retained": true,
+          "diagnostic_only": true,
+          "full_controller_50Hz_verified": false
+        },
+        "oldest_input_to_write_max_ms": 16.50409,
+        "oldest_input_to_reply_max_ms": 19.22916,
+        "oldest_input_to_end_max_ms": 19.796313,
+        "measured_requests": 13026,
+        "all_unique_requests_including_identity_prime": 13050,
+        "missing_replies": 0,
+        "report_sha256": "3c55a550815180fc2c4209c833a76c0af4655a36a0980539532989c179ae3d6b",
+        "records_sha256": "85e313bd24a4b9fd000b787efe811e37e50a747e3d21d75fb805c12e4515f179",
+        "receipt_sha256": "6fcc8404475cba60dd76f93921ee1d8f43c862611d99b03f39de349ce6cb37ee",
+        "independent_audit_sha256": "8e15793c849ea332dbd2b9e081712aa3384c742f7f536b6df3fcbab515c5b658",
+        "independent_integrity_checks": 225790,
+        "strict_steady_whole20ms_timing_pass": true,
+        "all_whole_cycles_at_most20ms": false,
+        "strict_start_interval20ms_pass": false,
+        "settings_restored": true,
+        "source_unchanged": true,
+        "motor_enable_sent": false,
+        "learned_targets_sent": false,
+        "active_controller_qualification": false
+      },
+      {
+        "id": "r20_disabled501_repeat",
+        "status": "COMPLETE_DIAGNOSTIC",
+        "cycles_completed": 501,
+        "startup_ms": 20.335789,
+        "steady": {
+          "startup_cycle_allowance": 1,
+          "startup_cycles_recorded": 1,
+          "startup_whole_iteration_ms": [
+            20.335789
+          ],
+          "startup_iteration_deadline_misses": 1,
+          "startup_to_steady_interval_ms": 20.377422,
+          "steady_cycles_requested": 500,
+          "steady_cycles_completed": 500,
+          "steady_whole_iteration_ms": {
+            "count": 500,
+            "median": 19.4993815,
+            "p95": 19.782365,
+            "p99": 19.847199,
+            "max": 19.884256
+          },
+          "steady_iteration_deadline_misses": 0,
+          "steady_processing_20ms_met": true,
+          "steady_scheduled_completion_slack_ms": {
+            "count": 500,
+            "median": 0.48765749999999997,
+            "p95": 0.656027,
+            "p99": 0.687004,
+            "max": 0.758159
+          },
+          "steady_min_completion_slack_ms": -0.158028,
+          "steady_scheduled_deadline_misses": 1,
+          "steady_slots_skipped": 0,
+          "steady_scheduled_deadlines_met": false,
+          "steady_start_interval_ms": {
+            "count": 499,
+            "median": 19.999971,
+            "p95": 20.003203,
+            "p99": 20.004004,
+            "max": 20.00605
+          },
+          "steady_start_intervals_over_20ms": 248,
+          "strict_steady_start_interval_20ms_met": false,
+          "all_cycles_retained": true,
+          "diagnostic_only": true,
+          "full_controller_50Hz_verified": false
+        },
+        "oldest_input_to_write_max_ms": 16.653896,
+        "oldest_input_to_reply_max_ms": 19.465589,
+        "oldest_input_to_end_max_ms": 20.042661,
+        "measured_requests": 13026,
+        "all_unique_requests_including_identity_prime": 13050,
+        "missing_replies": 0,
+        "report_sha256": "fa42738b088b566244d8d84508d7a4d86d5346393b0d4c437b6d66868619be78",
+        "records_sha256": "fe5a40426523f14f8c31d23a926655a7b37321e36d414ebeb03814f7270212e9",
+        "receipt_sha256": "ab4d173655c43e5a34fedb1c78532044641263f0e0aff17589492287c8e6c8e1",
+        "independent_audit_sha256": "2c0ce327b3982e59c87fce3b9ff51c54f4545c4f2555235ecaefd7e9be814899",
+        "independent_integrity_and_timing_checks": 267913,
+        "independent_full_criteria_pass": false,
+        "failed_criteria": [
+          "cycle1:original_input_write_reply_age_caps"
+        ],
+        "base_wire_source_restoration_integrity_pass": true,
+        "steady_processing_20ms_pass": true,
+        "steady_scheduled_20ms_pass": false,
+        "repeat_strict_steady_contract_pass": false,
+        "all_whole_cycles_at_most20ms": false,
+        "strict_start_interval20ms_pass": false,
+        "settings_restored": true,
+        "source_unchanged": true,
+        "motor_enable_sent": false,
+        "learned_targets_sent": false,
+        "active_controller_qualification": false,
+        "startup_end_age_ms": 20.042661,
+        "startup_end_age_limit_ms": 20,
+        "startup_end_age_excess_us": 42.661,
+        "scheduled_carry": {
+          "one_based_cycle": 2,
+          "processing_ms": 19.761309,
+          "scheduled_completion_slack_ms": -0.158028,
+          "oldest_input_to_end_ms": 19.489718,
+          "release_lateness_ms": 0.396719
+        },
+        "independent_stage_timing_supplement_sha256": "ddcc612828bc57449ff20e55ef348abb4ba99bc1982b5dd70b084b10cfa21d89",
+        "stage_supplement_preserves_original_audit_failure": true,
+        "steady_oldest_input_to_end_max_ms": 19.666842
+      }
+    ],
+    "initial_five_audit_retained_sha256": "781315530c9c0d8625f5e19ff72b1a42179bed6d5820cd6b178d7f24c7136dd1",
+    "first501_latency_sha256": "6f10ff4a5c44dcd690b9e2b7bb5dbb62afbb2a3dcc5c4334739669ab9acbfa39",
+    "first501_settings_restored": true,
+    "first501_strict_steady_processing_pass": true,
+    "same_source_profile_repeated_501_observed": true,
+    "steady_processing_cycles_total": 1000,
+    "steady_processing_over20ms_total": 0,
+    "steady_scheduled_deadline_misses_total": 1,
+    "steady_skipped_slots_total": 0,
+    "missing_replies_total": 0,
+    "strict_all501_processing_and_start_interval_pass": false,
+    "repeat_startup_input_age_condition_pass": false,
+    "active_output_allowed": false,
+    "all_settings_restored": true,
+    "single_cause890_improvement_proven": false,
+    "repeat_recipe_audit_sha256": "5115d9a3c00f798ed9e0b280bd08a30ffbe5875dfb8d552e086b9929cc3c0643",
+    "motor_enable_sent": false,
+    "type1_sent": false,
+    "learned_targets_sent": false,
+    "generic_diagnostic_cli_default_request_gap_us": 600,
+    "target_tests_report_sha256": "af2d4dde0cb7757310861b92092d45a6a155819365237c00f7a4012ae095ec15",
+    "target_tests_receipt_sha256": "636ac241bde1bf72a0381abb7920271665751456f1f1fd500cc6d9e07d052f66"
+  },
+  "offline_type1_completion_feedback_candidate": {
+    "schema": "singularitydog.type1-completion-feedback-offline-candidate.v1",
+    "scope": "New source built/tested on Mac ARM64 while Jetson was Off; not deployed, not hardware-qualified",
+    "selected_comparison_request_gap_us": 890,
+    "request_window": 3,
+    "period_ns": 20000000,
+    "default_success_reference_request_gap_us": 900,
+    "wire_layout_and_original_timestamps_retained": true,
+    "numeric_motion_freshness_voltage_deadline_limits_changed": false,
+    "defaults_changed": false,
+    "historical_approval_transferred": false,
+    "hardware_opened": false,
+    "robot_commands_sent": false,
+    "jetson_measured": false,
+    "whole_cycle_measured": false,
+    "active_controller_qualification": false,
+    "output_allowed": false,
+    "implemented": [
+      "Original native Futures receive decode results directly on the coordinator; secondary publication task and extra result Futures removed.",
+      "Optional private C++ completion notification with unchanged native I/O deadlines and genuine current-Future rechecks; old-library fallback retained.",
+      "When both original Futures are done, join only the publication Event within the remaining original host deadline, avoiding another 50/200us polling tick.",
+      "Pure six-axis Type2 C++ decode for acquisition and output with exact ABI/layout/function binding guards; unsupported/mixed frames use the existing authoritative codec."
+    ],
+    "source_sha256": {
+      "runtime/experiments/native_active_transport/transport.cpp": "340d571b924d09df1bb45ee9a7ed13589abbc1b09e79d165f805e47527203649",
+      "runtime/singularitydog_hw/native_active_transport.py": "844b00b759c930acca124b014c648ff6d11ac9cffd9b272586cb4e29dca7630e",
+      "runtime/singularitydog_hw/policy_output_runtime.py": "7d85dca24cc5c4bd5a7a229fbb138222fbcf5099f0609b71f78cdcb5439f4eed",
+      "runtime/tests/test_native_pair_completion_notification.py": "04fc28b66dc46841a58e188b09f4f1e1e5e40cb85ecb9c41258690310368bcd0",
+      "runtime/tests/test_native_phase_pair_runtime.py": "f3f34e35558fbd08dd48936b1b18c53694e8de487873273c48f6b8ec841f3573",
+      "runtime/tests/test_output_join_wait.py": "33f44242f5d631c8b1e82b94cf538781729266b500107db2a201c120a14c3753",
+      "runtime/tests/test_policy_output_runtime.py": "6c9b74dc3f729105e4a994b8a8bbd82a5a2fbfcfd6527bbe9a9812284070f3a5",
+      "runtime/tests/test_native_feedback_batch_decode.py": "7c1b3ca2c0e2bc9822ef0bad6ea119df862131e4dd80e5c3ac1551771928daa4",
+      "runtime/tests/test_runtime_feedback_batch_decode.py": "0a2aeb773a212bf29bb0576a10835eb67ba63be41fa3d8b5ebe97cfcaf12103e",
+      "runtime/experiments/native_active_transport/benchmark_feedback_decode.py": "4138d8b1cdcf2a39740a76f6b5722db2a02e882af08d4be17492a9fb31cd14aa",
+      "tools/verify_native_feedback_decode.py": "0821148b053cf85443027f4a5280abe7b6d674fa01d112bd6578079334366517",
+      "runtime/experiments/native_policy_batch_encode/benchmark_verified_wrapper.py": "cacfb853713173db0a27e9a6e1aac35be317afe63b5a7563b233fb418d29fc15",
+      "runtime/tests/test_native_active_transport.py": "020387ce687d0b96727aa54f0af976931f56509e64c758f48ffd73445671d19c"
+    },
+    "optional_feedback_decode_abi": {
+      "version": 1,
+      "cpp_sdrecord_size_bytes": 88,
+      "cpp_decoded_size_bytes": 64,
+      "all_field_offsets_guarded": true,
+      "all_absent_library_uses_legacy": true,
+      "partial_abi_rejected": true,
+      "stateless_no_device_io": true,
+      "owned_record_buffers_unchanged": true,
+      "position_velocity_torque_temperature_u16_exhaustive_domain_size": 65536,
+      "python_double_bits_equal": true
+    },
+    "regression": {
+      "report_sha256": "4e82fe765e9517595e77607d790048f2b8a4128a9671655577d0ce1a1e8b6835",
+      "tests_run": 459,
+      "tests_passed": 458,
+      "tests_skipped": 1,
+      "skip_scope": "Actual Linux coordinator controls cannot be exercised on Mac; no behavioral failure skipped.",
+      "source_unchanged": true,
+      "stderr_sha256": "4b917fbc90f7f21e5945cd605628c2cc78160987d682fdea81c0a69d5f314059",
+      "retained_previous_attempts": [
+        {
+          "report_sha256": "35dba60f21231664362e721a3807e6b78640d0b5d26ebab57cac792368a660ef",
+          "tests_run": 397,
+          "exit_code": 1,
+          "source_unchanged": true,
+          "reason_and_followup": "A real-clock semantic turn-jump matrix could stop before the intended injection; only that semantic fixture was changed to a shared causal simulated clock. Separate real timing tests retained."
+        },
+        {
+          "report_sha256": "ad65ed3a00acfc68fe2511dbaeb10f8fbb481841e2f3d7268cdab0814cdcc288",
+          "tests_run": 453,
+          "exit_code": 1,
+          "source_unchanged": true,
+          "reason_and_followup": "The isolated encoder test imported benchmark from its own directory; the aggregate runner omitted that PYTHONPATH entry. Product sources unchanged."
+        },
+        {
+          "report_sha256": "0d1258e346a0ab923f998845984dee85a90e87897768b345be0dd29ea9a6eed7",
+          "tests_run": 453,
+          "exit_code": 1,
+          "source_unchanged": true,
+          "reason_and_followup": "Synthetic STOP peers could begin after the unchanged per-axis deadline had started. A 35ms injected startup delay reproduced the cause; fixture now waits for peer readiness before timing, retaining real reply delay and product deadlines."
+        }
+      ]
+    },
+    "synthetic_stop_peer_startup_cause": {
+      "controlled_startup_delay_ns": 35000000,
+      "reply_delay_ns": 28000000,
+      "budgets_unchanged_ns": [
+        90000000,
+        250000000
+      ],
+      "before_report_sha256": "3cbef5947038efacd109de2b5bcf5c5959990b8e403faae5d0e58b89e9c4cbea",
+      "after_report_sha256": "59f3ef3e4107ebbfb08baaf20acfc1709c602de8a1e3ba8e072b1b1a48e4c703",
+      "only_fixture_start_handshake_changed": true,
+      "expected_axis_stop_confirmations_recovered": true
+    },
+    "saved_r20_feedback_parity": {
+      "report_sha256": "8978c32a40e46f5e89418a54a4d91cce1afbb404c8b02f585179f91a8874ccbb",
+      "schema": "singularitydog.saved-feedback-decode-parity.v1",
+      "status": "PASS",
+      "cycles": 501,
+      "native_batches": 2004,
+      "native_feedback_rows": 12024,
+      "legacy_batches": 1002,
+      "original_records": 13026,
+      "original_record_buffers_sha256": "98b1d5f00919074832c6310135fdc55000cc857758e006ef8cf05a8d658ccefe",
+      "object_order_timestamp_and_double_bits_equal": true,
+      "original_record_buffers_unchanged": true,
+      "hardware_opened": false,
+      "robot_commands_sent": false,
+      "runtime_qualification": false,
+      "timing_measured": false,
+      "records_sha256": "fe5a40426523f14f8c31d23a926655a7b37321e36d414ebeb03814f7270212e9",
+      "library_sha256": "7adc14fe075232cdd585de9776833537e4373ad03ec2f1f02ba7d729e3b6df57",
+      "source_sha256": {
+        "transport.cpp": "340d571b924d09df1bb45ee9a7ed13589abbc1b09e79d165f805e47527203649",
+        "native_active_transport.py": "844b00b759c930acca124b014c648ff6d11ac9cffd9b272586cb4e29dca7630e",
+        "policy_output_runtime.py": "7d85dca24cc5c4bd5a7a229fbb138222fbcf5099f0609b71f78cdcb5439f4eed",
+        "verify_native_feedback_decode.py": "0821148b053cf85443027f4a5280abe7b6d674fa01d112bd6578079334366517"
+      }
+    },
+    "feedback_decode_component_benchmark": {
+      "report_sha256": "e307d240e97b662b3feea74f8794523cc69cb29a22495791263e4f28bd9483d9",
+      "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+      "scope": "synthetic Type1 -> Type2; twelve rows including Python objects",
+      "samples_per_trial": 2000,
+      "trials_count": 4,
+      "measurement_order": "alternate methods each sample; reverse first method each trial",
+      "ctypes_boundary_and_python_objects_included": true,
+      "median_across_trial_medians_us": {
+        "python": 68.958,
+        "cpp": 21.9165,
+        "saved": 47.082750000000004
+      },
+      "trials": [
+        {
+          "trial": 0,
+          "python": {
+            "samples": 2000,
+            "median_us": 68.875,
+            "p99_us": 126.75,
+            "max_us": 265.625
+          },
+          "cpp": {
+            "samples": 2000,
+            "median_us": 21.917,
+            "p99_us": 42.5,
+            "max_us": 229.834
+          },
+          "median_saved_us": 46.958
+        },
+        {
+          "trial": 1,
+          "python": {
+            "samples": 2000,
+            "median_us": 68.833,
+            "p99_us": 90.625,
+            "max_us": 210.167
+          },
+          "cpp": {
+            "samples": 2000,
+            "median_us": 21.916,
+            "p99_us": 28.041,
+            "max_us": 97.542
+          },
+          "median_saved_us": 46.917
+        },
+        {
+          "trial": 2,
+          "python": {
+            "samples": 2000,
+            "median_us": 69.041,
+            "p99_us": 92.625,
+            "max_us": 152.292
+          },
+          "cpp": {
+            "samples": 2000,
+            "median_us": 21.8335,
+            "p99_us": 27.959,
+            "max_us": 67.292
+          },
+          "median_saved_us": 47.2075
+        },
+        {
+          "trial": 3,
+          "python": {
+            "samples": 2000,
+            "median_us": 69.417,
+            "p99_us": 92.5,
+            "max_us": 157.666
+          },
+          "cpp": {
+            "samples": 2000,
+            "median_us": 22.0,
+            "p99_us": 27.708,
+            "max_us": 72.084
+          },
+          "median_saved_us": 47.417
+        }
+      ],
+      "raw_sample_timings_retained_in_pinned_report": true,
+      "source_records_unchanged": true,
+      "gc_restored": true,
+      "source_sha256": {
+        "transport.cpp": "340d571b924d09df1bb45ee9a7ed13589abbc1b09e79d165f805e47527203649",
+        "native_active_transport.py": "844b00b759c930acca124b014c648ff6d11ac9cffd9b272586cb4e29dca7630e",
+        "policy_output_runtime.py": "7d85dca24cc5c4bd5a7a229fbb138222fbcf5099f0609b71f78cdcb5439f4eed",
+        "benchmark_feedback_decode.py": "4138d8b1cdcf2a39740a76f6b5722db2a02e882af08d4be17492a9fb31cd14aa"
+      },
+      "library_sha256": "7adc14fe075232cdd585de9776833537e4373ad03ec2f1f02ba7d729e3b6df57",
+      "retained_previous_comparisons": [
+        {
+          "report_sha256": "814ccd443db06d7b663e6792d0d17494dd88f312b818e8644276f41d31d8e566",
+          "scope_note": "Initial balanced component comparison retained.",
+          "trials": [
+            {
+              "trial": 0,
+              "python": {
+                "samples": 2000,
+                "median_us": 70.084,
+                "p99_us": 150.75,
+                "max_us": 2333.083
+              },
+              "cpp": {
+                "samples": 2000,
+                "median_us": 22.625,
+                "p99_us": 53.791,
+                "max_us": 109.25
+              },
+              "median_saved_us": 47.459
+            },
+            {
+              "trial": 1,
+              "python": {
+                "samples": 2000,
+                "median_us": 69.833,
+                "p99_us": 82.417,
+                "max_us": 109.833
+              },
+              "cpp": {
+                "samples": 2000,
+                "median_us": 22.25,
+                "p99_us": 26.75,
+                "max_us": 49.209
+              },
+              "median_saved_us": 47.583
+            },
+            {
+              "trial": 2,
+              "python": {
+                "samples": 2000,
+                "median_us": 69.667,
+                "p99_us": 75.125,
+                "max_us": 125.709
+              },
+              "cpp": {
+                "samples": 2000,
+                "median_us": 22.042,
+                "p99_us": 24.25,
+                "max_us": 46.166
+              },
+              "median_saved_us": 47.625
+            },
+            {
+              "trial": 3,
+              "python": {
+                "samples": 2000,
+                "median_us": 69.958,
+                "p99_us": 74.042,
+                "max_us": 112.5
+              },
+              "cpp": {
+                "samples": 2000,
+                "median_us": 22.083,
+                "p99_us": 24.25,
+                "max_us": 37.0
+              },
+              "median_saved_us": 47.875
+            }
+          ]
+        },
+        {
+          "report_sha256": "37b06546b52b99fb53be5d3884c162013ed088d7c313d2941ef27ed196a6a5f5",
+          "scope_note": "Overlapped file-only saved replay CPU work; retained, not selected as the isolated final comparison.",
+          "trials": [
+            {
+              "trial": 0,
+              "python": {
+                "samples": 2000,
+                "median_us": 68.291,
+                "p99_us": 108.792,
+                "max_us": 530.25
+              },
+              "cpp": {
+                "samples": 2000,
+                "median_us": 21.834,
+                "p99_us": 35.458,
+                "max_us": 105.041
+              },
+              "median_saved_us": 46.457
+            },
+            {
+              "trial": 1,
+              "python": {
+                "samples": 2000,
+                "median_us": 68.208,
+                "p99_us": 85.375,
+                "max_us": 1513.708
+              },
+              "cpp": {
+                "samples": 2000,
+                "median_us": 21.917,
+                "p99_us": 28.083,
+                "max_us": 85.917
+              },
+              "median_saved_us": 46.291
+            },
+            {
+              "trial": 2,
+              "python": {
+                "samples": 2000,
+                "median_us": 69.417,
+                "p99_us": 89.792,
+                "max_us": 1207.458
+              },
+              "cpp": {
+                "samples": 2000,
+                "median_us": 22.375,
+                "p99_us": 28.333,
+                "max_us": 78.25
+              },
+              "median_saved_us": 47.042
+            },
+            {
+              "trial": 3,
+              "python": {
+                "samples": 2000,
+                "median_us": 68.708,
+                "p99_us": 72.417,
+                "max_us": 166.916
+              },
+              "cpp": {
+                "samples": 2000,
+                "median_us": 21.959,
+                "p99_us": 23.333,
+                "max_us": 58.166
+              },
+              "median_saved_us": 46.749
+            }
+          ]
+        }
+      ],
+      "jetson_measured": false,
+      "whole_cycle_measured": false,
+      "savings_not_subtracted_from_r20_hardware_time": true
+    },
+    "existing_optional_batch_encoder_verification": {
+      "report_sha256": "3217498b95b4102bf4ea1f579bc8dcb1491056da30f359280f4356478943b38e",
+      "encoder_implementation_changed": false,
+      "schema": "singularitydog.file-only-verified-encoder-proof.v1",
+      "scope": "Mac CPython wrapper parity and component latency only",
+      "status": "FILE_ONLY_PARITY_PASSED_UNAPPROVED",
+      "source_sha256": {
+        "batch_encode.cpp": "73e3e28bf80800c8ea6a2b12320f783c247b706f1964b46122c3e9a5b78238ea",
+        "batch_encode_py.cpp": "7210ee9cce727e5b31cac697893753d0355813fc17e5d9d34a709883c7fa3908"
+      },
+      "binary_sha256": "bc1d5b1aa142e66f3682cbaf24ad1b3f2636b6479a645a3255d1df7c6db7a837",
+      "benchmark_sha256": "cacfb853713173db0a27e9a6e1aac35be317afe63b5a7563b233fb418d29fc15",
+      "loader_sha256": "8d1d012e80a3ecc3e6565069552a3484965a10e0837bdd762150e20c8c06aefd",
+      "benchmark_report_sha256": "20ebd56a221385a3a6fdfa9617bdf5eb957be259113d256937c2116092fba2b6",
+      "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+      "python_version": "3.13.12",
+      "machine": "arm64",
+      "balanced_trials": 4,
+      "samples_per_trial": 2000,
+      "seeded_parity_cases": 2000,
+      "loader_byte_canaries": 96,
+      "loader_rejection_canaries": 72,
+      "median_across_rounds_us": {
+        "python": 48.687,
+        "verified_cpp": 1.625,
+        "saved": 47.062
+      },
+      "test_groups": [
+        {
+          "name": "native policy batch encoder loader + runtime integration",
+          "passed": 11
+        },
+        {
+          "name": "offline encoder byte/quantization-boundary/rejection tests",
+          "passed": 5
+        },
+        {
+          "name": "balanced benchmark harness pure-Python guards",
+          "passed": 8
+        }
+      ],
+      "tests_passed": 24,
+      "hardware_opened": false,
+      "motor_commands_sent": false,
+      "profile_changed": false,
+      "defaults_changed": false,
+      "output_approved": false,
+      "jetson_measured": false,
+      "whole_cycle_measured": false,
+      "next_hardware_prerequisites": [
+        "Build the same pinned CPython sources for Jetson Python 3.12/aarch64 into a fresh directory",
+        "Run verified wrapper parity and balanced component benchmark on Jetson",
+        "Prepare a separate opt-in V3 source/binary-pinned profile using fresh boot/power/current-angle evidence",
+        "Measure actual Type1 2s then 10s output and STOP; no timings transferred from Mac"
+      ]
+    },
+    "next_steps": [
+      "Build the new native transport and optional encoder for the Jetson Python/aarch64 environment; record exact source and binary hashes.",
+      "Repeat file-only parity, then new 5 and 501-cycle diagnostics with the selected 890us/window3/20ms settings and the successful performance recipe.",
+      "Use fresh current-boot, power, angle, model and support evidence for new boxed Type1 2s then 10s measurements and all-axis final STOP; do not reuse R20 STOP-only timing as Type1 qualification."
+    ]
+  }
+}

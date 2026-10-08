@@ -13,6 +13,7 @@ import json
 import math
 import os
 from pathlib import Path
+import tempfile
 import uuid
 
 import audit_angle_calibration as angles
@@ -25,6 +26,7 @@ INPUT_SCHEMA = 'singularitydog.corrected-supported-trial-input.v1'
 FILE_NAMES = ('prior_profile', 'prior_report', 'current_capture', 'calibration',
     'expected_uids', 'mount', 'gyro_bias', 'model_manifest', 'scalar_step_manifest',
     'accel_diagnostic_input', 'accel_diagnostic_report')
+OPTIONAL_FILES = ('target_fk_manifest',)
 FILE_MAX = 64*1024*1024
 FLAGS = dict.fromkeys(('output_allowed', 'approved_for_runtime', 'hardware_opened',
     'motor_enable_sent', 'learned_targets_sent', 'source_files_modified',
@@ -160,9 +162,12 @@ def prepare(input_path, output):
     need(type(boot) is str and str(uuid.UUID(boot)) == boot, 'Canonical selected boot required')
     epoch = request['motor_power_epoch']
     need(epoch is None or type(epoch) is str and 0 < len(epoch) <= 256, 'Power epoch is null or an explicit label')
-    need(type(request['files']) is dict and set(request['files']) == set(FILE_NAMES), 'Exact pinned input inventory required')
+    need(type(request['files']) is dict and
+         set(FILE_NAMES) <= set(request['files']) <= set(FILE_NAMES + OPTIONAL_FILES),
+         'Exact pinned input inventory required')
+    selected_files = FILE_NAMES + tuple(name for name in OPTIONAL_FILES if name in request['files'])
     documents, raw_files, pins = {}, {}, [input_pin]
-    for name in FILE_NAMES:
+    for name in selected_files:
         raw, pin = read_reference(request['files'][name])
         documents[name], raw_files[name] = strict_json(raw), raw
         pins.append(pin)
@@ -210,12 +215,25 @@ def prepare(input_path, output):
         boot_id=boot, motor_power_epoch=epoch or 'NOT_INFERRED_FROM_JETSON_BOOT',
         assembly_id=request['assembly_id'], bundle_path=str(bundle), accel_input_hypothesis=True)
     profile.pop('apply_reviewed_accel_calibration', None)
+    # The historical scalar success never selects a different model implicitly.
+    # A new FK candidate needs its own explicit pin, plan and current evidence.
+    profile.pop('native_target_fk_cache', None)
+    if 'target_fk_manifest' in documents:
+        profile['native_target_fk_cache'] = True
     profile['cadence_source_sha256'] = live.cadence_source_hashes(profile)
     profile['artifacts'] = {name: {'path': None, 'sha256': None} for name in live.artifact_names(profile)}
     for name, source in (('calibration', 'calibration'), ('mount', 'mount'), ('bias', 'gyro_bias'),
         ('model_manifest', 'model_manifest'), ('scalar_step_manifest', 'scalar_step_manifest'),
         ('local_reference_capture', 'current_capture')):
         profile['artifacts'][name] = dict(request['files'][source])
+    fk_plan = None
+    if 'target_fk_manifest' in documents:
+        from singularitydog_hw import policy_active_fk
+        profile['artifacts']['target_fk_manifest'] = dict(request['files']['target_fk_manifest'])
+        fk_plan = policy_active_fk.plan(profile, documents={
+            'target_fk_manifest': documents['target_fk_manifest'],
+            'scalar_step_manifest': documents['scalar_step_manifest'],
+            'model_manifest': documents['model_manifest']})
     template_raw = json_bytes(template)
     profile['artifacts']['accel_input_hypothesis'] = {'path': str(output/'accel-input-hypothesis-draft.json'),
         'sha256': hashlib.sha256(template_raw).hexdigest()}
@@ -248,7 +266,7 @@ def prepare(input_path, output):
         'motor_power_epoch_label': epoch, 'profile_sha256': hashlib.sha256(json_bytes(profile)).hexdigest(),
         'historical_success_is_current_permission': False, 'selected_new_input_hypothesis': True,
         'apply_reviewed_accel_calibration': False, 'blockers': blockers,
-        'input_bindings': pins[:len(FILE_NAMES)+1], 'all_input_and_source_bindings': pins,
+        'input_bindings': pins[:len(selected_files)+1], 'all_input_and_source_bindings': pins,
         'axis_diagnostic_descriptions': axes,
         'unresolved_measurements': {'absolute_zero_uncertainty_rad': None,
             'absolute_gravity_error_bound_rad': None, 'physical_local_clearance_verified': None,
@@ -259,19 +277,29 @@ def prepare(input_path, output):
             'Attach actual observations and named bounded profile/hardware reviews; preserve raw origins and sign.',
             'Bind a new foreground spoken launcher to current kit/profile SHA; PLAN first, then separately authorized trial.',
             'Retain box through this two-second trial; load transfer needs its own preparation and review.']}
+    if fk_plan is not None:
+        result.update(native_target_fk_cache_selected=True, target_fk_file_only_plan=fk_plan,
+            fk_type1_live_timing_verified=False)
     files = {'input-manifest.json': raw_input, 'historical-profile.json': raw_files['prior_profile'],
         'historical-report.json': raw_files['prior_report'], 'profile.json': json_bytes(profile),
         'accel-input-hypothesis-draft.json': template_raw, 'preparation.json': json_bytes(result)}
     files['manifest.json'] = json_bytes({'schema': SCHEMA, 'status': result['status'], **FLAGS,
         'files': {name: {'sha256': hashlib.sha256(raw).hexdigest(), 'byte_count': len(raw)}
                   for name, raw in files.items()}})
+    # Validate the exact generated profile bytes before publishing the output
+    # tree. A second FK check can fail if transitive evidence changed; it must
+    # not leave a completed-looking draft after such a failure.
+    with tempfile.TemporaryDirectory(prefix='dog-profile-preflight-') as temporary:
+        candidate_profile = Path(temporary).resolve() / 'profile.json'
+        candidate_profile.write_bytes(files['profile.json'])
+        plan = live.load_profile(candidate_profile, require_approved=False)
+        exact(plan['output_allowed'], False, 'Draft PLAN cannot authorize output')
+        exact(plan['profile_sha256'], result['profile_sha256'], 'Preflight generated profile SHA')
     verify_pins(pins)
     output.mkdir(mode=0o700, parents=True, exist_ok=False)
     for name, raw in files.items():
         with os.fdopen(os.open(output/name, os.O_WRONLY|os.O_CREAT|os.O_EXCL|getattr(os, 'O_NOFOLLOW', 0), 0o600), 'wb') as stream:
             stream.write(raw)
-    plan = live.load_profile(output/'profile.json', require_approved=False)
-    exact(plan['output_allowed'], False, 'Draft PLAN cannot authorize output')
     return {'status': result['status'], 'output': str(output), 'profile': str(output/'profile.json'),
         'profile_sha256': result['profile_sha256'], 'blockers': blockers, **FLAGS}
 

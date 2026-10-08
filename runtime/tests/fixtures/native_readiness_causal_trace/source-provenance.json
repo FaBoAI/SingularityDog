@@ -1,0 +1,10 @@
+{
+  "schema": "singularitydog.historical-test-source-fixture.v1",
+  "source_commit": "6b1c090659b906b0614e13797a88491882c04c19",
+  "source_path": "runtime/singularitydog_hw/native_pipeline_benchmark.py",
+  "fixture": "runtime/singularitydog_hw/native_pipeline_benchmark.py",
+  "sha256": "0bafa9b92bea7ea641f57239a5ff1cd4784078b7b5bf09b5c917d0019acd5c93",
+  "bytes": 170017,
+  "scope": "Exact historical K37 source for causal trace generator/helper regression tests only; not current runtime or hardware qualification.",
+  "hardware_execution_allowed": false
+}

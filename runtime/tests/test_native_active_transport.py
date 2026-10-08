@@ -95,23 +95,38 @@ class NativeActiveTests(unittest.TestCase):
         if self.peer_error:raise self.peer_error
 
     def device_loop(self,count,mutate=reply,fragment=False):
-        if self.thread:self.thread.join(timeout=1)
+        if self.thread:
+            self.thread.join(timeout=1)
+            self.assertFalse(self.thread.is_alive(),'Previous synthetic peer still owns the socket')
+        ready=threading.Event()
+        self.peer_ready_ns=None;self.peer_events=[]
         def run():
             parser=ATParser();seen=0
+            # Creating a Python Thread does not prove that its peer parser is
+            # running. Exclude that fixture startup from a product deadline;
+            # all request wakeups and injected reply delays remain measured.
+            self.peer_ready_ns=time.monotonic_ns();ready.set()
             try:
                 while seen<count:
                     if not select.select([self.peer],[],[],.7)[0]:return
-                    raw=self.peer.recv(4096)
+                    raw=self.peer.recv(4096);read_ns=time.monotonic_ns()
                     if not raw:return
                     for f in parser.feed(raw):
+                        event={'motor_id':f.destination,'request_kind':f.kind,
+                               'read_ns':read_ns,'mutate_begin_ns':time.monotonic_ns()}
+                        self.peer_events.append(event)
                         self.seen.append(f);seen+=1;output=mutate(f.wire)
+                        event['mutate_end_ns']=time.monotonic_ns()
                         if output:
+                            event['send_begin_ns']=time.monotonic_ns()
                             if fragment:
                                 self.peer.sendall(output[:5]);time.sleep(.0001);self.peer.sendall(output[5:])
                             else:self.peer.sendall(output)
+                            event['send_end_ns']=time.monotonic_ns()
             except (OSError,ValueError):pass
             except BaseException as error:self.peer_error=error
         self.thread=threading.Thread(target=run);self.thread.start()
+        self.assertTrue(ready.wait(timeout=1),'Synthetic peer did not reach its parser before the test')
 
     def no_write(self):
         self.assertFalse(select.select([self.peer],[],[],0)[0])
@@ -525,8 +540,10 @@ class NativeActiveTests(unittest.TestCase):
             return b'' if f.destination==1 else b'junk'+reply(w,fault=4 if f.destination==3 else 0)
         self.device_loop(6,sometimes)
         result=self.session.emergency_stop(timeout_ns=90_000_000)
+        self.assertLessEqual(self.peer_ready_ns,result['evidence']['stats']['begin_ns'])
         self.assertEqual(result['attempted_ids'],list(range(1,7)))
-        self.assertEqual(result['confirmed_ids'],list(range(2,7)))
+        self.assertEqual(result['confirmed_ids'],list(range(2,7)),
+                         {'stop':result,'peer_events':self.peer_events})
         self.assertEqual(result['fault_by_id']['3'],4)
         self.assertFalse(result['complete'])
         self.assertTrue(result['evidence']['rejected_hex'].startswith(b'old-partial'.hex()))
@@ -538,7 +555,8 @@ class NativeActiveTests(unittest.TestCase):
             return reply(w)
         self.device_loop(6,observed_delay)
         result=self.session.emergency_stop()
-        self.assertTrue(result['complete'],result)
+        self.assertLessEqual(self.peer_ready_ns,result['evidence']['stats']['begin_ns'])
+        self.assertTrue(result['complete'],{'stop':result,'peer_events':self.peer_events})
         self.assertEqual(result['timeout_ns'],250_000_000)
         self.assertEqual(result['attempted_ids'],list(range(1,7)))
         self.assertEqual(result['confirmed_ids'],list(range(1,7)))
@@ -547,6 +565,28 @@ class NativeActiveTests(unittest.TestCase):
         self.assertTrue(all(b['start_ns']>=a['received_ns'] for a,b in zip(rows,rows[1:])))
         self.assertEqual(rows[-1]['deadline_ns'],result['deadline_monotonic_ns'])
         self.assertGreater(rows[0]['deadline_ns']-rows[0]['start_ns'],35_000_000)
+
+    def test_peer_startup_delay_precedes_the_unchanged_emergency_deadline(self):
+        # Reproduce the scheduling cause deliberately: without the fixture
+        # ready handshake, 35ms startup + the normal 28ms reply exceeded the
+        # first unchanged 250ms/6 STOP slice. Start the peer before the budget,
+        # preserving that 28ms delay and every per-axis confirmation assertion.
+        original_thread=threading.Thread
+        def delayed_thread(*args,**kwargs):
+            target=kwargs['target']
+            def delayed():time.sleep(.035);target()
+            kwargs['target']=delayed
+            return original_thread(*args,**kwargs)
+        def delayed_reply(wire):
+            time.sleep(.028)
+            return reply(wire)
+        with patch.object(threading,'Thread',side_effect=delayed_thread):
+            self.device_loop(6,delayed_reply)
+        result=self.session.emergency_stop()
+        self.assertTrue(result['complete'],{'stop':result,'peer_events':self.peer_events})
+        self.assertEqual(result['timeout_ns'],250_000_000)
+        self.assertLessEqual(self.peer_ready_ns,result['evidence']['stats']['begin_ns'])
+        self.assertEqual(result['confirmed_ids'],list(range(1,7)))
 
     def test_emergency_old_short_budget_does_not_reclassify_late_replies(self):
         def observed_delay(w):

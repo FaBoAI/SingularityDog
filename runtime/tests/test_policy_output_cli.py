@@ -136,6 +136,13 @@ class PolicyOutputCLITests(unittest.TestCase):
         self.assertFalse(report['math_thread_startup']['selected'])
         model.assert_not_called(); native.assert_not_called(); audio.assert_not_called()
 
+    def test_pinned_launcher_profile_change_rejects_before_model_or_hardware(self):
+        with patch('singularitydog_hw.policy_output_model.LivePolicyModel') as model, \
+             patch('singularitydog_hw.native_active_transport.load_library') as native:
+            with self.assertRaises(SystemExit):
+                self.run_quiet(['--profile', str(self.path), '--profile-sha256', 'f' * 64])
+        model.assert_not_called(); native.assert_not_called()
+
     def test_single_thread_math_plan_starts_early_and_late_import_fails_closed(self):
         environment=dict(os.environ,OMP_NUM_THREADS='8',OPENBLAS_NUM_THREADS='4',MKL_NUM_THREADS='2',
                          PYTHONPATH=str(Path(__file__).resolve().parents[1]))

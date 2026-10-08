@@ -9,6 +9,7 @@ requires the independently tested actuator watchdog and physical support.
 from concurrent.futures import FIRST_EXCEPTION, Future, ThreadPoolExecutor, wait
 from dataclasses import asdict, replace
 import gc
+from types import MappingProxyType
 import math
 import os
 import threading
@@ -25,7 +26,10 @@ from .policy_live_profile import (SCHEMA_V3, SCALAR_BACKEND, MEASURED_R17_STARTU
                                   reviewed_startup_cycle_allowance,
                                   fixed_catch_current_hold_settings, supported_preload_settings,
                                   human_supported_partial_current_hold_settings,
-                                  prepared_voltage_publication_settings)
+                                  prepared_voltage_publication_settings,
+                                  native_phase_pair_settings,
+                                  native_feedback_batch_decode_settings,
+                                  unpaired_output_future_notifications_settings)
 from .policy_post_reply_timing import PostReplyDeadlineBudget
 from .policy_observer import _TARGET_LOWER, _TARGET_UPPER
 from .native_diagnostic_transport import exchange_evidence
@@ -44,6 +48,19 @@ MODEL_TARGET_LIMITS_BY_ID={mid:(lower,upper) for mid,lower,upper in
 
 def need(condition,message):
     if not condition:raise RuntimeError(message)
+
+
+def _owned_future_readiness_group(deadline_wait,inputs):
+    """Optional hint pipe owned by the exact pinned, GIL-releasing waiter.
+
+    A notification cannot replace the current owner Futures or their original
+    deadline. Generic callables, older libraries and nonstandard Futures keep
+    the existing readiness-poll path.
+    """
+    from .native_active_transport import _OwnedActiveWaiter
+    if type(deadline_wait) is not _OwnedActiveWaiter:return None
+    if not deadline_wait.future_readiness_available:return None
+    return deadline_wait.readiness_group(inputs)
 
 
 def checked_voltage_rows(rows,ids,profile,now_ns):
@@ -154,6 +171,82 @@ class _PendingCycleTiming:
         return result
 
 
+class _DeferredCycleEvidence:
+    """Retain raw cycle values; build diagnostic dictionaries only after STOP.
+
+    The live coordinator still validates every reply and applies its timing
+    budget. Formatting and floating-point unit conversions are not required
+    to decide whether another command may run.
+    """
+    __slots__=('index','phase','begin_ns','release_ns','previous_release_ns',
+        'cadence_slot','scheduled_release_ns','acquired_ns','first_ns',
+        'computed_ns','policy_computed_ns','encoded_ns','weight','command','imu',
+        'imu_body','voltage_validated_ns','voltage_overlap',
+        'acquisition_cpu_begin_ns','acquisition_cpu_end_ns',
+        'voltage_cpu_begin_ns','voltage_cpu_end_ns','output_reply_end_ns',
+        'output_exchange_return_ns','output_join_begin_ns','output_join_ready_ns',
+        'output_takeout_end_ns','output_join_deadline_ns','output_native_deadline_ns',
+        'output_cpu_begin_ns','output_cpu_end_ns','final_write_ns','feedback',
+        'end_ns','deadline20ms_missed','steady_deadline20ms_missed',
+        'startup_20ms_allowance_used','post_reply_deadline')
+
+    def __init__(self,index,command,begun,release,previous_release,slot,
+                 absolute_epoch_cadence,acquired,first,computed,policy_computed,
+                 encoded,weight,imu,imu_body,voltage_validated_ns,voltage_overlap,timing):
+        self.index=index;self.phase=command.phase;self.command=command
+        self.begin_ns=begun;self.release_ns=release
+        self.previous_release_ns=previous_release;self.cadence_slot=slot
+        self.scheduled_release_ns=release if absolute_epoch_cadence else None
+        self.acquired_ns=acquired;self.first_ns=first;self.computed_ns=computed
+        self.policy_computed_ns=policy_computed;self.encoded_ns=encoded
+        self.weight=weight;self.imu=imu;self.imu_body=imu_body
+        self.voltage_validated_ns=voltage_validated_ns;self.voltage_overlap=voltage_overlap
+        self.acquisition_cpu_begin_ns=timing.combined_acquisition_wait_cpu_begin_ns
+        self.acquisition_cpu_end_ns=timing.combined_acquisition_wait_cpu_end_ns
+        self.voltage_cpu_begin_ns=timing.voltage_join_cpu_begin_ns
+        self.voltage_cpu_end_ns=timing.voltage_join_cpu_end_ns
+        self.startup_20ms_allowance_used=False;self.post_reply_deadline=None
+
+    def materialize(self):
+        """Called after bus owners and IMU worker have stopped, never in a tick."""
+        result={'index':self.index,'phase':self.phase,'begin_ns':self.begin_ns,
+            'output_reply_end_ns':self.output_reply_end_ns,
+            'output_exchange_return_ns':self.output_exchange_return_ns,
+            'output_join_begin_ns':self.output_join_begin_ns,
+            'output_join_ready_ns':self.output_join_ready_ns,
+            'output_takeout_end_ns':self.output_takeout_end_ns,
+            'output_join_deadline_ns':self.output_join_deadline_ns,
+            'output_native_deadline_ns':self.output_native_deadline_ns,
+            'output_join_cpu_ms':None if self.output_cpu_begin_ns is None else
+                (self.output_cpu_end_ns-self.output_cpu_begin_ns)/1e6,
+            'oldest_input_to_final_host_write_ms':(self.final_write_ns-self.first_ns)/1e6,
+            'feedback':self.feedback,'imu_body':self.imu_body,
+            'release_lateness_ms':max(0,self.begin_ns-self.release_ns)/1e6,
+            'release_interval_ms':None if self.previous_release_ns is None else
+                (self.begin_ns-self.previous_release_ns)/1e6,
+            'cadence_slot':self.cadence_slot,'scheduled_release_ns':self.scheduled_release_ns,
+            'acquisition_ms':(self.acquired_ns-self.first_ns)/1e6,
+            'inference_ms':(self.computed_ns-self.acquired_ns)/1e6,
+            'acquisition_join_cpu_ms':None if self.acquisition_cpu_begin_ns is None else
+                (self.acquisition_cpu_end_ns-self.acquisition_cpu_begin_ns)/1e6,
+            'policy_return_ns':self.policy_computed_ns,
+            'overlapped_voltage_validated_ns':self.voltage_validated_ns,
+            'voltage_join_ms':(self.computed_ns-self.policy_computed_ns)/1e6 if self.voltage_overlap else 0.,
+            'voltage_join_cpu_ms':None if self.voltage_cpu_begin_ns is None else
+                (self.voltage_cpu_end_ns-self.voltage_cpu_begin_ns)/1e6,
+            'envelope_and_encode_ms':(self.encoded_ns-self.computed_ns)/1e6,
+            'policy_and_envelope_ms':(self.encoded_ns-self.acquired_ns)/1e6,
+            'effective_policy_weight':self.weight,'command':self.command,'imu':self.imu,
+            'end_ns':self.end_ns,'iteration_ms':(self.end_ns-self.begin_ns)/1e6,
+            'deadline20ms_missed':self.deadline20ms_missed,
+            'post_output_processing_ms':(self.end_ns-self.output_exchange_return_ns)/1e6,
+            'startup_20ms_allowance_used':self.startup_20ms_allowance_used,
+            'steady_deadline20ms_missed':self.steady_deadline20ms_missed}
+        if self.post_reply_deadline is not None:
+            result['post_reply_deadline']=self.post_reply_deadline
+        return result
+
+
 def _fixed_record_frame(wire):
     """A native record is already framed; do not re-run stream resynchronization."""
     need(len(wire)==17 and wire[:2]==b'AT' and wire[6]==8 and
@@ -161,8 +254,46 @@ def _fixed_record_frame(wire):
     return codec.Frame(int.from_bytes(wire[2:6],'big') >> 3,4,wire[7:15],wire)
 
 
-def decode_records(result):
+def _python_motion_wires(command,offsets,axes,trial_origin_q,*,encode_motion):
+    """Encode and check all twelve quantized targets before publishing a batch.
+
+    Canonical fixed-length bytes from encode_motion need no stream parser or
+    Frame allocation. Anything outside that exact framing retains the original
+    parser, including its first-frame/error behavior. Keep all twelve encodes
+    ahead of the ordered quantized checks: no partially checked batch escapes.
+    """
+    raws={i:(command.q_model_rad[i-1]-offsets[i])/axes[str(i)]['sign'] for i in IDS}
+    result={s:[encode_motion(i,raws[i],command.kp[i-1],command.kd[i-1]) for i in ids]
+            for s,ids in BUSES.items()}
+    for wires in result.values():
+        for wire in wires:
+            if (type(wire) is bytes and len(wire)==17 and wire[:2]==b'AT' and
+                    wire[6]==8 and wire[-2:]==b'\r\n'):
+                i=(int.from_bytes(wire[2:6],'big') >> 3)&255
+                raw=int.from_bytes(wire[7:9],'big')*25.14/65535-12.57
+            else:
+                frame=codec.ATParser().feed(wire)[0];i=frame.destination
+                raw=int.from_bytes(frame.data[:2],'big')*25.14/65535-12.57
+            a=axes[str(i)]
+            q=a['sign']*raw+offsets[i]
+            need(a['lower_rad']<=q<=a['upper_rad'],f'ID{i} quantized target outside physical range')
+            need(abs(q-trial_origin_q[i-1])<=a['max_displacement_from_start_rad'],
+                 f'ID{i} quantized target outside trial displacement')
+            estimated=command.kp[i-1]*(q-command.q_model_rad[i-1])+command.estimated_pd_torque_nm[i-1]
+            need(abs(estimated)<=a['max_estimated_pd_torque_nm'],f'ID{i} quantized estimated PD torque')
+    return result
+
+
+def decode_records(result,*,feedback_decoder=None,first_id=None):
     records,_=result
+    if feedback_decoder is not None:
+        need(type(first_id) is int and first_id in (1,7),
+             'Native feedback decoder requires an exact bus first ID')
+        # The optional decoder accepts only the genuine fixed six-record ABI
+        # and supported Type2 feedback transactions. Mixed/invalid records
+        # return None, preserving the legacy parser's exact error contracts.
+        decoded=feedback_decoder.decode(records,first_id)
+        if decoded is not None:return decoded
     rows={}
     for r in records:
         need(r.written==r.received==17 and 0<r.start_ns<=r.finish_ns<=r.received_ns<r.deadline_ns,
@@ -191,7 +322,13 @@ def decode_records(result):
 class BusWorkers:
     """One owner per bus; emergency scheduling prevents subsequent active work."""
     def __init__(self,sessions,cancel_io,clock=time.monotonic_ns,*,before_emergency_stop=None,
-                 prepare_voltage_before_feedback_publication=False):
+                 prepare_voltage_before_feedback_publication=False,native_phase_pair=False,
+                 native_feedback_batch_decode=False,native_feedback_codec_selection=None,
+                 unpaired_output_future_notifications=False):
+        need(type(unpaired_output_future_notifications) is bool,
+             'Unpaired output notification selection must be a bool')
+        need(not unpaired_output_future_notifications or native_phase_pair is False,
+             'Unpaired output notification cannot select a native pair')
         need(set(sessions)==set(BUSES) and sessions['front'] is not sessions['rear'],'Two independent buses required')
         need(type(prepare_voltage_before_feedback_publication) is bool,
              'Prepared voltage publication selection must be a bool')
@@ -200,6 +337,16 @@ class BusWorkers:
             need(all(getattr(session,'prepared_exchange_capability',None) is
                      PREPARED_EXCHANGE_CAPABILITY for session in sessions.values()),
                  'Both active transports must support the exact prepared exchange capability')
+        need(type(native_feedback_batch_decode) is bool,
+             'Unpaired native feedback codec selection must be a bool')
+        need(native_feedback_batch_decode or native_feedback_codec_selection is None,
+             'Inactive unpaired codec cannot carry a source selection')
+        selected_decoders=None;codec_proof=None
+        if native_feedback_batch_decode:
+            from .unpaired_native_feedback_codec import prepare_unpaired_decoders
+            need(native_phase_pair is False,'Unpaired feedback codec cannot select native phase owners')
+            selected_decoders,codec_proof=prepare_unpaired_decoders(sessions,native_feedback_codec_selection)
+        self.unpaired_native_feedback_codec_proof=codec_proof
         self.prepare_voltage_before_feedback_publication=prepare_voltage_before_feedback_publication
         self.prepared_voltage_publications=[] if prepare_voltage_before_feedback_publication else None
         self.prepared_voltage_counts={scope:0 for scope in BUSES} if prepare_voltage_before_feedback_publication else None
@@ -207,7 +354,117 @@ class BusWorkers:
         self.pools={s:ThreadPoolExecutor(max_workers=1,thread_name_prefix='policy-'+s) for s in BUSES}
         self.lock=threading.RLock();self.aborted=threading.Event();self.reason=None
         self.stop_futures=None;self.journal=[];self.emergency_errors=[]
+        self.acquisition_notification_groups=0;self.acquisition_notification_waits=0
+        self.voltage_notification_groups=0;self.voltage_notification_waits=0
+        self.unpaired_output_future_notifications=unpaired_output_future_notifications
+        self.output_notification_groups=0;self.output_notification_waits=0
+        self._output_notification_current_futures=None
         self.before_emergency_stop=before_emergency_stop
+        need(type(native_phase_pair) is bool,'Native phase pair selection must be a bool')
+        self.native_pair=None
+        self.native_feedback_decoders=selected_decoders
+        if native_phase_pair:
+            from .native_active_transport import ActivePhasePair,ActiveSession,NativeFeedbackBatchDecoder
+            try:
+                self.native_pair=ActivePhasePair(sessions['front'],sessions['rear'])
+                # Keep generic sessions and the default route unchanged. The
+                # native-pair opt-in already binds the actual active libraries.
+                if all(isinstance(session,ActiveSession) for session in sessions.values()):
+                    self.native_feedback_decoders={scope:NativeFeedbackBatchDecoder(session.lib)
+                        for scope,session in sessions.items()}
+            except BaseException as error:
+                # A rejected optional ABI must not retain newly started
+                # native owners, session bindings, or Python executors.
+                cleanup_errors=[]
+                if self.native_pair is not None:
+                    try:self.native_pair.close()
+                    except BaseException as cleanup:cleanup_errors.append(str(cleanup))
+                for pool in self.pools.values():
+                    try:pool.shutdown(wait=True,cancel_futures=False)
+                    except BaseException as cleanup:cleanup_errors.append(str(cleanup))
+                if cleanup_errors and hasattr(error,'add_note'):
+                    error.add_note('Native codec construction cleanup: '+ '; '.join(cleanup_errors))
+                raise
+
+    def _decode_bus_records(self,scope,result):
+        decoders=getattr(self,'native_feedback_decoders',None)
+        return decode_records(result,feedback_decoder=None if decoders is None else decoders[scope],
+                              first_id=BUSES[scope][0])
+
+    def _transform_native_pair_results(self,raw,label,*,decoded,journaled,journal_lock):
+        """Decorate stable native slots directly before original publication.
+
+        The native pair has joined both writers before invoking this function.
+        It must never call emergency here: a lost enqueue can make the caller
+        join this coordinator while holding the STOP lock. Raw evidence is
+        journaled once even if that caller subsequently receives an error.
+        """
+        results={}
+        for scope in BUSES:
+            result=raw[scope];error=None
+            try:
+                if isinstance(result,BaseException):raise result
+                if decoded:
+                    rows=self._decode_bus_records(scope,result)
+                    need(all(mid in BUSES[scope] for mid,_ in rows),'Cross-bus response')
+                    records=result[0]
+                    result=(result,rows,max((r.finish_ns for r in records),default=0),
+                            max((r.received_ns for r in records),default=0))
+                results[scope]=result
+            except BaseException as caught:
+                error=caught;results[scope]=caught
+            original=raw[scope]
+            with journal_lock:
+                if scope not in journaled:
+                    if isinstance(original,tuple) and len(original)==2:
+                        self.journal.append((scope,original,None if error is None else str(error),label))
+                        journaled.add(scope)
+                    elif hasattr(original,'records') and hasattr(original,'stats'):
+                        self.journal.append((scope,(original.records,original.stats),str(original),label))
+                        journaled.add(scope)
+        return results
+
+    def _submit_native_pair(self,wires,deadline_ns,label,*,decoded=False):
+        need(set(wires)==set(BUSES),'Native phase requires both buses')
+        need(type(deadline_ns) is int and self.clock()<deadline_ns,
+             'Native pair exceeded absolute hard deadline')
+        journaled=set();journal_lock=threading.Lock()
+        def transform(raw):
+            return self._transform_native_pair_results(raw,label,decoded=decoded,
+                journaled=journaled,journal_lock=journal_lock)
+        try:futures=self.native_pair.submit(wires,deadline_ns=deadline_ns,result_transform=transform)
+        except BaseException as error:
+            # A Python enqueue can raise after native writers actually ran.
+            # The pair settles that generation and attaches only its raw slots.
+            partial=getattr(error,'native_pair_bus_results',None) or {}
+            with journal_lock:
+                for scope,row in partial.items():
+                    if scope in journaled:continue
+                    if isinstance(row,BaseException) and hasattr(row,'records') and hasattr(row,'stats'):
+                        self.journal.append((scope,(row.records,row.stats),str(row),label))
+                        journaled.add(scope)
+                    elif isinstance(row,tuple) and len(row)==2:
+                        self.journal.append((scope,row,str(error),label));journaled.add(scope)
+            self.emergency(type(error).__name__+': '+str(error))
+            raise
+        failure_handed_off=False;handoff_lock=threading.Lock()
+        def handoff_failure(done):
+            nonlocal failure_handed_off
+            if done.cancelled():error=RuntimeError('Native pair publication cancelled')
+            else:error=done.exception()
+            if error is None:return
+            with handoff_lock:
+                if failure_handed_off:return
+                failure_handed_off=True
+            # Error-only work goes to an existing bus pool. Success has no
+            # second enqueue or synthetic Future. STOP still joins native
+            # writers; this callback never waits for the coordinator lock.
+            try:self.pools['front'].submit(self.emergency,type(error).__name__+': '+str(error))
+            except BaseException as enqueue_error:
+                self.emergency_errors.append({'stage':'native_pair_failure_handoff','bus':None,
+                    'error':type(enqueue_error).__name__+': '+str(enqueue_error)})
+        for future in futures.values():future.add_done_callback(handoff_failure)
+        return futures
 
     def _exchange(self,scope,wires,timeout_ns=100_000_000,send_only=False,label='preflight',
                   deadline_ns=None,before_native=None):
@@ -240,6 +497,9 @@ class BusWorkers:
                deadline_ns=None):
         with self.lock:
             need(not self.aborted.is_set(),'Output cancelled before submission')
+            if self.native_pair is not None and set(wires)==set(BUSES) and not send_only:
+                end=self.clock()+timeout_ns if deadline_ns is None else deadline_ns
+                return self._submit_native_pair(wires,end,label)
             return {s:self.pools[s].submit(self._exchange,s,w,timeout_ns,send_only,label,
                                           deadline_ns) for s,w in wires.items()}
 
@@ -249,7 +509,7 @@ class BusWorkers:
         # before the coordinator can reuse any returned feedback.
         try:
             result=self._exchange(scope,wires,label=label,deadline_ns=deadline_ns)
-            rows=decode_records(result)
+            rows=self._decode_bus_records(scope,result)
             need(all(mid in BUSES[scope] for mid,_ in rows),'Cross-bus response')
             records=result[0]
             return result,rows,max((r.finish_ns for r in records),default=0),max(
@@ -261,8 +521,17 @@ class BusWorkers:
     def submit_decoded(self,wires,*,deadline_ns,label):
         with self.lock:
             need(not self.aborted.is_set(),'Output cancelled before submission')
-            return {s:self.pools[s].submit(self._exchange_decoded,s,w,deadline_ns,label)
-                    for s,w in wires.items()}
+            if self.native_pair is not None:
+                return self._submit_native_pair(wires,deadline_ns,label,decoded=True)
+            if self.unpaired_output_future_notifications:
+                previous=self._output_notification_current_futures
+                need(previous is None or all(f.done() for f in previous.values()),
+                     'Previous original output notification owners are still active')
+            originals={s:self.pools[s].submit(self._exchange_decoded,s,w,deadline_ns,label)
+                       for s,w in wires.items()}
+            if self.unpaired_output_future_notifications:
+                self._output_notification_current_futures=MappingProxyType(dict(originals))
+            return originals
 
     def collect(self,futures):
         results={};failure=None
@@ -272,29 +541,61 @@ class BusWorkers:
                 failure=failure or e
                 self.emergency(type(e).__name__+': '+str(e))
         if failure:raise failure
+        pair=getattr(self,'native_pair',None)
+        if pair is not None and pair.owns_futures(futures):
+            try:pair.wait_published(futures)
+            except BaseException as error:
+                self.emergency(type(error).__name__+': '+str(error));raise
         return results
 
-    def collect_output(self,futures,*,deadline_ns,deadline_wait=None,timing=None):
+    def collect_output(self,futures,*,deadline_ns,deadline_wait=None,timing=None,
+                       native_deadline_ns=None):
         """Join both current decoded replies before taking either result.
 
-        The native path releases the GIL between readiness checks requested at
-        most 200 us apart. This avoids a blocking Future condition wake for a
-        successful pair, not OS scheduling jitter. The fallback has one finite
-        FIRST_EXCEPTION wait. The caller supplies the existing coordinator age
-        deadline; native writes/replies still use their earlier hard deadline.
-        No previous reply, unfinished Future, or late host proof is accepted.
+        A selected native pair wakes on joined native completion and original
+        Future publication, with 200 us ticks (50 us in the last 1 ms). Wake
+        notifications are hints: genuine current Futures and both original
+        deadlines are checked after each wake. Once both results are ready,
+        the metadata publication fence is joined within the remaining original
+        host deadline. Older native libraries retain
+        the absolute waiter polling path. Neither route guarantees OS wake
+        latency or grants another I/O or host completion allowance.
+        The explicitly reviewed unpaired notification route is
+        default-off. Its private pipe observes the same original Futures and
+        includes result takeout and notification cleanup in the original host
+        deadline. Capability alone cannot select it; old libraries and generic
+        waiters retain the existing bounded readiness polling path.
+        The fallback has one finite FIRST_EXCEPTION wait. No previous reply,
+        unfinished Future, or late host proof is accepted.
         """
         if timing is not None:
             timing.output_join_cpu_begin_ns=time.thread_time_ns()
             timing.output_join_begin_ns=self.clock()
+        notification=None;notification_checked=False
         try:
             need(set(futures)==set(BUSES),'Two-bus output proofs required')
             need(type(deadline_ns) is int and deadline_ns>0,'Integer output join deadline required')
+            if native_deadline_ns is None:native_deadline_ns=deadline_ns
+            need(type(native_deadline_ns) is int and 0<native_deadline_ns<=deadline_ns,
+                 'Native output deadline must be no later than coordinator deadline')
             need(deadline_wait is None or callable(deadline_wait),'Callable native output wait required')
             inputs=tuple(futures.values())
             need(all(isinstance(future,Future) for future in inputs) and
                  len({id(future) for future in inputs})==len(BUSES),
                  'Distinct current output Future owners required')
+            current=getattr(self,'_output_notification_current_futures',None)
+            if getattr(self,'unpaired_output_future_notifications',False) is True:
+                need(current is not None and set(current)==set(BUSES) and
+                     all(futures[s] is current[s] for s in BUSES),
+                     'Unpaired notification requires current original decoded output Futures')
+            pair=getattr(self,'native_pair',None)
+            paired=False
+            notifier=None
+            if pair is not None:
+                need(pair.owns_futures(futures),'Native completion requires current original output Futures')
+                paired=True
+                if getattr(pair,'completion_notification_available',False) is True:
+                    notifier=pair.wait_completion
             def ready_failure():
                 for future in inputs:
                     if future.cancelled():future.result()
@@ -304,26 +605,87 @@ class BusWorkers:
                 need(not self.aborted.is_set(),self.reason or 'Output aborted during output join')
                 now=self.clock()
                 if now>=deadline_ns:raise TimeoutError('Output join coordinator deadline')
-                if all(future.done() for future in inputs):break
-                if deadline_wait is None:
+                all_ready=all(future.done() for future in inputs)
+                if all_ready and (not paired or pair.publication_complete(futures)):break
+                if all_ready and paired:
+                    # Native writers and both genuine results are complete;
+                    # only the publisher's metadata fence remains. Join that
+                    # Event directly instead of consuming a final hint and
+                    # waiting another polling tick. Keep the original end.
+                    try:pair.wait_published(futures,timeout=(deadline_ns-now)/1e9)
+                    except BaseException:
+                        ready_failure();raise
+                    continue
+                # This explicit default-off selection leaves the paired
+                # route and all ordinary run/profile/CLI defaults unchanged.
+                # Register only current original Futures and recheck errors,
+                # cancellation and the same host deadline after registration.
+                if (not paired and
+                        getattr(self,'unpaired_output_future_notifications',False) is True and
+                        deadline_wait is not None and not notification_checked):
+                    try:notification=_owned_future_readiness_group(deadline_wait,inputs)
+                    except BaseException:
+                        ready_failure();raise
+                    notification_checked=True
+                    if notification is not None:
+                        self.output_notification_groups=getattr(self,'output_notification_groups',0)+1
+                        continue
+                if notification is not None:
+                    self.output_notification_waits=getattr(self,'output_notification_waits',0)+1
+                    before=self.clock()
+                    try:event=notification.wait(deadline_ns)
+                    except BaseException:
+                        ready_failure();raise
+                    ready_failure()
+                    after=self.clock()
+                    need(type(event) is dict and event.get('kind') in ('NOTIFIED','DEADLINE') and
+                         type(event.get('actual_ns')) is int and
+                         before<=event['actual_ns']<=after,
+                         'Invalid native unpaired output readiness notification')
+                    need(event['kind']!='DEADLINE' or event['actual_ns']>=deadline_ns,
+                         'Native unpaired output deadline notification returned early')
+                elif notifier is None and deadline_wait is None:
                     _,unfinished=wait(inputs,timeout=(deadline_ns-now)/1e9,return_when=FIRST_EXCEPTION)
                     ready_failure()
                     if unfinished:raise TimeoutError('Output join coordinator deadline')
                     need(all(future.done() for future in inputs),'Incomplete output readiness wait')
                 else:
-                    wake=min(deadline_ns,now+200_000)
-                    try:deadline_wait(wake)
+                    # The host join can have a reviewed bookkeeping allowance.
+                    # Its final readiness horizon follows the earlier native
+                    # I/O deadline, while all rejection clocks remain unchanged.
+                    quantum_ns=50_000 if now>=native_deadline_ns-1_000_000 else 200_000
+                    wake=min(deadline_ns,now+quantum_ns)
+                    try:
+                        if notifier is not None:
+                            event=notifier(futures,tick_ns=wake,deadline_ns=deadline_ns)
+                            need(type(event) is dict and event.get('kind') in ('NOTIFIED','TICK') and
+                                 type(event.get('actual_ns')) is int and
+                                 now<=event['actual_ns']<=self.clock(),
+                                 'Invalid native output completion notification')
+                            if event['kind']=='TICK':
+                                need(event['actual_ns']>=wake,'Native output completion tick returned early')
+                        else:
+                            deadline_wait(wake)
+                            need(self.clock()>=wake,'Native output wait returned before its deadline')
                     except BaseException:
                         ready_failure()
                         raise
-                    need(self.clock()>=wake,'Native output wait returned before its deadline')
             if timing is not None:timing.output_join_ready_ns=self.clock()
             results=self.collect(futures)
             if timing is not None:timing.output_takeout_end_ns=self.clock()
             need(not self.aborted.is_set(),self.reason or 'Output aborted during output result takeout')
             if self.clock()>=deadline_ns:raise TimeoutError('Output result takeout coordinator deadline')
+            if notification is not None:
+                notification.close();notification=None
+                need(not self.aborted.is_set(),self.reason or 'Output aborted during output readiness cleanup')
+                if self.clock()>=deadline_ns:raise TimeoutError('Output readiness cleanup coordinator deadline')
             return results
         except BaseException as error:
+            if notification is not None:
+                try:notification.close()
+                except BaseException as cleanup:
+                    if hasattr(error,'add_note'):
+                        error.add_note('Output readiness cleanup: '+repr(cleanup))
             self.emergency(type(error).__name__+': '+str(error))
             raise
         finally:
@@ -333,14 +695,15 @@ class BusWorkers:
     def collect_acquisition(self,futures,imu_future,*,deadline_ns,deadline_wait=None,timing=None):
         """Join the current CAN owners and current IMU before result takeout.
 
-        A selected native waiter releases the GIL and requests wake targets at
-        most 200 us apart, bounded by this cycle's unchanged absolute deadline.
-        It avoids depending on a condition notification for all-ready inputs;
-        this is a requested polling interval, not an OS wake latency guarantee.
-        The no-callback route retains its one finite FIRST_EXCEPTION wait.
+        The optional pinned native notification observes these three original
+        Futures. A hint never certifies readiness or replaces the unchanged
+        absolute deadline, including result takeout and notification cleanup.
+        Older native libraries retain bounded 200 us readiness polling; the
+        no-callback route retains its one finite FIRST_EXCEPTION wait.
         """
         if timing is not None:
             timing.combined_acquisition_wait_cpu_begin_ns=time.thread_time_ns()
+        notification=None;notification_checked=False
         try:
             need(set(futures)==set(BUSES),'Two-bus acquisition required')
             need(type(deadline_ns) is int and deadline_ns>0,'Integer acquisition deadline required')
@@ -376,12 +739,41 @@ class BusWorkers:
                     now=self.clock()
                     if now>=deadline_ns:raise TimeoutError('Input acquisition hard deadline')
                     if all(future.done() for future in inputs):break
-                    wake=min(deadline_ns,now+200_000)
-                    try:deadline_wait(wake)
-                    except BaseException:
+                    if not notification_checked:
+                        try:notification=_owned_future_readiness_group(deadline_wait,inputs)
+                        except BaseException:
+                            ready_failure()
+                            raise
+                        notification_checked=True
+                        if notification is not None:
+                            self.acquisition_notification_groups=getattr(self,'acquisition_notification_groups',0)+1
+                            # Registering callbacks may complete an owner or
+                            # consume the remaining budget. Check again first.
+                            continue
+                    if notification is not None:
+                        self.acquisition_notification_waits=getattr(self,'acquisition_notification_waits',0)+1
+                        before=self.clock()
+                        try:event=notification.wait(deadline_ns)
+                        except BaseException:
+                            ready_failure()
+                            raise
+                        # An original owner failure has priority over a bad
+                        # hint, cancellation wake, or late hint timestamp.
                         ready_failure()
-                        raise
-                    need(self.clock()>=wake,'Native acquisition wait returned before its deadline')
+                        after=self.clock()
+                        need(type(event) is dict and event.get('kind') in ('NOTIFIED','DEADLINE') and
+                             type(event.get('actual_ns')) is int and
+                             before<=event['actual_ns']<=after,
+                             'Invalid native acquisition readiness notification')
+                        need(event['kind']!='DEADLINE' or event['actual_ns']>=deadline_ns,
+                             'Native acquisition deadline notification returned early')
+                    else:
+                        wake=min(deadline_ns,now+200_000)
+                        try:deadline_wait(wake)
+                        except BaseException:
+                            ready_failure()
+                            raise
+                        need(self.clock()>=wake,'Native acquisition wait returned before its deadline')
             need(not self.aborted.is_set(),self.reason or 'Output aborted during acquisition')
             if timing is not None:
                 timing.combined_acquisition_wait_end_ns=self.clock()
@@ -396,8 +788,17 @@ class BusWorkers:
             # A late/cancelled result must not reach input validation or policy.
             need(not self.aborted.is_set(),self.reason or 'Output aborted during acquisition result takeout')
             if self.clock()>=deadline_ns:raise TimeoutError('Input acquisition result takeout hard deadline')
+            if notification is not None:
+                notification.close();notification=None
+                need(not self.aborted.is_set(),self.reason or 'Output aborted during acquisition readiness cleanup')
+                if self.clock()>=deadline_ns:raise TimeoutError('Input acquisition readiness cleanup hard deadline')
             return results,imu_value
         except BaseException as error:
+            if notification is not None:
+                try:notification.close()
+                except BaseException as cleanup:
+                    if hasattr(error,'add_note'):
+                        error.add_note('Acquisition readiness cleanup: '+repr(cleanup))
             self.emergency(type(error).__name__+': '+str(error))
             raise
         finally:
@@ -407,13 +808,16 @@ class BusWorkers:
     def collect_voltage(self,futures,*,deadline_ns,deadline_wait=None,timing=None):
         """Join both original owner proofs without sequential blocking result calls.
 
-        The selected native waiter releases the GIL and checks cancellation;
-        poll readiness at most every 200 us instead of sleeping on a Future's
-        condition notification. This bounds the requested wait, not OS wake
-        latency. Without that waiter, use one finite FIRST_EXCEPTION wait.
-        No unfinished result, previous voltage, or late proof may be reused.
+        The optional pinned native notification wakes on a current original
+        Future's callback and checks cancellation. Hints never certify
+        readiness: both Futures and the original absolute deadline are checked
+        after every wake and after takeout and notification cleanup. Older
+        native libraries retain 200 us readiness polling; without a native
+        waiter, use one finite FIRST_EXCEPTION wait. No unfinished result,
+        previous voltage, or late proof may be reused.
         """
         if timing is not None:timing.voltage_join_cpu_begin_ns=time.thread_time_ns()
+        notification=None;notification_checked=False
         try:
             need(set(futures)==set(BUSES),'Two-bus voltage proofs required')
             need(type(deadline_ns) is int,'Integer voltage join deadline required')
@@ -430,7 +834,35 @@ class BusWorkers:
                 now=self.clock()
                 if now>=deadline_ns:raise TimeoutError('Voltage join hard cycle deadline')
                 if all(future.done() for future in inputs):break
-                if deadline_wait is None:
+                if not notification_checked and deadline_wait is not None:
+                    try:notification=_owned_future_readiness_group(deadline_wait,inputs)
+                    except BaseException:
+                        ready_failure()
+                        raise
+                    notification_checked=True
+                    if notification is not None:
+                        self.voltage_notification_groups=getattr(self,'voltage_notification_groups',0)+1
+                        # Callback registration may finish a Future or consume
+                        # the remaining budget. Recheck before the native wait.
+                        continue
+                if notification is not None:
+                    self.voltage_notification_waits=getattr(self,'voltage_notification_waits',0)+1
+                    before=self.clock()
+                    try:event=notification.wait(deadline_ns)
+                    except BaseException:
+                        ready_failure()
+                        raise
+                    # Keep a simultaneous original owner failure ahead of a
+                    # cancellation, hint error or late notification timestamp.
+                    ready_failure()
+                    after=self.clock()
+                    need(type(event) is dict and event.get('kind') in ('NOTIFIED','DEADLINE') and
+                         type(event.get('actual_ns')) is int and
+                         before<=event['actual_ns']<=after,
+                         'Invalid native voltage readiness notification')
+                    need(event['kind']!='DEADLINE' or event['actual_ns']>=deadline_ns,
+                         'Native voltage deadline notification returned early')
+                elif deadline_wait is None:
                     _,unfinished=wait(inputs,timeout=(deadline_ns-now)/1e9,return_when=FIRST_EXCEPTION)
                     ready_failure()
                     if unfinished:raise TimeoutError('Voltage join hard cycle deadline')
@@ -447,8 +879,17 @@ class BusWorkers:
             results={scope:future.result() for scope,future in futures.items()}
             need(not self.aborted.is_set(),self.reason or 'Output aborted during voltage result takeout')
             if self.clock()>=deadline_ns:raise TimeoutError('Voltage result takeout hard cycle deadline')
+            if notification is not None:
+                notification.close();notification=None
+                need(not self.aborted.is_set(),self.reason or 'Output aborted during voltage readiness cleanup')
+                if self.clock()>=deadline_ns:raise TimeoutError('Voltage readiness cleanup hard cycle deadline')
             return results
         except BaseException as error:
+            if notification is not None:
+                try:notification.close()
+                except BaseException as cleanup:
+                    if hasattr(error,'add_note'):
+                        error.add_note('Voltage readiness cleanup: '+repr(cleanup))
             self.emergency(type(error).__name__+': '+str(error))
             raise
         finally:
@@ -467,7 +908,7 @@ class BusWorkers:
             else:
                 result=self._exchange(scope,wires,100_000_000 if timeout_ns is None else timeout_ns,
                     label='overlapped_voltage',deadline_ns=deadline_ns,before_native=before_native)
-            checked=checked_voltage_rows(decode_records(result),ids,profile,self.clock())
+            checked=checked_voltage_rows(self._decode_bus_records(scope,result),ids,profile,self.clock())
             return result,checked,self.clock()
         except BaseException as error:
             self.emergency(type(error).__name__+': '+str(error))
@@ -487,7 +928,7 @@ class BusWorkers:
             remaining=deadline_ns[0]-self.clock()
             need(remaining>0,'Feedback exceeded hard cycle deadline')
             result=self._exchange(scope,wires,label='feedback_hold',deadline_ns=deadline_ns[0])
-            current=decode_records(result)
+            current=self._decode_bus_records(scope,result)
             expected={(axis,'feedback') for axis in BUSES[scope]}
             need(set(current)==expected,'Incomplete or cross-bus feedback response')
             checked_at=self.clock()
@@ -599,9 +1040,19 @@ class BusWorkers:
             try:self.cancel_io()
             except BaseException as error:
                 self.emergency_errors.append({'stage':'cancel_io','bus':None,
-                    'error':type(error).__name__+': '+str(error)})
+                        'error':type(error).__name__+': '+str(error)})
+            pair=getattr(self,'native_pair',None)
+            pair_joined=True
+            if pair is not None:
+                try:
+                    pair.cancel();pair.wait_idle()
+                except BaseException as error:
+                    pair_joined=False
+                    self.emergency_errors.append({'stage':'native_pair_join','bus':None,
+                        'error':type(error).__name__+': '+str(error)})
             for scope in BUSES:
                 try:
+                    need(pair_joined,'Native owners not joined; concurrent STOP forbidden')
                     session=self.sessions[scope]
                     stop=getattr(session,'emergency_stop_repeated',None)
                     if stop is None:stop=session.emergency_stop
@@ -627,7 +1078,10 @@ class BusWorkers:
         return result
 
     def close(self):
-        for pool in self.pools.values():pool.shutdown(wait=True,cancel_futures=False)
+        try:
+            if self.native_pair is not None:self.native_pair.close()
+        finally:
+            for pool in self.pools.values():pool.shutdown(wait=True,cancel_futures=False)
 
 
 class OutputWatchdog:
@@ -847,7 +1301,9 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                          exclude_policy_cpu_from_workers=False,
                          absolute_epoch_cadence=False,deadline_wait=None,
                          active_timer_slack_ns=None,
-                         prepare_voltage_before_feedback_publication=False):
+                         prepare_voltage_before_feedback_publication=False,
+                         native_phase_pair=False,native_feedback_batch_decode=False,
+                         unpaired_output_future_notifications=False):
     """Requires a validated profile; caller opens/closes owned resources.
 
     Normal completion ramps down only while supported. Faults bypass ramps and
@@ -864,6 +1320,32 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
          'Prepared voltage publication selection differs from reviewed profile')
     need(not prepared_selection or supervision is None,
          'Prepared voltage publication requires the ordinary box-supported runner')
+    need(type(native_phase_pair) is bool and
+         native_phase_pair_settings(profile) is native_phase_pair,
+         'Native phase pair selection differs from reviewed profile')
+    need(not native_phase_pair or (supervision is None and main_thread_cpu==4 and
+         pre_cycle_policy_warmup_calls==10 and post_pin_policy_prime_calls==10 and
+         exclude_policy_cpu_from_workers and active_timer_slack_ns==1000 and
+         absolute_epoch_cadence and callable(deadline_wait)),
+         'Native phase pair requires the pinned boxed CPU/timer/startup/epoch settings')
+    need(type(native_feedback_batch_decode) is bool and
+         native_feedback_batch_decode_settings(profile) is native_feedback_batch_decode,
+         'Unpaired feedback codec selection differs from the reviewed profile')
+    need(not native_feedback_batch_decode or (native_phase_pair is False and supervision is None),
+         'Unpaired feedback codec requires the ordinary independent boxed owners')
+    need(type(unpaired_output_future_notifications) is bool and
+         unpaired_output_future_notifications_settings(profile) is unpaired_output_future_notifications,
+         'Unpaired output notification selection differs from the reviewed profile')
+    need(not unpaired_output_future_notifications or (native_phase_pair is False and
+         supervision is None and main_thread_cpu==4 and pre_cycle_policy_warmup_calls==10 and
+         post_pin_policy_prime_calls==10 and exclude_policy_cpu_from_workers and
+         active_timer_slack_ns==1000 and absolute_epoch_cadence and callable(deadline_wait)),
+         'Unpaired output notifications require pinned ordinary boxed CPU/timer/startup/epoch settings')
+    output_notification_source=None
+    if unpaired_output_future_notifications:
+        from .unpaired_output_future_notifications import prepare_notifications
+        output_notification_source=prepare_notifications(sessions,deadline_wait,
+            profile.get('_unpaired_output_notification_selection'))
     local_characterization=local_characterization_settings(profile)
     fixed_position_hold=current_position_hold_only(profile)
     preload_settings=supported_preload_settings(profile)
@@ -966,7 +1448,11 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
         native_batch_sources=dict(PINNED_SOURCE_SHA256)
     workers=BusWorkers(sessions,cancel_io,clock,
         before_emergency_stop=None if human_supported is None else supervision.on_abort,
-        prepare_voltage_before_feedback_publication=prepare_voltage_before_feedback_publication)
+        prepare_voltage_before_feedback_publication=prepare_voltage_before_feedback_publication,
+        native_phase_pair=native_phase_pair,native_feedback_batch_decode=native_feedback_batch_decode,
+        native_feedback_codec_selection=profile.get('_unpaired_native_feedback_codec_selection')
+            if native_feedback_batch_decode else None,
+        unpaired_output_future_notifications=unpaired_output_future_notifications)
     watcher=OutputWatchdog(workers,PERIOD_NS+int(profile['hard_cycle_ms']*1e6),clock)
     imu_pool=ThreadPoolExecutor(max_workers=1,thread_name_prefix='policy-imu')
     from .active_output_timer_slack import ActiveOutputTimerSlack
@@ -989,11 +1475,19 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             'telemetry_cadence':cadence,
             'execution_settings':execution,
             'prepare_voltage_before_feedback_publication':prepare_voltage_before_feedback_publication,
+            'native_phase_pair':{'enabled':native_phase_pair,
+                'mode':'persistent_dual_owner.v1' if native_phase_pair else None,
+                'paired_phases':'ordinary_exchange_and_output',
+                'prepared_feedback_voltage_owners':'existing_python_bus_owners',
+                'request_count_per_cycle':26,'active_deadlines_unchanged':True,
+                'hardware_timing_improvement_proven':False,'owner_settings':None,
+                'settings_history':[],'coordinator_settings':None,
+                'coordinator_settings_history':[],'last_phase':None},
             'input_acquisition_wait':('native_ready_poll_200us.v1' if deadline_wait is not None
                                        else 'all_inputs_first_exception.v1'),
             'voltage_join_wait':('native_ready_poll_200us.v1' if deadline_wait is not None
                                  else 'all_ready_first_exception.v1'),
-            'output_join_wait':('native_ready_poll_200us.v1' if deadline_wait is not None
+            'output_join_wait':('native_ready_poll_200us_tail50us_1ms.v1' if deadline_wait is not None
                                 else 'all_ready_first_exception.v1'),
             'absolute_epoch_cadence':absolute_epoch_cadence,
             'native_release_wait':deadline_wait is not None,
@@ -1001,6 +1495,27 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             'cadence_source_sha256':dict(profile.get('cadence_source_sha256',{})),
             'after_announcement_watchdog_verified':False,
             'after_announcement_watchdog_readback_by_id':{}}
+    if workers.native_pair is not None:
+        notifications=getattr(workers.native_pair,'completion_notification_available',False) is True
+        report['native_phase_pair'].update(result_publication='original_futures_direct_transform.v1',
+            completion_notification_available=notifications)
+        if notifications:
+            report['output_join_wait']='native_pair_completion_200us_tail50us_1ms.v1'
+    feedback_decoders=workers.native_feedback_decoders or {}
+    feedback_buses=[scope for scope,decoder in feedback_decoders.items() if decoder.available is True]
+    report['native_feedback_batch_decode']={'enabled':bool(feedback_buses),
+        'selected_buses':feedback_buses,'mode':'six_fixed_type2_feedback_records.v1' if feedback_buses else None,
+        'unsupported_or_invalid_uses_legacy_codec':True,'timestamps_and_deadlines_unchanged':True,
+        'hardware_timing_improvement_proven':False}
+    if native_feedback_batch_decode:
+        report['native_feedback_batch_decode'].update(
+            scope='ordinary_unpaired_owners.v1',
+            source_binding=workers.unpaired_native_feedback_codec_proof)
+    if unpaired_output_future_notifications:
+        report['output_join_wait']='unpaired_original_future_notification.v1'
+    report['unpaired_output_future_notifications']={'enabled':unpaired_output_future_notifications,
+        'source_binding':output_notification_source,'original_futures_required':True,
+        'absolute_deadlines_unchanged':True,'hardware_timing_improvement_proven':False}
     if local_characterization is not None:
         report['local_characterization']={**local_characterization,
             'raw_policy_target_limits':'learned_model',
@@ -1070,19 +1585,8 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
         raise TimeoutError('Fresh IMU deadline')
     def wires_for(command,offsets):
         if native_batch_encoder is not None:return native_batch_encoder(command)
-        raws={i:(command.q_model_rad[i-1]-offsets[i])/profile['axes'][str(i)]['sign'] for i in IDS}
-        result={s:[encode_motion(i,raws[i],command.kp[i-1],command.kd[i-1]) for i in ids] for s,ids in BUSES.items()}
-        for wires in result.values():
-            for wire in wires:
-                frame=codec.ATParser().feed(wire)[0];i=frame.destination;a=profile['axes'][str(i)]
-                raw=int.from_bytes(frame.data[:2],'big')*25.14/65535-12.57
-                q=a['sign']*raw+offsets[i]
-                need(a['lower_rad']<=q<=a['upper_rad'],f'ID{i} quantized target outside physical range')
-                need(abs(q-trial_origin_sample.q_model_rad[i-1])<=a['max_displacement_from_start_rad'],
-                     f'ID{i} quantized target outside trial displacement')
-                estimated=command.kp[i-1]*(q-command.q_model_rad[i-1])+command.estimated_pd_torque_nm[i-1]
-                need(abs(estimated)<=a['max_estimated_pd_torque_nm'],f'ID{i} quantized estimated PD torque')
-        return result
+        return _python_motion_wires(command,offsets,profile['axes'],trial_origin_sample.q_model_rad,
+                                    encode_motion=encode_motion)
     try:
         timer_slack.apply(workers,imu_pool)
         offsets,starts,initial,turns_by_id=preflight(
@@ -1145,6 +1649,11 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 failures=[row['error'] for row in state['workers_during'].values() if row['error']]
                 need(not failures,'I/O worker affinity setup failed: '+str(failures))
                 safety_check()
+                if workers.native_pair is not None:
+                    report['native_phase_pair']['owner_settings']=workers.native_pair.configure_owners(
+                        sorted(target),timer_slack_ns=active_timer_slack_ns)
+                    report['native_phase_pair']['coordinator_settings']=workers.native_pair.coordinator_settings
+                    safety_check()
             if post_pin_policy_prime_calls is not None:
                 prime=report['setup_policy_prime'];prime['begin_ns']=clock()
                 try:
@@ -1505,23 +2014,12 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             pending_timing.output_submit_ns=clock();pending_timing.stage='output_exchange'
             output_futures=workers.submit_decoded(outgoing,deadline_ns=hard_end,
                 label='graceful_stop' if stop_started else 'preload_output' if preload_bound is not None else 'policy_output' if weight>0 else 'startup_hold')
-            # These values are fixed before output. Assemble them while the
-            # two owners wait for replies; the reply checks and cycle deadline
-            # still run on the coordinator before another command is sent.
-            cycle_metrics={'release_lateness_ms':max(0,begun-release)/1e6,
-                'release_interval_ms':None if previous_release is None else (begun-previous_release)/1e6,
-                'cadence_slot':slot,'scheduled_release_ns':release if absolute_epoch_cadence else None,
-                'acquisition_ms':(acquired-first)/1e6,'inference_ms':(computed-acquired)/1e6,
-                'acquisition_join_cpu_ms':None if pending_timing.combined_acquisition_wait_cpu_begin_ns is None else
-                    (pending_timing.combined_acquisition_wait_cpu_end_ns-pending_timing.combined_acquisition_wait_cpu_begin_ns)/1e6,
-                'policy_return_ns':policy_computed,
-                'overlapped_voltage_validated_ns':voltage_validated_ns,
-                'voltage_join_ms':(computed-policy_computed)/1e6 if voltage_overlap else 0.,
-                'voltage_join_cpu_ms':None if pending_timing.voltage_join_cpu_begin_ns is None else
-                    (pending_timing.voltage_join_cpu_end_ns-pending_timing.voltage_join_cpu_begin_ns)/1e6,
-                'envelope_and_encode_ms':(encoded-computed)/1e6,
-                'policy_and_envelope_ms':(encoded-acquired)/1e6,
-                'effective_policy_weight':weight,'command':command,'imu':imu_value}
+            # Store immutable inputs while the owners wait. Diagnostic dicts
+            # and unit conversions are deferred until every owner has stopped.
+            cycle_row=_DeferredCycleEvidence(cycle,command,begun,release,previous_release,
+                slot,absolute_epoch_cadence,acquired,first,computed,policy_computed,
+                encoded,weight,imu_value,None,
+                voltage_validated_ns,voltage_overlap,pending_timing)
             # Native exchanges retain hard_end for every write/reply. Waiting
             # for their already decoded proofs uses only the existing host
             # bookkeeping allowance and checked-input age, never a new budget.
@@ -1532,10 +2030,9 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 output_join_deadline=min(first+int(profile['max_sample_age_ms']*1e6),
                                          begun+PERIOD_NS+bookkeeping_ns)
             decoded=workers.collect_output(output_futures,deadline_ns=output_join_deadline,
-                deadline_wait=deadline_wait,timing=pending_timing)
+                deadline_wait=deadline_wait,timing=pending_timing,native_deadline_ns=hard_end)
             reply_return=clock()
             pending_timing.output_return_ns=reply_return;pending_timing.stage='output_validation'
-            feedback={scope:entry[0] for scope,entry in decoded.items()}
             returned={}
             for _,current,_,_ in decoded.values():
                 need(not returned.keys()&current.keys(),'Duplicate cross-bus response')
@@ -1564,31 +2061,27 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 need(report['preload_return_measured'],'Geometric preload measured return outside tolerance')
             final_write=max(entry[2] for entry in decoded.values())
             last_reply=max(entry[3] for entry in decoded.values())
-            cycle_row={'index':cycle,'phase':command.phase,'begin_ns':begun,
-                'output_reply_end_ns':last_reply,'output_exchange_return_ns':reply_return,
-                'output_join_begin_ns':pending_timing.output_join_begin_ns,
-                'output_join_ready_ns':pending_timing.output_join_ready_ns,
-                'output_takeout_end_ns':pending_timing.output_takeout_end_ns,
-                'output_join_deadline_ns':output_join_deadline,
-                'output_native_deadline_ns':hard_end,
-                'output_join_cpu_ms':None if pending_timing.output_join_cpu_begin_ns is None else
-                    (pending_timing.output_join_cpu_end_ns-pending_timing.output_join_cpu_begin_ns)/1e6,
-                'oldest_input_to_final_host_write_ms':(final_write-first)/1e6,
-                'feedback':checked,'imu_body':getattr(policy,'last_validation',None),
-                **cycle_metrics}
+            cycle_row.output_reply_end_ns=last_reply
+            cycle_row.output_exchange_return_ns=reply_return
+            cycle_row.output_join_begin_ns=pending_timing.output_join_begin_ns
+            cycle_row.output_join_ready_ns=pending_timing.output_join_ready_ns
+            cycle_row.output_takeout_end_ns=pending_timing.output_takeout_end_ns
+            cycle_row.output_join_deadline_ns=output_join_deadline
+            cycle_row.output_native_deadline_ns=hard_end
+            cycle_row.output_cpu_begin_ns=pending_timing.output_join_cpu_begin_ns
+            cycle_row.output_cpu_end_ns=pending_timing.output_join_cpu_end_ns
+            cycle_row.final_write_ns=final_write;cycle_row.feedback=checked
+            cycle_row.imu_body=getattr(policy,'last_validation',None)
             safety_check();report['cycles'].append(cycle_row)
             # Reply receipt is not cycle completion: decoding, limit checks and
-            # metric construction above are part of the measured control work.
-            # Keep only scalar timestamp finalization after this boundary; defer
-            # dataclass/JSON copies until every owner has stopped in finally.
+            # raw evidence retention above remain measured control work. Only
+            # optional report formatting is removed from the active boundary.
             end=clock()
             pending_timing.cycle_end_ns=end;pending_timing.stage='cycle_deadline'
             elapsed=end-begun;miss=elapsed>PERIOD_NS or final_write-first>PERIOD_NS
             startup_cycle=startup_20ms_allowance and cycle==0
-            cycle_row.update(end_ns=end,iteration_ms=elapsed/1e6,deadline20ms_missed=miss,
-                post_output_processing_ms=(end-reply_return)/1e6,
-                startup_20ms_allowance_used=False,
-                steady_deadline20ms_missed=miss and not startup_cycle)
+            cycle_row.end_ns=end;cycle_row.deadline20ms_missed=miss
+            cycle_row.steady_deadline20ms_missed=miss and not startup_cycle
             # Use a fresh clock even on the final zero-gain cycle. It must not
             # become a successful ramp merely because its reply arrived in time.
             if post_reply_budget is not None:
@@ -1600,18 +2093,17 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                         checked_ns=admission_ns,sample_age_ns=int(profile['max_sample_age_ms']*1e6),
                         startup_allowed=startup_cycle)
                 except RuntimeError as error:
-                    cycle_row['post_reply_deadline']={'accepted':False,'checked_ns':admission_ns,
+                    cycle_row.post_reply_deadline={'accepted':False,'checked_ns':admission_ns,
                         'allowance_used':False,'rejection':str(error)}
                     raise
-                cycle_row['post_reply_deadline']=decision
-                cycle_row['startup_20ms_allowance_used']=decision['startup_allowance_used']
-                # Include the admission boundary, even if metric construction
-                # itself was the work that crossed 20 ms.
+                cycle_row.post_reply_deadline=decision
+                cycle_row.startup_20ms_allowance_used=decision['startup_allowance_used']
+                # Include the same fresh admission boundary. No reply, guard,
+                # input-age check or miss budget moves out of the active tick.
                 end=decision['checked_ns'];pending_timing.cycle_end_ns=end
                 miss=end-begun>PERIOD_NS or final_write-first>PERIOD_NS
-                cycle_row.update(end_ns=end,iteration_ms=(end-begun)/1e6,
-                    deadline20ms_missed=miss,steady_deadline20ms_missed=miss and not startup_cycle,
-                    post_output_processing_ms=(end-reply_return)/1e6)
+                cycle_row.end_ns=end;cycle_row.deadline20ms_missed=miss
+                cycle_row.steady_deadline20ms_missed=miss and not startup_cycle
             elif startup_cycle:
                 # Only post-reply work gets the one-time allowance. The final
                 # host write and all twelve replies must still finish within
@@ -1622,10 +2114,10 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 startup_end=min(begun+PERIOD_NS+1_000_000,
                                 first+int(profile['max_sample_age_ms']*1e6))
                 need(clock()<=startup_end,'Startup output cycle exceeded 21ms or sample-age deadline')
-                cycle_row['startup_20ms_allowance_used']=miss
+                cycle_row.startup_20ms_allowance_used=miss
             else:
                 need(clock()<hard_end,'Output cycle exceeded hard deadline')
-            consecutive=consecutive+1 if cycle_row['steady_deadline20ms_missed'] else 0
+            consecutive=consecutive+1 if cycle_row.steady_deadline20ms_missed else 0
             if post_reply_budget is None:
                 need(consecutive<=profile['max_consecutive_20ms_misses'],'Consecutive20ms timing misses')
             watcher.kick();previous=returned;last_wires=outgoing;previous_release=begun
@@ -1644,10 +2136,9 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                     stop_requested=stop_requested.is_set(),full_gain=full_gain)
                 safety_check()
                 end=clock();pending_timing.cycle_end_ns=end
-                cycle_row.update(end_ns=end,iteration_ms=(end-begun)/1e6,
-                    post_output_processing_ms=(end-reply_return)/1e6,
-                    deadline20ms_missed=end-begun>PERIOD_NS or final_write-first>PERIOD_NS,
-                    steady_deadline20ms_missed=end-begun>PERIOD_NS or final_write-first>PERIOD_NS)
+                cycle_row.end_ns=end
+                cycle_row.deadline20ms_missed=end-begun>PERIOD_NS or final_write-first>PERIOD_NS
+                cycle_row.steady_deadline20ms_missed=cycle_row.deadline20ms_missed
                 need(end<hard_end,'Human-supported cycle supervision exceeded hard deadline')
                 pending_timing.active=False
             if command.phase=='stopped':report['normal_ramp_completed']=True;break
@@ -1732,8 +2223,40 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
             report['errors'].append('I/O worker timer slack restoration unconfirmed: '+repr(error))
             if report['status']=='COMPLETE_SUPPORTED_OUTPUT':
                 report['status']='ABORTED_TIMER_SLACK_RESTORE'
-        workers.close();imu_pool.shutdown(wait=True,cancel_futures=True)
+        try:workers.close()
+        except BaseException as error:
+            report['errors'].append('Native/bus owner close: '+repr(error))
+            if report['status']=='COMPLETE_SUPPORTED_OUTPUT':report['status']='ABORTED_NATIVE_PAIR_RESTORE'
+        finally:
+            imu_pool.shutdown(wait=True,cancel_futures=True)
+            if workers.native_pair is not None:
+                report['native_phase_pair']['settings_history']=list(workers.native_pair.owner_settings_history)
+                report['native_phase_pair']['coordinator_settings']=workers.native_pair.coordinator_settings
+                report['native_phase_pair']['coordinator_settings_history']=list(
+                    workers.native_pair.coordinator_settings_history)
+                report['native_phase_pair']['last_phase']=workers.native_pair.last_phase
         # Convert copies and JSON-ready dictionaries only after all bus owners stop.
+        report['acquisition_future_notification']={
+            'groups_created':workers.acquisition_notification_groups,
+            'wait_calls':workers.acquisition_notification_waits,
+            'original_futures_required':True,'absolute_deadlines_unchanged':True,
+            'hardware_timing_improvement_proven':False}
+        if workers.acquisition_notification_groups:
+            report['input_acquisition_wait']='native_future_notification_or_ready_poll_200us.v1'
+        report['voltage_future_notification']={
+            'groups_created':workers.voltage_notification_groups,
+            'wait_calls':workers.voltage_notification_waits,
+            'original_futures_required':True,'absolute_deadlines_unchanged':True,
+            'hardware_timing_improvement_proven':False}
+        if workers.voltage_notification_groups:
+            report['voltage_join_wait']='native_future_notification_or_ready_poll_200us.v1'
+        report['output_future_notification']={
+            'selected':workers.unpaired_output_future_notifications,
+            'groups_created':workers.output_notification_groups,
+            'wait_calls':workers.output_notification_waits,
+            'original_futures_required':True,'absolute_deadlines_unchanged':True,
+            'cleanup_within_original_deadline_required':True,
+            'hardware_timing_improvement_proven':False}
         if prepare_voltage_before_feedback_publication:
             report['prepared_voltage_publication']={
                 'schema':'singularitydog.active-prepared-voltage-publication.v1',
@@ -1746,6 +2269,7 @@ def run_supported_policy(profile,sessions,imu_read,policy,*,cancel_io,check=lamb
                 'hardware_timing_improvement_proven':False}
         if pending_timing.active:
             report['failed_cycle_timing']=pending_timing.snapshot(profile)
+        report['cycles']=[cycle.materialize() for cycle in report['cycles']]
         for cycle in report['cycles']:
             cycle['command']=asdict(cycle['command']);cycle['feedback']=asdict(cycle['feedback'])
         report['preload_targets_sent']=any(label=='preload_output' and any(row.written==17 for row in r[0])

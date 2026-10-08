@@ -115,6 +115,49 @@ class DraftTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'unapproved'):
             tool.live.load_profile(self.base/'draft'/'profile.json')
 
+    def test_explicit_fk_candidate_stays_unapproved_and_preserves_old_success(self):
+        candidate = {'synthetic_file_only_candidate': True}
+        self.request['files']['target_fk_manifest'] = self.write('target-fk', candidate)
+        self.write('input', self.request)
+        from singularitydog_hw import policy_active_fk
+        proof = {'schema': 'singularitydog.active-fk-file-plan.v1',
+            'torch_or_native_loaded': False, 'model_sha256': 'a' * 64, 'library_sha256': 'b' * 64,
+            'active_binding': {'adapter_source_sha256': hashlib.sha256(Path(policy_active_fk.__file__).read_bytes()).hexdigest()},
+            **dict.fromkeys(('output_allowed', 'approved_for_runtime',
+                'active_controller_qualification', 'timing_admission_eligible', 'live_50hz_verified'), False)}
+        with patch.object(policy_active_fk, 'plan', return_value=proof) as plan:
+            self.prepare()
+        profile = self.read('profile.json'); report = self.read('preparation.json')
+        self.assertTrue(profile['native_target_fk_cache'])
+        self.assertEqual(profile['artifacts']['target_fk_manifest'], self.request['files']['target_fk_manifest'])
+        self.assertFalse(profile['approved_for_supported_policy_output'])
+        self.assertEqual(self.read('historical-profile.json'), self.prior)
+        self.assertFalse(report['fk_type1_live_timing_verified'])
+        self.assertEqual(len(report['input_bindings']), len(tool.FILE_NAMES) + 2)
+        self.assertEqual(plan.call_count, 2)
+        self.assertFalse(plan.call_args.args[0]['approved_for_supported_policy_output'])
+
+    def test_fk_plan_failure_does_not_publish_a_draft(self):
+        self.request['files']['target_fk_manifest'] = self.write('target-fk', {})
+        self.write('input', self.request)
+        from singularitydog_hw import policy_active_fk
+        with patch.object(policy_active_fk, 'plan', side_effect=ValueError('Wrong candidate provenance')):
+            with self.assertRaisesRegex(ValueError, 'provenance'): self.prepare()
+        self.assertFalse((self.base / 'draft').exists())
+
+    def test_second_fk_verification_failure_does_not_publish_a_completed_draft(self):
+        self.request['files']['target_fk_manifest'] = self.write('target-fk', {})
+        self.write('input', self.request)
+        from singularitydog_hw import policy_active_fk
+        with patch.object(policy_active_fk, 'plan', side_effect=[{}, ValueError('Evidence changed in preflight')]):
+            with self.assertRaisesRegex(ValueError, 'preflight'): self.prepare()
+        self.assertFalse((self.base / 'draft').exists())
+
+    def test_optional_fk_pin_cannot_be_an_unknown_model_inventory(self):
+        self.request['files']['other_model'] = self.write('other', {})
+        self.write('input', self.request)
+        with self.assertRaisesRegex(ValueError, 'inventory'): self.prepare()
+
     def test_hypothesis_is_official_unreviewed_template_not_formal_calibration(self):
         self.prepare(); doc = self.read('accel-input-hypothesis-draft.json')
         self.audit.assert_called_once_with(self.request['files']['accel_diagnostic_input'],
@@ -228,8 +271,11 @@ class DraftTests(unittest.TestCase):
         alias = self.base/'alias.json'; alias.symlink_to(self.base/'mount.json')
         self.request['files']['mount']['path'] = str(alias); self.write('input', self.request)
         with self.assertRaisesRegex(ValueError, 'symlink'): self.prepare()
+        self.refresh()
+        git_root = self.base/'synthetic-git-root'; git_root.mkdir()
+        (git_root/'.git').mkdir()
         with self.assertRaisesRegex(ValueError, 'outside Git'):
-            tool.prepare(self.base/'input.json', ROOT/'private-draft-must-not-exist')
+            tool.prepare(self.base/'input.json', git_root/'private-draft-must-not-exist')
 
     def test_explicit_power_label_stays_an_operator_label_not_hardware_proof(self):
         self.request['motor_power_epoch'] = 'SYNTHETIC OPERATOR LABEL'; self.write('input', self.request)

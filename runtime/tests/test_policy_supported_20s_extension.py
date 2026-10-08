@@ -37,7 +37,7 @@ class SupportedTwentySecondExtensionTests(unittest.TestCase):
             raw = self.docs['local_reference_capture']['telemetry']['rows'][mid]['median_position_rad']
             axis = ten['axes'][mid]
             origins[mid] = axis['sign']*raw+axis['offset_rad']
-        positions = [origins[str(mid)] for mid in profile.shadow.CAN_ORDER]
+        positions = [origins[mid] for mid in profile.IDS]
         for index in range(493):
             begin = 2_000_000_000+index*20_000_000
             end = begin+19_000_000
@@ -50,8 +50,8 @@ class SupportedTwentySecondExtensionTests(unittest.TestCase):
                 post_reply_deadline=dict(accepted=True, checked_ns=end, allowance_used=False,
                     startup_allowance_used=False, rolling_misses=0, consecutive_misses=0),
                 command=dict(phase=phase, q_model_rad=positions[:],
-                    kp=[ten['axes'][str(mid)]['kp']*gain for mid in profile.shadow.CAN_ORDER],
-                    kd=[ten['axes'][str(mid)]['kd']*gain for mid in profile.shadow.CAN_ORDER],
+                    kp=[ten['axes'][mid]['kp']*gain for mid in profile.IDS],
+                    kd=[ten['axes'][mid]['kd']*gain for mid in profile.IDS],
                     velocity_reference_rad_s=[0.]*12, feedforward_torque_nm=[0.]*12,
                     command_velocity_rad_s=[0.]*12, tracking_error_rad=[0.]*12,
                     estimated_pd_torque_nm=[0.]*12),
@@ -204,7 +204,7 @@ class SupportedTwentySecondExtensionTests(unittest.TestCase):
 
     def test_twelve_axis_record_and_gain_torque_displacement_caps_verified(self):
         baseline=copy.deepcopy(self.docs['prior_supported_report'])
-        index=profile.shadow.CAN_ORDER.index(1)
+        index=profile.IDS.index('1')
         changes=(lambda r:r['cycles'][60]['command'].update(kp=[3.]*11),
             lambda r:r['cycles'][60]['command']['kp'].__setitem__(index,3.001),
             lambda r:r['cycles'][60]['command']['velocity_reference_rad_s'].__setitem__(index,.001),

@@ -1,0 +1,18 @@
+{
+  "schema": "singularitydog.target-envelope-scalar-source.v1",
+  "baseline_sha256": "61a7b873f049ab206a839ea94e62fabed979c4b9b2823511e466508b37b4c426",
+  "candidate_sha256": "467c483d71fa3cd3146b4007cc97cbacd5872d0363810f0a3b173e56d6837cec",
+  "helpers_sha256": "a9464e94e9dc8c7418ea0f4cca70a8e5e7722e441309aa8fc3e7ca690c08e269",
+  "new_namespace": "sd_target_envelope_scalar_fileonly_r11",
+  "hardware_opened": false,
+  "output_allowed": false,
+  "approved_for_runtime": false,
+  "selected_live_artifacts_changed": false,
+  "exact_selected_source": true,
+  "strict_compile_required": [
+    "-ffp-contract=off",
+    "-fno-fast-math"
+  ],
+  "candidate_fast_path": "inference-mode CPU contiguous float64 exact shapes only; otherwise original ATen",
+  "unchanged_aten_transcendentals": true
+}
