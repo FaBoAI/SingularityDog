@@ -960,6 +960,16 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                 not report['model_setup'].get('model_artifact_sha256') or
                 not report['model_setup'].get('model_source_sha256')):
             raise ValueError('Current actual selected model/source/warmup binding required')
+        if gc_freeze:
+            # F4: right after model warm-up, while every motor is still disabled.
+            # Freezing the whole heap takes tens of ms, so it must precede the
+            # pose recapture, enable and the 21 ms command/sample gap window.
+            freeze_begin = clock()
+            gc.freeze()
+            frozen = True
+            report['gc_freeze'] = {'selected': True, 'frozen_before_first_release': gc.get_freeze_count(),
+                                   'frozen_before_enable': True, 'freeze_ms': (clock()-freeze_begin)/1e6,
+                                   'unfrozen_at_restoration': False}
         check()
         def pose(port):
             transport = adapters[port]
@@ -1087,11 +1097,6 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             need(not gc.isenabled(), 'Main scope must defer automatic GC during cycles')
         report['gc_enabled_during_cycles'] = gc.isenabled()
         check()
-        if gc_freeze:  # F4: after model warm-up and setup, before the first release.
-            gc.freeze()
-            frozen = True
-            report['gc_freeze'] = {'selected': True, 'frozen_before_first_release': gc.get_freeze_count(),
-                                   'unfrozen_at_restoration': False}
 
         # F-H. Cycles at absolute 20 ms epoch slots; ramp-down; (OR:1825-2146).
         expected_keys = {group.port: frozenset((mid, 'feedback') for mid in group.ids) for group in groups}

@@ -746,6 +746,7 @@ class EvidenceAndFreezeTests(OptionHarness, unittest.TestCase):
                 self.assertEqual(result['model_setup']['freeze_count'], 0)
                 self.assertGreater(seen['cycle'], 0)
                 self.assertGreater(result['gc_freeze']['frozen_before_first_release'], 0)
+                self.assertIs(result['gc_freeze']['frozen_before_enable'], True)
                 self.assertIs(result['gc_freeze']['unfrozen_at_restoration'], True)
                 self.assertEqual(gc.get_freeze_count(), 0)
                 self.assertTrue(result['gc_freeze_selected'])
