@@ -1,0 +1,15 @@
+{
+  "schema": "singularitydog.human-hold30-transport-proposal.v1",
+  "base_source_relative": "runtime/experiments/four_bus_type1/type1_transport.py",
+  "base_sha256": "53003e82fbf61de2c93f5b9c6b7b9856a49896c0e90a8f6857c63b1390fe18bb",
+  "intended_new_runtime_relative": "runtime/experiments/four_bus_human_hold/type1_transport.py",
+  "proposed_transport_sha256": "686e46c2144d9a3cb3937414a7bfc0777054c2cfee8a40a4051cf493ed0ffc2e",
+  "patch_sha256": "f292e118479d38dad798ebc613a1c698e8442489c43ec13a4e4be5f50f50ce9c",
+  "old_boxed_adapter_changed": false,
+  "native_cpp_has_explicit_session_gain_caps": true,
+  "native_cpp_global_kp_upper_bound": 36,
+  "new_human_adapter_kp_cap": 6,
+  "session_nonmembers_zero_and_unreachable_preserved": true,
+  "compiled_or_installed": false,
+  "output_allowed": false
+}

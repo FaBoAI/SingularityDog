@@ -1,0 +1,460 @@
+{
+  "schema": "singularitydog.type1-command-gap-investigation.v1",
+  "date": "2026-10-14",
+  "status": "CPU_GIL_HANDOFF_REPRODUCED_ORIGINAL_CYCLE_CAUSES_NOT_FULLY_IDENTIFIED",
+  "hardware_opened": false,
+  "motor_enable_sent": false,
+  "positive_gain_sent": false,
+  "learned_targets_sent": false,
+  "output_allowed": false,
+  "runtime_qualified": false,
+  "actual_robot_10s_completed": false,
+  "original_reports_unchanged": true,
+  "frozen_robot_R3_R4_sources_not_edited": true,
+  "control_limits_relaxed": false,
+  "original_failed_attempts": [
+    {
+      "completed_cycles": 88,
+      "original_sha256": "e70d36a1a202c63ef0961cb66107beddf8c6c52279bc77c3935156b98e110b43",
+      "command_gap_ns": 38481262,
+      "limit_ns": 34333334,
+      "release_lateness_ns": 1383,
+      "first_request_after_begin_ns": 5177303,
+      "remaining_write_budget_at_gate_ns": 112290,
+      "dispatch_delay_root_cause_identified": false
+    },
+    {
+      "completed_cycles": 175,
+      "original_sha256": "848f8407e0d11773fea036c9acd5b93851ca75467a97a6995930007085e358bc",
+      "command_gap_ns": 34868540,
+      "limit_ns": 34333334,
+      "release_lateness_ns": 1168,
+      "native_end_to_batch_argument_stamp_ns": 1386382,
+      "batch_argument_stamp_to_voltage_native_begin_upper_ns": 145605,
+      "failed_cycle_thread_counters_available": false,
+      "original_gil_cause_proven": false
+    }
+  ],
+  "successful_lossless_cpu_trials": [
+    {
+      "label": "four-minimal-r2",
+      "cycles": 1000,
+      "ports": 4,
+      "counter_detail": "minimal",
+      "summary_sha256": "7a3d2bfa5e9f0f815638ad431c66c26eac581bdc2ec328977f97b3fa1c8fba21",
+      "inputs": {
+        "probe": {
+          "sha256": "830b658473d6a31cd3f0948b22b6200dec38758a65106eeacdcb89ad35111090",
+          "bytes": 161931802
+        },
+        "trace_report": {
+          "sha256": "a1f37d066f547e92d074eb4b3781e13edfc49306cc1c48849643cfeffefa5ec3",
+          "bytes": 5021
+        },
+        "trace": {
+          "sha256": "aab6efe55c87c7020297bbf3d4e20a5f214d7cfdd8b6df920ac4787b3c6517e2",
+          "bytes": 87248596
+        }
+      },
+      "matched_windows": 8000,
+      "unproven_windows": 0,
+      "trace_loss_events": 0,
+      "restored": true,
+      "hold_restore_path_statistics": [
+        {
+          "stage": "matched_probe_restore_path",
+          "port": "port0",
+          "exchange": "feedback_hold",
+          "metric": "wall_ns",
+          "unit": "ns",
+          "count": 1000,
+          "min": 2000,
+          "max": 995000,
+          "p50": 4000,
+          "p95": 353000,
+          "p99": 692000
+        },
+        {
+          "stage": "matched_probe_restore_path",
+          "port": "port1",
+          "exchange": "feedback_hold",
+          "metric": "wall_ns",
+          "unit": "ns",
+          "count": 1000,
+          "min": 2000,
+          "max": 1020000,
+          "p50": 91000,
+          "p95": 542000,
+          "p99": 740000
+        },
+        {
+          "stage": "matched_probe_restore_path",
+          "port": "port2",
+          "exchange": "feedback_hold",
+          "metric": "wall_ns",
+          "unit": "ns",
+          "count": 1000,
+          "min": 3000,
+          "max": 1060000,
+          "p50": 126000,
+          "p95": 571000,
+          "p99": 872000
+        },
+        {
+          "stage": "matched_probe_restore_path",
+          "port": "port3",
+          "exchange": "feedback_hold",
+          "metric": "wall_ns",
+          "unit": "ns",
+          "count": 1000,
+          "min": 3000,
+          "max": 1079000,
+          "p50": 124000,
+          "p95": 644000,
+          "p99": 828000
+        }
+      ],
+      "max_hold": {
+        "port": "port3",
+        "cycle": 708,
+        "native_to_python_wall_ns": 1086268
+      },
+      "max_hold_restore": {
+        "duration_ns": 1079000,
+        "sleeping_ns": 853000,
+        "runnable_wait_ns": 140000,
+        "unknown_off_cpu_ns": 0,
+        "on_cpu_or_unobserved_ns": 86000
+      },
+      "max_all_phase": {
+        "port": "port3",
+        "cycle": 708,
+        "exchange": "feedback_hold",
+        "native_to_python_wall_ns": 1086268
+      },
+      "max_all_phase_restore": {
+        "duration_ns": 1079000,
+        "sleeping_ns": 853000,
+        "runnable_wait_ns": 140000,
+        "unknown_off_cpu_ns": 0,
+        "on_cpu_or_unobserved_ns": 86000
+      },
+      "probe_source_sha256": "01645bcb59ae1afdb96e585e3edc77d5ed7791fff9405b210d90b4374fb59d7c",
+      "summary_source_sha256": "acaf07ca1bb1131d66b538d7b839582e53b98485a80a5f30c254178d989f92db",
+      "trace_analysis_source_sha256": "901ba5c63614476ab6894298f3b1a051a6986797a383317db6a9dcae2fea371b",
+      "original_physical_cycle_cause_proven": false,
+      "runtime_qualified": false
+    },
+    {
+      "label": "one-minimal-r1",
+      "cycles": 1000,
+      "ports": 1,
+      "counter_detail": "minimal",
+      "summary_sha256": "3416d0e3b70ebd31e265cb1e12b864cd37b1773447860b31452262535f5538d8",
+      "inputs": {
+        "probe": {
+          "sha256": "f75b2616d63363f03b45b6251cc14a07f3dd9ef5092107eb0b4609e0d4cb3195",
+          "bytes": 42615053
+        },
+        "trace_report": {
+          "sha256": "ab92b70aec693e58800324ea7275f9c48d4159d74246977a29e26d9af2d05fee",
+          "bytes": 5013
+        },
+        "trace": {
+          "sha256": "a6569bacc31d2051a53ee85843b8b454cc06c12f5ea067e6af6b1ecb92b9b07d",
+          "bytes": 18783435
+        }
+      },
+      "matched_windows": 2000,
+      "unproven_windows": 0,
+      "trace_loss_events": 0,
+      "restored": true,
+      "hold_restore_path_statistics": [
+        {
+          "stage": "matched_probe_restore_path",
+          "port": "port0",
+          "exchange": "feedback_hold",
+          "metric": "wall_ns",
+          "unit": "ns",
+          "count": 1000,
+          "min": 2000,
+          "max": 10000,
+          "p50": 3000,
+          "p95": 3000,
+          "p99": 4000
+        }
+      ],
+      "max_hold": {
+        "port": "port0",
+        "cycle": 650,
+        "native_to_python_wall_ns": 15232
+      },
+      "max_hold_restore": {
+        "duration_ns": 10000,
+        "sleeping_ns": 0,
+        "runnable_wait_ns": 0,
+        "unknown_off_cpu_ns": 0,
+        "on_cpu_or_unobserved_ns": 10000
+      },
+      "max_all_phase": {
+        "port": "port0",
+        "cycle": 666,
+        "exchange": "voltage",
+        "native_to_python_wall_ns": 18433
+      },
+      "max_all_phase_restore": {
+        "duration_ns": 13000,
+        "sleeping_ns": 0,
+        "runnable_wait_ns": 0,
+        "unknown_off_cpu_ns": 0,
+        "on_cpu_or_unobserved_ns": 13000
+      },
+      "probe_source_sha256": "01645bcb59ae1afdb96e585e3edc77d5ed7791fff9405b210d90b4374fb59d7c",
+      "summary_source_sha256": "acaf07ca1bb1131d66b538d7b839582e53b98485a80a5f30c254178d989f92db",
+      "trace_analysis_source_sha256": "901ba5c63614476ab6894298f3b1a051a6986797a383317db6a9dcae2fea371b",
+      "original_physical_cycle_cause_proven": false,
+      "runtime_qualified": false
+    },
+    {
+      "label": "four-full-r2",
+      "cycles": 200,
+      "ports": 4,
+      "counter_detail": "full",
+      "summary_sha256": "9c9c0e2aebe43a9a4e0e216a4288c918ee0cdcbfeee7b5c23707ec2861402c39",
+      "inputs": {
+        "probe": {
+          "sha256": "28b4517d933b7a4cbae383c99c07d1a55cee48e66ba81d186c390602a2946e07",
+          "bytes": 35229544
+        },
+        "trace_report": {
+          "sha256": "f49fd61f228a91255a901030513c74de26e67a3f3d878b3ded2f55f0f979fa6b",
+          "bytes": 5014
+        },
+        "trace": {
+          "sha256": "4b1a175082e12a95c0685a63ead4270833fcbe49e04891cfe39f79bc3e142588",
+          "bytes": 32573183
+        }
+      },
+      "matched_windows": 1600,
+      "unproven_windows": 0,
+      "trace_loss_events": 0,
+      "restored": true,
+      "hold_restore_path_statistics": [
+        {
+          "stage": "matched_probe_restore_path",
+          "port": "port0",
+          "exchange": "feedback_hold",
+          "metric": "wall_ns",
+          "unit": "ns",
+          "count": 200,
+          "min": 2000,
+          "max": 901000,
+          "p50": 4000,
+          "p95": 357000,
+          "p99": 514000
+        },
+        {
+          "stage": "matched_probe_restore_path",
+          "port": "port1",
+          "exchange": "feedback_hold",
+          "metric": "wall_ns",
+          "unit": "ns",
+          "count": 200,
+          "min": 2000,
+          "max": 701000,
+          "p50": 24000,
+          "p95": 370000,
+          "p99": 520000
+        },
+        {
+          "stage": "matched_probe_restore_path",
+          "port": "port2",
+          "exchange": "feedback_hold",
+          "metric": "wall_ns",
+          "unit": "ns",
+          "count": 200,
+          "min": 2000,
+          "max": 833000,
+          "p50": 54000,
+          "p95": 446000,
+          "p99": 606000
+        },
+        {
+          "stage": "matched_probe_restore_path",
+          "port": "port3",
+          "exchange": "feedback_hold",
+          "metric": "wall_ns",
+          "unit": "ns",
+          "count": 200,
+          "min": 2000,
+          "max": 813000,
+          "p50": 77000,
+          "p95": 510000,
+          "p99": 659000
+        }
+      ],
+      "max_hold": {
+        "port": "port0",
+        "cycle": 117,
+        "native_to_python_wall_ns": 908728
+      },
+      "max_hold_restore": {
+        "duration_ns": 901000,
+        "sleeping_ns": 602000,
+        "runnable_wait_ns": 194000,
+        "unknown_off_cpu_ns": 0,
+        "on_cpu_or_unobserved_ns": 105000
+      },
+      "max_all_phase": {
+        "port": "port1",
+        "cycle": 32,
+        "exchange": "voltage",
+        "native_to_python_wall_ns": 2372831
+      },
+      "max_all_phase_restore": {
+        "duration_ns": 2364000,
+        "sleeping_ns": 1608000,
+        "runnable_wait_ns": 738000,
+        "unknown_off_cpu_ns": 0,
+        "on_cpu_or_unobserved_ns": 18000
+      },
+      "probe_source_sha256": "01645bcb59ae1afdb96e585e3edc77d5ed7791fff9405b210d90b4374fb59d7c",
+      "summary_source_sha256": "acaf07ca1bb1131d66b538d7b839582e53b98485a80a5f30c254178d989f92db",
+      "trace_analysis_source_sha256": "901ba5c63614476ab6894298f3b1a051a6986797a383317db6a9dcae2fea371b",
+      "original_physical_cycle_cause_proven": false,
+      "runtime_qualified": false
+    }
+  ],
+  "virtual_settings": {
+    "request_gap_ns": 900000,
+    "window": 3,
+    "native_library_sha256": "aef3d667f97348f7209035da0c7dfb9141282d7cf27f1e02c2c16081a1187e4a",
+    "original_transport_source_sha256": "53003e82fbf61de2c93f5b9c6b7b9856a49896c0e90a8f6857c63b1390fe18bb",
+    "main_cpu": 4,
+    "owner_cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "peer_cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "switch_interval_s": 0.0001,
+    "timer_slack_ns": 1000,
+    "math_threads": 1,
+    "gc_deferred_during_cycles": true,
+    "cpu_min_hz": 1728000000,
+    "emc_min_hz": 3199000000,
+    "c7_disabled_temporarily": true,
+    "reply_delay_us": 2000,
+    "diagnostic_deadline_ns": 200000000,
+    "diagnostic_deadline_is_not_20ms_robot_admission": true,
+    "no_op_current_guard": true,
+    "physical_can_or_usb_used": false,
+    "model_or_imu_used": false,
+    "native_session_fixture_virtual_only": true,
+    "real_30hz_release_loop_reproduced": false
+  },
+  "scope_of_direct_trace": "Reviewed PAC-safe normal probes through GIL acquisition, including OS scheduling; excludes thread-state swap and return tail",
+  "trace_precision_ns": 1000,
+  "pure_gil_wait_alone_proven": false,
+  "invalid_full_trace_retained": {
+    "completed_virtual_cycles": 1000,
+    "lost_events": 312513,
+    "restored": true,
+    "used_in_cause_distributions": false
+  },
+  "native_cpu_controls": {
+    "original_byte_sha256": "aec06ec4594fa0fbf5b5e737078194dac6bb66847c84ddd18ed76911f0d6fb2e",
+    "test_count": 7,
+    "passed": true,
+    "skipped": 0,
+    "baseline_return_median_ns": 3472,
+    "controlled_gil_return_wall_ns": 80084942,
+    "controlled_gil_caller_cpu_upper_ns": 60192,
+    "controlled_same_cpu_run_delay_median_ns": 11996144,
+    "does_not_prove_original_failure_cause": true
+  },
+  "source_validation": {
+    "source_r1_measurement_pins": {
+      "probe.py": "01645bcb59ae1afdb96e585e3edc77d5ed7791fff9405b210d90b4374fb59d7c",
+      "test_python_stages.py": "cba336ad46f60bf1bf8a71518be8ae7ee772fe09b4f1e437f1e4660eba41e49c"
+    },
+    "r1_tests": {
+      "tests_run": 42,
+      "failures": 3,
+      "errors": 0,
+      "skips": 0,
+      "cause": "Virtual peer cold spawn not ready before a zero-delay diagnostic; retained, not relabeled"
+    },
+    "source_r2": {
+      "trace_scope.py": "ff20c23e401e6448030208e04b7ff2b2bdd6d42cc725b2518a27b734ff28ced4",
+      "test_summarize.py": "a6ce72531f5ded0ee9f90e749ea7ebafe4101b08a2428fb7f39f1bacf1d2164e",
+      "test_trace_scope.py": "c5657ea120ac34b16369009d1b27e5d4cd2f423293bb4c526322728d9ea508bb",
+      "test_python_stages.py": "561f24d40e70077ad701c288266d02f854311c09f53ff3fa9463fa2ffd92b0a5",
+      "gil_reacquire.cpp": "935a527c7744b6514b63c0c2b380f8a67cf96c9189d4c4a663501936f9eb58de",
+      "probe.py": "f5197ea783af1caf3a4c06036ba28bcfca45a0aac8488e3f6313b180076db072",
+      "summarize.py": "acaf07ca1bb1131d66b538d7b839582e53b98485a80a5f30c254178d989f92db",
+      "test_probe.py": "838f87ccb0170e29786bbd6bdf781ad9d4266e4cf2a38ef036e4014f807eaaf6",
+      "trace_analyze.py": "901ba5c63614476ab6894298f3b1a051a6986797a383317db6a9dcae2fea371b",
+      "build.py": "cc1a031afbcf1a015bcd48e1cef271d1b34f2d10ab6a3ffaf54fc7faea051c3e"
+    },
+    "target_report_sha256": "047be40c38cb7e0a4ba39f99cb4412a462e22fd842bf82e93dd16bb4f1aa7722",
+    "tests_run": 44,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_ns": 4451809328,
+    "schedstats_restored": true,
+    "cpu_c7_emc_restored": true,
+    "peer_ready_barrier_added": true,
+    "diagnostic_deadline_unchanged": true,
+    "cpu_mock_validation_only": true
+  },
+  "raw_archive": {
+    "sha256": "c697124ebe1538f69eff5d0a570deba2b73bb3d9263a463e7d38222c0c88bd36",
+    "bytes": 67189556,
+    "verified_members": 84,
+    "private_not_released": true
+  },
+  "independent_summary_audit_sha256": "2f4ac6cadbfd2bfb906f054afc0a98a81ad6e1b7a200d9eaf096ceb4ad028a3b",
+  "next_priority": [
+    "Unify four-port receive/decode/completion in C++ while retaining parallel CAN ownership",
+    "Instrument real pre-native dispatch boundaries separately",
+    "Validate new numeric/wire equivalence and original input/write/reply/STOP limits"
+  ],
+  "current_documentation_sha256_by_path": {
+    "docs/type1-command-gap-investigation-20261014.md": "305ad357b9bf92f4d34d243ff8c9405bcde3e69c0d58484776e951d4bbe93125",
+    "runtime/experiments/type1_latency_cause_probe/README.md": "29f0fbf55f3709e466c2d5043478eee2cd65d35616cd0a5763a8580cb02e305f"
+  },
+  "final_readback": {
+    "schedstats": 0,
+    "trace_instances": 0,
+    "owned_or_other_uprobes_remaining": 0,
+    "cpu_min_khz": [
+      729600,
+      729600
+    ],
+    "c7_disable": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "emc_min_hz": 204000000,
+    "original_type1_library_sha256": "aef3d667f97348f7209035da0c7dfb9141282d7cf27f1e02c2c16081a1187e4a",
+    "original_R3_transport_sha256": "53003e82fbf61de2c93f5b9c6b7b9856a49896c0e90a8f6857c63b1390fe18bb"
+  },
+  "publication_scope": {
+    "files": 553,
+    "result": "PASS",
+    "exact_cpu_cpp_source_reviewed_only": true,
+    "negative_publication_tests_passed": 4
+  }
+}

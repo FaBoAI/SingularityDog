@@ -27,6 +27,7 @@ if not __package__:
 from . import model_bridge, pipeline, topology, transport_adapter
 
 SCHEMA = 'singularitydog.four-bus-foreground-stop-proxy.v1'
+SCHEMA_30HZ = 'singularitydog.four-bus-foreground-stop-proxy.v2'
 FALSE_FLAGS = {'output_allowed': False, 'approved_for_runtime': False,
                'active_controller_qualification': False, 'timing_admission_eligible': False,
                'live_type1_qualified': False, 'motor_enable_sent': False,
@@ -152,8 +153,18 @@ def prepare_native_guard(args, manifest, pins):
         'loads_library_in_plan': False, 'CAN_IO_available': False, 'output_allowed': False}
 
 
-def make_config(args, model_plan, capture):
+def make_config(args, model_plan, capture, *, control_clock=None, policy30_model=None):
     """Only an explicit CLI boolean selects the distinct full-four acquisition."""
+    need(type(model_plan) is dict, 'Explicit diagnostic model plan required')
+    need(model_plan.get('control_clock') == control_clock and
+         model_plan.get('policy30_model') == policy30_model,
+         'Diagnostic model-plan and outer clock/model selections differ')
+    if ('control_clock' in model_plan or 'policy30_model' in model_plan or
+            control_clock is not None or policy30_model is not None):
+        # Pure canonical validation includes the observer's own clock. A new
+        # plan must not lose its 30 Hz identity when limits are projected into
+        # Config, nor may a legacy 50 Hz plan be labeled as the new controller.
+        model_bridge._plan_axes(model_plan)
     need(type(args.combined_acquisition) is bool, 'Explicit combined-acquisition boolean required')
     boundary = getattr(args, 'boundary_current_checks', False)
     need(type(boundary) is bool, 'Explicit boundary current-check boolean required')
@@ -165,7 +176,45 @@ def make_config(args, model_plan, capture):
     return pipeline.Config(groups, model_plan['measured_input_profile'],
         {int(mid): value for mid, value in model_plan['runtime_offsets_by_id'].items()}, capture, args.cycles,
         combined_acquisition=args.combined_acquisition, boundary_current_checks=boundary,
-        final_gate_input_identity=identity, decode_once=once)
+        final_gate_input_identity=identity, decode_once=once,
+        control_clock=control_clock, policy30_model=policy30_model)
+
+
+def select_policy30_bundle(bundle):
+    """Explicit file-only selection; no Torch/backend/device call or grant."""
+    if bundle is None:
+        return None, None
+    from singularitydog_hw import policy_model_30hz
+    from singularitydog_hw.policy_clock import control_clock_payload
+    need(type(bundle) in (str, Path) or isinstance(bundle, Path), '30Hz bundle path required')
+    need(Path(bundle).is_absolute(), 'Absolute30Hz bundle required')
+    selected = policy_model_30hz.plan(policy_model_30hz.bundle_artifacts(bundle))
+    return control_clock_payload(30), selected
+
+
+def require_proxy_write_deadline_receipt(scope, *, selected30):
+    """Pure PLAN check; old20ms native ABI cannot be relabeled as30Hz."""
+    if selected30:
+        need(type(scope.get('write_deadline_abi')) is int and scope['write_deadline_abi'] == 1,
+             '30Hz STOP proxy requires separate host-write/reply deadline ABI1 receipt')
+
+
+def require_proxy_write_deadline_library(library, *, selected30):
+    """Authenticate the optional symbols before any serial descriptor opens."""
+    if selected30:
+        seal = transport_adapter.verify_library(library)
+        need(type(seal.write_deadline) is tuple and len(seal.write_deadline) == 2,
+             '30Hz STOP proxy requires authenticated separate deadline symbols')
+        return 1
+    return None
+
+
+def create_selected_transport(library, fd, *, config, group, **bindings):
+    """Explicit cadence selection reaches the genuine adapter creation gate."""
+    is30 = pipeline._control(config).policy_hz == 30
+    return transport_adapter.ThreeAxisTransport.create(library, fd, group=group,
+        combined_acquisition=config.combined_acquisition, decode_once=config.decode_once,
+        separate_write_deadline=is30, **bindings)
 
 
 def select_snapshot_builder(plan, *, combined_acquisition, decode_once=False):
@@ -181,6 +230,8 @@ def select_snapshot_builder(plan, *, combined_acquisition, decode_once=False):
 def prepare(args):
     """Pure file/source/model-artifact verification, without Torch or devices."""
     pins = Pins()
+    control_clock, policy30_plan = select_policy30_bundle(getattr(args, 'policy30_bundle', None))
+    is30 = policy30_plan is not None
     manifest = pins.json(args.source_manifest, args.source_manifest_sha256)
     verify_manifest(args.source_root, manifest, args.source_count, pins)
     verify_origins(args.source_root, manifest)
@@ -194,9 +245,11 @@ def prepare(args):
     need(old_manifest.get('file_count') == 820 and len(old_manifest.get('files', {})) == 820,
          'Exact original warmed model-source inventory required')
     for name, digest in source['frozen_model_source_sha256'].items():
-        need(manifest['files'].get('runtime/'+name, {}).get('sha256') == digest and
-             old_manifest['files'].get('runtime/'+name, {}).get('sha256') == digest,
-             'Model source bytes must remain the original warmed source: '+name)
+        need(old_manifest['files'].get('runtime/'+name, {}).get('sha256') == digest,
+             'Historical model dependency source differs: '+name)
+        if not is30:
+            need(manifest['files'].get('runtime/'+name, {}).get('sha256') == digest,
+                 'Model source bytes must remain the original warmed source: '+name)
     refs = original['artifacts']
     calibration, mount, bias = (pins.envelope(refs[key]) for key in ('calibration', 'mount', 'bias'))
     accel = pins.envelope(refs['accel_input_hypothesis']) if original.get('accel_input_hypothesis') else None
@@ -210,14 +263,23 @@ def prepare(args):
             'sha256': args.original_model_profile_sha256}, 'raw_json': profile_raw.decode('utf-8')},
         source_binding=pins.envelope({'path': args.source_binding, 'sha256': args.source_binding_sha256}),
         mount=mount, bias=bias, accel_hypothesis=accel)
-    from singularitydog_hw import policy_active_fk as fk, policy_checked_dispatch as checked, policy_live_profile
-    profile = policy_live_profile.load_profile(args.original_model_profile, require_approved=False)
+    if is30:
+        # The old profile authenticates calibration/IMU/numerical metadata.
+        # Its 50Hz code and native model approval are never loaded or inherited.
+        model_plan = model_bridge.reclock_model_plan(model_plan, control_clock, policy30_plan)
+        profile = copy.deepcopy(original)
+        fk_plan = checked_plan = None
+        for record in policy30_plan['artifacts'].values():
+            pins.read(record['path'], record['sha256'])
+    else:
+        from singularitydog_hw import policy_active_fk as fk, policy_checked_dispatch as checked, policy_live_profile
+        profile = policy_live_profile.load_profile(args.original_model_profile, require_approved=False)
+        fk_plan, checked_plan = fk.plan(profile), checked.plan(profile)
+        need(profile.get('_checked_model_plan') == checked_plan, 'Original loader checked proof differs')
+        for path, digest in checked_plan['input_sha256'].items():
+            pins.read(path, digest)
     need(profile.get('approved_for_supported_policy_output') is False and profile.get('review') is None and
          profile.get('output_allowed', False) is False, 'Original model dependency profile must remain unapproved')
-    fk_plan, checked_plan = fk.plan(profile), checked.plan(profile)
-    need(profile.get('_checked_model_plan') == checked_plan, 'Original loader checked proof differs')
-    for path, digest in checked_plan['input_sha256'].items():
-        pins.read(path, digest)
     library = Path(args.subset_library)
     need(library.is_absolute(), 'Absolute subset library required')
     pins.read(library, args.subset_library_sha256)
@@ -234,12 +296,14 @@ def prepare(args):
          scope.get('allowed_masks') == [7, 56] and scope.get('abi') == 1 and
          scope.get('output_allowed') is False and scope.get('timing_admission_eligible') is False,
          'Exact new subset build/source/binary binding required')
+    require_proxy_write_deadline_receipt(scope, selected30=is30)
     need(manifest['files']['runtime/experiments/native_active_transport/transport.cpp']['sha256'] ==
          args.ordinary_source_sha256 and
          manifest['files']['runtime/experiments/four_bus_diagnostic/subset_stop.cpp']['sha256'] ==
          args.subset_source_sha256, 'Subset build must include the selected current source bytes')
     guard_plan = prepare_native_guard(args, manifest, pins)
-    config = make_config(args, model_plan, capture)
+    config = make_config(args, model_plan, capture, control_clock=control_clock,
+                         policy30_model=policy30_plan)
     planned = pipeline.plan(config)
     output = fresh_output(args.output, args.source_root)
     holder_receipt = None
@@ -249,12 +313,19 @@ def prepare(args):
         holder_receipt = pins.json(args.holder_receipt, args.holder_receipt_sha256)
         validate_holder_receipt(holder_receipt, capture)
     pins.verify()
-    result = {'schema': SCHEMA, 'status': 'PLAN', **FALSE_FLAGS, 'opens_devices': False,
+    result = {'schema': SCHEMA_30HZ if is30 else SCHEMA, 'status': 'PLAN', **FALSE_FLAGS, 'opens_devices': False,
         'source_count': args.source_count, 'source_manifest_sha256': args.source_manifest_sha256,
         'model_plan': model_plan, 'pipeline_plan': planned, 'fk_plan': fk_plan,
         'checked_plan': checked_plan, 'current_guard_plan': guard_plan, 'input_sha256': dict(pins.values),
         'original_model_profile_used_for_dependencies_only': True,
         'canonical_outer_power_scope_required': True, 'new_four_bus_timing_proof_required': True}
+    if is30:
+        result.update(control_clock=control_clock, policy30_model=policy30_plan,
+            legacy_model_kernels_loaded=False, old_model_source_qualification_reused=False,
+            input_to_stop_proxy_tx_budget_ns=20_000_000, acquisition_budget_ns=20_000_000,
+            proxy_exchange_budget_ns=33_333_334, proxy_reply_budget_ns=33_333_334,
+            proxy_write_deadline_abi_required=1, diagnostic_reply_budget_unchanged=False,
+            diagnostic_type1_33ms_reply_qualification=False)
     return {'plan': result, 'pins': pins, 'manifest': manifest, 'profile': profile,
             'config': config, 'model_plan': model_plan, 'output': output,
             'holder_receipt': holder_receipt}
@@ -621,8 +692,17 @@ def execute(args, prepared):
     """Explicit current STOP-only execution. Only the human/root calls this."""
     output = prepared['output']
     output.mkdir(mode=0o700)
-    report = {'schema': SCHEMA, 'status': 'STARTING', **FALSE_FLAGS, 'errors': [],
+    policy30_plan = prepared['plan'].get('policy30_model')
+    is30 = policy30_plan is not None
+    report = {'schema': SCHEMA_30HZ if is30 else SCHEMA, 'status': 'STARTING', **FALSE_FLAGS, 'errors': [],
               'input_sha256': dict(prepared['pins'].values), 'settings_restoration': {}}
+    if is30:
+        report.update(control_clock=copy.deepcopy(prepared['plan']['control_clock']),
+            policy30_model=copy.deepcopy(policy30_plan), legacy_model_kernels_loaded=False,
+            input_to_stop_proxy_tx_budget_ns=20_000_000, acquisition_budget_ns=20_000_000,
+            proxy_exchange_budget_ns=33_333_334, proxy_reply_budget_ns=33_333_334,
+            proxy_write_deadline_abi_required=1, diagnostic_reply_budget_unchanged=False,
+            diagnostic_type1_33ms_reply_qualification=False)
     primary = None
     device = None
     scope = None
@@ -659,13 +739,18 @@ def execute(args, prepared):
         if torch.get_num_interop_threads() != 1:
             torch.set_num_interop_threads(1)
         need(torch.get_num_threads() == torch.get_num_interop_threads() == 1, 'Actual Torch one-thread readback failed')
-        from singularitydog_hw import policy_active_fk as fk, policy_checked_dispatch as checked
         from singularitydog_hw.policy_observer import StatefulPolicyObserver
         from singularitydog_hw import (can_timing_probe, dual_can_pipeline_benchmark, imu,
                                       thread_timer_slack, policy_observer_replay)
         profile = prepared['profile']
-        original_policy, original_proof = fk.diagnostic_load(profile)
-        policy, wrapper, model_proof = checked.load(profile, original_policy, original_proof, active=False)
+        if is30:
+            from singularitydog_hw import policy_model_30hz
+            policy, model_proof = policy_model_30hz.load(policy30_plan['artifacts'], execute_cpu=True)
+            wrapper = None
+        else:
+            from singularitydog_hw import policy_active_fk as fk, policy_checked_dispatch as checked
+            original_policy, original_proof = fk.diagnostic_load(profile)
+            policy, wrapper, model_proof = checked.load(profile, original_policy, original_proof, active=False)
         observer = model_bridge.create_guarded_observer(prepared['model_plan'], StatefulPolicyObserver,
             policy=policy, max_ticks=args.cycles, torch_module=torch, checked_dispatch_wrapper=wrapper)
         report['model_source'] = model_proof
@@ -673,6 +758,9 @@ def execute(args, prepared):
         library = transport_adapter.load_library(args.subset_library,
             expected_sha256=args.subset_library_sha256, ordinary_source_sha256=args.ordinary_source_sha256,
             extension_source_sha256=args.subset_source_sha256, build_record_sha256=args.subset_build_sha256)
+        verified_proxy_abi = require_proxy_write_deadline_library(library, selected30=is30)
+        if is30:
+            report['proxy_write_deadline_abi_verified'] = verified_proxy_abi
         from . import native_current_guard
         guard_library = native_current_guard.load_library(args.current_guard_library,
             expected_sha256=args.current_guard_library_sha256, source_sha256=args.current_guard_source_sha256,
@@ -722,23 +810,33 @@ def execute(args, prepared):
                 scope = MainScope(True, True)
                 def factory(group):
                     lo, hi = owner_bounds(prepared['model_plan'], group)
-                    return transport_adapter.ThreeAxisTransport.create(library, descriptors[group.port], group=group,
+                    return create_selected_transport(library, descriptors[group.port],
+                        config=prepared['config'], group=group,
                         cancel_fd=cr, boot_fd=boot_files[group.port].fileno(), boot_id=capture['boot_before'],
-                        raw_lower_by_id=lo, raw_upper_by_id=hi,
-                        combined_acquisition=prepared['config'].combined_acquisition,
-                        decode_once=prepared['config'].decode_once)
+                        raw_lower_by_id=lo, raw_upper_by_id=hi)
                 def worker(port, mask):
                     value = pipeline.LinuxWorkerScope(port, mask)
                     worker_scopes[port] = value
                     return value
                 def warm(run, **counts):
                     value = selected_warmup(run, policy, wrapper, torch, profile['h_hypothesis'], **counts)
-                    sources = prepared['plan']['checked_plan']['source_sha256']
-                    value.update(real_model_verified=True,
-                        model_artifact_sha256=prepared['plan']['checked_plan']['references']['checked_model']['sha256'],
-                        model_source_sha256=hashlib.sha256(json.dumps(sources, sort_keys=True,
-                            separators=(',', ':')).encode()).hexdigest(),
-                        model_source_sha256_by_path=dict(sources))
+                    if is30:
+                        selected = policy30_plan['artifacts']
+                        need(policy.policy_dt_s == policy.controller.dt == 1. / 30.,
+                             'Warm model clock differs from30Hz')
+                        value.update(real_model_verified=True,
+                            model_artifact_sha256=selected['controller']['sha256'],
+                            model_source_sha256=selected['source_manifest']['sha256'],
+                            model_source_sha256_by_path={name: row['sha256'] for name, row in selected.items()},
+                            policy_hz=30, old_model_qualification_reused=False,
+                            h_measured=False, h_hypothesis=profile['h_hypothesis'])
+                    else:
+                        sources = prepared['plan']['checked_plan']['source_sha256']
+                        value.update(real_model_verified=True,
+                            model_artifact_sha256=prepared['plan']['checked_plan']['references']['checked_model']['sha256'],
+                            model_source_sha256=hashlib.sha256(json.dumps(sources, sort_keys=True,
+                                separators=(',', ':')).encode()).hexdigest(),
+                            model_source_sha256_by_path=dict(sources))
                     return value
                 def cancelled():
                     need(not stop.is_set(), 'Foreground cancelled')
@@ -754,7 +852,8 @@ def execute(args, prepared):
                     check_current=check, cancel_io=cancel, model_setup=warm, worker_scope=worker,
                     main_scope=lambda: scope, backend_usage={'kind': 'genuine_original_active_subset_cpp',
                         'library_sha256': args.subset_library_sha256, 'build_record_sha256': args.subset_build_sha256,
-                        'source_manifest_sha256': args.source_manifest_sha256},
+                        'source_manifest_sha256': args.source_manifest_sha256,
+                        **({'proxy_write_deadline_abi_verified': verified_proxy_abi} if is30 else {})},
                     release_wait=make_release_wait(library, cr, observer), check_cancelled=cancelled,
                     execute=True)
                 report['measurement'] = pipeline.evidence_report(measured)
@@ -798,9 +897,14 @@ def execute(args, prepared):
             prepared['pins'].verify()
             verify_manifest(args.source_root, prepared['manifest'], args.source_count, prepared['pins'])
             verify_origins(args.source_root, prepared['manifest'])
-            from singularitydog_hw import policy_active_fk as fk, policy_checked_dispatch as checked
-            need(fk.plan(prepared['profile']) == prepared['plan']['fk_plan'] and
-                 checked.plan(prepared['profile']) == prepared['plan']['checked_plan'], 'Model file proof changed after run')
+            if is30:
+                from singularitydog_hw import policy_model_30hz
+                need(policy_model_30hz.plan(policy30_plan['artifacts']) == policy30_plan,
+                     '30Hz model file proof changed after run')
+            else:
+                from singularitydog_hw import policy_active_fk as fk, policy_checked_dispatch as checked
+                need(fk.plan(prepared['profile']) == prepared['plan']['fk_plan'] and
+                     checked.plan(prepared['profile']) == prepared['plan']['checked_plan'], 'Model file proof changed after run')
             report['source_and_input_pins_unchanged'] = True
         except BaseException as error:
             report['source_and_input_pins_unchanged'] = False
@@ -851,6 +955,7 @@ def parser():
     result.add_argument('--decode-once', action='store_true',
         help='Explicit: decode each exchange once into read-only frozen rows; later takeouts compare raw '
              'byte images, snapshot frames parse owned bytes and plain data is copied via pickle')
+    result.add_argument('--policy30-bundle', help='Absolute30Hz model bundle; explicit purefile PLAN selection')
     return result
 
 

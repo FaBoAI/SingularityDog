@@ -170,3 +170,43 @@ extern "C" int sda_subset_exchange_at(void *handle,uint32_t group_mask,const uns
     }
     return exchange_owned(handle,copy,count,send_only,deadline,records,stats,error,size);
 }
+
+extern "C" uint32_t sda_subset_write_deadline_abi() {
+    return sizeof(SDRecord)==88&&sizeof(SDStopResult)==36 ? 1U : 0U;
+}
+
+// Explicit 30 Hz output variant. The exact masked Type1 triple is validated
+// and copied before any I/O. Each individual host write retains its earlier
+// absolute deadline, while complete original replies may use the later reply
+// deadline. No other kind, single-axis handshake, pre-arm or retry is allowed.
+extern "C" int sda_subset_exchange_write_deadline(void *handle,uint32_t group_mask,
+        const unsigned char *wires,uint32_t count,int send_only,uint64_t reply_deadline,
+        uint64_t write_deadline,SDRecord *records,SDStats *stats,char *error,uint32_t size) {
+    auto *s=static_cast<Session*>(handle);
+    if(!s||!records||!stats||!error||!size)return -1;
+    unsigned char copy[17*3];
+    {
+        std::memset(stats,0,sizeof(*stats));stats->begin_ns=now();
+        auto reject=[&](const char *why,bool poison) {
+            if(poison)s->poisoned=true;
+            stats->end_ns=now();std::snprintf(error,size,"%s",why);return -1;
+        };
+        std::unique_lock<std::mutex> lock(s->mutex,std::try_to_lock);
+        if(!lock.owns_lock()){stats->end_ns=now();std::snprintf(error,size,"Concurrent native active session use");return -1;}
+        if(s->paired_phase.load())return reject("Session borrowed by native pair phase",false);
+        if(s->poisoned)return reject("Session poisoned; active retry prohibited",false);
+        if(!wires||count!=3||send_only!=0)
+            return reject("Separate write deadline requires exactly three acknowledged Type1 commands",true);
+        std::memcpy(copy,wires,sizeof(copy));
+        if(const char *why=subset_problem(s,group_mask,copy,count))return reject(why,true);
+        for(uint32_t i=0;i<count;++i)
+            if((id(copy+i*17)>>24)!=1)
+                return reject("Separate write deadline is only for the exact masked Type1 triple",true);
+        const uint64_t start=now();
+        if(!start||write_deadline<=start||write_deadline>reply_deadline||
+           reply_deadline<=start||reply_deadline-start>250000000ULL)
+            return reject("Separate deadline requires now<write_deadline<=reply_deadline<=now+250ms",true);
+    }
+    return exchange_owned(handle,copy,count,send_only,reply_deadline,records,stats,error,size,
+                          nullptr,-1,write_deadline);
+}

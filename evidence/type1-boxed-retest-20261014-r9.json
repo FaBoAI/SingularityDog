@@ -1,0 +1,150 @@
+{
+  "schema": "singularitydog.boxed-type1-retest.v1",
+  "date": "2026-10-14",
+  "status": "BOXED_2S_ABORTED_COMMAND_GAP_ALL12_STOP_CONFIRMED",
+  "hardware_opened": true,
+  "runtime_qualified": false,
+  "ten_second_retest_executed": false,
+  "walking_qualified": false,
+  "boxed_support_retained": true,
+  "frozen_R3_sources_unchanged": true,
+  "whole_installed_inventory_sha256": "69da685bb6560f6c0eeff1c01439f86b77e51dd1c5bf97bc7ca4e1468073bfbe",
+  "contract_sha256": "a0eebd4b23bb832e539dceff52cc6c07afdef38abd9d98b11a026a0bcd159e2d",
+  "settings": {
+    "policy_hz": 30,
+    "request_gap_us": 900,
+    "request_window": 3,
+    "policy_weight": 0.005,
+    "maximum_travel_deg": 1,
+    "kp": 3,
+    "kd": 0.15,
+    "freshness_and_host_write_budget_ns": 20000000,
+    "reply_budget_ns": 33333334,
+    "command_gap_budget_ns": 34333334,
+    "main_cpu": 4,
+    "can_worker_cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "python_switch_interval_us": 100,
+    "release_spin_us": 500,
+    "math_threads": 1,
+    "cpu_min_khz": 1728000,
+    "c7_disabled_during_run": true,
+    "emc_min_hz": 3199000000
+  },
+  "attempts": [
+    {
+      "status": "ABORTED",
+      "completed_cycles": 0,
+      "positive_gain_sent": false,
+      "learned_targets_attempted": false,
+      "restoration_complete": true,
+      "source_and_input_pins_unchanged": true,
+      "attempt": 1,
+      "original_report_sha256": "b2d249a582855d7b9fc3f19f6367b398d7f90d5adf67083741ef219725e9505c",
+      "requested_duration_s": 2,
+      "failed_cycle_index": 0,
+      "timing_evidence_selected": true,
+      "command_gap_ns": 35297065,
+      "sample_gap_ns": 26912611,
+      "command_gap_limit_ns": 34333334,
+      "input_to_last_host_write_max_ns": null,
+      "begin_to_last_host_reply_max_ns": null,
+      "initial_hold_native_end_to_epoch_ns": 20990784,
+      "failed_cycle_input_to_candidate_ns": 14934906,
+      "failed_cycle_write_budget_remaining_before_abort_ns": 4349810,
+      "failed_cycle_new_target_sent": false,
+      "all12_terminal_stop_confirmed": true
+    },
+    {
+      "status": "ABORTED",
+      "completed_cycles": 31,
+      "positive_gain_sent": true,
+      "learned_targets_attempted": true,
+      "restoration_complete": true,
+      "source_and_input_pins_unchanged": true,
+      "attempt": 2,
+      "original_report_sha256": "1c98e11414b4fb153de1f79242b39bf2227a742cfeae37ec6fcfb3539cc6e40b",
+      "requested_duration_s": 2,
+      "failed_cycle_index": 31,
+      "timing_evidence_selected": false,
+      "command_gap_ns": 34521432,
+      "sample_gap_ns": 34085452,
+      "command_gap_limit_ns": 34333334,
+      "input_to_last_host_write_max_ns": 17672679,
+      "begin_to_last_host_reply_max_ns": 21157255,
+      "initial_hold_native_end_to_epoch_ns": 1810418,
+      "failed_cycle_input_to_candidate_ns": 14201768,
+      "failed_cycle_write_budget_remaining_before_abort_ns": 4515861,
+      "failed_cycle_new_target_sent": false,
+      "all12_terminal_stop_confirmed": true
+    }
+  ],
+  "raw_audit": {
+    "second_attempt_host_requests": 1100,
+    "second_attempt_complete_recorded_replies": 1100,
+    "second_attempt_missing_replies": 0,
+    "second_attempt_actual_output_records": 372,
+    "second_attempt_completed_cycles_all_writes_within20ms": true,
+    "second_attempt_completed_cycles_all_replies_within33ms": true,
+    "failed_cycle_new_output_not_dispatched": true,
+    "independent_audit_sha256": [
+      "e984d113184ff72599380cce28ef0314d9c996da356b3e3b0b97a22d7a346ccc",
+      "ef9b986cf4f2a6b23853d659c5d0f7de422d2d0680991c8a63e69898a584e1d5"
+    ]
+  },
+  "operator_observation": {
+    "source": "direct_human_reply",
+    "audio_heard": true,
+    "physical_abnormality_reported": false,
+    "box_maintained": true
+  },
+  "local_diagnostic_initialization_fix": {
+    "applied_to_frozen_robot_R3": false,
+    "control_limits_changed": false,
+    "description": "Optional F0 initialization precedes fresh pose acquisition and motor enable; setup and initial-gap spans recorded",
+    "source_sha256": "40d6445625f0b51390ee3890bc2f204ddd38373c1b0fa7d7a05db8dba2b97a6f",
+    "new_regression_source_sha256": "3866dcb3597f5db1ebcf03a6926a29c1496d81823bfbad32f42cd20eee83eed2",
+    "regression_injected_diagnostic_cost_ms": 37,
+    "targeted_tests": {
+      "count": 3,
+      "elapsed_s": 0.218,
+      "failures": 0,
+      "errors": 0,
+      "skip": 0
+    },
+    "existing_related_tests": {
+      "count": 111,
+      "elapsed_s": 6.139,
+      "failures": 0,
+      "errors": 0,
+      "skip": 0
+    },
+    "unique_tests_in_both_selections": 112,
+    "real_robot_verification_completed": false
+  },
+  "raw_original_archive": {
+    "sha256": "a6b4cd2fca97302c64044ba0a411348598199c1428793ff6b1ea9f4eca90beb2",
+    "bytes": 1137457,
+    "original_files": 49,
+    "all_members_sha256_verified_after_recovery": true
+  },
+  "final_settings_restored": {
+    "cpu_min_khz": 729600,
+    "c7_disable": 0,
+    "emc_min_hz": 204000000,
+    "sched_schedstats": 0,
+    "trace_instances_empty": true,
+    "uprobes_empty": true,
+    "no_generated_bytecode_in_frozen_root": true
+  },
+  "interpretation": {
+    "command_gap_is_not_can_write_interval": true,
+    "F0_initialization_alone_quantified": false,
+    "GIL_alone_proven_for_these_actual_cycles": false,
+    "failed_attempts_not_used_as_pass_predecessors": true
+  }
+}

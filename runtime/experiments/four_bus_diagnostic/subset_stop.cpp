@@ -5,6 +5,54 @@
 #include "../native_active_transport/transport.cpp"
 #endif
 
+extern "C" uint32_t sda_subset_stop_write_deadline_abi() {
+    return sizeof(SDRecord)==88 && sizeof(SDStopResult)==36 ? 1U : 0U;
+}
+
+// Optional 30 Hz STOP proxy only: canonical exact masked triple, acknowledged
+// replies, and a private copy before I/O. Each host write must finish before
+// the earlier write deadline; original ACK records retain the reply deadline.
+// The ordinary ABI and emergency cleanup remain unchanged. In particular this
+// does not make late, ambiguous or unacknowledged cleanup replies acceptable.
+extern "C" int sda_subset_stop_exchange_write_deadline(void *handle,uint32_t group_mask,
+        const unsigned char *wires,uint32_t count,int send_only,uint64_t reply_deadline,
+        uint64_t write_deadline,SDRecord *records,SDStats *stats,char *error,uint32_t size) {
+    auto *s=static_cast<Session*>(handle);
+    if(!s||!records||!stats||!error||!size)return -1;
+    unsigned char copy[17*3];
+    {
+        std::memset(stats,0,sizeof(*stats));stats->begin_ns=now();
+        auto reject=[&](const char *why,bool poison) {
+            if(poison)s->poisoned=true;
+            stats->end_ns=now();std::snprintf(error,size,"%s",why);return -1;
+        };
+        std::unique_lock<std::mutex> lock(s->mutex,std::try_to_lock);
+        if(!lock.owns_lock()){stats->end_ns=now();std::snprintf(error,size,"Concurrent native active session use");return -1;}
+        if(s->paired_phase.load())return reject("Session borrowed by native pair phase",false);
+        if(s->poisoned)return reject("Session poisoned; active retry prohibited",false);
+        if((group_mask!=0x07U&&group_mask!=0x38U)||!wires||count!=3||send_only!=0)
+            return reject("Separate STOP write deadline requires exactly three acknowledged masked Type4 commands",true);
+        std::memcpy(copy,wires,sizeof(copy));
+        uint32_t next=0;
+        for(int slot=0;slot<6;++slot) {
+            if(!(group_mask&(1U<<slot)))continue;
+            unsigned char expected[17];stop_wire(s->first+slot,expected);
+            if(std::memcmp(copy+17*next,expected,17)!=0)
+                return reject("Separate STOP write deadline accepts only the canonical mask-ordered Type4 triple",true);
+            ++next;
+        }
+        const uint64_t start=now();
+        if(!start||write_deadline<=start||write_deadline>reply_deadline||
+           reply_deadline<=start||reply_deadline-start>250000000ULL)
+            return reject("Separate STOP deadline requires now<write_deadline<=reply_deadline<=now+250ms",true);
+    }
+    // This unchanged kernel rechecks FD/cancel/boot/poison and the earlier
+    // cutoff before AND after each individual write. Its failure retains
+    // outstanding Type4 attribution as sticky ambiguity for cleanup.
+    return exchange_owned(handle,copy,count,send_only,reply_deadline,records,stats,error,size,
+                          nullptr,-1,write_deadline);
+}
+
 extern "C" uint32_t sda_emergency_stop_subset_abi() {
     return sizeof(SDRecord)==88 && sizeof(SDStopResult)==36 ? 1U : 0U;
 }

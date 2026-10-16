@@ -59,7 +59,8 @@ need = FG.need
 def verify_origins(root, manifest):
     """Every imported pinned module, including this package, comes from the kit."""
     runtime = Path(root)/'runtime'
-    packages = ('experiments.four_bus_diagnostic', 'experiments.four_bus_type1')
+    packages = ('experiments.four_bus_diagnostic', 'experiments.four_bus_type1',
+                'experiments.four_bus_native_group')
     for name, module in tuple(sys.modules.items()):
         if not (name.startswith('singularitydog_hw.') or name.startswith(packages) or
                 name.startswith('experiments.private_checked_policy_dispatch.')):
@@ -77,12 +78,27 @@ def verify_origins(root, manifest):
          'Type1 foreground source origin differs')
 
 
-def model_dependencies(args, manifest, source, pins):
+def model_dependencies(args, manifest, source, pins, *, policy30_model=None):
     """FG.prepare model checks: frozen warmed sources and the unapproved checked proof."""
     frozen = source['frozen_model_source_manifest']
     old_manifest = pins.json(frozen['path'], frozen['sha256'])
     need(old_manifest.get('file_count') == 820 and len(old_manifest.get('files', {})) == 820,
          'Exact original warmed model-source inventory required')
+    if policy30_model is not None:
+        from singularitydog_hw import policy_model_30hz as new_model
+        inline = new_model.validate_plan(policy30_model)
+        for name, digest in source['frozen_model_source_sha256'].items():
+            need(old_manifest['files'].get('runtime/'+name, {}).get('sha256') == digest,
+                 'Legacy numerical-limit provenance differs: '+name)
+        profile = pins.json(args.original_model_profile, args.original_model_profile_sha256)
+        need(profile.get('approved_for_supported_policy_output') is False and
+             profile.get('output_allowed', False) is False,
+             'Legacy numerical-limit profile cannot grant30Hz output')
+        actual = new_model.plan(inline['artifacts'])
+        need(actual == inline, 'Current30Hz model artifacts differ from contract')
+        for ref in actual['artifacts'].values():pins.read(ref['path'], ref['sha256'])
+        return {'profile': profile, 'fk_plan': None, 'checked_plan': None,
+                'policy30_model': actual, 'legacy_model_for_limits_only': True}
     for name, digest in source['frozen_model_source_sha256'].items():
         need(manifest['files'].get('runtime/'+name, {}).get('sha256') == digest and
              old_manifest['files'].get('runtime/'+name, {}).get('sha256') == digest,
@@ -101,6 +117,11 @@ def model_dependencies(args, manifest, source, pins):
 def recheck_model_dependencies(prepared):
     from singularitydog_hw import policy_active_fk as fk, policy_checked_dispatch as checked
     value = prepared['dependencies']
+    if 'policy30_model' in value:
+        from singularitydog_hw import policy_model_30hz as new_model
+        need(new_model.plan(value['policy30_model']['artifacts']) == value['policy30_model'],
+             'Current30Hz model proof changed after run')
+        return
     need(fk.plan(value['profile']) == value['fk_plan'] and
          checked.plan(value['profile']) == value['checked_plan'], 'Model file proof changed after run')
 
@@ -167,7 +188,7 @@ def runner_admitted(admitted, firmware_by_id):
     profile = {'axes': axes, 'start_pose_bounds': contract['start_pose_bounds'],
                **{key: timing[key] for key in TIMING_KEYS}, 'duration_s': admitted.duration_s,
                **contract['ramps'], **contract['imu_limits']}
-    return {'mode': admitted.mode, 'duration_s': admitted.duration_s,
+    result = {'mode': admitted.mode, 'duration_s': admitted.duration_s,
             'ids_by_port': contract['topology_by_port'], 'boot_id': admitted.boot_id,
             'motor_power_epoch': admitted.motor_power_epoch, 'contract_sha256': admitted.contract_sha256,
             'profile': profile,
@@ -176,6 +197,9 @@ def runner_admitted(admitted, firmware_by_id):
             'uids_by_id': dict(contract['uids_by_id']), 'firmware_by_id': dict(firmware_by_id),
             'pacing': contract['pacing'], 'post_reply_policy': timing['post_reply_deadline_policy'],
             'first_cycle_post_reply': False, 'model_plan': contract['model_plan']}
+    if 'control_clock' in contract:
+        result.update(control_clock=contract['control_clock'], policy30_model=contract['policy30_model'])
+    return result
 
 
 def transport_limits(contract, group, mode):
@@ -189,9 +213,12 @@ def transport_limits(contract, group, mode):
     return bounds, kp, kd
 
 
-def observer_ticks(duration_s):
-    """Every absolute slot of the finite run window (duration+40 ms) at 20 ms."""
+def observer_ticks(duration_s, control_clock=None):
+    """Finite duration slots plus two boundary slots at the selected model rate."""
     need(type(duration_s) is int and duration_s in P.DURATIONS, 'Duration must be exactly 2, 10 or 20 s')
+    if control_clock is not None:
+        from singularitydog_hw.policy_clock import validate_control_clock
+        return duration_s*validate_control_clock(control_clock).policy_hz+2
     return duration_s*50+2
 
 
@@ -200,16 +227,20 @@ def create_type1_observer(plan, observer_factory, *, policy, duration_s, torch_m
     owned = copy.deepcopy(plan)
     model_bridge._plan_axes(owned)
     need(callable(observer_factory), 'Explicit observer factory required')
-    need(checked_dispatch_wrapper is not None, 'Selected checked wrapper must remain explicit')
+    if 'control_clock' in owned:
+        need(checked_dispatch_wrapper is None, 'Legacy checked dispatch cannot select30Hz')
+    else:
+        need(checked_dispatch_wrapper is not None, 'Selected checked wrapper must remain explicit')
     kwargs = copy.deepcopy(owned['observer_kwargs'])
-    kwargs.update(max_ticks=observer_ticks(duration_s), torch_module=torch_module,
+    kwargs.update(max_ticks=observer_ticks(duration_s, owned.get('control_clock')), torch_module=torch_module,
                   checked_dispatch_wrapper=checked_dispatch_wrapper)
     delegate = observer_factory(policy, copy.deepcopy(owned['calibration']), **kwargs)
     need(callable(getattr(delegate, 'consume', None)), 'Ordinary observer consume required')
     return model_bridge._GuardedObserver(delegate, owned)
 
 
-def prepare_type1_library(args, manifest, pins, *, prearmed_hold=False):
+def prepare_type1_library(args, manifest, pins, *, prearmed_hold=False, separate_write_deadline=False,
+                          native_group_cycle=False):
     """File-only subset-active receipt/source/binary binding; never loads the CDLL.
 
     A contract that selects the pre-armed hold also needs the receipt to
@@ -222,11 +253,30 @@ def prepare_type1_library(args, manifest, pins, *, prearmed_hold=False):
     problem = build.receipt_problem(library.parent)
     need(problem is None, problem or '')
     scope = record['four_bus_subset_active']
-    for name, pin, key, member in TYPE1_SOURCES:
+    if separate_write_deadline:
+        need(scope.get('write_deadline_abi') == 1,
+             '30Hz output requires native separate host-write/reply deadlines')
+    source_rows = tuple((name, pin, key,
+        'runtime/experiments/four_bus_native_group/native_group.cpp'
+        if native_group_cycle and pin == 'type1_extension_source_sha256' else member)
+        for name, pin, key, member in TYPE1_SOURCES)
+    for name, pin, key, member in source_rows:
         digest = getattr(args, pin)
         pins.read(library.parent/name, digest)
         need(scope.get(key) == digest and manifest['files'].get(member, {}).get('sha256') == digest,
              'Type1 build must include the selected current source bytes: '+member)
+    if native_group_cycle:
+        from experiments.four_bus_native_group import build as group_build
+        problem = group_build.receipt_problem(library.parent)
+        need(problem is None, problem or '')
+        base_digest = args.native_group_base_source_sha256
+        pins.read(library.parent/'subset_active.cpp', base_digest)
+        need(manifest['files'].get('runtime/experiments/four_bus_type1/subset_active.cpp', {}).get('sha256')
+             == base_digest == record['four_bus_native_group']['included_source_sha256']['subset_active'],
+             'Native group must include the selected original subset-active source bytes')
+    else:
+        need('four_bus_native_group' not in record,
+             'Composite native group library must be explicitly selected by the contract')
     need(record.get('binary_sha256') == args.type1_library_sha256 and
          record.get('source_sha256') == args.type1_extension_source_sha256 and
          scope.get('output_allowed') is False and scope.get('timing_admission_eligible') is False,
@@ -240,6 +290,9 @@ def prepare_type1_library(args, manifest, pins, *, prearmed_hold=False):
         need(scope.get('exchange_at_abi') == 1,
              'Pre-armed hold requires a Type1 build whose receipt records exchange_at_abi 1')
         result['exchange_at_abi'] = 1
+    if native_group_cycle:
+        result['native_group'] = dict(record['four_bus_native_group'])
+        result['sources']['subset_active.cpp'] = args.native_group_base_source_sha256
     return result
 
 
@@ -276,8 +329,13 @@ def prepare(args):
          'Admitted contract lineage differs from the selected source/model inputs')
     source = pins.json(args.source_binding, args.source_binding_sha256)
     need(source.get('four_bus_source_manifest') == manifest_ref, 'New whole-source binding differs')
-    dependencies = model_dependencies(args, manifest, source, pins)
-    need(model_bridge.prepare_model_plan(**lineage_envelopes(contract, pins)) == contract['model_plan'],
+    dependencies = model_dependencies(args, manifest, source, pins,
+                                      policy30_model=contract.get('policy30_model'))
+    model_plan = model_bridge.prepare_model_plan(**lineage_envelopes(contract, pins))
+    if 'control_clock' in contract:
+        model_plan = model_bridge.reclock_model_plan(model_plan, contract['control_clock'],
+                                                     contract['policy30_model'])
+    need(model_plan == contract['model_plan'],
          'Embedded model plan differs from its pinned lineage files')
     current = P.thaw(admitted.profile['evidence']['current_capture'])
     need({'path': args.topology, 'sha256': args.topology_sha256} == current['topology'] and
@@ -292,7 +350,14 @@ def prepare(args):
     spec = runner_admitted(admitted, firmware)
     planned = R.plan(spec)
     options = P.pacing_options(contract['pacing'])
-    library_plan = prepare_type1_library(args, manifest, pins, prearmed_hold='prearmed_hold_lead_us' in options)
+    native_selected = options.get('native_group_cycle') is True
+    need((getattr(args, 'native_group_base_source_sha256', None) is not None) is native_selected,
+         'Included subset-active source pin must be supplied exactly for native group selection')
+    need(not native_selected or not getattr(args, 'timing_evidence', False),
+         'Native group supplies native owner stamps; legacy Python CAN counters cannot label those owners')
+    library_plan = prepare_type1_library(args, manifest, pins, prearmed_hold='prearmed_hold_lead_us' in options,
+                                        separate_write_deadline='control_clock' in contract,
+                                        native_group_cycle=native_selected)
     guard_plan = FG.prepare_native_guard(args, manifest, pins)
     need((args.encoder_binary is None) == (args.encoder_binary_sha256 is None), 'Encoder binary needs path and SHA')
     encoder = None
@@ -308,17 +373,21 @@ def prepare(args):
         holder_receipt = FG.validate_holder_receipt(pins.json(args.holder_receipt, args.holder_receipt_sha256), capture)
     verify_origins(args.source_root, manifest)  # Includes modules imported by the checks above.
     pins.verify()
-    result = {'schema': P.REPORT_SCHEMA, 'status': 'PLAN', **FALSE_FLAGS, **dict.fromkeys(ATTEMPTS, False),
+    result = {'schema': P.REPORT_SCHEMA_30 if 'control_clock' in contract else P.REPORT_SCHEMA,
+        'status': 'PLAN', **FALSE_FLAGS, **dict.fromkeys(ATTEMPTS, False),
         'opens_devices': False, 'loads_library_model_or_torch': False, **admitted.report_binding(),
         'source_count': args.source_count, 'runner_plan': planned, 'type1_library_plan': library_plan,
         'current_guard_plan': guard_plan, 'encoder': encoder or {'kind': 'python_motion_wires'},
         'announcement': audio, 'firmware_fingerprint_source': 'pinned_geometry_hardware_review_device_watchdog',
-        'firmware_by_id': firmware, 'observer_max_ticks': observer_ticks(admitted.duration_s),
-        'model_load': 'policy_active_fk.diagnostic_load; checked.load(active=False)',
+        'firmware_by_id': firmware, 'observer_max_ticks': observer_ticks(admitted.duration_s, contract.get('control_clock')),
+        'model_load': 'policy_model_30hz.load(execute_cpu=True)' if 'control_clock' in contract else
+                      'policy_active_fk.diagnostic_load; checked.load(active=False)',
         'transport_native_gain_caps': 'profile_kp_kd' if admitted.mode == 'learned_boxed' else 'zero',
         'fk_plan': dependencies['fk_plan'], 'checked_plan': dependencies['checked_plan'],
         'input_sha256': dict(pins.values), 'canonical_outer_power_scope_required': True,
         'direct_human_condition_record_sha256': admitted.conditions_sha256}
+    if 'control_clock' in contract:
+        result.update(control_clock=contract['control_clock'], policy30_model=contract['policy30_model'])
     # Opt-in fields appear only when selected; the default PLAN is unchanged.
     if options:
         result['pacing_options'] = options
@@ -366,6 +435,34 @@ class LinuxEnvironment:
         torch.set_num_threads(1)
         if torch.get_num_interop_threads() != 1:
             torch.set_num_interop_threads(1)
+        if 'policy30_model' in prepared['dependencies']:
+            need(torch.get_num_threads() == torch.get_num_interop_threads() == 1,
+                 'Actual30Hz Torch one-thread readback failed')
+            from singularitydog_hw import policy_model_30hz as new_model
+            from singularitydog_hw.policy_observer import StatefulPolicyObserver
+            selected = prepared['dependencies']['policy30_model']
+            policy, proof = new_model.load(selected['artifacts'], execute_cpu=True)
+            observer = create_type1_observer(prepared['contract']['model_plan'], StatefulPolicyObserver,
+                policy=policy, duration_s=prepared['admitted'].duration_s,
+                torch_module=torch, checked_dispatch_wrapper=None)
+            kwargs = prepared['contract']['model_plan']['observer_kwargs']
+            def warm(run, **counts):
+                value = FG.selected_warmup(run, policy, None, torch, kwargs['h_hypothesis'], **counts)
+                value.update(real_model_verified=True,
+                    model_artifact_sha256=selected['artifacts']['controller']['sha256'],
+                    model_source_sha256=selected['artifacts']['source_manifest']['sha256'],
+                    model_source_sha256_by_path={ref['path']: ref['sha256']
+                                                for ref in selected['artifacts'].values()},
+                    control_clock=prepared['contract']['control_clock'],
+                    previous_50hz_model_or_timing_qualification_reused=False)
+                return value
+            correction = None
+            if kwargs['accel_input_hypothesis'] is not None:
+                from singularitydog_hw.imu_accel_input_hypothesis import load_accel_input_hypothesis
+                correction = load_accel_input_hypothesis(kwargs['accel_input_hypothesis'],
+                    R.imu_frame(prepared['contract']['model_plan'])['rotation'])
+            return {'observer': observer, 'model_setup': warm, 'model_source': proof,
+                    'accel_correction': correction}
         need(torch.get_num_threads() == torch.get_num_interop_threads() == 1, 'Actual Torch one-thread readback failed')
         from singularitydog_hw import policy_active_fk as fk, policy_checked_dispatch as checked
         from singularitydog_hw.policy_observer import StatefulPolicyObserver
@@ -393,11 +490,21 @@ class LinuxEnvironment:
 
     def load_libraries(self, args):
         from experiments.four_bus_diagnostic import native_current_guard
-        library = T.load_library(args.type1_library, expected_sha256=args.type1_library_sha256,
-            ordinary_source_sha256=args.ordinary_source_sha256,
-            subset_stop_source_sha256=args.subset_stop_source_sha256,
-            extension_source_sha256=args.type1_extension_source_sha256,
-            build_record_sha256=args.type1_build_sha256)
+        if getattr(args, 'native_group_base_source_sha256', None) is not None:
+            from experiments.four_bus_native_group.client import load_group_library
+            library = load_group_library(args.type1_library,
+                expected_sha256=args.type1_library_sha256,
+                ordinary_source_sha256=args.ordinary_source_sha256,
+                subset_stop_source_sha256=args.subset_stop_source_sha256,
+                subset_active_source_sha256=args.native_group_base_source_sha256,
+                group_source_sha256=args.type1_extension_source_sha256,
+                build_record_sha256=args.type1_build_sha256)
+        else:
+            library = T.load_library(args.type1_library, expected_sha256=args.type1_library_sha256,
+                ordinary_source_sha256=args.ordinary_source_sha256,
+                subset_stop_source_sha256=args.subset_stop_source_sha256,
+                extension_source_sha256=args.type1_extension_source_sha256,
+                build_record_sha256=args.type1_build_sha256)
         guard = native_current_guard.load_library(args.current_guard_library,
             expected_sha256=args.current_guard_library_sha256, source_sha256=args.current_guard_source_sha256,
             build_record_sha256=args.current_guard_build_sha256)
@@ -444,6 +551,10 @@ class LinuxEnvironment:
 
     def worker_scope(self, port, mask):
         return pipeline.LinuxWorkerScope(port, mask)
+
+    def native_group(self, adapters):
+        from experiments.four_bus_native_group.client import NativeGroup
+        return NativeGroup(adapters)
 
     def release_wait(self, library, cancel_fd, observer):
         return FG.make_release_wait(library, cancel_fd, observer)
@@ -523,17 +634,26 @@ def execute(args, prepared, environment=None):
     admitted, contract, capture = prepared['admitted'], prepared['contract'], prepared['capture']
     groups = tuple(Group(port, tuple(contract['topology_by_port'][port])) for port in PORTS)
     options = prepared['pacing_options']
+    native_selected = options.get('native_group_cycle') is True
+    backend_kind = ('genuine_native_group_cpp' if native_selected and env.kind == 'genuine_subset_active_cpp'
+                    else env.kind)
     evidence = getattr(args, 'timing_evidence', False)
-    report = {'schema': P.REPORT_SCHEMA, 'status': 'STARTING', **FALSE_FLAGS, **admitted.report_binding(),
+    report = {'schema': prepared['plan']['schema'], 'status': 'STARTING', **FALSE_FLAGS, **admitted.report_binding(),
               **dict.fromkeys(ATTEMPTS, False), 'errors': [], 'failure_retained': False, 'completed_cycles': 0,
               'all_cycles_passed': False, 'first_release_monotonic_ns': None, 'terminal_stop': None,
-              'physical_cutoff_required': False, 'restoration_complete': False, 'backend_kind': env.kind,
+              'physical_cutoff_required': False, 'restoration_complete': False, 'backend_kind': backend_kind,
               'input_sha256': dict(prepared['pins'].values), 'settings_restoration': {},
               'plan_summary': {'runner_plan': prepared['plan']['runner_plan'],
                                'firmware_by_id': prepared['plan']['firmware_by_id'],
                                'observer_max_ticks': prepared['plan']['observer_max_ticks'],
                                'model_load': prepared['plan']['model_load'],
                                'transport_native_gain_caps': prepared['plan']['transport_native_gain_caps']}}
+    if 'control_clock' in contract:
+        from singularitydog_hw.policy_clock import policy_clock_settings
+        selected_clock = policy_clock_settings(contract)
+        report.update(control_clock=contract['control_clock'], policy30_model=contract['policy30_model'],
+                      inference_tx_budget_ns=selected_clock.inference_tx_budget_ns,
+                      cycle_budget_ns=selected_clock.cycle_budget_ns)
     if options:
         report['pacing_options'] = dict(options)
     if evidence:
@@ -611,7 +731,8 @@ def execute(args, prepared, environment=None):
                         boot_fd=boot_fds[group.port], boot_id=capture['boot_before'], axis_raw_bounds=bounds,
                         kp_cap_by_id=kp, kd_cap_by_id=kd, cancel_all=cancel_from(group.port+'_transport_failure'),
                         decode_once=options.get('decode_once') is True,
-                        prearmed_hold='prearmed_hold_lead_us' in options)
+                        prearmed_hold='prearmed_hold_lead_us' in options,
+                        **({'separate_write_deadline': True} if 'control_clock' in contract else {}))
                     transports[group.port] = value
                     return value
                 def worker(port, mask):
@@ -624,12 +745,13 @@ def execute(args, prepared, environment=None):
                     model_setup=model['model_setup'], worker_scope=worker, main_scope=lambda: scope, release_wait=env.release_wait(library, cr, observer),
                     announce=env.announcer(prepared['audio'], light), encoder=encoder,
                     stop_requested=stop_requested, accel_correction=model.get('accel_correction'),
-                    backend_usage={'kind': env.kind,
+                    backend_usage={'kind': backend_kind,
                         'library_sha256': args.type1_library_sha256, 'build_record_sha256': args.type1_build_sha256,
                         'source_manifest_sha256': args.source_manifest_sha256},
                     clock=env.clock, execute=True,
                     command_wait=env.command_wait(library, cr) if 'command_phase_offset_us' in options else None,
-                    timing_evidence=env.timing_evidence() if evidence else None)
+                    timing_evidence=env.timing_evidence() if evidence else None,
+                    cycle_group_factory=env.native_group if native_selected else None)
                 if callable(getattr(observer, 'finish', None)):
                     # The tick budget is an upper bound; inference stops at gain-down.
                     report['observer'] = observer.finish()
@@ -731,6 +853,8 @@ def parser():
     result.add_argument('--audio-device', required=True)
     result.add_argument('--encoder-binary', help='Optional pinned native batch encoder (VerifiedBatchModule)')
     result.add_argument('--encoder-binary-sha256')
+    result.add_argument('--native-group-base-source-sha256',
+        help='Composite library only: SHA of included original subset_active.cpp; contract opt-in required')
     result.add_argument('--holder-receipt')
     result.add_argument('--holder-receipt-sha256')
     result.add_argument('--timing-evidence', action='store_true',

@@ -1,0 +1,24 @@
+--- a/runtime/experiments/four_bus_type1/type1_transport.py
++++ b/runtime/experiments/four_bus_human_hold/type1_transport.py
+@@ -1,4 +1,4 @@
+-"""Four-bus boxed Type1 transport: one port, one masked three-axis half session.
++"""Proposed independent human-hold30 transport: one masked three-axis half session.
+ 
+ This module opens no device and grants no output permission. Caller-owned
+ descriptors, boot/cancel bindings, the admitted profile and the direct-human
+@@ -31,13 +31,13 @@
+ from singularitydog_hw.policy_output_runtime import decode_records
+ from singularitydog_hw.rs05_trial_protocol import Type2Feedback
+ from experiments.four_bus_diagnostic.transport_adapter import Batch, Group
+-from . import build
++from experiments.four_bus_type1 import build
+ 
+ GAP_NS = 900_000
+ WINDOW = 3
+ MAX_DEADLINE_NS = 250_000_000
+ LSB_RAD = 25.14/65535.
+-KP_CAP = 3.
++KP_CAP = 6.  # Dedicated human current-hold review; old boxed adapter stays Kp3.
+ KD_CAP = .15
+ MAX_RAW_WINDOW_RAD = 2*math.radians(3)+1e-12
+ UNREACHABLE_CODE = 32767

@@ -1,0 +1,794 @@
+{
+  "schema": "singularitydog.native-group-integration-review.v1",
+  "date": "2026-10-14",
+  "status": "SOURCE_INTEGRATED_CPU_SOCKET_TESTED_HARDWARE_NOT_QUALIFIED",
+  "native_cycle_dispatch_integrated": true,
+  "selection_is_explicit_30hz_only": true,
+  "target_sources_overwritten": false,
+  "frozen_R3_R4_changed": false,
+  "new_source_jetson_build_completed": false,
+  "new_source_hardware_opened": false,
+  "new_source_type1_live_qualified": false,
+  "walking_qualified": false,
+  "settings": {
+    "policy_hz": 30,
+    "request_gap_us": 900,
+    "request_window": 3,
+    "requests_per_cycle": 28,
+    "input_freshness_ns": 20000000,
+    "host_write_budget_ns": 20000000,
+    "reply_budget_ns": 33333334,
+    "command_gap_budget_ns": 34333334,
+    "host_watchdog_ns": 40000000,
+    "motor_watchdog_ms": 200,
+    "policy_weight": 0.005,
+    "max_travel_deg": 1,
+    "kp": 3,
+    "kd": 0.15
+  },
+  "included_cpp_sha256": {
+    "ordinary": "3dfe93e4e8dbfafa12759bdd930af636c8823b45ca0c12c510b3a6fedbf355b0",
+    "subset_stop": "366f65060456e09664fb334d4e405cd368cd096c6495377722f6a1759cc02aa0",
+    "subset_active": "a321c0128711719b36fa08ff25fcf3d2be43fa48da7840d1ed45f2535aff7eb4",
+    "native_group": "f0d74753f5db010bfcb8eac598ab86b3515b1783d9ce94a7a020d70228ad9530"
+  },
+  "source_sha256": {
+    "runtime/experiments/four_bus_type1/type1_runner.py": "080da105a0fa22f6bb2e2a688e56fe18a920630cc7a65c4cdd4d2f4463490cad",
+    "runtime/experiments/four_bus_type1/type1_transport.py": "9959b2a1751f175fd48d0331d25f62d6f16a148ad4467581d81c78758330468c",
+    "runtime/experiments/four_bus_type1/type1_foreground.py": "d3da833939263847a54da56962f5f8ec4dce37c61a49d9d46bc3be72d777b2c8",
+    "runtime/experiments/four_bus_type1/type1_profile.py": "12e51d82e19e91f5b0832a6d5100bc6cb683e2056ee9fad7307f336856c9eb95",
+    "runtime/experiments/four_bus_native_group/ABI.md": "2532d06a1eed9fbd98cd4a083af8f870d13eec8a5f2aeaf21162cefbd565cd47",
+    "runtime/experiments/four_bus_native_group/__init__.py": "9926451af2d321afce8cc1d56cfb4f0a19877995f1d0264fdfa48a7045b4cdab",
+    "runtime/experiments/four_bus_native_group/benchmark.py": "cb799172e8d42e231dcc408e6c538235c744b597cf88bb5a2f8c2196a172c276",
+    "runtime/experiments/four_bus_native_group/build.py": "5f1eeda843d826ac7c476f942a59c863dcd32108b65d9ec4e634171b8df3b662",
+    "runtime/experiments/four_bus_native_group/client.py": "fdb0262a1802cba26b5213be9e02cb2c594c4d45bda701e4f7207415c460fc3b",
+    "runtime/experiments/four_bus_native_group/native_group.cpp": "f0d74753f5db010bfcb8eac598ab86b3515b1783d9ce94a7a020d70228ad9530",
+    "runtime/experiments/four_bus_native_group/test_benchmark.py": "53c3a4406ecb98b21081a3a587232e8f58c51c846ce118ee5dcf5ffd91a13cb9",
+    "runtime/experiments/four_bus_native_group/test_client.py": "e55117244acc66e60a0fc8a82ce317e662dc28f3a392904864a5bb22e680a852",
+    "runtime/experiments/four_bus_native_group/test_native_group.py": "c73e21b6786a047ac3bc370a46922ba9e3a08628e18c4d14686a65c1a90db775",
+    "runtime/experiments/four_bus_type1/test_native_group_runner.py": "3f5fe1621e660ef5995c163fa41ab5a009a6b5b5de652b58e2d9eccf059ee3a8",
+    "runtime/experiments/four_bus_type1/test_native_group_foreground.py": "2521b5c286b4e17527396e6b31293d6385588e56cc45c8b614adfc4ca4413f40",
+    "runtime/experiments/four_bus_type1/test_native_group_predecessor.py": "1b4b32e14afc3c4745f36c2fbd09482cc65096d2164b20505813637b74801ddd",
+    "runtime/experiments/four_bus_type1/test_type1_initial_timing_evidence.py": "3866dcb3597f5db1ebcf03a6926a29c1496d81823bfbad32f42cd20eee83eed2",
+    "runtime/experiments/four_bus_type1/test_type1_dispatch_timing.py": "e7b63bd3fb177e9f13b08dbf40a10b72a143af08134815453920c27c3dca4eea",
+    "tools/prepare_jetson_30hz_kit.py": "92e2a380cba63cb25c7e69885b32b75d0f348738d18f01b0e84b3d17a40e2a02"
+  },
+  "regression_runs": [
+    {
+      "scope": "15_related_modules_file_CPU_AF_UNIX",
+      "tests": 289,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_s": 22.506
+    },
+    {
+      "scope": "publication_and_offline30hz_kit_helpers",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_s": 6.105
+    }
+  ],
+  "independent_review": {
+    "review_sha256": "b1d3f4278e77e0b6ee5aebbe0d80ee6df01c037220aea2478f08a46444687dab",
+    "failed_long_fixture_audit_sha256": "28e8f069455115d58ef33a39c3e8a78576ac1d17f5781ae1711bd6bf2a1748e6",
+    "initial_and_current_raw_records_preserved": true,
+    "pre_release_failure_correlated_to_current_ticket": true,
+    "no_output_ack_fabricated_on_unissued_call": true,
+    "same_DSO_sessions_only": true,
+    "terminal_close_before_existing_STOP": true,
+    "terminal_sessions_poisoned": true,
+    "hardware_qualification": false
+  },
+  "portable_comparisons": [
+    {
+      "name": "portable_socket_R1",
+      "status": "ABORTED_CPU_FIXTURE_ONLY",
+      "raw_report_sha256": "531da4b2c90aab121f585869687a70898b9ab6823c99f65aee988172a3e801e7",
+      "requested_cycles_per_variant": 500,
+      "compared_command_bytes": {
+        "identical": false,
+        "reason": "Aborted variant has no complete command-parity verdict",
+        "completed_python": 93,
+        "completed_native": 31
+      },
+      "concurrent_regression_load": false,
+      "old_comparison_pacing_and_pre_release_bug": true,
+      "bench_source_sha256_at_start": "1d81bff126b48728a468249d3ccd0253259049b93127058a98c4893d14a299af",
+      "post_run_source_pins": {
+        "unchanged": true,
+        "checked_after_both_variants": true
+      },
+      "cpu_only": true,
+      "model_inference": false,
+      "serial_or_can_io": false,
+      "live_qualification": false,
+      "variants": {
+        "python": {
+          "status": "ABORTED",
+          "completed_cycles": 93,
+          "partially_observed_cycles": 1,
+          "not_started_cycles": 406,
+          "all_four_virtual_stops_confirmed": false,
+          "metrics": {
+            "start_interval": {
+              "count": 93,
+              "median_ms": 33.332375,
+              "p95_ms": 36.515583,
+              "p99_ms": 37.731792,
+              "max_ms": 37.769834
+            },
+            "start_lateness": {
+              "count": 94,
+              "median_ms": 3.996833,
+              "p95_ms": 4.48075,
+              "p99_ms": 4.820751,
+              "max_ms": 5.108917
+            },
+            "input_until_collected": {
+              "count": 94,
+              "median_ms": 7.488041,
+              "p95_ms": 8.196833,
+              "p99_ms": 8.44125,
+              "max_ms": 17.663708
+            },
+            "output_handoff": {
+              "count": 94,
+              "median_ms": 0.035125,
+              "p95_ms": 0.0785,
+              "p99_ms": 0.087542,
+              "max_ms": 0.090084
+            },
+            "hold_reply_to_voltage_native_begin": {
+              "count": 376,
+              "median_ms": 0.246166,
+              "p95_ms": 0.620417,
+              "p99_ms": 0.8455,
+              "max_ms": 4.066833
+            },
+            "voltage_reply_to_output_native_begin": {
+              "count": 93,
+              "median_ms": 0.273,
+              "p95_ms": 0.694792,
+              "p99_ms": 1.340375,
+              "max_ms": 1.813667
+            },
+            "output_submit_to_native_begin": {
+              "count": 93,
+              "median_ms": 0.122541,
+              "p95_ms": 0.344583,
+              "p99_ms": 1.050791,
+              "max_ms": 1.708208
+            },
+            "last_output_write": {
+              "count": 93,
+              "median_ms": 9.925333,
+              "p95_ms": 11.110125,
+              "p99_ms": 11.630417,
+              "max_ms": 13.169459
+            },
+            "oldest_input_start_to_last_output_write": {
+              "count": 93,
+              "median_ms": 9.701375,
+              "p95_ms": 10.509875,
+              "p99_ms": 11.283417,
+              "max_ms": 12.819084
+            },
+            "last_reply": {
+              "count": 93,
+              "median_ms": 12.117833,
+              "p95_ms": 13.425167,
+              "p99_ms": 13.959917,
+              "max_ms": 18.982125
+            },
+            "return_from_output": {
+              "count": 93,
+              "median_ms": 12.364791,
+              "p95_ms": 13.810208,
+              "p99_ms": 14.34475,
+              "max_ms": 19.370834
+            },
+            "native_output_end_to_collection": {
+              "count": 93,
+              "median_ms": 0.1695,
+              "p95_ms": 0.384875,
+              "p99_ms": 0.457125,
+              "max_ms": 0.472792
+            },
+            "write_deadline_misses": 0,
+            "reply_deadline_misses": 0,
+            "start_lateness_over_1ms": 87
+          },
+          "common_pacing_restored": null,
+          "error_class_or_reason": "ExchangeError"
+        },
+        "native": {
+          "status": "ABORTED",
+          "completed_cycles": 31,
+          "partially_observed_cycles": 1,
+          "not_started_cycles": 468,
+          "all_four_virtual_stops_confirmed": true,
+          "metrics": {
+            "start_interval": {
+              "count": 31,
+              "median_ms": 33.341709,
+              "p95_ms": 36.24625,
+              "p99_ms": 36.306042,
+              "max_ms": 36.956875
+            },
+            "start_lateness": {
+              "count": 32,
+              "median_ms": 3.999583,
+              "p95_ms": 4.560334,
+              "p99_ms": 4.592,
+              "max_ms": 4.656792
+            },
+            "input_until_collected": {
+              "count": 32,
+              "median_ms": 7.448334,
+              "p95_ms": 7.654042,
+              "p99_ms": 7.690333,
+              "max_ms": 25.277292
+            },
+            "output_handoff": {
+              "count": 32,
+              "median_ms": 0.029916,
+              "p95_ms": 0.046958,
+              "p99_ms": 0.083958,
+              "max_ms": 0.143917
+            },
+            "hold_reply_to_voltage_native_begin": {
+              "count": 128,
+              "median_ms": 0.003875,
+              "p95_ms": 0.017208,
+              "p99_ms": 0.023583,
+              "max_ms": 0.027958
+            },
+            "voltage_reply_to_output_native_begin": {
+              "count": 31,
+              "median_ms": 0.320666,
+              "p95_ms": 0.398292,
+              "p99_ms": 0.400709,
+              "max_ms": 0.463916
+            },
+            "output_submit_to_native_begin": {
+              "count": 31,
+              "median_ms": 0.080833,
+              "p95_ms": 0.123708,
+              "p99_ms": 0.124958,
+              "max_ms": 0.156292
+            },
+            "last_output_write": {
+              "count": 31,
+              "median_ms": 9.866334,
+              "p95_ms": 10.081375,
+              "p99_ms": 10.090708,
+              "max_ms": 10.120125
+            },
+            "oldest_input_start_to_last_output_write": {
+              "count": 31,
+              "median_ms": 9.738375,
+              "p95_ms": 9.884916,
+              "p99_ms": 9.919583,
+              "max_ms": 9.959625
+            },
+            "last_reply": {
+              "count": 31,
+              "median_ms": 12.120959,
+              "p95_ms": 12.328916,
+              "p99_ms": 12.364291,
+              "max_ms": 12.4435
+            },
+            "return_from_output": {
+              "count": 31,
+              "median_ms": 12.343375,
+              "p95_ms": 12.58775,
+              "p99_ms": 12.705541,
+              "max_ms": 13.51375
+            },
+            "native_output_end_to_collection": {
+              "count": 31,
+              "median_ms": 0.229167,
+              "p95_ms": 0.264625,
+              "p99_ms": 0.280708,
+              "max_ms": 1.358292
+            },
+            "write_deadline_misses": 0,
+            "reply_deadline_misses": 0,
+            "start_lateness_over_1ms": 32
+          },
+          "common_pacing_restored": null,
+          "error_class_or_reason": "ValueError"
+        }
+      }
+    },
+    {
+      "name": "portable_socket_R2",
+      "status": "COMPLETE_CPU_FIXTURE_ONLY",
+      "raw_report_sha256": "fd6b67a100afd63ee7ae2bdbf97b921a3d751f4f67ac690f1feaf6cd25313a43",
+      "requested_cycles_per_variant": 500,
+      "compared_command_bytes": {
+        "identical": true,
+        "cycles": 500,
+        "scope": "cycle hold/voltage/output Type1 and Type17 command bytes only"
+      },
+      "concurrent_regression_load": true,
+      "old_comparison_pacing_and_pre_release_bug": false,
+      "bench_source_sha256_at_start": "cb799172e8d42e231dcc408e6c538235c744b597cf88bb5a2f8c2196a172c276",
+      "post_run_source_pins": {
+        "unchanged": true,
+        "checked_after_both_variants": true
+      },
+      "cpu_only": true,
+      "model_inference": false,
+      "serial_or_can_io": false,
+      "live_qualification": false,
+      "variants": {
+        "python": {
+          "status": "COMPLETE",
+          "completed_cycles": 500,
+          "partially_observed_cycles": 0,
+          "not_started_cycles": 0,
+          "all_four_virtual_stops_confirmed": true,
+          "metrics": {
+            "start_interval": {
+              "count": 499,
+              "median_ms": 33.329958,
+              "p95_ms": 39.493541,
+              "p99_ms": 42.237959,
+              "max_ms": 43.162292
+            },
+            "start_lateness": {
+              "count": 500,
+              "median_ms": 2.632959,
+              "p95_ms": 8.746668,
+              "p99_ms": 9.583793,
+              "max_ms": 9.829876
+            },
+            "input_until_collected": {
+              "count": 500,
+              "median_ms": 7.871291,
+              "p95_ms": 8.757917,
+              "p99_ms": 9.161167,
+              "max_ms": 9.69975
+            },
+            "output_handoff": {
+              "count": 500,
+              "median_ms": 0.03175,
+              "p95_ms": 0.075625,
+              "p99_ms": 0.078833,
+              "max_ms": 0.088375
+            },
+            "hold_reply_to_voltage_native_begin": {
+              "count": 2000,
+              "median_ms": 0.178292,
+              "p95_ms": 0.529417,
+              "p99_ms": 0.684167,
+              "max_ms": 1.029959
+            },
+            "voltage_reply_to_output_native_begin": {
+              "count": 500,
+              "median_ms": 0.165833,
+              "p95_ms": 0.55025,
+              "p99_ms": 0.637416,
+              "max_ms": 0.720833
+            },
+            "output_submit_to_native_begin": {
+              "count": 500,
+              "median_ms": 0.064333,
+              "p95_ms": 0.234292,
+              "p99_ms": 0.294209,
+              "max_ms": 0.341292
+            },
+            "last_output_write": {
+              "count": 500,
+              "median_ms": 10.334791,
+              "p95_ms": 11.529458,
+              "p99_ms": 11.846208,
+              "max_ms": 12.61775
+            },
+            "oldest_input_start_to_last_output_write": {
+              "count": 500,
+              "median_ms": 10.197459,
+              "p95_ms": 11.027083,
+              "p99_ms": 11.238417,
+              "max_ms": 12.029084
+            },
+            "last_reply": {
+              "count": 500,
+              "median_ms": 12.551791,
+              "p95_ms": 13.891,
+              "p99_ms": 14.266,
+              "max_ms": 18.277917
+            },
+            "return_from_output": {
+              "count": 500,
+              "median_ms": 12.653541,
+              "p95_ms": 14.20125,
+              "p99_ms": 14.587167,
+              "max_ms": 18.550917
+            },
+            "native_output_end_to_collection": {
+              "count": 500,
+              "median_ms": 0.104792,
+              "p95_ms": 0.360208,
+              "p99_ms": 0.488167,
+              "max_ms": 0.78175
+            },
+            "write_deadline_misses": 0,
+            "reply_deadline_misses": 0,
+            "start_lateness_over_1ms": 429
+          },
+          "common_pacing_restored": true,
+          "error_class_or_reason": null
+        },
+        "native": {
+          "status": "COMPLETE",
+          "completed_cycles": 500,
+          "partially_observed_cycles": 0,
+          "not_started_cycles": 0,
+          "all_four_virtual_stops_confirmed": true,
+          "metrics": {
+            "start_interval": {
+              "count": 499,
+              "median_ms": 33.329667,
+              "p95_ms": 41.621334,
+              "p99_ms": 41.867833,
+              "max_ms": 42.312333
+            },
+            "start_lateness": {
+              "count": 500,
+              "median_ms": 3.296334,
+              "p95_ms": 8.742001,
+              "p99_ms": 9.445334,
+              "max_ms": 9.491168
+            },
+            "input_until_collected": {
+              "count": 500,
+              "median_ms": 8.392875,
+              "p95_ms": 9.165875,
+              "p99_ms": 9.402542,
+              "max_ms": 14.690167
+            },
+            "output_handoff": {
+              "count": 500,
+              "median_ms": 0.0745,
+              "p95_ms": 0.095125,
+              "p99_ms": 0.124,
+              "max_ms": 0.179583
+            },
+            "hold_reply_to_voltage_native_begin": {
+              "count": 2000,
+              "median_ms": 0.0055,
+              "p95_ms": 0.022792,
+              "p99_ms": 0.035459,
+              "max_ms": 0.099125
+            },
+            "voltage_reply_to_output_native_begin": {
+              "count": 500,
+              "median_ms": 0.673584,
+              "p95_ms": 0.922834,
+              "p99_ms": 1.099916,
+              "max_ms": 1.275375
+            },
+            "output_submit_to_native_begin": {
+              "count": 500,
+              "median_ms": 0.191834,
+              "p95_ms": 0.245792,
+              "p99_ms": 0.345917,
+              "max_ms": 0.371083
+            },
+            "last_output_write": {
+              "count": 500,
+              "median_ms": 11.0425,
+              "p95_ms": 11.952125,
+              "p99_ms": 12.243167,
+              "max_ms": 17.389542
+            },
+            "oldest_input_start_to_last_output_write": {
+              "count": 500,
+              "median_ms": 10.702291,
+              "p95_ms": 11.513375,
+              "p99_ms": 11.747,
+              "max_ms": 16.939209
+            },
+            "last_reply": {
+              "count": 500,
+              "median_ms": 13.380334,
+              "p95_ms": 14.358708,
+              "p99_ms": 14.648125,
+              "max_ms": 19.4465
+            },
+            "return_from_output": {
+              "count": 500,
+              "median_ms": 13.981167,
+              "p95_ms": 15.104042,
+              "p99_ms": 15.565625,
+              "max_ms": 19.9885
+            },
+            "native_output_end_to_collection": {
+              "count": 500,
+              "median_ms": 0.554625,
+              "p95_ms": 0.89325,
+              "p99_ms": 1.119208,
+              "max_ms": 1.54925
+            },
+            "write_deadline_misses": 0,
+            "reply_deadline_misses": 0,
+            "start_lateness_over_1ms": 344
+          },
+          "common_pacing_restored": true,
+          "error_class_or_reason": null
+        }
+      }
+    },
+    {
+      "name": "portable_socket_R3",
+      "status": "ABORTED_CPU_FIXTURE_ONLY",
+      "raw_report_sha256": "c54b3333eac758fcacbcb27bbcb6ac5fad1f7cd508d6e78fd6a9c247ad8b3864",
+      "requested_cycles_per_variant": 500,
+      "compared_command_bytes": {
+        "identical": false,
+        "reason": "Aborted variant has no complete command-parity verdict",
+        "completed_python": 56,
+        "completed_native": 106
+      },
+      "concurrent_regression_load": false,
+      "old_comparison_pacing_and_pre_release_bug": false,
+      "bench_source_sha256_at_start": "cb799172e8d42e231dcc408e6c538235c744b597cf88bb5a2f8c2196a172c276",
+      "post_run_source_pins": {
+        "unchanged": true,
+        "checked_after_both_variants": true
+      },
+      "cpu_only": true,
+      "model_inference": false,
+      "serial_or_can_io": false,
+      "live_qualification": false,
+      "variants": {
+        "python": {
+          "status": "ABORTED",
+          "completed_cycles": 56,
+          "partially_observed_cycles": 1,
+          "not_started_cycles": 443,
+          "all_four_virtual_stops_confirmed": true,
+          "metrics": {
+            "start_interval": {
+              "count": 56,
+              "median_ms": 33.368417,
+              "p95_ms": 37.055041,
+              "p99_ms": 37.143208,
+              "max_ms": 37.62875
+            },
+            "start_lateness": {
+              "count": 57,
+              "median_ms": 3.365834,
+              "p95_ms": 4.7225,
+              "p99_ms": 6.806666,
+              "max_ms": 7.603542
+            },
+            "input_until_collected": {
+              "count": 57,
+              "median_ms": 8.314708,
+              "p95_ms": 8.930834,
+              "p99_ms": 13.12625,
+              "max_ms": 22.127875
+            },
+            "output_handoff": {
+              "count": 57,
+              "median_ms": 0.074084,
+              "p95_ms": 0.083208,
+              "p99_ms": 0.090542,
+              "max_ms": 0.176375
+            },
+            "hold_reply_to_voltage_native_begin": {
+              "count": 228,
+              "median_ms": 0.525791,
+              "p95_ms": 0.716,
+              "p99_ms": 0.829875,
+              "max_ms": 0.994291
+            },
+            "voltage_reply_to_output_native_begin": {
+              "count": 56,
+              "median_ms": 0.512917,
+              "p95_ms": 0.944125,
+              "p99_ms": 1.07125,
+              "max_ms": 1.243167
+            },
+            "output_submit_to_native_begin": {
+              "count": 56,
+              "median_ms": 0.248125,
+              "p95_ms": 0.3995,
+              "p99_ms": 0.581458,
+              "max_ms": 0.78925
+            },
+            "last_output_write": {
+              "count": 56,
+              "median_ms": 10.924792,
+              "p95_ms": 11.759667,
+              "p99_ms": 12.564375,
+              "max_ms": 17.441125
+            },
+            "oldest_input_start_to_last_output_write": {
+              "count": 56,
+              "median_ms": 10.4205,
+              "p95_ms": 11.108667,
+              "p99_ms": 11.97025,
+              "max_ms": 14.360667
+            },
+            "last_reply": {
+              "count": 56,
+              "median_ms": 13.173209,
+              "p95_ms": 14.080334,
+              "p99_ms": 14.809167,
+              "max_ms": 21.38175
+            },
+            "return_from_output": {
+              "count": 56,
+              "median_ms": 13.51025,
+              "p95_ms": 14.56725,
+              "p99_ms": 15.052125,
+              "max_ms": 21.429166
+            },
+            "native_output_end_to_collection": {
+              "count": 56,
+              "median_ms": 0.316875,
+              "p95_ms": 0.498,
+              "p99_ms": 0.524667,
+              "max_ms": 0.527708
+            },
+            "write_deadline_misses": 0,
+            "reply_deadline_misses": 0,
+            "start_lateness_over_1ms": 45
+          },
+          "common_pacing_restored": true,
+          "error_class_or_reason": "ValueError"
+        },
+        "native": {
+          "status": "ABORTED",
+          "completed_cycles": 106,
+          "partially_observed_cycles": 1,
+          "not_started_cycles": 393,
+          "all_four_virtual_stops_confirmed": true,
+          "metrics": {
+            "start_interval": {
+              "count": 106,
+              "median_ms": 33.282875,
+              "p95_ms": 36.128125,
+              "p99_ms": 36.70575,
+              "max_ms": 49.47625
+            },
+            "start_lateness": {
+              "count": 107,
+              "median_ms": 2.377043,
+              "p95_ms": 4.361417,
+              "p99_ms": 4.547251,
+              "max_ms": 16.143334
+            },
+            "input_until_collected": {
+              "count": 106,
+              "median_ms": 7.96025,
+              "p95_ms": 8.913125,
+              "p99_ms": 9.871209,
+              "max_ms": 12.6875
+            },
+            "output_handoff": {
+              "count": 106,
+              "median_ms": 0.073584,
+              "p95_ms": 0.108125,
+              "p99_ms": 0.156458,
+              "max_ms": 0.167167
+            },
+            "hold_reply_to_voltage_native_begin": {
+              "count": 424,
+              "median_ms": 0.005542,
+              "p95_ms": 0.021333,
+              "p99_ms": 0.032166,
+              "max_ms": 0.116542
+            },
+            "voltage_reply_to_output_native_begin": {
+              "count": 106,
+              "median_ms": 0.648833,
+              "p95_ms": 0.930625,
+              "p99_ms": 1.223333,
+              "max_ms": 2.465458
+            },
+            "output_submit_to_native_begin": {
+              "count": 106,
+              "median_ms": 0.180875,
+              "p95_ms": 0.318208,
+              "p99_ms": 0.424542,
+              "max_ms": 0.592042
+            },
+            "last_output_write": {
+              "count": 106,
+              "median_ms": 10.510583,
+              "p95_ms": 11.562042,
+              "p99_ms": 12.330875,
+              "max_ms": 15.305459
+            },
+            "oldest_input_start_to_last_output_write": {
+              "count": 106,
+              "median_ms": 10.022541,
+              "p95_ms": 10.679292,
+              "p99_ms": 12.026667,
+              "max_ms": 13.949167
+            },
+            "last_reply": {
+              "count": 106,
+              "median_ms": 12.73575,
+              "p95_ms": 13.9665,
+              "p99_ms": 14.75975,
+              "max_ms": 22.193125
+            },
+            "return_from_output": {
+              "count": 106,
+              "median_ms": 13.319917,
+              "p95_ms": 14.99125,
+              "p99_ms": 16.237125,
+              "max_ms": 22.534125
+            },
+            "native_output_end_to_collection": {
+              "count": 106,
+              "median_ms": 0.575709,
+              "p95_ms": 0.898333,
+              "p99_ms": 2.45225,
+              "max_ms": 4.808959
+            },
+            "write_deadline_misses": 0,
+            "reply_deadline_misses": 0,
+            "start_lateness_over_1ms": 96
+          },
+          "common_pacing_restored": true,
+          "error_class_or_reason": "RuntimeError"
+        }
+      }
+    }
+  ],
+  "binding_cost_audit": {
+    "raw_report_sha256": "798a5839f404e0a106b4bed3ab7889eae492b8d9c7e18f8c3d01687c994eb240",
+    "scope": "CPU_ONLY_AF_UNIX_SOCKET_FIXTURE",
+    "deadline_for_cpu_fixture_ms": 150,
+    "release_cadence_or_20ms_qualification": false,
+    "one_regular_cycle_call_counts": {
+      "experiments.four_bus_native_group.client._bound": 16,
+      "experiments.four_bus_native_group.client._creation_entry": 16,
+      "experiments.four_bus_native_group.client.verify_group_library": 16,
+      "experiments.four_bus_type1.type1_transport.verify_library": 16,
+      "singularitydog_hw.native_active_transport.verified_active_source_binding": 16,
+      "experiments.four_bus_type1.type1_transport._function_seal": 144,
+      "experiments.four_bus_native_group.client._function_seal": 192,
+      "singularitydog_hw.native_active_transport.verified_active_session_creation": 64,
+      "singularitydog_hw.native_active_transport._readiness_fd_binding": 64,
+      "posix.fstat": 64,
+      "fcntl.fcntl": 64,
+      "experiments.four_bus_type1.type1_transport._validate": 24,
+      "experiments.four_bus_native_group.client._publish": 3,
+      "experiments.four_bus_native_group.client._check_journaled": 12,
+      "experiments.four_bus_native_group.client._raw_port": 12,
+      "experiments.four_bus_type1.type1_transport.publish_group_raw": 12,
+      "experiments.four_bus_native_group.client.verify_group_publication": 12,
+      "experiments.four_bus_native_group.client._port_fingerprint": 12,
+      "experiments.four_bus_type1.type1_transport._checked_output": 12
+    },
+    "unprofiled_full_bound_cpu": {
+      "count": 1000,
+      "median_us": 24.167,
+      "p99_us": 50.625,
+      "max_us": 93.75
+    },
+    "profiled_CPU_timing_not_used": true,
+    "proposed_six_checks_saving_ns_estimate": 145002,
+    "redundant_group_guard_refactor_not_applied": true
+  },
+  "remaining": [
+    "new_source_target_ARM64_build_and_CPU_compare",
+    "new_source_live_stop_proxy_5_then501",
+    "new_source_zero_gain_and_boxed2s_then10s",
+    "real_main_phase_CPU_GIL_scheduler_separation",
+    "load_support_standing_low_speed_walking",
+    "absolute_joint_datum_and_formal_IMU_calibration",
+    "30hz_sim_left_and_stop_incomplete_cases"
+  ]
+}

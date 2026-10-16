@@ -1,0 +1,226 @@
+"""File-only control-loop integration of the opt-in native group API.
+
+Synthetic records exercise the original motion envelope and all final gates.
+These are functional tests, not timing measurements or motor qualification.
+"""
+import json
+import unittest
+
+from singularitydog_hw import can_readonly as codec
+from experiments.four_bus_diagnostic.transport_adapter import PORTS
+from . import type1_profile as P, type1_runner as R
+from .test_type1_runner import Harness, type2, type17
+from .test_type1_30hz import Mock30, admitted30
+
+
+def admitted_native(mode='learned_boxed'):
+    value = admitted30(mode)
+    value['pacing'] = P.selected_pacing({'native_group_cycle': True})
+    return value
+
+
+class FileOnlyGroup:
+    """Single-thread deterministic stand-in for separately tested native owners."""
+    def __init__(self, adapters, harness):
+        self.adapters, self.h = adapters, harness
+        self.ticket, self.closed, self.journal, self.pending = 0, False, [], None
+        self.settings = [dict(native_tid=i+100, cpu_mask=1 << i, configured=1,
+                              status=0, timer_slack_ns=1000, synthetic=True) for i in range(4)]
+        self.close_report = None
+        harness.sequence.append(('native-ready',))
+        harness.clock.advance_to(harness.clock()+harness.controls.get('group_setup_ns', 0))
+
+    def initial_hold(self, wires, deadline_ns, check):
+        check()
+        self.h.sequence.append(('native-initial-hold',))
+        return self._output(wires, deadline_ns, deadline_ns)
+
+    def start_hold(self, wires, voltage_ids, deadline_ns, check):
+        check()
+        self.ticket += 1
+        self.h.sequence.append(('native-start', self.ticket))
+        self.pending = (wires, voltage_ids, deadline_ns)
+        if self.h.controls.get('group_hold_failure'):
+            raise TimeoutError('Synthetic native partial hold failure')
+        return self.ticket
+
+    def wait_hold(self, ticket):
+        if ticket != self.ticket:
+            raise ValueError('Current native ticket required')
+        wires, _, deadline_ns = self.pending
+        batches = {}
+        for port in PORTS:
+            adapter = self.adapters[port]
+            if tuple(wires[port]) != adapter.last_output:
+                raise ValueError('Last exact validated wires required')
+            batches[port] = adapter._exchange('hold', [(wire, type2(mid, adapter.raw(mid), mode=2))
+                for wire, mid in zip(wires[port], adapter.group.ids)], deadline_ns)
+        return batches
+
+    def wait_voltage(self, ticket):
+        if ticket != self.ticket:
+            raise ValueError('Current native ticket required')
+        _, ids, deadline_ns = self.pending
+        return {port: self.adapters[port]._exchange('voltage', [(
+            codec.read_request(ids[port], 'voltage'), type17(ids[port], 'voltage', 40.))], deadline_ns)
+            for port in PORTS}
+
+    def _output(self, wires, reply_deadline_ns, write_deadline_ns):
+        self.journal.append({'kind': 'synthetic-group-output', 'ticket': self.ticket})
+        if self.h.controls.get('group_late_write') and self.ticket:
+            self.h.clock.advance_to(write_deadline_ns+1)
+        if self.h.clock() >= write_deadline_ns:
+            raise TimeoutError('Synthetic separate native host-write cutoff')
+        batches = {}
+        for port in PORTS:
+            adapter = self.adapters[port]
+            batches[port] = adapter._exchange('output', [(wire, type2(mid, adapter.raw(mid), mode=2))
+                for wire, mid in zip(wires[port], adapter.group.ids)], reply_deadline_ns)
+            if any(record.finish_ns > write_deadline_ns for record in batches[port].records):
+                raise TimeoutError('Synthetic separate native host-write cutoff')
+            adapter.outputs.append(tuple(wires[port])); adapter.last_output = tuple(wires[port])
+        return batches
+
+    def output(self, wires, reply_deadline_ns, write_deadline_ns, check):
+        check()
+        return self._output(wires, reply_deadline_ns, write_deadline_ns)
+
+    def cancel(self):
+        self.h.sequence.append(('native-cancel',))
+
+    def close(self):
+        if not self.closed:
+            self.h.sequence.append(('native-close',))
+            self.closed = True
+            incomplete = self.h.controls.get('group_snapshot_error', False)
+            self.close_report = {'closed': True, 'restored': True,
+                'snapshot_complete': not incomplete,
+                'snapshot_error': 'synthetic snapshot failure' if incomplete else None}
+        return self.close_report
+
+
+class StopOrderMock(Mock30):
+    def stop_repeated(self, **kwargs):
+        if self.h.native is not None and not self.h.native.closed:
+            raise AssertionError('Legacy STOP before native owner join')
+        self.h.sequence.append(('legacy-terminal-stop', self.group.port))
+        return super().stop_repeated(**kwargs)
+
+
+class NativeRunnerTests(Harness, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.native = None
+
+    def factory(self, group):
+        self.adapters[group.port] = StopOrderMock(group, self)
+        return self.adapters[group.port]
+
+    def create_group(self, adapters):
+        self.native = FileOnlyGroup(adapters, self)
+        return self.native
+
+    def run_native(self, **kwargs):
+        return self.run_case(value=admitted_native(), cycle_group_factory=self.create_group, **kwargs)
+
+    def test_native_plan_opens_nothing_and_is_explicit_30hz_only(self):
+        result = R.plan(admitted_native())
+        self.assertEqual(result['pacing']['native_group_cycle'], True)
+        self.assertFalse(result['opens_devices'])
+        from .test_type1_runner import admitted
+        legacy = admitted()
+        legacy['pacing'] = P.selected_pacing({'native_group_cycle': True})
+        with self.assertRaisesRegex(ValueError, '30 Hz'):
+            R.plan(legacy)
+        self.assertNotIn('native_group_cycle', P.selected_pacing({'native_group_cycle': False}))
+
+    def test_full_controller_uses_group_not_python_can_cycle_workers(self):
+        report = self.run_native()
+        self.assertEqual(report['status'], 'COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED', report['errors'])
+        self.assertTrue(report['learned_targets_attempted'])
+        self.assertTrue(report['stop_confirmed'])
+        self.assertTrue(report['normal_ramp_completed'])
+        self.assertTrue(report['native_group_close']['snapshot_complete'])
+        for adapter in self.adapters.values():
+            self.assertNotIn('hold', [name for name, _ in adapter.calls])
+            self.assertEqual([name for name, _ in adapter.calls].count('output'), 1)
+        self.assertTrue(all(row['request_count'] == 28 for row in report['cycles']))
+        closed = self.sequence.index(('native-close',))
+        self.assertTrue(all(i > closed for i, item in enumerate(self.sequence)
+                            if item[0] == 'legacy-terminal-stop'))
+        self.assert_all_stopped(report)
+        encoded = json.dumps(R.evidence_report(report), allow_nan=False)
+        self.assertIn('native_group_journal', encoded)
+
+    def test_costly_ready_gets_actual_fresh_zero_hold_before_initial_clock(self):
+        self.controls['group_setup_ns'] = 37_000_000
+        report = self.run_native()
+        self.assertEqual(report['status'], 'COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED', report['errors'])
+        ready = report['native_group_setup']['ready_ns']
+        old = report['before_native_group_initial_hold']
+        fresh = report['initial_hold']
+        self.assertLess(max(batch.stats.end_ns for batch in old.values()), ready)
+        self.assertGreater(min(batch.stats.begin_ns for batch in fresh.values()), ready)
+        self.assertLess(ready, report['epoch_ns'])
+
+    def test_partial_hold_failure_joins_group_then_stops_all_legacy_ports(self):
+        self.controls['group_hold_failure'] = True
+        report = self.run_native()
+        self.assertEqual(report['status'], 'ABORTED')
+        self.assertTrue(report['stop_confirmed'])
+        self.assertTrue(self.native.closed)
+        self.assertEqual(report['completed_cycles'], 0)
+        self.assert_all_stopped(report)
+
+    def test_late_host_write_rejected_even_with33ms_reply_budget(self):
+        self.controls['group_late_write'] = True
+        report = self.run_native()
+        self.assertEqual(report['status'], 'ABORTED')
+        self.assertIn('host-write cutoff', str(report['errors']))
+        self.assertTrue(report['stop_confirmed'])
+        self.assertEqual(report['completed_cycles'], 0)
+
+    def test_snapshot_failure_cannot_be_a_completed_predecessor_but_stop_still_runs(self):
+        self.controls['group_snapshot_error'] = True
+        report = self.run_native()
+        self.assertEqual(report['status'], 'ABORTED')
+        self.assertTrue(report['stop_confirmed'])
+        self.assertFalse(report['native_group_close']['snapshot_complete'])
+        self.assertIn('snapshot incomplete', str(report['errors']))
+
+    def test_missing_group_or_accidental_factory_refused_before_can(self):
+        with self.assertRaisesRegex(ValueError, 'exactly when selected'):
+            self.run_case(value=admitted_native())
+        self.assertEqual(self.adapters, {})
+        with self.assertRaisesRegex(ValueError, 'exactly when selected'):
+            self.run_case(value=admitted30(), cycle_group_factory=self.create_group)
+        self.assertEqual(self.adapters, {})
+
+    def test_identical_target_source_and_wire_limits_across_backends(self):
+        legacy = self.run_case(value=admitted30())
+        old_rows = legacy['cycles']
+        self.setUp()
+        native = self.run_native()
+        self.assertEqual(legacy['status'], 'COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED', legacy['errors'])
+        self.assertEqual(native['status'], 'COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED', native['errors'])
+        # VirtualClock charges each Python timestamp access 1 us. The native
+        # API intentionally uses fewer accesses, so its ramp end is not an
+        # identical wall-clock sample. Compare all actual inference outputs;
+        # both runs must separately finish the unchanged braking/gain ramp.
+        old_inferred = [row for row in old_rows if row['observed'] is not None]
+        new_inferred = [row for row in native['cycles'] if row['observed'] is not None]
+        self.assertGreater(min(len(old_inferred), len(new_inferred)), 30)
+        for old, new in zip(old_inferred, new_inferred):
+            self.assertEqual(old['model_target_by_id'], new['model_target_by_id'])
+        for new in native['cycles']:
+            self.assertLessEqual(max(new['command']['kp']), 3.)
+            for port in PORTS:
+                for raw in new['output'][port].records:
+                    self.assertEqual(raw.written, 17)
+                    self.assertLessEqual(raw.finish_ns, new['first_ns']+20_000_000)
+                    self.assertEqual(raw.deadline_ns, new['hard_end_ns'])
+        self.assertTrue(native['normal_ramp_completed'])
+
+
+if __name__ == '__main__':
+    unittest.main()

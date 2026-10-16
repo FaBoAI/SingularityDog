@@ -1,0 +1,228 @@
+--- a/runtime/experiments/four_bus_type1/type1_runner.py
++++ b/runtime/experiments/four_bus_type1/type1_runner.py
+@@ -37,7 +37,9 @@
+ from experiments.four_bus_diagnostic.pipeline import (
+     _real_operating_readback, _take, _verify_observer_clock, evidence_report)
+ from experiments.four_bus_diagnostic.transport_adapter import GROUPS, PORTS, Group
+-from . import type1_profile as _profile
++from experiments.four_bus_type1 import type1_profile as _profile
++from experiments.four_bus_human_hold import profile as _human_profile
++from experiments.four_bus_human_hold.supervision import HumanSupported30Execution
+ 
+ SCHEMA = 'singularitydog.four-bus-type1-boxed-run.v1'
+ MODES = ('zero_gain_timing', 'learned_boxed')
+@@ -146,6 +148,8 @@
+ 
+ def validate_admitted(admitted):
+     """Pure admitted-object recheck; returns an owned spec. Opens nothing."""
++    if type(admitted) is _human_profile.Prepared:
++        return _human_profile.runtime_spec(admitted)
+     need(isinstance(admitted, Mapping) and all(key in admitted for key in REQUIRED_ADMITTED_KEYS),
+          'Admitted four-bus Type1 object with all required keys required')
+     value = {key: _plain(admitted[key]) for key in REQUIRED_ADMITTED_KEYS}
+@@ -360,6 +364,11 @@
+         result['full_current_check_points'][0] = 'before_release_before_prearmed_submit'
+     if options.get('gc_freeze') is True:
+         result['gc_freeze_selected'] = True
++    if spec['mode'] in _human_profile.MODES:
++        result.update(schema=_human_profile.REPORT_SCHEMA, human_hold_mode=spec['mode'],
++            human_current_hold_only=True, learned_model_targets_diagnostic_only=True,
++            weight_zero=True, standing_or_walking_authorized=False,
++            operator_statements_not_load_measurements=True)
+     return result
+ 
+ 
+@@ -540,7 +549,7 @@
+     Mirrors OR:1027-1078. A single-worker FIFO pool means each queued STOP
+     starts only after that port's in-flight exchange has returned.
+     """
+-    def __init__(self, pools, adapters, cancel_io, clock, ids_by_port):
++    def __init__(self, pools, adapters, cancel_io, clock, ids_by_port, before_emergency=None):
+         self.pools, self.adapters, self.cancel_io, self.clock = pools, adapters, cancel_io, clock
+         self.ids_by_port = {port: list(ids) for port, ids in ids_by_port.items()}
+         self.lock = threading.Lock()
+@@ -548,8 +557,18 @@
+         self.reason = self.latched_ns = self.normal_completion = None
+         self.stop_futures = None
+         self.errors = []
++        self.before_emergency = before_emergency
+ 
+     def emergency(self, reason, *, normal_completion=False):
++        # Do not hold the STOP latch lock while a terminal/audio recovery hook
++        # invokes its own cancellation callback. That callback can re-enter once;
++        # the support supervisor has already latched failure before doing so.
++        if not normal_completion and self.before_emergency is not None:
++            try:
++                self.before_emergency(str(reason))
++            except BaseException as error:
++                self.errors.append({'stage': 'human_recovery_hook', 'port': None,
++                                    'error': type(error).__name__+': '+str(error)})
+         with self.lock:
+             if self.stop_futures is not None:
+                 return
+@@ -694,7 +713,7 @@
+         check_cancelled=None, cancel_io=None, model_setup=None, worker_scope=None,
+         main_scope=None, release_wait=None, announce=None, encoder=None, stop_requested=None,
+         backend_usage=None, accel_correction=None, clock=time.monotonic_ns, execute=False,
+-        command_wait=None, timing_evidence=None):
++        command_wait=None, timing_evidence=None, human_supervision=None):
+     """PLAN unless ``execute is True``; PLAN calls none of the capabilities.
+ 
+     ``factory(group)`` returns a Type1TransportContract owner for that port.
+@@ -723,6 +742,14 @@
+         'genuine_subset_active_cpp', 'injected_file_only_mock'), 'Truthful explicit backend usage required')
+     genuine = backend_usage['kind'] == 'genuine_subset_active_cpp'
+     spec = validate_admitted(admitted)
++    human = spec['mode'] in _human_profile.MODES
++    human_positive = spec['mode'] == 'human_current_hold'
++    if human:
++        _human_profile.verify_runner_source(admitted, __file__)
++    need((type(human_supervision) is HumanSupported30Execution) if human_positive else
++         human_supervision is None, 'Dedicated genuine current-hold supervisor required only for human positive mode')
++    if human_positive:
++        human_supervision.bind_profile(admitted, active=True)
+     clock_contract = spec['clock']
+     _verify_observer_clock(observer, clock_contract, allow_unadvertised=not genuine)
+     is30 = spec['is30']
+@@ -746,6 +773,7 @@
+     axis_rows = tuple(axes[str(mid)] for mid in IDS)
+     group_of = {group.port: group for group in groups}
+     learned = spec['mode'] == 'learned_boxed'
++    positive = learned or human_positive
+     age_ns = int(profile['max_sample_age_ms']*1e6)
+     gap_ns = clock_contract.command_gap_budget_ns if is30 else int(profile['max_sample_gap_ms']*1e6)
+     report = {**planned, 'status': 'STARTING', 'opens_devices': True,
+@@ -758,7 +786,10 @@
+                                 'maximum_checked_age_ns': 0, 'minimum_checked_voltage_v': None},
+               'cycles': [], 'completed_cycles': 0, 'normal_ramp_completed': False}
+     pools, adapters, owner_scopes, in_flight = {}, {}, {}, []
+-    supervisor = _Supervisor(pools, adapters, cancel_io, clock, {group.port: group.ids for group in groups})
++    supervisor = _Supervisor(pools, adapters, cancel_io, clock, {group.port: group.ids for group in groups},
++        before_emergency=human_supervision.on_abort if human_positive else None)
++    if human_positive:
++        human_supervision.connect_cancel(lambda: supervisor.emergency('Human support supervision cancelled'))
+     voltage_cache = {}
+     cycles = []
+     guard = report['voltage_guard']
+@@ -873,7 +904,10 @@
+             _real_operating_readback(operating)
+         check()
+         if genuine:
+-            from .type1_transport import Type1Transport
++            if human:
++                from experiments.four_bus_human_hold.type1_transport import Type1Transport
++            else:
++                from experiments.four_bus_type1.type1_transport import Type1Transport
+         for group in groups:
+             adapter = factory(group)
+             adapters[group.port] = adapter  # Retain the returned resource even if rejected.
+@@ -1118,7 +1152,7 @@
+         limits = tuple(replace(AxisLimits(**{key: axis[key] for key in AxisLimits.__dataclass_fields__}),
+                                lower_rad=max(axis['lower_rad'], q-axis['max_displacement_from_start_rad']),
+                                upper_rad=min(axis['upper_rad'], q+axis['max_displacement_from_start_rad']),
+-                               **({} if learned else {'kp': 0., 'kd': 0.}))
++                               **({} if positive else {'kp': 0., 'kd': 0.}))
+                        for axis, q in zip(axis_rows, trial_origin.q_model_rad))
+         last_command_ns = clock()
+         last_sample_ns = min(row[1] for row in fresh_zero.values())
+@@ -1127,7 +1161,7 @@
+             startup_damping_duration_s=profile['startup_damping_duration_s'],
+             max_sample_age_s=profile['max_sample_age_ms']/1000,
+             max_sample_gap_s=gap_ns/1e9 if is30 else profile['max_sample_gap_ms']/1000)
+-        report['envelope_gains'] = 'profile_kp_kd' if learned else 'zero_kp_kd'
++        report['envelope_gains'] = 'profile_kp_kd' if positive else 'zero_kp_kd'
+         if encoder is None:
+             def wires_for(command):
+                 return _python_motion_wires(command, offsets, axes, trial_origin.q_model_rad,
+@@ -1170,6 +1204,8 @@
+         if prearm_ns is not None:
+             start += prearm_ns  # Epoch one lead ahead, so cycle 0 is pre-armed as well.
+         report['epoch_ns'] = start
++        if human_positive:
++            human_supervision.on_start(start)
+         previous_slot = previous_begin = None
+         stop_started = False
+         report['cycles'] = cycles
+@@ -1209,6 +1245,8 @@
+                 check()  # Boundary 1, pre-armed: before_release_before_prearmed_submit.
+                 hold_now = release  # Every hold gate is evaluated at the release, when the hold is written.
+                 prearmed = {'not_before_ns': release}
++            supervised_stop = (human_supervision.before_cycle(begun, stop_requested=stop_requested.is_set())
++                               if human_positive else stop_requested.is_set())
+             if hold_now-last_command_ns > gap_ns or hold_now-last_sample_ns > gap_ns:
+                 raise RuntimeError('Command/sample gap exceeded before feedback hold')
+             for mid in IDS:
+@@ -1300,7 +1338,9 @@
+             check()  # Boundary 2: after_feedback_joins_before_inference.
+             if clock() >= write_deadline:
+                 raise TimeoutError('Deadline before inference')
+-            if not stop_started and (stop_requested.is_set() or begun-start >= stop_at_ns):
++            if not stop_started and (supervised_stop or begun-start >= stop_at_ns):
++                if human_positive:
++                    human_supervision.before_stop(emergency=False)
+                 envelope.request_stop()
+                 stop_started = True
+             weight = 0.
+@@ -1372,7 +1412,7 @@
+             if computed >= write_deadline:
+                 raise TimeoutError('Inference exceeded hard cycle deadline')
+             command = row.command = envelope.step(target, sample, now_s=computed/1e9)
+-            outgoing = split_wires_by_port(wires_for(command), groups, zero_gain=not learned)
++            outgoing = split_wires_by_port(wires_for(command), groups, zero_gain=not positive)
+             row.encode_end_ns = clock()
+             require_voltage_before_type1()
+             if clock() >= write_deadline:
+@@ -1383,7 +1423,7 @@
+             if any(command.kp) or any(command.kd):
+                 report['positive_gain_sent'] = True
+             row.label = ('graceful_stop' if stop_started else 'policy_output' if learned and weight > 0.
+-                         else 'startup_hold' if learned else 'zero_gain_timing')
++                         else 'human_current_hold' if human_positive else 'startup_hold' if learned else 'zero_gain_timing')
+             row.output_submit_ns = clock()
+             output = {}
+             in_flight.clear()
+@@ -1450,6 +1490,17 @@
+                 raise
+             row.decision = decision
+             row.cycle_end_ns = decision['checked_ns']
++            if human and (decision.get('lateness_ms', 0) > 0 or row.cycle_end_ns >= hard_end):
++                raise RuntimeError('Human hold requires complete30Hz cycle without post-reply allowance')
++            if human_positive:
++                full_gain = command.phase == 'active' and all(
++                    abs(kp-6.) <= 1e-12 and abs(kd-.15) <= 1e-12
++                    for kp,kd in zip(command.kp,command.kd))
++                human_supervision.after_cycle_validated(begun,row.cycle_end_ns,command.phase,
++                    full_gain=full_gain,stop_requested=stop_requested.is_set(),oldest_input_ns=first,
++                    final_write_ns=final_write,last_reply_ns=last_reply)
++                if clock() >= hard_end:
++                    raise RuntimeError('Human supervision exceeded the30Hz whole-cycle deadline')
+             row.completed = True
+             watcher.kick()
+             previous, last_wires = returned, outgoing
+@@ -1467,7 +1518,8 @@
+                 break
+         if not report['normal_ramp_completed']:
+             raise RuntimeError('Finite run budget expired before normal stop')
+-        report['status'] = 'COMPLETE_FOUR_BUS_TYPE1_'+spec['mode'].upper()
++        report['status'] = (_human_profile.COMPLETE_STATUS[spec['mode']] if human else
++                            'COMPLETE_FOUR_BUS_TYPE1_'+spec['mode'].upper())
+     except BaseException as error:
+         primary = error
+         report['status'] = 'ABORTED'
+@@ -1589,6 +1641,16 @@
+             if report['status'].startswith('COMPLETE'):
+                 report['status'] = 'ABORTED'
+         report['failure_retained'] = primary is not None
++        if human_positive:
++            try:
++                human_supervision.close()
++                human_supervision.decorate_report(report)
++                if human_supervision.restored is not True or (primary is None and human_supervision.failed is not None):
++                    raise RuntimeError('Human terminal/timer/audio restoration or supervision failed')
++            except BaseException as cleanup:
++                cleanup_error(cleanup)
++                report['status'] = 'ABORTED_HUMAN_SUPERVISION_CLEANUP'
++                report['failure_retained'] = True
+     return report
+ 
+ 

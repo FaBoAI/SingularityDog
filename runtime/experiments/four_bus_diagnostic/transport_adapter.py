@@ -30,6 +30,11 @@ _SUBSET_SYMBOLS = ('sda_emergency_stop_subset_abi', 'sda_emergency_stop_subset')
 _SUBSET_ARGS = (C.c_void_p, C.c_uint32, C.c_uint64, C.POINTER(Record),
                 C.POINTER(active.Stats), C.POINTER(active.StopResult),
                 C.POINTER(C.c_char), C.c_uint32)
+_WRITE_SYMBOLS = ('sda_subset_stop_write_deadline_abi', 'sda_subset_stop_exchange_write_deadline')
+_WRITE_ARGS = ((), (C.c_void_p, C.c_uint32, C.POINTER(C.c_ubyte), C.c_uint32, C.c_int,
+                   C.c_uint64, C.c_uint64, C.POINTER(Record), C.POINTER(active.Stats),
+                   C.POINTER(C.c_char), C.c_uint32))
+_WRITE_RESULTS = (C.c_uint32, C.c_int)
 _LIBRARIES = weakref.WeakKeyDictionary()
 _ADAPTERS = weakref.WeakKeyDictionary()
 _TOKEN = object()
@@ -65,6 +70,7 @@ class _LibrarySeal:
     functions: tuple
     build_sha256: str
     ordinary_source_sha256: str
+    write_deadline: tuple = ()
 
 
 def _function_seal(function):
@@ -84,6 +90,8 @@ def load_library(path, *, expected_sha256, ordinary_source_sha256,
     if (scope.get('schema') != 'singularitydog.four-bus-subset-build.v1' or
             scope.get('abi') != 1 or scope.get('allowed_masks') != [7, 56] or
             scope.get('original_active_abi') != 1 or
+            ('write_deadline_abi' in scope and
+             (type(scope['write_deadline_abi']) is not int or scope['write_deadline_abi'] != 1)) or
             scope.get('ordinary_source_sha256') != ordinary_source_sha256 or
             scope.get('extension_source_sha256') != extension_source_sha256 or
             sha(path.parent / 'ordinary_transport.cpp') != ordinary_source_sha256 or
@@ -105,6 +113,18 @@ def load_library(path, *, expected_sha256, ordinary_source_sha256,
     lib.sda_emergency_stop_subset = function
     if abi() != 1:
         raise ValueError('Subset STOP ABI mismatch')
+    write_deadline = ()
+    if scope.get('write_deadline_abi') == 1:
+        try:
+            optional = tuple(lib[name] for name in _WRITE_SYMBOLS)
+        except AttributeError:
+            raise ValueError('Receipt records separate STOP write deadline but the library lacks it')
+        for name, optional_function, arguments, result in zip(_WRITE_SYMBOLS, optional, _WRITE_ARGS, _WRITE_RESULTS):
+            optional_function.argtypes = list(arguments); optional_function.restype = result
+            setattr(lib, name, optional_function)
+        if lib.sda_subset_stop_write_deadline_abi() != 1:
+            raise ValueError('Separate STOP write deadline ABI mismatch')
+        write_deadline = tuple(_function_seal(function) for function in optional)
     binding = active.verified_active_source_binding(lib)
     if (binding.build_record_sha256 != build_record_sha256 or
             binding.source_sha256 != extension_source_sha256 or
@@ -116,7 +136,7 @@ def load_library(path, *, expected_sha256, ordinary_source_sha256,
         raise ValueError('Subset source/receipt changed across authenticated load')
     seal = _LibrarySeal(_TOKEN, weakref.ref(lib), binding,
                         (_function_seal(abi), _function_seal(function)),
-                        build_record_sha256, ordinary_source_sha256)
+                        build_record_sha256, ordinary_source_sha256, write_deadline)
     lib._four_bus_subset_seal = seal
     _LIBRARIES[lib] = weakref.ref(seal)
     verify_library(lib)
@@ -130,11 +150,19 @@ def verify_library(lib):
             seal.token is not _TOKEN or seal.library() is not lib or
             active.verified_active_source_binding(lib) is not seal.active_binding):
         raise ValueError('Genuine authenticated subset library required')
-    for name, original in zip(_SUBSET_SYMBOLS, seal.functions):
-        current = getattr(lib, name, None)
-        if current is not original[0] or _function_seal(current) != original:
-            raise ValueError('Subset function binding changed')
+    for names, functions in ((_SUBSET_SYMBOLS, seal.functions), (_WRITE_SYMBOLS, seal.write_deadline)):
+        for name, original in zip(names, functions):
+            current = getattr(lib, name, None)
+            if current is not original[0] or _function_seal(current) != original:
+                raise ValueError('Subset function binding changed')
     return seal
+
+
+def _check_write_deadline_library(seal, selected):
+    if type(selected) is not bool:
+        raise ValueError('Separate STOP write deadline selection must be an exact bool')
+    if selected and len(seal.write_deadline) != len(_WRITE_SYMBOLS):
+        raise ValueError('Separate STOP write deadline requires a receipt and ABI for the STOP-only exchange')
 
 
 @dataclass(frozen=True)
@@ -148,6 +176,7 @@ class Batch:
     record_image: bytes
     stats_image: bytes
     completed_ns: int
+    write_deadline_ns: int | None = None
 
     def verify(self):
         if bytes(self.records) != self.record_image or bytes(self.stats) != self.stats_image:
@@ -177,12 +206,16 @@ class Batch:
                          projected_feedback_record_indices=[0, 1, 2],
                          voltage_record_index=3,
                          all_four_replies_joined_before_publication=True)
+        if self.write_deadline_ns is not None:
+            value.update(separate_write_deadline_monotonic_ns=self.write_deadline_ns,
+                         record_deadlines_are_reply_deadlines=True)
         return value
 
 
 class ThreeAxisTransport:
     """One persistent owner; no actuator FD ownership is transferred."""
-    def __init__(self, session, group, *, combined_acquisition=False, decode_once=False, token=None):
+    def __init__(self, session, group, *, combined_acquisition=False, decode_once=False,
+                 separate_write_deadline=False, token=None):
         if token is not _TOKEN or type(session) is not active.ActiveSession or type(group) is not Group:
             raise ValueError('Use the exact-three creation factory with genuine original session')
         if type(combined_acquisition) is not bool:
@@ -191,27 +224,32 @@ class ThreeAxisTransport:
             raise ValueError('Decode-once selection must be an exact bool')
         self.combined_acquisition = combined_acquisition
         self.decode_once = decode_once
+        self.separate_write_deadline = separate_write_deadline
         self._session = session
         self.group = group
         self._library = session.lib
         self._seal = verify_library(session.lib)
+        _check_write_deadline_library(self._seal, separate_write_deadline)
         self._creation = active.verified_active_session_creation(session)
         self._binding = (session._handle, session.fd, session.first_id, bytes(session._limits))
         self._owner = None
         self._closed = False
         self.journal = []
+        self.write_deadline_journal = []  # (raw journal index, reply cap, write cap, dispatch time)
         self._batches = []
         # Identity index of the same retained batches: O(1) genuineness lookup.
         self._batch_index = {}
         self._stop_wires = tuple(stop_wire(mid) for mid in group.ids)
         self._voltage_wires = tuple(read_request(mid, 'voltage') for mid in group.ids)
         _ADAPTERS[self] = (weakref.ref(session), group, self._binding,
-                           self._stop_wires, self._voltage_wires, combined_acquisition, decode_once)
+                           self._stop_wires, self._voltage_wires, combined_acquisition, decode_once,
+                           separate_write_deadline)
 
     @classmethod
     def create(cls, library, fd, *, group, cancel_fd, boot_fd, boot_id,
-               raw_lower_by_id, raw_upper_by_id, combined_acquisition=False, decode_once=False):
-        verify_library(library)
+               raw_lower_by_id, raw_upper_by_id, combined_acquisition=False, decode_once=False,
+               separate_write_deadline=False):
+        _check_write_deadline_library(verify_library(library), separate_write_deadline)
         if type(group) is not Group:
             raise ValueError('Immutable group required')
         if type(combined_acquisition) is not bool:
@@ -226,7 +264,8 @@ class ThreeAxisTransport:
             gap_ns=GAP_NS, window=WINDOW)
         try:
             return cls(session, group, combined_acquisition=combined_acquisition,
-                       decode_once=decode_once, token=_TOKEN)
+                       decode_once=decode_once, separate_write_deadline=separate_write_deadline,
+                       token=_TOKEN)
         except BaseException:
             session.close()
             raise
@@ -239,6 +278,7 @@ class ThreeAxisTransport:
                 self._voltage_wires != original[4] or
                 self.combined_acquisition is not original[5] or
                 self.decode_once is not original[6] or
+                self.separate_write_deadline is not original[7] or
                 self._closed or not session._handle or session.lib is not self._library or
                 verify_library(self._library) is not self._seal or
                 active.verified_active_session_creation(session) != self._creation or
@@ -265,11 +305,52 @@ class ThreeAxisTransport:
             raise ValueError('Only exact three Type4 STOPs or one same-group Type17 voltage allowed')
         return wires
 
-    def _exchange(self, wires, deadline_ns, label, *, before_native=None):
+    def _native_with_write_deadline(self, wires, deadline_ns, write_deadline_ns):
+        session = self._session
+        if not session.busy.acquire(blocking=False):
+            raise RuntimeError('Concurrent active session use')
+        try:
+            if not session._handle:
+                raise RuntimeError('Active session closed')
+            if session.poisoned:
+                raise RuntimeError('Session poisoned; active retry prohibited')
+            _check_write_deadline_library(self._seal, True)
+            now = time.monotonic_ns()
+            if type(deadline_ns) is not int or not now < deadline_ns <= now + 250_000_000:
+                raise ValueError('Expired or invalid absolute active deadline')
+            if type(write_deadline_ns) is not int or not now < write_deadline_ns <= deadline_ns:
+                raise ValueError('Separate STOP deadline requires now<write_deadline<=reply_deadline')
+            raw = (C.c_ubyte * (17 * len(wires))).from_buffer_copy(b''.join(wires))
+            records, stats, error = (Record * len(wires))(), active.Stats(), C.create_string_buffer(256)
+            dispatched = time.monotonic_ns()
+            if dispatched >= write_deadline_ns:
+                raise TimeoutError('Separate STOP write deadline expired before subset exchange')
+            self.write_deadline_journal.append((len(self.journal), deadline_ns, write_deadline_ns, dispatched))
+            status = self._library.sda_subset_stop_exchange_write_deadline(
+                session._handle, self.group.mask, raw, len(wires), 0, deadline_ns, write_deadline_ns,
+                records, C.byref(stats), error, len(error))
+            if status:
+                raise active.ExchangeError(error.value.decode(), records, stats)
+            return records, stats
+        except BaseException:
+            session.poisoned = True
+            raise
+        finally:
+            session.busy.release()
+
+    def _exchange(self, wires, deadline_ns, label, *, before_native=None, write_deadline_ns=None):
         self._owner_check()
         wires = self.validate_wires(wires)
         try:
-            raw = self._session.exchange(wires, deadline_ns=deadline_ns, before_native=before_native)
+            if label == 'output_stop' and (write_deadline_ns is not None) is not self.separate_write_deadline:
+                raise ValueError('Separate STOP write deadline must be supplied exactly when selected')
+            if write_deadline_ns is not None:
+                if (self.separate_write_deadline is not True or label != 'output_stop' or
+                        wires != self._stop_wires or before_native is not None):
+                    raise ValueError('Separate STOP write deadline is only for the exact output_stop triple')
+                raw = self._native_with_write_deadline(wires, deadline_ns, write_deadline_ns)
+            else:
+                raw = self._session.exchange(wires, deadline_ns=deadline_ns, before_native=before_native)
             self.journal.append((label, raw))  # Keep raw even if decoding rejects.
             rows = decode_records(raw)
             if self.decode_once:
@@ -280,9 +361,9 @@ class ThreeAxisTransport:
                 if feedback is not None and (feedback[0].mode_state != 0 or feedback[0].fault_bits != 0):
                     raise ValueError('STOP diagnostic requires mode-zero fault-zero feedback')
             batch = Batch(self.group, label, raw[0], raw[1], rows,
-                          bytes(raw[0]), bytes(raw[1]), time.monotonic_ns())
+                          bytes(raw[0]), bytes(raw[1]), time.monotonic_ns(), write_deadline_ns)
             self._batches.append(batch)
-            self._batch_index[id(batch)] = (batch, rows)
+            self._batch_index[id(batch)] = (batch, rows, write_deadline_ns)
             return batch
         except BaseException as error:
             self._session.poisoned = True
@@ -349,9 +430,9 @@ class ThreeAxisTransport:
                 feedback_future.set_exception(error)
             raise
 
-    def output_stop(self, *, deadline_ns, check):
+    def output_stop(self, *, deadline_ns, check, write_deadline_ns=None):
         check()
-        return self._exchange(self._stop_wires, deadline_ns, 'output_stop')
+        return self._exchange(self._stop_wires, deadline_ns, 'output_stop', write_deadline_ns=write_deadline_ns)
 
     def read_voltage(self, voltage_id, *, deadline_ns, check):
         check()
@@ -363,7 +444,7 @@ class ThreeAxisTransport:
         # Same identity membership as scanning the retained _batches list.
         entry = self._batch_index.get(id(batch))
         if (type(batch) is not Batch or batch.group is not self.group or batch.label != label or
-                entry is None or entry[0] is not batch):
+                entry is None or entry[0] is not batch or batch.write_deadline_ns != entry[2]):
             raise ValueError('Genuine current owner batch required')
         rows = batch.rows
         # Decode-once reuse: only the exact read-only mapping this owner

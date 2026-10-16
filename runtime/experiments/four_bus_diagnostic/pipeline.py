@@ -6,7 +6,7 @@ and caller-owned FDs. No legacy two-bus timing/profile approval is accepted.
 import argparse
 from concurrent.futures import Future, ThreadPoolExecutor
 import copy
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import hashlib
 import json
 import math
@@ -21,6 +21,7 @@ from singularitydog_hw.policy_output_runtime import (feedback_sample, validate_m
 from .transport_adapter import Batch, Group, ThreeAxisTransport, PORTS, IDS, GROUPS, PERIOD_NS
 
 SCHEMA = 'singularitydog.four-bus-stop-proxy-pipeline.v1'
+SCHEMA_30HZ = 'singularitydog.four-bus-stop-proxy-pipeline.v2'
 _GRANTS = {'output_allowed': False, 'runtime_approved': False,
            'active_controller_qualification': False, 'timing_admission_eligible': False,
            'learned_targets_sent': False, 'motor_enable_sent': False,
@@ -106,6 +107,47 @@ class Config:
     boundary_current_checks: bool = False
     final_gate_input_identity: bool = False
     decode_once: bool = False
+    control_clock: dict = None
+    policy30_model: dict = None
+
+
+def _control(config):
+    from singularitydog_hw.policy_clock import DEFAULT_POLICY_CLOCK, validate_control_clock
+    if config.control_clock is None:
+        if config.policy30_model is not None:
+            raise ValueError('30Hz model requires its explicit control clock')
+        return DEFAULT_POLICY_CLOCK
+    clock = validate_control_clock(config.control_clock)
+    if clock.policy_hz == 30:
+        from singularitydog_hw.policy_model_30hz import validate_plan
+        validate_plan(config.policy30_model)
+    elif config.policy30_model is not None:
+        raise ValueError('30Hz model cannot use the legacy50Hz clock')
+    return clock
+
+
+def _verify_observer_clock(observer, control, *, allow_unadvertised):
+    """Bind the actual observer cadence before any owner/device is created.
+
+    Ordinary StatefulPolicyObserver explicitly advertises None for legacy
+    50 Hz, or the immutable PolicyClock for 30 Hz. Older file-only injected
+    mocks may omit that attribute; real execution cannot omit this proof.
+    """
+    from singularitydog_hw.policy_clock import DEFAULT_POLICY_CLOCK, PolicyClock
+    absent = object()
+    declared = getattr(observer, '_control_clock', absent)
+    if declared is absent:
+        if not allow_unadvertised:
+            raise ValueError('Real diagnostic observer must advertise its control clock')
+        return
+    if declared is None:
+        observer_clock = DEFAULT_POLICY_CLOCK
+    elif type(declared) is PolicyClock:
+        observer_clock = declared
+    else:
+        raise ValueError('Diagnostic observer control clock must be None or an immutable PolicyClock')
+    if observer_clock != control:
+        raise ValueError('Diagnostic observer and outer control clock differ')
 
 
 def plan(config):
@@ -119,6 +161,8 @@ def plan(config):
         raise ValueError('Final-gate input identity selection must be an exact bool')
     if type(config.decode_once) is not bool:
         raise ValueError('Decode-once selection must be an exact bool')
+    control = _control(config)
+    is30 = control.policy_hz == 30
     if (type(config.groups) is not tuple or len(config.groups) != 4 or
             tuple(group.port for group in config.groups) != PORTS or
             any(type(group) is not Group for group in config.groups) or
@@ -138,9 +182,9 @@ def plan(config):
     if (not topology.get('motor_power_epoch') or
             any(tuple(topology['ids_by_port'][group.port]) != group.ids for group in config.groups)):
         raise ValueError('Current explicit power epoch and exact physical group binding required')
-    value = {'schema': SCHEMA, 'status': 'PLAN', **_GRANTS, 'opens_devices': False,
+    value = {'schema': SCHEMA_30HZ if is30 else SCHEMA, 'status': 'PLAN', **_GRANTS, 'opens_devices': False,
             'cycles': config.cycles, 'request_gap_ns': 900_000, 'request_window': 3,
-            'absolute_deadline_ns': PERIOD_NS, 'per_cycle_requests': 28,
+            'absolute_deadline_ns': control.cycle_budget_ns, 'per_cycle_requests': 28,
             'request_schedule': 'each_physical_3STOP_feedback_then_1voltage_then_3STOP_proxy',
             'physical_groups': {group.port: list(group.ids) for group in config.groups},
             'worker_topology': {'dedicated_can_owners': 4, 'imu_validation_workers': 1,
@@ -148,7 +192,8 @@ def plan(config):
             'codec': 'original_python_parser_exact_three_or_one',
             'requires_new_four_bus_source_model_timing_proof': True}
     if config.combined_acquisition:
-        value.update(schema='singularitydog.four-bus-combined-acquisition-stop-proxy-pipeline.v1',
+        value.update(schema=(SCHEMA_30HZ if is30 else
+                     'singularitydog.four-bus-combined-acquisition-stop-proxy-pipeline.v1'),
                      combined_acquisition_selected=True,
                      request_schedule='each_physical_3STOP_plus_1voltage_one_native_exchange_then_3STOP_proxy',
                      acquisition_contract='original_four_requests_all_replies_and_owner_join_before_inference.v1',
@@ -176,10 +221,20 @@ def plan(config):
         value.update(decode_once_selected=True,
                      takeout_check='raw_byte_images_compared_publication_rows_reused',
                      plain_data_copy='pickle_protocol5_roundtrip')
+    if is30:
+        value.update(control_clock=control.as_payload(), policy30_model=copy.deepcopy(config.policy30_model),
+            input_to_stop_proxy_tx_budget_ns=PERIOD_NS,
+            acquisition_budget_ns=PERIOD_NS, proxy_exchange_budget_ns=control.cycle_budget_ns,
+            proxy_reply_budget_ns=control.cycle_budget_ns,
+            proxy_write_deadline_abi_required=1, diagnostic_reply_budget_unchanged=False,
+            diagnostic_type1_33ms_reply_qualification=False,
+            absolute_schedule='epoch_plus_floor_index_1e9_over_30',
+            extended_budget_scope='stop_proxy_replies_and_postprocessing_only_not_acquisition_or_host_writes',
+            requires_fresh_30hz_model_and_current_hardware_measurement=True)
     return value
 
 
-def _take(future, deadline, clock, check):
+def _take(future, deadline, clock, check, *, deadline_label='Original 20ms'):
     if type(future) is not Future:
         raise ValueError('Genuine original Future required')
     check()
@@ -189,7 +244,7 @@ def _take(future, deadline, clock, check):
     else:
         remaining = deadline - clock()
         if remaining <= 0:
-            raise TimeoutError('Original 20ms Future join deadline')
+            raise TimeoutError(deadline_label+' Future join deadline')
         try:
             result = future.result(timeout=remaining / 1e9)
         except TimeoutError:
@@ -197,8 +252,27 @@ def _take(future, deadline, clock, check):
             raise
     check()
     if clock() >= deadline:
-        raise TimeoutError('Original 20ms Future takeout deadline')
+        raise TimeoutError(deadline_label+' Future takeout deadline')
     return result
+
+
+def _proxy_host_writes(batch):
+    """Original native write clocks, including partial failure evidence."""
+    return [{'slot': slot, 'start_ns': row.start_ns, 'finish_ns': row.finish_ns,
+             'written': row.written, 'reply_deadline_ns': row.deadline_ns}
+            for slot, row in enumerate(batch)]
+
+
+def _validate_proxy_host_writes(batch, host_deadline, reply_deadline):
+    # Batch verification authenticates the same raw records and wire identities.
+    # Every actual write needs the strict20ms before/after check, not merely a
+    # coordinator dispatch timestamp or its last write's aggregate duration.
+    rows = _proxy_host_writes(batch.records)
+    if batch.write_deadline_ns != host_deadline or len(rows) != 3 or any(row['written'] != 17 or
+            not 0 < row['start_ns'] <= row['finish_ns'] < host_deadline or
+            row['reply_deadline_ns'] != reply_deadline for row in rows):
+        raise TimeoutError('30Hz proxy host-write exceeded preserved20ms deadline or raw write proof differs')
+    return rows
 
 
 def _rows(feedback, adapters, *, combined_acquisition=False):
@@ -249,7 +323,8 @@ def _fresh_cache(cache, now):
 
 
 def _final_gate(config, adapters, feedback, voltage, expected_voltage, imu, cache,
-                snapshot, snapshot_builder, initial, previous, previous_imu, now, *, recorded_imu=None):
+                snapshot, snapshot_builder, initial, previous, previous_imu, now, *, recorded_imu=None,
+                release_ns=None):
     rows = _rows(feedback, adapters, combined_acquisition=config.combined_acquisition)
     sample = feedback_sample(rows, config.profile, config.offsets, now_ns=now,
                              previous=previous, required_mode=0)
@@ -269,13 +344,18 @@ def _final_gate(config, adapters, feedback, voltage, expected_voltage, imu, cach
     first = min(imu['read_started_monotonic_ns'],
                 *(row.start_ns for batch in feedback.values() for row in batch.records),
                 *(row.start_ns for batch in voltage.values() for row in batch.records))
+    if config.control_clock is not None and _control(config).policy_hz == 30:
+        if type(release_ns) is not int or release_ns <= 0:
+            raise ValueError('30Hz proxy requires actual release clock')
+        # A longer cadence never expands the release/input-to-write allowance.
+        first = min(first, release_ns)
     return rows, min(first + PERIOD_NS, snapshot['_cycle_deadline_ns'])
 
 
 def run(config, *, factory=None, imu_read=None, observer=None, snapshot_builder=None,
         check_current=None, cancel_io=None, model_setup=None, worker_scope=None,
         main_scope=None, backend_usage=None, release_wait=None, execute=False,
-        check_cancelled=None, clock=time.monotonic_ns):
+        check_cancelled=None, clock=time.monotonic_ns, control_clock=None, policy30_model=None):
     """All injected capabilities stay explicit; PLAN calls none of them.
 
     ``worker_scope(port,cpu_mask)`` and ``main_scope()`` are context managers
@@ -283,7 +363,16 @@ def run(config, *, factory=None, imu_read=None, observer=None, snapshot_builder=
     ``model_setup(observer, pre_calls=10, post_calls=10)`` must warm the selected
     actual wrapper, reset its original state and return truthful provenance.
     """
+    if control_clock is not None or policy30_model is not None:
+        if type(config) is not Config:
+            raise ValueError('Explicit diagnostic Config required')
+        if (config.control_clock is not None and config.control_clock != control_clock or
+                config.policy30_model is not None and config.policy30_model != policy30_model):
+            raise ValueError('Run and Config30Hz selections differ')
+        config = replace(config, control_clock=control_clock, policy30_model=policy30_model)
     planned = plan(config)
+    control = _control(config)
+    is30 = control.policy_hz == 30
     if execute is not True:
         return planned
     needed = (factory, imu_read, snapshot_builder, check_current, cancel_io, model_setup,
@@ -295,6 +384,8 @@ def run(config, *, factory=None, imu_read=None, observer=None, snapshot_builder=
     if not isinstance(backend_usage, dict) or backend_usage.get('kind') not in (
             'genuine_original_active_subset_cpp', 'injected_file_only_mock'):
         raise ValueError('Truthful explicit backend usage required')
+    allow_unadvertised_observer = backend_usage['kind'] == 'injected_file_only_mock'
+    _verify_observer_clock(observer, control, allow_unadvertised=allow_unadvertised_observer)
     config = copy.deepcopy(config)
     # Same plain-data deep copy; pickle is several times cheaper than deepcopy.
     plain_copy = ((lambda value: pickle.loads(pickle.dumps(value, protocol=5)))
@@ -388,6 +479,8 @@ def run(config, *, factory=None, imu_read=None, observer=None, snapshot_builder=
                 raise ValueError('Explicit Config/transport combined acquisition selection must match')
             if getattr(adapter, 'decode_once', False) is not config.decode_once:
                 raise ValueError('Explicit Config/transport decode-once selection must match')
+            if getattr(adapter, 'separate_write_deadline', False) is not is30:
+                raise ValueError('Explicit30Hz proxy transport requires separate host-write/reply deadlines')
             if backend_usage['kind'] == 'genuine_original_active_subset_cpp':
                 if type(adapter) is not ThreeAxisTransport:
                     raise ValueError('Real backend requires genuine original exact-three adapter')
@@ -439,15 +532,22 @@ def run(config, *, factory=None, imu_read=None, observer=None, snapshot_builder=
         started = []
         epoch = clock()
         for cycle in range(config.cycles):
-            scheduled = epoch + cycle*PERIOD_NS
+            scheduled = control.release_ns(epoch, cycle)
             release = release_wait(scheduled)
             if type(release) is not int or release < scheduled or release > clock():
                 raise ValueError('Release waiter must return actual current monotonic time')
-            deadline = release + PERIOD_NS
+            deadline = control.cycle_deadline_ns(release)
+            acquisition_deadline = min(deadline, release + PERIOD_NS)
             check()
             record = {'cycle': cycle, 'scheduled_release_ns': scheduled, 'release_ns': release,
                       'original_deadline_ns': deadline, 'feedback': {}, 'voltage': {}, 'output': {},
                       'owner_settlement': {}, 'completed': False, 'cleanup_only': False}
+            if is30:
+                record.update(scheduled_slot_deadline_ns=control.slot_deadline_ns(epoch, cycle),
+                    acquisition_deadline_ns=acquisition_deadline,
+                    proxy_reply_deadline_ns=deadline,
+                    proxy_exchange_budget_ns=control.cycle_budget_ns,
+                    proxy_write_deadline_abi_required=1, diagnostic_reply_budget_unchanged=False)
             record['journal_start_index_by_port'] = {port: len(adapters[port].journal) for port in PORTS}
             report['records'].append(record)
             prefix_proof.clear()
@@ -460,11 +560,11 @@ def run(config, *, factory=None, imu_read=None, observer=None, snapshot_builder=
             full = {}
             started = []
             for port in PORTS:
-                full[port] = pools[port].submit(acquire, port, expected[port], prefix[port], deadline)
+                full[port] = pools[port].submit(acquire, port, expected[port], prefix[port], acquisition_deadline)
                 started.append(full[port])
             imu_future = pools['imu'].submit(imu_read)
             started.append(imu_future)
-            feedback = {port: _take(prefix[port], deadline, clock, hot) for port in PORTS}
+            feedback = {port: _take(prefix[port], acquisition_deadline, clock, hot) for port in PORTS}
             if config.combined_acquisition:
                 # These are original four-slot batches. No three/one exchange
                 # Stats or independently completed voltage phase is invented.
@@ -473,7 +573,7 @@ def run(config, *, factory=None, imu_read=None, observer=None, snapshot_builder=
                 record['voltage_record_index'] = 3
             else:
                 record['feedback'] = feedback
-            imu = _take(imu_future, deadline, clock, hot)
+            imu = _take(imu_future, acquisition_deadline, clock, hot)
             record['imu'] = plain_copy(imu)
             voltage = {}
             if config.combined_acquisition:
@@ -481,7 +581,7 @@ def run(config, *, factory=None, imu_read=None, observer=None, snapshot_builder=
                 # Future. Full4 ownership and current voltage join BEFORE the
                 # model, so it cannot consume a pending fourth reply.
                 for port in PORTS:
-                    full_batch = _take(full[port], deadline, clock, hot)
+                    full_batch = _take(full[port], acquisition_deadline, clock, hot)
                     if full_batch is not feedback[port] or prefix_proof.get(port) is not full_batch:
                         raise ValueError('Current exact original combined/full Future binding failed')
                     voltage[port] = full_batch
@@ -502,15 +602,16 @@ def run(config, *, factory=None, imu_read=None, observer=None, snapshot_builder=
             record['snapshot'] = original_snapshot
             record['gather_end_ns'] = clock()
             check()
-            if clock() >= deadline:
+            if clock() >= acquisition_deadline:
                 raise TimeoutError('Original deadline before inference')
+            _verify_observer_clock(observer, control, allow_unadvertised=allow_unadvertised_observer)
             record['observed'] = observer.consume(snapshot)
             record['infer_end_ns'] = clock()
             # Model result is never encoded as Type1. It is still consumed
             # once per cycle using the same stateful actual observer.
             if not config.combined_acquisition:
                 for port in PORTS:
-                    actual_feedback, voltage[port] = _take(full[port], deadline, clock, hot)
+                    actual_feedback, voltage[port] = _take(full[port], acquisition_deadline, clock, hot)
                     if actual_feedback is not feedback[port] or prefix_proof.get(port) is not feedback[port]:
                         raise ValueError('Current exact original feedback/full Future binding failed')
                     cache[expected[port]] = _voltage(voltage[port], adapters[port], expected[port], clock(), 'voltage')
@@ -524,25 +625,43 @@ def run(config, *, factory=None, imu_read=None, observer=None, snapshot_builder=
             final_rows, host_deadline = _final_gate(config, adapters, feedback, voltage, expected,
                 imu, cache, final_snapshot, lambda f, i, n: dict(snapshot_builder(f, i, n),
                 _cycle_deadline_ns=deadline), initial, previous, previous_imu, clock(),
-                recorded_imu=record['imu'] if config.final_gate_input_identity else None)
+                recorded_imu=record['imu'] if config.final_gate_input_identity else None,
+                release_ns=release if is30 else None)
+            if is30:
+                record['input_to_stop_proxy_tx_deadline_ns'] = host_deadline
             check()
             if clock() >= host_deadline:
                 raise TimeoutError('Original input-age/20ms deadline before proxy output')
             output = {}
             started = []
             for port in PORTS:
-                output[port] = pools[port].submit(adapters[port].output_stop,
-                    deadline_ns=host_deadline, check=hot)
+                if is30:
+                    output[port] = pools[port].submit(adapters[port].output_stop,
+                        deadline_ns=deadline, write_deadline_ns=host_deadline, check=hot)
+                else:
+                    output[port] = pools[port].submit(adapters[port].output_stop,
+                        deadline_ns=host_deadline, check=hot)
                 started.append(output[port])
             for port in PORTS:
-                batch = _take(output[port], host_deadline, clock, hot)
+                batch = (_take(output[port], deadline, clock, hot,
+                               deadline_label='30Hz STOP-proxy reply33ms') if is30 else
+                         _take(output[port], host_deadline, clock, hot))
                 decoded = adapters[port].verify_batch(batch, 'output_stop')
                 if set(decoded) != {(mid, 'feedback') for mid in adapters[port].group.ids}:
                     raise ValueError('Exact-three original STOP output replies required')
                 record['output'][port] = batch
+                if is30:
+                    record.setdefault('proxy_host_write_records', {})[port] = _validate_proxy_host_writes(
+                        batch, host_deadline, deadline)
+            if is30:
+                record['final_proxy_host_write_ns'] = max(row.finish_ns for batch in
+                    record['output'].values() for row in batch.records)
+                if record['final_proxy_host_write_ns'] >= host_deadline:
+                    raise TimeoutError('30Hz proxy host-write exceeded preserved20ms deadline')
+                record['input_to_stop_proxy_tx_20ms_met'] = True
             record['cycle_end_ns'] = clock()
             if record['cycle_end_ns'] >= deadline:
-                raise TimeoutError('Original whole-cycle 20ms deadline')
+                raise TimeoutError('30Hz whole-cycle deadline' if is30 else 'Original whole-cycle 20ms deadline')
             record['completed'] = True
             phases = ('combined_acquisition', 'output') if config.combined_acquisition else (
                 'feedback', 'voltage', 'output')
@@ -624,6 +743,27 @@ def run(config, *, factory=None, imu_read=None, observer=None, snapshot_builder=
         # their actual physical port; an earlier cycle is never copied into a
         # failed current row as though it were new data.
         report['raw_journal'] = {port: list(adapter.journal) for port, adapter in adapters.items()}
+        if is30:
+            # Preserve real writes even when an ACK/owner fails before the last
+            # takeout. This is failure evidence, never retroactive admission.
+            for record in report['records']:
+                retained = {}
+                for port, adapter in adapters.items():
+                    begin = record['journal_start_index_by_port'].get(port, 0)
+                    end = record.get('journal_end_index_by_port', {}).get(port, len(adapter.journal))
+                    selected = [raw for label, raw in adapter.journal[begin:end] if label == 'output_stop']
+                    if selected:
+                        retained[port] = [_proxy_host_writes(raw[0]) for raw in selected]
+                record['retained_proxy_host_write_records'] = retained
+                observed_writes = [row for batches in retained.values() for batch in batches for row in batch
+                                   if row['start_ns'] > 0 and row['finish_ns'] >= row['start_ns']]
+                finishes = [row['finish_ns'] for row in observed_writes]
+                if finishes:
+                    record['final_proxy_host_write_ns'] = max(finishes)
+                complete_finishes = [row['finish_ns'] for row in observed_writes if row['written'] == 17]
+                if complete_finishes:
+                    record['final_complete_proxy_host_write_ns'] = max(complete_finishes)
+                record['retained_proxy_host_writes_are_admission'] = False
         report['physical_cutoff_required'] = any(value.get('complete') is not True
                                                 for value in report['cleanup'].values())
         if main_entered:
@@ -673,6 +813,7 @@ def main(argv=None):
     parser.add_argument('--boundary-current-checks', action='store_true')
     parser.add_argument('--final-gate-input-identity', action='store_true')
     parser.add_argument('--decode-once', action='store_true')
+    parser.add_argument('--policy30-bundle', help='Absolute pinned30Hz bundle; PLAN only')
     args = parser.parse_args(argv)
     from pathlib import Path
     from .topology import read_topology
@@ -682,12 +823,21 @@ def main(argv=None):
     document = json.loads(raw)
     topology = read_topology(args.topology, args.topology_sha256)
     groups = tuple(Group(port, tuple(topology['ids_by_port'][port])) for port in PORTS)
+    control_clock = policy30_model = None
+    if args.policy30_bundle is not None:
+        from singularitydog_hw import policy_model_30hz
+        from singularitydog_hw.policy_clock import control_clock_payload
+        if not Path(args.policy30_bundle).is_absolute():
+            raise ValueError('Absolute30Hz bundle required')
+        policy30_model = policy_model_30hz.plan(policy_model_30hz.bundle_artifacts(args.policy30_bundle))
+        control_clock = control_clock_payload(30)
     result = plan(Config(groups, document['profile'],
                          {int(mid): value for mid, value in document['offsets'].items()},
                          topology, args.cycles, combined_acquisition=args.combined_acquisition,
                          boundary_current_checks=args.boundary_current_checks,
                          final_gate_input_identity=args.final_gate_input_identity,
-                         decode_once=args.decode_once))
+                         decode_once=args.decode_once, control_clock=control_clock,
+                         policy30_model=policy30_model))
     print(json.dumps(result, indent=2))
     return 0
 

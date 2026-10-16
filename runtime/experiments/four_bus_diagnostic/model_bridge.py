@@ -421,12 +421,60 @@ def prepare_model_plan(*, topology, events, calibration, model_profile, source_b
     return plan
 
 
+def reclock_model_plan(plan, control_clock, policy30_model):
+    """Select the new controller while retaining current geometry/IMU evidence.
+
+    The legacy model profile is a numerical-limit/calibration reference only.
+    Its native/FK binaries and timing qualification cannot execute this branch.
+    This pure function verifies an inline plan; the foreground rechecks files.
+    """
+    _plan_axes(plan)
+    from singularitydog_hw.policy_clock import validate_control_clock
+    from singularitydog_hw.policy_model_30hz import validate_plan
+    clock = validate_control_clock(control_clock)
+    _need(clock.policy_hz == 30, 'Explicit new model plan must select30Hz')
+    model = validate_plan(policy30_model)
+    _need(model['policy_dt_s'] == clock.model_dt_s,
+          'New controller and scheduling clock differ')
+    result = copy.deepcopy(plan)
+    result.update(control_clock=clock.as_payload(), policy30_model=model,
+        model_only_loader='policy_model_30hz.load(execute_cpu=True)',
+        legacy_model_profile_for_numerical_limits_only=True,
+        previous_50hz_model_or_timing_qualification_reused=False,
+        required_input_to_all_write_deadline_ns=clock.freshness_budget_ns,
+        required_reply_cycle_deadline_ns=clock.cycle_budget_ns)
+    result.pop('required_final_input_to_all_write_and_reply_deadline_ns', None)
+    result['observer_kwargs']['control_clock'] = clock.as_payload()
+    result['observer_kwargs']['max_age_ns'] = clock.freshness_budget_ns
+    result['observer_kwargs']['max_spread_ns'] = clock.freshness_budget_ns
+    result.pop('plan_canonical_sha256', None)
+    result['plan_canonical_sha256'] = hashlib.sha256(_canonical(result).encode()).hexdigest()
+    _plan_axes(result)
+    return result
+
+
 def _plan_axes(plan):
     _need(type(plan) is dict and plan.get('schema') == PLAN_SCHEMA and
           all(plan.get(k) is v for k, v in NO_GRANTS.items()), 'Pure unapproved model plan required')
     payload = {key: value for key, value in plan.items() if key != 'plan_canonical_sha256'}
     _need(hashlib.sha256(_canonical(payload).encode()).hexdigest() == plan.get('plan_canonical_sha256'),
           'Prepared model plan was mutated')
+    if 'control_clock' in plan or 'policy30_model' in plan:
+        from singularitydog_hw.policy_clock import validate_control_clock
+        from singularitydog_hw.policy_model_30hz import validate_plan
+        clock = validate_control_clock(plan.get('control_clock'))
+        model = validate_plan(plan.get('policy30_model'))
+        _need(clock.policy_hz == 30 and model['policy_dt_s'] == clock.model_dt_s and
+              plan['observer_kwargs'].get('control_clock') == clock.as_payload() and
+              plan['observer_kwargs'].get('max_age_ns') == clock.freshness_budget_ns and
+              plan['observer_kwargs'].get('max_spread_ns') == clock.freshness_budget_ns and
+              plan.get('legacy_model_profile_for_numerical_limits_only') is True and
+              plan.get('previous_50hz_model_or_timing_qualification_reused') is False and
+              plan.get('model_only_loader') == 'policy_model_30hz.load(execute_cpu=True)' and
+              plan.get('required_input_to_all_write_deadline_ns') == clock.freshness_budget_ns and
+              plan.get('required_reply_cycle_deadline_ns') == clock.cycle_budget_ns and
+              'required_final_input_to_all_write_and_reply_deadline_ns' not in plan,
+              'Explicit30Hz model/clock/geometry binding differs')
     mapping, axes = plan.get('topology_by_port'), plan.get('axes')
     _need(type(mapping) is dict and set(mapping) == set(PORTS) and
           all(type(mapping[p]) is list and len(mapping[p]) == 3 and
@@ -477,10 +525,13 @@ def snapshot_from_four_records(plan, records_by_port, sample, tick_ns):
     and actual20ms deadline. This function projects exactly24 scalar values for
     the ordinary observer and does not confer transport/freshness qualification.
     """
-    return _snapshot(_plan_axes(plan), records_by_port, sample, tick_ns)
+    return _snapshot(_plan_axes(plan), records_by_port, sample, tick_ns,
+                     max_age_ns=plan['observer_kwargs']['max_age_ns'],
+                     max_spread_ns=plan['observer_kwargs']['max_spread_ns'])
 
 
-def _snapshot(axes, records_by_port, sample, tick_ns, *, raw_frames=False):
+def _snapshot(axes, records_by_port, sample, tick_ns, *, raw_frames=False,
+              max_age_ns=OBSERVER_LIMIT_NS, max_spread_ns=OBSERVER_LIMIT_NS):
     _need(type(records_by_port) is dict and set(records_by_port) == set(PORTS),
           'All four original feedback sets required')
     tick_ns = _stamp(tick_ns, 'observer tick')
@@ -531,7 +582,7 @@ def _snapshot(axes, records_by_port, sample, tick_ns, *, raw_frames=False):
     _need(tick_ns - oldest <= PERIOD_NS and latest - oldest <= PERIOD_NS,
           'Original four-bus input age/spread exceeds20ms')
     snapshot = {'status': 'DIAGNOSTIC_READY', 'output_allowed': False, 'blocked_reasons': [],
-        'tick_ns': tick_ns, 'max_age_ns': OBSERVER_LIMIT_NS, 'max_spread_ns': OBSERVER_LIMIT_NS,
+        'tick_ns': tick_ns, 'max_age_ns': max_age_ns, 'max_spread_ns': max_spread_ns,
         'motors': motors, 'imu': {'frame': 'raw_sensor', **vectors,
             'read_started_ns': a, 'read_finished_ns': b, 'age_upper_bound_ns': tick_ns - a},
         'oldest_observation_age_ns': tick_ns - oldest, 'acquisition_spread_ns': latest - oldest,
@@ -572,7 +623,9 @@ def batch_snapshot_builder(plan, *, decode_once=False):
             else:
                 batch.verify()
             records[port] = batch.records
-        return _snapshot(axes, records, sample, tick_ns, raw_frames=decode_once)
+        return _snapshot(axes, records, sample, tick_ns, raw_frames=decode_once,
+                         max_age_ns=owned['observer_kwargs']['max_age_ns'],
+                         max_spread_ns=owned['observer_kwargs']['max_spread_ns'])
     return build
 
 
@@ -644,7 +697,9 @@ def combined_batch_snapshot_builder(plan):
               'All four complete physical combined acquisitions required')
         views = {port: _combined_feedback_view(acquisition_by_port[port], port,
                     tuple(owned['topology_by_port'][port]), tick_ns) for port in PORTS}
-        snapshot = _snapshot(axes, views, sample, tick_ns)
+        snapshot = _snapshot(axes, views, sample, tick_ns,
+                             max_age_ns=owned['observer_kwargs']['max_age_ns'],
+                             max_spread_ns=owned['observer_kwargs']['max_spread_ns'])
         snapshot['source_flags'].update(
             v3_voltage_overlap_pending_at_inference=False,
             physical_record_count_by_port={port: 4 for port in PORTS},
@@ -675,15 +730,20 @@ def create_guarded_observer(plan, observer_factory, *, policy, max_ticks,
                             torch_module=None, checked_dispatch_wrapper=None):
     """Explicit runtime-only factory seam, no built-in model loading or grants.
 
-    Caller must authenticate actual frozen source/model files, diagnostic_load
-    FK once, checked.load(active=False), and warm the SELECTED wrapper10+10 with
-    its ordinary reset before tick0. This seam cannot perform/attest those steps.
+    Caller must authenticate actual frozen source/model files and warm the
+    selected model10+10, followed by its ordinary reset before tick0. Legacy
+    plans require diagnostic_load FK and checked.load(active=False); explicit
+    30Hz plans require policy_model_30hz.load and no legacy wrapper. This seam
+    cannot perform or attest those steps.
     """
     owned = copy.deepcopy(plan)
     _plan_axes(owned)
     _need(callable(observer_factory) and type(max_ticks) is int and max_ticks in (5, 501),
           'Explicit observer factory and finite5/501 diagnostic scope required')
-    _need(checked_dispatch_wrapper is not None, 'Selected checked wrapper must remain explicit')
+    if 'control_clock' in owned:
+        _need(checked_dispatch_wrapper is None, 'Legacy checked dispatch cannot select30Hz')
+    else:
+        _need(checked_dispatch_wrapper is not None, 'Selected checked wrapper must remain explicit')
     kwargs = copy.deepcopy(owned['observer_kwargs'])
     kwargs.update(max_ticks=max_ticks, torch_module=torch_module,
                   checked_dispatch_wrapper=checked_dispatch_wrapper)

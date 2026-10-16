@@ -1,0 +1,1376 @@
+{
+  "schema": "singularitydog.robot30hz-offline-update.v1",
+  "recorded_on": "2026-10-14",
+  "status": "R3_BOXED2S_COMPLETE_BOXED10S_ABORTED_TWICE_R4_HUMAN_SOURCE_DEPLOYED_307_CPU_MOCK_PASS",
+  "scope": "Frozen R3 current retrained30Hz fourCAN limited boxed2s actual output; new human hold30 source is a separate unexecuted candidate",
+  "jetson_reported_powered_off": false,
+  "jetson_contacted_for_this_update": true,
+  "can_hardware_opened": true,
+  "motor_enable_sent": true,
+  "positive_gain_sent": true,
+  "learned_targets_sent": true,
+  "output_allowed": false,
+  "approved_for_runtime": false,
+  "standing_allowed": false,
+  "walking_allowed": false,
+  "physical_post_trial_observation": {
+    "source": "direct_user_reply",
+    "audio_heard": true,
+    "physical_anomaly_reported": false,
+    "box_power_pose_maintained": true,
+    "load_transfer_or_standing_inferred": false
+  },
+  "legacy_default_policy_hz": 50,
+  "new_model_policy_hz": 30,
+  "new_model_policy_dt_s": 0.03333333333333333,
+  "release_rule": "epoch_plus_floor_index_rational_ns",
+  "cycle_budget_ns": 33333334,
+  "input_freshness_budget_ns": 20000000,
+  "input_to_all_host_write_budget_ns": 20000000,
+  "write_deadline_rule": "min(actual_cycle_begin, oldest_input_start)+20ms",
+  "type1_reply_deadline_rule": "actual_cycle_begin+33333334ns",
+  "continuity_history_budget_ns": 34333334,
+  "continuity_history_is_new_input_freshness": false,
+  "host_watchdog_ns": 40000000,
+  "motor_watchdog_ns": 200000000,
+  "host_write_is_motor_receipt_timestamp": false,
+  "every_native_host_write_checked_before_and_after": true,
+  "missing_or_ambiguous_reply_skipped_as_success": false,
+  "stop_ambiguity_sticky": true,
+  "old_model_or_timing_qualification_reused": false,
+  "offline_success_transferred_to_live_timing": false,
+  "old_20ms_diagnostic_relabelled_as_30hz": false,
+  "diagnostic_proxy_exchange_budget_ns": 33333334,
+  "diagnostic_proxy_qualifies_type1_33333334ns_replies": false,
+  "physical_limits_changed": false,
+  "gains_or_travel_limits_enlarged": false,
+  "voltage_min_v": 35,
+  "voltage_max_v": 42,
+  "comparison_baseline": {
+    "request_gap_us": 900,
+    "request_window": 3,
+    "main_cpu_mask": [
+      4
+    ],
+    "can_owner_cpu_masks": [
+      [
+        0
+      ],
+      [
+        1
+      ],
+      [
+        2
+      ],
+      [
+        3
+      ]
+    ],
+    "imu_cpu_mask": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "nice": -10,
+    "single_thread_math": true,
+    "python_switch_interval_us": 100,
+    "timer_slack_ns": 1000,
+    "release_spin_us": 500,
+    "pre_placement_warmup_calls": 10,
+    "post_placement_warmup_calls": 10,
+    "reset_after_warmup_required": true,
+    "power_scope_and_restoration_live_readback_required": true,
+    "reference": "evidence/jetson-best20-settings.json",
+    "is_new_30hz_live_qualification": false
+  },
+  "selected_model": {
+    "training_updates": 500,
+    "actor_dim": 74,
+    "action_dim": 12,
+    "actor_sha256": "9dc069245d3fe28928f2b22a2240422eda4a6fc03aae66ba4306b050699dad6c",
+    "controller_sha256": "37161d7ff58cfca626b4a3a35ff5f84c294d2478584309b436726f3a0768f682",
+    "checkpoint_sha256": "771a77e950f3fe7ece76c2c0e2a8967161fe6285468455468cba7c6f433891bb",
+    "training_source_manifest_sha256": "72fe382545ec8d04e1c25baf07162f08f1a22a3af6a094253ac8ca8506d9be6c",
+    "control_contract_sha256": "c0270739e6093b4b5bc2e5edd4d3adf29a32b37c25606d9afa545a547304bd31",
+    "training_completion_sha256": "7ba5715cee4e8a5d1293baa857727a5be2746d40100345a2ea9188865145a443",
+    "export_sha256": "f03e405c734ec661c0594f15802e407ef925841358b56fdd42c70f094d61e6b6",
+    "seven_artifact_release_pins_and_thirteen_source_members_required": true,
+    "actor_and_full_controller_must_be_selected_together": true,
+    "loaded_actor_compared_with_checkpoint_on_cpu": true,
+    "loaded_recurrent_clock_and_full_reset_checked_on_cpu": true,
+    "evaluation_completed_cases": 5,
+    "evaluation_total_cases": 7,
+    "left": {
+      "completed_steps": 112,
+      "duration_s": 3.7333333333333334,
+      "terminated": true,
+      "termination_reason_recorded": false
+    },
+    "stop": {
+      "completed_steps": 97,
+      "duration_s": 3.2333333333333334,
+      "terminated": true,
+      "termination_reason_recorded": false
+    },
+    "all_evaluation_intervals_completed": false,
+    "candidate_only": true,
+    "walking_acceptance": false,
+    "hardware_output_granted_by_model_artifacts": false,
+    "h_measured": false,
+    "training_evidence_reference": "evidence/training-30hz-20261013.json"
+  },
+  "independent_review": {
+    "new_feature_suite": {
+      "tests": 99,
+      "passed": 99,
+      "elapsed_s": 4.812,
+      "scope": "CPU release load, production observer factories, virtual telemetry and local socketpair C++ tests; after mixed-clock rejection update",
+      "live_hardware": false
+    },
+    "legacy_and_foreground_suite": {
+      "tests": 104,
+      "passed": 104,
+      "elapsed_s": 3.42,
+      "scope": "Relevant prior model bridge, profile and foreground regressions plus new foreground; overlaps new suite",
+      "live_hardware": false
+    },
+    "suite_counts_may_be_summed": false,
+    "old_checked_wrapper_blocks_30hz_factory": "FIX_CONFIRMED",
+    "mixed_outer_50hz_and_embedded_30hz_selection": "FIX_CONFIRMED_WITH_NEGATIVE_REGRESSIONS",
+    "native_cutoff_stop_fixture_race": "TEST_FIXED_STICKY_PRODUCTION_AMBIGUITY_PRESERVED",
+    "actual_controller_through_production_factories": "PASS_DIAGNOSTIC_AND_TYPE1_FACTORIES_WARMUP_RESET_SYNTHETIC_FRESH_INPUT",
+    "focused_validation_complete": true,
+    "final_integration_test_status": "PASS",
+    "final_integration_test_count": 473,
+    "final_integration_test_passed": 473,
+    "final_integration_elapsed_s": 23.293,
+    "final_integration_original_raw_sha256": "0896dc27229a58f2dfb7d57ce80053ad10596ad9b9aabd48d792e351488a9121",
+    "final_integration_scope": "CPU model and production factories, clock/observer, pipeline/foreground, Type1 profile/runner/foreground/options, legacy regressions and native write-cutoff local socketpair cases",
+    "final_kit_validation_status": "PASS_R2_LOCAL_BUILD_FILE_VERIFY_CPU_CHECK_FRESH_INSTALL",
+    "reviewed_runtime_source_validation_complete": true,
+    "jetson_platform_validation_complete": true,
+    "final_integration_raw_log_sha256": "0896dc27229a58f2dfb7d57ce80053ad10596ad9b9aabd48d792e351488a9121",
+    "final_kit_tests": 20,
+    "final_kit_elapsed_s": 5.274,
+    "final_kit_tests_raw_log_sha256": "cf4089519c04f9780006d7130f429c209c0ecb47351b3443b4ee780381354e7c",
+    "diagnostic_outer_and_observer_clock_mixing": "FIX_CONFIRMED_BEFORE_DEVICE_CREATION_AND_BEFORE_CONSUME",
+    "kit_foreign_directory_cleanup": "FIX_CONFIRMED_WITH_OWNERSHIP_AND_REPLACEMENT_REGRESSIONS",
+    "kit_required_native_builds": [
+      "diagnostic_subset",
+      "type1_subset",
+      "current_guard"
+    ],
+    "type1_known_observer_clock_mixing": "FIX_CONFIRMED_BEFORE_FACTORY_AFTER_WARMUP_BEFORE_EACH_CONSUME",
+    "jetson_platform_validation_scope": "CPU model, authenticated AArch64 libraries and virtual communication only; no live CAN",
+    "jetson_cpu_native_tests": 120,
+    "jetson_cpu_native_failures": 0,
+    "jetson_cpu_native_errors": 0,
+    "jetson_cpu_native_skips": 0,
+    "jetson_cpu_native_elapsed_ns": 20385629084
+  },
+  "live_todo": [
+    "Reduce and remeasure 10s acquisition dispatch / IMU wait / command-phase variation",
+    "R4 current two-person/video/visibleTTY/audio facts and fresh human-pose capture; then same-source watchdog -> STOP501 -> human zero2 -> postzero capture -> maximum8s human current hold",
+    "Current two-person full-support posture, visible local terminal, fixed video/audio and new capture for partial-load maximum0.5s trial",
+    "Boxed same-contract ten/twenty-second trials remain separate unmeasured durations",
+    "Independent qualification for standing and low-speed walking"
+  ],
+  "jetson_deployment_completed": true,
+  "jetson_linux_build_completed": true,
+  "new_30hz_no_output_live_measurement_completed": true,
+  "input_to_all_write_20ms_live_qualification": true,
+  "type1_reply_33333334ns_live_qualification": true,
+  "new_model_boxed_2s_live_completed": true,
+  "new_model_boxed_10s_live_completed": false,
+  "new_model_boxed_20s_live_completed": false,
+  "load_support_qualified": false,
+  "standing_qualified": false,
+  "walking_qualified": false,
+  "public_private_identity_fields_omitted": true,
+  "offline_kit": {
+    "schema": "singularitydog.robot-30hz-offline-kit.v1",
+    "source_file_count": 946,
+    "model_file_count": 43,
+    "source_inventory_sha256": "b46751f8b072b7096f2d16b2b47a06bf9bd961db616d9311b399061e12c41460",
+    "robot_manifest_sha256": "0205c59c238b131aee9990f648109212dd68f3f584b65d4551fd22e60ccf962a",
+    "source_archive_sha256": "5d034c9a3cce7cb0a615afd92f8cc4c61a39612401d3b375685608ab5e733f3d",
+    "plan_check_sha256": "4b1a82efe746e5f84f55e3d9e4a8ef07f07acc9b0e0197abe25a3425b37e098f",
+    "cpu_install_check_sha256": "169eab8aef936c3063348da7e20f8359f871efe005deaceaf7a970ea4824149e",
+    "cpu_check_executed": true,
+    "local_fresh_install_verified": true,
+    "host_native_binary_shipped": false,
+    "jetson_installed": true,
+    "reference_documents": [
+      "references/AGENTS.md",
+      "references/jetson-best20-settings.json",
+      "references/jetson-best20-settings.md"
+    ],
+    "hardware_opened": false,
+    "output_allowed": false,
+    "release": "R2",
+    "delivery_archive_name": "RS05_30Hz_RobotKit_20261013.zip",
+    "delivery_archive_bytes": 25462012,
+    "delivery_archive_sha256": "518033e36908466ac7dd071b2c852b46de9fbe35edcaeca7035ff02991e024dc",
+    "all_zip_members_match": true
+  },
+  "implementation_preparation_jetson_powered_off": true,
+  "jetson_software_validation": {
+    "machine": "aarch64",
+    "python_version": "3.12.3",
+    "torch_version": "2.14.0+cpu",
+    "target_is_linux_aarch64": true,
+    "installed_source_files": 946,
+    "installed_model_files": 43,
+    "installed_reference_files": 3,
+    "three_cpp_libraries_built": true,
+    "libraries": {
+      "diagnostic": {
+        "machine": "aarch64",
+        "binary_sha256": "8ff7ff1682876095af9c8f750f8c1c45f4ac918bb54de0dab3750e1dbd37d5c6",
+        "source_sha256": "9c1eb991049aa878bab88b24210922be2d1fcffb5712f988f6beef626719c261",
+        "elf_aarch64": true
+      },
+      "type1": {
+        "machine": "aarch64",
+        "binary_sha256": "941f520320c62d544adcc61fae67bedb316120b1acbc654cf6ab4fcd75ef33d8",
+        "source_sha256": "a321c0128711719b36fa08ff25fcf3d2be43fa48da7840d1ed45f2535aff7eb4",
+        "elf_aarch64": true
+      },
+      "current-guard": {
+        "machine": "aarch64",
+        "binary_sha256": "07a0bf08570efe5a9035dcda9ed92cd9055ce3da49d0eabffab0a30f65919813",
+        "source_sha256": "815bda26e8ac05b8beb420a57d6366866fbb94f028fda99a937e3425e4921413",
+        "elf_aarch64": true
+      }
+    },
+    "validation_report_sha256": "922aa714966c9393372b73db0b23197fd68ec331fbd46dc4d8a85689881af35c",
+    "test_transcript_sha256": "a5a1b4235c04fb8dc54ea415e823443dca55037066fe8dd4ffabf8db9aa0ddb5",
+    "deployment_summary_sha256": "a1fe55e2c18071b525dfc19e6163a1fffef93b0eb49e2a2b34edb87f1e110d64",
+    "all_installed_and_native_inputs_unchanged_after_tests": true,
+    "boot_unchanged_during_cpu_stage": true,
+    "physical_serial_devices_recognised": 4,
+    "CAN_transmitted": false,
+    "motor_enable_sent": false,
+    "current_power_or_pose_confirmed": false,
+    "input_to_all_write_20ms_live_qualified": false,
+    "type1_reply_33333334ns_live_qualified": false
+  },
+  "current_readonly_validation": {
+    "status": "COMPLETE_READONLY_TOPOLOGY_CANDIDATE",
+    "current_user_conditions_directly_confirmed": true,
+    "scope": "Type0 and Type17 readonly only",
+    "capture_sha256": "ee1568db3f7d6240205be4e6231e073612ab75098bca6e211da886ca902410e7",
+    "trace_sha256": "01027aea560f4556220a085c0c0b56136ba0a477c43d404147d6d18a648a4025",
+    "trace_events": 664,
+    "trace_complete": true,
+    "trace_errors": [],
+    "known_identity_count": 12,
+    "identified_axes": 12,
+    "exact_known_identities_match": true,
+    "independent_buses": 4,
+    "axes_per_bus": [
+      3,
+      3,
+      3,
+      3
+    ],
+    "discovery_requests": 48,
+    "expected_no_response_discovery_queries": 36,
+    "telemetry_requests": 84,
+    "all_axis_telemetry_complete": true,
+    "boot_and_port_binding_unchanged": true,
+    "position_samples_per_axis": 3,
+    "maximum_position_span_deg": 0.016993510654991724,
+    "position_span_limit_deg": 0.1,
+    "position_span_pass": true,
+    "all_current_observations_zero_a": true,
+    "all_run_mode_observations_zero": true,
+    "run_mode_or_current_proves_stop": false,
+    "voltage_min_v": 30.10653305053711,
+    "voltage_max_v": 31.12411880493164,
+    "voltage_35_to_42_pass": false,
+    "axes_below_35v": 12,
+    "motor_enable_sent": false,
+    "type1_sent": false,
+    "stop_sent": false,
+    "parameter_write_sent": false,
+    "learned_targets_sent": false,
+    "positive_gain_sent": false,
+    "angle_wrap_applied": false,
+    "physical_branch_or_absolute_zero_accuracy_proven": false,
+    "output_allowed": false,
+    "approved_for_runtime": false,
+    "whole_loop_timing_qualified": false,
+    "independent_raw_audit_status": "PASS_RAW_READONLY_EVIDENCE_VOLTAGE_REJECTED",
+    "independent_raw_audit_sha256": "a6e33a27f5355990e9840b92d955d4fe269e6220d7b3008f23ec566ae214a503",
+    "actual_can_tx_requests": 132,
+    "actual_fresh_can_rx_replies": 96,
+    "raw_requests_and_reply_values_causality_verified": true,
+    "reference_capture_duration_uses_separate_clock_readings": true,
+    "reference_duration_difference_ns": 544,
+    "reference_duration_used_as_20ms_proof": false,
+    "unique_numeric_encoder_branch_axes": 12,
+    "angle_only_analysis_sha256": "ad9d82d2c7c779cd23622e9e440131828964d658ccaf6c949dc735be56bc1512",
+    "numeric_branch_is_physical_zero_accuracy": false
+  },
+  "next_diagnostic_preparation": {
+    "status": "FILE_REFERENCES_PREPARED_CURRENT_CAPTURE_REJECTED_LOW_VOLTAGE",
+    "trusted_whole_installed_file_count": 992,
+    "all_files_verified_against_frozen_kit": true,
+    "new_model_hz": 30,
+    "old_profile_used_for_calibration_and_imu_only": true,
+    "previous_transport_pose_approval_reused": false,
+    "plan_accepted": false,
+    "expected_35_to_42v_rejection_observed": true,
+    "new_battery_requires_fresh_capture": true,
+    "execute_selected": false,
+    "opens_devices": false,
+    "output_allowed": false,
+    "report_sha256": "d3c4cc95994417b83b8576cf527997e3595d7b8c170d8a294c33f5e53485fb9e",
+    "launch_preparation_status": "PREPARED_NO_HARDWARE_EXECUTION_CURRENT_POWER_OFF",
+    "launch_preparation_report_sha256": "4ebedc5db4e59ac754b8d12a772104622faf198c7a13a96c04b9eef671c0b626",
+    "noninteractive_sudo_verified": true,
+    "nice_minus10_before_privilege_drop": true,
+    "taskset_before_torch_import": true,
+    "power_settings_written_during_preparation": false,
+    "hardware_opened_during_preparation": false
+  },
+  "latest_operator_state": {
+    "QDD_40V": "ON",
+    "box_support": true,
+    "four_feet_contact": true,
+    "hands_off": true,
+    "immediate_40V_cutoff": true,
+    "all12_local_plus_minus3deg_clear": true,
+    "source": "direct_user_current_trial_series_answers",
+    "latest_observation": "audio_heard_no_physical_anomaly_box_power_pose_maintained",
+    "current_human_full_support_setup_confirmed": false,
+    "helper_roles_and_fixed_video_currently_not_ready": true,
+    "two_10s_trials_all_STOP_and_physical_no_anomaly_reported": true
+  },
+  "diagnostic_proxy_input_to_all_host_write_budget_ns": 20000000,
+  "diagnostic_proxy_write_deadline_abi_required": 1,
+  "diagnostic_proxy_reply_change_is_new_unqualified_source": true,
+  "charge_followup": {
+    "initial_post_charge_capture_sha256": "b034f4d4bb1ff47cd4170643cd262e0d44f2f8833b629b5a4429127d28cee13c",
+    "upper_boundary_recheck_sha256": "e4dfd71431a00292bbfa91c016ed993231b9af0314a7eeb0bf563ee5d219cbe6",
+    "both_upper_boundary_blocker_id": 3,
+    "both_upper_boundary_voltage_v": 42.00177001953125,
+    "voltage_limit_changed": false,
+    "accepted_capture_sha256": "ad4c9b1a28413c44f2ed67d70a32a7e2b249bbe5feaec132507795683f44e7a2",
+    "accepted_voltage_range_v": [
+      40.49293518066406,
+      41.93159103393555
+    ],
+    "after_failed_trial_repower_capture_sha256": "1d91725b1966621b9a6bb792f9e76c232d29274b046724887154dc5f81e1d248",
+    "after_failed_trial_repower_voltage_range_v": [
+      40.49293518066406,
+      41.89650344848633
+    ],
+    "identified_axes": 12,
+    "max_position_span_deg_latest": 0.011338114022221167,
+    "voltage_35_to_42_pass_latest": true
+  },
+  "cpu_isolated_profile": {
+    "status": "COMPLETE_CPU_ONLY_SYNTHETIC_INPUT_PROFILE",
+    "calls": 501,
+    "steady_calls": 500,
+    "startup_wall_ns": 5653842,
+    "steady_wall_median_ns": 5548334.0,
+    "steady_wall_max_ns": 5676786,
+    "steady_thread_cpu_median_ns": 5514112.0,
+    "steady_thread_cpu_max_ns": 5635040,
+    "warmup_calls_before_and_after_pin": [
+      10,
+      10
+    ],
+    "reset_after_warmup": true,
+    "CAN_hardware_opened": false,
+    "actual_observer_or_acquisition_included": false,
+    "paced_30Hz_loop": false,
+    "settings_restored": true,
+    "real_whole_loop_timing_qualified": false,
+    "report_sha256": "60c381e2ac5364ab4d7ba92abd87e84ad5c95bd3d7b36cc4df06d3b60159a51c"
+  },
+  "initial_R2_live_proxy_trial": {
+    "requested_cycles": 5,
+    "completed_cycles": 0,
+    "status": "ABORTED",
+    "phase": "output_STOP_proxy_ACK_wait",
+    "reply_budget_ns": 20000000,
+    "input_to_all_host_write_ms": 17.342451,
+    "release_to_all_host_write_ms": 18.259983,
+    "all_twelve_host_writes_within_20ms": true,
+    "proxy_ACK_axes_before_20ms": 4,
+    "proxy_incomplete_ACK_axes_before_20ms": 8,
+    "active_receive_bytes_per_port": 32,
+    "second_reply_partial_bytes_before_deadline": 15,
+    "cleanup_rejected_bytes_per_port": 19,
+    "partial_tail_and_third_reply_detected_in_cleanup": true,
+    "permanent_reply_loss_proven": false,
+    "separate_final_STOP_unique_confirmed_axes": 4,
+    "separate_final_STOP_ambiguous_axes": 8,
+    "sticky_STOP_ambiguity_retained": true,
+    "physical_cutoff_required": true,
+    "operator_confirmed_40V_Off_and_no_physical_abnormality": true,
+    "all_performance_settings_restored": true,
+    "motor_enable_sent": false,
+    "positive_gain_sent": false,
+    "learned_targets_sent": false,
+    "failed_report_sha256": "0985c7ab92d6e4d60707810259db7baef2f150c7a2171de6333591da0548a4d8",
+    "independent_audit_sha256": "8bb6ce61773d3fc4fefee8ea1510e793a7d857173a65bc5c7c0d7f49e4abe2ef",
+    "admission_qualified": false,
+    "failure_retained": true,
+    "retroactive_success_from_late_cleanup_bytes": false
+  },
+  "possible_later_write_budget_comparison": {
+    "user_suggested_budget_ns": 30000000,
+    "selected_now": false,
+    "current_write_budget_ns": 20000000,
+    "reason": "Measured17.342451ms host prefix already fits20ms; first address output ACK deadline",
+    "reply_time_left_in30Hz_cycle_if_selected_ms": 3.333334,
+    "requires_separate_named_measurement": true
+  },
+  "R3_offline_and_software_validation": {
+    "status": "COMPLETE_R3_FILE_INSTALL_ARM64_BUILD_CPU_AND_NATIVE_MOCK_VALIDATION",
+    "source_file_count": 948,
+    "model_file_count": 43,
+    "reference_file_count": 3,
+    "installed_file_count": 994,
+    "kit_manifest_sha256": "3e1214a88aca69b01e573e11f82557352aa6b789429d86919d20f1030b8d29fd",
+    "source_inventory_sha256": "d7c12003624b9d58f6ce833c046576e3e47fee88915764b9910c9d09c19ab1ee",
+    "zip_bytes": 25436966,
+    "zip_sha256": "98dc5ad3ae3bf072c44d934fec463f2297943f8f9235e7844243194788c656ec",
+    "local_final_integration": {
+      "tests": 728,
+      "passed": 728,
+      "elapsed_s": 36.407,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "raw_log_sha256": "64fbd473ab638a299b212d32a8bc9a05abaef78888a9d8310efce79fd066b0ca"
+    },
+    "local_final_packaging": {
+      "tests": 20,
+      "passed": 20,
+      "elapsed_s": 5.398,
+      "raw_log_sha256": "3cfbe34c271c5b230f68b2556e0fce9c14b2abd693eeff6b36c4154c54b00cc2"
+    },
+    "counts_may_be_summed": false,
+    "independent_readonly_kit_and_consumer_review": "PASS_ALL_LISTED_BYTES_SIZES_MODES_CONTRACT_SOURCE_AND_RAW_CLOCKS",
+    "proxy_write_budget_ns": 20000000,
+    "proxy_reply_budget_ns": 33333334,
+    "proxy_write_deadline_abi_required": 1,
+    "native_arm64_builds_completed": 3,
+    "actual_CAN_loop_run": false,
+    "old_source_timing_qualification_transferred": false,
+    "type1_output_qualified": false,
+    "output_allowed": false,
+    "walking_acceptance": false,
+    "target_CPU_validation": {
+      "status": "COMPLETE_TARGET_CPU_AND_NATIVE_MOCK_VALIDATION",
+      "report_sha256": "ee3ddb4927e9a03619b1ca7d14cdacfd7d1f9a462d4e0edf7236a5c755148d14",
+      "harness_sha256": "014c9a83d7c850fcb0edb7a05a8846dbe579404943f6ccb32718e1162624ac9f",
+      "installed_file_count": 994,
+      "source_file_count": 948,
+      "model_file_count": 43,
+      "reference_file_count": 3,
+      "machine": "aarch64",
+      "python_version": "3.12.3",
+      "torch_version": "2.14.0+cpu",
+      "target_is_linux_aarch64": true,
+      "tests_run": 199,
+      "passed": 199,
+      "elapsed_ns": 46638333738,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "all_installed_and_native_inputs_unchanged_after_tests": true,
+      "native_libraries": {
+        "current_guard": {
+          "CAN_IO_available": false,
+          "abi": 1,
+          "authenticated_loader_passed": true,
+          "binary_sha256": "07a0bf08570efe5a9035dcda9ed92cd9055ce3da49d0eabffab0a30f65919813",
+          "build_record_sha256": "f127c7be8433bda160dae81a7e652b7fefc79c48440d2025d7954f1957b75659",
+          "source_sha256": "815bda26e8ac05b8beb420a57d6366866fbb94f028fda99a937e3425e4921413"
+        },
+        "diagnostic": {
+          "abi": 1,
+          "authenticated_loader_passed": true,
+          "binary_sha256": "32c82dcb91111100c8c1f681374288147e8e582985dca783d08505fcbd75796e",
+          "build_record_sha256": "561807ebec0b93eda1a62e6b8a568dd67cece839b25553431bbe4e6c1908ea2a",
+          "source_sha256": "366f65060456e09664fb334d4e405cd368cd096c6495377722f6a1759cc02aa0",
+          "write_deadline_abi": 1
+        },
+        "type1": {
+          "authenticated_loader_passed": true,
+          "binary_sha256": "aef3d667f97348f7209035da0c7dfb9141282d7cf27f1e02c2c16081a1187e4a",
+          "build_record_sha256": "62f936fadf3044306c9c40b6cd3f197282fa33de7d360b4c33bec2f21704432a",
+          "source_sha256": "a321c0128711719b36fa08ff25fcf3d2be43fa48da7840d1ed45f2535aff7eb4",
+          "write_deadline_abi": 1
+        }
+      },
+      "physical_serial_opened": false,
+      "CAN_transmitted": false,
+      "model_loaded": true,
+      "native_libraries_loaded": true,
+      "output_allowed": false,
+      "live_timing_qualified": false,
+      "walking_acceptance": false,
+      "original_skip_reports_retained": [
+        {
+          "tests_run": 199,
+          "skipped": 31,
+          "report_sha256": "06ba82b0647936d965e802c9a6103b9ff1781a3a1ee0f996ec4001ebf625a1a2"
+        },
+        {
+          "tests_run": 199,
+          "skipped": 2,
+          "report_sha256": "2af6e4de1ab607fcd1b73dcfd897bf251bb3317634e3f2fc2c64e7ae08d94016"
+        }
+      ],
+      "unknown_or_residual_skip_is_failure": true,
+      "existing_test_assertions_retained": true
+    },
+    "file_only_launcher": {
+      "sha256": "07680f3f38eb27e18201cadce521db1206e9ababdc963cf02253cd31055006eb",
+      "status": "PLAN_VERIFIED_INSTALLED30HZ_NO_DEVICE_IO",
+      "installed_file_count": 994,
+      "model_loaded": false,
+      "CAN_transmitted": false,
+      "additional_arguments_rejected": true
+    },
+    "publication_scope_check": {
+      "status": "PUBLICATION_SCOPE_CHECK_PASS",
+      "findings": 0,
+      "private_reports_published": false
+    }
+  },
+  "cpu_freeze_research": {
+    "schema": "singularitydog.robot30-freeze-cpu-audit.v1",
+    "status": "INDEPENDENT_READONLY_AUDIT_PASS_CPU_RESEARCH_ONLY",
+    "recorded_on": "2026-10-14",
+    "evidence_sha256": {
+      "candidate_report": "b6bd2f2b7265f8ebeb8d7539edff6a95d00ef4cceab7535cbe68632804e7b780",
+      "executed_script": "d56a86b5b0ed4dd298a6fb5d0a30b5d7f3d44a8da1e3f8eacac684528811b55c",
+      "main_scope": "21d22ff91012d665b8b39b71aa9b4dd2c1f61c755145b245327002977ce3446e",
+      "scope_stdout": "a649077f4b85987888bff539ae5009d92a30ac02a8665c0f7d00356b4ad027d0",
+      "launch_argv": "f2ea60aa114039f6bfc6970adab9b91e549da6193b532233ce16fc5f6a3a8195",
+      "research_scope": "e54d59439ceace9bd98cb45815cee5b788e40d702de070783ec664de1af00667"
+    },
+    "artifact_sha256_by_role": {
+      "controller": "37161d7ff58cfca626b4a3a35ff5f84c294d2478584309b436726f3a0768f682",
+      "actor": "9dc069245d3fe28928f2b22a2240422eda4a6fc03aae66ba4306b050699dad6c",
+      "control_contract": "c0270739e6093b4b5bc2e5edd4d3adf29a32b37c25606d9afa545a547304bd31",
+      "export": "f03e405c734ec661c0594f15802e407ef925841358b56fdd42c70f094d61e6b6",
+      "train_completion": "7ba5715cee4e8a5d1293baa857727a5be2746d40100345a2ea9188865145a443",
+      "source_manifest": "72fe382545ec8d04e1c25baf07162f08f1a22a3af6a094253ac8ca8506d9be6c",
+      "checkpoint": "771a77e950f3fe7ece76c2c0e2a8967161fe6285468455468cba7c6f433891bb"
+    },
+    "candidate": "torch.jit.freeze optimize_numerics=False",
+    "environment": {
+      "architecture": "aarch64",
+      "torch_version": "2.14.0+cpu",
+      "torch_threads": 1,
+      "torch_interop_threads": 1,
+      "main_cpu": 4,
+      "nice": -10,
+      "timer_slack_ns": 1000,
+      "cpu_minimum_khz": 1728000,
+      "emc_minimum_hz": 3199000000,
+      "c7_disabled_cpu_count": 6
+    },
+    "parity": {
+      "synthetic_steps": 720,
+      "controller_buffer_count": 20,
+      "state_comparisons": 16104,
+      "original_actor_observation_output_comparisons": 720,
+      "all_bitwise_equal": true,
+      "maximum_absolute_error": {
+        "target_rad": 0.0,
+        "observation": 0.0,
+        "actor_output": 0.0,
+        "state": 0.0
+      },
+      "mid_sequence_reset_steps": [
+        360,
+        659
+      ],
+      "initial_and_final_resets_verified": true,
+      "invalid_input_cases_rejected_with_same_reason": 6,
+      "actor_graph_constants_equal_original_checkpoint": true,
+      "baseline_candidate_mutable_storage_independent": true,
+      "frozen_source_mutable_alias_count": 9,
+      "telemetry_buffer_count": 2,
+      "caller_inputs_mutated": false,
+      "static_buffer_comparison_is_source_audit_not_independent_all_folded_constant_proof": true
+    },
+    "timing": {
+      "commands": [
+        "forward",
+        "stop",
+        "backward",
+        "left",
+        "right",
+        "turn_left",
+        "turn_right"
+      ],
+      "all_seven_commands_timed": true,
+      "rounds": [
+        {
+          "index": 0,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "calls_per_variant": 720,
+          "milliseconds": {
+            "baseline": {
+              "median": 5.40629,
+              "p95": 5.487204,
+              "maximum": 5.573992
+            },
+            "candidate": {
+              "median": 5.010326,
+              "p95": 5.081784,
+              "maximum": 5.174427
+            }
+          }
+        },
+        {
+          "index": 1,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "calls_per_variant": 720,
+          "milliseconds": {
+            "candidate": {
+              "median": 5.011078,
+              "p95": 5.087513,
+              "maximum": 5.153594
+            },
+            "baseline": {
+              "median": 5.4128665,
+              "p95": 5.487268,
+              "maximum": 5.570215
+            }
+          }
+        },
+        {
+          "index": 2,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "calls_per_variant": 720,
+          "milliseconds": {
+            "baseline": {
+              "median": 5.4171385,
+              "p95": 5.50106,
+              "maximum": 5.561543
+            },
+            "candidate": {
+              "median": 5.017958,
+              "p95": 5.087193,
+              "maximum": 5.158459
+            }
+          }
+        }
+      ],
+      "calls_per_variant_total": 2160,
+      "raw_sample_count": 4320,
+      "all_raw_positive_integer_ns": true,
+      "all_aggregate_statistics_recomputed_exactly": true,
+      "median_of_round_medians_baseline_ms": 5.4128665,
+      "median_of_round_medians_candidate_ms": 5.011078,
+      "median_reduction_ms": 0.4017885,
+      "median_reduction_fraction": 0.07422841483343434,
+      "observed_maximum_baseline_ms": 5.573992,
+      "observed_maximum_candidate_ms": 5.174427
+    },
+    "restoration": {
+      "child_exit_code": 0,
+      "caught_signal": null,
+      "main_affinity_restored_to": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "python_switch_interval_restored_s": 0.005,
+      "gc_restored_enabled": true,
+      "main_timer_slack_restored_ns": 50000,
+      "cpu_minimum_restored_khz": 729600,
+      "c7_restored_enabled_cpu_count": 6,
+      "emc_minimum_restored_hz": 204000000,
+      "cpu_maxima_emc_maximum_and_wfi_unchanged": true,
+      "cpu_c7_emc_restoration_quiet_s": 1.0,
+      "errors": [],
+      "nice_scope_ends_with_child_process_not_readback_to_zero": true,
+      "all_torch_helper_thread_affinity_or_slack_individually_verified": false
+    },
+    "scope": {
+      "can_serial_imu_communication_performed": false,
+      "cpu_c7_emc_settings_temporarily_changed": true,
+      "actual_qdd_power_off_not_proven_by_cpu_scope": true,
+      "candidate_installed_as_runtime_model": false,
+      "model_artifacts_or_loader_changed": false,
+      "source_inputs_unchanged": true,
+      "installed_members_verified_in_this_cpu_scope": 992,
+      "new_frozen_kit_deployment_proven_by_this_cpu_run": false,
+      "global_mutable_model_cache_used": false
+    },
+    "limits": [
+      "Finite CPU-only synthetic trajectory; not full observer, input acquisition, USB/CAN traffic or host write timing.",
+      "No worst-case execution time, 20 ms deadline, real Type1, STOP, physical support or walking qualification.",
+      "Geometry constants derive from verified fresh source; static-buffer audit is not independent proof of every folded graph constant.",
+      "Frozen module lacks original actor/controller introspection and is not a drop-in loader replacement.",
+      "Each trial requires a fresh exclusive mutable controller; global controller cache is prohibited.",
+      "Torch helper thread individual affinity/slack is not recorded.",
+      "Model evaluation left/stop early termination remains unresolved; CPU parity does not establish walking acceptance."
+    ],
+    "output_allowed": false,
+    "approved_for_runtime": false,
+    "live_type1_qualified": false,
+    "walking_acceptance": false,
+    "deadline_guaranteed": false,
+    "worst_case_improvement_proven": false,
+    "independent_audit_sha256": "4a5f4d6165e9d79f2428d6a7b2caf0292a52e9d39d10fe91d1d698fcaadef8bd"
+  },
+  "current_resume_20261014": {
+    "source_manifest_sha256": "69da685bb6560f6c0eeff1c01439f86b77e51dd1c5bf97bc7ca4e1468073bfbe",
+    "whole_installed_file_count": 994,
+    "old_992_source_inventory_used": false,
+    "current_readonly_capture_sha256": "de0e07ff708e2ea87d7c7a401a68957e6363f45e379b30db51ae83a866dade53",
+    "events_sha256": "8405f633bfd52c7530ce05a04c724ea8c7505fa3e7927b1c1accae2e7d1ecb23",
+    "source_binding_sha256": "3ef829704535ed02311291072367fbbc404fb20e9ab6f9a3beac7af26b81caad",
+    "prior_ID6_out_of_range_captures_retained": true,
+    "ID6_initial_model_angle_deg": -29.973520191413915,
+    "model_range_deg": [
+      -28.64788975654116,
+      28.64788975654116
+    ],
+    "model_limits_changed": false,
+    "all_12_unique_numeric_branches_after_second_adjustment": true,
+    "new_360_degree_wrap_selected": false,
+    "Five_trial": {
+      "completed_cycles": 5,
+      "report_sha256": "f6eb6e1e8ec73ad0883988ded9c584bba7dbdc7d9744b4edcd78ebd401c75df9",
+      "status": "COMPLETE_STOP_PROXY_DIAGNOSTIC",
+      "failure_retained": false,
+      "all_terminal_STOP_confirmed": true,
+      "outer_CPU_C7_EMC_restored": true
+    },
+    "First_501_trial": {
+      "completed_cycles": 501,
+      "report_sha256": "ef952648818052dbab21fd61ff754283ad56cc4392de5648ee3cfab7c47b1eb7",
+      "status": "COMPLETE_STOP_PROXY_DIAGNOSTIC",
+      "failure_retained": false,
+      "all_terminal_STOP_confirmed": true,
+      "outer_CPU_C7_EMC_restored": true
+    },
+    "repeat_501_status": "COMPLETE_STOP_PROXY_DIAGNOSTIC",
+    "original_record_metrics_and_independent_raw_audit_pending": false,
+    "motor_enable_sent": false,
+    "learned_targets_sent": false,
+    "actual_Type1_qualified": false,
+    "walking_qualified": false,
+    "physical_post_trial_observation": {
+      "source": "direct_user_after_all_3_no_output_trials",
+      "abnormality_reported": false,
+      "box_power_pose_retained": true,
+      "private_confirmation_sha256": "bfda9029f87ec56350aae3e9e922ad1ea79fbc9e922b5faaa8e85949406cc922"
+    },
+    "repeat_501_report_sha256": "9eaae818d15ea73d4dd42431a86fc42a18e998611136d117811f890d30f8ad34",
+    "timing_aggregation_sha256": "c8497ff301088b5757b067e60c7b0ffa5822f2b7c66024a08e8104d4b3834ccb",
+    "finite_trial_metrics": [
+      {
+        "trial": "diagnostic30-five-r1",
+        "report_sha256": "f6eb6e1e8ec73ad0883988ded9c584bba7dbdc7d9744b4edcd78ebd401c75df9",
+        "report_bytes": 818238,
+        "cycles": 5,
+        "initial": {
+          "cycle": 0,
+          "input_to_all_host_write_ms": 17.782426,
+          "release_to_all_host_write_ms": 18.672466,
+          "input_to_last_reply_ms": 20.572421,
+          "release_to_last_reply_ms": 21.462461,
+          "whole_cycle_ms": 21.854343,
+          "scheduled_completion_slack_ms": 11.424108,
+          "acquisition_ms": 7.434502,
+          "observer_ms": 7.546858,
+          "write_slack_ms": 1.327534
+        },
+        "steady": {
+          "input_to_all_host_write_ms": {
+            "count": 4,
+            "min": 16.771232,
+            "median": 16.966661000000002,
+            "p95": 17.176331,
+            "p99": 17.176331,
+            "max": 17.176331
+          },
+          "release_to_all_host_write_ms": {
+            "count": 4,
+            "min": 17.187339,
+            "median": 17.432321,
+            "p95": 17.586677,
+            "p99": 17.586677,
+            "max": 17.586677
+          },
+          "input_to_last_reply_ms": {
+            "count": 4,
+            "min": 19.54817,
+            "median": 19.789568,
+            "p95": 19.983094,
+            "p99": 19.983094,
+            "max": 19.983094
+          },
+          "release_to_last_reply_ms": {
+            "count": 4,
+            "min": 19.964277,
+            "median": 20.255228,
+            "p95": 20.39344,
+            "p99": 20.39344,
+            "max": 20.39344
+          },
+          "whole_cycle_ms": {
+            "count": 4,
+            "min": 20.548868,
+            "median": 20.7547295,
+            "p95": 20.8195,
+            "p99": 20.8195,
+            "max": 20.8195
+          },
+          "scheduled_completion_slack_ms": {
+            "count": 4,
+            "min": 12.512516,
+            "median": 12.57731,
+            "p95": 12.78346,
+            "p99": 12.78346,
+            "max": 12.78346
+          },
+          "acquisition_ms": {
+            "count": 4,
+            "min": 6.734451,
+            "median": 6.773445000000001,
+            "p95": 6.866391,
+            "p99": 6.866391,
+            "max": 6.866391
+          },
+          "observer_ms": {
+            "count": 4,
+            "min": 6.896536,
+            "median": 7.0671805,
+            "p95": 7.208993,
+            "p99": 7.208993,
+            "max": 7.208993
+          },
+          "write_slack_ms": {
+            "count": 4,
+            "min": 2.413323,
+            "median": 2.567679,
+            "p95": 2.812661,
+            "p99": 2.812661,
+            "max": 2.812661
+          }
+        },
+        "all_cycle_write20_pass": true,
+        "all_cycle_reply33_pass": true,
+        "steady_start_intervals_ms": {
+          "count": 3,
+          "min": 33.332825,
+          "median": 33.333402,
+          "p95": 33.33353,
+          "p99": 33.33353,
+          "max": 33.33353
+        },
+        "initial_to_steady_start_ms": 33.279768,
+        "processing_over_cycle_budget": 0,
+        "schedule_completion_misses": 0,
+        "scheduled_slots_skipped": 0,
+        "reply_finish_after_release20ms_cycles": 4,
+        "all12_terminal_STOP": true,
+        "source_and_input_pins_unchanged": true,
+        "outer_settings_restored": true,
+        "actual_type1_qualification": false,
+        "can_wire_receipt_time_verified": false,
+        "physical_post_trial_observation": null
+      },
+      {
+        "trial": "diagnostic30-501-r1",
+        "report_sha256": "ef952648818052dbab21fd61ff754283ad56cc4392de5648ee3cfab7c47b1eb7",
+        "report_bytes": 54475283,
+        "cycles": 501,
+        "initial": {
+          "cycle": 0,
+          "input_to_all_host_write_ms": 17.399063,
+          "release_to_all_host_write_ms": 18.270475,
+          "input_to_last_reply_ms": 20.138775,
+          "release_to_last_reply_ms": 21.010187,
+          "whole_cycle_ms": 21.470006,
+          "scheduled_completion_slack_ms": 11.811485,
+          "acquisition_ms": 7.304907,
+          "observer_ms": 7.346604,
+          "write_slack_ms": 1.729525
+        },
+        "steady": {
+          "input_to_all_host_write_ms": {
+            "count": 500,
+            "min": 16.4886,
+            "median": 16.8234085,
+            "p95": 17.112011,
+            "p99": 17.335178,
+            "max": 18.452142
+          },
+          "release_to_all_host_write_ms": {
+            "count": 500,
+            "min": 16.934788,
+            "median": 17.2635775,
+            "p95": 17.573166,
+            "p99": 17.8997,
+            "max": 18.910361
+          },
+          "input_to_last_reply_ms": {
+            "count": 500,
+            "min": 19.244854,
+            "median": 19.607488500000002,
+            "p95": 19.888671,
+            "p99": 20.14925,
+            "max": 21.268848
+          },
+          "release_to_last_reply_ms": {
+            "count": 500,
+            "min": 19.648354,
+            "median": 20.050001,
+            "p95": 20.345645,
+            "p99": 20.685718,
+            "max": 21.727067
+          },
+          "whole_cycle_ms": {
+            "count": 500,
+            "min": 20.159607,
+            "median": 20.497322500000003,
+            "p95": 20.828565,
+            "p99": 21.190475,
+            "max": 21.985505
+          },
+          "scheduled_completion_slack_ms": {
+            "count": 500,
+            "min": 11.345471,
+            "median": 12.83435,
+            "p95": 13.045197,
+            "p99": 13.127751,
+            "max": 13.17146
+          },
+          "acquisition_ms": {
+            "count": 500,
+            "min": 6.574551,
+            "median": 6.779532,
+            "p95": 6.940927,
+            "p99": 7.056578,
+            "max": 7.763633
+          },
+          "observer_ms": {
+            "count": 500,
+            "min": 6.766778,
+            "median": 6.954318000000001,
+            "p95": 7.17229,
+            "p99": 7.225572,
+            "max": 7.282473
+          },
+          "write_slack_ms": {
+            "count": 500,
+            "min": 1.089639,
+            "median": 2.7364224999999998,
+            "p95": 2.912056,
+            "p99": 2.98233,
+            "max": 3.065212
+          }
+        },
+        "all_cycle_write20_pass": true,
+        "all_cycle_reply33_pass": true,
+        "steady_start_intervals_ms": {
+          "count": 499,
+          "min": 33.331732,
+          "median": 33.333298,
+          "p95": 33.334318,
+          "p99": 33.334487,
+          "max": 33.33461
+        },
+        "initial_to_steady_start_ms": 33.284203,
+        "processing_over_cycle_budget": 0,
+        "schedule_completion_misses": 0,
+        "scheduled_slots_skipped": 0,
+        "reply_finish_after_release20ms_cycles": 319,
+        "all12_terminal_STOP": true,
+        "source_and_input_pins_unchanged": true,
+        "outer_settings_restored": true,
+        "actual_type1_qualification": false,
+        "can_wire_receipt_time_verified": false,
+        "physical_post_trial_observation": null
+      },
+      {
+        "trial": "diagnostic30-501-r2",
+        "report_sha256": "9eaae818d15ea73d4dd42431a86fc42a18e998611136d117811f890d30f8ad34",
+        "report_bytes": 54475797,
+        "cycles": 501,
+        "initial": {
+          "cycle": 0,
+          "input_to_all_host_write_ms": 18.089515,
+          "release_to_all_host_write_ms": 18.989533,
+          "input_to_last_reply_ms": 20.874211,
+          "release_to_last_reply_ms": 21.774229,
+          "whole_cycle_ms": 22.365697,
+          "scheduled_completion_slack_ms": 10.912819,
+          "acquisition_ms": 7.455701,
+          "observer_ms": 7.858974,
+          "write_slack_ms": 1.010467
+        },
+        "steady": {
+          "input_to_all_host_write_ms": {
+            "count": 500,
+            "min": 16.511847,
+            "median": 16.9758705,
+            "p95": 17.227827,
+            "p99": 17.309403,
+            "max": 17.416374
+          },
+          "release_to_all_host_write_ms": {
+            "count": 500,
+            "min": 16.921935,
+            "median": 17.431386,
+            "p95": 17.691256,
+            "p99": 17.787962,
+            "max": 18.215015
+          },
+          "input_to_last_reply_ms": {
+            "count": 500,
+            "min": 19.264317,
+            "median": 19.775924000000003,
+            "p95": 20.032242,
+            "p99": 20.116847,
+            "max": 20.182965
+          },
+          "release_to_last_reply_ms": {
+            "count": 500,
+            "min": 19.674405,
+            "median": 20.222928,
+            "p95": 20.491569,
+            "p99": 20.597853,
+            "max": 20.964701
+          },
+          "whole_cycle_ms": {
+            "count": 500,
+            "min": 20.170034,
+            "median": 20.679479,
+            "p95": 20.951745,
+            "p99": 21.06566,
+            "max": 22.257232
+          },
+          "scheduled_completion_slack_ms": {
+            "count": 500,
+            "min": 11.074263,
+            "median": 12.651334,
+            "p95": 12.915036,
+            "p99": 13.015419,
+            "max": 13.161782
+          },
+          "acquisition_ms": {
+            "count": 500,
+            "min": 6.621347,
+            "median": 6.823237,
+            "p95": 6.97441,
+            "p99": 7.062221,
+            "max": 7.610102
+          },
+          "observer_ms": {
+            "count": 500,
+            "min": 6.751429,
+            "median": 7.047899,
+            "p95": 7.255534,
+            "p99": 7.308368,
+            "max": 7.323344
+          },
+          "write_slack_ms": {
+            "count": 500,
+            "min": 1.784985,
+            "median": 2.568614,
+            "p95": 2.793384,
+            "p99": 2.918575,
+            "max": 3.078065
+          }
+        },
+        "all_cycle_write20_pass": true,
+        "all_cycle_reply33_pass": true,
+        "steady_start_intervals_ms": {
+          "count": 499,
+          "min": 32.619147,
+          "median": 33.333331,
+          "p95": 33.33445,
+          "p99": 33.334652,
+          "max": 34.046919
+        },
+        "initial_to_steady_start_ms": 33.279964,
+        "processing_over_cycle_budget": 0,
+        "schedule_completion_misses": 0,
+        "scheduled_slots_skipped": 0,
+        "reply_finish_after_release20ms_cycles": 459,
+        "all12_terminal_STOP": true,
+        "source_and_input_pins_unchanged": true,
+        "outer_settings_restored": true,
+        "actual_type1_qualification": false,
+        "can_wire_receipt_time_verified": false,
+        "physical_post_trial_observation": null
+      }
+    ],
+    "all_original_cycles_retained": true,
+    "steady_cycles_in_two_501_runs": 1000,
+    "all_input_to_all_host_writes_below20ms": true,
+    "all_release_to_all_host_writes_below20ms": true,
+    "all_STOP_proxy_replies_below33333334ns": true,
+    "all_3_terminal_STOPs_confirmed_12_axes": true,
+    "no_foreign_50Hz_backend_selected": true,
+    "finite_observation_not_infinite_WCET_guarantee": true,
+    "strict_all_start_intervals_at_nominal_30Hz_not_met": true,
+    "raw_audit_status": "INDEPENDENT_ALL_ORIGINAL_RAW_COMMUNICATION_AND_CLOCK_AUDIT_PASS",
+    "finite_reproducibility_repeat_observed": true,
+    "real_prerequisite_consumer_check": {
+      "status": "PASS_REAL_RAW_PREREQUISITE_CONSUMER_ONLY",
+      "report_count": 2,
+      "artifact_sha256": "db1778609da2e427b391fc878489b8402ae5bdfda8d2d2d25ec691c7beca5530",
+      "validator_source_sha256": "879a29dd3fc4515e4ac89e3b7150aeab091903377bd74bead68494b9b5e35067",
+      "every501_times12_raw_reply_and_write_clock_checked": true,
+      "Type1_output_admitted": false,
+      "model_loaded": false,
+      "hardware_opened": false
+    },
+    "public_private_identity_fields_omitted": true,
+    "independent_raw_audit_sha256": "b759b04b0ad8083d611f2550ce3d08c3e5bd3c00c4ef9391e9853c6cde053b3c",
+    "independently_decoded_transactions": 28268,
+    "raw_journal_exchanges_checked": 12120,
+    "IMU_ready_raced_host_burst_counts": {
+      "five_cycle": 0,
+      "first501": 122,
+      "repeat501": 0
+    },
+    "IMU_contract": "pinned_latest_value_driver_contract_racing_ready_event_retained_not_sensor_clock_or_coherence_proof",
+    "formal_IMU_calibration_granted_by_trial": false,
+    "host_timestamps_prove_sensor_conversion_time_or_coherence": false,
+    "publication_scope_check": {
+      "status": "PASS",
+      "raw_UID_boot_IP_private_paths_omitted": true
+    }
+  },
+  "input_to_all_write_20ms_live_qualification_scope": "finite58_cycle_learned_boxed_policy_weight0.005_Kp3_Kd0.15_max1deg_only",
+  "limited_actual_Type1_20261014": {
+    "runtime_source": "immutable_R3_994_files",
+    "source_inventory_sha256": "69da685bb6560f6c0eeff1c01439f86b77e51dd1c5bf97bc7ca4e1468073bfbe",
+    "model_changed_during_trial_series": false,
+    "request_gap_us": 900,
+    "window": 3,
+    "policy_hz": 30,
+    "initial_zero_gain_attempt": {
+      "status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+      "completed_cycles": 0,
+      "failed_type": 3,
+      "failed_motor_id": 3,
+      "stage": "serial_enable_before_first_policy_cycle",
+      "complete_host_write_bytes": 17,
+      "received_bytes": 0,
+      "configured_enable_reply_budget_ms": 30,
+      "native_exchange_elapsed_ms": 29.886625,
+      "cause_is_policy20ms_deadline": false,
+      "USB_CAN_Firmware_cause_separated": false,
+      "positive_gain_sent": false,
+      "learned_targets_attempted": false,
+      "ambiguous_STOP_ids": [
+        3
+      ],
+      "physical_40V_Off_and_no_anomaly_directly_confirmed": true,
+      "report_sha256": "31939ddeb7bee21bffad7a7fa1a01da8bfc8ff095eba7cacd4df00f234aa4bf0",
+      "independent_raw_audit_sha256": "7e38ee9d830fff499096a190869fc8e18b970bda0483ec3fd84f8b3cbab1d297"
+    },
+    "fresh_repower_disabled_trials": {
+      "five_complete": true,
+      "five_report_sha256": "94576d6fae9c719e9df2aeae0143635a69001a7273c50f108022b68055d31441",
+      "501_complete": true,
+      "501_report_sha256": "c16484c466e20014e36a4d3ed1b00fca3aef485b4e406f71cf6245a6bd853af8",
+      "all12_final_STOP_and_inner_outer_restore": true
+    },
+    "zero_gain_2s": {
+      "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+      "completed_cycles": 54,
+      "input_to_final_host_write_max_ms": 17.538821,
+      "last_reply_after_begin_max_ms": 20.986058,
+      "whole_iteration_max_ms": 21.518261,
+      "all12_STOP": true,
+      "settings_restored": true,
+      "report_sha256": "0a19810b292f2ea2a9c0c5ce464c79cb264a3a674833725a7cfef167579d57aa",
+      "physical_audio_no_anomaly_and_state_maintained": true
+    },
+    "report_publication_fix": {
+      "issue": "Configured20ms transmit and33333334ns cycle fields existed in the original nested measurement but were absent from the publisher top-level consumed by the next step",
+      "local_future_publisher_fixed": true,
+      "actual_R3_source_modified": false,
+      "original_report_modified": false,
+      "full_raw_preserving_derived_compatibility_input": true,
+      "derived_fields_are_verbatim_existing_nested_budget_values": true,
+      "zero_projection_sha256": "6457dd823f95b2965858cdb32fbe8904e162b9091734c372eaf9ffba8a5dd431",
+      "original54x28_raw_requests_and648_output_frames_verified": true,
+      "frozen_R3_consumer_independent_PASS_receipt_sha256": "aeaa2c71b3cd80f1dd046023ef18d59eb208f26204a4200b3947ab243b2fafc4"
+    },
+    "learned_2s": {
+      "status": "COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED",
+      "report_sha256": "18af6aa5067d7d2d89c4ee789b202c2a7e588532f4059fb103277171316a8c31",
+      "profile_sha256": "f0ff0f052cbd838d12fbfcb5e3829fd69b4c2d7a2a0ce3800a7e80a3cdb4f64a",
+      "motor_enable_sent": true,
+      "positive_gain_sent": true,
+      "learned_targets_attempted": true,
+      "cycles": 58,
+      "input_to_final_host_write_max_ms": 17.667111,
+      "begin_to_final_host_write_max_ms": 18.324916,
+      "begin_to_last_reply_max_ms": 21.078828,
+      "whole_iteration_max_ms": 21.499924,
+      "minimum_host_write_slack_ms": 1.675084,
+      "command_from_initial_max_deg": 0.29343634173938554,
+      "feedback_from_initial_max_deg": 0.04395867542404162,
+      "output_tracking_max_deg": 0.27145700402726297,
+      "measured_velocity_max_rad_s": 0.11978332188906649,
+      "measured_torque_max_nm": 0.026268406195162797,
+      "temperature_max_c": 31.0,
+      "kp_max": 3.0,
+      "kd_max": 0.15,
+      "weight_max": 0.005,
+      "estimated_PD_torque_max_nm": 0.0244907939811026,
+      "policy_target_cycles": 41,
+      "input_to_tx_20ms_violations": 0,
+      "period_deadline_misses": 0,
+      "post_reply_allowance_uses": 0,
+      "normal_ramp_completed": true,
+      "all12_STOP": true,
+      "settings_restored": true,
+      "physical_audio_no_anomaly_and_state_maintained": true,
+      "independent_raw_audit_status": "PASS",
+      "independent_raw_audit_sha256": "3a6f4e4db7abb1cd4474f3312c45bd51edefd3dd96e2b354bec4aa8485446127",
+      "raw_exchanges": 776,
+      "raw_requests": 1840,
+      "raw_replies": 1840,
+      "raw_output_axis_commands": 696,
+      "raw_feedback_axis_rows": 1392,
+      "positive_gain_encoded_commands": 684,
+      "positive_policy_weight_cycles": 29,
+      "phase_counts": {
+        "startup": 12,
+        "policy": 29,
+        "graceful_stop": 17
+      },
+      "all_feedback_including_hold_displacement_max_deg": 0.065938,
+      "all_feedback_including_hold_velocity_max_rad_s": 0.142672,
+      "learned_report_controlled_projection_sha256": "d6e007630350de6b7dcc4b92676935f8fa61178e0784efda3533381c52df28c0"
+    },
+    "scope_not_qualified": [
+      "full_model_weight",
+      "greater_torque",
+      "longer_duration",
+      "load_support",
+      "unsupported_standing",
+      "walking",
+      "formal_IMU_calibration",
+      "absolute_joint_origin_accuracy"
+    ]
+  },
+  "boxed_10s_20261014_trials": {
+    "status": "TWO_ABORTED_RUNS_NO_10S_PASS",
+    "scope": "same_frozen_R3_contract_policy0.5percent_max1degree_Kp3_Kd0.15_box_retained",
+    "trials": [
+      {
+        "trial": 1,
+        "status": "ABORTED",
+        "report_sha256": "e70d36a1a202c63ef0961cb66107beddf8c6c52279bc77c3935156b98e110b43",
+        "completed_cycles": 88,
+        "failed_cycle_index": 88,
+        "failure": {
+          "type": "MotionFault",
+          "message": "Command gap exceeded: command_interval_ms=38.481262, sample_interval_ms=37.672946, limit_ms=34.333334"
+        },
+        "completed_input_to_last_host_write_max_ms": 18.221699,
+        "completed_begin_to_last_host_write_max_ms": 18.753078,
+        "completed_begin_to_last_reply_max_ms": 21.510456,
+        "input_to_tx_20ms_violations": 0,
+        "period_deadline_misses": 0,
+        "terminal_stop_confirmed": true,
+        "all_restored": true,
+        "failed_raw_requests": 0,
+        "timing_evidence_selected": false,
+        "raw_audit_sha256": "4783784289623e25c408356fe3d3d71d4a99fc10c9f6aed17fbce78f1bcf04b4",
+        "failed_cycle_output_not_sent": true
+      },
+      {
+        "trial": 2,
+        "status": "ABORTED",
+        "report_sha256": "848f8407e0d11773fea036c9acd5b93851ca75467a97a6995930007085e358bc",
+        "completed_cycles": 175,
+        "failed_cycle_index": 175,
+        "failure": {
+          "type": "MotionFault",
+          "message": "Command gap exceeded: command_interval_ms=34.868540, sample_interval_ms=33.340489, limit_ms=34.333334"
+        },
+        "completed_input_to_last_host_write_max_ms": 17.76996,
+        "completed_begin_to_last_host_write_max_ms": 18.352092,
+        "completed_begin_to_last_reply_max_ms": 21.19449,
+        "input_to_tx_20ms_violations": 0,
+        "period_deadline_misses": 0,
+        "terminal_stop_confirmed": true,
+        "all_restored": true,
+        "failed_raw_requests": 0,
+        "timing_evidence_selected": true,
+        "raw_audit_sha256": "9a6126cfc188b96d8be0f798284c1a80639a99157deeed1d670766a24abc30bc",
+        "failed_cycle_output_not_sent": true
+      }
+    ],
+    "all12_STOP_confirmed_after_both_trials": true,
+    "physical_abnormality_reported_after_either_trial": false,
+    "user_reports_box_power_pose_maintained": true,
+    "failed_cycles_or_runs_relabelled_as_success": false,
+    "next_action": "Separate main/owner dispatch, IMU joining and final-gate phase variation before a new 10s comparison; keep input20ms/all-write20ms and reply33.33ms"
+  },
+  "human_hold30_R4_preparation_20261014": {
+    "status": "SOURCE_DEPLOYED_ARM64_BUILT_CPU_VIRTUAL_PASS_NO_HUMAN_OUTPUT_QUALIFICATION",
+    "source_files": 975,
+    "model_files": 43,
+    "reference_files": 3,
+    "installed_files": 1021,
+    "kit_manifest_sha256": "39077437bc3dfa50ea9b40580c5a4ead471811fdfffc17befe3d85fd675f8cae",
+    "package_zip_sha256": "7659e9e1f97aed80f9f7891818d98574207f615e21e312b9ae37109b2da691a8",
+    "target_tests_run": 307,
+    "target_test_failures": 0,
+    "target_test_errors": 0,
+    "target_test_skips": 0,
+    "target_test_elapsed_s": 58.070110111,
+    "target_report_sha256": "13f453fd33a5b158cf16e0710c58762e4562048e716835276b872210208b8f5e",
+    "installed_source_and_native_bytes_unchanged": true,
+    "ARM64_builds": [
+      "diagnostic",
+      "Type1",
+      "current_guard"
+    ],
+    "source_and_native_assets_registered": true,
+    "five_real_PCM_cue_clips_prepared": true,
+    "new_cue_audio_heard_confirmed": false,
+    "source_and_native_asset_inventory_sha256": "359dfbbdfc73bcf7576b5b9878dc8675b13f9670362c8db106eadb39b2ca678b",
+    "independent_review_sha256": "9f0a2957afacd151ac6c5167ef986a29c41cf472fb9778319cdcd7350f0afb4e",
+    "original_R3_source_changed": false,
+    "physical_current_human_setup_ready": false,
+    "human_motor_output_executed": false,
+    "actual_watchdog_source_qualified": false,
+    "actual_human_zero2_source_qualified": false,
+    "actual_partial_load_qualified": false,
+    "standing_or_walking_qualified": false,
+    "validation_fixture_issue": "First target set used old model location; failed/errors/skips retained. Validation-only companion explicitly bound authenticated installed model and ran unchanged test bodies, final307 skip0."
+  }
+}

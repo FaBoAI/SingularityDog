@@ -464,7 +464,7 @@ class _ConsumeProfile:
 
 
 class StatefulPolicyObserver:
-    """Finite, ordered 50Hz model ticks with diagnostic-only candidate inputs.
+    """Finite, ordered model ticks with diagnostic-only candidate inputs.
 
     No warmup is performed here. prepare_run(..., warmup_completed=True) resets
     policy state without assigning a deadline; arm_run(first_tick_ns) assigns
@@ -482,7 +482,23 @@ class StatefulPolicyObserver:
                  profile_consume=False, monotonic_ns=None,
                  power_epoch_branch_comparison=None, measured_diagnostic_ticks=False,
                  reuse_input_buffers=False, apply_reviewed_accel_calibration=False,
-                 accel_input_hypothesis=None, checked_dispatch_wrapper=None):
+                 accel_input_hypothesis=None, checked_dispatch_wrapper=None,
+                 control_clock=None):
+        self._control_clock = None
+        self._model_epoch_ns = None
+        if control_clock is not None:
+            from .policy_clock import validate_control_clock
+            clock = validate_control_clock(control_clock)
+            _require(clock.policy_hz == 30, "Explicit new model clock must be30Hz")
+            _require(checked_dispatch_wrapper is None,
+                     "Old checked/native model dispatch cannot select the30Hz model")
+            _require(getattr(policy, "policy_dt_s", None) == clock.model_dt_s and
+                     getattr(getattr(policy, "controller", None), "dt", None) == clock.model_dt_s,
+                     "Model and controller clocks must equal the explicit30Hz clock")
+            self._control_clock = clock
+        else:
+            _require(getattr(policy, "policy_dt_s", DT_NS / 1e9) == DT_NS / 1e9,
+                     "A30Hz model requires an explicit30Hz control clock")
         _require(type(reuse_input_buffers) is bool, "reuse_input_buffers must be boolean")
         _require(type(measured_diagnostic_ticks) is bool, "measured_diagnostic_ticks must be boolean")
         self._measured_diagnostic_ticks = measured_diagnostic_ticks
@@ -544,6 +560,10 @@ class StatefulPolicyObserver:
                  "Command outside registered cardinal/pure-yaw/stop domain")
         self._max_age_ns = _stamp(max_age_ns, "max age")
         self._max_spread_ns = _stamp(max_spread_ns, "max spread")
+        if self._control_clock is not None:
+            _require(0 < self._max_age_ns <= self._control_clock.freshness_budget_ns and
+                     0 < self._max_spread_ns <= self._control_clock.freshness_budget_ns,
+                     "30Hz inputs must retain the20ms freshness/spread budget")
         if torch_module is None:
             import torch as torch_module
         self._torch = torch_module
@@ -577,7 +597,7 @@ class StatefulPolicyObserver:
         self._last_branch_raw = None
 
     def _flags(self):
-        return {"motor_output_available": False, "output_allowed": False,
+        result = {"motor_output_available": False, "output_allowed": False,
                 "approved_for_runtime": False, "live_50hz_verified": False,
                 "calibration_verified": False, "gravity_fusion_verified": False,
                 "raw_driver_axes_verified": False, "sensor_alignment_verified": False,
@@ -586,6 +606,11 @@ class StatefulPolicyObserver:
                 "h_measured": False, "h_hypothesis": self._h,
                 "h_semantics": "fixed twelve-joint load-history sensitivity hypothesis",
                 "independent_cold_reset": False, "dt_s": .02}
+        if self._control_clock is not None:
+            result.update(dt_s=self._control_clock.model_dt_s, policy_hz=30,
+                          live_30hz_verified=False,
+                          control_clock=self._control_clock.as_payload())
+        return result
 
     def _copy_static_provenance(self, index, value):
         copier = self._static_provenance_copiers[index]
@@ -631,6 +656,7 @@ class StatefulPolicyObserver:
         self.ticks_completed = 0
         self.failure = None
         self._next_tick_ns = None
+        self._model_epoch_ns = None
         self._last_sources = {}
         self._last_branch_raw = None
         self._last_consume_profile = None
@@ -650,6 +676,7 @@ class StatefulPolicyObserver:
         _require(self.status == "PREPARED", "Prepare exactly once before arming")
         _stamp(first_tick_ns, "first tick")
         self._next_tick_ns = first_tick_ns
+        self._model_epoch_ns = first_tick_ns
         self.status = "ACTIVE"
         return self.summary()
 
@@ -747,9 +774,13 @@ class StatefulPolicyObserver:
             self._last_branch_raw = branch_raw
             self.ticks_completed += 1
             self._next_tick_ns = (snapshot["tick_ns"]+1 if self._measured_diagnostic_ticks
-                                  else self._next_tick_ns+DT_NS)
+                                  else self._next_tick_ns+DT_NS if self._control_clock is None
+                                  else self._control_clock.release_ns(self._model_epoch_ns,
+                                                                      self.ticks_completed))
             if self._measured_diagnostic_ticks:
-                result["timing_scope"] = "actual acquisition completion; model dt remains 20ms; diagnostic only"
+                result["timing_scope"] = ("actual acquisition completion; model dt remains 20ms; diagnostic only"
+                    if self._control_clock is None else
+                    "actual acquisition completion; model dt remains1/30s; diagnostic only")
             return result
         except BaseException as error:
             if profile is not None:
@@ -774,7 +805,9 @@ class StatefulPolicyObserver:
         if self._measured_diagnostic_ticks:
             _require(tick >= self._next_tick_ns, "Repeated/backward measured diagnostic tick")
         else:
-            _require(tick == self._next_tick_ns, "Missed, repeated or out-of-order 20ms tick; no catchup")
+            _require(tick == self._next_tick_ns,
+                     "Missed, repeated or out-of-order 20ms tick; no catchup" if self._control_clock is None else
+                     "Missed, repeated or out-of-order30Hz rational tick; no catchup")
         _require(type(snapshot.get("max_age_ns")) is int
                  and snapshot["max_age_ns"] == self._max_age_ns
                  and type(snapshot.get("max_spread_ns")) is int

@@ -1,0 +1,12 @@
+{
+  "schema": "singularitydog.human-hold30-runner-proposal.v1",
+  "base_source_relative": "runtime/experiments/four_bus_type1/type1_runner.py",
+  "base_sha256": "f6a024aead0530a0cbbd0015c1d37ef4305020477105ecbcbaefc102c500677c",
+  "proposed_runner_sha256": "eb14cb28a6c25a25f9a791be95b1117655b959562a6859c2204dd31959d96cf9",
+  "intended_new_runtime_relative": "runtime/experiments/four_bus_human_hold/type1_runner.py",
+  "patch_sha256": "ebe4df8d78e6b90f9ab030c2e0831b909eab57ea98f2343829446035c77a331e",
+  "existing_source_modified": false,
+  "live_execution_entry_installed": false,
+  "source_rebuild_required": true,
+  "output_allowed": false
+}

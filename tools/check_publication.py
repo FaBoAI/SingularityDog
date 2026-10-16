@@ -10,7 +10,21 @@ import struct
 import zipfile
 from artifact_manifest import load_names, member, digest
 
-TEXT_SUFFIXES = {'.md', '.py', '.json', '.yaml', '.yml', '.toml', '.txt', '.html', '.urdf', '.csv'}
+TEXT_SUFFIXES = {'.md', '.py', '.json', '.yaml', '.yml', '.toml', '.txt', '.html', '.urdf', '.csv', '.patch'}
+# Original project C++ sources individually reviewed and pinned. This does
+# not enable arbitrary C++ files, vendor sources or compiled libraries.
+REVIEWED_TEXT_SOURCES = {
+    'runtime/experiments/native_active_transport/transport.cpp':
+        '3dfe93e4e8dbfafa12759bdd930af636c8823b45ca0c12c510b3a6fedbf355b0',
+    'runtime/experiments/four_bus_diagnostic/subset_stop.cpp':
+        '366f65060456e09664fb334d4e405cd368cd096c6495377722f6a1759cc02aa0',
+    'runtime/experiments/four_bus_type1/subset_active.cpp':
+        'a321c0128711719b36fa08ff25fcf3d2be43fa48da7840d1ed45f2535aff7eb4',
+    'runtime/experiments/four_bus_native_group/native_group.cpp':
+        'f0d74753f5db010bfcb8eac598ab86b3515b1783d9ce94a7a020d70228ad9530',
+    'runtime/experiments/type1_latency_cause_probe/gil_reacquire.cpp':
+        '935a527c7744b6514b63c0c2b380f8a67cf96c9189d4c4a663501936f9eb58de',
+}
 BLOCKED_PARTS = {'.git', 'vendor', 'meshes', 'weights', 'checkpoints', 'raw_logs'}
 RECORDING_AUTHORIZATION = 'user_selected_six_history_assets_and_l05_l06_l07_l08_l09_l10_l11_l12_results_2026-09-10'
 PRINT_AUTHORIZATION = 'user_selected_next_ten_print_parts_2026-09-12'
@@ -221,7 +235,10 @@ def check(root, names):
             continue
         if name in print_files and path.suffix in {'.stl', '.png', '.zip'}:
             continue
-        if (path.suffix not in TEXT_SUFFIXES and path.name != '.gitignore') or set(Path(name).parts) & BLOCKED_PARTS:
+        reviewed_text = name in REVIEWED_TEXT_SOURCES
+        if reviewed_text and digest(path) != REVIEWED_TEXT_SOURCES[name]:
+            failures.append({'file': name, 'reason': 'reviewed text source changed'})
+        if (path.suffix not in TEXT_SUFFIXES and path.name != '.gitignore' and not reviewed_text) or set(Path(name).parts) & BLOCKED_PARTS:
             failures.append({'file': name, 'reason': 'excluded asset or file type'})
             continue
         try:

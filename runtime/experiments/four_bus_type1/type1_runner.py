@@ -32,8 +32,10 @@ from singularitydog_hw.policy_output_runtime import (
     _python_motion_wires, checked_voltage_cache, checked_voltage_rows, feedback_sample,
     validate_imu_metadata, validate_measured)
 from singularitydog_hw.policy_post_reply_timing import PostReplyDeadlineBudget
+from singularitydog_hw.policy_clock import policy_clock_settings, Pure30Budget
 from experiments.four_bus_diagnostic import model_bridge as bridge
-from experiments.four_bus_diagnostic.pipeline import _real_operating_readback, _take, evidence_report
+from experiments.four_bus_diagnostic.pipeline import (
+    _real_operating_readback, _take, _verify_observer_clock, evidence_report)
 from experiments.four_bus_diagnostic.transport_adapter import GROUPS, PORTS, Group
 from . import type1_profile as _profile
 
@@ -147,6 +149,12 @@ def validate_admitted(admitted):
     need(isinstance(admitted, Mapping) and all(key in admitted for key in REQUIRED_ADMITTED_KEYS),
          'Admitted four-bus Type1 object with all required keys required')
     value = {key: _plain(admitted[key]) for key in REQUIRED_ADMITTED_KEYS}
+    for key in _profile.CONTROL_KEYS:
+        if key in admitted:
+            value[key] = _plain(admitted[key])
+    selected_clock = _profile._control_selection(value.get('control_clock'), value.get('policy30_model'))
+    clock = policy_clock_settings(value)
+    is30 = selected_clock is not None
     mode, duration = value['mode'], value['duration_s']
     need(mode in MODES, 'Explicit zero_gain_timing or learned_boxed mode required')
     need(type(duration) is int and duration in DURATIONS, 'Duration must be exactly 2, 10 or 20 s')
@@ -164,12 +172,24 @@ def validate_admitted(admitted):
     profile = value['profile']
     need(type(profile) is dict and type(profile.get('axes')) is dict and
          set(profile['axes']) == {str(mid) for mid in IDS}, 'Twelve profile axes required')
-    for key, expected in (('max_sample_age_ms', 20), ('max_sample_gap_ms', 21), ('hard_cycle_ms', 20),
-                          ('period_ms', 20), ('max_consecutive_20ms_misses', 0), ('voltage_min_v', 35),
+    for key, expected in (('max_sample_age_ms', 20), ('max_sample_gap_ms', clock.cadence_gap_ms),
+                          ('hard_cycle_ms', clock.period_ms), ('period_ms', clock.period_ms),
+                          ('max_consecutive_20ms_misses', 0), ('voltage_min_v', 35),
                           ('voltage_max_v', 42), ('startup_damping_duration_s', .08),
                           ('policy_weight', .005), ('duration_s', duration)):
         need(type(profile.get(key)) in (int, float) and profile[key] == expected,
              'Fixed boxed profile value differs: '+key)
+    if is30:
+        need(not {'command_phase_offset_us', 'prearmed_hold_lead_us'}.intersection(value['pacing']),
+             '30 Hz does not select the historical 20 ms command-phase/prearmed contract')
+        need(value['model_plan'].get('control_clock') == value['control_clock'] and
+             value['model_plan'].get('policy30_model') == value['policy30_model'],
+             '30 Hz model plan differs from the admitted selection')
+    else:
+        need('native_group_cycle' not in value['pacing'],
+             'Native four-port cycle dispatcher requires the explicit 30 Hz model/clock')
+        need(not _profile.CONTROL_KEYS.intersection(value['model_plan']),
+             'Legacy 50 Hz runtime cannot contain a 30 Hz model plan')
     for key in ('startup_duration_s', 'stop_duration_s', 'policy_ramp_s'):
         need(_finite(profile.get(key), key) > 0, 'Positive '+key+' required')
     need(profile['startup_damping_duration_s'] <= profile['startup_duration_s'],
@@ -225,7 +245,9 @@ def validate_admitted(admitted):
             'max_stop_s': max_stop_s, 'stop_at_s': duration-max_stop_s-.04,
             'first_cycle_post_reply': value['first_cycle_post_reply'], 'model_plan': value['model_plan'],
             'boot_id': value['boot_id'], 'motor_power_epoch': value['motor_power_epoch'],
-            'contract_sha256': value['contract_sha256'], 'imu': imu, 'options': options}
+            'contract_sha256': value['contract_sha256'], 'imu': imu, 'options': options,
+            'clock': clock, 'is30': is30, 'control_clock': value.get('control_clock'),
+            'policy30_model': value.get('policy30_model')}
 
 
 def imu_frame(model_plan):
@@ -304,6 +326,18 @@ def plan(admitted):
             'imu_accel_input_hypothesis_selected': spec['imu']['accel_input_hypothesis'],
             'stop_policy': 'repeated_subset_stop_each_own_owner_concurrent_shared_1250ms',
             'zero_gain_timing_outputs': 'kp_kd_zero_at_q0_model_targets_recorded_only'}
+    if spec['is30']:
+        result.update(schema=_profile.REPORT_SCHEMA_30, control_clock=spec['control_clock'],
+            policy30_model=spec['policy30_model'], absolute_deadline_ns=spec['clock'].cycle_budget_ns,
+            cycle_budget_ns=spec['clock'].cycle_budget_ns,
+            inference_tx_budget_ns=spec['clock'].inference_tx_budget_ns,
+            input_freshness_budget_ns=spec['clock'].freshness_budget_ns,
+            continuity_history_budget_ns=spec['clock'].command_gap_budget_ns,
+            input_age_budget_ns=spec['clock'].freshness_budget_ns,
+            reply_deadline_semantics='actual_begin_plus_30hz_cycle_budget',
+            write_deadline_semantics='min_actual_begin_oldest_input_plus_20ms',
+            cadence_semantics='epoch_plus_floor_index_1e9_div_30',
+            safety_age_and_motor_limits_changed=False)
     # Opt-in options only add their own truthful fields; the default PLAN is unchanged.
     if 'command_phase_offset_us' in options:
         result['command_phase'] = {'offset_us': options['command_phase_offset_us'],
@@ -415,7 +449,11 @@ def type1_hold_snapshot_builder(plan_document):
         if tick_ns-oldest > PERIOD_NS or latest-oldest > PERIOD_NS:
             raise ValueError('Four-bus Type1 hold input age/spread exceeds 20ms')
         snapshot = {'status': 'DIAGNOSTIC_READY', 'output_allowed': False, 'blocked_reasons': [],
-            'tick_ns': tick_ns, 'max_age_ns': bridge.OBSERVER_LIMIT_NS, 'max_spread_ns': bridge.OBSERVER_LIMIT_NS,
+            'tick_ns': tick_ns,
+            'max_age_ns': (owned['observer_kwargs']['max_age_ns'] if 'control_clock' in owned
+                           else bridge.OBSERVER_LIMIT_NS),
+            'max_spread_ns': (owned['observer_kwargs']['max_spread_ns'] if 'control_clock' in owned
+                              else bridge.OBSERVER_LIMIT_NS),
             'motors': motors, 'imu': {'frame': 'raw_sensor', **vectors,
                 'read_started_ns': a, 'read_finished_ns': b, 'age_upper_bound_ns': tick_ns-a},
             'oldest_observation_age_ns': tick_ns-oldest, 'acquisition_spread_ns': latest-oldest,
@@ -512,6 +550,12 @@ class _Supervisor:
         self.reason = self.latched_ns = self.normal_completion = None
         self.stop_futures = None
         self.errors = []
+        self.before_stop = None  # Optional borrowed native owners must join before legacy STOP.
+
+    def _stop_owner(self, adapter):
+        if self.before_stop is not None:
+            self.before_stop()
+        return adapter.stop_repeated()
 
     def emergency(self, reason, *, normal_completion=False):
         with self.lock:
@@ -531,7 +575,7 @@ class _Supervisor:
                 if adapter is None or pool is None:
                     continue
                 try:
-                    self.stop_futures[port] = pool.submit(adapter.stop_repeated)
+                    self.stop_futures[port] = pool.submit(self._stop_owner, adapter)
                 except BaseException as error:
                     self.errors.append({'stage': 'stop_submission', 'port': port,
                                         'error': type(error).__name__+': '+str(error)})
@@ -602,7 +646,9 @@ class _Cycle:
                  'label', 'command', 'sample', 'checked', 'decision', 'request_count', 'completed', 'imu_check',
                  # Opt-in only; materialized only when their option is selected.
                  'natural_gate_ns', 'command_ns', 'prearm_wake_ns', 'submit_done_ns', 'owner_entry_ns',
-                 'thread_counters', 'evidence_cost_ns')
+                 'guard_begin_ns', 'guard_end_ns', 'hold_submit_by_port_ns',
+                 'imu_submit_begin_ns', 'imu_submit_end_ns',
+                 'thread_counters', 'evidence_cost_ns', 'write_deadline_ns')
 
     def __init__(self, index, slot, release, begun):
         for name in self.__slots__:
@@ -658,7 +704,7 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
         check_cancelled=None, cancel_io=None, model_setup=None, worker_scope=None,
         main_scope=None, release_wait=None, announce=None, encoder=None, stop_requested=None,
         backend_usage=None, accel_correction=None, clock=time.monotonic_ns, execute=False,
-        command_wait=None, timing_evidence=None):
+        command_wait=None, timing_evidence=None, cycle_group_factory=None):
     """PLAN unless ``execute is True``; PLAN calls none of the capabilities.
 
     ``factory(group)`` returns a Type1TransportContract owner for that port.
@@ -684,13 +730,28 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
     need(callable(getattr(stop_requested, 'is_set', None)), 'Graceful stop request must be an Event')
     need(encoder is None or callable(getattr(encoder, 'bind', None)), 'Pinned encoder module with bind required')
     need(isinstance(backend_usage, Mapping) and backend_usage.get('kind') in (
-        'genuine_subset_active_cpp', 'injected_file_only_mock'), 'Truthful explicit backend usage required')
-    genuine = backend_usage['kind'] == 'genuine_subset_active_cpp'
+        'genuine_subset_active_cpp', 'genuine_native_group_cpp', 'injected_file_only_mock'),
+         'Truthful explicit backend usage required')
+    genuine = backend_usage['kind'] in ('genuine_subset_active_cpp', 'genuine_native_group_cpp')
     spec = validate_admitted(admitted)
+    clock_contract = spec['clock']
+    _verify_observer_clock(observer, clock_contract, allow_unadvertised=not genuine)
+    is30 = spec['is30']
+    period_ns = clock_contract.cycle_budget_ns if is30 else PERIOD_NS
+    select_slot = clock_contract.select_slot if is30 else _absolute_epoch_slot
     need((accel_correction is not None) == spec['imu']['accel_input_hypothesis'] and
          (accel_correction is None or callable(getattr(accel_correction, 'correct', None))),
          'Acceleration correction must be injected exactly when the model plan selects it')
     options = spec['options']
+    native_selected = options.get('native_group_cycle') is True
+    need((cycle_group_factory is not None) is native_selected and
+         (cycle_group_factory is None or callable(cycle_group_factory)),
+         'Native group factory must be supplied exactly when selected by the contract')
+    need(not native_selected or timing_evidence is None,
+         'Native group records its own owner stamps; legacy Python CAN counters cannot label native owners')
+    if genuine:
+        need((backend_usage['kind'] == 'genuine_native_group_cpp') is native_selected,
+             'Native group contract and actual backend kind differ')
     command_offset_ns = options['command_phase_offset_us']*1000 if 'command_phase_offset_us' in options else None
     prearm_ns = options['prearmed_hold_lead_us']*1000 if 'prearmed_hold_lead_us' in options else None
     decode_once, gc_freeze = options.get('decode_once') is True, options.get('gc_freeze') is True
@@ -706,7 +767,7 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
     group_of = {group.port: group for group in groups}
     learned = spec['mode'] == 'learned_boxed'
     age_ns = int(profile['max_sample_age_ms']*1e6)
-    gap_ns = int(profile['max_sample_gap_ms']*1e6)
+    gap_ns = clock_contract.command_gap_budget_ns if is30 else int(profile['max_sample_gap_ms']*1e6)
     report = {**planned, 'status': 'STARTING', 'opens_devices': True,
               'backend_usage': _plain(backend_usage), 'devices_opened': False,
               'encoder': {'kind': 'python_motion_wires' if encoder is None else 'verified_native_batch',
@@ -724,9 +785,10 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
     watcher = main_context = created = None
     main_entered = False
     primary = None
-    budget = PostReplyDeadlineBudget(POST_REPLY_V1)
+    budget = Pure30Budget(POST_REPLY_V1, clock_contract) if is30 else PostReplyDeadlineBudget(POST_REPLY_V1)
     frozen = False
     evidence_before = evidence_baseline = None
+    native_group = None
 
     def owners():
         for owner in in_flight:
@@ -822,6 +884,28 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             primary.add_note('Cleanup failure: '+str(error))
         report['errors'].append('cleanup: '+type(error).__name__+': '+str(error))
 
+    def settle_native_group():
+        # May run concurrently on the legacy Python owners after a watchdog
+        # cancel. The client cancels first and serializes close/join. A partial
+        # constructor can already own leases before returning to this thread.
+        groups_to_close = [] if native_group is None else [native_group]
+        for adapter in adapters.values():
+            lease = getattr(getattr(adapter, '_session', None), '_phase_pair', None)
+            if lease is not None and all(lease is not value for value in groups_to_close):
+                groups_to_close.append(lease)
+        for value in groups_to_close:
+            result = value.close()
+            need(getattr(value, 'closed', False) is True,
+                 'Join native CAN owners before legacy STOP; lease is still active')
+            if result is not None and result.get('restored') is not True:
+                cleanup_error(RuntimeError('Native owner settings restoration failed: '+str(result)))
+            if result is not None and (result.get('snapshot_complete') is not True or
+                                       result.get('snapshot_error') is not None):
+                cleanup_error(RuntimeError('Native raw phase snapshot incomplete: '+str(result)))
+
+    if native_selected:
+        supervisor.before_stop = settle_native_group
+
     try:
         # A. Gates, owners, placement (PL:359-398; OR:1313-1460).
         main_context = main_scope()
@@ -847,6 +931,8 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             if genuine:
                 if type(adapter) is not Type1Transport:
                     raise ValueError('Real backend requires the genuine Type1Transport')
+                if is30 and getattr(adapter, 'separate_write_deadline', False) is not True:
+                    raise ValueError('30 Hz output requires the native independent20ms write cutoff')
                 verify = getattr(adapter, '_verify', None)
                 if callable(verify):
                     verify()
@@ -960,6 +1046,25 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                 not report['model_setup'].get('model_artifact_sha256') or
                 not report['model_setup'].get('model_source_sha256')):
             raise ValueError('Current actual selected model/source/warmup binding required')
+        _verify_observer_clock(observer, clock_contract, allow_unadvertised=not genuine)
+        if timing_evidence is not None:
+            # F0 may scan /proc and open one counter per worker. Complete that
+            # optional setup before the fresh pose, initial hold and the first
+            # command/sample gap. It must never consume an armed motor interval.
+            threads = {'main': threading.get_native_id(), **dict(zip((*PORTS, 'imu'), worker_tids)),
+                       'host_watchdog': report['watchdog_settings']['native_tid']}
+            timing_report = report['timing_evidence'] = {'selected': True, 'contract_input': False,
+                'sampled': 'each_cycle_end_after_post_reply_admission_outside_release_to_output_window',
+                'run_counter_baseline_scope': 'after_model_setup_before_fresh_pose_and_enable',
+                'setup_begin_ns': clock()}
+            try:
+                timing_report['binding'] = timing_evidence.bind(threads)
+                evidence_before = timing_evidence.run_counters()
+                evidence_baseline = timing_evidence.sample()
+            finally:
+                timing_report['setup_end_ns'] = clock()
+                timing_report['setup_ms'] = (
+                    timing_report['setup_end_ns']-timing_report['setup_begin_ns'])/1e6
         if gc_freeze:
             # F4: right after model warm-up, while every motor is still disabled.
             # Freezing the whole heap takes tens of ms, so it must precede the
@@ -1054,10 +1159,38 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
         require_voltage_before_type1()
         deadline = clock()+PERIOD_NS
         futures = {port: submit(port, adapters[port].output, last_wires[port], deadline_ns=deadline,
-                                check=owner_check) for port in PORTS}
+                                check=owner_check, **({'write_deadline_ns': deadline} if is30 else {}))
+                   for port in PORTS}
         in_flight[:] = list(futures.values())
         initial_hold = {port: _take(futures[port], deadline, clock, hot) for port in PORTS}
         in_flight.clear()
+        if native_selected:
+            # Creating/pinning native owners takes time. Retain the old ACKs,
+            # then obtain actual fresh zero-gain ACKs after READY before the
+            # envelope's initial command/sample clocks are established.
+            report['before_native_group_initial_hold'] = initial_hold
+            group_begin = clock()
+            native_group = cycle_group_factory(adapters)
+            need(all(callable(getattr(native_group, name, None)) for name in (
+                'initial_hold', 'start_hold', 'wait_hold', 'wait_voltage', 'output', 'cancel', 'close')),
+                 'Complete native cycle group capability required')
+            if genuine:
+                from experiments.four_bus_native_group.client import NativeGroup
+                need(type(native_group) is NativeGroup, 'Actual sealed native cycle group required')
+                settings = native_group.settings
+                need(type(settings) is list and len(settings) == 4 and
+                     len({value['native_tid'] for value in settings}) == 4 and
+                     all(value['configured'] == 1 and value['status'] == 0 and
+                         value['cpu_mask'] == 1 << index and value['timer_slack_ns'] == 1000
+                         for index, value in enumerate(settings)),
+                     'Actual four native CAN owner placement/slack readback required')
+            report['native_group_setup'] = {'begin_ns': group_begin, 'ready_ns': clock(),
+                                            'settings': copy.deepcopy(native_group.settings)}
+            check()
+            require_voltage_before_type1()
+            watcher.kick()
+            initial_hold = native_group.initial_hold(last_wires, clock()+PERIOD_NS, owner_check)
+            check()
         fresh_zero = {}
         for port, batch in initial_hold.items():
             need(tuple(bytes(record.tx) for record in batch.records) == last_wires[port] and
@@ -1081,7 +1214,7 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             startup_duration_s=profile['startup_duration_s'], stop_duration_s=profile['stop_duration_s'],
             startup_damping_duration_s=profile['startup_damping_duration_s'],
             max_sample_age_s=profile['max_sample_age_ms']/1000,
-            max_sample_gap_s=profile['max_sample_gap_ms']/1000)
+            max_sample_gap_s=gap_ns/1e9 if is30 else profile['max_sample_gap_ms']/1000)
         report['envelope_gains'] = 'profile_kp_kd' if learned else 'zero_kp_kd'
         if encoder is None:
             def wires_for(command):
@@ -1113,18 +1246,23 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             axis['max_measured_velocity_rad_s'], axis['max_temperature_c'], axis['max_tracking_error_rad'],
             axis['max_displacement_from_start_rad'], axis['max_estimated_pd_torque_nm']) for axis in axis_rows)
         origin_q = trial_origin.q_model_rad
-        if timing_evidence is not None:  # F0 diagnostic only; read outside every cycle window.
-            threads = {'main': threading.get_native_id(), **dict(zip((*PORTS, 'imu'), worker_tids)),
-                       'host_watchdog': report['watchdog_settings']['native_tid']}
-            report['timing_evidence'] = {'selected': True, 'contract_input': False,
-                'sampled': 'each_cycle_end_after_post_reply_admission_outside_release_to_output_window',
-                'binding': timing_evidence.bind(threads)}
-            evidence_before = timing_evidence.run_counters()
-            evidence_baseline = timing_evidence.sample()
         start = clock()
         if prearm_ns is not None:
             start += prearm_ns  # Epoch one lead ahead, so cycle 0 is pre-armed as well.
         report['epoch_ns'] = start
+        if timing_evidence is not None:
+            last_initial_write_ns = max(record.finish_ns for batch in initial_hold.values()
+                                        for record in batch.records)
+            last_initial_reply_ns = max(record.received_ns for batch in initial_hold.values()
+                                        for record in batch.records)
+            report['timing_evidence']['initial_hold_to_epoch'] = {
+                'last_host_write_ns': last_initial_write_ns,
+                'last_reply_ns': last_initial_reply_ns,
+                'last_command_ns': last_command_ns,
+                'last_sample_ns': last_sample_ns,
+                'epoch_ns': start,
+                'last_command_to_epoch_ms': (start-last_command_ns)/1e6,
+                'last_sample_to_epoch_ms': (start-last_sample_ns)/1e6}
         previous_slot = previous_begin = None
         stop_started = False
         report['cycles'] = cycles
@@ -1132,43 +1270,59 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             index = len(cycles)
             hot()
             if prearm_ns is None:
-                slot, release = _absolute_epoch_slot(start, previous_slot, previous_begin, clock())
+                slot, release = select_slot(start, previous_slot, previous_begin, clock())
                 if slot != index:
                     raise RuntimeError('Absolute-epoch cycle slot skipped; STOP before another hold')
                 begun = release_wait(release)
                 if type(begun) is not int or begun < release or begun > clock():
                     raise RuntimeError('Release waiter must return actual current monotonic time')
-                if _absolute_epoch_slot(start, previous_slot, previous_begin, begun) != (slot, release):
+                if select_slot(start, previous_slot, previous_begin, begun) != (slot, release):
                     raise RuntimeError('Absolute-epoch release missed its slot; STOP before another hold')
-                hard_end = begun+PERIOD_NS
+                hard_end = begun+period_ns
                 row = _Cycle(index, slot, release, begun)
                 cycles.append(row)
+                if timing_evidence is not None:
+                    row.guard_begin_ns = clock()
                 check()  # Boundary 1: cycle_start_before_submit.
+                if timing_evidence is not None:
+                    row.guard_end_ns = clock()
                 hold_now = clock()
                 prearmed = {}
             else:
                 # F3: the slot is the next release this cycle can still pre-arm for.
-                slot, release = _absolute_epoch_slot(start, previous_slot, previous_begin, clock()+prearm_ns)
+                slot, release = select_slot(start, previous_slot, previous_begin, clock()+prearm_ns)
                 if slot != index:
                     raise RuntimeError('Absolute-epoch cycle slot skipped; STOP before another hold')
                 woke = release_wait(release-prearm_ns)
                 if type(woke) is not int or woke < release-prearm_ns or woke > clock():
                     raise RuntimeError('Release waiter must return actual current monotonic time')
                 if (woke >= release or
-                        _absolute_epoch_slot(start, previous_slot, previous_begin, woke+prearm_ns) != (slot, release)):
+                        select_slot(start, previous_slot, previous_begin, woke+prearm_ns) != (slot, release)):
                     raise RuntimeError('Pre-armed wake missed its lead before the release; STOP before another hold')
-                hard_end = release+PERIOD_NS
+                hard_end = release+period_ns
                 row = _Cycle(index, slot, release, None)
                 row.prearm_wake_ns = woke
                 cycles.append(row)
+                if timing_evidence is not None:
+                    row.guard_begin_ns = clock()
                 check()  # Boundary 1, pre-armed: before_release_before_prearmed_submit.
+                if timing_evidence is not None:
+                    row.guard_end_ns = clock()
                 hold_now = release  # Every hold gate is evaluated at the release, when the hold is written.
                 prearmed = {'not_before_ns': release}
             if hold_now-last_command_ns > gap_ns or hold_now-last_sample_ns > gap_ns:
+                if timing_evidence is not None:
+                    report['timing_evidence']['failed_pre_hold_gap'] = {
+                        'cycle_index': index, 'slot': slot, 'hold_now_ns': hold_now,
+                        'last_command_ns': last_command_ns, 'last_sample_ns': last_sample_ns,
+                        'command_gap_ms': (hold_now-last_command_ns)/1e6,
+                        'sample_gap_ms': (hold_now-last_sample_ns)/1e6,
+                        'budget_ms': gap_ns/1e6}
                 raise RuntimeError('Command/sample gap exceeded before feedback hold')
             for mid in IDS:
                 _, old_start, old_end = previous[mid, 'feedback']
-                if not (0 < old_start <= old_end <= hold_now and hold_now-old_start <= age_ns):
+                history_ns = clock_contract.command_gap_budget_ns if is30 else age_ns
+                if not (0 < old_start <= old_end <= hold_now and hold_now-old_start <= history_ns):
                     raise RuntimeError('ID%d stale feedback before hold' % mid)
             if prearm_ns is None:
                 require_voltage_before_type1()
@@ -1180,13 +1334,18 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             entries = None
             if timing_evidence is not None:
                 entries = row.owner_entry_ns = {}
+                row.hold_submit_by_port_ns = {}
             in_flight.clear()
             for group in groups:
                 port = group.port
+                voltage_id[port] = group.ids[index % 3]
+                if native_selected:
+                    continue
                 future = Future()
                 future.set_running_or_notify_cancel()
                 prefix[port] = future
-                voltage_id[port] = group.ids[index % 3]
+                if timing_evidence is not None:
+                    submit_begin = clock()
                 if entries is None:
                     full[port] = pools[port].submit(_owned, supervisor, port, adapters[port].hold_then_voltage,
                         (last_wires[port], voltage_id[port], future),
@@ -1195,23 +1354,36 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                     full[port] = pools[port].submit(_owned_stamped, entries, clock, supervisor, port,
                         adapters[port].hold_then_voltage, (last_wires[port], voltage_id[port], future),
                         {'deadline_ns': hard_end, 'check': owner_check, **prearmed})
+                    row.hold_submit_by_port_ns[port] = {
+                        'begin_ns': submit_begin, 'end_ns': clock()}
                 in_flight.append(full[port])
+            ticket = (native_group.start_hold(last_wires, voltage_id, hard_end, owner_check)
+                      if native_selected else None)
             if prearm_ns is not None:
                 # Main waits natively for the actual release; the armed owners write on their own.
                 begun = release_wait(release)
                 if type(begun) is not int or begun < release or begun > clock():
                     raise RuntimeError('Release waiter must return actual current monotonic time')
-                if _absolute_epoch_slot(start, previous_slot, previous_begin, begun) != (slot, release):
+                if select_slot(start, previous_slot, previous_begin, begun) != (slot, release):
                     raise RuntimeError('Absolute-epoch release missed its slot; STOP before another hold')
                 row.begin_ns = begun
             # Post-reply rules assume every input after the cycle begin; pre-armed holds are
             # written natively at or after the release, possibly before main's own wake.
             rule_begin = begun if prearm_ns is None else release
+            if timing_evidence is not None:
+                row.imu_submit_begin_ns = clock()
             imu_future = pools['imu'].submit(imu_read)
+            if timing_evidence is not None:
+                row.imu_submit_end_ns = clock()
             in_flight.append(imu_future)
             if timing_evidence is not None:
                 row.submit_done_ns = clock()
-            hold = {port: _take(prefix[port], hard_end, clock, hot) for port in PORTS}
+            if native_selected:
+                hot()
+                hold = native_group.wait_hold(ticket)
+                hot()
+            else:
+                hold = {port: _take(prefix[port], hard_end, clock, hot) for port in PORTS}
             imu = _take(imu_future, hard_end, clock, hot)
             acquired = row.acquired_ns = clock()
             row.hold, row.imu = hold, imu
@@ -1232,10 +1404,17 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                     if record.start_ns < first:
                         first = record.start_ns
             row.first_ns = first
-            if first+age_ns < hard_end:
+            # A fresh command prefix remains <=20 ms; 30 Hz only has a longer
+            # reply/coordination budget. This never reuses the old input for a
+            # subsequent command after the fresh prefix has been committed.
+            write_deadline = clock_contract.input_tx_deadline_ns(rule_begin, first) if is30 else hard_end
+            if not is30 and first+age_ns < hard_end:
                 hard_end = first+age_ns
+                write_deadline = hard_end
             row.hard_end_ns = hard_end
-            if acquired >= hard_end:
+            if is30:
+                row.write_deadline_ns = write_deadline
+            if acquired >= write_deadline:
                 raise TimeoutError('Hold acquisition exceeded hard cycle or sample-age deadline')
             sample = row.sample = feedback_sample(rows, profile, offsets, now_ns=acquired, previous=previous)
             validate_measured(sample, profile, initial=trial_origin)
@@ -1245,7 +1424,7 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                          tuple(imu['accel_m_s2']), tuple(imu['gyro_rad_s']))
             row.gather_ns = clock()
             check()  # Boundary 2: after_feedback_joins_before_inference.
-            if clock() >= hard_end:
+            if clock() >= write_deadline:
                 raise TimeoutError('Deadline before inference')
             if not stop_started and (stop_requested.is_set() or begun-start >= stop_at_ns):
                 envelope.request_stop()
@@ -1254,6 +1433,7 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             if stop_started:
                 target = None  # No inference during gain-down; IMU metadata and body limits were checked.
             else:
+                _verify_observer_clock(observer, clock_contract, allow_unadvertised=not genuine)
                 observed = row.observed = observer.consume(snapshot)
                 model = observed.get('q_target_rad_diagnostic_only') if type(observed) is dict else None
                 if type(model) not in (list, tuple) or len(model) != 12:
@@ -1274,8 +1454,10 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             row.weight = weight
             row.infer_end_ns = clock()
             voltage = {}
+            native_voltage = native_group.wait_voltage(ticket) if native_selected else None
             for port in PORTS:
-                actual, batch = _take(full[port], hard_end, clock, hot)
+                actual, batch = ((hold[port], native_voltage[port]) if native_selected else
+                                 _take(full[port], hard_end, clock, hot))
                 if actual is not hold[port]:
                     raise RuntimeError('Current exact hold/full Future binding failed')
                 mid = voltage_id[port]
@@ -1315,13 +1497,13 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                     hot()
                     computed = clock()
                 row.command_ns = computed
-            if computed >= hard_end:
+            if computed >= write_deadline:
                 raise TimeoutError('Inference exceeded hard cycle deadline')
             command = row.command = envelope.step(target, sample, now_s=computed/1e9)
             outgoing = split_wires_by_port(wires_for(command), groups, zero_gain=not learned)
             row.encode_end_ns = clock()
             require_voltage_before_type1()
-            if clock() >= hard_end:
+            if clock() >= write_deadline:
                 raise TimeoutError('Encoded command exceeded hard cycle or sample-age deadline')
             # Mark intent before the first write, including a partial transaction (OR:2011-2013).
             if learned and weight > 0.:
@@ -1334,11 +1516,19 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             output = {}
             in_flight.clear()
             for port in PORTS:
+                if native_selected:
+                    continue
+                output_options = {'deadline_ns': hard_end, 'check': owner_check}
+                if is30:
+                    output_options['write_deadline_ns'] = write_deadline
                 output[port] = pools[port].submit(_owned, supervisor, port, adapters[port].output,
-                    (outgoing[port],), {'deadline_ns': hard_end, 'check': owner_check})
+                    (outgoing[port],), output_options)
                 in_flight.append(output[port])
-            join_deadline = row.join_deadline_ns = min(first+age_ns, rule_begin+PERIOD_NS+lateness_ns)
-            batches = {port: _take(output[port], join_deadline, clock, hot) for port in PORTS}
+            join_deadline = row.join_deadline_ns = (rule_begin+period_ns+lateness_ns if is30 else
+                min(first+age_ns, rule_begin+PERIOD_NS+lateness_ns))
+            batches = (native_group.output(outgoing, hard_end, write_deadline, owner_check)
+                       if native_selected else
+                       {port: _take(output[port], join_deadline, clock, hot) for port in PORTS})
             reply_return = row.reply_return_ns = clock()
             row.output = batches
             returned = {}
@@ -1415,6 +1605,7 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
         report['status'] = 'ABORTED'
         report['primary_error'] = {'type': type(error).__name__, 'message': str(error)}
         report['errors'].append(type(error).__name__+': '+str(error))
+
         supervisor.emergency(type(error).__name__+': '+str(error))
     finally:
         # I. Terminal/emergency repeated subset STOP on every opened owner, then J. restore.
@@ -1426,6 +1617,9 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
         report['stop_latched_ns'] = supervisor.latched_ns
         report['stop_reason'] = supervisor.reason
         report['stop_dispatch_errors'] = list(supervisor.errors)
+        if native_group is not None:
+            report['native_group_close'] = native_group.close_report
+            report['native_group_journal'] = list(getattr(native_group, 'journal', ()))
         if evidence_before is not None:  # After STOP; diagnostic only.
             try:
                 report['timing_evidence']['run'] = timing_evidence.run_delta(evidence_before,
@@ -1475,6 +1669,9 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             else:
                 report['restoration'][port+'_session'] = True
         report['raw_journal'] = {port: list(getattr(adapter, 'journal', ())) for port, adapter in adapters.items()}
+        if is30:
+            report['write_deadline_journal'] = {port: list(getattr(adapter, 'write_deadline_journal', ()))
+                                              for port, adapter in adapters.items()}
         if frozen:
             gc.unfreeze()
             report['gc_freeze']['unfrozen_at_restoration'] = gc.get_freeze_count() == 0
@@ -1505,18 +1702,61 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
         try:
             extra = ((('natural_gate_ns', 'command_ns') if command_offset_ns is not None else ()) +
                      (('prearm_wake_ns',) if prearm_ns is not None else ()) +
-                     (('submit_done_ns', 'owner_entry_ns', 'evidence_cost_ns') if timing_evidence is not None else ()))
+                     (('submit_done_ns', 'owner_entry_ns', 'evidence_cost_ns') if timing_evidence is not None else ()) +
+                     (('write_deadline_ns',) if is30 else ()))
             report['cycles'] = [row.materialize(extra) for row in cycles]
             if timing_evidence is not None:
                 counters = evidence_baseline
+                report['timing_evidence']['dispatch_timing_rows'] = [{
+                    'cycle_index': row.index,
+                    'guard_begin_ns': row.guard_begin_ns,
+                    'guard_end_ns': row.guard_end_ns,
+                    'hold_submit_by_port_ns': row.hold_submit_by_port_ns,
+                    'owner_entry_ns': dict(row.owner_entry_ns) if row.owner_entry_ns is not None else None,
+                    'imu_submit_begin_ns': row.imu_submit_begin_ns,
+                    'imu_submit_end_ns': row.imu_submit_end_ns,
+                    'submit_done_ns': row.submit_done_ns}
+                    for row in cycles]
                 for row, value in zip(cycles, report['cycles']):
                     value['thread_counter_delta'] = (None if row.thread_counters is None or counters is None
                                                      else timing_evidence.delta(counters, row.thread_counters))
                     counters = row.thread_counters if row.thread_counters is not None else counters
+                observed_writes = [row for row in report['cycles'] if row['final_write_ns'] is not None]
+                report['timing_evidence']['cycle_write_observation'] = {
+                    'command_gap_budget_ms': gap_ns/1e6,
+                    'input_to_tx_window_ms': 20. if is30 else None,
+                    'cycles_total': len(report['cycles']),
+                    'cycles_with_actual_final_host_write': len(observed_writes),
+                    'cycles_without_observed_final_host_write': len(report['cycles'])-len(observed_writes),
+                    'observed_write_deadline_overruns': None if not observed_writes else sum(
+                        row.get('write_deadline_ns') is not None and
+                        row['final_write_ns'] > row['write_deadline_ns'] for row in observed_writes)}
+                if primary is not None and report['cycles'] and not report['cycles'][-1]['completed']:
+                    failed = report['cycles'][-1]
+                    failed_stamps = cycles[-1]
+                    report['timing_evidence']['failed_cycle'] = {
+                        'index': failed['index'], 'slot': failed['slot'],
+                        'error_type': type(primary).__name__, 'error_message': str(primary),
+                        'guard_begin_ns': failed_stamps.guard_begin_ns,
+                        'guard_end_ns': failed_stamps.guard_end_ns,
+                        'hold_submit_by_port_ns': failed_stamps.hold_submit_by_port_ns,
+                        'owner_entry_ns': (dict(failed_stamps.owner_entry_ns)
+                                           if failed_stamps.owner_entry_ns is not None else None),
+                        'hold_first_write_ns': failed['hold_first_write_ns'],
+                        'hold_last_reply_ns': failed['hold_last_reply_ns'],
+                        'input_first_ns': failed['first_ns'],
+                        'output_last_host_write_ns': failed['final_write_ns'],
+                        'write_deadline_ns': failed.get('write_deadline_ns'),
+                        'thread_counter_delta_at_failure': None}
             report['post_reply_late_cycles'] = sum(1 for row in report['cycles'] if row['decision'] and
                                                    row['decision'].get('lateness_ms', 0) > 0)
             report['max_iteration_ms'] = max((row['iteration_ms'] for row in report['cycles']
                                               if row['iteration_ms'] is not None), default=None)
+            if is30:
+                report['period_deadline_misses'] = sum(row['cycle_end_ns']-row['begin_ns'] > period_ns
+                    for row in report['cycles'] if row['cycle_end_ns'] is not None)
+                report['input_to_tx_20ms_violations'] = sum(row['final_write_ns'] > row['write_deadline_ns']
+                    for row in report['cycles'] if row['final_write_ns'] is not None)
         except BaseException as cleanup:
             cleanup_error(cleanup)
             if report['status'].startswith('COMPLETE'):

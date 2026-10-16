@@ -438,7 +438,7 @@ extern "C" void sda_destroy(void *handle) {
 }
 static int exchange_owned(void *handle,const unsigned char *wires,uint32_t count,int send_only,
         uint64_t deadline,SDRecord *records,SDStats *stats,char *error,uint32_t size,
-        void *pair_owner=nullptr,int sibling_cancel=-1) {
+        void *pair_owner=nullptr,int sibling_cancel=-1,uint64_t write_deadline_ns=0) {
     auto *s=static_cast<Session*>(handle);
     if(!s||!records||!stats||!error||!size)return -1;
     std::memset(stats,0,sizeof(*stats));stats->begin_ns=now();
@@ -464,6 +464,8 @@ static int exchange_owned(void *handle,const unsigned char *wires,uint32_t count
     if(!wires||count<1||count>12||send_only!=0||!fd_ok(s)||
        !stats->begin_ns||deadline<=stats->begin_ns||deadline-stats->begin_ns>250000000)
         return fail("Invalid active exchange arguments/FD binding");
+    if(write_deadline_ns&&(write_deadline_ns<=stats->begin_ns||write_deadline_ns>deadline))
+        return fail("Invalid separate active write deadline; require now<write_deadline<=reply_deadline");
     std::memset(records,0,sizeof(*records)*count);
     uint32_t effective_window=s->window;
     for(uint32_t i=0;i<count;++i) {
@@ -497,16 +499,21 @@ static int exchange_owned(void *handle,const unsigned char *wires,uint32_t count
     while(done<count) {
         uint64_t t=now();
         if(!t||t>=deadline)return fail("Active exchange deadline exceeded; no retry");
+        if(write_deadline_ns&&sent<count&&t>=write_deadline_ns)
+            return fail("Active write deadline reached before remaining writes");
         if(++loops>20000)return fail("Active bounded iteration limit");
         if(!boot_ok(s))return fail("Boot identity changed/read failed");
         fd_set readable;FD_ZERO(&readable);FD_SET(s->fd,&readable);FD_SET(s->cancel_fd,&readable);
         if(sibling_cancel>=0)FD_SET(sibling_cancel,&readable);
         const bool writable=sent<count&&sent-done<effective_window;
-        const uint64_t wake=writable?std::min(deadline,next):deadline;
+        uint64_t wake=writable?std::min(deadline,next):deadline;
+        if(write_deadline_ns&&sent<count)wake=std::min(wake,write_deadline_ns);
         // Boot checking may consume time after loop-entry t.
         // Keep the original absolute wake/deadline; never extend either one.
         const uint64_t before_wait=now();
         if(!before_wait||before_wait>=deadline)return fail("Active exchange deadline exceeded; no retry");
+        if(write_deadline_ns&&sent<count&&before_wait>=write_deadline_ns)
+            return fail("Active write deadline reached before remaining writes");
         const uint64_t wait=wake>before_wait?wake-before_wait:0;
         timespec timeout{time_t(wait/1000000000),long(wait%1000000000)};
         ++stats->waits;
@@ -540,6 +547,8 @@ static int exchange_owned(void *handle,const unsigned char *wires,uint32_t count
         if(!t||t>=deadline)
             return fail(sent==count ? "Active reply deadline exceeded; all requests already written"
                                     : "Active deadline reached before remaining writes");
+        if(write_deadline_ns&&sent<count&&t>=write_deadline_ns)
+            return fail("Active write deadline reached before remaining writes");
         if(sent<count&&sent-done<effective_window&&t>=next) {
             // Check immediately before EVERY individual write, not merely at phase entry.
             if(cancelled(s,sibling_cancel))return fail("Cancelled before active write");
@@ -548,10 +557,14 @@ static int exchange_owned(void *handle,const unsigned char *wires,uint32_t count
             if(s->poisoned)return fail("STOP reported a fault; further active commands prohibited");
             auto &r=records[sent];r.start_ns=now();
             if(r.start_ns>=deadline)return fail("Active deadline reached at write boundary");
+            if(write_deadline_ns&&r.start_ns>=write_deadline_ns)
+                return fail("Active write deadline reached at write boundary");
             const ssize_t n=write(s->fd,r.tx,17);r.finish_ns=now();s->last_finish=r.finish_ns;++stats->writes;
             r.written=n>0?uint32_t(n):0;++sent;
             if(n!=17)return fail("Partial/failed active write; no retransmission");
             if(!r.finish_ns||r.finish_ns>=deadline)return fail("Late active write");
+            if(write_deadline_ns&&r.finish_ns>=write_deadline_ns)
+                return fail("Late active write exceeded separate write deadline");
             next=r.finish_ns+s->gap;
         }
     }

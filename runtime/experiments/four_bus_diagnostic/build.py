@@ -41,6 +41,7 @@ def build(output, *, ordinary_source=ORDINARY):
                   'extension_source_sha256': digest(output / 'transport.cpp'),
                   'ordinary_source_bytes': len(original), 'extension_source_bytes': len(extension),
                   'allowed_masks': [7, 56], 'original_active_abi': 1,
+                  'write_deadline_abi': 1,
                   'output_allowed': False, 'timing_admission_eligible': False}}
     (output / 'build-record.json').write_text(json.dumps(record, indent=2) + '\n')
     return library
@@ -54,6 +55,7 @@ def main(argv=None):
     if not args.build:
         print(json.dumps({'status': 'PLAN', 'opens_devices': False,
                           'builds_library': False, 'output_allowed': False,
+                          'write_deadline_abi': 1,
                           'ordinary_source_sha256': digest(ORDINARY),
                           'extension_source_sha256': digest(HERE / 'subset_stop.cpp')}))
         return 0

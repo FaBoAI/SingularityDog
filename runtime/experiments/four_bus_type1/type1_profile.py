@@ -24,13 +24,17 @@ if not __package__:
 
 from singularitydog_hw import policy_live_profile as LP
 from singularitydog_hw import policy_shadow as shadow
+from singularitydog_hw.policy_clock import (control_clock_payload, validate_control_clock,
+                                            policy_clock_settings)
 from singularitydog_hw.policy_output_runtime import V3_VOLTAGE_MAX_AGE_NS
 from experiments.four_bus_diagnostic import model_bridge, topology
 from experiments.four_bus_diagnostic.transport_adapter import Group, PORTS, IDS
 
 PROFILE_SCHEMA = 'singularitydog.four-bus-type1-boxed-profile.v1'
+PROFILE_SCHEMA_30 = 'singularitydog.four-bus-type1-boxed-profile.v2'
 CONDITIONS_SCHEMA = 'singularitydog.four-bus-type1-current-conditions.v1'
 REPORT_SCHEMA = 'singularitydog.four-bus-type1-boxed-run.v1'
+REPORT_SCHEMA_30 = 'singularitydog.four-bus-type1-boxed-run.v2'
 PREPARATION_SCHEMA = 'singularitydog.four-bus-type1-profile-preparation.v1'
 STOP_PROXY_SCHEMA = 'singularitydog.four-bus-foreground-stop-proxy.v1'
 STOP_PROXY_PIPELINE_SCHEMA = 'singularitydog.four-bus-stop-proxy-pipeline.v1'
@@ -80,7 +84,8 @@ PACING = {'request_gap_us': 900, 'request_window': 3, 'release_spin_us': 500, 'm
 # only when selected, so the default contract, its SHA256 and every report
 # pacing stay the R8 PACING byte for byte. Chained steps share one contract
 # SHA256 and therefore exactly the same options.
-PACING_OPTIONS = ('command_phase_offset_us', 'decode_once', 'prearmed_hold_lead_us', 'gc_freeze')
+PACING_OPTIONS = ('command_phase_offset_us', 'decode_once', 'prearmed_hold_lead_us', 'gc_freeze',
+                  'native_group_cycle')
 # F1 static check: release+K, then encode/submit, the output exchange and its
 # worst recorded tail (R9 +2.85 ms) must end inside the unchanged 20 ms deadline.
 COMMAND_PHASE_BUDGET_US = {'encode_and_submit': 470, 'output_exchange': 5140, 'output_tail': 2850}
@@ -106,6 +111,7 @@ CONTRACT_KEYS = {'schema', 'scope', 'boot_id', 'motor_power_epoch', 'assembly_id
     'enable', 'terminal_stop', 'imu_limits', 'ramps', 'model_plan', 'model_plan_canonical_sha256',
     'model_artifacts', 'lineage', 'source_manifest', 'axis_geometry', 'authorized_modes',
     'authorized_durations_s', 'lp_scope_checks'}
+CONTROL_KEYS = {'control_clock', 'policy30_model'}
 AXIS_FIELDS = {'uid', 'physical_port', 'sign', 'nominal_offset_rad', 'fixed_offset_rad', 'reference_turns',
     'reviewed_physical_lower_rad', 'reviewed_physical_upper_rad', 'plan_local_lower_rad',
     'plan_local_upper_rad', 'physical_lower_rad', 'physical_upper_rad', 'lower_rad', 'upper_rad',
@@ -174,6 +180,32 @@ def contract_sha256(contract):
     return canonical_sha256(contract)
 
 
+def control_timing(control_clock=None):
+    """Explicit cadence changes; independent physical and freshness limits stay fixed."""
+    value = copy.deepcopy(TIMING)
+    if control_clock is not None:
+        clock = validate_control_clock(control_clock)
+        need(clock.policy_hz == 30, 'Explicit new-model clock must be 30 Hz')
+        value.update(period_ms=clock.period_ms, hard_cycle_ms=clock.period_ms,
+                     max_sample_gap_ms=clock.cadence_gap_ms)
+    return value
+
+
+def _control_selection(control_clock, policy30_model):
+    need((control_clock is None) == (policy30_model is None),
+         '30 Hz clock and new-model plan must be selected together')
+    if control_clock is None:
+        return None
+    clock = validate_control_clock(control_clock)
+    need(clock.policy_hz == 30, 'Only the explicit retrained 30 Hz selection is supported')
+    from singularitydog_hw import policy_model_30hz as models
+    models.validate_plan(policy30_model)
+    need(policy30_model.get('policy_hz') == clock.policy_hz and
+         policy30_model.get('policy_dt_s') == clock.model_dt_s,
+         'New-model plan and selected control clock differ')
+    return clock
+
+
 def profile_canonical_sha256(profile):
     return canonical_sha256(profile)
 
@@ -199,8 +231,8 @@ def pacing_options(pacing, message='Fixed four-bus boxed pacing differs'):
          'Command phase offset with a pre-armed hold lead must keep K + %d us + max(L, %d us) <= 20 ms '
          '(K <= %d us at L = %d us)' % (sum(COMMAND_PHASE_BUDGET_US.values())+sum(PREARMED_TAIL_BUDGET_US.values()),
                                         PREARM_WORK_US, command_phase_max_with_lead_us(lead or 0), lead or 0))
-    need(all(options[key] is True for key in ('decode_once', 'gc_freeze') if key in options),
-         'A selected decode_once/gc_freeze option must be exactly true')
+    need(all(options[key] is True for key in ('decode_once', 'gc_freeze', 'native_group_cycle') if key in options),
+         'A selected decode_once/gc_freeze/native_group_cycle option must be exactly true')
     return options
 
 
@@ -341,13 +373,24 @@ def rebind_window_to_current_capture(geometry, plan):
         'axes': record, 'max_abs_centre_shift_deg': max(abs(r['centre_shift_deg']) for r in record.values())}
 
 
-def build_contract(plan, lineage, geometry, geometry_ref, *, rebind_window=False, options=None):
+def build_contract(plan, lineage, geometry, geometry_ref, *, rebind_window=False, options=None,
+                   control_clock=None, policy30_model=None):
     """Pure: current four-bus plan + reviewed boxed geometry -> fixed contract.
 
     ``options`` selects opt-in PACING_OPTIONS; None keeps the R8 contract.
     """
     need(type(rebind_window) is bool, 'Explicit window rebinding boolean required')
     pacing = selected_pacing(options)
+    clock = _control_selection(control_clock, policy30_model)
+    if clock is not None:
+        need(not {'command_phase_offset_us', 'prearmed_hold_lead_us'}.intersection(pacing),
+             '30 Hz does not select the historical 20 ms command-phase/prearmed contract')
+        plan = model_bridge.reclock_model_plan(plan, control_clock, policy30_model)
+    else:
+        need('native_group_cycle' not in pacing,
+             'Native four-port cycle dispatcher requires the explicit 30 Hz model/clock')
+        need(not CONTROL_KEYS.intersection(plan),
+             'Explicit 30 Hz selection is required for a 30 Hz model plan')
     rebinding = None
     if rebind_window:
         geometry, rebinding = rebind_window_to_current_capture(geometry, plan)
@@ -358,11 +401,11 @@ def build_contract(plan, lineage, geometry, geometry_ref, *, rebind_window=False
     axes, start = {}, {}
     for mid in IDS:
         axes[str(mid)], start[str(mid)] = _axis(mid, plan['axes'][str(mid)], geometry)
-    contract = {'schema': PROFILE_SCHEMA, 'scope': SCOPE,
+    contract = {'schema': PROFILE_SCHEMA_30 if clock is not None else PROFILE_SCHEMA, 'scope': SCOPE,
         'boot_id': provenance['boot_id'], 'motor_power_epoch': provenance['motor_power_epoch'],
         'assembly_id': geometry['assembly_id'], 'topology_by_port': by_port,
         'uids_by_id': dict(provenance['uids_by_id']), 'enable_order_ids': enable_order(by_port),
-        'axes': axes, 'start_pose_bounds': start, 'timing': copy.deepcopy(TIMING),
+        'axes': axes, 'start_pose_bounds': start, 'timing': control_timing(control_clock),
         'pacing': pacing, 'watchdog': dict(WATCHDOG), 'enable': dict(ENABLE),
         'terminal_stop': dict(TERMINAL_STOP),
         'imu_limits': {key: geometry[key] for key in IMU_KEYS},
@@ -378,17 +421,31 @@ def build_contract(plan, lineage, geometry, geometry_ref, *, rebind_window=False
             **({'window_rebound_to_current_capture': rebinding} if rebinding else {})},
         'authorized_modes': list(MODES), 'authorized_durations_s': list(DURATIONS),
         'lp_scope_checks': ['_preauthorized_boxed_axis_caps', '_preauthorized_ordinary_boxed_sequence_scope']}
+    if clock is not None:
+        contract.update(control_clock=copy.deepcopy(control_clock),
+                        policy30_model=copy.deepcopy(policy30_model))
     validate_contract(contract)
     return contract
 
 
 def validate_contract(contract):
-    need(type(contract) is dict and set(contract) == CONTRACT_KEYS and
-         contract['schema'] == PROFILE_SCHEMA and contract['scope'] == SCOPE, 'Exact four-bus Type1 contract required')
-    for key, expected in (('timing', TIMING), ('watchdog', WATCHDOG),
+    is30 = type(contract) is dict and contract.get('schema') == PROFILE_SCHEMA_30
+    expected_keys = CONTRACT_KEYS | CONTROL_KEYS if is30 else CONTRACT_KEYS
+    need(type(contract) is dict and set(contract) == expected_keys and
+         contract['schema'] == (PROFILE_SCHEMA_30 if is30 else PROFILE_SCHEMA) and
+         contract['scope'] == SCOPE, 'Exact four-bus Type1 contract required')
+    clock = _control_selection(contract.get('control_clock'), contract.get('policy30_model'))
+    need((clock is not None) is is30, '30 Hz contract schema and explicit selection differ')
+    for key, expected in (('timing', control_timing(contract.get('control_clock'))), ('watchdog', WATCHDOG),
                           ('enable', ENABLE), ('terminal_stop', TERMINAL_STOP)):
         need(contract[key] == expected, 'Fixed four-bus boxed '+key+' differs')
     pacing_options(contract['pacing'])
+    if is30:
+        need(not {'command_phase_offset_us', 'prearmed_hold_lead_us'}.intersection(contract['pacing']),
+             '30 Hz does not select the historical 20 ms command-phase/prearmed contract')
+    else:
+        need('native_group_cycle' not in contract['pacing'],
+             'Native four-port cycle dispatcher requires the explicit 30 Hz model/clock')
     need(contract['timing']['voltage_max_age_ms']*1_000_000 == V3_VOLTAGE_MAX_AGE_NS,
          'Voltage cache age differs from the original runtime')
     need(contract['authorized_modes'] == list(MODES) and contract['authorized_durations_s'] == list(DURATIONS),
@@ -402,6 +459,13 @@ def validate_contract(contract):
          'Topology/enable order differs')
     plan = contract['model_plan']
     plan_axes = model_bridge._plan_axes(plan)
+    if is30:
+        need(plan.get('control_clock') == contract['control_clock'] and
+             plan.get('policy30_model') == contract['policy30_model'],
+             '30 Hz model plan differs from the admitted contract')
+    else:
+        need(not CONTROL_KEYS.intersection(plan),
+             'Legacy 50 Hz contract cannot contain a 30 Hz model plan')
     need(plan['plan_canonical_sha256'] == contract['model_plan_canonical_sha256'] and
          plan['topology_by_port'] == by_port and plan['provenance']['boot_id'] == contract['boot_id'] and
          plan['provenance']['motor_power_epoch'] == contract['motor_power_epoch'] and
@@ -464,6 +528,10 @@ def validate_contract(contract):
          'LP scope check record differs')
     view = _lp_view(contract)
     LP._preauthorized_boxed_axis_caps(view)
+    if is30:
+        # This inherited validator verifies geometry/gains only. It cannot
+        # qualify the new clock or model; those were checked independently.
+        view.update(copy.deepcopy(TIMING))
     LP._preauthorized_ordinary_boxed_sequence_scope(view)
     return contract
 
@@ -491,10 +559,12 @@ def required_evidence(mode, duration_s):
 
 def validate_profile(profile):
     """Pure re-validation of a prepared profile; evidence files are not reread here."""
-    need(type(profile) is dict and set(profile) == PROFILE_KEYS and profile['schema'] == PROFILE_SCHEMA and
+    need(type(profile) is dict and set(profile) == PROFILE_KEYS and
+         profile['schema'] in (PROFILE_SCHEMA, PROFILE_SCHEMA_30) and
          profile['status'] == 'PREPARED_FILE_ONLY_NOT_ADMITTED', 'Exact prepared four-bus profile required')
     need(all(profile[key] is value for key, value in NO_GRANTS.items()), 'Profile grants or claims nothing')
     contract = validate_contract(profile['contract'])
+    need(profile['schema'] == contract['schema'], 'Profile and contract clock schemas differ')
     need(profile['contract_sha256'] == contract_sha256(contract), 'Contract SHA256 differs')
     mode, duration = profile['mode'], profile['duration_s']
     need(type(duration) is int, 'Integer duration required')
@@ -535,8 +605,15 @@ def validate_profile(profile):
         need(_stamp(pred['first_release_monotonic_ns'], 'predecessor release') < after < begin,
              'Current capture must follow the predecessor terminal STOP')
     if diag is not None:
-        need(type(diag) is dict and set(diag) == {'report', 'pinned_capture', 'completed_cycles',
-             'first_release_monotonic_ns', 'workers_joined_monotonic_ns'}, 'Diagnostic summary required')
+        diag_keys = {'report', 'pinned_capture', 'completed_cycles',
+                     'first_release_monotonic_ns', 'workers_joined_monotonic_ns'}
+        if 'control_clock' in contract:
+            diag_keys |= {'control_clock', 'policy30_model_canonical_sha256'}
+        need(type(diag) is dict and set(diag) == diag_keys, 'Diagnostic summary required')
+        if 'control_clock' in contract:
+            need(diag['control_clock'] == contract['control_clock'] and
+                 diag['policy30_model_canonical_sha256'] == canonical_sha256(contract['policy30_model']),
+                 '30 Hz prerequisite must use this new clock and trained model')
         _ref(diag['report'], 'diagnostic report')
         pinned = _ref(diag['pinned_capture'], 'diagnostic capture')
         need(pinned in (contract['lineage']['topology'], capture['topology']) and
@@ -552,19 +629,87 @@ def validate_profile(profile):
 
 
 def assemble_profile(contract, mode, duration_s, evidence, *, prepared_at):
-    profile = {'schema': PROFILE_SCHEMA, 'status': 'PREPARED_FILE_ONLY_NOT_ADMITTED', 'mode': mode,
+    profile = {'schema': contract['schema'], 'status': 'PREPARED_FILE_ONLY_NOT_ADMITTED', 'mode': mode,
                'duration_s': duration_s, 'contract': copy.deepcopy(contract),
                'contract_sha256': contract_sha256(contract), 'evidence': copy.deepcopy(evidence),
                'prepared_at': prepared_at, **NO_GRANTS}
     return validate_profile(profile)
 
 
-def validate_stop_proxy_report(report, *, capture_refs, topology_by_port, after_ns=None):
+def _stop_proxy30_writes(row, topology_by_port, *, split_deadlines):
+    """Authenticate every original Type4/Type2 record, never aggregate timing alone."""
+    from singularitydog_hw.can_readonly import ATParser
+    from singularitydog_hw.native_diagnostic_transport import stop_wire
+    from singularitydog_hw.rs05_trial_protocol import decode_type2
+    output = row.get('output')
+    need(type(output) is dict and set(output) == set(PORTS),
+         '30Hz STOP proxy requires all four original output batches')
+    release = row['release_ns']
+    prefix = row['input_to_stop_proxy_tx_deadline_ns']
+    reply_cap = row['original_deadline_ns'] if split_deadlines else prefix
+    if split_deadlines:
+        need(row.get('proxy_reply_deadline_ns') == reply_cap and
+             row.get('proxy_exchange_budget_ns') == 33_333_334 and
+             type(row.get('proxy_write_deadline_abi_required')) is int and
+             row['proxy_write_deadline_abi_required'] == 1 and
+             row.get('diagnostic_reply_budget_unchanged') is False,
+             '30Hz STOP proxy per-cycle split deadline contract differs')
+    finishes = []
+    for port, ids in topology_by_port.items():
+        batch = output[port]
+        need(type(batch) is dict and batch.get('physical_port') == port and
+             batch.get('physical_ids') == ids and batch.get('phase') == 'output_stop' and
+             batch.get('original_record_count') == 3 and type(batch.get('records')) is list and
+             len(batch['records']) == 3,
+             '30Hz STOP proxy original physical output batch differs: '+port)
+        if split_deadlines:
+            need(batch.get('separate_write_deadline_monotonic_ns') == prefix,
+                 '30Hz STOP proxy native write cutoff differs: '+port)
+            need(batch.get('record_deadlines_are_reply_deadlines') is True,
+                 '30Hz STOP proxy raw deadline role differs: '+port)
+        else:
+            need(batch.get('separate_write_deadline_monotonic_ns') is None,
+                 'Legacy30Hz STOP proxy cannot claim the separate write ABI')
+        for mid, raw in zip(ids, batch['records']):
+            need(type(raw) is dict and type(raw.get('written')) is int and raw['written'] == 17 and
+                 type(raw.get('received')) is int and raw['received'] == 17,
+                 '30Hz STOP proxy incomplete original write/reply: ID'+str(mid))
+            begin, finished, received, raw_cap = (_stamp(raw.get(name), name) for name in
+                ('start_ns', 'finish_ns', 'received_ns', 'deadline_ns'))
+            need(release <= begin <= finished < prefix and finished <= received < raw_cap == reply_cap and
+                 received <= row['cycle_end_ns'],
+                 '30Hz STOP proxy original per-axis write/reply deadlines differ: ID'+str(mid))
+            if split_deadlines:
+                read_begin = _stamp(raw.get('read_start_ns'), 'read_start_ns')
+                need(finished <= read_begin <= received,
+                     '30Hz STOP proxy original read-call chronology differs: ID'+str(mid))
+            need(raw.get('tx_hex') == stop_wire(mid).hex() and type(raw.get('rx_hex')) is str,
+                 '30Hz STOP proxy must contain the original exact Type4 wire: ID'+str(mid))
+            try:
+                wire = bytes.fromhex(raw['rx_hex'])
+                frames = ATParser().feed(wire)
+                need(len(wire) == 17 and len(frames) == 1, 'Exactly one original Type2 reply required')
+                decoded = decode_type2(frames[0], motor_id=mid)
+            except (TypeError, ValueError) as error:
+                raise ValueError('30Hz STOP proxy original reply wire differs: ID'+str(mid)) from error
+            need(decoded.mode_state == 0 and decoded.fault_bits == 0,
+                 '30Hz STOP proxy original reply mode/fault differs: ID'+str(mid))
+            finishes.append(finished)
+    need(row['final_proxy_host_write_ns'] == max(finishes),
+         '30Hz STOP proxy aggregate last write differs from the original twelve writes')
+
+
+def validate_stop_proxy_report(report, *, capture_refs, topology_by_port, after_ns=None,
+                               control_clock=None, policy30_model=None, source_manifest_sha256=None):
     """Four-bus R8-configuration STOP-proxy 501/501 as a timing prerequisite only.
 
     It never qualifies Type1; its own no-grant flags must remain false.
     """
-    need(type(report) is dict and report.get('schema') == STOP_PROXY_SCHEMA and
+    clock = _control_selection(control_clock, policy30_model)
+    is30 = clock is not None
+    schema = 'singularitydog.four-bus-foreground-stop-proxy.v2' if is30 else STOP_PROXY_SCHEMA
+    pipeline_schema = 'singularitydog.four-bus-stop-proxy-pipeline.v2' if is30 else STOP_PROXY_PIPELINE_SCHEMA
+    need(type(report) is dict and report.get('schema') == schema and
          report.get('status') == STOP_PROXY_STATUS and report.get('errors') == [] and
          report.get('failure_retained') is False and report.get('source_and_input_pins_unchanged') is True and
          report.get('physical_post_trial_observation') is None, 'Complete four-bus STOP-proxy diagnostic required')
@@ -576,15 +721,52 @@ def validate_stop_proxy_report(report, *, capture_refs, topology_by_port, after_
     matched = [ref for ref in capture_refs if pins.get(ref['path']) == ref['sha256']]
     need(len(matched) >= 1, 'Diagnostic is not bound to this capture lineage')
     m = report.get('measurement')
-    need(type(m) is dict and m.get('schema') == STOP_PROXY_PIPELINE_SCHEMA and m.get('status') == STOP_PROXY_STATUS and
+    need(type(m) is dict and m.get('schema') == pipeline_schema and m.get('status') == STOP_PROXY_STATUS and
          m.get('cycles') == STOP_PROXY_CYCLES and m.get('completed_cycles') == STOP_PROXY_CYCLES and
          m.get('primary_error') is None and m.get('failure_retained') is False and
          m.get('physical_cutoff_required') is False and m.get('per_cycle_requests') == 28 and
          m.get('request_gap_ns') == 900_000 and m.get('request_window') == 3 and
-         m.get('absolute_deadline_ns') == 20_000_000 and m.get('request_schedule') == STOP_PROXY_SCHEDULE and
+         m.get('absolute_deadline_ns') == (clock.cycle_budget_ns if is30 else 20_000_000) and
+         m.get('request_schedule') == STOP_PROXY_SCHEDULE and
          m.get('boundary_current_checks_selected') is True and m.get('final_gate_input_identity_selected') is True and
          all(m.get(key) is False for key in ('output_allowed', 'motor_enable_sent', 'learned_targets_sent',
                                              'positive_gain_sent')), 'R8-configuration 501-cycle STOP proxy required')
+    if is30:
+        need(report.get('control_clock') == control_clock and report.get('policy30_model') == policy30_model and
+             m.get('control_clock') == control_clock and m.get('policy30_model') == policy30_model and
+             m.get('input_to_stop_proxy_tx_budget_ns') == clock.inference_tx_budget_ns and
+             type(m.get('proxy_exchange_budget_ns')) is int and
+             m.get('proxy_exchange_budget_ns') in (20_000_000, clock.cycle_budget_ns) and
+             m.get('diagnostic_type1_33ms_reply_qualification') is False,
+             '30 Hz prerequisite clock/model/input-to-write limits differ')
+        split_deadlines = m['proxy_exchange_budget_ns'] == clock.cycle_budget_ns
+        if split_deadlines:
+            need(report.get('input_to_stop_proxy_tx_budget_ns') == 20_000_000 and
+                 report.get('acquisition_budget_ns') == m.get('acquisition_budget_ns') == 20_000_000 and
+                 report.get('proxy_exchange_budget_ns') == report.get('proxy_reply_budget_ns') ==
+                 m.get('proxy_reply_budget_ns') == clock.cycle_budget_ns and
+                 report.get('diagnostic_reply_budget_unchanged') is m.get('diagnostic_reply_budget_unchanged') is False and
+                 report.get('diagnostic_type1_33ms_reply_qualification') is False and
+                 type(report.get('proxy_write_deadline_abi_verified')) is int and
+                 report['proxy_write_deadline_abi_verified'] == 1 and
+                 type(m.get('proxy_write_deadline_abi_required')) is int and m['proxy_write_deadline_abi_required'] == 1,
+                 '30Hz STOP proxy requires authenticated split deadline/ABI1 evidence')
+            backend = m.get('backend_usage')
+            need(type(backend) is dict and backend.get('kind') == 'genuine_original_active_subset_cpp' and
+                 type(backend.get('proxy_write_deadline_abi_verified')) is int and
+                 backend['proxy_write_deadline_abi_verified'] == 1,
+                 '30Hz STOP proxy requires the original native split deadline backend')
+            for key in ('library_sha256', 'build_record_sha256', 'source_manifest_sha256'):
+                digest = _sha(backend.get(key), 'STOP proxy '+key)
+                need(digest in pins.values(), '30Hz STOP proxy native/source SHA is not input-pinned')
+            need(report.get('plan_source_manifest_sha256') == backend['source_manifest_sha256'],
+                 '30Hz STOP proxy source manifest binding differs')
+            if source_manifest_sha256 is not None:
+                need(backend['source_manifest_sha256'] == _sha(source_manifest_sha256, 'current contract source'),
+                     '30Hz STOP proxy source differs from the current Type1 contract')
+        else:
+            need(m.get('diagnostic_reply_budget_unchanged') is True,
+                 'Legacy30Hz STOP proxy must retain its original20ms ACK contract')
     need(m.get('physical_groups') == topology_by_port, 'Diagnostic topology differs')
     workers = m.get('worker_settings')
     need(type(workers) is dict and all(type(workers.get(p)) is dict and
@@ -603,6 +785,18 @@ def validate_stop_proxy_report(report, *, capture_refs, topology_by_port, after_
          [r.get('cycle') for r in records] == list(range(STOP_PROXY_CYCLES)) and
          all(r.get('completed') is True and r.get('actual_request_count') == 28 for r in records),
          'All 501 completed 28-request cycles required')
+    if is30:
+        epoch = _stamp(records[0].get('scheduled_release_ns'), '30 Hz diagnostic epoch')
+        for index, row in enumerate(records):
+            scheduled, release, end, hard, prefix, written = (_stamp(row.get(name), name) for name in
+                ('scheduled_release_ns', 'release_ns', 'cycle_end_ns', 'original_deadline_ns',
+                 'input_to_stop_proxy_tx_deadline_ns', 'final_proxy_host_write_ns'))
+            need(scheduled == clock.release_ns(epoch, index) and scheduled <= release < end < hard and
+                 hard == clock.cycle_deadline_ns(release) and
+                 release <= written < prefix <= release+clock.inference_tx_budget_ns and
+                 row.get('input_to_stop_proxy_tx_20ms_met') is True,
+                 '30 Hz diagnostic rational cadence or preserved20ms write prefix differs')
+            _stop_proxy30_writes(row, topology_by_port, split_deadlines=split_deadlines)
     first = _stamp(min(r.get('release_ns', 0) for r in records), 'diagnostic release')
     last = max(_stamp(r.get('cycle_end_ns'), 'diagnostic cycle end') for r in records)
     joined = _stamp(m.get('all_original_workers_joined_monotonic_ns'), 'diagnostic join')
@@ -616,14 +810,26 @@ def validate_stop_proxy_report(report, *, capture_refs, topology_by_port, after_
         need(type(row) is dict and row.get('complete') is True and row.get('confirmed_ids') == ids and
              row.get('ambiguous_ids') == [] and row.get('physical_cutoff_required') is False and
              row.get('fault_by_id') == {str(mid): 0 for mid in ids}, 'Diagnostic terminal STOP unconfirmed: '+port)
-    return {'pinned_capture': matched[0], 'completed_cycles': STOP_PROXY_CYCLES,
-            'first_release_monotonic_ns': first, 'workers_joined_monotonic_ns': joined}
+    summary = {'pinned_capture': matched[0], 'completed_cycles': STOP_PROXY_CYCLES,
+               'first_release_monotonic_ns': first, 'workers_joined_monotonic_ns': joined}
+    if is30:
+        summary.update(control_clock=copy.deepcopy(control_clock),
+                       policy30_model_canonical_sha256=canonical_sha256(policy30_model))
+    return summary
 
 
 def validate_type1_report(report, *, contract, contract_digest, mode, duration_s=None):
     """Runner report as predecessor: complete, same boot/epoch/source/contract, all-12 STOP."""
+    clock = policy_clock_settings(contract)
+    is30 = 'control_clock' in contract
     need(type(report) is dict and all(key in report for key in REPORT_REQUIRED_KEYS) and
-         report['schema'] == REPORT_SCHEMA, 'Four-bus Type1 run report required')
+         report['schema'] == (REPORT_SCHEMA_30 if is30 else REPORT_SCHEMA), 'Four-bus Type1 run report required')
+    if is30:
+        need(report.get('control_clock') == contract['control_clock'] and
+             report.get('policy30_model') == contract['policy30_model'] and
+             report.get('inference_tx_budget_ns') == clock.inference_tx_budget_ns and
+             report.get('cycle_budget_ns') == clock.cycle_budget_ns,
+             '30 Hz predecessor must use this clock/model and separate deadlines')
     need(report['mode'] == mode and report['status'] == COMPLETE_STATUS[mode] and
          report['duration_s'] in DURATIONS and (duration_s is None or report['duration_s'] == duration_s),
          'Predecessor mode/duration/status differs')
@@ -644,7 +850,7 @@ def validate_type1_report(report, *, contract, contract_digest, mode, duration_s
          report['type1_sent'] is True and report['positive_gain_sent'] is learned and
          report['learned_targets_attempted'] is learned, 'Predecessor run is not complete and truthful')
     cycles = report['completed_cycles']
-    need(type(cycles) is int and 0 < cycles <= report['duration_s']*50, 'Predecessor cycle count invalid')
+    need(type(cycles) is int and 0 < cycles <= report['duration_s']*clock.policy_hz, 'Predecessor cycle count invalid')
     stop = report['terminal_stop']
     need(type(stop) is dict and all(key in stop for key in TERMINAL_STOP_REQUIRED_KEYS) and
          stop['stop_confirmed'] is True and stop['confirmed_ids'] == list(IDS) and stop['unconfirmed_ids'] == [] and
@@ -653,6 +859,20 @@ def validate_type1_report(report, *, contract, contract_digest, mode, duration_s
     first = _stamp(report['first_release_monotonic_ns'], 'predecessor release')
     finished = _stamp(stop['finished_monotonic_ns'], 'predecessor STOP')
     need(first < finished, 'Predecessor clocks differ')
+    if contract['pacing'].get('native_group_cycle') is True:
+        measured = report.get('measurement')
+        need(report.get('backend_kind') == 'genuine_native_group_cpp' and type(measured) is dict and
+             measured.get('backend_usage', {}).get('kind') == 'genuine_native_group_cpp',
+             'Native group predecessor must use the actual selected native group backend')
+        setup, close = measured.get('native_group_setup'), measured.get('native_group_close')
+        need(type(setup) is dict and type(close) is dict and close.get('closed') is True and
+             close.get('restored') is True and close.get('snapshot_complete') is True and
+             close.get('snapshot_error') is None and type(setup.get('settings')) is list and
+             len(setup['settings']) == 4 and len({s.get('native_tid') for s in setup['settings']}) == 4 and
+             all(s.get('configured') == 1 and s.get('status') == 0 and
+                 s.get('cpu_mask') == 1 << i and s.get('timer_slack_ns') == 1000
+                 for i, s in enumerate(setup['settings'])),
+             'Native group predecessor must restore four actual placed/slack-verified owners')
     return {'mode': mode, 'duration_s': report['duration_s'], 'status': report['status'],
             'contract_sha256': report['contract_sha256'], 'boot_id': report['boot_id'],
             'motor_power_epoch': report['motor_power_epoch'],
@@ -842,8 +1062,10 @@ def cli_options(args):
     values = {'command_phase_offset_us': getattr(args, 'command_phase_offset_us', None),
               'decode_once': getattr(args, 'decode_once', False),
               'prearmed_hold_lead_us': getattr(args, 'prearmed_hold_lead_us', None),
-              'gc_freeze': getattr(args, 'gc_freeze', False)}
-    need(type(values['decode_once']) is bool and type(values['gc_freeze']) is bool,
+              'gc_freeze': getattr(args, 'gc_freeze', False),
+              'native_group_cycle': getattr(args, 'native_group_cycle', False)}
+    need(type(values['decode_once']) is bool and type(values['gc_freeze']) is bool and
+         type(values['native_group_cycle']) is bool,
          'Decode-once/gc-freeze selections must be booleans')
     return values
 
@@ -861,9 +1083,16 @@ def build_from_files(args):
                'model_profile', 'source_binding', 'mount', 'bias', *(('accel_hypothesis',) if
                'accel_hypothesis' in inputs else ()))}
     geometry_ref = {'path': str(args.axis_geometry_profile), 'sha256': args.axis_geometry_profile_sha256}
+    control_clock = policy30_model = None
+    if getattr(args, 'policy30_bundle', None) is not None:
+        from singularitydog_hw import policy_model_30hz as models
+        control_clock = control_clock_payload(30)
+        policy30_model = models.plan(models.bundle_artifacts(args.policy30_bundle))
+        for reference in policy30_model['artifacts'].values():
+            pins.raw(reference['path'], reference['sha256'])
     contract = build_contract(plan, lineage, pins.json(args.axis_geometry_profile, args.axis_geometry_profile_sha256),
                               geometry_ref, rebind_window=getattr(args, 'rebind_window_to_current_capture', False),
-                              options=cli_options(args))
+                              options=cli_options(args), control_clock=control_clock, policy30_model=policy30_model)
     digest = contract_sha256(contract)
     current_ref = {'path': str(args.current_topology), 'sha256': args.current_topology_sha256}
     current_inputs = _plan_inputs(args, pins, (args.current_topology, args.current_topology_sha256),
@@ -899,7 +1128,9 @@ def build_from_files(args):
     if diagnostic:
         report = pins.json(args.stop_proxy_report, args.stop_proxy_report_sha256)
         summary = validate_stop_proxy_report(report, capture_refs=[lineage_ref, current_ref],
-                                             topology_by_port=contract['topology_by_port'], after_ns=after)
+                                             topology_by_port=contract['topology_by_port'], after_ns=after,
+                                             control_clock=control_clock, policy30_model=policy30_model,
+                                             source_manifest_sha256=contract['source_manifest']['sha256'])
         evidence['stop_proxy_diagnostic'] = {'report': {'path': str(args.stop_proxy_report),
                                                         'sha256': args.stop_proxy_report_sha256}, **summary}
     profile = assemble_profile(contract, args.mode, args.duration, evidence,
@@ -933,6 +1164,9 @@ def prepare(args):
     options = pacing_options(profile['contract']['pacing'])
     if options:
         result['pacing_options'] = options
+    if 'control_clock' in profile['contract']:
+        result.update(control_clock=profile['contract']['control_clock'],
+                      policy30_model=profile['contract']['policy30_model'])
     if not args.prepare:
         return result
     written = write_json(_fresh_output(args.output), profile)
@@ -975,6 +1209,8 @@ def parser():
         prep.add_argument('--'+name+'-sha256')
     prep.add_argument('--rebind-window-to-current-capture', action='store_true',
         help='Explicit: re-centre only the reviewed +-3deg window and +-0.5deg start on the current pose')
+    prep.add_argument('--policy30-bundle',
+        help='Explicit frozen 30 Hz release directory; requires new-clock same-model diagnostic evidence')
     # Opt-in timing options, recorded in the contract pacing only when given (default contract unchanged).
     prep.add_argument('--command-phase-offset-us', type=int,
         help='F1: command time release+K after the final gate (%d..%d; suggestion 11250; with '
@@ -988,6 +1224,8 @@ def parser():
              'needs a library whose receipt records exchange_at_abi 1' % PREARMED_LEAD_US)
     prep.add_argument('--gc-freeze', action='store_true',
         help='F4: gc.freeze() after warm-up before the first release, gc.unfreeze() at restoration')
+    prep.add_argument('--native-group-cycle', action='store_true',
+        help='Explicit 30Hz candidate: persistent four C++ CAN owners; separate source/build pins required')
     prep.add_argument('--output', required=True)
     prep.add_argument('--prepare', action='store_true')
     cond = commands.add_parser('conditions', allow_abbrev=False, help='Direct-human record; PLAN unless --record')

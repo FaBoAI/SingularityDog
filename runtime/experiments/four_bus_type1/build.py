@@ -64,6 +64,10 @@ def build(output, *, ordinary_source=ORDINARY, subset_stop_source=SUBSET_STOP):
                   'library': LIBRARY_NAME, 'allowed_masks': ALLOWED_MASKS,
                   'allowed_kinds': ALLOWED_KINDS, 'type1_batch_sizes': [1, 3],
                   'output_allowed': False, 'timing_admission_eligible': False}}
+    # Old extension fixtures can still build their original ABI. Only an
+    # explicit receipt for this export can select a separate Type1 write cap.
+    if b'extern "C" uint32_t sda_subset_write_deadline_abi' in extension:
+        record['four_bus_subset_active']['write_deadline_abi'] = 1
     (output / 'build-record.json').write_text(json.dumps(record, indent=2) + '\n')
     return library
 
@@ -100,6 +104,8 @@ def receipt_problem(directory):
             scope.get('scope') != SCOPE or scope.get('type1_exchange_abi') != 1 or
             scope.get('subset_stop_abi') != 1 or scope.get('original_active_abi') != 1 or
             ('exchange_at_abi' in scope and scope['exchange_at_abi'] != 1) or
+            ('write_deadline_abi' in scope and
+             (type(scope['write_deadline_abi']) is not int or scope['write_deadline_abi'] != 1)) or
             scope.get('allowed_masks') != ALLOWED_MASKS or scope.get('allowed_kinds') != ALLOWED_KINDS or
             scope.get('type1_batch_sizes') != [1, 3] or scope.get('library') != LIBRARY_NAME or
             scope.get('output_allowed') is not False or scope.get('timing_admission_eligible') is not False):

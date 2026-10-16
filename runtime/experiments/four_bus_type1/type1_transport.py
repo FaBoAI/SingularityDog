@@ -59,9 +59,15 @@ _AT_SYMBOLS = ('sda_subset_exchange_at_abi', 'sda_subset_exchange_at')
 _AT_ARGS = ((), (C.c_void_p, C.c_uint32, C.POINTER(C.c_ubyte), C.c_uint32, C.c_int, C.c_uint64, C.c_uint64,
                  C.POINTER(Record), C.POINTER(active.Stats), C.POINTER(C.c_char), C.c_uint32))
 _AT_RESULTS = (C.c_uint32, C.c_int)
+_WRITE_SYMBOLS = ('sda_subset_write_deadline_abi', 'sda_subset_exchange_write_deadline')
+_WRITE_ARGS = ((), (C.c_void_p, C.c_uint32, C.POINTER(C.c_ubyte), C.c_uint32, C.c_int,
+                   C.c_uint64, C.c_uint64, C.POINTER(Record), C.POINTER(active.Stats),
+                   C.POINTER(C.c_char), C.c_uint32))
+_WRITE_RESULTS = (C.c_uint32, C.c_int)
 PREARM_MAX_LEAD_NS = 5_000_000
 _LIBRARIES = weakref.WeakKeyDictionary()
 _TRANSPORTS = weakref.WeakKeyDictionary()
+_WRITE_SELECTIONS = weakref.WeakKeyDictionary()
 _TOKEN = object()
 
 
@@ -108,6 +114,7 @@ class _LibrarySeal:
     build_record_sha256: str
     pins: tuple
     exchange_at: tuple = ()
+    write_deadline: tuple = ()
 
 
 def _function_seal(function):
@@ -159,6 +166,18 @@ def load_library(path, *, expected_sha256, ordinary_source_sha256, subset_stop_s
         if lib.sda_subset_exchange_at_abi() != 1:
             raise ValueError('Pre-armed subset exchange ABI mismatch')
         exchange_at = tuple(_function_seal(function) for function in optional)
+    write_deadline = ()
+    if scope.get('write_deadline_abi') == 1:
+        try:
+            optional = tuple(lib[name] for name in _WRITE_SYMBOLS)
+        except AttributeError:
+            raise ValueError('Receipt records separate Type1 write deadline but the library lacks it')
+        for name, function, arguments, result in zip(_WRITE_SYMBOLS, optional, _WRITE_ARGS, _WRITE_RESULTS):
+            function.argtypes = list(arguments); function.restype = result
+            setattr(lib, name, function)
+        if lib.sda_subset_write_deadline_abi() != 1:
+            raise ValueError('Separate Type1 write deadline ABI mismatch')
+        write_deadline = tuple(_function_seal(function) for function in optional)
     binding = active.verified_active_source_binding(lib)
     check_files()
     if (binding.build_record_sha256 != build_record_sha256 or
@@ -169,7 +188,7 @@ def load_library(path, *, expected_sha256, ordinary_source_sha256, subset_stop_s
         raise ValueError('Subset-active source/receipt changed across authenticated load')
     seal = _LibrarySeal(_TOKEN, weakref.ref(lib), binding,
                         tuple(_function_seal(function) for function in functions),
-                        build_record_sha256, pins, exchange_at)
+                        build_record_sha256, pins, exchange_at, write_deadline)
     lib._four_bus_type1_seal = seal
     _LIBRARIES[lib] = weakref.ref(seal)
     verify_library(lib)
@@ -183,22 +202,31 @@ def verify_library(lib):
             seal.token is not _TOKEN or seal.library() is not lib or
             active.verified_active_source_binding(lib) is not seal.active_binding):
         raise ValueError('Genuine authenticated four-bus Type1 library required')
-    for name, original in zip(_SYMBOLS+_AT_SYMBOLS, seal.functions+seal.exchange_at):
-        current = getattr(lib, name, None)
-        if current is not original[0] or _function_seal(current) != original:
-            raise ValueError('Four-bus Type1 function binding changed')
+    for names, functions in ((_SYMBOLS, seal.functions), (_AT_SYMBOLS, seal.exchange_at),
+                              (_WRITE_SYMBOLS, seal.write_deadline)):
+        for name, original in zip(names, functions):
+            current = getattr(lib, name, None)
+            if current is not original[0] or _function_seal(current) != original:
+                raise ValueError('Four-bus Type1 function binding changed')
     return seal
 
 
-def _check_selections(decode_once, prearmed_hold):
+def _check_selections(decode_once, prearmed_hold, separate_write_deadline=False):
     need(type(decode_once) is bool, 'Decode-once selection must be an exact bool')
     need(type(prearmed_hold) is bool, 'Pre-armed hold selection must be an exact bool')
+    need(type(separate_write_deadline) is bool, 'Separate Type1 write deadline selection must be an exact bool')
 
 
 def _check_prearmed_library(seal, prearmed_hold):
     if prearmed_hold:
         need(len(getattr(seal, 'exchange_at', ())) == len(_AT_SYMBOLS),
              'Pre-armed hold requires a library whose receipt and ABI provide sda_subset_exchange_at')
+
+
+def _check_write_deadline_library(seal, separate_write_deadline):
+    if separate_write_deadline:
+        need(len(getattr(seal, 'write_deadline', ())) == len(_WRITE_SYMBOLS),
+             'Separate Type1 write deadline requires a receipt and ABI for sda_subset_exchange_write_deadline')
 
 
 def session_limits(group, axis_raw_bounds, kp_cap_by_id, kd_cap_by_id):
@@ -231,19 +259,22 @@ def session_limits(group, axis_raw_bounds, kp_cap_by_id, kd_cap_by_id):
 
 class Type1Transport:
     """One persistent owner thread per physical port; no FD ownership transfer."""
-    def __init__(self, session, group, *, cancel_all, decode_once=False, prearmed_hold=False, token=None):
+    def __init__(self, session, group, *, cancel_all, decode_once=False, prearmed_hold=False,
+                 separate_write_deadline=False, token=None):
         if token is not _TOKEN or type(session) is not active.ActiveSession or type(group) is not Group:
             raise ValueError('Use the four-bus Type1 creation factory with a genuine session')
         if not callable(cancel_all):
             raise ValueError('Explicit shared cancel_all capability required')
-        _check_selections(decode_once, prearmed_hold)
+        _check_selections(decode_once, prearmed_hold, separate_write_deadline)
         self.decode_once = decode_once
         self.prearmed_hold = prearmed_hold
+        self.separate_write_deadline = separate_write_deadline
         self._session = session
         self.group = group
         self._library = session.lib
         self._seal = verify_library(session.lib)
         _check_prearmed_library(self._seal, prearmed_hold)
+        _check_write_deadline_library(self._seal, separate_write_deadline)
         self._creation = active.verified_active_session_creation(session)
         self._binding = (session._handle, session.fd, session.first_id, bytes(session._limits))
         limits = session._limits
@@ -261,6 +292,7 @@ class Type1Transport:
         self._enabled, self._zero_gain = set(), set()
         self._stop_ambiguous = set()
         self.journal = []
+        self.write_deadline_journal = []  # (raw journal index, reply cap, write cap, dispatch time)
         self._batches = []
         self._batch_index = {}  # identity index of _batches: O(1) genuineness lookup
         self.failures = []
@@ -280,15 +312,18 @@ class Type1Transport:
                 self._params[tuple(read_request(mid, name) for name in names for mid in ids)] = names
         _TRANSPORTS[self] = (weakref.ref(session), group, self._binding, dict(self._wires),
                              dict(self._params), cancel_all, decode_once, prearmed_hold)
+        _WRITE_SELECTIONS[self] = separate_write_deadline
 
     @classmethod
     def create(cls, library, fd, *, group, cancel_fd, boot_fd, boot_id, axis_raw_bounds,
-               kp_cap_by_id, kd_cap_by_id, cancel_all, decode_once=False, prearmed_hold=False):
+               kp_cap_by_id, kd_cap_by_id, cancel_all, decode_once=False, prearmed_hold=False,
+               separate_write_deadline=False):
         seal = verify_library(library)
         if not callable(cancel_all):
             raise ValueError('Explicit shared cancel_all capability required')
-        _check_selections(decode_once, prearmed_hold)
+        _check_selections(decode_once, prearmed_hold, separate_write_deadline)
         _check_prearmed_library(seal, prearmed_hold)
+        _check_write_deadline_library(seal, separate_write_deadline)
         lower, upper, kp, kd = session_limits(group, axis_raw_bounds, kp_cap_by_id, kd_cap_by_id)
         session = active.ActiveSession(library, fd, first_id=group.first_id,
             cancel_fd=cancel_fd, boot_fd=boot_fd, boot_id=boot_id,
@@ -296,7 +331,7 @@ class Type1Transport:
             gap_ns=GAP_NS, window=WINDOW)
         try:
             return cls(session, group, cancel_all=cancel_all, decode_once=decode_once,
-                       prearmed_hold=prearmed_hold, token=_TOKEN)
+                       prearmed_hold=prearmed_hold, separate_write_deadline=separate_write_deadline, token=_TOKEN)
         except BaseException:
             session.close()
             raise
@@ -316,6 +351,7 @@ class Type1Transport:
                 self._binding != original[2] or self._wires != original[3] or
                 self._params != original[4] or self._cancel_all is not original[5] or
                 self.decode_once is not original[6] or self.prearmed_hold is not original[7] or
+                self.separate_write_deadline is not _WRITE_SELECTIONS.get(self) or
                 self._closed or not session._handle or session.lib is not self._library or
                 verify_library(self._library) is not self._seal or
                 active.verified_active_session_creation(session) != self._creation or
@@ -449,7 +485,8 @@ class Type1Transport:
     def _buffers(count):
         return (Record*count)(), active.Stats(), C.create_string_buffer(256)
 
-    def _native(self, wires, deadline_ns, before_native, fields=None, prepared=None, not_before_ns=None):
+    def _native(self, wires, deadline_ns, before_native, fields=None, prepared=None, not_before_ns=None,
+                write_deadline_ns=None):
         session = self._session
         if not session.busy.acquire(blocking=False):
             raise RuntimeError('Concurrent active session use')
@@ -461,6 +498,12 @@ class Type1Transport:
             now = time.monotonic_ns()
             if type(deadline_ns) is not int or not now < deadline_ns <= now+MAX_DEADLINE_NS:
                 raise ValueError('Expired or invalid absolute active deadline')
+            if write_deadline_ns is not None:
+                need(self.separate_write_deadline is True and not_before_ns is None and before_native is None,
+                     'Separate Type1 write deadline requires the explicit selection and ordinary output')
+                _check_write_deadline_library(self._seal, True)
+                if type(write_deadline_ns) is not int or not now < write_deadline_ns <= deadline_ns:
+                    raise ValueError('Separate Type1 deadline requires now<write_deadline<=reply_deadline')
             raw = (C.c_ubyte*(17*len(wires))).from_buffer_copy(b''.join(wires))
             records, stats, error = self._buffers(len(wires)) if prepared is None else prepared
             if len(records) != len(wires):
@@ -475,7 +518,16 @@ class Type1Transport:
                     deadline_ns = narrowed
             if time.monotonic_ns() >= deadline_ns:
                 raise TimeoutError('Active deadline expired before subset exchange')
-            if not_before_ns is None:
+            if write_deadline_ns is not None:
+                dispatched = time.monotonic_ns()
+                if dispatched >= write_deadline_ns:
+                    raise TimeoutError('Separate Type1 write deadline expired before subset exchange')
+                self.write_deadline_journal.append((len(self.journal), deadline_ns, write_deadline_ns, dispatched))
+                self._mark(wires, fields)
+                status = self._library.sda_subset_exchange_write_deadline(
+                    session._handle, self.group.mask, raw, len(wires), 0, deadline_ns, write_deadline_ns,
+                    records, C.byref(stats), error, len(error))
+            elif not_before_ns is None:
                 self._mark(wires, fields)
                 status = self._library.sda_subset_exchange(session._handle, self.group.mask, raw, len(wires),
                     0, deadline_ns, records, C.byref(stats), error, len(error))
@@ -499,13 +551,13 @@ class Type1Transport:
             session.busy.release()
 
     def _exchange(self, label, wires, deadline_ns, *, before_native=None, validated=None, prepared=None,
-                  not_before_ns=None):
+                  not_before_ns=None, write_deadline_ns=None):
         with self._abort_on_failure():
             return self._checked_exchange(label, wires, deadline_ns, before_native, validated, prepared,
-                                          not_before_ns)
+                                          not_before_ns, write_deadline_ns)
 
     def _checked_exchange(self, label, wires, deadline_ns, before_native, validated=None, prepared=None,
-                          not_before_ns=None):
+                          not_before_ns=None, write_deadline_ns=None):
         self._owner_check()
         if validated is None:
             wires, keys, fields = self._validate(label, wires)
@@ -515,8 +567,11 @@ class Type1Transport:
             keys, fields = validated
         if not_before_ns is not None:
             need(label == 'feedback_hold', 'Only the feedback hold may be pre-armed')
+        if write_deadline_ns is not None:
+            need(label == 'output', 'Only the exact output triple may use a separate write deadline')
         try:
-            raw = self._native(wires, deadline_ns, before_native, fields, prepared, not_before_ns)
+            raw = self._native(wires, deadline_ns, before_native, fields, prepared, not_before_ns,
+                               write_deadline_ns)
         except active.ExchangeError as error:
             self.journal.append((label, (error.records, error.stats)))
             raise
@@ -551,6 +606,53 @@ class Type1Transport:
             batch.verify_images()
             return rows
         return batch.verify()
+
+    def publish_group_raw(self, label, records, stats, *, lease, wires,
+                          reply_deadline_ns, write_deadline_ns=None, dispatched_ns=None):
+        """Publish one authenticated native-group result, with the original decoder.
+
+        This is not another I/O entry point. Only the owning native group can
+        present one of its just-collected private result buffers. The old Python
+        owner remains responsible for setup and STOP after the lease is joined.
+        """
+        from experiments.four_bus_native_group.client import verify_group_publication
+        verify_group_publication(lease, self, label, records, stats, wires)
+        wires, keys, fields = self._validate(label, wires)
+        need(type(records) is Record*len(wires) and type(stats) is active.Stats,
+             'Original owned native group record/stat buffers required')
+        journal_index = len(self.journal)
+        self.journal.append((label, (records, stats)))  # Keep raw on any rejection below.
+        need(type(reply_deadline_ns) is int and reply_deadline_ns > 0,
+             'Original native group reply deadline required')
+        for wire, record in zip(wires, records):
+            need(bytes(record.tx) == wire and record.written == record.received == 17 and
+                 0 < record.start_ns <= record.finish_ns <= record.read_start_ns <=
+                 record.received_ns < record.deadline_ns == reply_deadline_ns,
+                 'Incomplete/noncausal native group result')
+        if write_deadline_ns is not None:
+            need(label == 'output' and self.separate_write_deadline is True and
+                 type(write_deadline_ns) is int and write_deadline_ns <= reply_deadline_ns and
+                 type(dispatched_ns) is int and 0 < dispatched_ns < write_deadline_ns and
+                 all(record.finish_ns < write_deadline_ns for record in records),
+                 'Native group output write deadline proof differs')
+            self.write_deadline_journal.append((journal_index, reply_deadline_ns,
+                                                write_deadline_ns, dispatched_ns))
+        rows = decode_records((records, stats))
+        need(set(rows) == keys, label+' native group replies differ from the exact keys')
+        modes = REPLY_MODES.get(label)
+        for key, (value, _, _) in rows.items():
+            if key[1] == 'feedback':
+                need(modes is not None and value.mode_state in modes and value.fault_bits == 0,
+                     'Native group feedback mode/fault differs')
+        if self.decode_once:
+            rows = MappingProxyType(dict(rows))
+        batch = Batch(self.group, label, records, stats, rows, bytes(records), bytes(stats),
+                      time.monotonic_ns())
+        self._batches.append(batch)
+        self._batch_index[id(batch)] = (batch, rows)
+        if label == 'output':
+            self._last_output, self._last_fields = wires, fields
+        return batch
 
     # Preflight / handshake.
     def identify(self, *, deadline_ns):
@@ -659,14 +761,17 @@ class Type1Transport:
                 session.busy.release()
             return wires
 
-    def output(self, wires, *, deadline_ns, check):
+    def output(self, wires, *, deadline_ns, check, write_deadline_ns=None):
         with self._abort_on_failure():
             need(self._zero_gain == set(self.group.ids),
                  'Output requires every member enabled with a confirmed zero-gain handshake')
+            need((write_deadline_ns is not None) is self.separate_write_deadline,
+                 'Separate Type1 write deadline must be supplied exactly when selected')
             check()
             wires, fields = self._checked_output(wires)
             batch = self._exchange('output', wires, deadline_ns,
-                                   validated=(frozenset((mid, 'feedback') for mid in self.group.ids), fields))
+                                   validated=(frozenset((mid, 'feedback') for mid in self.group.ids), fields),
+                                   write_deadline_ns=write_deadline_ns)
             self._last_output, self._last_fields = wires, fields
             return batch
 
@@ -755,4 +860,5 @@ class Type1Transport:
                 self._session.close()
             finally:
                 _TRANSPORTS.pop(self, None)
+                _WRITE_SELECTIONS.pop(self, None)
                 self._closed = True
