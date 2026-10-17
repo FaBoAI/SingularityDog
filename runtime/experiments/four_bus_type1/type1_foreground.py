@@ -30,7 +30,7 @@ if not __package__:
 from experiments.four_bus_diagnostic import foreground as FG
 from experiments.four_bus_diagnostic import model_bridge, pipeline, topology
 from experiments.four_bus_diagnostic.transport_adapter import IDS, PORTS, Group
-from . import build, type1_profile as P, type1_runner as R, type1_transport as T
+from . import build, stance, type1_profile as P, type1_runner as R, type1_transport as T
 
 FALSE_FLAGS = {'output_approval_granted_here': False, 'approved_for_runtime': False,
                'timing_qualification_granted_here': False, 'live_type1_qualified': False,
@@ -208,8 +208,9 @@ def transport_limits(contract, group, mode):
     learned = mode == 'learned_boxed'
     axes = contract['axes']
     bounds = {mid: (axes[str(mid)]['raw_lower_rad'], axes[str(mid)]['raw_upper_rad']) for mid in group.ids}
-    kp = {mid: axes[str(mid)]['kp'] if learned else 0. for mid in group.ids}
-    kd = {mid: axes[str(mid)]['kd'] if learned else 0. for mid in group.ids}
+    stance_run = learned and contract['pacing'].get('stance_transition') is True
+    kp = {mid: (stance.KP if stance_run else axes[str(mid)]['kp']) if learned else 0. for mid in group.ids}
+    kd = {mid: (stance.KD if stance_run else axes[str(mid)]['kd']) if learned else 0. for mid in group.ids}
     return bounds, kp, kd
 
 
@@ -734,6 +735,7 @@ def execute(args, prepared, environment=None):
                         kp_cap_by_id=kp, kd_cap_by_id=kd, cancel_all=cancel_from(group.port+'_transport_failure'),
                         decode_once=options.get('decode_once') is True,
                         prearmed_hold='prearmed_hold_lead_us' in options,
+                        stance_caps=admitted.mode == 'learned_boxed' and options.get('stance_transition') is True,
                         **({'separate_write_deadline': True} if 'control_clock' in contract else {}))
                     transports[group.port] = value
                     return value

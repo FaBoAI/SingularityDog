@@ -39,6 +39,8 @@ MAX_DEADLINE_NS = 250_000_000
 LSB_RAD = 25.14/65535.
 KP_CAP = 3.
 KD_CAP = .15
+# Only an explicit stance_transition learned run passes stance_caps=True (stance.py).
+from .stance import KP as STANCE_KP_CAP, KD as STANCE_KD_CAP  # noqa: E402
 MAX_RAW_WINDOW_RAD = 2*math.radians(3)+1e-12
 UNREACHABLE_CODE = 32767
 PARAMETERS = ('run_mode', 'position', 'velocity', 'voltage', 'can_timeout')
@@ -229,7 +231,7 @@ def _check_write_deadline_library(seal, separate_write_deadline):
              'Separate Type1 write deadline requires a receipt and ABI for sda_subset_exchange_write_deadline')
 
 
-def session_limits(group, axis_raw_bounds, kp_cap_by_id, kd_cap_by_id):
+def session_limits(group, axis_raw_bounds, kp_cap_by_id, kd_cap_by_id, *, stance_caps=False):
     """Member slots: explicit raw window and caps. Non-members: kp=kd=0, unreachable q."""
     need(type(group) is Group, 'Immutable group required')
     for name, values in (('axis_raw_bounds', axis_raw_bounds), ('kp_cap_by_id', kp_cap_by_id),
@@ -246,10 +248,11 @@ def session_limits(group, axis_raw_bounds, kp_cap_by_id, kd_cap_by_id):
             lo, hi = float(bounds[0]), float(bounds[1])
             need(-12.57 <= lo < hi <= 12.57 and hi-lo <= MAX_RAW_WINDOW_RAD,
                  f'ID{mid} raw window must be ordered, in range and at most six degrees wide')
-            need(finite(kp_cap_by_id[mid]) and 0 <= kp_cap_by_id[mid] <= KP_CAP,
-                 f'ID{mid} kp cap must be 0..{KP_CAP}')
-            need(finite(kd_cap_by_id[mid]) and 0 <= kd_cap_by_id[mid] <= KD_CAP,
-                 f'ID{mid} kd cap must be 0..{KD_CAP}')
+            kp_cap, kd_cap = (STANCE_KP_CAP, STANCE_KD_CAP) if stance_caps is True else (KP_CAP, KD_CAP)
+            need(finite(kp_cap_by_id[mid]) and 0 <= kp_cap_by_id[mid] <= kp_cap,
+                 f'ID{mid} kp cap must be 0..{kp_cap}')
+            need(finite(kd_cap_by_id[mid]) and 0 <= kd_cap_by_id[mid] <= kd_cap,
+                 f'ID{mid} kd cap must be 0..{kd_cap}')
             lower[mid], upper[mid] = lo, hi
             kp[mid], kd[mid] = float(kp_cap_by_id[mid]), float(kd_cap_by_id[mid])
         else:
@@ -317,14 +320,16 @@ class Type1Transport:
     @classmethod
     def create(cls, library, fd, *, group, cancel_fd, boot_fd, boot_id, axis_raw_bounds,
                kp_cap_by_id, kd_cap_by_id, cancel_all, decode_once=False, prearmed_hold=False,
-               separate_write_deadline=False):
+               separate_write_deadline=False, stance_caps=False):
         seal = verify_library(library)
+        need(type(stance_caps) is bool, 'Explicit boolean stance cap selection required')
         if not callable(cancel_all):
             raise ValueError('Explicit shared cancel_all capability required')
         _check_selections(decode_once, prearmed_hold, separate_write_deadline)
         _check_prearmed_library(seal, prearmed_hold)
         _check_write_deadline_library(seal, separate_write_deadline)
-        lower, upper, kp, kd = session_limits(group, axis_raw_bounds, kp_cap_by_id, kd_cap_by_id)
+        lower, upper, kp, kd = session_limits(group, axis_raw_bounds, kp_cap_by_id, kd_cap_by_id,
+                                              stance_caps=stance_caps)
         session = active.ActiveSession(library, fd, first_id=group.first_id,
             cancel_fd=cancel_fd, boot_fd=boot_fd, boot_id=boot_id,
             raw_lower_by_id=lower, raw_upper_by_id=upper, kp_max_by_id=kp, kd_max_by_id=kd,

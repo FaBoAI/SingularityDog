@@ -85,7 +85,7 @@ PACING = {'request_gap_us': 900, 'request_window': 3, 'release_spin_us': 500, 'm
 # pacing stay the R8 PACING byte for byte. Chained steps share one contract
 # SHA256 and therefore exactly the same options.
 PACING_OPTIONS = ('command_phase_offset_us', 'decode_once', 'prearmed_hold_lead_us', 'gc_freeze',
-                  'native_group_cycle', 'command_gap_limit_us')
+                  'native_group_cycle', 'command_gap_limit_us', 'stance_transition')
 # 30 Hz only, user-selected 2026-10-17: the stop limit for the command/sample
 # interval. Absent, it stays the PolicyClock 34.333334 ms budget (1 ms phase
 # jitter). Selected, intervals above that nominal budget are recorded and continue
@@ -240,7 +240,8 @@ def pacing_options(pacing, message='Fixed four-bus boxed pacing differs'):
     gap = options.get('command_gap_limit_us')
     need(gap is None or (type(gap) is int and COMMAND_GAP_LIMIT_US[0] <= gap <= COMMAND_GAP_LIMIT_US[1]),
          'Command gap limit must be an integer %d..%d us (<= 40 ms host watchdog)' % COMMAND_GAP_LIMIT_US)
-    need(all(options[key] is True for key in ('decode_once', 'gc_freeze', 'native_group_cycle') if key in options),
+    need(all(options[key] is True for key in ('decode_once', 'gc_freeze', 'native_group_cycle', 'stance_transition')
+             if key in options),
          'A selected decode_once/gc_freeze/native_group_cycle option must be exactly true')
     return options
 
@@ -399,6 +400,7 @@ def build_contract(plan, lineage, geometry, geometry_ref, *, rebind_window=False
         need('native_group_cycle' not in pacing,
              'Native four-port cycle dispatcher requires the explicit 30 Hz model/clock')
         need('command_gap_limit_us' not in pacing, 'Command gap limit requires the explicit 30 Hz model/clock')
+        need('stance_transition' not in pacing, 'Stance transition requires the explicit 30 Hz model/clock')
         need(not CONTROL_KEYS.intersection(plan),
              'Explicit 30 Hz selection is required for a 30 Hz model plan')
     rebinding = None
@@ -458,6 +460,8 @@ def validate_contract(contract):
              'Native four-port cycle dispatcher requires the explicit 30 Hz model/clock')
         need('command_gap_limit_us' not in contract['pacing'],
              'Command gap limit requires the explicit 30 Hz model/clock')
+        need('stance_transition' not in contract['pacing'],
+             'Stance transition requires the explicit 30 Hz model/clock')
     need(contract['timing']['voltage_max_age_ms']*1_000_000 == V3_VOLTAGE_MAX_AGE_NS,
          'Voltage cache age differs from the original runtime')
     need(contract['authorized_modes'] == list(MODES) and contract['authorized_durations_s'] == list(DURATIONS),
@@ -1076,7 +1080,9 @@ def cli_options(args):
               'prearmed_hold_lead_us': getattr(args, 'prearmed_hold_lead_us', None),
               'gc_freeze': getattr(args, 'gc_freeze', False),
               'native_group_cycle': getattr(args, 'native_group_cycle', False),
-              'command_gap_limit_us': getattr(args, 'command_gap_limit_us', None)}
+              'command_gap_limit_us': getattr(args, 'command_gap_limit_us', None),
+              'stance_transition': getattr(args, 'stance_transition', False)}
+    need(type(values['stance_transition']) is bool, 'Stance transition selection must be a boolean')
     need(type(values['decode_once']) is bool and type(values['gc_freeze']) is bool and
          type(values['native_group_cycle']) is bool,
          'Decode-once/gc-freeze selections must be booleans')
@@ -1086,6 +1092,8 @@ def cli_options(args):
 def build_from_files(args):
     """Read pinned files only; returns (profile, pins). Opens no device/library/model."""
     need(args.mode in MODES and args.duration in DURATIONS, 'Explicit mode/duration required')
+    need(not getattr(args, 'stance_transition', False) or args.mode == 'zero_gain_timing' or args.duration == 2,
+         'Stance transition learned_boxed is 2 s only')
     predecessor, diagnostic = required_evidence(args.mode, args.duration)
     pins = _Pins()
     lineage_ref = {'path': str(args.topology), 'sha256': args.topology_sha256}
@@ -1239,6 +1247,9 @@ def parser():
         help='F4: gc.freeze() after warm-up before the first release, gc.unfreeze() at restoration')
     prep.add_argument('--native-group-cycle', action='store_true',
         help='Explicit 30Hz candidate: persistent four C++ CAN owners; separate source/build pins required')
+    prep.add_argument('--stance-transition', action='store_true',
+        help='Explicit 30Hz box-kept stance transition: learned_boxed 2 s sends a <=2.5 deg step toward the '
+             'controller nominal stance with fixed Kp12/Kd0.3 caps (stance.py); zero gain is unchanged')
     prep.add_argument('--command-gap-limit-us', type=int,
         help='Explicit 30Hz: stop limit for command/sample intervals (%d..%d); intervals above '
              'the nominal 34.333334 ms are recorded and continue' % COMMAND_GAP_LIMIT_US)

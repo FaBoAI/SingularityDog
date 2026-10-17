@@ -270,5 +270,66 @@ class NativeRunnerTests(Harness, unittest.TestCase):
             R.plan(legacy)
 
 
+    def stance_value(self):
+        value = admitted_native()
+        value['pacing'] = P.selected_pacing({'native_group_cycle': True, 'stance_transition': True})
+        # The stance caps brake for 0.5 s; use the live profile's 0.4 s ramps.
+        value['profile'].update(startup_duration_s=.4, policy_ramp_s=.4, stop_duration_s=.4)
+        return value
+
+    def test_stance_transition_sends_plan_targets_with_stance_caps(self):
+        import math
+        from . import stance
+        report = self.run_case(value=self.stance_value(), cycle_group_factory=self.create_group)
+        self.assertEqual(report['status'], 'COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED', report['errors'])
+        plan = report['stance_transition']
+        self.assertLessEqual(plan['max_joint_delta_deg'], 2.5+1e-9)
+        self.assertGreater(plan['expected_body_rise_m'], -1.)
+        labels = [row['label'] for row in report['cycles']]
+        self.assertIn('stance_transition', labels)
+        self.assertNotIn('policy_output', labels)
+        commands = [row['command'] for row in report['cycles'] if row['label'] == 'stance_transition']
+        self.assertTrue(any(max(c['kp']) == stance.KP for c in commands))
+        self.assertTrue(all(max(c['kp']) <= stance.KP and max(c['kd']) <= stance.KD for c in commands))
+        q0 = report['q0_model_rad_by_id']
+        for c in commands:
+            for mid in range(1, 13):
+                self.assertLessEqual(abs(c['q_model_rad'][mid-1]-q0[str(mid)]), math.radians(2.5)+1e-9)
+
+    def test_default_learned_run_keeps_boxed_caps_and_model_targets(self):
+        report = self.run_native()
+        self.assertNotIn('stance_transition', report)
+        commands = [row['command'] for row in report['cycles'] if row['label'] == 'policy_output']
+        self.assertTrue(commands)
+        self.assertTrue(all(max(c['kp']) <= 3. for c in commands))
+
+    def test_stance_transition_is_two_second_30hz_only(self):
+        value = self.stance_value()
+        value['duration_s'] = 10
+        value['profile']['duration_s'] = 10
+        with self.assertRaisesRegex(ValueError, '2 s only'):
+            R.plan(value)
+        from .test_type1_runner import admitted
+        legacy = admitted()
+        legacy['pacing'] = P.selected_pacing({'stance_transition': True})
+        with self.assertRaisesRegex(ValueError, '30 Hz'):
+            R.plan(legacy)
+        with self.assertRaisesRegex(ValueError, 'must be exactly true'):
+            P.selected_pacing({'stance_transition': 1})
+
+    def test_transport_stance_caps_only_when_selected(self):
+        from experiments.four_bus_diagnostic.transport_adapter import Group
+        from . import type1_transport as T
+        group = Group('port3', (1, 2, 3))
+        bounds = {mid: (-.05, .05) for mid in group.ids}
+        kp, kd = {mid: 12. for mid in group.ids}, {mid: .3 for mid in group.ids}
+        with self.assertRaisesRegex(ValueError, 'kp cap must be 0..3'):
+            T.session_limits(group, bounds, kp, kd)
+        lower, upper, kps, kds = T.session_limits(group, bounds, kp, kd, stance_caps=True)
+        self.assertEqual(kps[1], 12.)
+        with self.assertRaisesRegex(ValueError, 'kp cap must be 0..12'):
+            T.session_limits(group, bounds, {mid: 12.5 for mid in group.ids}, kd, stance_caps=True)
+
+
 if __name__ == '__main__':
     unittest.main()

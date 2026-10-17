@@ -37,7 +37,7 @@ from experiments.four_bus_diagnostic import model_bridge as bridge
 from experiments.four_bus_diagnostic.pipeline import (
     _real_operating_readback, _take, _verify_observer_clock, evidence_report)
 from experiments.four_bus_diagnostic.transport_adapter import GROUPS, PORTS, Group
-from . import type1_profile as _profile
+from . import stance, type1_profile as _profile
 
 SCHEMA = 'singularitydog.four-bus-type1-boxed-run.v1'
 MODES = ('zero_gain_timing', 'learned_boxed')
@@ -190,6 +190,8 @@ def validate_admitted(admitted):
              'Native four-port cycle dispatcher requires the explicit 30 Hz model/clock')
         need('command_gap_limit_us' not in value['pacing'],
              'Command gap limit requires the explicit 30 Hz model/clock')
+        need('stance_transition' not in value['pacing'],
+             'Stance transition requires the explicit 30 Hz model/clock')
         need(not _profile.CONTROL_KEYS.intersection(value['model_plan']),
              'Legacy 50 Hz runtime cannot contain a 30 Hz model plan')
     for key in ('startup_duration_s', 'stop_duration_s', 'policy_ramp_s'):
@@ -202,7 +204,11 @@ def validate_admitted(admitted):
     need(profile['imu_accel_norm_min_m_s2'] < profile['imu_accel_norm_max_m_s2'] and
          profile['imu_accel_norm_max_m_s2']-profile['imu_accel_norm_min_m_s2'] <= 1.5,
          'Invalid reviewed IMU gravity-norm interval')
-    _preauthorized_boxed_axis_caps(profile)
+    _preauthorized_boxed_axis_caps(profile)  # The reviewed contract caps, always.
+    if stance.selected(options) and mode == 'learned_boxed':
+        # Explicit box-kept stance caps replace them for this run only.
+        need(duration == stance.STANCE_DURATION_S, 'Stance transition learned_boxed is 2 s only')
+        profile = value['profile'] = stance.profile_with_caps(profile)
     for key in ('offsets_by_id', 'reference_turns_by_id', 'uids_by_id', 'firmware_by_id'):
         need(type(value[key]) is dict and set(value[key]) == {str(mid) for mid in IDS}, 'Twelve-axis '+key+' required')
     offsets, turns, uids, firmware = {}, {}, {}, {}
@@ -1255,6 +1261,10 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
             axis['max_measured_velocity_rad_s'], axis['max_temperature_c'], axis['max_tracking_error_rad'],
             axis['max_displacement_from_start_rad'], axis['max_estimated_pd_torque_nm']) for axis in axis_rows)
         origin_q = trial_origin.q_model_rad
+        stance_waypoints = None
+        if learned and stance.selected(options):
+            stance_waypoints, report['stance_transition'] = stance.targets(
+                {mid: origin_q[mid-1] for mid in IDS}, axis_rows, MODEL_TARGET_LIMITS_BY_ID)
         start = clock()
         if prearm_ns is not None:
             start += prearm_ns  # Epoch one lead ahead, so cycle 0 is pre-armed as well.
@@ -1459,7 +1469,8 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                     if not lower <= q <= upper:
                         raise RuntimeError('ID%d blended target outside local physical range' % mid)
                 row.model_target, row.blended_target = by_id, blended
-                target = blended if learned else q0
+                target = (stance.target_at(stance_waypoints, (begun-start)/1e9, startup_s)
+                          if stance_waypoints is not None else blended if learned else q0)
             row.weight = weight
             row.infer_end_ns = clock()
             voltage = {}
@@ -1529,7 +1540,8 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                 report['learned_targets_attempted'] = True
             if any(command.kp) or any(command.kd):
                 report['positive_gain_sent'] = True
-            row.label = ('graceful_stop' if stop_started else 'policy_output' if learned and weight > 0.
+            row.label = ('graceful_stop' if stop_started else 'stance_transition' if stance_waypoints is not None
+                         else 'policy_output' if learned and weight > 0.
                          else 'startup_hold' if learned else 'zero_gain_timing')
             row.output_submit_ns = clock()
             output = {}
