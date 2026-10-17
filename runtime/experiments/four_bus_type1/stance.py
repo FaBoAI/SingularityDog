@@ -4,9 +4,8 @@ Selected only by the contract pacing option ``stance_transition`` (user
 decision 2026-10-17: staged gains starting at Kp12). The contract keeps the
 reviewed boxed caps for every existing check; these fixed constants replace
 them only inside a learned_boxed 2 s run that selected the option. The box
-stays under the body: the target is a fraction of the slow position
-transition toward the controller nominal stance, limited to
-STANCE_MAX_DELTA_RAD so it stays inside the reviewed +-3 deg window. The
+stays under the body: the target raises it straight up with the feet fixed,
+limited to STANCE_MAX_DELTA_RAD so it stays inside the reviewed +-3 deg window. The
 learned model is still evaluated and recorded but its target is not sent.
 """
 import copy
@@ -24,6 +23,7 @@ STANCE_CAPS = {'kp': KP, 'kd': KD,
                'max_tracking_error_rad': math.radians(3)}
 STANCE_MAX_DELTA_RAD = math.radians(2.5)
 STANCE_DURATION_S = 2
+PROBE_LIFT_M = .003
 
 
 def need(condition, message):
@@ -49,16 +49,18 @@ def profile_with_caps(profile):
 def targets(q0_by_id, axis_rows, model_limits_by_id):
     """Per-cycle stance targets (tuples in ID order) and a plan summary.
 
-    The fraction keeps every joint within STANCE_MAX_DELTA_RAD of the start;
-    every waypoint must also stay inside each axis's effective local window.
+    Vertical lift with every foot fixed (the Kp12/18/24 runs showed the joint
+    interpolation toward the nominal stance dragged planted feet sideways at the
+    hips). The lift is sized so every joint stays within STANCE_MAX_DELTA_RAD,
+    and every waypoint must also stay inside each axis's effective local window.
     """
     start = {mid: float(q0_by_id[mid]) for mid in range(1, 13)}
-    full = max(abs(stance_plan.target_by_id()[mid]-start[mid]) for mid in range(1, 13))
-    need(full > 0., 'Start already equals the nominal stance')
-    fraction = min(1., STANCE_MAX_DELTA_RAD/full)
-    result = stance_plan.make_plan(start, model_limits_by_id, fraction=fraction,
-                                   max_velocity=STANCE_CAPS['max_command_velocity_rad_s'],
-                                   max_acceleration=STANCE_CAPS['max_command_acceleration_rad_s2'], hold_s=0.)
+    caps = dict(max_velocity=STANCE_CAPS['max_command_velocity_rad_s'],
+                max_acceleration=STANCE_CAPS['max_command_acceleration_rad_s2'], hold_s=0.)
+    probe = stance_plan.make_lift_plan(start, model_limits_by_id, lift_m=PROBE_LIFT_M, **caps)
+    lift = PROBE_LIFT_M*min(1., math.degrees(STANCE_MAX_DELTA_RAD)/probe['max_joint_delta_deg'])*.98
+    result = stance_plan.make_lift_plan(start, model_limits_by_id, lift_m=lift, **caps)
+    need(result['max_joint_delta_deg'] <= math.degrees(STANCE_MAX_DELTA_RAD), 'Lift exceeds the stance delta cap')
     waypoints = tuple(tuple(row) for row in result.pop('waypoints_by_id_rad'))
     for row in waypoints:
         for mid, (q, axis) in enumerate(zip(row, axis_rows), 1):

@@ -58,5 +58,30 @@ class PlanTests(unittest.TestCase):
         self.assertAlmostEqual(P.body_height_m(q), expected, places=12)
 
 
+    def test_vertical_lift_keeps_feet_and_raises_body(self):
+        result = P.make_lift_plan(BOX_POSE, LIMITS, lift_m=.003)
+        self.assertEqual(result['kind'], 'vertical_lift_feet_fixed')
+        self.assertAlmostEqual(result['expected_body_rise_m'], .003, places=12)
+        self.assertLess(result['max_foot_slide_m'], 1e-12)
+        with self.assertRaisesRegex(ValueError, 'Lift must be'):
+            P.make_lift_plan(BOX_POSE, LIMITS, lift_m=.05)
+
+    @unittest.skipUnless((TORCH_BUNDLE/'model/policy_controller74_30hz.pt').exists(), 'private bundle not present')
+    def test_leg_fk_ik_match_frozen_controller(self):
+        import torch
+        controller = torch.jit.load(str(TORCH_BUNDLE/'model/policy_controller74_30hz.pt')).controller
+        q = {mid: v for mid, v in BOX_POSE.items()}
+        canonical = torch.tensor([[q[mid] for mid in P.CAN_ORDER]], dtype=torch.float64)
+        feet = controller.fk(canonical)[0]
+        for leg, angles in enumerate(P._legs(q)):
+            mine = P.foot_m(*angles, leg)
+            for a, b in zip(mine, feet[leg].tolist()):
+                self.assertAlmostEqual(a, b, places=12)
+            solved = P.leg_ik(mine, leg)
+            reference = controller.ik(feet.unsqueeze(0))[0][3*leg:3*leg+3].tolist()
+            for a, b in zip(solved, reference):
+                self.assertAlmostEqual(a, b, places=10)
+
+
 if __name__ == '__main__':
     unittest.main()

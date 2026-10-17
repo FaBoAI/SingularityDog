@@ -30,6 +30,8 @@ CAN_ORDER = (6, 5, 4, 3, 2, 1, 12, 11, 10, 9, 8, 7)
 THIGH_M = CALF_M = .12
 HIP_LATERAL_M = .064
 LEG_SIGNS = (1., -1., 1., -1.)  # Frozen controller signs for the four CAN_ORDER legs.
+LEG_ORIGINS = ((.155, .11, 0.), (.155, -.11, 0.), (-.155, .11, 0.), (-.155, -.11, 0.))
+MAX_LIFT_M = .02
 
 
 def need(condition, message):
@@ -47,11 +49,41 @@ def leg_height_m(hip, thigh, calf, sign):
     return -(math.sin(hip)*HIP_LATERAL_M*sign+math.cos(hip)*z)
 
 
+def foot_m(hip, thigh, calf, leg):
+    """Foot position in the body frame, exactly the frozen controller fk()."""
+    x = -THIGH_M*(math.sin(thigh)+math.sin(thigh+calf))
+    z = -THIGH_M*(math.cos(thigh)+math.cos(thigh+calf))
+    y = HIP_LATERAL_M*LEG_SIGNS[leg]
+    ox, oy, oz = LEG_ORIGINS[leg]
+    return (x+ox, math.cos(hip)*y-math.sin(hip)*z+oy, math.sin(hip)*y+math.cos(hip)*z+oz)
+
+
+def _wrap(angle):
+    return math.remainder(angle, 2*math.pi)
+
+
+def leg_ik(foot, leg):
+    """Joint angles reaching a body-frame foot position, as the frozen controller ik()."""
+    ox, oy, oz = LEG_ORIGINS[leg]
+    x, y, z = foot[0]-ox, foot[1]-oy, foot[2]-oz
+    rad = y*y+z*z-HIP_LATERAL_M**2
+    cosine = (x*x+rad-2*THIGH_M**2)/(2*THIGH_M**2)
+    need(rad > 0. and -1. <= cosine <= 1., 'Foot target outside the leg IK domain')
+    zs = -math.sqrt(rad)
+    calf = -math.acos(cosine)
+    hip = _wrap(math.atan2(z, y)-math.atan2(zs, HIP_LATERAL_M*LEG_SIGNS[leg]))
+    thigh = _wrap(math.atan2(-x, -zs)-math.atan2(THIGH_M*math.sin(calf), THIGH_M+THIGH_M*math.cos(calf)))
+    return hip, thigh, calf
+
+
+def _legs(q_by_id):
+    canonical = [q_by_id[mid] for mid in CAN_ORDER]
+    return [canonical[i:i+3] for i in range(0, 12, 3)]
+
+
 def body_height_m(q_by_id):
     """Mean hip height above the feet for one pose (model radians by motor ID)."""
-    canonical = [q_by_id[mid] for mid in CAN_ORDER]
-    legs = [canonical[i:i+3] for i in range(0, 12, 3)]
-    return sum(leg_height_m(*leg, sign) for leg, sign in zip(legs, LEG_SIGNS))/4.
+    return sum(leg_height_m(*leg, sign) for leg, sign in zip(_legs(q_by_id), LEG_SIGNS))/4.
 
 
 def target_by_id():
@@ -67,6 +99,43 @@ def make_plan(start_by_id, limits_by_id, *, fraction=1., max_velocity=DEFAULT_MA
          'Velocity/acceleration caps outside the reviewed planning range')
     need(0. <= hold_s <= 5., 'Hold must be 0..5 s')
     goal = {mid: start_by_id[mid]+fraction*(q-start_by_id[mid]) for mid, q in target_by_id().items()}
+    result = _plan(start_by_id, goal, limits_by_id, max_velocity, max_acceleration, hold_s)
+    result['fraction'] = fraction
+    return result
+
+
+def make_lift_plan(start_by_id, limits_by_id, *, lift_m, max_velocity=DEFAULT_MAX_VELOCITY_RAD_S,
+                   max_acceleration=DEFAULT_MAX_ACCELERATION_RAD_S2, hold_s=1.):
+    """Raise the body straight up by lift_m with every foot fixed in place.
+
+    The linear joint interpolation toward the nominal stance mostly moves the
+    hips sideways and drags planted feet across the floor. Here each foot keeps
+    its body-frame x and y and moves lift_m down relative to the body, solved
+    with the frozen controller IK, so the legs extend vertically.
+    """
+    need(set(start_by_id) == set(range(1, 13)) and set(limits_by_id) == set(range(1, 13)),
+         'Exact twelve motor IDs required')
+    need(type(lift_m) in (int, float) and 0. < lift_m <= MAX_LIFT_M, 'Lift must be in (0, %g] m' % MAX_LIFT_M)
+    need(0. < max_velocity <= math.radians(30.) and 0. < max_acceleration <= math.radians(60.),
+         'Velocity/acceleration caps outside the reviewed planning range')
+    need(0. <= hold_s <= 5., 'Hold must be 0..5 s')
+    goal = {}
+    slide = 0.
+    for leg, angles in enumerate(_legs(start_by_id)):
+        foot = foot_m(*angles, leg)
+        target = (foot[0], foot[1], foot[2]-lift_m)
+        solved = leg_ik(target, leg)
+        reached = foot_m(*solved, leg)
+        need(max(abs(a-b) for a, b in zip(reached, target)) < 1e-9, 'Leg IK/FK closure failed')
+        slide = max(slide, math.hypot(reached[0]-foot[0], reached[1]-foot[1]))
+        for mid, value in zip(CAN_ORDER[3*leg:3*leg+3], solved):
+            goal[mid] = value
+    result = _plan(start_by_id, goal, limits_by_id, max_velocity, max_acceleration, hold_s)
+    result.update(kind='vertical_lift_feet_fixed', lift_m=lift_m, max_foot_slide_m=slide)
+    return result
+
+
+def _plan(start_by_id, goal, limits_by_id, max_velocity, max_acceleration, hold_s):
     for mid in range(1, 13):
         lower, upper = limits_by_id[mid]
         for value, name in ((start_by_id[mid], 'start'), (goal[mid], 'goal')):
@@ -94,7 +163,7 @@ def make_plan(start_by_id, limits_by_id, *, fraction=1., max_velocity=DEFAULT_MA
     rise = body_height_m(goal)-body_height_m(start_by_id)
     return {'schema': SCHEMA, 'status': 'PLAN_ONLY_NO_DEVICE', 'output_allowed': False,
             'requires': ['full_weight_support', 'cutoff_operator', 'fixed_video', 'separate_admitted_contract'],
-            'cycle_hz': CYCLE_HZ, 'fraction': fraction, 'moving_cycles': moving, 'holding_cycles': holding,
+            'cycle_hz': CYCLE_HZ, 'moving_cycles': moving, 'holding_cycles': holding,
             'duration_s': moving/CYCLE_HZ, 'max_velocity_rad_s': max_velocity,
             'max_acceleration_rad_s2': max_acceleration, 'max_joint_delta_deg': math.degrees(delta),
             'max_step_per_cycle_deg': math.degrees(worst),
