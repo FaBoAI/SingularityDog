@@ -364,5 +364,169 @@
   "zero-gain command: ID12 reply lost -> STOP unconfirmed, 40V cutoff",
   "learned 20 s cycle 471: ID10 reply 5.31 ms (normal 1.8 ms) -> write deadline miss, STOP confirmed"
  ],
- "zero_gain_id4_drop": "first zero-gain: ID4 accelerated to -0.48 rad/s under gravity (leg not resting); velocity monitor stopped after 3 cycles; resolved by re-placing the robot"
+ "zero_gain_id4_drop": "first zero-gain: ID4 accelerated to -0.48 rad/s under gravity (leg not resting); velocity monitor stopped after 3 cycles; resolved by re-placing the robot",
+ "after_id10_12_rewiring": {
+  "note": "user reconnected ID10-12 wiring; new power epoch; non-control processes again on CPU5 during live tests, restored after",
+  "zero_gain_2s_x10": [
+   {
+    "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+    "completed_cycles": 54,
+    "all_cycles_passed": true,
+    "stop_confirmed": true,
+    "lost_replies_all_ports": 0,
+    "max_command_interval_ms": 34.392,
+    "intervals_over_34_333334ms": 1,
+    "report_sha256": "b4c7422b6f0bbccdd66632ef0e9048e5f4bccbb2e521d4d781f566d20be93605"
+   },
+   {
+    "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+    "completed_cycles": 54,
+    "all_cycles_passed": true,
+    "stop_confirmed": true,
+    "lost_replies_all_ports": 0,
+    "max_command_interval_ms": 34.961,
+    "intervals_over_34_333334ms": 3,
+    "report_sha256": "2a14641f845fa08da3ea6629fb6f5734d20744d439a0d005369de9dbe6829eee"
+   },
+   {
+    "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+    "completed_cycles": 54,
+    "all_cycles_passed": true,
+    "stop_confirmed": true,
+    "lost_replies_all_ports": 0,
+    "max_command_interval_ms": 34.297,
+    "intervals_over_34_333334ms": 0,
+    "report_sha256": "85343d8884dfe41ecf8e249f29c56716166800e0038940039604f0687976c90d"
+   },
+   {
+    "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+    "completed_cycles": 54,
+    "all_cycles_passed": true,
+    "stop_confirmed": true,
+    "lost_replies_all_ports": 0,
+    "max_command_interval_ms": 34.369,
+    "intervals_over_34_333334ms": 2,
+    "report_sha256": "6b9fe3a21e107f8b253d6b17cc8c292cc0fcce2d2349807b9143322322645fa9"
+   },
+   {
+    "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+    "completed_cycles": 54,
+    "all_cycles_passed": true,
+    "stop_confirmed": true,
+    "lost_replies_all_ports": 0,
+    "max_command_interval_ms": 34.738,
+    "intervals_over_34_333334ms": 3,
+    "report_sha256": "d0b643498377b5c8a7434679a568bbaf696a6b038d8ed35d9a10d59a07cb0928"
+   },
+   {
+    "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+    "completed_cycles": 54,
+    "all_cycles_passed": true,
+    "stop_confirmed": true,
+    "lost_replies_all_ports": 0,
+    "max_command_interval_ms": 34.364,
+    "intervals_over_34_333334ms": 1,
+    "report_sha256": "6f193a1eaa0acf2242215c76ace6eba42b74db3da6e3aea12410d57d26dc0449"
+   },
+   {
+    "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+    "completed_cycles": 54,
+    "all_cycles_passed": true,
+    "stop_confirmed": true,
+    "lost_replies_all_ports": 0,
+    "max_command_interval_ms": 34.459,
+    "intervals_over_34_333334ms": 1,
+    "report_sha256": "3b316ec72f961c4e7c4e7fbc13fdd881e446aa5916c2e95fd7434505160876c6"
+   },
+   {
+    "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+    "completed_cycles": 54,
+    "all_cycles_passed": true,
+    "stop_confirmed": true,
+    "lost_replies_all_ports": 0,
+    "max_command_interval_ms": 34.247,
+    "intervals_over_34_333334ms": 0,
+    "report_sha256": "329e4ce2cb6888b6b01a18b702194ab0ab9b32c108971503814823ded9e91479"
+   },
+   {
+    "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+    "completed_cycles": 54,
+    "all_cycles_passed": true,
+    "stop_confirmed": true,
+    "lost_replies_all_ports": 0,
+    "max_command_interval_ms": 34.347,
+    "intervals_over_34_333334ms": 2,
+    "report_sha256": "08ea5cc57589cca55a172882d11d9965f4c8e7f7fb3a4beebcb2f44af16d58d6"
+   },
+   {
+    "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+    "completed_cycles": 54,
+    "all_cycles_passed": true,
+    "stop_confirmed": true,
+    "lost_replies_all_ports": 0,
+    "max_command_interval_ms": 34.733,
+    "intervals_over_34_333334ms": 1,
+    "report_sha256": "1aa34f51acecccf8add7e4cbd36fd60266de47fd76346c2f92f32ff6574e522f"
+   }
+  ],
+  "in_cycle_reply_latency_ms_10_zero_runs": {
+   "port0": {
+    "n": 3780,
+    "median": 2.85,
+    "p99": 3.88,
+    "max": 4.36
+   },
+   "port1": {
+    "n": 3780,
+    "median": 2.85,
+    "p99": 3.86,
+    "max": 3.97
+   },
+   "port2": {
+    "n": 3780,
+    "median": 2.85,
+    "p99": 3.86,
+    "max": 4.32
+   },
+   "port3": {
+    "n": 3780,
+    "median": 2.84,
+    "p99": 3.86,
+    "max": 4.0
+   }
+  },
+  "learned_boxed_2s": {
+   "status": "COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED",
+   "completed_cycles": 58,
+   "all_cycles_passed": true,
+   "stop_confirmed": true,
+   "lost_replies_all_ports": 0,
+   "max_command_interval_ms": 34.365,
+   "intervals_over_34_333334ms": 1,
+   "report_sha256": "98c21da0cfb990021c845765478aa26041605a5725b40e6706466459f9683ed9"
+  },
+  "learned_boxed_10s": {
+   "status": "COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED",
+   "completed_cycles": 297,
+   "all_cycles_passed": true,
+   "stop_confirmed": true,
+   "lost_replies_all_ports": 0,
+   "max_command_interval_ms": 34.678,
+   "intervals_over_34_333334ms": 16,
+   "report_sha256": "9a41b38e55e00bc9412400e2f0b5aba757a0b6b735538341f4a72a27aa45697c"
+  },
+  "learned_boxed_20s": {
+   "status": "COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED",
+   "completed_cycles": 598,
+   "all_cycles_passed": true,
+   "stop_confirmed": true,
+   "lost_replies_all_ports": 0,
+   "max_command_interval_ms": 34.847,
+   "intervals_over_34_333334ms": 23,
+   "report_sha256": "d554fc46cc37803ebf7eb32bf8a186a1e2fa262a160acf2826177a7d955e77c1"
+  },
+  "diagnostic_aborts_retained": [
+   "p5 diag 501: aborted twice before CPU5 isolation; one post-10s attempt aborted at cycle 94, retry complete"
+  ]
+ }
 }
