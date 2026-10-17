@@ -581,6 +581,22 @@
    "sequential_ms": 3.837,
    "batched_ms": 0.307
   },
-  "deployed": false
+  "deployed": false,
+  "long_synthetic_40_seeds": {
+   "ticks": 33600,
+   "compared_tensors": 2116800,
+   "mismatches": 0,
+   "exception_mismatch": 0,
+   "bisection_ticks": 133,
+   "step_median_ms": {
+    "reference": 4.787,
+    "candidate": 2.55
+   },
+   "step_p99_ms": {
+    "reference": 5.054,
+    "candidate": 2.785
+   },
+   "note": "max includes first-call JIT profiling"
+  }
  }
 }
