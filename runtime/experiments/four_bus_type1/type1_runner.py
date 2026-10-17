@@ -205,10 +205,14 @@ def validate_admitted(admitted):
          profile['imu_accel_norm_max_m_s2']-profile['imu_accel_norm_min_m_s2'] <= 1.5,
          'Invalid reviewed IMU gravity-norm interval')
     _preauthorized_boxed_axis_caps(profile)  # The reviewed contract caps, always.
+    percent = stance.run_percent(options, mode, duration)
     if stance.selected(options) and mode == 'learned_boxed':
         # Explicit box-kept stance caps replace them for this run only.
-        need(duration == stance.STANCE_DURATION_S, 'Stance transition learned_boxed is 2 s only')
-        profile = value['profile'] = stance.profile_with_caps(profile)
+        lineage = stance.lineage_pose(profile['start_pose_bounds'])
+        profile = value['profile'] = stance.profile_with_caps(
+            profile, lineage_by_id=lineage, percent=percent, model_limits_by_id=MODEL_TARGET_LIMITS_BY_ID,
+            offsets_by_id={int(key): q for key, q in value['offsets_by_id'].items()})
+
     for key in ('offsets_by_id', 'reference_turns_by_id', 'uids_by_id', 'firmware_by_id'):
         need(type(value[key]) is dict and set(value[key]) == {str(mid) for mid in IDS}, 'Twelve-axis '+key+' required')
     offsets, turns, uids, firmware = {}, {}, {}, {}
@@ -398,7 +402,7 @@ def split_wires_by_port(encoded, groups, *, zero_gain):
     return {group.port: tuple(by_id[mid] for mid in group.ids) for group in groups}
 
 
-def type1_hold_snapshot_builder(plan_document):
+def type1_hold_snapshot_builder(plan_document, windows_by_id=None):
     """Setup-only plan copy; Type1-hold variant of model_bridge._snapshot (MB:473-535).
 
     Each record's tx must equal the exact previous validated Type1 wire and its
@@ -407,6 +411,16 @@ def type1_hold_snapshot_builder(plan_document):
     """
     owned = _plain(plan_document)
     axes = bridge._plan_axes(owned)
+    if windows_by_id is not None:
+        # Explicit stance percent run: the sealed plan is unchanged; only the per-axis branch/range
+        # window of this run's position check widens to the admitted stance window (a superset).
+        for mid, (lower, upper) in windows_by_id.items():
+            port, sign, offset, old_lower, old_upper, final_ns = axes[mid]
+            index = shadow.CAN_ORDER.index(mid)
+            need(lower <= old_lower and old_upper <= upper and
+                 shadow.LOWER[index] <= lower < upper <= shadow.UPPER[index],
+                 'Stance window must contain the reviewed window inside the model range')
+            axes[mid] = (port, sign, offset, lower, upper, final_ns)
     order = {port: tuple(owned['topology_by_port'][port]) for port in PORTS}
     replies = {mid: (((2 << 24) | (2 << 22) | (mid << 8) | codec.HOST_ID) << 3) | 4 for mid in IDS}
     record_type = Record*3
@@ -768,7 +782,10 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
     need(timing_evidence is None or all(callable(getattr(timing_evidence, name, None)) for name in
          ('bind', 'sample', 'run_counters', 'delta', 'run_delta', 'close')), 'Timing evidence reader incomplete')
     imu_limits, imu_rotation, imu_bias = spec['imu']['limits'], spec['imu']['rotation'], spec['imu']['gyro_bias']
-    snapshot_builder = type1_hold_snapshot_builder(spec['model_plan'])
+    stance_windows = ({mid: (spec['profile']['axes'][str(mid)]['physical_lower_rad'],
+                            spec['profile']['axes'][str(mid)]['physical_upper_rad']) for mid in IDS}
+                      if stance.run_percent(options, spec['mode'], spec['duration_s']) is not None else None)
+    snapshot_builder = type1_hold_snapshot_builder(spec['model_plan'], stance_windows)
     groups, profile, offsets = spec['groups'], spec['profile'], spec['offsets']
     axes = profile['axes']
     axis_rows = tuple(axes[str(mid)] for mid in IDS)
@@ -1264,7 +1281,9 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
         stance_waypoints = None
         if learned and stance.selected(options):
             stance_waypoints, report['stance_transition'] = stance.targets(
-                {mid: origin_q[mid-1] for mid in IDS}, axis_rows, MODEL_TARGET_LIMITS_BY_ID)
+                {mid: origin_q[mid-1] for mid in IDS}, axis_rows, MODEL_TARGET_LIMITS_BY_ID,
+                percent=stance.run_percent(options, spec['mode'], spec['duration_s']),
+                available_s=spec['stop_at_s']-startup_s-.2)
         start = clock()
         if prearm_ns is not None:
             start += prearm_ns  # Epoch one lead ahead, so cycle 0 is pre-armed as well.

@@ -99,6 +99,20 @@ class FileOnlyGroup:
         return self.close_report
 
 
+class FollowingGroup(FileOnlyGroup):
+    """Synthetic motors that reach each commanded position one cycle later."""
+    def _output(self, wires, reply_deadline_ns, write_deadline_ns):
+        from . import type1_transport as T
+        from .test_type1_runner import RAW
+        batches = super()._output(wires, reply_deadline_ns, write_deadline_ns)
+        drift = self.h.controls.setdefault('drift', {})
+        for port in PORTS:
+            for wire in wires[port]:
+                mid, q, _, _ = T.type1_fields(wire)
+                drift[mid] = T.decoded_q(q)-RAW[mid]
+        return batches
+
+
 class StopOrderMock(Mock30):
     def stop_repeated(self, **kwargs):
         if self.h.native is not None and not self.h.native.closed:
@@ -307,7 +321,7 @@ class NativeRunnerTests(Harness, unittest.TestCase):
         value = self.stance_value()
         value['duration_s'] = 10
         value['profile']['duration_s'] = 10
-        with self.assertRaisesRegex(ValueError, '2 s only'):
+        with self.assertRaisesRegex(ValueError, '2 s, or 10 s'):
             R.plan(value)
         from .test_type1_runner import admitted
         legacy = admitted()
@@ -329,6 +343,77 @@ class NativeRunnerTests(Harness, unittest.TestCase):
         self.assertEqual(kps[1], stance.KP)
         with self.assertRaisesRegex(ValueError, 'kp cap must be 0..'+str(stance.KP)):
             T.session_limits(group, bounds, {mid: stance.KP+.5 for mid in group.ids}, kd, stance_caps=True)
+
+
+    def percent_value(self, percent=35):
+        value = admitted_native()
+        value['pacing'] = P.selected_pacing({'native_group_cycle': True, 'stance_transition': True,
+                                             'stance_lift_percent': percent})
+        value['duration_s'] = 10
+        value['profile'].update(duration_s=10, startup_duration_s=.4, policy_ramp_s=.4, stop_duration_s=.4)
+        return value
+
+    def test_percent_lift_rises_holds_and_returns_within_widened_window(self):
+        import math
+        from experiments.stance_transition import plan as SP
+        def following(adapters):
+            self.native = FollowingGroup(adapters, self)
+            return self.native
+        report = self.run_case(value=self.percent_value(), cycle_group_factory=following)
+        self.assertEqual(report['status'], 'COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED', report['errors'])
+        plan = report['stance_transition']
+        self.assertEqual(plan['percent'], 35)
+        self.assertTrue(plan['return_to_start'])
+        self.assertLess(plan['max_foot_slide_m'], 1e-12)
+        self.assertGreater(plan['max_joint_delta_deg'], 3.)  # Beyond the reviewed +-3 deg window.
+        q0 = {int(k): v for k, v in report['q0_model_rad_by_id'].items()}
+        commands = [row['command'] for row in report['cycles'] if row['label'] == 'stance_transition']
+        heights = [SP.body_height_m({mid: c['q_model_rad'][mid-1] for mid in range(1, 13)}) for c in commands]
+        start = SP.body_height_m(q0)
+        self.assertGreater(max(heights)-start, plan['lift_m']*.9)
+        self.assertAlmostEqual(heights[-1], start, places=9)  # Lowered back before the stop.
+
+    def test_percent_requires_ten_seconds_and_stance(self):
+        value = self.percent_value()
+        value['duration_s'] = 2
+        value['profile']['duration_s'] = 2
+        report_plan = R.plan(value)  # 2 s with a percent contract keeps the small lift.
+        self.assertEqual(report_plan['duration_s'], 2)
+        value = self.percent_value()
+        value['duration_s'] = 20
+        value['profile']['duration_s'] = 20
+        with self.assertRaisesRegex(ValueError, '10 s with stance_lift_percent'):
+            R.plan(value)
+        for bad in (0, 51, 35.0, True):
+            with self.assertRaisesRegex(ValueError, 'stance_lift_percent'):
+                P.selected_pacing({'stance_transition': True, 'stance_lift_percent': bad})
+        with self.assertRaisesRegex(ValueError, 'stance_lift_percent'):
+            P.selected_pacing({'stance_lift_percent': 35})
+
+    def test_foreground_transport_limits_match_runner_widened_axes(self):
+        from . import stance, type1_foreground as F
+        from experiments.four_bus_diagnostic.transport_adapter import Group
+        from singularitydog_hw.policy_output_runtime import MODEL_TARGET_LIMITS_BY_ID
+        value = self.percent_value()
+        axes = {key: dict(axis, fixed_offset_rad=value['offsets_by_id'][key])
+                for key, axis in value['profile']['axes'].items()}
+        for key, axis in axes.items():
+            raw = sorted(((axis['lower_rad']-axis['fixed_offset_rad'])/axis['sign'],
+                          (axis['upper_rad']-axis['fixed_offset_rad'])/axis['sign']))
+            axis['raw_lower_rad'], axis['raw_upper_rad'] = raw
+        contract = {'axes': axes, 'pacing': value['pacing'],
+                    'start_pose_bounds': value['profile']['start_pose_bounds']}
+        spec = R.validate_admitted(value)
+        group = Group('port3', (1, 2, 3))
+        bounds, kp, kd = F.transport_limits(contract, group, 'learned_boxed', 10)
+        for mid in group.ids:
+            axis = spec['profile']['axes'][str(mid)]
+            self.assertEqual(bounds[mid], (axis['raw_lower_rad'], axis['raw_upper_rad']))
+            self.assertEqual(kp[mid], stance.KP)
+        small, _, _ = F.transport_limits(contract, group, 'learned_boxed', 2)
+        for mid in group.ids:
+            self.assertEqual(small[mid], (contract['axes'][str(mid)]['raw_lower_rad'],
+                                          contract['axes'][str(mid)]['raw_upper_rad']))
 
 
 if __name__ == '__main__':

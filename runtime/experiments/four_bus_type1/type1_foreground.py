@@ -202,13 +202,19 @@ def runner_admitted(admitted, firmware_by_id):
     return result
 
 
-def transport_limits(contract, group, mode):
+def transport_limits(contract, group, mode, duration=None):
     """Native member windows/caps; zero-gain timing pins native kp=kd caps to zero."""
     need(mode in P.MODES, 'Explicit mode required')
     learned = mode == 'learned_boxed'
     axes = contract['axes']
     bounds = {mid: (axes[str(mid)]['raw_lower_rad'], axes[str(mid)]['raw_upper_rad']) for mid in group.ids}
     stance_run = learned and contract['pacing'].get('stance_transition') is True
+    percent = stance.run_percent(contract['pacing'], mode, duration) if duration is not None else None
+    if stance_run and percent is not None:
+        lineage = stance.lineage_pose(contract['start_pose_bounds'])
+        from singularitydog_hw.policy_output_runtime import MODEL_TARGET_LIMITS_BY_ID
+        axes = stance.widened_axes(axes, lineage, percent, MODEL_TARGET_LIMITS_BY_ID)
+        bounds = {mid: (axes[str(mid)]['raw_lower_rad'], axes[str(mid)]['raw_upper_rad']) for mid in group.ids}
     kp = {mid: (stance.KP if stance_run else axes[str(mid)]['kp']) if learned else 0. for mid in group.ids}
     kd = {mid: (stance.KD if stance_run else axes[str(mid)]['kd']) if learned else 0. for mid in group.ids}
     return bounds, kp, kd
@@ -729,7 +735,7 @@ def execute(args, prepared, environment=None):
                 current_guard()
                 scope = env.main_scope()
                 def factory(group):
-                    bounds, kp, kd = transport_limits(contract, group, admitted.mode)
+                    bounds, kp, kd = transport_limits(contract, group, admitted.mode, admitted.duration_s)
                     value = T.Type1Transport.create(library, descriptors[group.port], group=group, cancel_fd=cr,
                         boot_fd=boot_fds[group.port], boot_id=capture['boot_before'], axis_raw_bounds=bounds,
                         kp_cap_by_id=kp, kd_cap_by_id=kd, cancel_all=cancel_from(group.port+'_transport_failure'),

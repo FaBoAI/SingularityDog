@@ -41,6 +41,7 @@ KP_CAP = 3.
 KD_CAP = .15
 # Only an explicit stance_transition learned run passes stance_caps=True (stance.py).
 from .stance import KP as STANCE_KP_CAP, KD as STANCE_KD_CAP  # noqa: E402
+STANCE_MAX_RAW_WINDOW_RAD = 2*math.radians(30)  # Percent-lift windows (stance.widened_axes) stay well inside.
 MAX_RAW_WINDOW_RAD = 2*math.radians(3)+1e-12
 UNREACHABLE_CODE = 32767
 PARAMETERS = ('run_mode', 'position', 'velocity', 'voltage', 'can_timeout')
@@ -246,7 +247,8 @@ def session_limits(group, axis_raw_bounds, kp_cap_by_id, kd_cap_by_id, *, stance
             need(type(bounds) is tuple and len(bounds) == 2 and all(finite(x) for x in bounds),
                  f'ID{mid} raw bounds must be a finite (lower, upper) tuple')
             lo, hi = float(bounds[0]), float(bounds[1])
-            need(-12.57 <= lo < hi <= 12.57 and hi-lo <= MAX_RAW_WINDOW_RAD,
+            window_cap = STANCE_MAX_RAW_WINDOW_RAD if stance_caps is True else MAX_RAW_WINDOW_RAD
+            need(-12.57 <= lo < hi <= 12.57 and hi-lo <= window_cap,
                  f'ID{mid} raw window must be ordered, in range and at most six degrees wide')
             kp_cap, kd_cap = (STANCE_KP_CAP, STANCE_KD_CAP) if stance_caps is True else (KP_CAP, KD_CAP)
             need(finite(kp_cap_by_id[mid]) and 0 <= kp_cap_by_id[mid] <= kp_cap,
