@@ -598,5 +598,105 @@
    },
    "note": "max includes first-call JIT profiling"
   }
+ },
+ "box_kept_stance_transition": {
+  "user_request": "台から推論モデルで立つ（まず10%）",
+  "model_target_sent": false,
+  "caps": {
+   "kd": 0.3,
+   "max_estimated_pd_torque_nm": 2.0,
+   "max_measured_torque_nm": 3.0,
+   "max_displacement_from_start_deg": 3.0,
+   "max_tracking_error_deg": 3.0,
+   "max_command_velocity_deg_s": 10.0,
+   "max_command_acceleration_deg_s2": 20.0
+  },
+  "runs": [
+   {
+    "run": "s2-stance2",
+    "kind": "joint_step",
+    "kp": 12,
+    "kd": 0.3,
+    "status": "COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED",
+    "completed_cycles": 51,
+    "stop_confirmed": true,
+    "max_commanded_delta_deg": 2.166,
+    "max_measured_delta_deg": 0.879,
+    "max_abs_torque_nm": 0.382,
+    "fk_measured_body_rise_mm": 1.174,
+    "operator_observation": "動きはほぼなし・異常なし",
+    "report_sha256": "aaace16d2256055700758af0867d0e6101623bbc11bfee8e34f945a2ca02e787"
+   },
+   {
+    "run": "s3-stance2",
+    "kind": "joint_step",
+    "kp": 18,
+    "kd": 0.3,
+    "status": "COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED",
+    "completed_cycles": 51,
+    "stop_confirmed": true,
+    "max_commanded_delta_deg": 2.188,
+    "max_measured_delta_deg": 1.011,
+    "max_abs_torque_nm": 0.503,
+    "fk_measured_body_rise_mm": 1.516,
+    "operator_observation": "動きはほぼなし・異常なし",
+    "report_sha256": "7c83f93359823a926441ef807bd8904f4606ad34190d33ea4453ebad6b063739"
+   },
+   {
+    "run": "s5-stance2",
+    "kind": "joint_step",
+    "kp": 24,
+    "kd": 0.3,
+    "status": "COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED",
+    "completed_cycles": 51,
+    "stop_confirmed": true,
+    "max_commanded_delta_deg": 2.188,
+    "max_measured_delta_deg": 1.077,
+    "max_abs_torque_nm": 0.595,
+    "fk_measured_body_rise_mm": 1.739,
+    "operator_observation": "動きはほぼなし・異常なし",
+    "report_sha256": "8c37f6b7d2ddbc9c1309582f5605a34f6bb59b095fb05376070bfbaa9a079682"
+   },
+   {
+    "run": "s7-stance2",
+    "kind": "vertical_lift",
+    "kp": 24,
+    "kd": 0.3,
+    "status": "COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED",
+    "completed_cycles": 51,
+    "stop_confirmed": true,
+    "max_commanded_delta_deg": 2.13,
+    "max_measured_delta_deg": 1.802,
+    "max_abs_torque_nm": 0.377,
+    "fk_measured_body_rise_mm": 1.043,
+    "operator_observation": "動きはほぼなし・異常なし",
+    "report_sha256": "1a54d124691a0ad81f8d4946f9660f427bb52d7829d1b0a70648784b97d7c15f"
+   },
+   {
+    "run": "s8-stance2",
+    "kind": "vertical_lift",
+    "kp": 36,
+    "kd": 0.3,
+    "status": "COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED",
+    "completed_cycles": 51,
+    "stop_confirmed": true,
+    "max_commanded_delta_deg": 2.13,
+    "max_measured_delta_deg": 1.934,
+    "max_abs_torque_nm": 0.453,
+    "fk_measured_body_rise_mm": 1.274,
+    "operator_observation": null,
+    "report_sha256": "fe320d7f91581da360d3f231749217322e55065c7b35ab7d19f006554fcbcc92"
+   }
+  ],
+  "aborted_before_stance": [
+   "s1: zero gain completed but ID12 STOP reply lost -> STOP unconfirmed, 40V cutoff by user"
+  ],
+  "finding": "joint-space step toward nominal mostly turned hips with planted feet (hip tracking 13-46%, spring-like resistance); vertical lift with feet fixed tracks 76-83% but torque stays <=0.45 Nm and FK rise ~1.0-1.3 mm of 2.1 mm commanded; full lift not achieved within the +-3 deg window and Kp<=36",
+  "not_claimed": [
+   "body lifted off the box",
+   "load support",
+   "standing",
+   "walking"
+  ]
  }
 }
