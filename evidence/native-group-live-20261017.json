@@ -698,5 +698,60 @@
    "standing",
    "walking"
   ]
+ },
+ "box_kept_percent_lift": {
+  "user_selection": "35% -> 50% -> 65% (later), 15 deg/s, IMU accel-norm interval widened to 10.0-11.2 for percent runs",
+  "clearance": "user confirmed up to 2 cm / ~20 deg calf, then selected 50/65 %",
+  "runs": [
+   {
+    "run": "p35-lift10",
+    "status": "ABORTED",
+    "stop_reason": "ValueError: Outside immutable local branch/range: ID10",
+    "completed_cycles": 46,
+    "stop_confirmed": true,
+    "percent": 35,
+    "commanded_rise_mm": 3.46,
+    "fk_measured_rise_mm": 1.9,
+    "max_abs_torque_nm": 0.523,
+    "report_sha256": "b2d3b633e9fc9c5005df7dc15c9cf5b6fc10257e0e52fcbcf5498c5bb077aa4c"
+   },
+   {
+    "run": "q35-lift10",
+    "status": "ABORTED",
+    "stop_reason": "ValueError: IMU gravity-proxy norm outside reviewed range",
+    "completed_cycles": 47,
+    "stop_confirmed": true,
+    "percent": 35,
+    "commanded_rise_mm": 5.91,
+    "fk_measured_rise_mm": 3.42,
+    "max_abs_torque_nm": 0.86,
+    "report_sha256": "861b1ed96319ab2eddc023c64df4a6fea48162abd25cda3e211182ab7188a3bd"
+   },
+   {
+    "run": "q35b-zero2",
+    "status": "ABORTED",
+    "stop_reason": "RuntimeError: ID1 measured velocity",
+    "completed_cycles": 40,
+    "stop_confirmed": true,
+    "percent": null,
+    "commanded_rise_mm": 0.0,
+    "fk_measured_rise_mm": 0.01,
+    "max_abs_torque_nm": 0.033,
+    "report_sha256": "5fbca89671b52822b4be88e99cf04bc2926e5743b68157ce2e923c9ff5941675"
+   }
+  ],
+  "observations": {
+   "q35-lift10": "user: 浮きかけた (began to float); stopped on IMU norm 10.97 m/s^2 with calf torque up to 0.86 Nm",
+   "after": "next read showed front legs ID1-6 moved up to 35 deg; zero gain then stopped on ID1 measured velocity (leg not resting); user went to charge the battery"
+  },
+  "fixes": [
+   "observer guard used the unwidened +-3 deg window (p35-lift10 stopped at ID10); fixed to the same widened windows"
+  ],
+  "not_claimed": [
+   "sustained lift off the box",
+   "load support",
+   "standing",
+   "walking"
+  ]
  }
 }
