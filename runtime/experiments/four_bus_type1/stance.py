@@ -11,7 +11,8 @@ recorded but its target is not sent.
 - 10 s with ``stance_lift_percent`` P: lift P % of the way to the controller
   nominal stance height, hold, lower back to the start, then the normal stop.
   Each axis window widens to the planned change plus WINDOW_MARGIN_RAD (user
-  confirmed clearance for up to 2 cm / ~20 deg calf on 2026-10-17).
+  confirmed clearance for up to 2 cm / ~20 deg calf, then selected 50 % and
+  65 % (~2.3 cm / ~30 deg calf) on 2026-10-17).
 """
 import copy
 import math
@@ -20,17 +21,17 @@ from experiments.stance_transition import plan as stance_plan
 
 OPTION = 'stance_transition'
 PERCENT_OPTION = 'stance_lift_percent'
-PERCENT_RANGE = (1, 50)
+PERCENT_RANGE = (1, 65)  # User 2026-10-17: 35 -> 50 -> 65 %; feet-fixed reach ends near 71 %.
 KP, KD = 36., .3  # Staged 2026-10-17: Kp12/18/24 (joint step dragged feet), vertical lift Kp24 (~1 mm FK), Kp36 by user selection; equals the native hard cap.
 STANCE_CAPS = {'kp': KP, 'kd': KD,
                'max_displacement_from_start_rad': math.radians(3),
                'max_estimated_pd_torque_nm': 2., 'max_measured_torque_nm': 3.,
-               'max_command_velocity_rad_s': math.radians(10),
+               'max_command_velocity_rad_s': math.radians(15),  # User-loosened 10 -> 15 deg/s for 50-65 % in 10 s.
                'max_command_acceleration_rad_s2': math.radians(20),
                'max_tracking_error_rad': math.radians(3)}
 STANCE_MAX_DELTA_RAD = math.radians(2.5)
 STANCE_DURATION_S = 2
-PERCENT_DURATION_S = 10
+PERCENT_DURATIONS_S = (10, 20)
 PROBE_LIFT_M = .003
 WINDOW_MARGIN_RAD = math.radians(2)
 MIN_HOLD_S = .5
@@ -59,9 +60,9 @@ def run_percent(options, mode, duration):
     if not (selected(options) and mode == 'learned_boxed'):
         return None
     percent = lift_percent(options)
-    need(duration == STANCE_DURATION_S or (percent is not None and duration == PERCENT_DURATION_S),
-         'Stance transition learned_boxed is 2 s, or 10 s with stance_lift_percent')
-    return percent if duration == PERCENT_DURATION_S else None
+    need(duration == STANCE_DURATION_S or (percent is not None and duration in PERCENT_DURATIONS_S),
+         'Stance transition learned_boxed is 2 s, or 10/20 s with stance_lift_percent')
+    return percent if duration in PERCENT_DURATIONS_S else None
 
 
 def _caps():
@@ -152,15 +153,19 @@ def targets(q0_by_id, axis_rows, model_limits_by_id, *, percent=None, available_
         _check(waypoints, start, axis_rows, {mid: STANCE_MAX_DELTA_RAD for mid in range(1, 13)})
     else:
         need(type(available_s) in (int, float) and available_s > 0, 'Available motion time required')
-        result = percent_goal(start, percent, model_limits_by_id)
-        up = tuple(tuple(row) for row in result.pop('waypoints_by_id_rad'))
-        hold = int(math.floor(available_s*stance_plan.CYCLE_HZ))-2*(len(up)-1)
+        # A shorter run of the same contract lifts the largest whole percent that fits (recorded below).
+        for applied in range(percent, 0, -1):
+            result = percent_goal(start, applied, model_limits_by_id)
+            up = tuple(tuple(row) for row in result.pop('waypoints_by_id_rad'))
+            hold = int(math.floor(available_s*stance_plan.CYCLE_HZ))-2*(len(up)-1)
+            if hold >= MIN_HOLD_S*stance_plan.CYCLE_HZ:
+                break
         need(hold >= MIN_HOLD_S*stance_plan.CYCLE_HZ, 'Lift and return do not fit the run with a %.1f s hold' % MIN_HOLD_S)
         waypoints = up+(up[-1],)*hold+tuple(reversed(up))
         need(waypoints[-1] == tuple(start[mid] for mid in range(1, 13)), 'Return must end exactly at the start')
         _check(waypoints, start, axis_rows, {mid: axis['max_displacement_from_start_rad']
                                               for mid, axis in enumerate(axis_rows, 1)})
-        result.update(percent=percent, hold_cycles=hold, return_to_start=True)
+        result.update(percent=applied, percent_requested=percent, hold_cycles=hold, return_to_start=True)
     result['waypoint_count'] = len(waypoints)
     return waypoints, result
 

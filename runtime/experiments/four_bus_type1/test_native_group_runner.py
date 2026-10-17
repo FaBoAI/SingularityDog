@@ -321,7 +321,7 @@ class NativeRunnerTests(Harness, unittest.TestCase):
         value = self.stance_value()
         value['duration_s'] = 10
         value['profile']['duration_s'] = 10
-        with self.assertRaisesRegex(ValueError, '2 s, or 10 s'):
+        with self.assertRaisesRegex(ValueError, '2 s, or 10/20 s'):
             R.plan(value)
         from .test_type1_runner import admitted
         legacy = admitted()
@@ -371,7 +371,7 @@ class NativeRunnerTests(Harness, unittest.TestCase):
         heights = [SP.body_height_m({mid: c['q_model_rad'][mid-1] for mid in range(1, 13)}) for c in commands]
         start = SP.body_height_m(q0)
         self.assertGreater(max(heights)-start, plan['lift_m']*.9)
-        self.assertAlmostEqual(heights[-1], start, places=9)  # Lowered back before the stop.
+        self.assertAlmostEqual(heights[-1], start, places=6)  # Lowered back (micrometres) before the stop.
 
     def test_percent_requires_ten_seconds_and_stance(self):
         value = self.percent_value()
@@ -380,11 +380,11 @@ class NativeRunnerTests(Harness, unittest.TestCase):
         report_plan = R.plan(value)  # 2 s with a percent contract keeps the small lift.
         self.assertEqual(report_plan['duration_s'], 2)
         value = self.percent_value()
-        value['duration_s'] = 20
-        value['profile']['duration_s'] = 20
-        with self.assertRaisesRegex(ValueError, '10 s with stance_lift_percent'):
+        value['duration_s'] = 10
+        value['pacing'] = P.selected_pacing({'native_group_cycle': True, 'stance_transition': True})
+        with self.assertRaisesRegex(ValueError, '10/20 s with stance_lift_percent'):
             R.plan(value)
-        for bad in (0, 51, 35.0, True):
+        for bad in (0, 66, 35.0, True):
             with self.assertRaisesRegex(ValueError, 'stance_lift_percent'):
                 P.selected_pacing({'stance_transition': True, 'stance_lift_percent': bad})
         with self.assertRaisesRegex(ValueError, 'stance_lift_percent'):
@@ -414,6 +414,30 @@ class NativeRunnerTests(Harness, unittest.TestCase):
         for mid in group.ids:
             self.assertEqual(small[mid], (contract['axes'][str(mid)]['raw_lower_rad'],
                                           contract['axes'][str(mid)]['raw_upper_rad']))
+
+
+    def test_observer_guard_uses_the_same_widened_windows(self):
+        from . import type1_foreground as F
+        from experiments.four_bus_diagnostic import model_bridge as B
+        value = self.percent_value()
+        spec = R.validate_admitted(value)
+        axes = {key: dict(axis, fixed_offset_rad=value['offsets_by_id'][key])
+                for key, axis in value['profile']['axes'].items()}
+        contract = {'axes': axes, 'pacing': value['pacing'],
+                    'start_pose_bounds': value['profile']['start_pose_bounds']}
+        windows = F.stance_windows(contract, 'learned_boxed', 10)
+        for mid, (lower, upper) in windows.items():
+            axis = spec['profile']['axes'][str(mid)]
+            self.assertEqual((lower, upper), (axis['physical_lower_rad'], axis['physical_upper_rad']))
+        self.assertIsNone(F.stance_windows(contract, 'learned_boxed', 2))
+        self.assertIsNone(F.stance_windows(contract, 'zero_gain_timing', 2))
+        plan_axes = B._plan_axes(value['model_plan'])
+        widened = B.widen_position_windows(plan_axes, windows)
+        self.assertTrue(any(widened[mid][4]-widened[mid][3] > plan_axes[mid][4]-plan_axes[mid][3]+1e-6
+                            for mid in windows))
+        narrow = {mid: (plan_axes[mid][3]+.001, plan_axes[mid][4]) for mid in windows}
+        with self.assertRaisesRegex(ValueError, 'contain the reviewed window'):
+            B.widen_position_windows(plan_axes, narrow)
 
 
 if __name__ == '__main__':

@@ -229,7 +229,18 @@ def observer_ticks(duration_s, control_clock=None):
     return duration_s*50+2
 
 
-def create_type1_observer(plan, observer_factory, *, policy, duration_s, torch_module, checked_dispatch_wrapper):
+def stance_windows(contract, mode, duration):
+    """Widened per-axis position windows of an explicit stance percent run, else None."""
+    if stance.run_percent(contract['pacing'], mode, duration) is None:
+        return None
+    from singularitydog_hw.policy_output_runtime import MODEL_TARGET_LIMITS_BY_ID
+    axes = stance.widened_axes(contract['axes'], stance.lineage_pose(contract['start_pose_bounds']),
+                               stance.run_percent(contract['pacing'], mode, duration), MODEL_TARGET_LIMITS_BY_ID)
+    return {int(key): (axis['physical_lower_rad'], axis['physical_upper_rad']) for key, axis in axes.items()}
+
+
+def create_type1_observer(plan, observer_factory, *, policy, duration_s, torch_module, checked_dispatch_wrapper,
+                          windows_by_id=None):
     """model_bridge.create_guarded_observer with a duration tick budget (it allows only 5/501)."""
     owned = copy.deepcopy(plan)
     model_bridge._plan_axes(owned)
@@ -243,7 +254,7 @@ def create_type1_observer(plan, observer_factory, *, policy, duration_s, torch_m
                   checked_dispatch_wrapper=checked_dispatch_wrapper)
     delegate = observer_factory(policy, copy.deepcopy(owned['calibration']), **kwargs)
     need(callable(getattr(delegate, 'consume', None)), 'Ordinary observer consume required')
-    return model_bridge._GuardedObserver(delegate, owned)
+    return model_bridge._GuardedObserver(delegate, owned, windows_by_id)
 
 
 def prepare_type1_library(args, manifest, pins, *, prearmed_hold=False, separate_write_deadline=False,
@@ -451,7 +462,9 @@ class LinuxEnvironment:
             policy, proof = new_model.load(selected['artifacts'], execute_cpu=True)
             observer = create_type1_observer(prepared['contract']['model_plan'], StatefulPolicyObserver,
                 policy=policy, duration_s=prepared['admitted'].duration_s,
-                torch_module=torch, checked_dispatch_wrapper=None)
+                torch_module=torch, checked_dispatch_wrapper=None,
+                windows_by_id=stance_windows(prepared['contract'], prepared['admitted'].mode,
+                                             prepared['admitted'].duration_s))
             kwargs = prepared['contract']['model_plan']['observer_kwargs']
             def warm(run, **counts):
                 value = FG.selected_warmup(run, policy, None, torch, kwargs['h_hypothesis'], **counts)

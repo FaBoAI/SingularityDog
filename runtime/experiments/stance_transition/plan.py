@@ -31,7 +31,7 @@ THIGH_M = CALF_M = .12
 HIP_LATERAL_M = .064
 LEG_SIGNS = (1., -1., 1., -1.)  # Frozen controller signs for the four CAN_ORDER legs.
 LEG_ORIGINS = ((.155, .11, 0.), (.155, -.11, 0.), (-.155, .11, 0.), (-.155, -.11, 0.))
-MAX_LIFT_M = .02
+MAX_LIFT_M = .025
 
 
 def need(condition, message):

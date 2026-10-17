@@ -712,11 +712,30 @@ def combined_batch_snapshot_builder(plan):
     return build
 
 
+def widen_position_windows(axes, windows_by_id):
+    """Plan axes with explicitly selected per-axis windows; each must contain the reviewed one.
+
+    Used only by an explicit stance percent run. The sealed plan is unchanged;
+    the result stays inside the model range, so the branch protection holds.
+    """
+    result = dict(axes)
+    for mid, (lower, upper) in windows_by_id.items():
+        port, sign, offset, old_lower, old_upper, final_ns = axes[mid]
+        index = shadow.CAN_ORDER.index(mid)
+        _need(lower <= old_lower and old_upper <= upper and
+              shadow.LOWER[index] <= lower < upper <= shadow.UPPER[index],
+              'Stance window must contain the reviewed window inside the model range')
+        result[mid] = (port, sign, offset, lower, upper, final_ns)
+    return result
+
+
 class _GuardedObserver:
     """Freeze the numerical branch; ordinary observer retains all own checks."""
-    def __init__(self, delegate, plan):
+    def __init__(self, delegate, plan, windows_by_id=None):
         self._delegate = delegate
         self._axes = _plan_axes(copy.deepcopy(plan))
+        if windows_by_id is not None:
+            self._axes = widen_position_windows(self._axes, windows_by_id)
 
     def __getattr__(self, name):
         return getattr(self._delegate, name)

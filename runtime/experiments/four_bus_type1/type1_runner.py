@@ -414,13 +414,7 @@ def type1_hold_snapshot_builder(plan_document, windows_by_id=None):
     if windows_by_id is not None:
         # Explicit stance percent run: the sealed plan is unchanged; only the per-axis branch/range
         # window of this run's position check widens to the admitted stance window (a superset).
-        for mid, (lower, upper) in windows_by_id.items():
-            port, sign, offset, old_lower, old_upper, final_ns = axes[mid]
-            index = shadow.CAN_ORDER.index(mid)
-            need(lower <= old_lower and old_upper <= upper and
-                 shadow.LOWER[index] <= lower < upper <= shadow.UPPER[index],
-                 'Stance window must contain the reviewed window inside the model range')
-            axes[mid] = (port, sign, offset, lower, upper, final_ns)
+        axes = bridge.widen_position_windows(axes, windows_by_id)
     order = {port: tuple(owned['topology_by_port'][port]) for port in PORTS}
     replies = {mid: (((2 << 24) | (2 << 22) | (mid << 8) | codec.HOST_ID) << 3) | 4 for mid in IDS}
     record_type = Record*3
