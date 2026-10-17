@@ -440,5 +440,17 @@ class NativeRunnerTests(Harness, unittest.TestCase):
             B.widen_position_windows(plan_axes, narrow)
 
 
+    def test_percent_run_widens_only_the_imu_norm_interval(self):
+        from . import stance
+        base = {'imu_tilt_limit_rad': .2, 'imu_gyro_limit_rad_s': .5,
+                'imu_accel_norm_min_m_s2': 10.5, 'imu_accel_norm_max_m_s2': 10.9}
+        self.assertEqual(stance.imu_limits_for_run(base, None), base)
+        wide = stance.imu_limits_for_run(base, 35)
+        self.assertEqual((wide['imu_accel_norm_min_m_s2'], wide['imu_accel_norm_max_m_s2']), (10., 11.2))
+        self.assertEqual((wide['imu_tilt_limit_rad'], wide['imu_gyro_limit_rad_s']), (.2, .5))
+        lo, hi = R.IMU_LIMIT_RANGES['imu_accel_norm_min_m_s2']
+        self.assertTrue(lo <= 10. and 11.2 <= hi)
+
+
 if __name__ == '__main__':
     unittest.main()

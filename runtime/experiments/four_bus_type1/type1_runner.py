@@ -776,6 +776,7 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
     need(timing_evidence is None or all(callable(getattr(timing_evidence, name, None)) for name in
          ('bind', 'sample', 'run_counters', 'delta', 'run_delta', 'close')), 'Timing evidence reader incomplete')
     imu_limits, imu_rotation, imu_bias = spec['imu']['limits'], spec['imu']['rotation'], spec['imu']['gyro_bias']
+    imu_limits = stance.imu_limits_for_run(imu_limits, stance.run_percent(spec['options'], spec['mode'], spec['duration_s']))
     stance_windows = ({mid: (spec['profile']['axes'][str(mid)]['physical_lower_rad'],
                             spec['profile']['axes'][str(mid)]['physical_upper_rad']) for mid in IDS}
                       if stance.run_percent(options, spec['mode'], spec['duration_s']) is not None else None)

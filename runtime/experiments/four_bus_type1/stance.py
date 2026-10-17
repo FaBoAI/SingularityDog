@@ -35,6 +35,9 @@ PERCENT_DURATIONS_S = (10, 20)
 PROBE_LIFT_M = .003
 WINDOW_MARGIN_RAD = math.radians(2)
 MIN_HOLD_S = .5
+# User-selected 2026-10-17 after the 35 % lift tripped 10.97 m/s^2 as the body left the box.
+# Percent runs only; within the runner's IMU_LIMIT_RANGES. Tilt and gyro limits are unchanged.
+PERCENT_IMU_ACCEL_NORM_M_S2 = (10.0, 11.2)
 LOCAL_MARGIN_RAD = 2*25.14/65535  # Same as policy_live_profile.LOCAL_NUMERICAL_MARGIN_RAD (contract effective bounds).
 
 
@@ -168,6 +171,17 @@ def targets(q0_by_id, axis_rows, model_limits_by_id, *, percent=None, available_
         result.update(percent=applied, percent_requested=percent, hold_cycles=hold, return_to_start=True)
     result['waypoint_count'] = len(waypoints)
     return waypoints, result
+
+
+def imu_limits_for_run(limits, percent):
+    """IMU limits of this run: a percent lift widens only the accelerometer-norm interval."""
+    result = dict(limits)
+    if percent is not None:
+        lower, upper = PERCENT_IMU_ACCEL_NORM_M_S2
+        # Only ever widens: the union of the reviewed interval and the percent interval.
+        result.update(imu_accel_norm_min_m_s2=min(lower, result['imu_accel_norm_min_m_s2']),
+                      imu_accel_norm_max_m_s2=max(upper, result['imu_accel_norm_max_m_s2']))
+    return result
 
 
 def target_at(waypoints, elapsed_s, startup_s, cycle_hz=stance_plan.CYCLE_HZ):
