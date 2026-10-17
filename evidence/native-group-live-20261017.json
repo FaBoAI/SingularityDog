@@ -528,5 +528,59 @@
   "diagnostic_aborts_retained": [
    "p5 diag 501: aborted twice before CPU5 isolation; one post-10s attempt aborted at cycle 94, retry complete"
   ]
+ },
+ "controller_inference_breakdown": {
+  "live_model_call_ms_20s_rerun": {
+   "median": 6.514,
+   "p99": 6.993,
+   "max": 7.058
+  },
+  "cpu4_single_thread_ms": {
+   "observation": 0.444,
+   "actor": 0.587,
+   "step": 4.639
+  },
+  "step_cost": "16 sequential feasible_ik projection candidates (~0.2 ms each) plus up to 14 bisection steps",
+  "freeze_bitwise_equal_no_speedup_ms": [
+   5.505,
+   5.608
+  ],
+  "cpu_fuser": "unavailable (no LLVM backend)"
+ },
+ "controller_batch_scan_cpu_equivalence": {
+  "ticks": 6720,
+  "compared_tensors": 423360,
+  "mismatches": 0,
+  "exceptions_matched": 0,
+  "exception_mismatch": 0,
+  "replay_runs": 6,
+  "replay_ticks": 1806,
+  "replay_candidate_mismatch": 0,
+  "replay_reference_vs_live_mismatch": 0,
+  "step": {
+   "reference": {
+    "median_ms": 4.713776,
+    "p99_ms": 4.877461,
+    "count": 6700
+   },
+   "candidate": {
+    "median_ms": 2.505932,
+    "p99_ms": 2.629008,
+    "count": 6700
+   }
+  },
+  "status": "BITWISE_EQUAL_CPU_ONLY",
+  "deployable_release": false,
+  "tool": "runtime/experiments/controller_batch_scan/equivalence.py",
+  "swing_core_sha256": "09e6a51e665d382739d48979bd2d54ec9bd5d1c072e64bca1a9079d09dd62542",
+  "controller_sha256": "37161d7ff58cfca626b4a3a35ff5f84c294d2478584309b436726f3a0768f682",
+  "standalone_feasible_ik_batch_test": {
+   "candidates": 48000,
+   "with_infeasible_legs": 41823,
+   "mismatches": 0,
+   "sequential_ms": 3.837,
+   "batched_ms": 0.307
+  },
+  "deployed": false
  }
 }
