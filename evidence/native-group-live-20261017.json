@@ -1,0 +1,368 @@
+{
+ "schema": "singularitydog.native-group-live-20261017.v1",
+ "date": "2026-10-17",
+ "source_commit": "3af95d7",
+ "scope": "four-bus native group, 30 Hz, 900us gap, window3, box-supported only",
+ "not_claimed": [
+  "load_support",
+  "standing",
+  "walking",
+  "absolute_origin_accuracy",
+  "formal_imu_calibration"
+ ],
+ "cpu_af_unix_comparison_500_cycles_reply_delay_2ms": {
+  "python_owner": {
+   "input_until_collected": {
+    "count": 500,
+    "median_ms": 7.560749,
+    "p95_ms": 9.445456,
+    "p99_ms": 10.917707,
+    "max_ms": 14.492941
+   },
+   "last_output_write": {
+    "count": 500,
+    "median_ms": 10.359776,
+    "p95_ms": 12.849647,
+    "p99_ms": 15.573442,
+    "max_ms": 17.275201
+   },
+   "last_reply": {
+    "count": 500,
+    "median_ms": 12.467527,
+    "p95_ms": 15.009719,
+    "p99_ms": 17.688009,
+    "max_ms": 19.367848
+   },
+   "native_output_end_to_collection": {
+    "count": 500,
+    "median_ms": 0.175491,
+    "p95_ms": 0.322598,
+    "p99_ms": 0.379463,
+    "max_ms": 5.645577
+   },
+   "write_deadline_misses": 0,
+   "reply_deadline_misses": 0
+  },
+  "native_owner": {
+   "input_until_collected": {
+    "count": 500,
+    "median_ms": 7.121925,
+    "p95_ms": 7.541101,
+    "p99_ms": 9.21726,
+    "max_ms": 11.515863
+   },
+   "last_output_write": {
+    "count": 500,
+    "median_ms": 9.424367,
+    "p95_ms": 10.252256,
+    "p99_ms": 11.588312,
+    "max_ms": 13.80941
+   },
+   "last_reply": {
+    "count": 500,
+    "median_ms": 11.583415,
+    "p95_ms": 12.985394,
+    "p99_ms": 15.069849,
+    "max_ms": 15.997483
+   },
+   "native_output_end_to_collection": {
+    "count": 500,
+    "median_ms": 0.881488,
+    "p95_ms": 0.926706,
+    "p99_ms": 1.045587,
+    "max_ms": 4.621686
+   },
+   "write_deadline_misses": 0,
+   "reply_deadline_misses": 0
+  },
+  "command_bytes_identical": true,
+  "consecutive_phase_delta_over_1ms_of_499": {
+   "python_input_collected": 34,
+   "native_input_collected": 17
+  }
+ },
+ "publication_bound_checks_per_cycle": {
+  "before": 16,
+  "after": 7,
+  "unscaled_end_to_collection_median_ms": {
+   "before": 2.131,
+   "after": 1.634
+  }
+ },
+ "native_library_build": {
+  "arm64": true,
+  "reproduced_sha_for_current_guard_diagnostic_type1": true,
+  "native_group_library_sha256": "3af9bd40d8b7b98ce7934051ebd6cc7372744c4491d06b08cc7882184a101d46"
+ },
+ "command_gap_limit_option": {
+  "selected_us": 40000,
+  "nominal_ns": 34333334,
+  "user_selected": "2026-10-17"
+ },
+ "no_output_diagnostics": {
+  "five_cycle_attempts": [
+   "ABORTED: concurrent regression tests on CPU0-4 (operator error)",
+   "ABORTED: python STOP-proxy owner woke 3 ms late",
+   "ABORTED cycle1: python owner woke >5.7 ms late",
+   "COMPLETE 5/5 after moving non-control user processes to CPU5"
+  ],
+  "five_hundred_one": "COMPLETE 501/501 in four lineages; two aborts (486, 267 cycles) from python owner wake delay, retained"
+ },
+ "deviation_from_best20": "non-control user processes (editor/agent/desktop) temporarily pinned to CPU5 during live tests; control process placement unchanged; restored afterwards",
+ "live_runs": {
+  "type1-zero-2s-r1": {
+   "status": "ABORTED",
+   "stop_reason": "RuntimeError: ID4 velocity",
+   "completed_cycles": 3,
+   "all_cycles_passed": false,
+   "positive_gain_sent": false,
+   "learned_targets_attempted": false,
+   "stop_confirmed": true,
+   "unconfirmed_ids": [],
+   "physical_cutoff_required": false,
+   "restoration_complete": true,
+   "hold_acquired": {
+    "median_ms": 5.883,
+    "max_ms": 6.215
+   },
+   "final_gate": {
+    "median_ms": 14.918,
+    "max_ms": 15.901
+   },
+   "last_output_reply": {
+    "median_ms": 20.33,
+    "max_ms": 21.352
+   },
+   "min_write_deadline_margin_ms": 1.537,
+   "max_command_interval_ms": 33.955,
+   "max_sample_interval_ms": 33.468,
+   "intervals_over_34_333334ms": 0,
+   "report_sha256": "299d8e4e999bf083061d01f35dc54fd103638f2492bce939c7c8b6cd53493f05"
+  },
+  "type1-zero-2s-r3": {
+   "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+   "stop_reason": "normal completion",
+   "completed_cycles": 54,
+   "all_cycles_passed": true,
+   "positive_gain_sent": false,
+   "learned_targets_attempted": false,
+   "stop_confirmed": true,
+   "unconfirmed_ids": [],
+   "physical_cutoff_required": false,
+   "restoration_complete": true,
+   "hold_acquired": {
+    "median_ms": 5.869,
+    "max_ms": 7.286
+   },
+   "final_gate": {
+    "median_ms": 14.573,
+    "max_ms": 16.632
+   },
+   "last_output_reply": {
+    "median_ms": 19.933,
+    "max_ms": 21.94
+   },
+   "min_write_deadline_margin_ms": 0.896,
+   "max_command_interval_ms": 34.833,
+   "max_sample_interval_ms": 33.57,
+   "intervals_over_34_333334ms": 1,
+   "report_sha256": "0514b1125abebcbf49fd73ec62b948a7f1724eb82de0f369467a12011687711d"
+  },
+  "type1-learned-2s-r1": {
+   "status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+   "stop_reason": "port1 owner: ExchangeError: Active reply deadline exceeded; all requests already written",
+   "completed_cycles": 0,
+   "all_cycles_passed": false,
+   "positive_gain_sent": false,
+   "learned_targets_attempted": false,
+   "stop_confirmed": false,
+   "unconfirmed_ids": [
+    12
+   ],
+   "physical_cutoff_required": true,
+   "restoration_complete": true,
+   "hold_acquired": null,
+   "final_gate": null,
+   "last_output_reply": null,
+   "min_write_deadline_margin_ms": null,
+   "max_command_interval_ms": 0.0,
+   "max_sample_interval_ms": 0.0,
+   "intervals_over_34_333334ms": 0,
+   "report_sha256": "38a796230577cc6c8f1e941021011ebdafc741e9919080ef374bee6c2773989e"
+  },
+  "p3-zero-2s": {
+   "status": "STOP_UNCONFIRMED_POWER_OFF_REQUIRED",
+   "stop_reason": "port1 owner: ExchangeError: Active reply deadline exceeded; all requests already written",
+   "completed_cycles": 0,
+   "all_cycles_passed": false,
+   "positive_gain_sent": false,
+   "learned_targets_attempted": false,
+   "stop_confirmed": false,
+   "unconfirmed_ids": [
+    12
+   ],
+   "physical_cutoff_required": true,
+   "restoration_complete": true,
+   "hold_acquired": null,
+   "final_gate": null,
+   "last_output_reply": null,
+   "min_write_deadline_margin_ms": null,
+   "max_command_interval_ms": 0.0,
+   "max_sample_interval_ms": 0.0,
+   "intervals_over_34_333334ms": 0,
+   "report_sha256": "1f90f7d7e5cb4395220038f7fa332287e7d3e057730834044a25f8daf55f53ca"
+  },
+  "p4-zero2": {
+   "status": "COMPLETE_FOUR_BUS_TYPE1_ZERO_GAIN_TIMING",
+   "stop_reason": "normal completion",
+   "completed_cycles": 54,
+   "all_cycles_passed": true,
+   "positive_gain_sent": false,
+   "learned_targets_attempted": false,
+   "stop_confirmed": true,
+   "unconfirmed_ids": [],
+   "physical_cutoff_required": false,
+   "restoration_complete": true,
+   "hold_acquired": {
+    "median_ms": 5.853,
+    "max_ms": 6.235
+   },
+   "final_gate": {
+    "median_ms": 14.616,
+    "max_ms": 15.876
+   },
+   "last_output_reply": {
+    "median_ms": 19.977,
+    "max_ms": 22.01
+   },
+   "min_write_deadline_margin_ms": 0.811,
+   "max_command_interval_ms": 34.349,
+   "max_sample_interval_ms": 33.591,
+   "intervals_over_34_333334ms": 1,
+   "report_sha256": "599951b2aa36f560413d9af2d6a6a8e33530b561dbbb2d84a813a3d67c8eaf58"
+  },
+  "p4-learned2": {
+   "status": "COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED",
+   "stop_reason": "normal completion",
+   "completed_cycles": 58,
+   "all_cycles_passed": true,
+   "positive_gain_sent": true,
+   "learned_targets_attempted": true,
+   "stop_confirmed": true,
+   "unconfirmed_ids": [],
+   "physical_cutoff_required": false,
+   "restoration_complete": true,
+   "hold_acquired": {
+    "median_ms": 5.879,
+    "max_ms": 6.158
+   },
+   "final_gate": {
+    "median_ms": 14.599,
+    "max_ms": 16.157
+   },
+   "last_output_reply": {
+    "median_ms": 20.01,
+    "max_ms": 21.709
+   },
+   "min_write_deadline_margin_ms": 1.142,
+   "max_command_interval_ms": 35.011,
+   "max_sample_interval_ms": 33.598,
+   "intervals_over_34_333334ms": 2,
+   "report_sha256": "7dee53b9144fcb50e14c9d8617534c74ba6f5f79846c0a65fe208329b46b1582"
+  },
+  "p4-learned10": {
+   "status": "COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED",
+   "stop_reason": "normal completion",
+   "completed_cycles": 297,
+   "all_cycles_passed": true,
+   "positive_gain_sent": true,
+   "learned_targets_attempted": true,
+   "stop_confirmed": true,
+   "unconfirmed_ids": [],
+   "physical_cutoff_required": false,
+   "restoration_complete": true,
+   "hold_acquired": {
+    "median_ms": 5.918,
+    "max_ms": 7.199
+   },
+   "final_gate": {
+    "median_ms": 14.995,
+    "max_ms": 16.555
+   },
+   "last_output_reply": {
+    "median_ms": 20.383,
+    "max_ms": 22.021
+   },
+   "min_write_deadline_margin_ms": 0.876,
+   "max_command_interval_ms": 34.515,
+   "max_sample_interval_ms": 33.566,
+   "intervals_over_34_333334ms": 1,
+   "report_sha256": "6db85f349ddfc1a93d66c325472f72c3967ee8e57d0403f0c0eba9880992c65d"
+  },
+  "p4-learned20": {
+   "status": "ABORTED",
+   "stop_reason": "RuntimeError: Require now<write_deadline<=reply_deadline<=now+250ms",
+   "completed_cycles": 471,
+   "all_cycles_passed": false,
+   "positive_gain_sent": true,
+   "learned_targets_attempted": true,
+   "stop_confirmed": true,
+   "unconfirmed_ids": [],
+   "physical_cutoff_required": false,
+   "restoration_complete": true,
+   "hold_acquired": {
+    "median_ms": 5.888,
+    "max_ms": 7.256
+   },
+   "final_gate": {
+    "median_ms": 14.952,
+    "max_ms": 16.681
+   },
+   "last_output_reply": {
+    "median_ms": 20.348,
+    "max_ms": 22.076
+   },
+   "min_write_deadline_margin_ms": 0.806,
+   "max_command_interval_ms": 38.006,
+   "max_sample_interval_ms": 33.715,
+   "intervals_over_34_333334ms": 6,
+   "report_sha256": "e7235dc13ede4f86acccbc19a959c153803759f68d1b0e4639fe1c3916545e8a"
+  },
+  "p4-learned20b": {
+   "status": "COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED",
+   "stop_reason": "normal completion",
+   "completed_cycles": 597,
+   "all_cycles_passed": true,
+   "positive_gain_sent": true,
+   "learned_targets_attempted": true,
+   "stop_confirmed": true,
+   "unconfirmed_ids": [],
+   "physical_cutoff_required": false,
+   "restoration_complete": true,
+   "hold_acquired": {
+    "median_ms": 5.901,
+    "max_ms": 6.259
+   },
+   "final_gate": {
+    "median_ms": 14.89,
+    "max_ms": 16.072
+   },
+   "last_output_reply": {
+    "median_ms": 20.294,
+    "max_ms": 21.495
+   },
+   "min_write_deadline_margin_ms": 1.382,
+   "max_command_interval_ms": 34.803,
+   "max_sample_interval_ms": 33.516,
+   "intervals_over_34_333334ms": 12,
+   "report_sha256": "38b094ce1ce3d93735fb52aba0e809b814f4f9a70dcda2272ac3221da545f261"
+  }
+ },
+ "port1_can_events": [
+  "read-only: ID10/ID11 one transient no-reply",
+  "enable: ID12 reply lost -> STOP unconfirmed, 40V cutoff",
+  "zero-gain command: ID12 reply lost -> STOP unconfirmed, 40V cutoff",
+  "learned 20 s cycle 471: ID10 reply 5.31 ms (normal 1.8 ms) -> write deadline miss, STOP confirmed"
+ ],
+ "zero_gain_id4_drop": "first zero-gain: ID4 accelerated to -0.48 rad/s under gravity (leg not resting); velocity monitor stopped after 3 cycles; resolved by re-placing the robot"
+}
