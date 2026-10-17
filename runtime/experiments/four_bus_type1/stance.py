@@ -14,7 +14,7 @@ import math
 from experiments.stance_transition import plan as stance_plan
 
 OPTION = 'stance_transition'
-KP, KD = 24., .3  # Staged 2026-10-17: Kp12 -> Kp18 (joints ~32% -> ~41% of command, no lift seen) -> Kp24 by user selection.
+KP, KD = 36., .3  # Staged 2026-10-17: Kp12/18/24 (joint step dragged feet), vertical lift Kp24 (~1 mm FK), Kp36 by user selection; equals the native hard cap.
 STANCE_CAPS = {'kp': KP, 'kd': KD,
                'max_displacement_from_start_rad': math.radians(3),
                'max_estimated_pd_torque_nm': 2., 'max_measured_torque_nm': 3.,
