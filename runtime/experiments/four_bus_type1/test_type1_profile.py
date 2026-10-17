@@ -513,6 +513,23 @@ class AdmissionTests(Base):
             t.conditions_record(user_statement=' ', user_reply_id=None, boot_id='b', motor_power_epoch='e',
                 contract_sha256='a'*64, authorized_modes=['zero_gain_timing'], authorized_durations_s=[2],
                 record_written_at='now', **CONDITIONS)
+        # Box-kept partial load transfer is recordable only for an explicit stance contract.
+        stance_values = dict(CONDITIONS, load_transfer_allowed=True)
+        record = t.conditions_record(user_statement='x', user_reply_id=None, boot_id='b', motor_power_epoch='e',
+            contract_sha256='a'*64, authorized_modes=['learned_boxed'], authorized_durations_s=[2],
+            record_written_at='now', stance_transition_contract=True, **stance_values)
+        self.assertIs(record['load_transfer_allowed'], True)
+        with self.assertRaisesRegex(ValueError, 'stance_transition contract only'):
+            t.validate_conditions(record)
+        with self.assertRaisesRegex(ValueError, 'stance_transition contract only'):
+            t.conditions_record(user_statement='x', user_reply_id=None, boot_id='b', motor_power_epoch='e',
+                contract_sha256='a'*64, authorized_modes=['learned_boxed'], authorized_durations_s=[2],
+                record_written_at='now', stance_transition_contract=True, **CONDITIONS)
+        for name in ('box_removal_allowed', 'standing_allowed', 'walking_allowed'):
+            with self.subTest(stance_false=name), self.assertRaises(ValueError):
+                t.conditions_record(user_statement='x', user_reply_id=None, boot_id='b', motor_power_epoch='e',
+                    contract_sha256='a'*64, authorized_modes=['learned_boxed'], authorized_durations_s=[2],
+                    record_written_at='now', stance_transition_contract=True, **dict(stance_values, **{name: True}))
 
     def test_admit_returns_immutable_bound_object(self):
         profile = self.zero_gain_profile()

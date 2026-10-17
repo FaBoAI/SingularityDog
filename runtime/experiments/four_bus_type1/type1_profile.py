@@ -901,7 +901,7 @@ def conditions_record(*, user_statement, user_reply_id, boot_id, motor_power_epo
                       four_feet_touch_floor, all12_local_plus_minus3deg_clear, hands_off,
                       immediate_40v_cutoff, other_drive_tools_stopped, box_will_remain,
                       box_removal_allowed, load_transfer_allowed, standing_allowed, walking_allowed,
-                      record_written_at):
+                      record_written_at, stance_transition_contract=False):
     """Only explicit caller arguments; no defaults, no inference, no physical observation."""
     values = dict(motor_40v_on=motor_40v_on, box_supports_body=box_supports_body,
         four_feet_touch_floor=four_feet_touch_floor,
@@ -916,10 +916,17 @@ def conditions_record(*, user_statement, user_reply_id, boot_id, motor_power_epo
               'boot_id': boot_id, 'motor_power_epoch': motor_power_epoch, 'contract_sha256': contract_sha256,
               'authorized_modes': list(authorized_modes), 'authorized_durations_s': list(authorized_durations_s),
               'record_written_at': record_written_at, 'physical_condition_inferred': False, **values}
-    return validate_conditions(record)
+    return validate_conditions(record, stance=stance_transition_contract)
 
 
-def validate_conditions(record):
+def validate_conditions(record, *, stance=False):
+    """stance must be selected explicitly at record time and match the contract at admission.
+
+    A stance_transition contract lifts the box-kept body a few millimetres, so
+    its record must truthfully allow that partial load transfer; every other
+    contract keeps load_transfer_allowed false. Box removal, standing and
+    walking stay false for both.
+    """
     need(type(record) is dict and set(record) == CONDITION_KEYS and record['schema'] == CONDITIONS_SCHEMA and
          record['source'] == CONDITIONS_SOURCE and record['direct_human'] is True and
          record['synthetic_interaction'] is False and record['physical_condition_inferred'] is False,
@@ -933,8 +940,12 @@ def validate_conditions(record):
     need(type(modes) is list and modes and len(set(modes)) == len(modes) and all(m in MODES for m in modes) and
          type(durations) is list and durations and durations == sorted(set(durations)) and
          all(type(d) is int and d in DURATIONS for d in durations), 'Explicit authorized modes/durations required')
-    need(all(record[key] is True for key in TRUE_CONDITIONS) and all(record[key] is False for key in FALSE_CONDITIONS),
+    fixed_false = tuple(key for key in FALSE_CONDITIONS if key != 'load_transfer_allowed')
+    need(all(record[key] is True for key in TRUE_CONDITIONS) and all(record[key] is False for key in fixed_false) and
+         type(record['load_transfer_allowed']) is bool,
          'Direct current boxed conditions incomplete; no record or admission')
+    need(type(stance) is bool and record['load_transfer_allowed'] is stance,
+         'Box-kept partial load transfer must be recorded exactly for a stance_transition contract only')
     return record
 
 
@@ -1005,8 +1016,8 @@ def verify_admitted(value):
 
 def _admission_checks(profile, conditions, *, expected_boot=None, expected_power_epoch=None):
     validate_profile(profile)
-    validate_conditions(conditions)
     contract = profile['contract']
+    validate_conditions(conditions, stance=contract['pacing'].get('stance_transition') is True)
     need(conditions['boot_id'] == contract['boot_id'] and conditions['motor_power_epoch'] == contract['motor_power_epoch'],
          'Condition record belongs to a different boot or power epoch')
     need(conditions['contract_sha256'] == profile['contract_sha256'], 'Condition record names a different contract')
@@ -1203,6 +1214,7 @@ def record_conditions(args):
         boot_id=args.boot_id, motor_power_epoch=args.power_epoch, contract_sha256=args.contract_sha256,
         authorized_modes=args.authorize_mode, authorized_durations_s=sorted(set(args.authorize_duration)),
         record_written_at=datetime.datetime.now().astimezone().isoformat(),
+        stance_transition_contract=args.stance_transition_contract,
         **{name: flag(name) for name in (*TRUE_CONDITIONS, *FALSE_CONDITIONS)})
     result = {'schema': CONDITIONS_SCHEMA, 'status': 'PLAN_ONLY', 'record': record, 'output': str(output)}
     if args.record:
@@ -1263,6 +1275,8 @@ def parser():
     cond.add_argument('--contract-sha256', required=True)
     cond.add_argument('--authorize-mode', action='append', choices=MODES, required=True)
     cond.add_argument('--authorize-duration', action='append', type=int, choices=DURATIONS, required=True)
+    cond.add_argument('--stance-transition-contract', action='store_true',
+        help='The named contract selects stance_transition; load_transfer_allowed must then be true')
     for name in (*TRUE_CONDITIONS, *FALSE_CONDITIONS):
         cond.add_argument('--'+name.replace('_', '-'), dest=name, choices=('true', 'false'), required=True)
     cond.add_argument('--output', required=True)
