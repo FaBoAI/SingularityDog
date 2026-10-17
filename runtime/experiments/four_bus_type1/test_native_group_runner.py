@@ -319,16 +319,16 @@ class NativeRunnerTests(Harness, unittest.TestCase):
 
     def test_transport_stance_caps_only_when_selected(self):
         from experiments.four_bus_diagnostic.transport_adapter import Group
-        from . import type1_transport as T
+        from . import stance, type1_transport as T
         group = Group('port3', (1, 2, 3))
         bounds = {mid: (-.05, .05) for mid in group.ids}
-        kp, kd = {mid: 12. for mid in group.ids}, {mid: .3 for mid in group.ids}
+        kp, kd = {mid: stance.KP for mid in group.ids}, {mid: stance.KD for mid in group.ids}
         with self.assertRaisesRegex(ValueError, 'kp cap must be 0..3'):
             T.session_limits(group, bounds, kp, kd)
         lower, upper, kps, kds = T.session_limits(group, bounds, kp, kd, stance_caps=True)
-        self.assertEqual(kps[1], 12.)
-        with self.assertRaisesRegex(ValueError, 'kp cap must be 0..12'):
-            T.session_limits(group, bounds, {mid: 12.5 for mid in group.ids}, kd, stance_caps=True)
+        self.assertEqual(kps[1], stance.KP)
+        with self.assertRaisesRegex(ValueError, 'kp cap must be 0..'+str(stance.KP)):
+            T.session_limits(group, bounds, {mid: stance.KP+.5 for mid in group.ids}, kd, stance_caps=True)
 
 
 if __name__ == '__main__':

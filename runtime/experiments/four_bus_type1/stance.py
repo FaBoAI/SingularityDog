@@ -15,7 +15,7 @@ import math
 from experiments.stance_transition import plan as stance_plan
 
 OPTION = 'stance_transition'
-KP, KD = 12., .3
+KP, KD = 18., .3  # Staged: Kp12 2026-10-17 moved joints 0.1-0.9 deg only; user selected Kp18 next.
 STANCE_CAPS = {'kp': KP, 'kd': KD,
                'max_displacement_from_start_rad': math.radians(3),
                'max_estimated_pd_torque_nm': 2., 'max_measured_torque_nm': 3.,
