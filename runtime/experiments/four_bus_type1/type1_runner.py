@@ -188,6 +188,8 @@ def validate_admitted(admitted):
     else:
         need('native_group_cycle' not in value['pacing'],
              'Native four-port cycle dispatcher requires the explicit 30 Hz model/clock')
+        need('command_gap_limit_us' not in value['pacing'],
+             'Command gap limit requires the explicit 30 Hz model/clock')
         need(not _profile.CONTROL_KEYS.intersection(value['model_plan']),
              'Legacy 50 Hz runtime cannot contain a 30 Hz model plan')
     for key in ('startup_duration_s', 'stop_duration_s', 'policy_ramp_s'):
@@ -768,6 +770,10 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
     learned = spec['mode'] == 'learned_boxed'
     age_ns = int(profile['max_sample_age_ms']*1e6)
     gap_ns = clock_contract.command_gap_budget_ns if is30 else int(profile['max_sample_gap_ms']*1e6)
+    nominal_gap_ns = gap_ns
+    if 'command_gap_limit_us' in options:
+        need(is30, 'Command gap limit requires the explicit 30 Hz clock')
+        gap_ns = options['command_gap_limit_us']*1000  # Stop limit; nominal overruns are recorded below.
     report = {**planned, 'status': 'STARTING', 'opens_devices': True,
               'backend_usage': _plain(backend_usage), 'devices_opened': False,
               'encoder': {'kind': 'python_motion_wires' if encoder is None else 'verified_native_batch',
@@ -777,6 +783,9 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
               'voltage_guard': {'maximum_age_ns': V3_VOLTAGE_MAX_AGE_NS, 'checks_before_type1': 0,
                                 'maximum_checked_age_ns': 0, 'minimum_checked_voltage_v': None},
               'cycles': [], 'completed_cycles': 0, 'normal_ramp_completed': False}
+    if gap_ns != nominal_gap_ns:  # Opt-in only; the default report keys stay unchanged.
+        report['command_gap'] = {'nominal_budget_ns': nominal_gap_ns, 'stop_limit_ns': gap_ns,
+                                 'over_nominal': [], 'max_command_interval_ns': 0, 'max_sample_interval_ns': 0}
     pools, adapters, owner_scopes, in_flight = {}, {}, {}, []
     supervisor = _Supervisor(pools, adapters, cancel_io, clock, {group.port: group.ids for group in groups})
     voltage_cache = {}
@@ -1321,7 +1330,7 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                 raise RuntimeError('Command/sample gap exceeded before feedback hold')
             for mid in IDS:
                 _, old_start, old_end = previous[mid, 'feedback']
-                history_ns = clock_contract.command_gap_budget_ns if is30 else age_ns
+                history_ns = gap_ns if is30 else age_ns
                 if not (0 < old_start <= old_end <= hold_now and hold_now-old_start <= history_ns):
                     raise RuntimeError('ID%d stale feedback before hold' % mid)
             if prearm_ns is None:
@@ -1499,6 +1508,16 @@ def run(admitted, *, factory=None, imu_read=None, observer=None, check_current=N
                 row.command_ns = computed
             if computed >= write_deadline:
                 raise TimeoutError('Inference exceeded hard cycle deadline')
+            # Recorded before the envelope may fault, so a stopping interval is kept too.
+            gaps = report.get('command_gap')
+            if gaps is not None:
+                command_interval = computed-last_command_ns
+                sample_interval = min(value[1] for value in rows.values())-last_sample_ns
+                gaps['max_command_interval_ns'] = max(gaps['max_command_interval_ns'], command_interval)
+                gaps['max_sample_interval_ns'] = max(gaps['max_sample_interval_ns'], sample_interval)
+                if command_interval > nominal_gap_ns or sample_interval > nominal_gap_ns:
+                    gaps['over_nominal'].append({'cycle_index': index, 'command_interval_ns': command_interval,
+                                                 'sample_interval_ns': sample_interval})
             command = row.command = envelope.step(target, sample, now_s=computed/1e9)
             outgoing = split_wires_by_port(wires_for(command), groups, zero_gain=not learned)
             row.encode_end_ns = clock()

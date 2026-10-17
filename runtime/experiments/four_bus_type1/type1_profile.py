@@ -85,7 +85,13 @@ PACING = {'request_gap_us': 900, 'request_window': 3, 'release_spin_us': 500, 'm
 # pacing stay the R8 PACING byte for byte. Chained steps share one contract
 # SHA256 and therefore exactly the same options.
 PACING_OPTIONS = ('command_phase_offset_us', 'decode_once', 'prearmed_hold_lead_us', 'gc_freeze',
-                  'native_group_cycle')
+                  'native_group_cycle', 'command_gap_limit_us')
+# 30 Hz only, user-selected 2026-10-17: the stop limit for the command/sample
+# interval. Absent, it stays the PolicyClock 34.333334 ms budget (1 ms phase
+# jitter). Selected, intervals above that nominal budget are recorded and continue
+# up to this limit, never past the 40 ms host watchdog. Input freshness, the 20 ms
+# write and 33.33 ms reply deadlines, motion, torque, voltage and STOP are unchanged.
+COMMAND_GAP_LIMIT_US = (34_334, 40_000)
 # F1 static check: release+K, then encode/submit, the output exchange and its
 # worst recorded tail (R9 +2.85 ms) must end inside the unchanged 20 ms deadline.
 COMMAND_PHASE_BUDGET_US = {'encode_and_submit': 470, 'output_exchange': 5140, 'output_tail': 2850}
@@ -231,6 +237,9 @@ def pacing_options(pacing, message='Fixed four-bus boxed pacing differs'):
          'Command phase offset with a pre-armed hold lead must keep K + %d us + max(L, %d us) <= 20 ms '
          '(K <= %d us at L = %d us)' % (sum(COMMAND_PHASE_BUDGET_US.values())+sum(PREARMED_TAIL_BUDGET_US.values()),
                                         PREARM_WORK_US, command_phase_max_with_lead_us(lead or 0), lead or 0))
+    gap = options.get('command_gap_limit_us')
+    need(gap is None or (type(gap) is int and COMMAND_GAP_LIMIT_US[0] <= gap <= COMMAND_GAP_LIMIT_US[1]),
+         'Command gap limit must be an integer %d..%d us (<= 40 ms host watchdog)' % COMMAND_GAP_LIMIT_US)
     need(all(options[key] is True for key in ('decode_once', 'gc_freeze', 'native_group_cycle') if key in options),
          'A selected decode_once/gc_freeze/native_group_cycle option must be exactly true')
     return options
@@ -389,6 +398,7 @@ def build_contract(plan, lineage, geometry, geometry_ref, *, rebind_window=False
     else:
         need('native_group_cycle' not in pacing,
              'Native four-port cycle dispatcher requires the explicit 30 Hz model/clock')
+        need('command_gap_limit_us' not in pacing, 'Command gap limit requires the explicit 30 Hz model/clock')
         need(not CONTROL_KEYS.intersection(plan),
              'Explicit 30 Hz selection is required for a 30 Hz model plan')
     rebinding = None
@@ -446,6 +456,8 @@ def validate_contract(contract):
     else:
         need('native_group_cycle' not in contract['pacing'],
              'Native four-port cycle dispatcher requires the explicit 30 Hz model/clock')
+        need('command_gap_limit_us' not in contract['pacing'],
+             'Command gap limit requires the explicit 30 Hz model/clock')
     need(contract['timing']['voltage_max_age_ms']*1_000_000 == V3_VOLTAGE_MAX_AGE_NS,
          'Voltage cache age differs from the original runtime')
     need(contract['authorized_modes'] == list(MODES) and contract['authorized_durations_s'] == list(DURATIONS),
@@ -1063,7 +1075,8 @@ def cli_options(args):
               'decode_once': getattr(args, 'decode_once', False),
               'prearmed_hold_lead_us': getattr(args, 'prearmed_hold_lead_us', None),
               'gc_freeze': getattr(args, 'gc_freeze', False),
-              'native_group_cycle': getattr(args, 'native_group_cycle', False)}
+              'native_group_cycle': getattr(args, 'native_group_cycle', False),
+              'command_gap_limit_us': getattr(args, 'command_gap_limit_us', None)}
     need(type(values['decode_once']) is bool and type(values['gc_freeze']) is bool and
          type(values['native_group_cycle']) is bool,
          'Decode-once/gc-freeze selections must be booleans')
@@ -1226,6 +1239,9 @@ def parser():
         help='F4: gc.freeze() after warm-up before the first release, gc.unfreeze() at restoration')
     prep.add_argument('--native-group-cycle', action='store_true',
         help='Explicit 30Hz candidate: persistent four C++ CAN owners; separate source/build pins required')
+    prep.add_argument('--command-gap-limit-us', type=int,
+        help='Explicit 30Hz: stop limit for command/sample intervals (%d..%d); intervals above '
+             'the nominal 34.333334 ms are recorded and continue' % COMMAND_GAP_LIMIT_US)
     prep.add_argument('--output', required=True)
     prep.add_argument('--prepare', action='store_true')
     cond = commands.add_parser('conditions', allow_abbrev=False, help='Direct-human record; PLAN unless --record')

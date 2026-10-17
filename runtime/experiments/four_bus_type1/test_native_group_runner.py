@@ -221,6 +221,54 @@ class NativeRunnerTests(Harness, unittest.TestCase):
                     self.assertEqual(raw.deadline_ns, new['hard_end_ns'])
         self.assertTrue(native['normal_ramp_completed'])
 
+    def late_command_at(self, call, late_ns):
+        def hook(index, sample):
+            if index == call:  # After the hold/IMU sample, before inference and command time.
+                self.clock.advance_to(self.clock()+late_ns)
+        self.controls['imu'] = hook
+
+    def test_default_command_gap_stops_on_one_late_command_phase(self):
+        self.late_command_at(4, 2_500_000)
+        report = self.run_native()
+        self.assertIn('Command gap exceeded', report['primary_error']['message'])
+        self.assertNotIn('command_gap', report)  # Default report keys unchanged.
+        self.assertTrue(report['stop_confirmed'])
+        self.assert_all_stopped(report)
+
+    def test_selected_command_gap_limit_records_and_continues(self):
+        self.late_command_at(4, 2_500_000)
+        value = admitted_native()
+        value['pacing'] = P.selected_pacing({'native_group_cycle': True, 'command_gap_limit_us': 40_000})
+        report = self.run_case(value=value, cycle_group_factory=self.create_group)
+        self.assertEqual(report['status'], 'COMPLETE_FOUR_BUS_TYPE1_LEARNED_BOXED', report['errors'])
+        gaps = report['command_gap']
+        self.assertEqual(gaps['stop_limit_ns'], 40_000_000)
+        self.assertEqual(gaps['nominal_budget_ns'], 34_333_334)
+        self.assertEqual([row['cycle_index'] for row in gaps['over_nominal']], [3])
+        self.assertGreater(gaps['over_nominal'][0]['command_interval_ns'], gaps['nominal_budget_ns'])
+        self.assertLess(gaps['max_command_interval_ns'], 40_000_000)
+
+    def test_selected_command_gap_limit_still_stops_beyond_limit(self):
+        self.late_command_at(4, 7_500_000)
+        value = admitted_native()
+        value['pacing'] = P.selected_pacing({'native_group_cycle': True, 'command_gap_limit_us': 40_000})
+        report = self.run_case(value=value, cycle_group_factory=self.create_group)
+        # Beyond 40 ms either the unchanged host watchdog or the selected limit stops first.
+        self.assertRegex(report['primary_error']['message'], 'Command gap exceeded|Host output heartbeat expired')
+        self.assertTrue(report['stop_confirmed'])
+        self.assert_all_stopped(report)
+
+    def test_command_gap_limit_range_and_30hz_only(self):
+        for bad in (34_333, 40_001, 40_000.0, True):
+            with self.assertRaisesRegex(ValueError, 'Command gap limit'):
+                P.selected_pacing({'command_gap_limit_us': bad})
+        self.assertNotIn('command_gap_limit_us', P.selected_pacing({'command_gap_limit_us': None}))
+        from .test_type1_runner import admitted
+        legacy = admitted()
+        legacy['pacing'] = P.selected_pacing({'command_gap_limit_us': 40_000})
+        with self.assertRaisesRegex(ValueError, '30 Hz'):
+            R.plan(legacy)
+
 
 if __name__ == '__main__':
     unittest.main()

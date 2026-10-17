@@ -161,7 +161,12 @@ def verify_group_publication(lease, adapter, label, records, stats, wires):
         raise ValueError('Genuine native group result required')
     if not lease._api_lock.locked() or lease._api_owner != threading.get_ident():
         raise ValueError('Native group publication requires its active operation')
-    lease._bound()
+    # The full creation/library/Session check ran once for this phase after the
+    # native call returned (NativeGroup._publish); only state flags can change since.
+    bound = lease._publication_bound
+    if (bound is None or bound[0] != threading.get_ident() or bound[2] != label or
+            lease._closed or lease._closing or lease._handle is None or lease.poisoned):
+        raise ValueError('Native group publication requires its current bound phase')
     key = id(adapter)
     claim = lease._claims.pop(key, None)
     if (claim is None or claim[0] is not adapter or claim[1] != label or
@@ -238,6 +243,9 @@ class NativeGroup:
         self._phase = 'ready'
         self._initial_done = False
         self._claims = {}
+        # (thread, ticket, label) of the phase whose full _bound() check ran after
+        # the native call returned; per-port publications reuse it once.
+        self._publication_bound = None
         # Only collection/cancellation metadata may change when native work is
         # recovered during close. Keep the original port image for comparison.
         self._journaled = {}
@@ -500,6 +508,20 @@ class NativeGroup:
         for index in range(4):
             if self._check_journaled(result, label, index):
                 raise ValueError('Native group raw image already journaled before publication')
+        try:
+            self._bound()
+        except BaseException:
+            self._retain_partial(result, label)
+            raise
+        self._publication_bound = (threading.get_ident(), int(result.ticket), label)
+        try:
+            return self._publish_bound(result, label, expected_count, wires_by_port, deadline_ns,
+                                       write_deadline_ns)
+        finally:
+            self._publication_bound = None
+
+    def _publish_bound(self, result, label, expected_count, wires_by_port, deadline_ns,
+                       write_deadline_ns):
         batches = {}
         raws = [_raw_port(result.ports[index], expected_count) for index in range(4)]
         for index, port in enumerate(PORTS):

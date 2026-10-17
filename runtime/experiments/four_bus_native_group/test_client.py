@@ -174,6 +174,42 @@ class ClientTests(unittest.TestCase):
             self.assertTrue(adapter.poisoned)
             self.assertTrue(adapter._session.poisoned)
 
+    def test_publication_requires_one_full_bound_check_after_native_return(self):
+        group = self.ready()
+        hold, voltage = self.wires_and_voltage()
+        initial = group.initial_hold(hold, self.deadline(), lambda: None)
+        # Holding the operation lock alone is not a bound phase.
+        group._api_lock.acquire()
+        group._api_owner = threading.get_ident()
+        try:
+            with self.assertRaisesRegex(ValueError, 'current bound phase'):
+                self.adapters['port0'].publish_group_raw(
+                    'output', initial['port0'].records, initial['port0'].stats,
+                    lease=group, wires=hold['port0'], reply_deadline_ns=self.deadline())
+        finally:
+            group._api_owner = None
+            group._api_lock.release()
+        calls = []
+        NativeGroup = client.NativeGroup
+        original = NativeGroup._bound
+        def counted(lease):
+            calls.append(lease._publication_bound)
+            return original(lease)
+        with mock.patch.object(NativeGroup, '_bound', counted):
+            ticket = group.start_hold(hold, voltage, self.deadline(), lambda: None)
+            calls.clear()
+            group.wait_hold(ticket)
+        # _enter, then one full check after the native call for all four ports.
+        self.assertEqual(calls, [None, None])
+        self.assertIsNone(group._publication_bound)
+        # A binding change detected by that post-native check retains raw and poisons.
+        with mock.patch.object(client.NativeGroup, "_bound", side_effect=[None, RuntimeError('binding changed')]):
+            with self.assertRaisesRegex(RuntimeError, 'binding changed'):
+                group.wait_voltage(ticket)
+        self.assertTrue(group.poisoned)
+        self.assertTrue(any(item['label'] == 'voltage' for item in group.journal))
+        group.close()
+
     def test_second_initial_hold_is_rejected_without_new_write(self):
         group = self.ready()
         hold, _ = self.wires_and_voltage()

@@ -622,6 +622,8 @@ def summarize(report, measured, transports, groups):
     report['stop_reason'] = measured.get('stop_reason')
     report['runner_errors'] = list(measured.get('errors') or ())
     report['max_iteration_ms'] = measured.get('max_iteration_ms')
+    if 'command_gap' in measured:
+        report['command_gap'] = measured['command_gap']
     report['transport_attempts'] = {port: dict(getattr(t, 'attempts', {})) for port, t in transports.items()}
     report['transport_failures'] = {port: list(getattr(t, 'failures', ())) for port, t in transports.items()}
 
